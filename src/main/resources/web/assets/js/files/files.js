@@ -27,10 +27,10 @@ class FilesList extends React.Component {
           return (
             <div key={item.id} className={`file-list-item ${checked ? 'active' : ''}`} onClick={(e) => this._handleClick(e, item.id)}>
               <div className="check">
-                <div className="custom-control custom-checkbox m-0">
+                <label className="custom-control custom-checkbox m-0">
                   <input className="custom-control-input" type="checkbox" checked={checked === true} readOnly />
-                  <label className="custom-control-label" />
-                </div>
+                  <span className="custom-control-label" />
+                </label>
               </div>
               <div className="type">
                 <i className="file-icon" data-type={item.fileType || '?'} />
@@ -74,7 +74,7 @@ class FilesList extends React.Component {
           </div>
         )}
         {this._pageNo > 1 && this.state.currentSize > 0 && this.state.currentSize < PAGE_SIZE && (
-          <div className="mt-6 pb-1">
+          <div className="mt-6" style={{ paddingBottom: 8 }}>
             <div className="loadmore-line">
               <span>{$L('已加载全部')}</span>
             </div>
@@ -133,8 +133,8 @@ class SharedFiles extends RbModalHandler {
       <RbModal ref={(c) => (this._dlg = c)} title={$L('分享列表')} disposeOnHide>
         <div className="sharing-list ml-1 mr-1">
           {this.state.data && this.state.data.length === 0 ? (
-            <div className="list-nodata pt-5">
-              <i className="zmdi mdi mdi-share-variant-outline" />
+            <div className="list-nodata pt-4">
+              <i className="zmdi zmdi-share" />
               <p>{$L('没有分享文件')}</p>
             </div>
           ) : (
@@ -143,6 +143,7 @@ class SharedFiles extends RbModalHandler {
                 <tr>
                   <th colSpan="2">{$L('分享文件')}</th>
                   <th className="text-right">{$L('过期时间')}</th>
+                  <th />
                 </tr>
               </thead>
               <tbody ref={(c) => (this._$tbody = c)}>
@@ -157,12 +158,22 @@ class SharedFiles extends RbModalHandler {
                         <td width="36" className="pt-1 pb-0">
                           {icon}
                         </td>
-                        <td className="position-relative">
+                        <td>
                           <a href={item[0]} target="_blank" className="link">
                             {$fileCutName(item[1])}
                           </a>
-                          <div className="fop-action">
-                            <a className="link J_copy" data-clipboard-text={item[0]} title={$L('复制分享链接')}>
+                        </td>
+                        <td width="180" className="text-right pr-0">
+                          <div className="fs-12">
+                            <span title={item[2]}>{item[2] ? $fromNow(item[2]) : <span className="text-warning">{$L('永久有效')}</span>}</span>
+                            <div className="text-muted" title={item[3]}>
+                              {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
+                            </div>
+                          </div>
+                        </td>
+                        <td width="70" className="text-right pr-0">
+                          <div className="fop-action" style={{ display: 'inline-block', position: 'static' }}>
+                            <a className="J_copy" data-clipboard-text={item[0]} title={$L('复制分享链接')}>
                               <i className="icon zmdi zmdi-copy fs-15" />
                             </a>
                             <a
@@ -182,14 +193,6 @@ class SharedFiles extends RbModalHandler {
                               }}>
                               <i className="icon zmdi zmdi-delete fs-17" />
                             </a>
-                          </div>
-                        </td>
-                        <td title={item[2]} className="text-right">
-                          <div style={{ lineHeight: 1.2 }}>
-                            <span title={item[2]}>{item[2] ? $fromNow(item[2]) : <span className="text-warning">{$L('永久有效')}</span>}</span>
-                            <div className="text-muted fs-12" title={item[3]}>
-                              {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
-                            </div>
                           </div>
                         </td>
                       </tr>
@@ -236,30 +239,29 @@ $(document).ready(() => {
     $content.perfectScrollbar('update')
   })()
 
-  const gs = $urlp('gs', location.hash)
-  if (gs) {
-    // eslint-disable-next-line no-undef
-    // _showGlobalSearch(gs)
-    currentSearch = $decode(gs)
-    $('.input-search input').val(currentSearch)
-  }
+  // 全选
+  $('.J_select-all').on('change', function () {
+    if ($(this).prop('checked')) {
+      const currentActiveNew = []
+      filesList.state.files && filesList.state.files.forEach((item) => currentActiveNew.push(item.id))
+      filesList.setState({ currentActive: currentActiveNew })
+    } else {
+      filesList.setState({ currentActive: [] })
+    }
+  })
 
+  // 搜索
+  $initQuickSearch(null, (q) => {
+    currentSearch = q
+    filesList && filesList.loadData()
+  })
+
+  // 排序
   $('.J_sort .dropdown-item').on('click', function () {
     const $this = $(this)
     currentSort = $this.data('sort')
     $('.J_sort > .btn').find('span').text($this.text())
     filesList && filesList.loadData()
-  })
-
-  // 搜索
-  const $btn = $('.input-search .input-group-btn .btn').on('click', () => {
-    currentSearch = $('.input-search input').val()
-    filesList && filesList.loadData()
-  })
-  const $input = $('.input-search input').on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
-  $('.input-search .btn-input-clear').on('click', () => {
-    $input.val('')
-    $btn.trigger('click')
   })
 
   $('.J_view-share').on('click', () => renderRbcomp(<SharedFiles />))

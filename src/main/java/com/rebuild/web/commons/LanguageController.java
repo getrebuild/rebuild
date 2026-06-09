@@ -59,7 +59,7 @@ public class LanguageController extends BaseController {
         String currentLocaleText = null;
 
         List<String[]> alangs = new ArrayList<>();
-        for (Map.Entry<String, String> L : Application.getLanguage().availableLocales().entrySet()) {
+        for (Map.Entry<String, String> L : Application.getLanguage().getAvailableLocales().entrySet()) {
             String text = L.getValue();
             text = text.split("\\(")[0].trim();
             alangs.add(new String[]{L.getKey(), text});

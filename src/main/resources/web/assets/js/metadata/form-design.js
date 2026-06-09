@@ -798,7 +798,6 @@ class DlgNForm extends RbModalHandler {
       this.state.hideEmptyFields = props.attrs.hideEmptyFields
       this.state.useFilter = props.attrs.filter || null
       this.state.verticalLayout = props.attrs.verticalLayout || null
-      this.state.topAlert43 = props.attrs.topAlert43 || null
     }
   }
 
@@ -870,13 +869,6 @@ class DlgNForm extends RbModalHandler {
                 </select>
               </div>
             </div>
-            <div className="form-group row bosskey-show">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('填写提示')}</label>
-              <div className="col-sm-7">
-                <textarea className="form-control form-control-sm row2x" defaultValue={this.state.topAlert43} ref={(c) => (this._$topAlert43 = c)} placeholder={$L('无')} />
-              </div>
-            </div>
-
             {wpc.isMainEntity && this.state.detailsFromsAttr && (
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('指定明细布局')}</label>
@@ -994,7 +986,6 @@ class DlgNForm extends RbModalHandler {
       hideEmptyFields: $val(this._$hideEmptyFields),
       detailsFromsAttr: Object.keys(detailsFromsAttr).length === 0 ? null : detailsFromsAttr,
       verticalLayout: ~~$val(this._$verticalLayout),
-      topAlert43: $val(this._$topAlert43),
     }
     if (!ps.name) {
       return RbHighbar.createl('请输入名称')

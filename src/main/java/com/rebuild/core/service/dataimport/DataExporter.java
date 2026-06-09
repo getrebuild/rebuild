@@ -9,7 +9,6 @@ package com.rebuild.core.service.dataimport;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.metadata.style.WriteCellStyle;
@@ -37,7 +36,6 @@ import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -75,13 +73,13 @@ public class DataExporter extends SetUser {
 
     private int count = 0;
 
-    private EasyExcelListGenerator useEasyExcelListGenerator;
-
     /**
      * @param queryData
      */
     public DataExporter(JSONObject queryData) {
         this.queryData = queryData;
+        this.queryData.put("reload", false);
+        this.queryData.put("statsField", false);
     }
 
     /**
@@ -92,28 +90,17 @@ public class DataExporter extends SetUser {
      * @see com.rebuild.core.service.datareport.EasyExcelListGenerator
      */
     public File export(ID useReport) {
-        useEasyExcelListGenerator = EasyExcelListGenerator.create(useReport, this.queryData);
-        useEasyExcelListGenerator.setUser(getUser());
-        File file = useEasyExcelListGenerator.generate();
-
-        count = useEasyExcelListGenerator.getExportCount();
+        EasyExcelListGenerator g = EasyExcelListGenerator.create(useReport, this.queryData);
+        g.setUser(getUser());
+        File file = g.generate();
+        count = g.getExportCount();
         return file;
+
+//        return new MuiltSheetExcelGenerator(useReport, queryData).generate();
     }
 
     /**
-     * 随机获取一个导出记录ID，仅使用模版时支持
-     *
-     * @return
-     */
-    public ID getRandomIdOfExportData413() {
-        if (useEasyExcelListGenerator == null) return null;
-        List<Record> qd = useEasyExcelListGenerator.getQueryDataList();
-        if (CollectionUtils.isEmpty(qd)) return null;
-        return qd.get(0).getPrimary();
-    }
-
-    /**
-     * 导出CSV或Excel
+     * 导出 CSV 或 Excel
      *
      * @return
      */

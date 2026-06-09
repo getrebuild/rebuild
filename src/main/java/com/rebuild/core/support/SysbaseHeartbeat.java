@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
+import static com.rebuild.utils.CommonsUtils.COMM_SPLITER;
+
 /**
  * @author devezhao
  * @since 2020/12/7
@@ -55,9 +57,13 @@ public class SysbaseHeartbeat {
         // #1
         JSONObject checkBuild = License.siteApi("api/authority/check-build");
         if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
-            dangers.put(HasUpdate,
-                    checkBuild.getString("version") + CommonsUtils.COMM_SPLITER + checkBuild.getString("releaseUrl"));
+            String v = checkBuild.getString("version");
+            dangers.put(HasUpdate, v + COMM_SPLITER + checkBuild.getString("releaseUrl"));
         } else {
+            dangers.remove(HasUpdate);
+        }
+        // v4.4
+        if (CommandArgs.getBoolean(CommandArgs._NotCheckBuild)) {
             dangers.remove(HasUpdate);
         }
 
@@ -125,7 +131,7 @@ public class SysbaseHeartbeat {
         dangers.remove(UsersMsg);
 
         String hasUpdate = dangers.get(HasUpdate);
-        if (hasUpdate != null && hasUpdate.contains(CommonsUtils.COMM_SPLITER)) {
+        if (hasUpdate != null && hasUpdate.contains(COMM_SPLITER)) {
             String[] ss = hasUpdate.split(CommonsUtils.COMM_SPLITER_RE);
             hasUpdate = Language.L("有新版的 REBUILD (%s) 更新可用 [(查看详情)](%s)", ss[0], ss[1]);
             hasUpdate = hasUpdate.replace("<a ", "<a target=\"_blank\" ");

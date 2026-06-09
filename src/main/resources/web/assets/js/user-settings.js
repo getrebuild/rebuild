@@ -396,7 +396,7 @@ class DlgCropper extends RbModalHandler {
     this.setState({ img: img }, () => {
       const that = this
       $(this._avatar).cropper({
-        aspectRatio: 1 / 1,
+        aspectRatio: 1,
         viewMode: 0,
         checkOrientation: false,
         ready() {

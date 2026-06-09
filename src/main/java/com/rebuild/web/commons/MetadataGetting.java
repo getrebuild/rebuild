@@ -58,6 +58,8 @@ public class MetadataGetting extends BaseController {
         boolean usesDetail = getBoolParameter(request, "detail", false);
         // v3.8 返回全部，否则只返回有权限的
         boolean usesNopriv = getBoolParameter(request, "nopriv", false);
+        // v4.4 返回审批的
+        boolean usesApproval = getBoolParameter(request, "approval", false);
 
         JSONArray res = new JSONArray();
         for (Entity e : MetadataSorter.sortEntities(usesNopriv ? null : user, usesBizz, usesDetail)) {
@@ -66,7 +68,12 @@ public class MetadataGetting extends BaseController {
             String L42 = item.getString("entityLabel");
             item.put("label", L42);
             item.put("quickCode", QuickCodeReindexTask.generateQuickCode(L42));
-            res.add(item);
+
+            if (usesApproval) {
+                if (MetadataHelper.hasApprovalField(e)) res.add(item);
+            } else {
+                res.add(item);
+            }
         }
         return res;
     }
@@ -103,14 +110,16 @@ public class MetadataGetting extends BaseController {
         // 返回引用实体的字段层级
         int appendRefFields = getIntParameter(request, "deep");
         // 丰富字段信息
-        boolean riching = getBoolParameter(request, "riching", true);
+        boolean richField = getBoolParameter(request, "riching", true);
 
         // 根据不同的 referer 返回不同的字段列表
-        // 返回 ID 主键字段
         String referer = getParameter(request, "referer");
-        int forceWith = "withid".equals(referer) ? 1 : 0;
+        // 返回 ID 主键字段
+        boolean includeId = referer != null && referer.contains("withID");
+        // v4.4 返回 N2N 引用
+        boolean includeN2N = referer != null && referer.contains("withN2N");
 
-        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, riching, forceWith, field -> {
+        return MetaFormatter.buildFieldsWithRefs(entity, appendRefFields, richField, includeId, includeN2N, field -> {
             if (!field.isQueryable()) return true;
 
             if (field instanceof Field) {

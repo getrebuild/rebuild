@@ -10,13 +10,15 @@ package com.rebuild.core.support.setup;
 import com.rebuild.core.RebuildException;
 
 /**
+ * 安装失败
+ *
  * @author devezhao
  * @since 2019/11/27
  */
-public class SetupException extends RebuildException {
+public class RebuildSetupException extends RebuildException {
     private static final long serialVersionUID = 2967864326290626538L;
 
-    public SetupException(Throwable cause) {
+    public RebuildSetupException(Throwable cause) {
         super(cause);
     }
 }

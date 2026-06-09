@@ -166,7 +166,7 @@ create table if not exists `meta_field` (
   `REPEATABLE`         char(1) default 'T',
   `QUERYABLE`          char(1) default 'T',
   `DEFAULT_VALUE`      varchar(701) comment '(此值不影响数据库默认值)',
-  `MAX_LENGTH`         smallint(6) default '701',
+  `MAX_LENGTH`         int(11) default '701',
   `REF_ENTITY`         varchar(100),
   `CASCADE`            varchar(20),
   `COMMENTS`           varchar(701),
@@ -183,14 +183,14 @@ create table if not exists `meta_field` (
 -- ************ Entity [PickList] DDL ************
 create table if not exists `pick_list` (
   `ITEM_ID`            char(20) not null,
-  `BELONG_ENTITY`      varchar(100) not null,
-  `BELONG_FIELD`       varchar(100) not null,
-  `TEXT`               varchar(100) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `BELONG_FIELD`       varchar(100) not null comment '所属字段',
+  `TEXT`               varchar(100) not null comment '名称',
   `SEQ`                int(11) default '0' comment '显示顺序',
-  `IS_DEFAULT`         char(1) default 'F',
-  `IS_HIDE`            char(1) default 'F',
-  `MASK_VALUE`         bigint(20) default '0' comment '(MultiSelect 专用)',
-  `COLOR`              varchar(10),
+  `IS_DEFAULT`         char(1) default 'F' comment '是否默认',
+  `IS_HIDE`            char(1) default 'F' comment '是否隐藏',
+  `MASK_VALUE`         bigint(20) default '0' comment 'MASK (MultiSelect 专用)',
+  `COLOR`              varchar(10) comment '颜色',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
@@ -221,10 +221,25 @@ create table if not exists `filter_config` (
   `CONFIG`             text(65535) not null,
   `SHARE_TO`           varchar(4001) default 'SELF' comment '共享给谁 (可选值: ALL/SELF/$MemberID)',
   `FILTER_NAME`        varchar(100) not null comment '名称',
+  `SEQ`                int(11) default '0' comment '显示顺序',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
+-- ************ Entity [CommonsConfig] DDL ************
+create table if not exists `commons_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `TYPE`               varchar(100) not null comment '类型',
+  `NAME`               varchar(100) comment '名称',
+  `CONFIG`             text(65535) comment '规则',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
@@ -259,9 +274,9 @@ create table if not exists `chart_config` (
 create table if not exists `classification` (
   `DATA_ID`            char(20) not null,
   `NAME`               varchar(100) not null comment '名称',
-  `DESCRIPTION`        varchar(701),
-  `IS_DISABLED`        char(1) default 'F',
-  `OPEN_LEVEL`         smallint(6) default '0',
+  `DESCRIPTION`        varchar(701) comment '描述',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `OPEN_LEVEL`         smallint(6) default '0' comment '使用等级',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -272,15 +287,15 @@ create table if not exists `classification` (
 -- ************ Entity [ClassificationData] DDL ************
 create table if not exists `classification_data` (
   `ITEM_ID`            char(20) not null,
-  `DATA_ID`            char(20) not null,
-  `NAME`               varchar(100) not null,
-  `FULL_NAME`          varchar(701) not null comment '(包括父级名称, 用点号分割)',
-  `PARENT`             char(20),
-  `CODE`               varchar(50) default '0',
-  `LEVEL`              smallint(6) default '0',
-  `IS_HIDE`            char(1) default 'F',
+  `DATA_ID`            char(20) not null comment '分类ID',
+  `NAME`               varchar(100) not null comment '名称',
+  `FULL_NAME`          varchar(701) not null comment '全称 (包括父级名称, 用点号分割)',
+  `PARENT`             char(20) comment '父级',
+  `CODE`               varchar(50) default '0' comment '编码',
+  `LEVEL`              smallint(6) default '0' comment '等级',
+  `IS_HIDE`            char(1) default 'F' comment '是否隐藏',
   `QUICK_CODE`         varchar(50),
-  `COLOR`              varchar(10),
+  `COLOR`              varchar(10) comment '颜色',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -476,8 +491,8 @@ create table if not exists `rebuild_api_request` (
   `APP_ID`             varchar(20) not null comment 'APPID',
   `REMOTE_IP`          varchar(100) not null comment '来源 IP',
   `REQUEST_URL`        varchar(701) not null comment '请求 URL',
-  `REQUEST_BODY`       text(65535) comment '请求数据',
-  `RESPONSE_BODY`      text(65535) not null comment '响应数据',
+  `REQUEST_BODY`       longtext comment '请求数据',
+  `RESPONSE_BODY`      longtext not null comment '响应数据',
   `REQUEST_TIME`       datetime not null default current_timestamp comment '请求时间',
   `RESPONSE_TIME`      datetime not null default current_timestamp comment '响应时间',
   primary key  (`REQUEST_ID`),
@@ -528,9 +543,9 @@ create table if not exists `revision_history` (
   `REVISION_BY`        char(20) not null comment '操作人',
   `REVISION_ON`        datetime not null default current_timestamp comment '操作时间',
   `CHANNEL_WITH`       char(20) comment '变更渠道 (空为直接, 否则为关联)',
+  `FROM_SOURCE`        char(20) comment '触发源 ID',
   `IP_ADDR`            varchar(100) comment 'IP 地址',
   `AUTO_ID`            bigint(20) not null auto_increment comment '执行顺序',
-  `FROM_SOURCE`        char(20) comment '触发源 ID',
   primary key  (`REVISION_ID`),
   unique index AIX0_revision_history (`AUTO_ID`),
   index IX1_revision_history (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
@@ -580,8 +595,8 @@ create table if not exists `frontjs_code` (
   `CODE_ID`            char(20) not null,
   `NAME`               varchar(100) not null comment '名称',
   `APPLY_PATH`         varchar(701) comment '匹配路径',
-  `CODE`               text(65535) comment '代码',
-  `ES5_CODE`           text(65535) comment 'ES5 代码',
+  `CODE`               longtext comment '代码',
+  `ES5_CODE`           longtext comment 'ES5 代码',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -670,6 +685,26 @@ create table if not exists `feeds_status` (
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   primary key  (`STATUS_ID`),
   index IX0_feeds_status (`FEEDS_ID`, `CREATED_BY`, `CREATED_ON`)
+)Engine=InnoDB;
+
+-- ************ Entity [RobotApprovalHub] DDL ************
+create table if not exists `robot_approval_hub` (
+  `HUB_ID`             char(20) not null,
+  `HUB_BATCH`          varchar(100) comment '提交批次',
+  `RECORD_ID`          char(20) not null comment '审批记录',
+  `APPROVAL_STEP_ID`   char(20) not null comment '审批步骤',
+  `USER_SUBMIT`        char(20) comment '提交用户',
+  `USER_APPROVE`       char(20) comment '审批用户',
+  `USER_CC`            char(20) comment '抄送用户',
+  `STATE`              smallint(6) default '1' comment '审批结果',
+  `APPROVED_ON`        datetime null default null comment '审批时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`HUB_ID`),
+  index IX0_robot_approval_hub (`STATE`, `USER_SUBMIT`, `USER_APPROVE`, `USER_CC`),
+  index IX1_robot_approval_hub (`APPROVAL_STEP_ID`),
+  index IX2_robot_approval_hub (`HUB_BATCH`),
+  index IX3_robot_approval_hub (`RECORD_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [ProjectConfig] DDL ************
@@ -866,8 +901,8 @@ create table if not exists `tag_item` (
 create table if not exists `aibot_chat_attach` (
   `ATTACH_ID`          char(20) not null,
   `CHAT_ID`            char(20) not null,
-  `CONTENT`            varchar(701) comment '附件内容',
-  `VECTOR_DATA`        longtext comment '向量数据',
+  `CONTENT`            varchar(701) comment '附件',
+  `VECTOR_DATA`        longtext comment '附件内容',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   primary key  (`ATTACH_ID`),
@@ -879,6 +914,7 @@ create table if not exists `aibot_chat` (
   `CHAT_ID`            char(20) not null,
   `SUBJECT`            varchar(100) comment '主题',
   `CONTENTS`           longtext comment '会话内容',
+  `TOKEN`              bigint(20) comment '词元用量',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -923,20 +959,6 @@ create table if not exists `commons_log` (
   `STATUS`             smallint(6) default '1',
   primary key  (`LOG_ID`),
   index IX0_commons_log (`TYPE`, `LOG_TIME`, `SOURCE`)
-)Engine=InnoDB;
-
--- ************ Entity [CommonsConfig] DDL ************
-create table if not exists `commons_config` (
-  `CONFIG_ID`          char(20) not null,
-  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
-  `TYPE`               varchar(100) not null comment '类型',
-  `NAME`               varchar(100) comment '名称',
-  `CONFIG`             text(65535) comment '规则',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
-  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
-  primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
 -- #3 datas
@@ -997,4 +1019,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 71);
+  values ('021-9000000000000001', 'DBVer', 75);

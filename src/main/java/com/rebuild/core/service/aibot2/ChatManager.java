@@ -14,9 +14,13 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+
+import static com.rebuild.core.metadata.EntityHelper.AibotChat;
 
 /**
  * @author Zixin
@@ -28,10 +32,12 @@ public abstract class ChatManager {
      * @param user
      * @return
      */
-    public static ID initChat(ID user) {
-        Record chat = EntityHelper.forNew(EntityHelper.AibotChat, user);
-        String s = "会话:" + System.currentTimeMillis();
-        chat.setString("subject", s);
+    public static ID initChat(ID user, String subject) {
+        Record chat = EntityHelper.forNew(AibotChat, user);
+
+        if (StringUtils.isBlank(subject)) subject = "新会话";
+        else subject = CommonsUtils.maxstr(subject, 40);
+        chat.setString("subject", subject);
 
         chat = Application.getCommonsService().createOrUpdate(chat);
         return chat.getPrimary();
@@ -63,7 +69,10 @@ public abstract class ChatManager {
 
         JSONArray contents = new JSONArray();
         chat.getMessages().forEach(m -> contents.add(m.toJSON()));
-        r.setString("contents", contents.toJSONString());
+
+        String contents2s = contents.toJSONString();
+        r.setString("contents", contents2s);
+        r.setInt("token", contents2s.length());
         Application.getCommonsService().createOrUpdate(r);
     }
 
@@ -77,10 +86,24 @@ public abstract class ChatManager {
     }
 
     /**
-     * @param askContent
+     * 直接提问/回答
+     *
+     * @param userContent
      * @return
      */
-    public static String chat(String askContent) {
-        return new Chat(EntityHelper.newUnsavedId(EntityHelper.AibotChat)).chat(askContent);
+    public static String ask(String userContent) {
+        return ask(userContent, null);
+    }
+
+    /**
+     * 直接提问/回答
+     *
+     * @param userContent
+     * @param prompt
+     * @return
+     * @see Chat#ask(String)
+     */
+    public static String ask(String userContent, String prompt) {
+        return new Chat(EntityHelper.newUnsavedId(AibotChat), prompt, null).ask(userContent);
     }
 }

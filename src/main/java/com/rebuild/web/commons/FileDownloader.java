@@ -183,6 +183,9 @@ public class FileDownloader extends BaseController {
             // v3.4 PDF/HTML 可直接预览
             inline = (filepath.toLowerCase().endsWith(".pdf") || filepath.toLowerCase().endsWith(".html"))
                     && (request.getRequestURI().contains("/filex/access/") || inline);
+            // v4.4 关闭 inline 访问
+            if (RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced)) inline = false;
+            inline = false;
 
             setDownloadHeaders(response, attname, inline);
             writeLocalFile(filepath, temp, response);
@@ -198,7 +201,11 @@ public class FileDownloader extends BaseController {
         if (CommonsUtils.isExternalUrl(filepath)) {
             String text;
             if (filepath.startsWith(RebuildConfiguration.getHomeUrl())) {
-                text = OkHttpUtils.get(filepath, null, charset);
+                try {
+                    text = OkHttpUtils.get(filepath, null, charset);
+                } catch (Exception ex) {
+                    text = "ERROR:" + CommonsUtils.getRootMessage(ex);
+                }
             } else {
                 // v3.7 禁外部地址
                 text = "ERROR:URL_NOT_SUPPORTED";

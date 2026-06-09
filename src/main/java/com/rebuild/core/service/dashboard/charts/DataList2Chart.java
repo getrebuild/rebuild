@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.DataListManager;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
@@ -85,7 +86,8 @@ public class DataList2Chart extends ChartData {
         if (sort != null) listConfig.put("sort", sort);
         if (filterSql == null) listConfig.put("filter", config.getJSONObject("filter"));
 
-        DataListBuilder builder = new DataListBuilderImpl423(listConfig, getUser(), filterSql);
+        ID user = isIgnorePrivileges() ? UserService.SYSTEM_USER : getUser();
+        DataListBuilder builder = new DataListBuilderImpl423(listConfig, user, filterSql);
         JSONObject data = (JSONObject) builder.getJSONResult();
         data.put("fields", fieldsRich);
         data.put("nameField", nameField);

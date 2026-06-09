@@ -96,13 +96,17 @@ $(document).ready(() => {
     if (config.length === 0) return RbHighbar.create($L('请至少选择 1 个显示列'))
 
     const saveFn = function () {
-      $btn.button('loading')
       const shareToData = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
       const url = `${settingsUrl}?id=${cfgid}&configName=${shareToData.configName || ''}&shareTo=${shareToData.shareTo || ''}`
 
+      $btn.button('loading')
       $.post(url, JSON.stringify(config), (res) => {
-        if (res.error_code === 0) parent.location.reload()
-        $btn.button('reset')
+        if (res.error_code === 0) {
+          parent.location.reload()
+        } else {
+          RbHighbar.error(res.error_msg)
+          $btn.button('reset')
+        }
       })
     }
 

@@ -476,27 +476,35 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      *
      * @param sql
      * @return
+     * @see #isIgnorePrivileges()
      */
     protected Query createQuery(String sql) {
         if (this.fromPreview) {
             return Application.createQuery(sql, this.getUser());
         }
 
-        boolean noPrivileges = false;
-        JSONObject option = config.getJSONObject("option");
-        if (option != null) {
-            noPrivileges = option.getBooleanValue("noPrivileges");
+        if (isIgnorePrivileges()) {
+            return Application.createQuery(sql, UserService.SYSTEM_USER);
         }
+        return Application.createQuery(sql, this.getUser());
+    }
+
+    /**
+     * 是否忽略权限
+     *
+     * @return
+     */
+    protected boolean isIgnorePrivileges() {
+        // 使用全部数据
+        JSONObject option = config.getJSONObject("option");
+        if (option == null || !option.getBooleanValue("noPrivileges")) {
+            return false;
+        }
+
+        // 管理员创建的才能使用全部数据
         String co = config.getString("chartOwning");
         ID chartOwning = ID.isId(co) ? ID.valueOf(co) : null;
-
-        if (chartOwning == null || !noPrivileges) {
-            return Application.createQuery(sql, this.getUser());
-        } else {
-            // 管理员创建的才能使用全部数据
-            return Application.createQuery(sql,
-                    UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : this.getUser());
-        }
+        return chartOwning != null && UserHelper.isAdmin(chartOwning);
     }
 
     /**

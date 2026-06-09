@@ -62,12 +62,11 @@ public class ApiGateway extends Controller implements Initialization {
 
     // 基于 IP 限流
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
-            new int[] { 10, 60 },
-            new int[] { 600, 3000 });
+            new int[]{10, 60},
+            new int[]{600, 3000});
 
     private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
     @Override
     public void init() throws Exception {
         Set<Class<?>> apiClasses = cn.devezhao.commons.ReflectUtils.getAllSubclasses(
@@ -81,6 +80,7 @@ public class ApiGateway extends Controller implements Initialization {
             if (API_CLASSES.containsKey(apiName)) {
                 throw new RebuildException("Api `" + apiName + "` already exists");
             }
+            //noinspection unchecked
             API_CLASSES.put(apiName, (Class<? extends BaseApi>) c);
         }
 
@@ -94,7 +94,7 @@ public class ApiGateway extends Controller implements Initialization {
         String bestMatchingPattern = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE).toString();
         final String apiName = new AntPathMatcher().extractPathWithinPattern(bestMatchingPattern, path);
 
-        final Date reuqestTime = CalendarUtils.now();
+        final Date requestTime = CalendarUtils.now();
         final String remoteIp = ServletUtils.getRemoteAddr(request);
         final String requestId = CommonsUtils.randomHex();
 
@@ -123,7 +123,7 @@ public class ApiGateway extends Controller implements Initialization {
             UserContextHolder.setUser(context.getBindUser());
 
             JSON result = api.execute(context);
-            logRequestAsync(reuqestTime, remoteIp, requestId, apiName, context, result);
+            logRequestAsync(requestTime, remoteIp, requestId, apiName, context, result);
 
             ServletUtils.writeJson(response, result.toJSONString());
             return;
@@ -161,7 +161,7 @@ public class ApiGateway extends Controller implements Initialization {
         if (errorData40 != null) ((JSONObject) error).put("error_data", errorData40);
 
         try {
-            logRequestAsync(reuqestTime, remoteIp, requestId, apiName, context, error);
+            logRequestAsync(requestTime, remoteIp, requestId, apiName, context, error);
         } catch (Exception ignored) {
         }
 
@@ -255,7 +255,7 @@ public class ApiGateway extends Controller implements Initialization {
      * @param apiName
      * @return
      */
-    private BaseApi createApi(String apiName) {
+    protected BaseApi createApi(String apiName) {
         if (!API_CLASSES.containsKey(apiName)) {
             throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "Unknown API : " + apiName);
         }
@@ -266,7 +266,7 @@ public class ApiGateway extends Controller implements Initialization {
      * @param request
      * @return
      */
-    private ApiContext buildBaseApiContext(HttpServletRequest request) {
+    protected ApiContext buildBaseApiContext(HttpServletRequest request) {
         Map<String, String> sortedMap = new TreeMap<>();
         for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
             String[] item = e.getValue();
@@ -304,28 +304,28 @@ public class ApiGateway extends Controller implements Initialization {
      * @param result
      */
     protected void logRequestAsync(Date requestTime, String remoteIp, String requestId, String apiName, ApiContext context, JSON result) {
-        Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
-        record.setString("requestUrl", apiName);
-        record.setString("remoteIp", remoteIp);
-        record.setString("responseBody",
-                requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 32767)));
-        record.setDate("requestTime", requestTime);
-        record.setDate("responseTime", CalendarUtils.now());
+        Record apiLog = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
+        apiLog.setString("requestUrl", apiName);
+        apiLog.setString("remoteIp", remoteIp);
+        apiLog.setString("responseBody",
+                requestId + ":" + (result == null ? "{}" : CommonsUtils.maxstr(result.toJSONString(), 65535)));
+        apiLog.setDate("requestTime", requestTime);
+        apiLog.setDate("responseTime", CalendarUtils.now());
 
         if (context != null) {
-            record.setString("appId", context.getAppId());
+            apiLog.setString("appId", context.getAppId());
             JSON post;
             if ((post = context.getPostData()) != null) {
-                record.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 32767));
+                apiLog.setString("requestBody", CommonsUtils.maxstr(post.toJSONString(), 65535));
             }
             if (!context.getParameterMap().isEmpty()) {
-                record.setString("requestUrl",
+                apiLog.setString("requestUrl",
                         CommonsUtils.maxstr(apiName + "?" + context.getParameterMap(), 300));
             }
         } else {
-            record.setString("appId", "0");
+            apiLog.setString("appId", "0");
         }
 
-        TaskExecutors.queue(() -> Application.getCommonsService().create(record, false));
+        TaskExecutors.queue(() -> Application.getCommonsService().create(apiLog, false));
     }
 }

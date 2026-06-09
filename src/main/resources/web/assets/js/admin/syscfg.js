@@ -55,10 +55,10 @@ const enableEditMode = function () {
 
     renderRbcomp(
       <RF>
-        {React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value, placeholder: optional ? $L('(选填)') : null })}
+        {React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value, placeholder: optional ? $L('选填') : null })}
         {formText && <p className="mt-2 text-muted" dangerouslySetInnerHTML={{ __html: formText }} />}
       </RF>,
-      $item
+      $item,
     )
   })
 

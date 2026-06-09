@@ -26,6 +26,7 @@ import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +42,7 @@ import java.util.Iterator;
  * @author Zixin (RB)
  * @since 09/19/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/app/settings/")
 public class NavSettings extends BaseController implements ShareTo {

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.cache;
 
+import lombok.Getter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SerializationUtils;
 import redis.clients.jedis.Jedis;
@@ -24,6 +25,7 @@ import java.util.Objects;
  */
 public class RedisDriver<V extends Serializable> implements CacheTemplate<V> {
 
+    @Getter
     private JedisPool jedisPool;
 
     protected RedisDriver(JedisPool jedisPool) {
@@ -118,12 +120,5 @@ public class RedisDriver<V extends Serializable> implements CacheTemplate<V> {
         } finally {
             IOUtils.closeQuietly(jedis);
         }
-    }
-
-    /**
-     * @return
-     */
-    public JedisPool getJedisPool() {
-        return jedisPool;
     }
 }

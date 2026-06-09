@@ -306,7 +306,8 @@ class ApprovalUsersForm extends RbFormHandler {
         {approverHas ? (
           <div className="form-group">
             <label>
-              <i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || $L('下一审批人')} (${this.state.signMode === 'AND' ? $L('会签') : $L('或签')})`}
+              <i className="zmdi zmdi-account zicon" />
+              {`${this._approverLabel || $L('下一审批人')} (${this.state.signMode === 'AND' ? $L('会签') : $L('或签')})`}
             </label>
             <div>
               {(this.state.nextApprovers || []).map((item) => {
@@ -364,8 +365,12 @@ class ApprovalUsersForm extends RbFormHandler {
 
     if (!this.state.isLastStep) {
       if ((this.state.nextApprovers || []).length === 0 && selectUsers.selectApprovers.length === 0) {
-        RbHighbar.create($L('请选择审批人'))
-        return false
+        if (this.state.freeApproval) {
+          // 自由审批可以不选，不选则流程结束
+        } else {
+          RbHighbar.create($L('请选择审批人'))
+          return false
+        }
       }
     }
     return selectUsers
@@ -611,6 +616,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
                       onConfirm: () => {
                         // 刷新视图
                         if (window.RbViewPage) window.RbViewPage.reload()
+                        else location.reload()
                       },
                     })
                   },
@@ -753,7 +759,9 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       } else {
         _alert && _alert.hide(true)
         _reloadAndTips(this, state === 10 || state === 110 ? $L('审批已同意') : rejectNode ? $L('审批已退回') : $L('审批已驳回'))
-        typeof this.props.call === 'function' && this.props.call()
+
+        const _onConfirm = this.props.onConfirm || this.props.call
+        typeof _onConfirm === 'function' && _onConfirm(state)
         $storage.set('_listenerStateChanged42', this.props.id)
       }
     })
@@ -853,7 +861,7 @@ class ApprovalStepViewer extends React.Component {
     let stateLast = 0
 
     return (
-      <div className="modal" ref={(c) => (this._dlg = c)} style={{ zIndex: 1051 }}>
+      <div className="modal" ref={(c) => (this._dlg = c)} style={{ zIndex: 1051 }} tabIndex="-1" aria-modal="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -949,7 +957,7 @@ class ApprovalStepViewer extends React.Component {
               onClick={(e) => {
                 $stopEvent(e, true)
                 if (this.props.$$$parent) {
-                  this.props.$$$parent.approve()
+                  this.props.$$$parent.approve(this.props)
                   this.hide()
                 }
               }}>
@@ -987,7 +995,7 @@ class ApprovalStepViewer extends React.Component {
                 )}
               </p>
               {(item.druation || item.druation === 0) && (
-                <span className="float-right badge badge-light badge-pill cursor-help" title={$L('审批时长')}>
+                <span className="float-right badge badge-light badge-pill cursor-help fs-12" title={$L('审批时长')}>
                   {$sec2Time(item.druation)}
                 </span>
               )}

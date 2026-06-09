@@ -93,49 +93,73 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #fff;
 }
 
-.chat-input .chat-input-attach ul {
-  margin: 0;
-}
-
-.chat-input .chat-input-attach ul > li {
-  margin-right: 5px;
-  margin-bottom: 10px;
-  display: inline-block;
-}
-
-.chat-input .chat-input-attach ul > li > span,
+.chat-input .chat-input-attach > span,
 .chat-message .msg-user > .msg-attach > a {
   background-color: rgba(0, 0, 0, 0.1);
   color: #444;
   padding: 4px 10px;
   border-radius: 30px;
   display: inline-block;
-  font-size: 13px;
+  font-size: 12px;
+  max-width: 501px;
+  margin-bottom: 4px;
+  line-height: 1.5;
 }
 
-.chat-input .chat-input-attach ul > li > span a.close {
-  font-weight: normal;
-  text-shadow: none;
+.chat-input .chat-input-attach > span + span,
+.chat-message .msg-user > .msg-attach > a + a {
   margin-left: 4px;
 }
 
+.chat-input .chat-input-attach > span > a.close {
+  font-weight: normal;
+  text-shadow: none;
+  margin-left: 4px;
+  max-height: 18px;
+}
+
 .chat-messages {
-  padding: 16px 16px 80px;
+  padding: 16px 16px 100px;
   height: 600px;
   overflow: auto;
 }
 
 .chat-message {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .chat-message:empty {
   display: none;
 }
 
-.chat-message .msg-user {
+.chat-message .msg-user,
+.chat-message .msg-action {
   text-align: right;
   margin-left: 42px;
+}
+
+.chat-message .msg-ai + .msg-action {
+  text-align: left;
+}
+
+.chat-message .msg-action {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.chat-message:hover .msg-action {
+  opacity: 1;
+}
+
+.chat-message .msg-action > a {
+  display: inline-block;
+  padding: 4px;
+  color: #404040;
+  opacity: 0.8;
+}
+
+.chat-message .msg-action > a:hover {
+  opacity: 1;
 }
 
 .chat-message .msg-user > .msg-content {
@@ -279,23 +303,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
   line-height: 34px;
   text-align: center;
   margin-top: 3px;
-  display: block;
+  display: none;
+}
+
+.chat-sidebar .chat-list > ul > li:hover > span {
+  display: inline-block;
+}
+
+.chat-sidebar .chat-list > ul > li > span > a {
+  color: #404040;
+  opacity: 0.8;
+}
+
+.chat-sidebar .chat-list > ul > li > span > a:hover {
+  opacity: 1;
 }
 
 .chat-sidebar .chat-list .dropdown-menu {
   min-width: 140px;
-}
-
-/* AiBot */
-
-.aibot.modal {
-  top: unset;
-  left: unset;
-  bottom: 5px;
-  right: 5px;
-  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-  border-radius: 4px;
-  overflow: hidden;
 }
 
 .aibot.modal.show {
@@ -303,16 +328,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .aibot .modal-dialog {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+  border-radius: 6px;
+  width: 800px;
   max-width: 100%;
-  margin: 0;
+  overflow: hidden;
 }
 
 .aibot .modal-content {
   margin: 0 auto;
   box-shadow: none !important;
   max-width: 100%;
-  width: 768px;
-  height: 100%;
 }
 
 .aibot .modal-content .modal-header {
@@ -352,17 +378,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   transition: all 0.4s;
 }
 
-/* v4.4 MD */
-
-.chat-message .md-content,
-.chat-message .md-content blockquote {
-  font-size: 14px;
-}
-
-.chat-message .md-content *:last-child {
-  margin-bottom: 0;
-}
-
-.chat-message .msg-user .md-content {
+.chat-message .msg-user .markdown-body {
   color: #fff;
 }

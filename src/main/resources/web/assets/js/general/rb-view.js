@@ -42,7 +42,7 @@ class RbViewForm extends React.Component {
       this._rawModel = res.data // v4.2
 
       // 有错误
-      if (res.error_code > 0 || !!res.data.error) {
+      if (res.error_code > 0 || (res.data || {}).error) {
         const err = res.data.error || res.error_msg
         this.renderViewError(err)
         return
@@ -67,8 +67,17 @@ class RbViewForm extends React.Component {
         if (window.RbViewPage) window.RbViewPage.setReadonly()
         hadAlert = (
           <RF>
-            <RbAlertBox message={res.data.readonlyMessage} />
             {hadAlert && hadAlert}
+            <RbAlertBox message={res.data.readonlyMessage} />
+          </RF>
+        )
+      }
+      if (res.data.alertsMessage) {
+        if (window.RbViewPage && res.data.alertsMessage.locked) window.RbViewPage.setReadonly()
+        hadAlert = (
+          <RF>
+            {hadAlert && hadAlert}
+            {res.data.alertsMessage.tips && res.data.alertsMessage.tips.map((tips, idx) => <RbAlertBox message={WrapHtml(tips[0], true)} type={tips[1]} key={idx} />)}
           </RF>
         )
       }
@@ -386,10 +395,17 @@ class RelatedList extends React.Component {
         )}
 
         {this.state.showMore && (
-          <div className="text-center mt-3 pb-3">
+          <div className="text-center mt-4 pb-2">
             <a className="show-more-pill" onClick={() => this.fetchData(1)}>
               {$L('显示更多')}
             </a>
+          </div>
+        )}
+        {!this.state.showMore && this.state.dataList && this.state.dataList.length > 0 && (
+          <div className="mt-6">
+            <div className="loadmore-line">
+              <span className="bg-white">{$L('已加载全部')}</span>
+            </div>
           </div>
         )}
       </RF>
@@ -585,7 +601,7 @@ class EntityRelatedList extends RelatedList {
       let url42 = `/app/${this.__entity}/view-model?id=${id}`
       if (this.props.isDetail) url42 += '&mainLayoutId=' + (RbViewPage.getLayoutId42() || '')
       $.get(url42, (res) => {
-        if (res.error_code > 0 || !!res.data.error) {
+        if (res.error_code > 0 || (res.data || {}).error) {
           viewComponents[id] = _renderError(res.data.error || res.error_msg)
         } else {
           const _verticalLayout42 = window.__LAB_VERTICALLAYOUT || res.data.verticalLayout === 1 || res.data.verticalLayout === 3
@@ -629,7 +645,8 @@ class EntityRelatedList4ListMode extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`/app/entity/related-list-config?entity=${this.props.$$$parent.__entity}`, (res) => {
+    const p = this.props.$$$parent
+    $.get(`/app/entity/related-list-config?entity=${p.__entity}&specLayout=${p.props.specLayout || ''}`, (res) => {
       if (res.error_code === 0) {
         this.setState({ listConfig: { ...res.data } })
       }
@@ -793,8 +810,9 @@ const RbViewPage = {
   initRecordMeta() {
     $.get(`/app/entity/extras/record-meta?id=${this.__id}`, (res) => {
       // 如果出错就清空操作区
+      // v4.4 不清空
       if (res.error_code !== 0) {
-        $('.view-operating').empty()
+        // $('.view-operating').empty()
         return
       }
 
@@ -917,6 +935,7 @@ const RbViewPage = {
         autoExpand: $isTrue(wpc.viewTabsAutoExpand),
         defaultList: $isTrue(wpc.viewTabsDefaultList),
         isDetail: !!this.showAt2,
+        specLayout: configThat.layout,
       }
 
       // v3.4 明细显示在下方
@@ -1018,6 +1037,7 @@ const RbViewPage = {
             entity: entity[0],
             icon: item.icon,
             initialValue: iv,
+            specLayout: item.layout || null,
           }
           RbFormModal.create(newProps)
         }

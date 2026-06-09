@@ -41,6 +41,7 @@ public class FieldValueSourceDetector {
     public List<Object> detect(Field field) {
         List<Object> res = detectTriggers(field);
         res.addAll(detectAutoFillin(field));
+        res.addAll(detectTransform(field));
         return res;
     }
 
@@ -192,6 +193,41 @@ public class FieldValueSourceDetector {
                     Language.L(sourceRefField), entity.getName(), sourceRefField.getName(),
                     Language.L(sourceRefEntity, (String) o[1]), sourceRefEntity.getName(), sourceValueField.getName());
             res.add(new String[]{"AutoFillinConfig", desc});
+        }
+        return res;
+    }
+
+    /**
+     * 从记录转换（回填）
+     *
+     * @param field
+     * @return
+     */
+    protected List<Object> detectTransform(Field field) {
+        Entity entity = field.getOwnEntity();
+        String fieldName = field.getName();
+        Object[][] array = Application.createQueryNoFilter(
+                "select configId,config from TransformConfig where isDisabled <> 'T'")
+                .array();
+
+        List<Object> res = new ArrayList<>();
+        for (Object[] o : array) {
+            String conf = (String) o[1];
+            if (StringUtils.isBlank(conf) || !conf.contains(fieldName)) continue;
+
+            JSONObject confJson = JSONObject.parseObject(conf);
+            String fillbackField = confJson.getString("fillbackField");
+            if (!fieldName.equals(fillbackField)) continue;
+
+            JSONObject fieldsMapping = confJson.getJSONObject("fieldsMapping");
+            JSONObject e = fieldsMapping == null ? null : fieldsMapping.getJSONObject("_");
+            if (e == null) continue;
+            if (!entity.getName().equals(e.getString("source"))) continue;
+
+            ID id = (ID) o[0];
+            String desc = String.format("转换 [%s](/admin/robot/transform/%s) 时回填",
+                    FieldValueHelper.getLabelNotry(id), id);
+            res.add(new String[]{"TransformConfig", desc});
         }
         return res;
     }

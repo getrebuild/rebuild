@@ -159,7 +159,14 @@ public class TaskExecutors extends DistributedJobLock {
      * @see com.rebuild.core.service.TransactionManual#registerAfterCommit(Runnable)
      */
     public static void schedule(Runnable command, int delayInMs) {
-        SCHEDULED41.schedule(command, delayInMs, TimeUnit.MILLISECONDS);
+        SCHEDULED41.schedule(() -> {
+            // 包住以便异常被吞掉/中断
+            try {
+                command.run();
+            } catch (Throwable ex) {
+                log.error("Command run fails", ex);
+            }
+        }, delayInMs, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -172,7 +179,7 @@ public class TaskExecutors extends DistributedJobLock {
      */
     public static void schedule(Runnable command, int delayInMs, String keyCancel) {
         ScheduledFuture<?> newFuture = SCHEDULED41.schedule(() -> {
-            // 必须包住，否则异常会被吞掉
+            // 包住以便异常被吞掉/中断
             try {
                 command.run();
             } catch (Throwable ex) {
@@ -187,6 +194,22 @@ public class TaskExecutors extends DistributedJobLock {
             boolean cancelled = old.cancel(false);
             log.info("Cancel unexecuted task : {} ({})", keyCancel, cancelled);
         }
+    }
+
+    /**
+     * @param command
+     * @param delayInMs
+     * @param periodInMs
+     */
+    public static void scheduleAtFixedRate(Runnable command, int delayInMs, int periodInMs) {
+        SCHEDULED41.scheduleAtFixedRate(() -> {
+            // 包住以便异常被吞掉/中断
+            try {
+                command.run();
+            } catch (Throwable ex) {
+                log.error("Command run fails", ex);
+            }
+        }, delayInMs, periodInMs, TimeUnit.MILLISECONDS);
     }
 
     /**

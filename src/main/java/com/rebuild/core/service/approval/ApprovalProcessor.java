@@ -30,6 +30,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -59,6 +60,8 @@ public class ApprovalProcessor extends SetUser {
     private static final int MAX_REVOKED = 100;
     // 自主退回
     private static final String KEY_CANCEL38 = "PREV_APPROVER_BACKED";
+    // 自由审批节点标识
+    protected static final String KEY_FREE44 = "$FREE";
 
     final private ID recordId;
 
@@ -142,7 +145,7 @@ public class ApprovalProcessor extends SetUser {
         final ApprovalStatus status = checkApprovalState(ApprovalState.PROCESSING);
 
         final Object[] stepApprover = Application.createQueryNoFilter(
-                "select stepId,state,node,approvalId,attrMore from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' order by createdOn desc")
+                "select stepId,state,node,approvalId,attrMore from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F' and isWaiting = 'F' order by createdOn desc")
                 .setParameter(1, this.recordId)
                 .setParameter(2, approver)
                 .setParameter(3, getCurrentNodeId(status))
@@ -189,10 +192,21 @@ public class ApprovalProcessor extends SetUser {
         if (state == ApprovalState.REJECTED && rejectNode != null) {
             nextNode = rejectNode;
             approvedStep.setInt("state", ApprovalState.BACKED.getState());
-        } else if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
+        }
+        // 自由审批
+        else if (state == ApprovalState.APPROVED && currentNode.freeApproval()) {
             nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.recordId, selectNextUsers);
+            nextApprovers.addAll(getSelfSelectedApprovers(currentNode));
+
+            if (CollectionUtils.isNotEmpty(nextApprovers)) {
+                nextNode = currentNode.getNodeId() + KEY_FREE44;
+            }
+        }
+        // 是否最终
+        else if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
             // 自选审批人
-            nextApprovers.addAll(getSelfSelectedApprovers(nextNodes));
+            nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.recordId, selectNextUsers);
+            nextApprovers.addAll(getSelfSelectedApprovers(nextNodes.getApprovalNode()));
 
             FlowNode nextApprovalNode = nextNodes.getApprovalNode();
             nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
@@ -500,7 +514,7 @@ public class ApprovalProcessor extends SetUser {
 
         // 1.哪个批次
         String sql = "select nodeBatch from RobotApprovalStep" +
-                " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F' and isBacked = 'F' order by createdOn desc";
+                " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F' and isBacked = 'F' and isWaiting = 'F' order by createdOn desc";
         Object[] lastNode = Application.createQueryNoFilter(sql)
                 .setParameter(1, this.recordId)
                 .setParameter(2, this.approvalId)
@@ -820,20 +834,19 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 会签时自选的审批人
+     * 获取自选的审批人
      *
-     * @param nextNodes
+     * @param approvalNode
      * @return
      */
-    public Set<ID> getSelfSelectedApprovers(FlowNodeGroup nextNodes) {
-        String node = nextNodes.getApprovalNode() == null ? null : nextNodes.getApprovalNode().getNodeId();
-        if (node == null) return Collections.emptySet();
+    public Set<ID> getSelfSelectedApprovers(FlowNode approvalNode) {
+        if (approvalNode == null) return Collections.emptySet();
 
         Object[][] array = Application.createQueryNoFilter(
                 "select approver from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isWaiting = 'T' and isCanceled = 'F'")
                 .setParameter(1, this.recordId)
                 .setParameter(2, this.approvalId)
-                .setParameter(3, node)
+                .setParameter(3, approvalNode.getNodeId())
                 .array();
 
         Set<ID> set = new HashSet<>();

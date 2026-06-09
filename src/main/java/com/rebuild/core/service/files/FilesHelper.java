@@ -15,6 +15,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.feeds.FeedsHelper;
+import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
@@ -199,6 +201,7 @@ public class FilesHelper {
      * @param user
      * @param fileId
      * @return
+     * @see #checkObjectReadable(ID, ID)
      */
     public static boolean isFileAccessable(ID user, ID fileId) {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "inFolder");
@@ -283,5 +286,49 @@ public class FilesHelper {
                 .setParameter(1, filePath)
                 .unique();
         return hasCopy != null;
+    }
+
+    /**
+     * 检查文件是否可读
+     *
+     * @param fileId
+     * @param user
+     * @return 可读则返回文件路径
+     */
+    public static String checkObjectReadable(ID fileId, ID user) {
+        // v4.2 目录
+        if (fileId.getEntityCode() == EntityHelper.AttachmentFolder) {
+            return FilesHelper.getAccessableFolders(user).contains(fileId) ? fileId.toLiteral() : null;
+        }
+        // v4.2 仪表盘临时借用
+        if (fileId.getEntityCode() == EntityHelper.DashboardConfig) {
+            return UserHelper.isSelf(user, fileId) ? fileId.toLiteral() : null;
+        }
+
+        Object[] file = Application.getQueryFactory().uniqueNoFilter(
+                fileId, "filePath,relatedRecord,belongEntity");
+        if (file == null) return null;
+        if (UserHelper.isAdmin(user)) return (String) file[0];
+
+        // 是文件
+        if ((int) file[2] <= 0) {
+            if (FilesHelper.isFileAccessable(user, fileId)) return (String) file[0];
+            else return null;
+        }
+
+        // 是附件
+        final ID recordId = (ID) file[1];
+        if (recordId == null) return null;
+
+        int entityCode = recordId.getEntityCode();
+        boolean readable;
+        if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
+            readable = FeedsHelper.checkReadable(recordId, user);
+        } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
+            readable = ProjectHelper.checkReadable(recordId, user);
+        } else {
+            readable = Application.getPrivilegesManager().allowRead(user, recordId);
+        }
+        return readable ? (String) file[0] : null;
     }
 }

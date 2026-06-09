@@ -221,8 +221,8 @@ class SimpleNode extends NodeSpec {
     if (this.nodeType === 'approver') {
       if (data.allowReferral) descs.push($L('允许转审'))
       if (data.allowCountersign) descs.push($L('允许加签'))
-      // if (data.allowBatch) descs.push($L('允许批量'))
-      if (data.allowFinish) descs.push($L('允许结束'))
+      if (data.allowFinish) descs.push($L('允许提前结束'))
+      if (data.freeApproval) descs.push($L('自由审批'))
       descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
       if (data.expiresAuto && ~~data.expiresAuto.expiresAuto > 0) descs.push($L('限时审批'))
       if (~~data.editableMode > 0 || (data.editableFields || []).length > 0) descs.push($L('记录可修改'))
@@ -534,7 +534,7 @@ class StartNodeConfig extends RbFormHandler {
             </label>
           </div>
           <div className={`form-group ${this.state.users === 'SPEC' ? '' : 'hide'}`}>
-            <UserSelector ref={(c) => (this._UserSelector = c)} />
+            <UserSelectorWithField ref={(c) => (this._UserSelector = c)} />
           </div>
 
           <div className="form-group mt-5 mb-0">
@@ -689,7 +689,7 @@ class ApproverNodeConfig extends StartNodeConfig {
               </span>
             </label>
           </div>
-          <div className="form-group mb-0 bosskey-show">
+          <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="allowFinish" checked={this.state.allowFinish === true} onChange={this.handleChange} />
               <span className="custom-control-label">
@@ -697,11 +697,11 @@ class ApproverNodeConfig extends StartNodeConfig {
               </span>
             </label>
           </div>
-          <div className="form-group mb-0 hide disabled-on-4.2">
-            <label className="custom-control custom-control-sm custom-checkbox">
-              <input className="custom-control-input" type="checkbox" name="allowBatch" checked={this.state.allowBatch === true} onChange={this.handleChange} />
+          <div className="form-group mb-0">
+            <label className="custom-control custom-control-sm custom-checkbox mb-2">
+              <input className="custom-control-input" type="checkbox" name="freeApproval" checked={this.state.freeApproval === true} onChange={this.handleChange} />
               <span className="custom-control-label">
-                {$L('允许批量审批')} <sup className="rbv" />
+                {$L('自由审批')} (LAB) <sup className="rbv" />
               </span>
             </label>
           </div>
@@ -976,7 +976,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       allowReferral: this.state.allowReferral,
       allowCountersign: this.state.allowCountersign,
       allowFinish: this.state.allowFinish,
-      allowBatch: this.state.allowBatch,
+      freeApproval: this.state.freeApproval,
       expiresAuto: expiresAuto,
       remarkReq: this.state.remarkReq || 0,
     }
@@ -987,8 +987,8 @@ class ApproverNodeConfig extends StartNodeConfig {
     }
 
     if (rb.commercial < 1) {
-      if (d.allowReferral || d.allowCountersign || d.allowFinish || d.allowBatch) {
-        RbAlertFree43.create($L('免费版不支持转审/加签/批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+      if (d.allowReferral || d.allowCountersign || d.allowFinish || d.freeApproval) {
+        RbAlertFree43.create($L('免费版不支持转审/加签/提前结束/自由审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
         return
       }
       if (~~expiresAuto.expiresAuto > 0) {
@@ -1061,7 +1061,7 @@ class CCNodeConfig extends StartNodeConfig {
             <label className="text-bold">
               {$L('抄送给外部人员')} <sup className="rbv" />
             </label>
-            <UserSelectorWithField ref={(c) => (this._UserSelector2 = c)} userType={2} hideUser hideDepartment hideRole hideTeam />
+            <UserSelectorWithField ref={(c) => (this._UserSelector2Acc = c)} userType={2} hideUser hideDepartment hideRole hideTeam />
             <p className="form-text">{$L('选择外部人员的电话 (手机) 或邮箱字段')}</p>
           </div>
         </div>
@@ -1077,7 +1077,7 @@ class CCNodeConfig extends StartNodeConfig {
     if ((this.props.accounts || []).length > 0) {
       $.post(`/commons/search/user-selector?entity=${this.props.entity || wpc.applyEntity}`, JSON.stringify(this.props.accounts), (res) => {
         if (res.error_code === 0 && res.data.length > 0) {
-          this._UserSelector2.setState({ selected: res.data })
+          this._UserSelector2Acc.setState({ selected: res.data })
         }
       })
     }
@@ -1089,7 +1089,7 @@ class CCNodeConfig extends StartNodeConfig {
       users: this._UserSelector.getSelected(),
       selfSelecting: this.state.selfSelecting,
       ccAutoShare: this.state.ccAutoShare,
-      accounts: this._UserSelector2.getSelected(),
+      accounts: this._UserSelector2Acc.getSelected(),
     }
 
     if (d.accounts.length > 1 && rb.commercial < 1) {
@@ -1173,6 +1173,24 @@ class RbFlowCanvas extends NodeGroupSpec {
     const $btn = $('.J_save').on('click', (e) => {
       const s = this.serialize()
       if (!s) return
+
+      let freeApprovalLoop = false
+      for (let i = 0; i < s.nodes.length; i++) {
+        let node = s.nodes[i]
+        if (node.type === 'approver' && node.data.freeApproval === true) {
+          for (let j = i + 1; j < s.nodes.length; j++) {
+            let nodeNext = s.nodes[j]
+            if (nodeNext.type === 'approver' || nodeNext.type === 'condition') {
+              freeApprovalLoop = true
+              break
+            }
+          }
+        }
+      }
+      if (freeApprovalLoop) {
+        RbHighbar.createl('自由审批节点不能添加下级审批节点')
+        return
+      }
 
       let data = {
         flowDefinition: s,
@@ -1350,7 +1368,7 @@ class UserSelectorWithField extends UserSelector {
 
     // 外部人员
     if (this.props.userType === 2) {
-      $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.applyEntity}`, (res) => {
+      $.get(`/commons/metadata/fields?deep=3&entity=${this.props.entity || wpc.applyEntity}&referer=withN2N`, (res) => {
         res.data &&
           res.data.forEach((item) => {
             if (item.type === 'PHONE' || item.type === 'EMAIL') {

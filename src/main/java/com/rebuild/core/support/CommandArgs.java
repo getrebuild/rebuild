@@ -57,6 +57,14 @@ public class CommandArgs {
     public static final String _HomeURLLocal = "_HomeURLLocal";
     public static final String _CreatedDept = "_CreatedDept";
 
+    // v4.4
+    public static final String _DistributedNode = "_DistributedNode";
+    public static final String _DistributedNodeUrl = "_DistributedNodeUrl";
+    public static final String _DistributedMasterUrl = "_DistributedMasterUrl";
+    public static final String _DistributedAllowJobs = "_DistributedAllowJobs";
+    public static final String _DistributedDisallowJobs = "_DistributedDisallowJobs";
+    public static final String _DistributedAk = "_DistributedAk";
+
     /**
      * 内部消息同步发送短信
      */
@@ -77,6 +85,12 @@ public class CommandArgs {
      * 更少的触发器日志输出
      */
     public static final String _TriggerLessLog = "_TriggerLessLog";
+    /**
+     * 新版本检测
+     */
+    public static final String _NotCheckBuild = "_NotCheckBuild";
+
+    // --
 
     /**
      * @param name
@@ -128,7 +142,7 @@ public class CommandArgs {
     protected static String getStringWithBootEnvironmentPostProcessor(String name) {
         String s = getProperty39(name);
         if (StringUtils.isEmpty(s)) s = BootEnvironmentPostProcessor.getProperty(name);
-        return s;
+        return StringUtils.isEmpty(s) ? null : s;
     }
 
     // --

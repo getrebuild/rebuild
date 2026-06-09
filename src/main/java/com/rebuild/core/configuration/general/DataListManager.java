@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
@@ -60,6 +61,7 @@ public class DataListManager extends BaseLayoutManager {
     // for 引用字段搜索
     public static final String SYS_REFERENCE = "SYS REFERENCE";
     // for 相关项
+    @Deprecated
     public static final String SYS_RELATED = "SYS RELATED";
 
     public static final DataListManager instance = new DataListManager();
@@ -526,8 +528,11 @@ public class DataListManager extends BaseLayoutManager {
             colorField = null;
         }
 
+        boolean dragCreate44 = ObjectUtils.toBool(easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_DRAGCREATE));
+        boolean dragUpdate44 = ObjectUtils.toBool(easyEntity.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE4_DRAGUPDATE));
+
         return JSONUtils.toJSONObject(
-                new String[]{"startField", "endField", "titleField", "colorField"},
-                new Object[]{startField, endField, titleField, colorField});
+                new String[]{"startField", "endField", "titleField", "colorField", "dragCreate", "dragUpdate"},
+                new Object[]{startField, endField, titleField, colorField, dragCreate44, dragUpdate44});
     }
 }

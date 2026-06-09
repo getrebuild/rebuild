@@ -95,7 +95,7 @@ public class QueryParser {
     /**
      * @return
      */
-    protected String toCountSql() {
+    public String toCountSql() {
         doParseIfNeed();
         return countSql;
     }
@@ -217,14 +217,14 @@ public class QueryParser {
         }
         if (StringUtils.isNotBlank(sortClause)) {
             fullSql.append(" order by ").append(sortClause);
-            // v3.9.1
+            // fix:3.9.1 可能导致分页数据重复
             if (!sortClause.contains(" autoId") && entity.containsField(EntityHelper.AutoId)) fullSql.append(", autoId");
         }
 
         this.sql = fullSql.toString();
         this.countSql = this.buildCountSql(pkName) + whereClause;
         if (groupBy != null) {
-            // TODO NULL 未计入
+            // TODO NULL 不会计入
             String distinctSql = String.format("select count(distinct %s", groupBy);
             this.countSql = distinctSql + this.countSql.substring(this.countSql.indexOf(")"));
         }
@@ -415,5 +415,29 @@ public class QueryParser {
 
         if (CommonsUtils.DEVLOG) System.out.println("[dev] Parse protocolFilter : " + protocolFilter + " >> " + where);
         return where;
+    }
+
+    // --
+
+    /**
+     * 构建基础查询体
+     *
+     * @param entity
+     * @return
+     */
+    public static JSONObject buildBaseQueryData(String entity, String...fields) {
+        JSONObject query = new JSONObject();
+        query.put("entity", entity);
+        if (fields.length > 0) {
+            query.put("fields", StringUtils.join(fields, ","));
+        } else {
+            query.put("fields", entity + "Id");
+        }
+
+        JSONObject filter = new JSONObject();
+        filter.put("items", new JSONArray());
+        query.put("filter", filter);
+
+        return query;
     }
 }

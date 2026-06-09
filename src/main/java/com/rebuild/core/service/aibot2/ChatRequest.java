@@ -11,22 +11,26 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.aibot.vector.FileData;
 import com.rebuild.core.service.aibot.vector.ListData;
 import com.rebuild.core.service.aibot.vector.RecordData;
 import com.rebuild.core.service.aibot.vector.VectorData;
 import com.rebuild.core.service.aibot.vector.VectorDataChunk;
-import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
+ * 单次会话请求
+ *
  * @author Zixin
  * @since 2025/11/1
  */
@@ -49,19 +53,21 @@ public class ChatRequest {
     }
 
     /**
-     * @param reqJson
+     * @param requestJson
      * @param chatid
      */
-    public ChatRequest(JSONObject reqJson, ID chatid) {
+    public ChatRequest(JSONObject requestJson, ID chatid) {
         this.chatid = chatid;
-        this.reqJson = reqJson;
+        this.reqJson = requestJson;
     }
 
     /**
      * @return
      */
     public String getUserContent() {
-        return getUserContent(true);
+        String c = getUserContent(true);
+        if (Application.devMode()) System.out.println("[dev] \n" + c);
+        return c;
     }
 
     /**
@@ -74,27 +80,28 @@ public class ChatRequest {
 
         String vdc = getVectorDataContent();
         if (vdc == null) return c;
-        return vdc + "\n\n" + c;
+        return vdc + VectorData.NN + c;
     }
 
     /**
      * @return
      */
     protected String getVectorDataContent() {
-        if (vectorDataContent == null) {
-            VectorData vd = getVectorData();
-            if (vd == null) return null;
-            vectorDataContent = vd.toVector();
-        }
-        return vectorDataContent;
-    }
+        if (vectorDataContent != null) return vectorDataContent;
 
-    /**
-     * @return
-     */
-    public VectorData getVectorData() {
         JSONArray attach = (JSONArray) reqJson.get("attach");
         if (CollectionUtils.isEmpty(attach)) return null;
+
+        String attachKey = attach.toJSONString();
+        Object[] e = Application.createQueryNoFilter(
+                "select vectorData from AibotChatAttach where chatId = ? and content = ?")
+                .setParameter(1, chatid)
+                .setParameter(2, attachKey)
+                .unique();
+        if (e != null) {
+            vectorDataContent = (String) e[0];
+            return vectorDataContent;
+        }
 
         VectorDataChunk vdc = new VectorDataChunk();
         for (int i = 0; i < attach.size(); i++) {
@@ -102,29 +109,25 @@ public class ChatRequest {
 
             String record = item.getString("record");
             String orListFilter = item.getString("listFilter");
+            String orFile = item.getString("file");
             if (ID.isId(record)) {
                 vdc.addVectorData(new RecordData(ID.valueOf(record)));
             } else if (JSONUtils.wellFormat(orListFilter)) {
                 vdc.addVectorData(new ListData(JSONObject.parseObject(orListFilter)));
+            } else if (StringUtils.isNotBlank(orFile)) {
+                vdc.addVectorData(new FileData(orFile));
             }
         }
-        return vdc;
-    }
 
-    /**
-     * TODO 支持文件
-     *
-     * @return
-     */
-    public File[] getFile() {
-        JSONArray filepath = (JSONArray) reqJson.get("file");
-        if (CollectionUtils.isEmpty(filepath)) return null;
+        vectorDataContent = StringUtils.trim(vdc.toVector());
 
-        List<File> files = new ArrayList<>();
-        for (Object path : filepath) {
-            File file = RebuildConfiguration.getFileOfTemp(path.toString());
-            files.add(file);
-        }
-        return files.toArray(new File[0]);
+        // 保存起来
+        RecordBuilder.builder(EntityHelper.AibotChatAttach)
+                .add("chatId", chatid)
+                .add("content", attachKey)
+                .add("vectorData", vectorDataContent)
+                .save(UserService.SYSTEM_USER);
+
+        return vectorDataContent;
     }
 }

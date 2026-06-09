@@ -52,7 +52,7 @@ public class ListData implements VectorData {
         List<Field> fields = new ArrayList<>();
         MdTable mt = new MdTable();
         for (Field field : entity.getFields()) {
-            if (MetadataHelper.isSystemField(field)) continue;
+            if (RecordData.isFilterField(field)) continue;
 
             fields.add(field);
             mt.addHead(EasyMetaFactory.getLabel(field));

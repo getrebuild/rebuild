@@ -77,6 +77,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 12px;
 }
 
+.file-operator div.check,
 .file-list-item > div.check,
 .file-list-item > div.type {
   width: 40px;
@@ -102,12 +103,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: auto;
 }
 
-.file-list-item > div.detail > .extras {
-  margin-top: 0;
+.file-list-item > div.detail .extras {
+  margin-top: -1px;
   overflow: hidden;
 }
 
-.file-list-item > div.detail > .extras > span {
+.file-list-item > div.detail .extras > span {
   display: inline-block;
   font-size: 12px;
   line-height: 1;

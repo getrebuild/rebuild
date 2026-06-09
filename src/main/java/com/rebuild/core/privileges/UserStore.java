@@ -23,6 +23,7 @@ import com.rebuild.core.privileges.bizz.CustomEntityPrivileges;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroPrivileges;
+import com.rebuild.core.support.distributed.UseDistributed;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -44,13 +45,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Component
-public class UserStore implements Initialization {
+public class UserStore implements Initialization, UseDistributed {
 
+    // #init
     final private Map<ID, User> USERS = new ConcurrentHashMap<>();
     final private Map<ID, Role> ROLES = new ConcurrentHashMap<>();
     final private Map<ID, Department> DEPTS = new ConcurrentHashMap<>();
     final private Map<ID, Team> TEAMS = new ConcurrentHashMap<>();
-
     final private Map<String, ID> USERS_NAME2ID = new ConcurrentHashMap<>();
     final private Map<String, ID> USERS_MAIL2ID = new ConcurrentHashMap<>();
 
@@ -292,6 +293,7 @@ public class UserStore implements Initialization {
         }
 
         store(newUser);
+        this.datasChanged();
     }
 
     /**
@@ -327,6 +329,7 @@ public class UserStore implements Initialization {
             }
         }
         USERS.remove(userId);
+        this.datasChanged();
     }
 
     /**
@@ -359,6 +362,7 @@ public class UserStore implements Initialization {
 
         ROLES.put(roleId, newRole);
         refreshRoleAppends(roleId);
+        this.datasChanged();
     }
 
     /**
@@ -383,6 +387,7 @@ public class UserStore implements Initialization {
 
         ROLES.remove(roleId);
         refreshRoleAppends(roleId);
+        this.datasChanged();
     }
 
     /**
@@ -437,6 +442,7 @@ public class UserStore implements Initialization {
         }
 
         DEPTS.put(deptId, newDept);
+        this.datasChanged();
     }
 
     /**
@@ -462,6 +468,7 @@ public class UserStore implements Initialization {
             dept.removeMember(u);
         }
         DEPTS.remove(deptId);
+        this.datasChanged();
     }
 
     /**
@@ -495,6 +502,7 @@ public class UserStore implements Initialization {
         }
 
         TEAMS.put(teamId, newTeam);
+        this.datasChanged();
     }
 
     /**
@@ -508,6 +516,7 @@ public class UserStore implements Initialization {
             team.removeMember(u);
         }
         TEAMS.remove(teamId);
+        this.datasChanged();
     }
 
     /**
@@ -557,6 +566,7 @@ public class UserStore implements Initialization {
 
     @Override
     public void init() {
+
         // 用户
 
         Object[][] array = aPMFactory.createQuery("select " + USER_FS + " from User").array();
@@ -635,7 +645,7 @@ public class UserStore implements Initialization {
         return StringUtils.defaultIfEmpty(ident, "").toLowerCase();
     }
 
-    // Fix: ConcurrentModificationException
+    // fix: ConcurrentModificationException
     private Principal[] toMemberArray(MemberGroup group) {
         return group.getMembers().toArray(new Principal[0]);
     }
@@ -659,5 +669,25 @@ public class UserStore implements Initialization {
             }
             role.addPrivileges(p);
         }
+    }
+
+    @Override
+    public Object refresh() {
+        USERS.clear();
+        DEPTS.clear();
+        ROLES.clear();
+        TEAMS.clear();
+        USERS_NAME2ID.clear();
+        USERS_MAIL2ID.clear();
+
+        isLoaded = false;
+        init();
+        return USERS.size();
+    }
+
+    @Override
+    public void datasChanged() {
+        if (!isLoaded) return;
+        UseDistributed.super.datasChanged();
     }
 }

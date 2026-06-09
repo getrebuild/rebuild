@@ -77,11 +77,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.3.8";
+    public static final String VER = "4.4.0-dev";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4030814;
+    public static final int BUILD = 4040000;
 
     static {
         // Driver for DB
@@ -110,10 +110,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         System.setProperty(CacheManager.ENABLE_SHUTDOWN_HOOK_PROPERTY, "true");
     }
 
-    // 系统状态
-    volatile private static boolean _READY = false;
+    // 上下文已初始化
+    private static boolean _STATE_READY = false;
     // 业务组件已装载
-    volatile private static boolean _WAITLOAD = true;
+    private static boolean _STATE_LOADED = false;
 
     // SPRING
     private static ApplicationContext _CONTEXT;
@@ -161,7 +161,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             }
 
         } catch (Exception ex) {
-            _READY = false;
+            _STATE_READY = false;
             log.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FILAED !!!"), ex);
 
         } finally {
@@ -175,7 +175,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 }
             }
 
-            _WAITLOAD = false;
+            _STATE_LOADED = true;
         }
     }
 
@@ -185,7 +185,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             @Override
             public void run() {
                 String localUrl = BootApplication.getLocalUrl(null);
-                String banner = RebuildBanner.formatSimple(
+                String banner = RebuildBanner.formatSimple(false,
                         "REBUILD (" + VER + ") started successfully in " + timeCost + " ms.",
                         "    License : " + License.queryAuthority().values(),
                         "Access URLs : ",
@@ -195,12 +195,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 log.info(banner);
 
                 if (!License.isCommercial()) {
-                    String thanks = RebuildBanner.formatSimple(
-                            "\n  **********",
+                    String thanks = RebuildBanner.formatSimple(true,
                             "感谢使用 REBUILD！",
                             "您当前使用的是免费版本，如果 REBUILD 对贵公司业务有帮助，请考虑购买商业授权版本，帮助我们可持续发展！",
-                            "查看详情 https://getrebuild.com/#pricing-plans",
-                            "**********");
+                            "查看详情 https://getrebuild.com/#pricing-plans");
                     log.info(thanks);
                 }
             }
@@ -213,10 +211,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      * @throws Exception
      */
     public static boolean init() throws Exception {
-        if (_READY) throw new IllegalStateException("REBUILD ALREADY STARTED");
+        if (_STATE_READY) throw new IllegalStateException("REBUILD ALREADY STARTED");
         log.info("Initializing REBUILD context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
 
-        if (!(_READY = ServerStatus.checkAll())) {
+        if (!(_STATE_READY = ServerStatus.checkAll())) {
             log.error(RebuildBanner.formatBanner(
                     "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
             return false;
@@ -238,14 +236,15 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             }
         }
 
-        StringBuilder logConf = new StringBuilder();
-        // 刷新配置缓存
+        List<String> logConf = new ArrayList<>();
+        logConf.add("[dev] RebuildConfiguration :");
+        // 刷新系统缓存
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String v = RebuildConfiguration.get(item, true);
-            logConf.append(StringUtils.rightPad(item.name(), 31)).append(" : ").append(v == null ? "" : v).append("\n");
+            logConf.add(StringUtils.leftPad(item.name(), 26) + " : " + (v == null ? "" : v));
         }
         if (log.isDebugEnabled() || Application.devMode()) {
-            log.info("Use RebuildConfiguration :\n----------\n{}----------", logConf);
+            log.info(RebuildBanner.formatSimple(true, logConf.toArray(new String[0])));
         }
 
         // 加载自定义实体
@@ -282,12 +281,12 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         return BootApplication.devMode();
     }
 
-    public static boolean isReady() {
-        return _READY && _CONTEXT != null;
+    public static boolean isStateReady() {
+        return _STATE_READY && _CONTEXT != null;
     }
 
-    public static boolean isWaitLoad() {
-        return _WAITLOAD && _CONTEXT != null;
+    public static boolean isStateLoaded() {
+        return _STATE_LOADED && _CONTEXT != null;
     }
 
     public static ApplicationContext getContext() {

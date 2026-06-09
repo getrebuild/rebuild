@@ -183,9 +183,12 @@ public class EasyMetaFactory {
             for (String s : fieldPathSplit) {
                 Field field = prevEntity.getField(s);
                 labels.add(getLabel(field));
-                // ref
-                if (field.getType() == FieldType.REFERENCE) prevEntity = field.getReferenceEntity();
+                // REF
+                if (field.getType() == FieldType.REFERENCE || field.getType() == FieldType.REFERENCE_LIST) {
+                    prevEntity = field.getReferenceEntity();
+                }
             }
+
             return StringUtils.join(labels, ".");
 
         } catch (MissingMetaExcetion ex) {

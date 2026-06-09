@@ -12,11 +12,9 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.Application;
@@ -45,8 +43,9 @@ import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
-import com.rebuild.core.support.CommonsLock;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.lock.CommonsLock;
+import com.rebuild.core.support.lock.RecordAlertsBean;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -583,43 +582,20 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
 
             Entity casEntity = MetadataHelper.getEntity(cas);
-            Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity, true);
-            if (reftoFields.length == 0) {
-                log.warn("No any fields of refto found : {} << {}", cas, mainEntity.getName());
-                continue;
-            }
-
-            List<String> or = new ArrayList<>();
-            // 有多个字段引用会一并获取
-            for (Field field : reftoFields) {
-                if (field.getType() == FieldType.REFERENCE) {
-                    or.add(String.format("%s = '%s'", field.getName(), mainRecordId));
-                } else {
-                    // N2N
-                    String exists = String.format(
-                            "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
-                            field.getOwnEntity().getPrimaryField().getName(), field.getName(), mainRecordId);
-                    or.add(exists);
+            ID[] ids = QueryHelper.queryRelatedIds(mainRecordId, casEntity);
+            Set<ID> idsAllow = new HashSet<>();
+            // 权限过滤
+            if (fromTriggerIgnorePrivileges) {
+                CollectionUtils.addAll(idsAllow, ids);
+            } else {
+                for (ID id : ids) {
+                    if (Application.getPrivilegesManager().allow(id, getCurrentUser(), action)) {
+                        idsAllow.add(id);
+                    }
                 }
             }
 
-            String sql = String.format("select %s from %s where ( %s )",
-                    casEntity.getPrimaryField().getName(), casEntity.getName(),
-                    StringUtils.join(or.iterator(), " or "));
-
-            Object[][] array;
-            if (fromTriggerIgnorePrivileges) {
-                array = Application.createQueryNoFilter(sql).array();
-            } else {
-                Filter filter = Application.getPrivilegesManager().createQueryFilter(getCurrentUser(), action);
-                array = Application.getQueryFactory().createQuery(sql, filter).array();
-            }
-
-            Set<ID> records = new HashSet<>();
-            for (Object[] o : array) {
-                records.add((ID) o[0]);
-            }
-            entityRecordsMap.put(cas, records);
+            entityRecordsMap.put(cas, idsAllow);
         }
         return entityRecordsMap;
     }
@@ -661,11 +637,18 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @throws DataSpecificationException
      */
     protected boolean checkModifications(Record record, Permission action) throws DataSpecificationException {
-        // v4.3 LAB
-        if (!GeneralEntityServiceContextHolder.isSkipLock(false)) {
-            if (!GeneralEntityServiceContextHolder.isAllowForceUpdate(false)) {
-                String lockedTips = CommonsLock.isLocked43(record);
-                if (lockedTips != null) throw new DataSpecificationException(lockedTips);
+        // v4.3/4.4
+        if (!GeneralEntityServiceContextHolder.isAllowForceUpdate(false)) {
+            ID checkId = record.getPrimary();
+            // 明细新建
+            if (checkId == null && record.getEntity().getMainEntity() != null) {
+                String dtfName = MetadataHelper.getDetailToMainField(record.getEntity()).getName();
+                checkId = record.getID(dtfName);
+            }
+
+            if (checkId != null) {
+                RecordAlertsBean L = CommonsLock.isLocked44(checkId, true);
+                if (L != null && L.isLocked()) throw new DataSpecificationException(L.getLockedTips());
             }
         }
 
@@ -683,14 +666,21 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 }
 
                 ApprovalState state = ApprovalHelper.getApprovalState(dtmFieldValue);
+                String unallowMsg = null;
                 if (state == ApprovalState.APPROVED) {
-                    throw new DataSpecificationException(Language.L("主记录已审批完成，不能添加明细"));
+                    unallowMsg = Language.L("主记录已审批完成，不能添加明细");
                 } else if (state == ApprovalState.PROCESSING) {
                     boolean allow42 = ApprovalHelper.isAllowEditableRecord(dtmFieldValue, getCurrentUser());
-                    if (!allow42) {
-                        throw new DataSpecificationException(Language.L("主记录正在审批中，不能添加明细"));
-                    }
+                    if (!allow42) unallowMsg = Language.L("主记录正在审批中，不能添加明细");
                 }
+
+                // v4.4 明细允许强制新建
+                if (unallowMsg != null) {
+                    boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdate(false);
+                    if (forceUpdate) unallowMsg = null;
+                }
+
+                if (unallowMsg != null) throw new DataSpecificationException(unallowMsg);
             }
 
         } else {
@@ -718,42 +708,43 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     return false;
                 }
 
-                boolean unallow = false;
+                boolean notAllowed = false;
                 if (action == BizzPermission.DELETE) {
-                    unallow = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
+                    notAllowed = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
 
                     // v4.2 允许修改记录
-                    if (unallow && currentState == ApprovalState.PROCESSING) {
+                    if (notAllowed && currentState == ApprovalState.PROCESSING) {
                         boolean allow42 = ApprovalHelper.isAllowEditableRecord(checkRecordId, getCurrentUser());
-                        if (allow42) unallow = false;
+                        if (allow42) notAllowed = false;
                     }
 
                 } else if (action == BizzPermission.UPDATE) {
-                    unallow = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
+                    notAllowed = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
 
                     // 管理员撤销
-                    if (unallow) {
+                    if (notAllowed) {
                         boolean adminCancel = currentState == ApprovalState.APPROVED && changeState == ApprovalState.CANCELED;
-                        if (adminCancel) unallow = false;
+                        if (adminCancel) notAllowed = false;
                     }
 
                     // 审批时/已通过强制修改
-                    if (unallow) {
+                    if (notAllowed) {
                         boolean forceUpdate = GeneralEntityServiceContextHolder.isAllowForceUpdate(false);
-                        if (forceUpdate) unallow = false;
+                        if (forceUpdate) notAllowed = false;
                     }
 
                     // v4.2 允许修改记录
-                    if (unallow) {
+                    if (notAllowed) {
                         boolean is = ApprovalHelper.isAllowEditableRecord(checkRecordId, getCurrentUser());
                         if (is) {
-                            unallow = false;
+                            notAllowed = false;
+                            // FIXME 没清理???
                             GeneralEntityServiceContextHolder.setAllowForceUpdate(checkRecordId);
                         }
                     }
                 }
 
-                if (unallow) {
+                if (notAllowed) {
                     if (RobotTriggerObserver.getTriggerSource() != null) {
                         recordType = Language.L("关联记录");
                     }

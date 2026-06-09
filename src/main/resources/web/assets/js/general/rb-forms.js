@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector, autosize */
+/* global EasyMDE, RepeatedViewer, ProTable, Md2Html, ClassificationSelector, autosize, CodeEditor, HtmlEditor */
 
 /**
  * Callback API:
@@ -65,12 +65,14 @@ class RbFormModal extends React.Component {
                     {this.state.alertMessage}
                   </div>
                 )}
-                {this.state.formAlertMessage && (
+                {this.state.fjsAlertMessage}
+                {this.state.alertsMessage && this.state.alertsMessage.tips && this.state.alertsMessage.tips.length > 0 && (
                   <div className="rbform-fjsalert">
-                    <RbAlertBox message={WrapHtml(this.state.formAlertMessage, true)} />
+                    {this.state.alertsMessage.tips.map((tips, idx) => (
+                      <RbAlertBox message={WrapHtml(tips[0], true)} type={tips[1]} key={idx} html />
+                    ))}
                   </div>
                 )}
-                {this.state.fjsAlertMessage}
 
                 {this.state.formComponent}
                 {this.state.inLoad && <RbSpinner />}
@@ -95,6 +97,7 @@ class RbFormModal extends React.Component {
   }
 
   componentDidMount() {
+    let init44 = false
     const $root = $(this._rbmodal)
       .modal({
         show: false,
@@ -108,6 +111,18 @@ class RbFormModal extends React.Component {
           $unmount($root.parent().parent())
         }
       })
+      .on('shown.bs.modal', () => {
+        if (init44) return
+        init44 = true
+
+        if (window.__LAB_FORMDRAGGABLE44) {
+          $modalDraggable(this._rbmodal, {
+            containment: false,
+            keepPositionKey: '__LastFormModalPos',
+          })
+        }
+      })
+
     this._showAfter({}, true)
   }
 
@@ -132,6 +147,7 @@ class RbFormModal extends React.Component {
 
     const that = this
     function _FN2(formModel, forceInitFieldValue) {
+      let readonly = !!formModel.readonlyMessage || (formModel.alertsMessage && formModel.alertsMessage.locked)
       const FORM = (
         <RbForm
           entity={entity}
@@ -139,14 +155,14 @@ class RbFormModal extends React.Component {
           rawModel={formModel}
           forceInitFieldValue={forceInitFieldValue}
           $$$parent={that}
-          readonly={!!formModel.readonlyMessage}
+          readonly={readonly}
           ref={(c) => (that._formComponentRef = c)}
           _disableAutoFillin={that.props._disableAutoFillin}>
           {formModel.elements.map((item) => detectElement(item))}
         </RbForm>
       )
 
-      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null, formAlertMessage: formModel.topAlert43 }, () => {
+      that.setState({ formComponent: FORM, alertMessage: formModel.readonlywMessage || formModel.readonlyMessage || null, alertsMessage: formModel.alertsMessage }, () => {
         that.setState({ inLoad: false })
         if (window.FrontJS) {
           window.FrontJS.Form._trigger('open', [formModel])
@@ -168,7 +184,7 @@ class RbFormModal extends React.Component {
 
     $.post(url, JSON.stringify(initialValue), (res) => {
       // 包含错误
-      if (res.error_code > 0 || !!res.data.error) {
+      if (res.error_code > 0 || (res.data || {}).error) {
         const error = (res.data || {}).error || res.error_msg
         this.renderFromError(error)
       } else {
@@ -886,12 +902,11 @@ class RbForm extends React.Component {
             // ~
           } else if (next === RbForm.NEXT_VIEW) {
             if (window.RbViewModal) {
-              window.RbViewModal.create({ id: recordId, entity: this.state.entity })
-              if (window.RbListPage) location.hash = `!/View/${this.state.entity}/${recordId}`
+              window.RbViewModal.openView({ id: recordId, entity: this.state.entity })
             } else if (parent && parent.RbViewModal) {
-              parent.RbViewModal.create({ id: recordId, entity: this.state.entity }, true)
+              parent.RbViewModal.openView({ id: recordId, entity: this.state.entity }, true)
             } else {
-              window.open(`${rb.baseUrl}/app/redirect?id=${recordId}&type=dock`)
+              window.open(`${rb.baseUrl}/app/redirect?id=${recordId}&type=newtab`)
             }
             // ~
           } else if (next === RbForm.NEXT_ADD36) {
@@ -1322,6 +1337,16 @@ class RbFormText extends RbFormElement {
         }
       })
     }
+
+    let fileKey = this.props.entity + '.' + this.props.field
+    if (window.__LAB_AUTOCOMPLETE44 && window.__LAB_AUTOCOMPLETE44[fileKey]) {
+      let e = window.__LAB_AUTOCOMPLETE44[fileKey]
+      $autoComplete(this._fieldValue, e.fieldKey || fileKey, {
+        onSelect: (v) => {
+          this.handleChange({ target: { value: v } }, true)
+        },
+      })
+    }
   }
 }
 
@@ -1482,10 +1507,13 @@ class RbFormNText extends RbFormElement {
     this._textCommonMenuId = props.readonly || !props.textCommon ? null : $random('tcddm-')
 
     this._height = 0
-    if (!this.props.useMdedit) {
+    if (props.useMdedit) {
+      // Nothings
+    } else {
       this._height = ~~this.props.height
-      // v4.2 填0自动高度
+
       if (this.props.height === '0') {
+        // v4.2 填 0 自动高度
         this._heightAuto = true
       } else if (this._height > 0) {
         if (this._height === 1) this._height = 37
@@ -1498,9 +1526,15 @@ class RbFormNText extends RbFormElement {
     const _readonly37 = this.state.readonly
     const props = this.props
 
-    let clazz2 = `form-control ${props.useCode && 'formula-code'} ${props.useMdedit && _readonly37 ? 'cm-readonly' : ''} ${this.state.hasError && 'is-invalid'}`
-    if (!(this._heightAuto || this._height > 0)) clazz2 += ' row3x'
-    let style2 = this._height > 0 ? { height: this._height } : this._heightAuto ? { height: 37 } : null
+    let clazz2 = `form-control ${this.state.hasError && 'is-invalid'}`
+    let style2 = null
+    if (props.useMdedit) {
+      if (_readonly37) clazz2 += ' cm-readonly'
+    } else {
+      if (!(this._heightAuto || this._height > 0)) clazz2 += ' row3x'
+      style2 = this._height > 0 ? { height: this._height } : this._heightAuto ? { height: 37 } : null
+    }
+
     return (
       <RF>
         <textarea
@@ -1518,12 +1552,13 @@ class RbFormNText extends RbFormElement {
           maxLength="6000"
           data-fix-autosize-height="37px"
         />
-        {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
         {this._textCommonMenuId && (
           <a className={`badge text-common ${_readonly37 && 'hide'}`} data-toggle="dropdown" data-target={`#${this._textCommonMenuId}`}>
             {$L('常用值')}
           </a>
         )}
+
+        {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
       </RF>
     )
   }
@@ -1537,34 +1572,34 @@ class RbFormNText extends RbFormElement {
 
     if (this.props.useMdedit) {
       return (
-        <div className="form-control-plaintext md-content" ref={(c) => (this._fieldValue = c)} style={style2}>
+        <div className="form-control-plaintext markdown-body" ref={(c) => (this._fieldValue = c)} style={style2}>
           <Md2Html markdown={this.state.value} />
         </div>
       )
     } else {
       let text2 = this.state.value.replace(/</g, '&lt;').replace(/\n/g, '<br/>')
-      if (this.props.useCode) {
-        text2 = $formattedCode(text2, 'json')
-        text2 = text2.replace(/\n/g, '<br/>') //.replace(/\s/g, '&nbsp;')
-      }
-
       return (
         <RF>
-          <div className={`form-control-plaintext ${this.props.useCode && 'formula-code'}`} ref={(c) => (this._fieldValue = c)} style={style2}>
+          <div className="form-control-plaintext" ref={(c) => (this._fieldValue = c)} style={style2}>
             {WrapHtml(text2)}
           </div>
-
-          <div className={`ntext-action ${window.__LAB_SHOWNTEXTACTION || this.props.useCode ? '' : 'hide'}`}>
-            <a title={$L('展开/收起')} onClick={() => $(this._fieldValue).toggleClass('ntext-expand')}>
-              <i className="mdi mdi-arrow-expand" />
-            </a>
-            <a ref={(c) => (this._$actionCopy = c)}>
-              <i className="mdi mdi-content-copy" />
-            </a>
-          </div>
+          {window.__LAB_SHOWNTEXTACTION && this.renderViewElementExtAction()}
         </RF>
       )
     }
+  }
+
+  renderViewElementExtAction() {
+    return (
+      <div className="ntext-action">
+        <a title={$L('展开/收起')} onClick={() => $(this._fieldText).toggleClass('ntext-expand')}>
+          <i className="mdi mdi-arrow-expand" />
+        </a>
+        <a title={$L('复制')} onClick={() => $clipboard2(this.state.value)}>
+          <i className="mdi mdi-content-copy" />
+        </a>
+      </div>
+    )
   }
 
   UNSAFE_componentWillUpdate(nextProps, nextState) {
@@ -1587,7 +1622,6 @@ class RbFormNText extends RbFormElement {
     // fix:4.1
     if (this.props.onView) {
       $(this._fieldValue).perfectScrollbar()
-      this._initActionCopy()
     }
   }
 
@@ -1605,7 +1639,8 @@ class RbFormNText extends RbFormElement {
 
     if (!destroy) {
       // MDE
-      if (this.props.useMdedit) this._initMde()
+      if (this.props.useMdedit) this._initEasyMDE()
+
       // v4.1 常用值
       if (this._textCommonMenuId && !$(`#${this._textCommonMenuId}`)[0]) {
         if (rb.dev === 'env') console.log('[dev] init dropdown-menu with text-common', this._textCommonMenuId)
@@ -1641,8 +1676,6 @@ class RbFormNText extends RbFormElement {
         )
       }
     }
-
-    this._initActionCopy()
   }
 
   setValue(val) {
@@ -1659,26 +1692,13 @@ class RbFormNText extends RbFormElement {
     }
   }
 
-  _initActionCopy() {
-    if (!this._$actionCopy) return
-
-    const that = this
-    const initCopy = function () {
-      $clipboard($(that._$actionCopy), that.state.value)
-    }
-    if (window.ClipboardJS) {
-      initCopy()
-    } else {
-      $getScript('/assets/lib/clipboard.min.js', initCopy)
-    }
-  }
-
-  _initMde() {
+  _initEasyMDE() {
     const _readonly37 = this.state.readonly
 
     // fix:4.1-b5
     this._EasyMDE && this._EasyMDE.toTextArea()
 
+    let _scrollTop = 0
     const mde = new EasyMDE({
       element: this._fieldValue,
       status: false,
@@ -1686,9 +1706,20 @@ class RbFormNText extends RbFormElement {
       spellChecker: false,
       // eslint-disable-next-line no-undef
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
-      previewClass: 'md-content',
+      previewClass: 'markdown-body',
       onToggleFullScreen: (is) => {
-        console.log('TODO:', is)
+        let $s = $('.modal-wrapper>.modal.show')
+        let $cm = $s.find('.CodeMirror-fullscreen')
+        if (is) {
+          _scrollTop = $s.scrollTop()
+          $s.scrollTop(0)
+          $('html').addClass('mde-fullscreen')
+          $cm.height($(window).height() - 60)
+        } else {
+          $s.scrollTop(_scrollTop)
+          $('html').removeClass('mde-fullscreen')
+          $cm.height(251)
+        }
       },
     })
     this._EasyMDE = mde
@@ -1716,6 +1747,10 @@ class RbFormNText extends RbFormElement {
           $(this._fieldValue__upload).trigger('change')
         }
       })
+
+      // 自动高度
+      // mde.codemirror.setSize('100%', '100%')
+      // mde.codemirror.on('change', () => mde.codemirror.setSize('100%', null))
     }
   }
 
@@ -1737,6 +1772,93 @@ class RbFormNText extends RbFormElement {
   focus() {
     if (this._EasyMDE) this._mdeFocus()
     else super.focus()
+  }
+}
+
+// CodeEditor
+class RbFormNTextUseCode extends RbFormNText {
+  renderElement() {
+    let cmOptions = {
+      theme: 'material',
+    }
+
+    return (
+      <CodeEditor
+        value={this.props.value}
+        onChange={(v) => {
+          this.handleChange({ target: { value: v } }, true)
+        }}
+        readonly={this.state.readonly}
+        cmOptions={cmOptions}
+        extraActions={[]}
+        ref={(c) => (this._CodeEditor = c)}
+        key="CodeEditor-write"
+      />
+    )
+  }
+
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
+    let code2 = $formatCode(this.state.value)
+    let cmOptions = {
+      theme: 'material',
+    }
+    return (
+      <RF>
+        <CodeEditor value={code2} readonly cmOptions={cmOptions} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
+        {this.renderViewElementExtAction()}
+      </RF>
+    )
+  }
+
+  setValue(val) {
+    super.setValue(val)
+    this._CodeEditor.setValue(val)
+  }
+
+  focus() {
+    this._CodeEditor.focus()
+  }
+}
+
+// TinyMCE
+class RbFormNTextUseHtml extends RbFormNText {
+  renderElement() {
+    return (
+      <HtmlEditor
+        value={this.props.value}
+        onChange={(v) => {
+          this.handleChange({ target: { value: v } }, true)
+        }}
+        readonly={this.state.readonly}
+        ref={(c) => (this._HtmlEditor = c)}
+        key="HtmlEditor-write"
+      />
+    )
+  }
+
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+
+    let html2 = this.state.value
+    return (
+      <RF>
+        <div className="html-editor">
+          <iframe srcDoc={html2} frameBorder="0" width="100%" height="100%" />
+        </div>
+        {this.renderViewElementExtAction()}
+      </RF>
+    )
+  }
+
+  setValue(val) {
+    super.setValue(val)
+    this._HtmlEditor && this._HtmlEditor.setValue(val)
+  }
+
+  focus() {
+    this._HtmlEditor && this._HtmlEditor.focus()
   }
 }
 
@@ -2449,7 +2571,6 @@ class RbFormReference extends RbFormElement {
           if (val && typeof val === 'object') val = val.id
           if (val) query._top = val
 
-          console.log('Reference query:', query)
           return query
         },
         placeholder: this._placeholderw,
@@ -3085,7 +3206,7 @@ class RbFormMultiSelect extends RbFormElement {
     this._isShowSelect41 = props.showStyle === '10'
     this._options = (props.options || []).filter((item) => {
       if (props.value && props.value.id) {
-        if ((props.value.id & item.mask) !== 0) return true
+        if ((props.value.id & item.mask) !== 0) return true // 已设置的值隐藏也显示
       }
       return item.hide !== true
     })
@@ -3124,7 +3245,7 @@ class RbFormMultiSelect extends RbFormElement {
                 type="checkbox"
                 checked={(maskValue & item.mask) !== 0}
                 value={item.mask}
-                onChange={this._changeValue}
+                onChange={() => this._changeValue()}
                 disabled={_readonly37 || $isSysMask(item.text) || item.hide}
               />
               <span className="custom-control-label">{item.text}</span>
@@ -3176,7 +3297,7 @@ class RbFormMultiSelect extends RbFormElement {
     }
   }
 
-  _changeValue = () => {
+  _changeValue() {
     let maskValue = 0
     if (this._isShowSelect41) {
       this.__select2.val().forEach((v) => (maskValue += ~~v))
@@ -3756,7 +3877,7 @@ class RbFormRefform extends React.Component {
   _renderViewFrom(props) {
     $.get(`/app/${props.entity}/view-model?id=${props.id}&layout=${this.props.speclayout || ''}`, (res) => {
       // 有错误
-      if (res.error_code > 0 || !!res.data.error) {
+      if (res.error_code > 0 || (res.data || {}).error) {
         const err = (res.data || {}).error || res.error_msg
         this.setState({ formComponent: <div className="text-danger">{err}</div> })
         return
@@ -3809,6 +3930,13 @@ var detectElement = function (item, entity) {
   } else if (item.type === 'TEXT' || item.type === 'SERIES') {
     return <RbFormText {...item} />
   } else if (item.type === 'NTEXT') {
+    if (~~item.showStyle === 10) {
+      return <RbFormNTextUseCode {...item} />
+    }
+    if (~~item.showStyle === 11) {
+      if (window.CodeMirror && window.prettier) return <RbFormNTextUseHtml {...item} />
+      else console.warn('tinymce not found')
+    }
     return <RbFormNText {...item} />
   } else if (item.type === 'URL') {
     return <RbFormUrl {...item} />

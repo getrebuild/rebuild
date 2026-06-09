@@ -119,7 +119,7 @@
         <field name="repeatable" type="bool" default-value="T"/>
         <field name="queryable" type="bool" default-value="T"/>
         <field name="defaultValue" type="string" max-length="701" description="(此值不影响数据库默认值)"/>
-        <field name="maxLength" type="small-int" default-value="701"/>
+        <field name="maxLength" type="int" default-value="701"/>
         <field name="refEntity" type="string" max-length="100"/>
         <field name="cascade" type="string" max-length="20"/>
         <field name="comments" type="string" max-length="701"/>
@@ -130,14 +130,14 @@
 
     <entity name="PickList" type-code="012" name-field="text" description="下拉列表" queryable="false">
         <field name="itemId" type="primary"/>
-        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="belongField" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="text" type="string" max-length="100" nullable="false" />
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
+        <field name="belongField" type="string" max-length="100" nullable="false" updatable="false" description="所属字段"/>
+        <field name="text" type="string" max-length="100" nullable="false" description="名称"/>
         <field name="seq" type="int" default-value="0" description="显示顺序"/>
-        <field name="isDefault" type="bool" default-value="F"/>
-        <field name="isHide" type="bool" default-value="F"/>
-        <field name="maskValue" type="long" default-value="0" description="(MultiSelect 专用)"/>
-        <field name="color" type="string" max-length="10"/>
+        <field name="isDefault" type="bool" default-value="F" description="是否默认"/>
+        <field name="isHide" type="bool" default-value="F" description="是否隐藏"/>
+        <field name="maskValue" type="long" default-value="0" description="MASK (MultiSelect 专用)"/>
+        <field name="color" type="string" max-length="10" description="颜色"/>
         <index field-list="belongEntity,belongField,seq"/>
     </entity>
 
@@ -156,6 +156,7 @@
         <field name="config" type="text" nullable="false"/>
         <field name="shareTo" type="string" max-length="4001" default-value="SELF" description="共享给谁 (可选值: ALL/SELF/$MemberID)"/>
         <field name="filterName" type="string" max-length="100" nullable="false" description="名称"/>
+        <field name="seq" type="int" default-value="0" description="显示顺序 (大到小)"/>
     </entity>
 
     <entity name="CommonsConfig" type-code="015" name-field="name" description="通用配置" queryable="false">
@@ -184,22 +185,22 @@
     <entity name="Classification" type-code="018" name-field="name" description="分类数据" queryable="false">
         <field name="dataId" type="primary"/>
         <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
-        <field name="description" type="string" max-length="701"/>
-        <field name="isDisabled" type="bool" default-value="F"/>
-        <field name="openLevel" type="small-int" default-value="0"/>
+        <field name="description" type="string" max-length="701" description="描述"/>
+        <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
+        <field name="openLevel" type="small-int" default-value="0" description="使用等级"/>
     </entity>
 
     <entity name="ClassificationData" type-code="019" name-field="fullName" description="分类数据明细" queryable="false">
         <field name="itemId" type="primary"/>
-        <field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete"/>
-        <field name="name" type="string" max-length="100" nullable="false"/>
-        <field name="fullName" type="string" max-length="701" nullable="false" description="(包括父级名称, 用点号分割)"/>
-        <field name="parent" type="reference" ref-entity="ClassificationData" cascade="delete"/>
-        <field name="code" type="string" max-length="50" default-value="0"/>
-        <field name="level" type="small-int" default-value="0" updatable="false"/>
-        <field name="isHide" type="bool" default-value="F"/>
+        <field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete" description="分类ID"/>
+        <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
+        <field name="fullName" type="string" max-length="701" nullable="false" description="全称 (包括父级名称, 用点号分割)"/>
+        <field name="parent" type="reference" ref-entity="ClassificationData" cascade="delete" description="父级"/>
+        <field name="code" type="string" max-length="50" default-value="0" description="编码"/>
+        <field name="level" type="small-int" default-value="0" updatable="false" description="等级"/>
+        <field name="isHide" type="bool" default-value="F" description="是否隐藏"/>
         <field name="quickCode" type="string" max-length="50" queryable="false"/>
-        <field name="color" type="string" max-length="10"/>
+        <field name="color" type="string" max-length="10" description="颜色"/>
         <index field-list="dataId,parent,code"/>
         <index field-list="dataId,fullName,quickCode,code"/>
     </entity>
@@ -302,7 +303,7 @@
         <field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" description="审批流程"/>
         <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="审批节点"/>
         <field name="approver" type="reference" ref-entity="User" nullable="false" updatable="false" description="审批人"/>
-        <field name="state" type="small-int" default-value="1" description="审批结果"/>
+        <field name="state" type="small-int" default-value="1" extra-attrs="{displayType:'STATE',stateClass:'com.rebuild.core.service.approval.ApprovalState'}" description="审批结果"/>
         <field name="remark" type="string" max-length="701" description="批注"/>
         <field name="remarkAttachments" type="string" max-length="701" description="批注附件" extra-attrs="{displayType:'FILE'}"/>
         <field name="approvedTime" type="timestamp" description="审批时间"/>
@@ -315,6 +316,24 @@
         <field name="ccAccounts" type="string" max-length="701" updatable="false" description="抄送外部人员"/>
         <field name="attrMore" type="text" description="扩展属性 (JSON Map)"/>
         <index field-list="recordId,approvalId,node,isCanceled,isWaiting,isBacked,nodeBatch"/>
+    </entity>
+
+    <entity name="RobotApprovalHub" type-code="049" description="审批中心" parent="false" queryable="false">
+        <field name="hubId" type="primary"/>
+        <field name="hubBatch" type="string" max-length="100" updatable="false" description="提交批次"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="审批记录"/>
+        <field name="approvalStepId" type="reference" ref-entity="RobotApprovalStep" nullable="false" updatable="false" description="审批步骤"/>
+        <field name="userSubmit" type="reference" ref-entity="User" description="提交用户"/>
+        <field name="userApprove" type="reference" ref-entity="User" description="审批用户"/>
+        <field name="userCc" type="reference" ref-entity="User" description="抄送用户"/>
+        <field name="state" type="small-int" default-value="1" description="审批结果"/>
+        <field name="approvedOn" type="timestamp" description="审批时间"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
+        <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
+        <index field-list="state,userSubmit,userApprove,userCc"/>
+        <index field-list="approvalStepId"/>
+        <index field-list="hubBatch"/>
+        <index field-list="recordId"/>
     </entity>
 
     <entity name="RobotSopConfig" type-code="070" name-field="name" description="业务进度" queryable="false">
@@ -351,8 +370,8 @@
         <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID"/>
         <field name="remoteIp" type="string" max-length="100" nullable="false" updatable="false" description="来源 IP"/>
         <field name="requestUrl" type="string" max-length="701" nullable="false" updatable="false" description="请求 URL"/>
-        <field name="requestBody" type="text" updatable="false" description="请求数据"/>
-        <field name="responseBody" type="text" nullable="false" updatable="false" description="响应数据"/>
+        <field name="requestBody" type="ntext" updatable="false" description="请求数据"/>
+        <field name="responseBody" type="ntext" nullable="false" updatable="false" description="响应数据"/>
         <field name="requestTime" type="timestamp" nullable="false" updatable="false" description="请求时间"/>
         <field name="responseTime" type="timestamp" nullable="false" updatable="false" description="响应时间"/>
         <index field-list="appId,remoteIp,requestTime"/>
@@ -432,8 +451,8 @@
         <field name="codeId" type="primary"/>
         <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
         <field name="applyPath" type="string" max-length="701" description="匹配路径"/>
-        <field name="code" type="text" description="代码"/>
-        <field name="es5Code" type="text" description="ES5 代码"/>
+        <field name="code" type="ntext" description="代码"/>
+        <field name="es5Code" type="ntext" description="ES5 代码"/>
     </entity>
 
     <entity name="NreferenceItem" type-code="039" description="N2NREFERENCE" parent="false" queryable="false">
@@ -651,14 +670,15 @@
         <field name="chatId" type="primary"/>
         <field name="subject" type="string" max-length="100" description="主题"/>
         <field name="contents" type="ntext" description="会话内容"/>
+        <field name="token" type="long" description="词元用量"/>
         <index field-list="createdBy,modifiedOn,createdOn"/>
     </entity>
 
     <entity name="AibotChatAttach" type-code="095" description="AI 助手会话附加数据" queryable="false" parent="false">
         <field name="attachId" type="primary"/>
         <field name="chatId" type="reference" ref-entity="AibotChat" nullable="false" updatable="false" cascade="delete"/>
-        <field name="content" type="string" max-length="701" description="附件内容"/>
-        <field name="vectorData" type="ntext" description="向量数据"/>
+        <field name="content" type="string" max-length="701" description="附件"/>
+        <field name="vectorData" type="ntext" description="附件内容"/>
         <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
         <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
         <index field-list="chatId,createdOn,createdBy"/>

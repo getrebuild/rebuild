@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -91,7 +92,7 @@ public class ConfigurationController extends BaseController {
         }
 
         mv.getModel().put("availableLangs",
-                JSON.toJSON(Application.getLanguage().availableLocales()));
+                JSON.toJSON(Application.getLanguage().getAvailableLocales()));
 
         final JSONObject auth = License.queryAuthority();
         String authType = auth.getString("authType");
@@ -120,7 +121,7 @@ public class ConfigurationController extends BaseController {
         }
 
         // 验证数字参数
-        ConfigurationItem[] validNumbers = new ConfigurationItem[] {
+        ConfigurationItem[] validNumbers = new ConfigurationItem[]{
                 ConfigurationItem.RecycleBinKeepingDays,
                 ConfigurationItem.RevisionHistoryKeepingDays,
                 ConfigurationItem.DBBackupsKeepingDays,
@@ -180,7 +181,7 @@ public class ConfigurationController extends BaseController {
             }
         }
 
-        JSON res = JSONUtils.toJSONObject(new String[]{"db","file"}, new Object[]{dbFile, fileFile});
+        JSON res = JSONUtils.toJSONObject(new String[]{"db", "file"}, new Object[]{dbFile, fileFile});
         return RespBody.ok(res);
     }
 
@@ -327,30 +328,30 @@ public class ConfigurationController extends BaseController {
         final String sqlCount = "select count(sendId) from SmsendLog where type = ? and sendTime > ?";
 
         Object[][] sms = Application.createQueryNoFilter(sql)
-                .setParameter(1, 1)
+                .setParameter(1, SMSender.TYPE_SMS)
                 .setParameter(2, xday)
                 .array();
         Arrays.sort(sms, Comparator.comparing(o -> o[0].toString()));
 
         Object[] smsCount = Application.createQueryNoFilter(sqlCount)
-                .setParameter(1, 1)
+                .setParameter(1, SMSender.TYPE_SMS)
                 .setParameter(2, xday)
                 .unique();
 
         Object[][] email = Application.createQueryNoFilter(sql)
-                .setParameter(1, 2)
+                .setParameter(1, SMSender.TYPE_EMAIL)
                 .setParameter(2, xday)
                 .array();
         Arrays.sort(email, Comparator.comparing(o -> o[0].toString()));
 
         Object[] emailCount = Application.createQueryNoFilter(sqlCount)
-                .setParameter(1, 2)
+                .setParameter(1, SMSender.TYPE_EMAIL)
                 .setParameter(2, xday)
                 .unique();
 
         return JSONUtils.toJSONObject(
-                new String[] { "sms", "email", "smsCount", "emailCount" },
-                new Object[] { sms, email, smsCount, emailCount });
+                new String[]{"sms", "email", "smsCount", "emailCount"},
+                new Object[]{sms, email, smsCount, emailCount});
     }
 
     // DingTalk
@@ -495,6 +496,29 @@ public class ConfigurationController extends BaseController {
         return mv;
     }
 
+    @GetMapping("integration/aibot/stats")
+    public JSON statsAibot() {
+        final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
+        final String sql = "select date_format(createdOn,'%Y-%m-%d'),sum(token) from AibotChat" +
+                " where createdOn > ? group by date_format(createdOn,'%Y-%m-%d')";
+
+        Object[][] aibot = Application.createQueryNoFilter(sql)
+                .setParameter(1, xday)
+                .array();
+        Arrays.sort(aibot, Comparator.comparing(o -> o[0].toString()));
+
+        double aibotCount = 0;
+        for (Object[] o : aibot) {
+            o[1] = o[1] == null ? 0L : o[1];
+            o[1] = ObjectUtils.round((Long) o[1] / 10000d, 2);
+            aibotCount += (Double) o[1];
+        }
+
+        return JSONUtils.toJSONObject(
+                new String[]{"aibot", "aibotCount"},
+                new Object[]{aibot, ObjectUtils.round(aibotCount, 2)});
+    }
+
     // --
 
     private String[] starsAccount(String[] account, int... index) {
@@ -533,6 +557,7 @@ public class ConfigurationController extends BaseController {
     // --
 
     private static MaintenanceMode CURRENT_MM = null;
+
     /**
      * 获取维护计划（如有）
      *
@@ -556,6 +581,7 @@ public class ConfigurationController extends BaseController {
 
         /**
          * 不允许登录?
+         *
          * @return
          */
         public boolean unallowLogin() {

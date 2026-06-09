@@ -61,7 +61,7 @@ public class DockerInstaller extends Installer {
             log.info("Saved installation file : {}", dest);
         }
 
-        this.refresh();
+        this.initAfterRefresh();
 
         this.installClassificationAsync();
     }

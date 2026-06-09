@@ -45,23 +45,43 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ExcelUtils {
 
-    public static final int MAX_UNLIMIT = -1;
+    public static final int MAX_UNLIMIT = 0;
 
     /**
      * @param excel
      * @return
      */
     public static List<Cell[]> readExcel(File excel) {
-        return readExcel(excel, MAX_UNLIMIT, true);
+        return readExcel(excel, MAX_UNLIMIT, true, null);
+    }
+
+    /**
+     * @param excel
+     * @param sheetNo
+     * @return
+     */
+    public static List<Cell[]> readExcel(File excel, Integer sheetNo) {
+        return readExcel(excel, MAX_UNLIMIT, true, sheetNo);
     }
 
     /**
      * @param excel
      * @param maxRows
-     * @param hasHead
+     * @param readHeadRow
      * @return
      */
-    public static List<Cell[]> readExcel(File excel, int maxRows, boolean hasHead) {
+    public static List<Cell[]> readExcel(File excel, int maxRows, boolean readHeadRow) {
+        return readExcel(excel, maxRows, readHeadRow, null);
+    }
+
+    /**
+     * @param excel
+     * @param maxRows
+     * @param readHeadRow
+     * @param sheetNo
+     * @return
+     */
+    public static List<Cell[]> readExcel(File excel, int maxRows, boolean readHeadRow, Integer sheetNo) {
         final List<Cell[]> rows = new ArrayList<>();
         final AtomicInteger rowNo = new AtomicInteger(0);
 
@@ -71,7 +91,7 @@ public class ExcelUtils {
                 EasyExcel.read(bis, null, new AnalysisEventListener() {
                     @Override
                     public void invokeHeadMap(Map headMap, AnalysisContext context) {
-                        if (hasHead) {
+                        if (readHeadRow) {
                             this.invoke(headMap, context);
                         } else {
                             rowNo.incrementAndGet();
@@ -97,7 +117,7 @@ public class ExcelUtils {
 
                     @Override
                     public void doAfterAllAnalysed(AnalysisContext analysisContext) {}
-                }).sheet().doRead();
+                }).sheet(sheetNo).doRead();
             }
 
         } catch (IOException e) {

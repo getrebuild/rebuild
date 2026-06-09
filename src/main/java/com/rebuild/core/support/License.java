@@ -44,11 +44,11 @@ public final class License {
 
         String SN = RebuildConfiguration.get(ConfigurationItem.SN, true);
         if (SN != null) {
-            if (Application.isReady()) USE_SN = SN;
+            if (Application.isStateReady()) USE_SN = SN;
             return SN;
         }
 
-        if (!Application.isReady()) return TEMP_SN;
+        if (!Application.isStateReady()) return TEMP_SN;
 
         JSONObject newsn = siteApi("api/authority/new?ver=" + Application.VER);
         SN = newsn.getString("sn");

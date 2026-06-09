@@ -49,13 +49,13 @@ public class LocationUtils {
         ip = ip.split(",")[0];
 
         if (isPrivate(ip)) {
-            return JSONUtils.toJSONObject(new String[] { "ip", "country"}, new String[] { ip, "R" });
+            return JSONUtils.toJSONObject(new String[]{"ip", "country"}, new String[]{ip, "R"});
         }
 
         final String ckey = "IPLocation31" + ip;
 
         JSONObject result;
-        if (useCache && Application.isReady()) {
+        if (useCache && Application.isStateReady()) {
             result = (JSONObject) Application.getCommonsCache().getx(ckey);
             if (result != null) return result;
         }
@@ -76,7 +76,7 @@ public class LocationUtils {
                 result.put("country", "R");
             }
 
-            if (Application.isReady()) {
+            if (Application.isStateReady()) {
                 Application.getCommonsCache().putx(ckey, result, CommonsCache.TS_DAY * 90);
             }
             return result;
@@ -94,7 +94,7 @@ public class LocationUtils {
             }
         }
 
-        if (Application.isReady()) {
+        if (Application.isStateReady()) {
             Application.getCommonsCache().putx(ckey, result, CommonsCache.TS_DAY * 180);
         }
         return result;
@@ -108,7 +108,7 @@ public class LocationUtils {
         try {
             return JSON.parseObject(OkHttpUtils.get(url));
         } catch (Exception e) {
-            log.debug("Error occured : " + url + " >> " + e);
+            log.debug("Error occured : {} >> {}", url, e);
         }
         return null;
     }

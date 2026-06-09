@@ -19,6 +19,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.distributed.UseDistributed;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
@@ -58,13 +59,19 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver, Initialization {
+public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver, Initialization, UseDistributed {
 
     @Resource(name = "thymeleafViewResolver")
     private ThymeleafViewResolver thymeleafViewResolver;
 
     @Getter
     private static String pageFooterHtml;
+
+    @Override
+    public Object refresh() {
+        this.init();
+        return null;
+    }
 
     @Override
     public void init() {
@@ -99,11 +106,16 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         // v4.1 配置才显示
         String aibot = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
-        if (aibot != null) aibot = RebuildConfiguration.get(ConfigurationItem.AibotName);
-        thymeleafViewResolver.addStaticVariable("_AiBot", StringUtils.defaultIfBlank(aibot, null));
+        if (aibot != null) {
+            aibot = RebuildConfiguration.get(ConfigurationItem.AibotName);
+            thymeleafViewResolver.addStaticVariable("_AiBot",
+                    StringUtils.defaultIfBlank(aibot, (String) ConfigurationItem.AibotName.getDefaultValue()));
+        }
 
         // 清理缓存
         thymeleafViewResolver.clearCache();
+
+        this.datasChanged();
     }
 
     private void setStaticVariable(ConfigurationItem item) {

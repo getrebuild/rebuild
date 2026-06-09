@@ -42,9 +42,10 @@ import static com.rebuild.core.service.datareport.TemplateExtractor.PLACEHOLDER;
 @Slf4j
 public class EasyExcelListGenerator extends EasyExcelGenerator {
 
-    private JSONObject queryData;
+    final private JSONObject queryData;
+
     @Getter
-    private List<Record> queryDataList;
+    private List<Record> queryedDataList;
 
     protected EasyExcelListGenerator(File template, JSONObject queryData) {
         super(template, null);
@@ -58,8 +59,9 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
     @Override
     protected Map<String, List<Map<String, Object>>> buildData() {
         Entity entity = MetadataHelper.getEntity(queryData.getString("entity"));
-        TemplateExtractor varsExtractor = new TemplateExtractor(templateFile, Boolean.TRUE);
-        Map<String, String> varsMap = varsExtractor.transformVars(entity);
+
+        TemplateExtractor varsExtractor = new TemplateExtractor(templateFile, true);
+        Map<String, String> varsMap = varsExtractor.transformVars(entity, sheetNo);
 
         List<String> validFields = new ArrayList<>();
         List<String> validFieldsOfSingle41 = new ArrayList<>();
@@ -90,7 +92,7 @@ public class EasyExcelListGenerator extends EasyExcelGenerator {
         List<Record> list = Application.createQuery(queryParser.toSql(), getUser())
                 .setLimit(limits[0], limits[1])
                 .list();
-        this.queryDataList = list;
+        this.queryedDataList = list;
 
         List<Map<String, Object>> datas = new ArrayList<>();
 

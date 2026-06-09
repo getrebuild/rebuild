@@ -27,7 +27,12 @@ const ListConfig = {
 
 class DataList extends React.Component {
   render() {
-    return <RbList ref={(c) => (this._List = c)} config={ListConfig} hideCheckbox showLineNo />
+    return <RbList2 ref={(c) => (this._List = c)} config={ListConfig} hideCheckbox showLineNo />
+  }
+}
+class RbList2 extends RbList {
+  _openView() {
+    return false
   }
 }
 
@@ -84,8 +89,8 @@ class OnlineUserViewer extends RbAlert {
                   <span>
                     {item.fullName.replace('[CURRENT]', '')}
                     <div>
-                      {item.channel && <span className="badge badge-info">{$L(item.channel)}</span>}
-                      {item.fullName.includes('[CURRENT]') && <span className="badge badge-warning">{$L('当前')}</span>}
+                      {item.channel && <span className="badge badge-light">{$L(item.channel)}</span>}
+                      {item.fullName.includes('[CURRENT]') && <span className="badge badge-info">{$L('当前')}</span>}
                     </div>
                   </span>
                 </td>

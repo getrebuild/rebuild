@@ -318,7 +318,7 @@ class DlgMode2Option extends RbFormHandler {
       const fieldsLables = {}
       _data.forEach((item) => {
         fieldsLables[item.fieldName] = item.fieldLabel
-        if (['BARCODE', 'FILE', 'SIGN'].includes(item.displayTypeName)) return null
+        if (['BARCODE', 'SIGN'].includes(item.displayTypeName)) return null
 
         const item2 = item
         $(`<a class="dropdown-item" data-name="${item.fieldName}" data-type="${item.displayTypeName}"></a>`)
@@ -356,10 +356,13 @@ class DlgMode2Option extends RbFormHandler {
         }
       })
       this.setState({ treeGroupFields, treeParentFields })
-      $([this._$enableTreeGroupField, this._$enableTreeParentField])
-        .select2({ placeholder: $L('不启用') })
-        .val(null)
-        .trigger('change')
+
+      if (this._$enableTreeGroupField) {
+        $([this._$enableTreeGroupField, this._$enableTreeParentField])
+          .select2({ placeholder: $L('不启用') })
+          .val(null)
+          .trigger('change')
+      }
 
       // init
       if (wpc.extConfig) {
@@ -395,6 +398,7 @@ class DlgMode2Option extends RbFormHandler {
     } else {
       $menu.find('a[data-type="IMAGE"]').addClass('hide')
       $menu.find('a[data-type="AVATAR"]').addClass('hide')
+      $menu.find('a[data-type="FILE"]').addClass('hide')
     }
   }
 
@@ -524,8 +528,10 @@ class DlgMode3Option extends DlgMode2Option {
       $menu.find('a').addClass('hide')
       $menu.find('a[data-type="N"]').removeClass('hide')
       $menu.find('a[data-type="IMAGE"]').removeClass('hide')
+      $menu.find('a[data-type="FILE"]').removeClass('hide')
     } else {
       $menu.find('a[data-type="IMAGE"]').addClass('hide')
+      $menu.find('a[data-type="FILE"]').addClass('hide')
     }
   }
 
@@ -546,9 +552,10 @@ class DlgMode3Option extends DlgMode2Option {
   }
 }
 
-// @see `entity-edit.js`
-const CAN_NAME = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'DATE', 'DATETIME', 'TIME', 'REFERENCE']
 class DlgMode4Option extends RbFormHandler {
+  // @see `entity-edit.js`
+  static _CAN_NAME = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'DATE', 'DATETIME', 'TIME', 'REFERENCE']
+
   render() {
     return (
       <RbModal title={$L('日历模式选项')} ref={(c) => (this._dlg = c)}>
@@ -599,7 +606,7 @@ class DlgMode4Option extends RbFormHandler {
                     <select className="form-control form-control-sm" ref={(c) => (this._$fieldOfTitle = c)}>
                       {this.state.fields &&
                         this.state.fields.map((item) => {
-                          if (!CAN_NAME.includes(item.type)) return null
+                          if (!DlgMode4Option._CAN_NAME.includes(item.type)) return null
                           return (
                             <option key={item.name} value={item.name}>
                               {item.label}
@@ -627,6 +634,31 @@ class DlgMode4Option extends RbFormHandler {
               </div>
             </div>
           </div>
+
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right"></label>
+            <div className="col-sm-9 aside-show" ref={(c) => (this._$asideShow = c)}>
+              <div className="aside-item">
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="mode4DragCreate" defaultChecked={wpc.extConfig && wpc.extConfig.mode4DragCreate} />
+                  <span>
+                    <label htmlFor="mode4DragCreate" />
+                  </span>
+                </div>
+                <span>{$L('允许拖动新建')}</span>
+              </div>
+              <div className="aside-item">
+                <div className="switch-button switch-button-xs">
+                  <input type="checkbox" id="mode4DragUpdate" defaultChecked={wpc.extConfig && wpc.extConfig.mode4DragUpdate} />
+                  <span>
+                    <label htmlFor="mode4DragUpdate" />
+                  </span>
+                </div>
+                <span>{$L('允许拖动编辑')}</span>
+              </div>
+            </div>
+          </div>
+
           <div className="form-group row footer">
             <div className="col-sm-9 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
@@ -674,6 +706,8 @@ class DlgMode4Option extends RbFormHandler {
     o.mode4FieldOfEnd = $val(this._$fieldOfEnd)
     o.mode4FieldOfTitle = $val(this._$fieldOfTitle)
     o.mode4FieldOfColor = $val(this._$fieldOfColor)
+    o.mode4DragCreate = $val('#mode4DragCreate')
+    o.mode4DragUpdate = $val('#mode4DragUpdate')
 
     this.disabled(true)
     modeSave(o, () => {

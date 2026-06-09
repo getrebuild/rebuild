@@ -62,7 +62,7 @@ public class RelatedListController extends BaseController {
 
         String related = getParameterNotNull(request, "related");
         String q = StringUtils.trim(getParameter(request, "q"));
-        String sql = buildBaseSql(mainid, related, q, false, user);
+        String fullSql = buildBaseSql(mainid, related, q, false, user);
 
         Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
 
@@ -70,17 +70,21 @@ public class RelatedListController extends BaseController {
         // 名称字段排序
         if ("NAME".equalsIgnoreCase(sortExpr)) {
             sortExpr = relatedEntity.getNameField().getName() + ":asc";
-        }
-        // v4.2 明細排序
-        else if ("autoId:asc".equals(sortExpr)) {
+        } else if ("autoId:asc".equals(sortExpr)) {
+            // v4.2 明細排序
             if (relatedEntity.containsField(EntityHelper.Seq)) sortExpr = "seq:asc";
+        } else {
+            sortExpr = CommonsUtils.escapeSql(sortExpr);
         }
-        sql += " order by " + sortExpr.replace(":", " ");
+        String sortClause = " order by " + sortExpr.replace(":", " ");
+        // fix:4.4 可能导致分页数据重复
+        if (!sortClause.contains(" autoId") && relatedEntity.containsField(EntityHelper.AutoId)) sortClause += ", autoId";
 
         int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
         int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);
 
-        Object[][] array = QueryHelper.createQuery(sql, relatedEntity).setLimit(ps, pn * ps - ps).array();
+        fullSql += sortClause;
+        Object[][] array = QueryHelper.createQuery(fullSql, relatedEntity).setLimit(ps, pn * ps - ps).array();
 
         FieldPrivileges fp = Application.getPrivilegesManager().getFieldPrivileges();
         List<Object> res = new ArrayList<>();
@@ -204,8 +208,9 @@ public class RelatedListController extends BaseController {
 
     @GetMapping("related-list-config")
     public RespBody relatedListConfig(HttpServletRequest req, @EntityParam Entity listEntity) {
+        String specLayout = getParameter(req, "specLayout");
         JSON config = DataListManager.instance.getListFields(
-                listEntity.getName(), getRequestUser(req), DataListManager.SYS_RELATED);
+                listEntity.getName(), getRequestUser(req), specLayout);
         return RespBody.ok(config);
     }
 }

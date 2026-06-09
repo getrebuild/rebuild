@@ -32,9 +32,7 @@ class ContactList extends React.Component {
                         <tr>
                           <td colSpan="2">
                             <strong>{item.fullName}</strong>
-                            <p className="m-0 text-muted" style={{ marginTop: -2 }}>
-                              {item.deptName}
-                            </p>
+                            <p className="m-0 text-muted fs-12">{item.deptName}</p>
                           </td>
                         </tr>
                         <tr>
@@ -117,22 +115,14 @@ $(document).ready(() => {
     $content.perfectScrollbar('update')
   })()
 
-  const gs = $urlp('gs', location.hash)
-  if (gs) {
-    currentSearch = $decode(gs)
-    $('.input-search input').val(currentSearch)
-  }
   // 搜索
-  const $btn = $('.input-search .input-group-btn .btn').on('click', () => {
+  $initQuickSearch(null, (q) => {
     currentSearch = $('.input-search input').val()
     _ContactList && _ContactList.search()
   })
-  const $input = $('.input-search input').on('keydown', (e) => (e.which === 13 ? $btn.trigger('click') : true))
-  $('.input-search .btn-input-clear').on('click', () => {
-    $input.val('')
-    $btn.trigger('click')
-  })
 
+  const $btn = $('.input-search .input-group-btn .btn')
+  const $input = $('.input-search input')
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((i) => {
     $(`<a>${i}</a>`).appendTo('.az-search')
   })
@@ -140,6 +130,7 @@ $(document).ready(() => {
     $input.val($(this).text() + '*')
     $btn.trigger('click')
   })
+
   // 排序
   $('.J_sort .dropdown-menu>a').on('click', function () {
     $('.J_sort button>span').text($(this).text())
@@ -184,7 +175,7 @@ var loadDeptTree = function () {
       'navTree',
       function () {
         _AsideTree = this
-      }
+      },
     )
   })
 }

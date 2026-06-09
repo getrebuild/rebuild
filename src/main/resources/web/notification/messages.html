@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -42,7 +42,7 @@
               <li class="nav-item hide">
                 <a class="nav-link" href="notifications/todo"><span class="icon zmdi zmdi-alarm-check"></span> [[${bundle.L('待办')}]]</a>
               </li>
-              <button class="btn btn-secondary read-all" type="button"><i class="zmdi zmdi-check-all icon"></i> [[${bundle.L('已读全部')}]]</button>
+              <button class="btn btn-secondary read-all" type="button"><i class="icon mdi mdi-broom"></i> [[${bundle.L('已读全部')}]]</button>
             </ul>
             <div class="tab-content">
               <div class="tab-pane active">

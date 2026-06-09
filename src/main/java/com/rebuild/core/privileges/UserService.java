@@ -59,9 +59,6 @@ public class UserService extends BaseService {
     // 管理员
     public static final ID ADMIN_USER = ID.valueOf("001-0000000000000001");
 
-    // 全部用户（注意这是一个虚拟用户 ID，并不真实存在）
-    public static final ID ALLUSERS = ID.valueOf("001-9999999999999999");
-
     protected UserService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
     }
@@ -275,14 +272,14 @@ public class UserService extends BaseService {
         String appName = RebuildConfiguration.get(ConfigurationItem.AppName);
         String homeUrl = RebuildConfiguration.getHomeUrl();
 
-        LanguageBundle bundle = Language.getSysDefaultBundle();
-        String content = bundle.L(
+        LanguageBundle dl = Language.getDefaultBundle();
+        String content = dl.L(
                 "系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。 [] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 首次登录，建议你立即修改登录密码。修改方式 : 登录后点击右上角头像 - 个人设置 - 安全设置 - 更改密码",
                 appName, newUser.getString("loginName"), passwd, homeUrl, homeUrl);
 
         // 邮件
         if (SMSender.availableMail() && newUser.hasValue("email")) {
-            SMSender.sendMailAsync(newUser.getString("email"), Language.L("你的账号已就绪"), content);
+            SMSender.sendMailAsync(newUser.getString("email"), dl.L("你的账号已就绪"), content);
         }
 
         // v4.3 内部消息

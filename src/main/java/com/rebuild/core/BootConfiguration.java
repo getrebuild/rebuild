@@ -9,13 +9,16 @@ package com.rebuild.core;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.xml.XMLHelper;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedSupport;
 import com.rebuild.core.support.distributed.DistributedSupportLocal;
 import com.rebuild.core.support.distributed.KnownJedisPool;
 import com.rebuild.core.support.setup.InstallState;
+import com.rebuild.core.support.setup.RebuildBootException;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -34,9 +37,9 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 
+import static com.rebuild.core.support.CommandArgs.getString;
+
 /**
- * NOTE JRebel reloading error
- *
  * @author devezhao
  * @since 2020/9/23
  */
@@ -45,7 +48,7 @@ import java.nio.charset.StandardCharsets;
 public class BootConfiguration implements InstallState {
 
     /**
-     * ghost instance
+     * Ghost instance
      */
     public static final JedisPool USE_EHCACHE = new JedisPool(
             KnownJedisPool.DEFAULT_CONFIG, "127.0.0.1", 6379);
@@ -79,22 +82,29 @@ public class BootConfiguration implements InstallState {
         return manager;
     }
 
-    @Bean("DistributedSupport")
+    @Bean("rbv.DistributedSupport")
     DistributedSupport createDistributedSupport() {
-        Class<?> clazz = null;
-        JedisPool redis = null;
-        try {
-            clazz = Class.forName("com.rebuild.rbv.core.support.DistributedSupportImpl");
-            redis = createJedisPool();
-        } catch (ClassNotFoundException ignored) {
-        }
+        if (DistributedSupport.isDistributedEnv()) {
+            String banner = RebuildBanner.formatSimple(true,
+                    "USE DISTRIBUTED ENV.",
+                    "        _DistributedNode : " + DistributedSupport.getNodeName(),
+                    "     _DistributedNodeUrl : " + getString(CommandArgs._DistributedNodeUrl),
+                    "   _DistributedAllowJobs : " + getString(CommandArgs._DistributedAllowJobs),
+                    "_DistributedDisallowJobs : " + getString(CommandArgs._DistributedDisallowJobs),
+                    "   _DistributedMasterUrl : " + getString(CommandArgs._DistributedMasterUrl),
+                    "          _DistributedAk : " + getString(CommandArgs._DistributedAk));
+            log.info(banner);
 
-        if (clazz != null && redis != null && redis != USE_EHCACHE) {
             try {
+                Class<?> clazz = Class.forName("com.rebuild.rbv.core.support.distributed.DistributedSupportImpl");
+                JedisPool redis = createJedisPool();
+
                 Constructor<?> c = clazz.getConstructor(JedisPool.class);
                 return (DistributedSupport) c.newInstance(redis);
-            } catch (ReflectiveOperationException e) {
-                log.error("Cannot instance `DistributedSupportImpl`!", e);
+
+            } catch (Exception ex) {
+                if (ex instanceof RebuildBootException) throw (RebuildBootException) ex;
+                throw new RebuildBootException("Cannot instance `DistributedSupportImpl`", ex);
             }
         }
 

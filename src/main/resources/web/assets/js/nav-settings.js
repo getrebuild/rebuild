@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const UNICON_NAME = 'texture'
 const TYPE_PARENT = '$PARENT$'
+const TYPE_DIVIDER = '$DIVIDER$'
 
 let _Share2
 let _entities = {}
@@ -53,6 +54,9 @@ $(document).ready(() => {
         if ($ref.val() === TYPE_PARENT) {
           $('.J_parentOption').show()
           $('.J_bindFilter').hide()
+        } else if ($ref.val() === TYPE_DIVIDER) {
+          $('.J_parentOption').hide()
+          $('.J_bindFilter').hide()
         } else {
           $('.J_parentOption').hide()
           if (d && d.entity) $('.J_bindFilter').show()
@@ -61,7 +65,9 @@ $(document).ready(() => {
       })
   })
 
-  $('.J_menuIcon').on('click', () => {
+  $('.J_menuIcon').on('click', function () {
+    if ($(this).attr('disabled') === 'disabled') return
+
     parent.clickIcon = function (s) {
       $('.J_menuIcon>i').attr('class', use_icon(s))
       parent.RbModal.hide()
@@ -132,12 +138,17 @@ $(document).ready(() => {
   let overwriteMode = false
   let cfgid = $urlp('id')
   if (!cfgid) cfgid = $.cookie('AppHome.Nav') // v4.0 优先当前
-  const _save = function (cfg) {
+
+  const saveFn = function (cfg) {
     const $btn = $('.J_save').button('loading')
     const std = _Share2 ? _Share2.getData() : { shareTo: 'SELF' }
     $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(cfg), (res) => {
-      $btn.button('reset')
-      if (res.error_code === 0) parent.location.reload()
+      if (res.error_code === 0) {
+        parent.location.reload()
+      } else {
+        $btn.button('reset')
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 
@@ -153,11 +164,11 @@ $(document).ready(() => {
       RbAlert.create($L('保存将覆盖你现有的导航菜单。继续吗？'), {
         confirm: function () {
           this.hide()
-          _save(navItems)
+          saveFn(navItems)
         },
       })
     } else {
-      _save(navItems)
+      saveFn(navItems)
     }
   })
 
@@ -340,11 +351,17 @@ const render_item = function (data, isNew, append2) {
         $me.attr('disabled', true)
         $('.J_parentOption').show()
         $('#defaultOpen')[0].checked = data.open === true
+      } else if (data.value === TYPE_DIVIDER) {
+        $('.J_menuIcon>i').attr('class', 'mdi zmdi mdi-format-list-group')
       } else {
         $me.attr('disabled', false)
         $('.J_parentOption').hide()
       }
 
+      // DIVIDER
+      $('.J_menuIcon').attr('disabled', data.value === TYPE_DIVIDER)
+
+      // ENTITY
       $('.J_bindFilter>a').attr({ 'data-filter': data.filter, 'data-filterBadge': data.filterBadge })
 
       // 实体已经不存在

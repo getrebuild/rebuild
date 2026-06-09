@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -9,14 +9,15 @@
         min-width: 360px;
         max-width: 1000px;
         margin: 0 auto;
-        padding: 20px 0;
+        padding: 0;
       }
       .aibot.modal {
-        position: relative;
+        z-index: 0;
+      }
+      .aibot .modal-dialog {
+        width: 1000px;
         margin: 0 auto;
-        z-index: 1;
-        bottom: unset;
-        right: unset;
+        box-shadow: none !important;
       }
       .aibot.modal .modal-content {
         width: 100%;
@@ -24,20 +25,11 @@
       .aibot.modal .modal-header .hide2 {
         display: none;
       }
-      @media (max-width: 767.98px) {
-        #chat-wrapper {
-          padding: 0;
-        }
-        .aibot.modal,
-        .aibot.modal .modal-header {
-          border-radius: 0;
-        }
-      }
     </style>
   </head>
   <body>
     <div id="chat-wrapper">
-      <div class="rb-loading rb-loading-active" style="margin-top: 30%">
+      <div class="rb-loading rb-loading-active must-center">
         <th:block th:replace="~{/_include/spinner}" />
       </div>
     </div>

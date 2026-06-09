@@ -112,6 +112,8 @@ public class DatabaseBackup {
                 FileUtils.deleteQuietly(dest);
                 dest = dest2Zip;
             }
+            // else 压缩失败保留原文件
+
         } catch (Exception e) {
             log.warn("Cannot zip backup : {}", dest2Zip);
         }

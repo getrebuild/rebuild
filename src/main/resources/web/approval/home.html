@@ -1,0 +1,108 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/manual/files" />
+    <title>[[${bundle.L('审批中心')}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/files.css}" />
+    <style>
+      .page-aside .content {
+        padding-top: 17px;
+        padding-bottom: 9px;
+      }
+      .approval-viewport .badge {
+        font-weight: normal;
+        font-size: 12px;
+        padding: 3px 6px;
+        min-width: 21px;
+        line-height: 1;
+        border-radius: 99px;
+      }
+      .approval-viewport .detail.user-info {
+        width: 20%;
+        min-width: 180px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left(active='nav_entity--APPROVAL')}" />
+      <div class="rb-content rb-no-padding">
+        <aside class="page-aside widgets">
+          <div class="aside-content">
+            <div class="content">
+              <div class="aside-header">
+                <span class="title">审批中心</span>
+                <p class="description"></p>
+              </div>
+            </div>
+            <div class="aside-nav collapse">
+              <ul class="nav">
+                <li>
+                  <a href="#!/Type/1" data-type="1">待处理 <span class="badge badge-primary"></span></a>
+                </li>
+                <li>
+                  <a href="#!/Type/2" data-type="2">已处理 <span class="badge badge-primary"></span></a>
+                </li>
+                <li>
+                  <a href="#!/Type/3" data-type="3">我提交的 <span class="badge badge-primary"></span></a>
+                </li>
+                <li>
+                  <a href="#!/Type/4" data-type="4">抄送我的 <span class="badge badge-primary"></span></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+        <div class="main-content container-fluid">
+          <div class="file-header approval-header">
+            <div class="file-operator">
+              <div class="row">
+                <div class="col-5">
+                  <div class="float-left">
+                    <div class="check" style="margin-top: 8px">
+                      <label class="custom-control custom-checkbox m-0" th:title="${bundle.L('全选/反选')}">
+                        <input class="custom-control-input J_select-all" type="checkbox" />
+                        <span class="custom-control-label"></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="float-left mr-2 select2-sm">
+                    <div style="width: 212px">
+                      <select class="form-control form-control-sm J_search-entity">
+                        <option value="" selected>[[${bundle.L('业务实体')}]]</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="clearfix"></div>
+                </div>
+                <div class="col-7 text-right">
+                  <button class="btn btn-primary J_approve" type="button"><i class="icon mdi mdi-check-all"></i> [[${bundle.L('审批')}]]</button>
+                  <div class="btn-group ml-1 mb-0 J_sort">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                      <span>[[${bundle.L('默认排序')}]]</span>
+                      <i class="icon zmdi zmdi-chevron-down up-1"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <a class="dropdown-item" data-sort="newer">[[${bundle.L('最近提交')}]]</a>
+                      <a class="dropdown-item" data-sort="older">[[${bundle.L('最早提交')}]]</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="file-viewport approval-viewport">
+            <div class="list-nodata">
+              <th:block th:replace="~{/_include/spinner}" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <th:block th:replace="~{/_include/forms}" />
+    <script th:src="@{/assets/js/approval/approval-home.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -113,8 +113,7 @@ public class ApprovalController extends BaseController {
         final ID user = getRequestUser(request);
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);
 
-        JSONObject data = new JSONObject();
-        data.put("entityName", approvalEntity.getName());
+        JSONObject data = JSONUtils.toJSONObject("entityName", approvalEntity.getName());
 
         int stateVal = status.getCurrentState().getState();
         data.put("state", stateVal);
@@ -140,7 +139,7 @@ public class ApprovalController extends BaseController {
 
                 // v4.2 超时时间
                 FlowNode currentFlowNode = approvalProcessor.getCurrentNode();
-                data.put("expiresTime", currentFlowNode.getExpiresTime(recordId, user));
+                data.put("expiresTime", currentFlowNode == null ? null : currentFlowNode.getExpiresTime(recordId, user));
             }
 
             // 审批中提交人可撤回/催审
@@ -189,7 +188,7 @@ public class ApprovalController extends BaseController {
         Set<ID> ccList = nextNodes.getCcUsers(user, recordId, null);
 
         // 自选审批人
-        approverList.addAll(approvalProcessor.getSelfSelectedApprovers(nextNodes));
+        approverList.addAll(approvalProcessor.getSelfSelectedApprovers(nextNodes.getApprovalNode()));
 
         JSONObject data = new JSONObject();
         data.put("nextApprovers", formatUsers(approverList));
@@ -207,6 +206,18 @@ public class ApprovalController extends BaseController {
         data.put("allowReferral", currentFlowNode.allowReferral());
         data.put("allowCountersign", currentFlowNode.allowCountersign());
         data.put("allowFinish", currentFlowNode.allowFinish());
+        data.put("freeApproval", currentFlowNode.freeApproval());
+        // 自由审批无结束
+        if (currentFlowNode.freeApproval()) {
+            data.put("signMode", currentFlowNode.getSignMode());
+            data.put("isLastStep", false);
+            data.put("approverSelfSelecting", true);
+            data.put("ccSelfSelecting", true);
+
+            approverList = currentFlowNode.getSpecUsers(user, recordId);
+            approverList.addAll(approvalProcessor.getSelfSelectedApprovers(currentFlowNode));
+            data.put("nextApprovers", formatUsers(approverList));
+        }
 
         // 0=选填, 1=必填, 2=超时必填, 10=隐藏
         int reqType = currentFlowNode.getDataMap().getIntValue("remarkReq");
@@ -379,7 +390,7 @@ public class ApprovalController extends BaseController {
         int s = new ApprovalProcessor(recordId).urge();
 
         if (s == -1) {
-            return RespBody.errorl("催审通知发送过于频繁，请稍后重试");
+            return RespBody.errorl("已向审批人发送催审通知");
         } else {
             return s > 0 ? RespBody.ok() : RespBody.errorl("无法发送催审通知");
         }
@@ -440,7 +451,7 @@ public class ApprovalController extends BaseController {
 
     @GetMapping("view/{id}")
     public ModelAndView pageView(@PathVariable String id) {
-        ModelAndView mv = createModelAndView("/entity/approval/approval-view");
+        ModelAndView mv = createModelAndView("/approval/approval-view");
         mv.getModel().put("approvalId", id);
         return mv;
     }

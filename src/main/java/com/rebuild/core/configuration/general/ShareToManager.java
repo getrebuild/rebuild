@@ -202,10 +202,10 @@ public abstract class ShareToManager implements ConfigManager {
             CollectionUtils.addAll(userDefs, shareTo.split(","));
             Set<ID> sharedUsers = UserHelper.parseUsers(userDefs, null);
             return sharedUsers.contains(user);
-
-        } else {  // SELF
-            return false;
         }
+
+        // SELF
+        return false;
     }
 
     /**
@@ -214,7 +214,7 @@ public abstract class ShareToManager implements ConfigManager {
      * @return
      */
     protected String formatCacheKey(String belongEntity, String applyType) {
-        return String.format("%s-%s-%s39", getConfigEntity(),
+        return String.format("%s-%s-%s44", getConfigEntity(),
                 StringUtils.defaultIfBlank(belongEntity, "N"),
                 StringUtils.defaultIfBlank(applyType, "N")).toUpperCase();
     }

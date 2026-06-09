@@ -109,7 +109,7 @@ public class Language implements Initialization {
      * @see java.util.Locale
      */
     public LanguageBundle getBundle(String locale) {
-        if (Application.isWaitLoad()) return LanguageBundle.SYS_BUNDLE;
+        if (!Application.isStateLoaded()) return LanguageBundle.SYS_BUNDLE;
 
         if (locale != null) {
             if (bundleMap.containsKey(locale)) {
@@ -122,7 +122,7 @@ public class Language implements Initialization {
             }
         }
 
-        return getDefaultBundle();
+        return getBundle();
     }
 
     /**
@@ -130,9 +130,9 @@ public class Language implements Initialization {
      *
      * @return
      */
-    public LanguageBundle getDefaultBundle() {
+    public LanguageBundle getBundle() {
         String d = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
-        if (available(d) == null) {
+        if (isAvailable(d) == null) {
             return LanguageBundle.SYS_BUNDLE;
         } else {
             return bundleMap.get(d);
@@ -158,7 +158,7 @@ public class Language implements Initialization {
      * @param locale
      * @return
      */
-    public String available(String locale) {
+    public String isAvailable(String locale) {
         if (StringUtils.isBlank(locale)) {
             locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         }
@@ -177,9 +177,11 @@ public class Language implements Initialization {
     }
 
     /**
+     * 获取所有可用语言 Key
+     *
      * @return
      */
-    public Map<String, String> availableLocales() {
+    public Map<String, String> getAvailableLocales() {
         Map<String, String> map = new TreeMap<>();
         for (Map.Entry<String, LanguageBundle> item : bundleMap.entrySet()) {
             map.put(item.getKey(), item.getValue().L("_"));
@@ -193,10 +195,10 @@ public class Language implements Initialization {
      * 获取系统默认语言
      *
      * @return
-     * @see Language#getDefaultBundle()
+     * @see Language#getBundle()
      */
-    public static LanguageBundle getSysDefaultBundle() {
-        return Application.getLanguage().getDefaultBundle();
+    public static LanguageBundle getDefaultBundle() {
+        return Application.getLanguage().getBundle();
     }
 
     /**

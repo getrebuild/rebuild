@@ -14,22 +14,18 @@ class FieldValueSet extends React.Component {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     }
 
-    if (
-      field.type === 'PICKLIST' ||
-      field.type === 'STATE' ||
-      field.type === 'BOOL' ||
-      field.type === 'MULTISELECT' ||
-      field.type === 'REFERENCE' ||
-      field.type === 'N2NREFERENCE' ||
-      field.type === 'CLASSIFICATION' ||
-      field.type === 'TAG'
-    ) {
+    // v4.4
+    if (field.type === 'REFERENCE' || field.type === 'N2NREFERENCE') {
+      return <RecordSelector initValue={this.props.defaultValue} entity={field.ref[0]} entityLabel={$L('新值')} allowMultiple={field.type === 'N2NREFERENCE'} ref={(c) => (this._RecordSelector = c)} />
+    }
+    // v4.4
+    if (field.type === 'ANYREFERENCE') {
+      return <AnyRecordSelector initValue={this.props.defaultValue} entityLabel={$L('新值')} ref={(c) => (this._AnyRecordSelector = c)} />
+    }
+
+    if (field.type === 'PICKLIST' || field.type === 'STATE' || field.type === 'BOOL' || field.type === 'MULTISELECT' || field.type === 'CLASSIFICATION' || field.type === 'TAG') {
       return (
-        <select
-          className="form-control form-control-sm"
-          multiple={field.type === 'MULTISELECT' || field.type === 'N2NREFERENCE' || field.type === 'TAG'}
-          ref={(c) => (this._$value = c)}
-          key={field.name}>
+        <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT' || field.type === 'TAG'} ref={(c) => (this._$value = c)} key={field.name}>
           {(field.options || []).map((item) => {
             let value = item.id || item.mask
             // for BOOL
@@ -54,11 +50,9 @@ class FieldValueSet extends React.Component {
   }
 
   componentDidMount() {
-    if (!this._$value) return
-
     const field = this.props.field
-    if (this._$value.tagName === 'SELECT') {
-      if (field.type === 'REFERENCE' || field.type === 'N2NREFERENCE' || field.type === 'CLASSIFICATION') {
+    if (this._$value && this._$value.tagName === 'SELECT') {
+      if (field.type === 'CLASSIFICATION') {
         this.__$select2 = $initReferenceSelect2(this._$value, {
           entity: this.props.entity,
           name: field.name,
@@ -124,6 +118,11 @@ class FieldValueSet extends React.Component {
   }
 
   getValue() {
+    if (this._RecordSelector || this._AnyRecordSelector) {
+      let s = this._RecordSelector || this._AnyRecordSelector
+      let value = s.val()
+      return typeof value === 'object' ? value.join(',') : value
+    }
     if (!this._$value) return null
 
     const field = this.props.field
@@ -190,7 +189,7 @@ class FieldValueSet extends React.Component {
         const o = new Option(item, item, true, true)
         this.__$select2.append(o)
       })
-    } else if (field.type === 'REFERENCE' || field.type === 'N2NREFERENCE' || field.type === 'CLASSIFICATION') {
+    } else if (field.type === 'CLASSIFICATION') {
       $.get(`/commons/search/read-labels?ids=${$encode(val)}`, (res) => {
         const _data = res.data || {}
         for (let id in _data) {
@@ -200,6 +199,16 @@ class FieldValueSet extends React.Component {
       })
     } else {
       $(this._$value).val(val)
+    }
+  }
+
+  reset() {
+    if (this._RecordSelector || this._AnyRecordSelector) {
+      let s = this._RecordSelector || this._AnyRecordSelector
+      s.reset()
+    } else if (this._$value) {
+      $(this._$value).val(null)
+      this.__$select2 && $(this.__$select2).trigger('change')
     }
   }
 }

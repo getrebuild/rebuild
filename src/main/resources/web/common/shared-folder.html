@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -83,10 +83,11 @@
                       <i class="file-icon" th:data-type="${file[3]}"></i>
                     </td>
                     <td class="pr-0 pl-0">
-                      <a th:href="'./' + ${file[0]}" th:text="${file[1]}" target="_blank"></a>
+                      <a th:href="'./' + ${file[0]}" th:text="${file[1]}" target="_blank" class="text-break"></a>
                     </td>
-                    <td class="text-right pl-2" width="90">
+                    <td class="text-right pl-0" width="120">
                       <span class="fs-12 text-muted" th:text="${file[2]}"></span>
+                      <div class="fs-12 text-muted" th:text="${file[4]}"></div>
                     </td>
                   </tr>
                 </tbody>

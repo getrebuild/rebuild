@@ -15,13 +15,16 @@ import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionChunk;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
+import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
+import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
 import com.openai.services.blocking.chat.ChatCompletionService;
 import com.rebuild.core.service.aibot.AiBotException;
-import com.rebuild.core.service.aibot.Config;
 import com.rebuild.core.service.aibot.StreamEcho;
+import com.rebuild.core.service.aibot.tool.ToolDefs;
 import com.rebuild.core.service.query.QueryHelper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -30,7 +33,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rebuild.core.service.aibot2.Message.ROLE_AI;
+import static com.rebuild.core.service.aibot2.Message.ROLE_USER;
+
 /**
+ * 会话
+ *
  * @author Zixin
  * @since 2025/11/1
  */
@@ -68,6 +76,11 @@ public class Chat implements Serializable {
         ChatCompletion resp = completions().create(params);
         ChatCompletionMessage ai = resp.choices().get(0).message();
 
+        List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
+        if (CollectionUtils.isNotEmpty(toolCalls)) {
+            log.warn("toolCalls : {}", toolCalls);
+        }
+
         String content = ai.content().orElse("");
         return completionAfter(content, chatRequest);
     }
@@ -97,7 +110,11 @@ public class Chat implements Serializable {
                 StreamEcho.text(content, writer);
                 fullContent.append(content);
 
-                // TODO 不支持推理内容
+                // 中断
+                if (StreamEcho.isInterrupted(chatRequest.getChatid())) {
+                    log.warn("Chat interrupted : {}", chatRequest.getChatid());
+                    resp.stream().close();
+                }
             }));
 
             StreamEcho.echo(getChatid().toLiteral(), writer, "_chatid");
@@ -111,7 +128,7 @@ public class Chat implements Serializable {
      * @param userMessage
      * @return
      */
-    public String chat(String userMessage) {
+    public String ask(String userMessage) {
         ChatCompletionCreateParams params = buildRequestParams(userMessage, null);
         ChatCompletion resp = completions().create(params);
         ChatCompletionMessage ai = resp.choices().get(0).message();
@@ -119,23 +136,34 @@ public class Chat implements Serializable {
     }
 
     private ChatCompletionService completions() {
-        return DeepSeek.getClient().chat().completions();
+        return Config.getClient().chat().completions();
     }
 
     private ChatCompletionCreateParams buildRequestParams(String userMessage, ChatRequest chatRequest) {
-        Message message = new Message(Message.ROLE_USER, userMessage, null, null, chatRequest);
+        Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
         messages.add(message);
 
-        ChatCompletionCreateParams.Builder builder = DeepSeek.createBuilder(prompt, model);
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, model);
         for (Message m : messages) {
-            if (Message.ROLE_USER.equals(m.getRole())) builder.addUserMessage(m.getContent());
-            else if (Message.ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(m.getContent());
+            String content = m.getContent();
+            if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);
+            else if (ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(content);
         }
+
+//        builder.toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO)
+//                .tools(ToolDefs.tools());
         return builder.build();
     }
 
+    /**
+     * 完成后存储消息内容
+     *
+     * @param aiMessage
+     * @param chatRequest
+     * @return
+     */
     private Message completionAfter(String aiMessage, ChatRequest chatRequest) {
-        Message message = new Message(Message.ROLE_AI, aiMessage, null, null, chatRequest);
+        Message message = new Message(ROLE_AI, aiMessage, null, null, chatRequest);
         messages.add(message);
 
         this.store();
@@ -163,13 +191,13 @@ public class Chat implements Serializable {
             String role = msgJson.getString("role");
             String content = msgJson.getString("content");
 
-            if (Message.ROLE_USER.equals(role)) {
+            if (ROLE_USER.equals(role)) {
                 // 附件
                 ChatRequest chatRequest = new ChatRequest(msgJson, getChatid());
                 content = chatRequest.getUserContent(true);
 
                 messages.add(new Message(role, content, null, null, getChatid(), msgJson));
-            } else if (Message.ROLE_AI.equals(role)) {
+            } else if (ROLE_AI.equals(role)) {
                 messages.add(new Message(role, content, null, null, getChatid(), msgJson));
             }
         }

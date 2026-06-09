@@ -43,7 +43,7 @@ const ListConfig = {
 
 class DataList extends React.Component {
   render() {
-    return <RbList ref={(c) => (this._List = c)} config={ListConfig} />
+    return <RbList2 ref={(c) => (this._List = c)} config={ListConfig} />
   }
 
   componentDidMount() {
@@ -136,6 +136,11 @@ class DataList extends React.Component {
     if (!ids || ids.length === 0) return
 
     renderRbcomp(<DlgDetails id={ids[0]} width="681" />)
+  }
+}
+class RbList2 extends RbList {
+  _openView() {
+    return false
   }
 }
 

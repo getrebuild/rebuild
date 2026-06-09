@@ -63,7 +63,7 @@ public class LanguageBundle implements JSONable {
      * @return
      */
     private JSONObject merge(JSONObject bundle) {
-        if (Application.isReady() && License.isCommercial()) {
+        if (Application.isStateReady() && License.isCommercial()) {
             appendDatabase(bundle);
         }
 

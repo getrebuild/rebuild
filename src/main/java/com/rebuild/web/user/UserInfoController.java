@@ -77,7 +77,7 @@ public class UserInfoController {
         }
 
         Object[] lastLogin = Application.createQueryNoFilter(
-                        "select loginTime,ipAddr from LoginLog where user = ? order by loginTime desc")
+                "select loginTime,ipAddr from LoginLog where user = ? order by loginTime desc")
                 .setParameter(1, uid)
                 .unique();
         if (lastLogin != null) {

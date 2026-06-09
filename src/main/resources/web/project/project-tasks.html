@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -17,7 +17,7 @@
         <div class="main-content container-fluid p-0">
           <div class="ps-toolbar">
             <div class="row">
-              <div class="col-sm-5">
+              <div class="col-4">
                 <div class="project-head">
                   <h4>
                     [[${projectName}]]
@@ -33,7 +33,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-sm-7 text-right d-none d-md-block">
+              <div class="col-8 text-right d-none d-md-block">
                 <div class="btn-group J_sorts float-right">
                   <button type="button" class="btn btn-link" data-toggle="dropdown">
                     <i class="icon mdi mdi-view-carousel-outline"></i>
@@ -84,6 +84,7 @@
                     <i class="indicator-primary bg-warning hide" style="top: 5px; right: 5px; z-index: 2"></i>
                   </span>
                 </div>
+                <span id="dropdown-menu-advfilter"></span>
               </div>
             </div>
           </div>

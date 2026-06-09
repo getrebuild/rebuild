@@ -65,6 +65,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: -1.2px;
 }
 
+.protable .column-fixed {
+  z-index: 2;
+}
+
+.protable .column-fixed + .column-fixed {
+  left: 38px;
+}
+
+.protable .column-fixed + .column-fixed + .column-fixed {
+  left: 76px;
+}
+
+.protable th.column-fixed::before,
+.protable .table.table-header-fixed thead > tr > th::before {
+  bottom: 0;
+  border-bottom: 0px solid #dee2e6;
+}
+
 .detail-form-header h5 {
   margin: 0;
   padding-top: 9px;
@@ -387,12 +405,22 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   top: 0;
 }
 
-.protable .table tbody tr.active {
+.protable .table tbody tr.active,
+.protable .table tbody tr.active .column-fixed {
   background-color: #eceff1;
 }
 
 .protable td .select2.select2-container {
   max-width: 500px;
+}
+
+.protable td .img-field .img-upload {
+  height: 38px;
+  width: 38px;
+}
+
+.protable td .img-field label.img-upload {
+  padding-top: 3px;
 }
 
 /* DataList */

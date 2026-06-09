@@ -100,7 +100,7 @@ public class AutoShare extends AutoHoldTriggerAction {
                 es.share(recordId, toUser, cascades, shareRights);
             } finally {
                 GeneralEntityServiceContextHolder.isSkipGuardOnce();
-                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+                GeneralEntityServiceContextHolder.isAllowForceUpdate(true);
             }
         }
     }

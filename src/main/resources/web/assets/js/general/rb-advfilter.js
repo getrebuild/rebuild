@@ -323,6 +323,14 @@ class AdvFilter extends React.Component {
     if (!adv) return
     window.open(`${rb.baseUrl}/app/${this.props.entity}/list?via=${$encode(JSON.stringify(adv))}`)
   }
+
+  // --
+
+  // 显示
+  static renderFilterText(filter) {
+    if (!filter || !filter.items || filter.items.length === 0) return null
+    return $L('已设置条件') + ` (${filter.items.length})`
+  }
 }
 
 const OP_TYPE = {
@@ -933,38 +941,14 @@ class FilterItem extends React.Component {
     const found = this.props.fields.find((x) => x.name === field)
     if (!found) return
 
-    const that = this
-    function _autoComplete() {
-      that.__autoComplete = $(that._filterVal)
-        .autoComplete({
-          bootstrapVersion: '4',
-          noResultsText: '',
-          minLength: 2,
-          preventEnter: false,
-          resolverSettings: {
-            url: `/commons/search/suggest?e=${that.props.$$$parent.props.entity}.${field}`,
-          },
-          events: {
-            searchPost: function (res) {
-              const result = res.data || []
-              const _data = []
-              result.forEach((item) => {
-                if (!_data.includes(item.text)) _data.push(item.text)
-              })
-              return _data
-            },
-          },
-        })
-        .on('autocomplete.select', (e, item) => {
-          $stopEvent(e, true)
-          that.setState({ value: item })
-        })
-    }
-    if (jQuery.prototype.autoComplete) {
-      _autoComplete()
-    } else {
-      $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', () => _autoComplete())
-    }
+    $autoComplete(this._filterVal, `${this.props.$$$parent.props.entity}.${field}`, {
+      onSelect: (item) => {
+        this.setState({ value: item })
+      },
+      onRender: (c) => {
+        this.__autoComplete = c
+      },
+    })
   }
 
   removeSuggest() {
@@ -1230,4 +1214,21 @@ class ListAdvFilterSave extends RbFormHandler {
     this.setState({ name: '' })
     this.hide()
   }
+}
+
+// eslint-disable-next-line no-unused-vars
+function $isClickAdvFilter(e) {
+  if (!e.target) return true
+
+  const $target = $(e.target)
+  return (
+    $target.hasClass('J_filterbtn') ||
+    $target.parent().hasClass('J_filterbtn') ||
+    $target.hasClass('dropdown-menu-advfilter') ||
+    $target.parents('.dropdown-menu-advfilter')[0] ||
+    $target.hasClass('modal') ||
+    $target.parents('.modal')[0] ||
+    $target.parents('.select2-container')[0] ||
+    $target.hasClass('select2-selection__choice__remove')
+  )
 }

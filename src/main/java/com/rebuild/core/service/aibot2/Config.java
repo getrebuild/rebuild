@@ -19,12 +19,7 @@ import org.springframework.util.Assert;
  * @author Zixin
  * @since 2025/6/8
  */
-public class DeepSeek {
-
-    public static final String MODEL_DS_CHAT = "deepseek-chat";
-    public static final String MODEL_DS_REASONER = "deepseek-reasoner";
-    public static final String MODEL_GPT_5 = "gpt-5";
-    public static final String MODEL_GPT_5M = "gpt-5-mini";
+public class Config {
 
     private static OpenAIClient CLIENT;
 
@@ -62,6 +57,17 @@ public class DeepSeek {
         return b;
     }
 
+    // --
+
+    /**
+     * 是否可用
+     *
+     * @return
+     */
+    public static boolean availableAiBot() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotDSSecret) != null;
+    }
+
     /**
      * @param path
      * @return
@@ -87,8 +93,14 @@ public class DeepSeek {
     /**
      * @return
      */
+    public static String getBasePrompt() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotBasePrompt);
+    }
+
+    /**
+     * @return
+     */
     public static String getDefModel() {
-        String model = RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
-        return StringUtils.defaultIfBlank(model, MODEL_DS_CHAT);
+        return RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
     }
 }

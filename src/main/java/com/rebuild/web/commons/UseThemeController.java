@@ -24,7 +24,6 @@ import com.rebuild.web.user.signup.LoginController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,15 +74,7 @@ public class UseThemeController extends BaseController {
             theme = (String) ServletUtils.getSessionAttribute(request, LoginController.SK_USER_THEME);
             if (theme == null) {
                 theme = KVStorage.getCustomValue("THEME." + AppUtils.getRequestUser(request));
-                if ("_".equalsIgnoreCase(theme)) {
-                    theme = THEMES[RandomUtils.nextInt(THEMES.length)];
-                }
-
                 theme = StringUtils.defaultIfBlank(theme, THEMES[0]);
-                ServletUtils.setSessionAttribute(request, LoginController.SK_USER_THEME, theme);
-
-            } else if ("_".equalsIgnoreCase(theme)) {
-                theme = THEMES[RandomUtils.nextInt(THEMES.length)];
                 ServletUtils.setSessionAttribute(request, LoginController.SK_USER_THEME, theme);
             }
         }

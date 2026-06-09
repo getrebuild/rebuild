@@ -320,7 +320,14 @@ public class RobotTriggerObserver extends OperatingObserver {
         }
     }
 
-    private boolean allowWhenApproved(TriggerAction action, OperatingContext context) {
+    /**
+     * 允许触发 **审批节点**
+     *
+     * @param action
+     * @param context
+     * @return
+     */
+    protected boolean allowWhenApproved(TriggerAction action, OperatingContext context) {
         // 节点触发
         String allowTriggers = ALLOW_TRIGGERS_ON_NODEAPPROVED.get();
         if (allowTriggers != null) {

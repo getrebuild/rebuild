@@ -7,9 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
+import com.rebuild.core.Application;
+import com.rebuild.core.support.CommandArgs;
+
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
 
 /**
  * 分布式支持
@@ -21,9 +25,9 @@ public interface DistributedSupport {
 
     /**
      * @param namespace
+     * @return
      * @param <K>
      * @param <V>
-     * @return
      */
     <K, V> ConcurrentMap<K, V> getMap(String namespace);
 
@@ -40,4 +44,45 @@ public interface DistributedSupport {
      * @return
      */
     <T> Set<T> getSet(String namespace);
+
+    /**
+     * 获取资源锁
+     *
+     * @param namespace
+     * @return
+     * @see #unLock(Lock, String)
+     */
+    Lock getLock(String namespace);
+
+    /**
+     * 释放资源锁
+     *
+     * @param namespace
+     */
+    void unLock(Lock lock, String namespace);
+
+    // -- TOOLS
+
+    /**
+     * 节点名称（有节点表示分布式环境）
+     * @return
+     */
+    static String getNodeName() {
+        return CommandArgs.getString(CommandArgs._DistributedNode, null);
+    }
+
+    /**
+     * 是否分布式环境
+     * @return
+     */
+    static boolean isDistributedEnv() {
+        return getNodeName() != null;
+    }
+
+    /**
+     * @return
+     */
+    static DistributedSupport instance() {
+        return (DistributedSupport) Application.getContext().getBean("rbv.DistributedSupport");
+    }
 }

@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.OkHttpUtils;
+import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -23,6 +24,8 @@ import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -38,24 +41,22 @@ public class SysbaseSupport {
      * @return
      */
     public String submit() {
-        StringBuilder confLog = new StringBuilder("RebuildConfiguration :\n----------\n");
+        List<String> logConf = new ArrayList<>();
+        logConf.add("RebuildConfiguration :");
         for (ConfigurationItem item : ConfigurationItem.values()) {
-            String v = RebuildConfiguration.get(item);
-            confLog.append(StringUtils.rightPad(item.name(), 31)).append(" : ").append(v == null ? "" : v).append("\n");
+            String v = RebuildConfiguration.get(item, true);
+            logConf.add(StringUtils.leftPad(item.name(), 23) + " : " + (v == null ? "" : v));
         }
-        log.warn(confLog.append("----------").toString());
+        log.warn(RebuildBanner.formatSimple(true, logConf.toArray(new String[0])));
 
-        StringBuilder osLog = new StringBuilder("OS/VM INFO :\n----------\n");
-        osLog.append(StringUtils.rightPad("OS", 31)).append(" : ").append(SystemUtils.OS_NAME).append("/").append(SystemUtils.OS_VERSION).append("\n");
-        osLog.append(StringUtils.rightPad("VM", 31)).append(" : ").append(SystemUtils.JAVA_VM_NAME).append("/").append(SystemUtils.JAVA_VERSION).append(SystemUtils.OS_VERSION).append("\n");
-        osLog.append(StringUtils.rightPad("TimeZone", 31)).append(" : ").append(CalendarUtils.DEFAULT_TIME_ZONE).append("\n");
-        osLog.append(StringUtils.rightPad("Date", 31)).append(" : ").append(CalendarUtils.now()).append("\n");
-        osLog.append(StringUtils.rightPad("Headless", 31)).append(" : ").append(SystemUtils.isJavaAwtHeadless()).append("\n");
-        log.warn(osLog.append("----------").toString());
-
-        StringBuilder vmLog = new StringBuilder("VM ARGUMENTS :\n----------\n");
-        vmLog.append(System.getProperties());
-        log.warn(vmLog.append("----------").toString());
+        logConf.clear();
+        logConf.add("OS/VM INFO :");
+        logConf.add(StringUtils.leftPad("OS", 26) + " : " + SystemUtils.OS_NAME + "/" + SystemUtils.OS_VERSION);
+        logConf.add(StringUtils.leftPad("VM", 26) + " : " + SystemUtils.JAVA_VM_NAME + "/" + SystemUtils.JAVA_VERSION);
+        logConf.add(StringUtils.leftPad("TimeZone", 26) + " : " + CalendarUtils.DEFAULT_TIME_ZONE);
+        logConf.add(StringUtils.leftPad("Date", 26) + " : " + CalendarUtils.now());
+        logConf.add(StringUtils.leftPad("VM ARGUMENTS", 26) + " : " + System.getProperties());
+        log.warn(RebuildBanner.formatSimple(true, logConf.toArray(new String[0])));
 
         File logFile = SysbaseHeartbeat.getLastLogbackFile(false);
 

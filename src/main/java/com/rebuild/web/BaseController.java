@@ -171,7 +171,7 @@ public abstract class BaseController extends Controller {
         if (StringUtils.isBlank(v)) return defaultValue;
 
         try {
-            return Integer.parseInt(v);
+            return (int) ObjectUtils.toDouble(v, defaultValue);
         } catch (NumberFormatException ignored) {
             return defaultValue;
         }

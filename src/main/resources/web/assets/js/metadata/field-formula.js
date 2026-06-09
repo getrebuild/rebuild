@@ -5,6 +5,157 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+// ~~ 字段匹配配置组件
+class MatchFields extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+    this.state.targetFields = this.reset(props, true)
+  }
+
+  // fix:3.8.2
+  _groupFields38() {
+    let _groupFields = this.state.groupFields
+    if (_groupFields && typeof _groupFields === 'string') {
+      eval(`_groupFields = ${_groupFields}`)
+    }
+    return _groupFields
+  }
+
+  render() {
+    const groupFields = this._groupFields38()
+    return (
+      <div className="group-fields">
+        {groupFields && groupFields.length > 0 && (
+          <div className="mb-1">
+            {groupFields.map((item) => {
+              return (
+                <span className="d-inline-block mb-1" key={item.targetField}>
+                  <span className="badge badge-primary badge-close m-0 mr-1">
+                    <span>{FormulaAggregation.getLabel(item.targetField, this.__targetFields)}</span>
+                    <i className="mdi mdi-arrow-left-right ml-1 mr-1" />
+                    <span>{FormulaAggregation.getLabel(item.sourceField, this.__sourceFields)}</span>
+                    <a className="close" title={$L('移除')} onClick={() => this._delGroupField(item.targetField)}>
+                      <i className="mdi mdi-close" />
+                    </a>
+                  </span>
+                </span>
+              )
+            })}
+          </div>
+        )}
+
+        <div className="row">
+          <div className="col-5">
+            <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
+              {(this.state.targetFields || []).map((item) => {
+                if (['createdBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'owningUser', 'owningDept'].includes(item.name) || item.type === 'DATETIME') return null
+                return (
+                  <option key={item.name} value={item.name}>
+                    {item.label}
+                  </option>
+                )
+              })}
+            </select>
+            <p>{$L('目标匹配字段')}</p>
+          </div>
+          <div className="col-5">
+            <i className="zmdi mdi mdi-arrow-left-right" />
+            <select className="form-control form-control-sm" ref={(c) => (this._$sourceField = c)}>
+              {(this.state.sourceFields || []).map((item) => {
+                return (
+                  <option key={item.name} value={item.name}>
+                    {item.label}
+                  </option>
+                )
+              })}
+            </select>
+            <p>{$L('源匹配字段')}</p>
+          </div>
+        </div>
+        <div className="mt-1">
+          <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this._addGroupField()}>
+            + {$L('添加')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $(this._$sourceField)
+      .select2({ placeholder: $L('选择源匹配字段') })
+      .on('change', () => {})
+
+    $(this._$targetField)
+      .select2({ placeholder: $L('选择目标匹配字段') })
+      .on('change', (e) => {
+        let TF = e.target.value
+        if (!TF) return
+        TF = this.__targetFields.find((x) => x.name === TF)
+
+        // 仅同类型的字段（DATE/DATETIME 兼容）
+        const SF = this.__sourceFields.filter((x) => {
+          if (TF.type === 'DATE' && x.type === 'DATETIME') return true
+          if (TF.type === 'DATETIME' && x.type === 'DATE') return true
+          if (TF.type === x.type) {
+            if (x.type === 'REFERENCE') return TF.ref[0] === x.ref[0]
+            if (x.type === 'CLASSIFICATION') return TF.classification === x.classification
+            return true
+          }
+          // 文本兼容
+          if (['TEXT', 'PHONE'].includes(TF.type) && ['TEXT', 'PHONE'].includes(x.type)) return true
+          if (['TEXT', 'EMAIL'].includes(TF.type) && ['TEXT', 'EMAIL'].includes(x.type)) return true
+          if (['TEXT', 'SERIES'].includes(TF.type) && ['TEXT', 'SERIES'].includes(x.type)) return true
+          return false
+        })
+        this.setState({ sourceFields: SF })
+      })
+      .trigger('change')
+  }
+
+  _addGroupField() {
+    const item = { targetField: $(this._$targetField).val(), sourceField: $(this._$sourceField).val() }
+    if (!item.targetField) return RbHighbar.create($L('请选择目标匹配字段'))
+    if (!item.sourceField) return RbHighbar.create($L('请选择源匹配字段'))
+
+    const groupFields = this._groupFields38()
+    let exists = groupFields.find((x) => item.targetField === x.targetField)
+    if (exists) return RbHighbar.create($L('目标匹配字段已添加'))
+    exists = groupFields.find((x) => item.sourceField === x.sourceField)
+    if (exists) return RbHighbar.create($L('源匹配字段已添加'))
+
+    groupFields.push(item)
+    this.setState({ groupFields })
+  }
+
+  _delGroupField(TF) {
+    const groupFields = this._groupFields38().filter((x) => x.targetField !== TF)
+    this.setState({ groupFields })
+  }
+
+  reset(props, init) {
+    this.__targetFields = props.targetFields || []
+    this.__sourceFields = props.sourceFields || []
+
+    // TODO 开放更多匹配字段
+    const targetFields = []
+    this.__targetFields.forEach((item) => {
+      if (['SERIES', 'TEXT', 'PHONE', 'EMAIL', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)
+    })
+
+    if (init) {
+      return targetFields
+    } else {
+      this.setState({ targetFields, groupFields: props.groupFields || [] }, () => $(this._$targetField).trigger('change'))
+    }
+  }
+
+  val() {
+    return this._groupFields38() || []
+  }
+}
+
 // 验证公式有效性
 function verifyFormula(formula, entity, onConfirm) {
   const b64 = $base64Encode($base64Encode(formula))
@@ -34,7 +185,6 @@ function verifyFormula(formula, entity, onConfirm) {
 
 // ~ 公式编辑器
 const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('回退'), $L('清空')]
-// eslint-disable-next-line no-unused-vars
 class FormulaCalc extends RbAlert {
   constructor(props) {
     super(props)
@@ -241,205 +391,49 @@ class FormulaDate extends RbAlert {
   }
 }
 
-// ~~ 匹配字段
-// eslint-disable-next-line no-unused-vars
-class MatchFields extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-    this.state.targetFields = this.reset(props, true)
-  }
-
-  // fix:3.8.2
-  _groupFields38() {
-    let _groupFields = this.state.groupFields
-    if (_groupFields && typeof _groupFields === 'string') {
-      eval(`_groupFields = ${_groupFields}`)
-    }
-    return _groupFields
-  }
-
+// ~ 带字段的编辑器
+// eslint-disable-next-line no-undef
+class EditorWithFieldVars extends CodeEditor {
   render() {
-    const groupFields = this._groupFields38()
-    return (
-      <div className="group-fields">
-        {groupFields && groupFields.length > 0 && (
-          <div className="mb-1">
-            {groupFields.map((item) => {
-              return (
-                <span className="d-inline-block mb-1" key={item.targetField}>
-                  <span className="badge badge-primary badge-close m-0 mr-1">
-                    <span>{FormulaAggregation.getLabel(item.targetField, this.__targetFields)}</span>
-                    <i className="mdi mdi-arrow-left-right ml-1 mr-1" />
-                    <span>{FormulaAggregation.getLabel(item.sourceField, this.__sourceFields)}</span>
-                    <a className="close" title={$L('移除')} onClick={() => this._delGroupField(item.targetField)}>
-                      <i className="mdi mdi-close" />
-                    </a>
-                  </span>
-                </span>
-              )
-            })}
-          </div>
-        )}
+    if (this.props.isCode) return super.render()
 
-        <div className="row">
-          <div className="col-5">
-            <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
-              {(this.state.targetFields || []).map((item) => {
-                if (['createdBy', 'createdOn', 'modifiedBy', 'modifiedOn', 'owningUser', 'owningDept'].includes(item.name) || item.type === 'DATETIME') return null
-                return (
-                  <option key={item.name} value={item.name}>
-                    {item.label}
-                  </option>
-                )
-              })}
-            </select>
-            <p>{$L('目标匹配字段')}</p>
-          </div>
-          <div className="col-5">
-            <i className="zmdi mdi mdi-arrow-left-right" />
-            <select className="form-control form-control-sm" ref={(c) => (this._$sourceField = c)}>
-              {(this.state.sourceFields || []).map((item) => {
-                return (
-                  <option key={item.name} value={item.name}>
-                    {item.label}
-                  </option>
-                )
-              })}
-            </select>
-            <p>{$L('源匹配字段')}</p>
-          </div>
-        </div>
-        <div className="mt-1">
-          <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this._addGroupField()}>
-            + {$L('添加')}
-          </button>
-        </div>
+    return (
+      <div className="code-editor">
+        <textarea className="form-control form-control-sm row3x" placeholder={this.props.placeholder} spellCheck="false" ref={(c) => (this._$content = c)} />
+        {this.renderActions()}
       </div>
     )
   }
 
-  componentDidMount() {
-    $(this._$sourceField)
-      .select2({ placeholder: $L('选择源匹配字段') })
-      .on('change', () => {})
-
-    $(this._$targetField)
-      .select2({ placeholder: $L('选择目标匹配字段') })
-      .on('change', (e) => {
-        let TF = e.target.value
-        if (!TF) return
-        TF = this.__targetFields.find((x) => x.name === TF)
-
-        // 仅同类型的字段（DATE/DATETIME 兼容）
-        const SF = this.__sourceFields.filter((x) => {
-          if (TF.type === 'DATE' && x.type === 'DATETIME') return true
-          if (TF.type === 'DATETIME' && x.type === 'DATE') return true
-          if (TF.type === x.type) {
-            if (x.type === 'REFERENCE') return TF.ref[0] === x.ref[0]
-            if (x.type === 'CLASSIFICATION') return TF.classification === x.classification
-            return true
-          }
-          // 文本兼容
-          if (['TEXT', 'PHONE'].includes(TF.type) && ['TEXT', 'PHONE'].includes(x.type)) return true
-          if (['TEXT', 'EMAIL'].includes(TF.type) && ['TEXT', 'EMAIL'].includes(x.type)) return true
-          if (['TEXT', 'SERIES'].includes(TF.type) && ['TEXT', 'SERIES'].includes(x.type)) return true
-          return false
-        })
-        this.setState({ sourceFields: SF })
-      })
-      .trigger('change')
-  }
-
-  _addGroupField() {
-    const item = { targetField: $(this._$targetField).val(), sourceField: $(this._$sourceField).val() }
-    if (!item.targetField) return RbHighbar.create($L('请选择目标匹配字段'))
-    if (!item.sourceField) return RbHighbar.create($L('请选择源匹配字段'))
-
-    const groupFields = this._groupFields38()
-    let exists = groupFields.find((x) => item.targetField === x.targetField)
-    if (exists) return RbHighbar.create($L('目标匹配字段已添加'))
-    exists = groupFields.find((x) => item.sourceField === x.sourceField)
-    if (exists) return RbHighbar.create($L('源匹配字段已添加'))
-
-    groupFields.push(item)
-    this.setState({ groupFields })
-  }
-
-  _delGroupField(TF) {
-    const groupFields = this._groupFields38().filter((x) => x.targetField !== TF)
-    this.setState({ groupFields })
-  }
-
-  reset(props, init) {
-    this.__targetFields = props.targetFields || []
-    this.__sourceFields = props.sourceFields || []
-
-    // TODO 开放更多匹配字段
-    const targetFields = []
-    this.__targetFields.forEach((item) => {
-      if (['SERIES', 'TEXT', 'PHONE', 'EMAIL', 'DATE', 'DATETIME', 'CLASSIFICATION', 'REFERENCE'].includes(item.type)) targetFields.push(item)
-    })
-
-    if (init) {
-      return targetFields
-    } else {
-      this.setState({ targetFields, groupFields: props.groupFields || [] }, () => $(this._$targetField).trigger('change'))
-    }
-  }
-
-  val() {
-    return this._groupFields38() || []
-  }
-}
-
-// ~ 带字段的文本域
-// eslint-disable-next-line no-unused-vars
-class EditorWithFieldVars extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {}
-  }
-
-  render() {
-    let attrs = {
-      className: 'form-control',
-      maxLength: 2000,
-      placeholder: this.props.placeholder || null,
-    }
-
-    if (this.props.isCode) {
-      attrs = { ...attrs, className: 'formula-code', maxLength: 6000, autoFocus: true }
-    }
-
+  renderActions() {
     return (
-      <div className="textarea-wrap">
-        <textarea {...attrs} spellCheck="false" ref={(c) => (this._$content = c)} />
-        <div className="dropdown fields-vars">
+      <div className={`code-editor-actions btm ${this.props.isCode === false ? 'light' : ''}`}>
+        <span className="dropdown">
           <a title={$L('插入字段变量')} data-toggle="dropdown">
-            <i className="mdi mdi-code-braces" />
+            <i className="mdi mdi-code-braces down-1" />
           </a>
           <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$fieldVars = c)}>
-            {(this.state.fieldVars || []).map((item) => {
-              let typeMark = 'T'
-              if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
-              else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
-              return (
-                <a key={item.name} className="dropdown-item" data-name={item.name} data-pinyin={item.quickCode} onClick={() => this.insertAtCursor(`{${item.name}}`)}>
-                  <em>{typeMark}</em>
-                  {item.label}
-                </a>
-              )
-            })}
+            {this.state.fieldVars &&
+              this.state.fieldVars.map((item) => {
+                let typeMark = 'T'
+                if (['DATE', 'DATETIME', 'TIME'].includes(item.type)) typeMark = 'D'
+                else if (['NUMBER', 'DECIMAL'].includes(item.type)) typeMark = 'N'
+                return (
+                  <a key={item.name} className="dropdown-item" data-name={item.name} data-pinyin={item.quickCode} onClick={() => this.insertAtCursor(`{${item.name}}`)}>
+                    <em>{typeMark}</em>
+                    {item.label}
+                  </a>
+                )
+              })}
           </div>
-        </div>
-        {this.state.funcs && (
-          <div className="dropdown fields-vars funcs">
+        </span>
+        {this.state.funcVars && (
+          <span className="dropdown">
             <a title={$L('插入函数')} data-toggle="dropdown">
               <i className="mdi mdi-function-variant" />
             </a>
-            <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$funcs = c)}>
-              {this.state.funcs.map((item) => {
+            <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$funcVars = c)}>
+              {this.state.funcVars.map((item) => {
                 return (
                   <a key={item.name} className="dropdown-item" data-name={item.name} onClick={() => this.insertAtCursor(`${item.name}()`)}>
                     {item.label}
@@ -447,28 +441,20 @@ class EditorWithFieldVars extends React.Component {
                 )
               })}
             </div>
-          </div>
+          </span>
         )}
         {this.props.canFullscreen && (
-          <div className="fields-vars">
-            <a title={$L('全屏')} onClick={() => this.resize()}>
-              <i className="mdi mdi-fullscreen" />
-            </a>
-          </div>
+          <a title={$L('全屏')} onClick={() => this.resize()}>
+            <i className="mdi mdi-fullscreen" />
+          </a>
         )}
       </div>
     )
   }
 
-  insertAtCursor(text) {
-    $(this._$content).insertAtCursor(text)
-  }
-
-  resize() {
-    // TODO
-  }
-
   componentDidMount() {
+    super.componentDidMount()
+
     $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=3`, (res) => {
       this.setState({ fieldVars: res.data || [] }, () => {
         $(this._$fieldVars).perfectScrollbar()
@@ -479,61 +465,47 @@ class EditorWithFieldVars extends React.Component {
     if (this.props.showFuncs) {
       const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY', '$L', 'ZIP']
       $.get('/admin/robot/trigger/field-writeback-custom-funcs', (res) => {
-        let funcs = []
+        let funcVars = []
         res.data.forEach((name) => {
-          if (!IGNORED_NAMES.includes(name)) funcs.push({ name: name, label: name })
+          if (!IGNORED_NAMES.includes(name)) funcVars.push({ name: name, label: name })
         })
-        this.setState({ funcs }, () => {
-          $(this._$funcs).perfectScrollbar()
+        this.setState({ funcVars }, () => {
+          $(this._$funcVars).perfectScrollbar()
         })
       })
     }
 
-    // eslint-disable-next-line no-undef
-    autosize(this._$content)
-    setTimeout(() => {
-      const evt = new Event('input')
-      this._$content.dispatchEvent(evt)
-      // search
-      $dropdownMenuSearch(this._$fieldVars)
-    }, 200)
-  }
-
-  val() {
-    if (arguments.length > 0) {
-      $(this._$content).val(arguments[0])
+    if (!this._CodeMirror) {
       // eslint-disable-next-line no-undef
-      autosize.update(this._$content)
-    } else {
-      return $(this._$content).val()
+      autosize(this._$content)
+      setTimeout(() => {
+        const evt = new Event('input')
+        this._$content.dispatchEvent(evt)
+      }, 200)
     }
+    // search
+    setTimeout(() => $dropdownMenuSearch(this._$fieldVars), 200)
   }
 
-  focus() {
-    setTimeout(() => this._$content.focus(), 20)
-  }
+  resize() {}
 }
 
 // ~ 公式编辑器
 // eslint-disable-next-line no-unused-vars
 class FormulaCalcWithCode extends FormulaCalc {
-  constructor(props) {
-    super(props)
-  }
-
   renderContent() {
     let forceCode = this.props.forceCode || this.state.useCode
     let initCode = this.props.initFormula
     if (!forceCode && initCode && initCode.startsWith('{{{{')) {
       forceCode = true
     }
-    if (FormulaCalcWithCode.isCode(initCode) && initCode.startsWith('{{{{')) {
+    if (FormulaEditor.isCode(initCode) && initCode.startsWith('{{{{')) {
       initCode = initCode.substring(4, initCode.length - 4)
     }
 
     if (forceCode) {
       return (
-        <FormulaCode
+        <FormulaEditor
           initCode={initCode}
           onConfirm={(s) => {
             this.props.onConfirm(!$trim(s) ? null : `{{{{${s}}}}}`)
@@ -626,17 +598,23 @@ class FormulaCalcWithCode extends FormulaCalc {
 }
 
 // 公式代码编辑器
-class FormulaCode extends React.Component {
+class FormulaEditor extends React.Component {
   render() {
     return (
       <div>
-        {window.CodeMirror ? (
-          <CodeEditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode canFullscreen={false} />
-        ) : (
-          <EditorWithFieldVars entity={this.props.entity} showFuncs ref={(c) => (this._formulaCode = c)} placeholder="## Support AviatorScript" isCode />
-        )}
+        <EditorWithFieldVars
+          showFuncs
+          isCode
+          entity={this.props.entity}
+          placeholder="## Support AviatorScript"
+          cmOptions={{
+            mode: 'text/x-custom-js',
+          }}
+          value={this.props.initCode}
+          ref={(c) => (this._formulaCode = c)}
+        />
 
-        <div className="row mt-1">
+        <div className="row mt-2">
           <div className="col pt-2">
             <span className="d-inline-block">
               <a href="https://getrebuild.com/docs/admin/trigger/fieldwriteback#%E9%AB%98%E7%BA%A7%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F" target="_blank" className="link">
@@ -655,10 +633,6 @@ class FormulaCode extends React.Component {
     )
   }
 
-  componentDidMount() {
-    this._formulaCode.val(this.props.initCode || '')
-  }
-
   handleConfirm() {
     const code = this._formulaCode.val()
     const that = this
@@ -673,6 +647,8 @@ class FormulaCode extends React.Component {
     }
   }
 
+  // --
+
   // 格式化显示
   static textCode(code) {
     if (!code) return null
@@ -681,28 +657,30 @@ class FormulaCode extends React.Component {
     code = code.replace(/( )/gi, '&nbsp;').replace(/</gi, '&lt;').replace(/\n/gi, '<br/>')
     return <code style={{ lineHeight: 1.2 }} dangerouslySetInnerHTML={{ __html: code }} />
   }
-}
 
-FormulaCalcWithCode.isCode = function (formula) {
-  return formula && formula.startsWith('{{{{')
-}
-
-FormulaCalcWithCode.formatText = function (formula, fields) {
-  if (!formula) return null
-
-  // CODE
-  if (FormulaCalcWithCode.isCode(formula)) {
-    return FormulaCode.textCode(formula)
+  // 是否公式代码
+  static isCode = function (formula) {
+    return formula && formula.startsWith('{{{{')
   }
-  // compatible: DATE
-  if (formula.includes('#')) {
-    const fs = formula.split('#')
-    const field = fields.find((x) => x.name === fs[0])
-    return `{${field ? field.label : `[${fs[0].toUpperCase()}]`}}` + (fs[1] || '')
-  }
-  // NUM,DATE
-  else {
-    return FormulaCalcWithCode.textFormula(formula, fields)
+
+  // 格式化
+  static formatText = function (formula, fields) {
+    if (!formula) return null
+
+    // CODE
+    if (FormulaEditor.isCode(formula)) {
+      return FormulaEditor.textCode(formula)
+    }
+    // compatible: DATE
+    if (formula.includes('#')) {
+      const fs = formula.split('#')
+      const field = fields.find((x) => x.name === fs[0])
+      return `{${field ? field.label : `[${fs[0].toUpperCase()}]`}}` + (fs[1] || '')
+    }
+    // NUM,DATE
+    else {
+      return FormulaCalc.textFormula(formula, fields)
+    }
   }
 }
 
@@ -802,8 +780,8 @@ class FormulaAggregation extends FormulaCalcWithCode {
     if (!formula) return ''
 
     // v4.3 CODE
-    if (FormulaCalcWithCode.isCode(formula)) {
-      return FormulaCode.textCode(formula)
+    if (FormulaEditor.isCode(formula)) {
+      return FormulaEditor.textCode(formula)
     }
 
     for (let i = 0; i < fields.length; i++) {
@@ -828,55 +806,6 @@ class FormulaAggregation extends FormulaCalcWithCode {
   static getLabel(name, fields) {
     const x = fields.find((x) => x.name === name)
     return x ? x.label : `[${name.toUpperCase()}]`
-  }
-}
-
-// v4.3 CM
-class CodeEditorWithFieldVars extends EditorWithFieldVars {
-  render() {
-    return <div className="CodeEditorWithFieldVars__wrap">{super.render()}</div>
-  }
-
-  componentDidMount() {
-    super.componentDidMount()
-
-    setTimeout(() => {
-      __defineCodeMirror()
-      this._CodeMirror = window.CodeMirror.fromTextArea(this._$content, {
-        // mode: 'javascript',
-        mode: 'text/x-custom-js',
-        theme: 'material-darker',
-        lineNumbers: true,
-        dragDrop: false,
-        smartIndent: true,
-        styleActiveLine: true,
-        autoCloseBrackets: true,
-        matchBrackets: true,
-        lineWrapping: true,
-        viewportMargin: Infinity,
-        ...this.props.cmProps,
-      })
-      this.focus()
-    }, 20)
-  }
-
-  insertAtCursor(text) {
-    this._CodeMirror.replaceSelection(text)
-    this.focus()
-  }
-
-  val() {
-    if (arguments.length) {
-      setTimeout(() => {
-        this._CodeMirror && this._CodeMirror.setValue(arguments[0])
-      }, 22)
-    } else {
-      return this._CodeMirror ? this._CodeMirror.getValue() : null
-    }
-  }
-
-  focus() {
-    this._CodeMirror && this._CodeMirror.focus()
   }
 }
 
@@ -909,3 +838,7 @@ let __defineCodeMirror = function () {
   // 注册 MIME 类型
   window.CodeMirror.defineMIME('text/x-custom-js', 'custom-js')
 }
+
+$(document).ready(() => {
+  window.CodeMirror && __defineCodeMirror()
+})

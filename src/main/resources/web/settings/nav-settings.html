@@ -43,9 +43,9 @@
       }
       .topnav-list > div .nav-name-text,
       .topnav-list > div .nav-name-edit {
-        cursor: move;
+        cursor: default;
         display: block;
-        padding-left: 18px;
+        padding-left: 17px;
         position: relative;
       }
       .topnav-list > div .nav-name-text::before,
@@ -57,6 +57,7 @@
         font-size: 18px;
         left: 0;
         top: 6px;
+        cursor: move;
       }
       .topnav-list > div .nav-name-text > a {
         position: absolute;
@@ -117,9 +118,11 @@
                       <option value="$FEEDS$" data-icon="chart-donut">[[${bundle.L('动态')}]]</option>
                       <option value="$FILEMRG$" data-icon="folder">[[${bundle.L('文件')}]]</option>
                       <option value="$CONTACT$" data-icon="account-box-phone">[[${bundle.L('通讯录')}]]</option>
+                      <option value="$APPROVAL$" data-icon="mdi-progress-check">[[${bundle.L('审批中心')}]]</option>
                       <option value="$PROJECT$" data-icon="shape">[[${bundle.L('项目')}]]</option>
                       <option value="$DASHBOARD$" data-icon="chart">[[${bundle.L('仪表盘')}]]</option>
                       <option value="$PARENT$" data-icon="menu">[[${bundle.L('父级菜单')}]]</option>
+                      <option value="$DIVIDER$" data-icon="mdi-format-list-group">[[${bundle.L('分栏')}]]</option>
                     </optgroup>
                   </select>
 
@@ -141,7 +144,7 @@
             </div>
             <div class="input-group mb-3">
               <span class="input-group-prepend">
-                <span class="input-group-text J_menuIcon" th:title="${bundle.L('选择图标')}"><i class="zmdi zmdi-texture"></i></span>
+                <a class="input-group-text J_menuIcon" th:title="${bundle.L('选择图标')}"><i class="zmdi zmdi-texture"></i></a>
               </span>
               <input type="text" class="form-control form-control-sm J_menuName" th:placeholder="${bundle.L('菜单名称')}" maxlength="100" />
             </div>

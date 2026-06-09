@@ -44,7 +44,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,10 +124,10 @@ public class FileShareController extends BaseController {
             map.put("shareKey", shareKey);
             map.put("csrfToken", "sk:" + shareKey);
             return createModelAndView("/common/shared-dash", map);
-
         }
+
         // 分享目录
-        else if (folderOrDash42 != null && folderOrDash42.getEntityCode() == EntityHelper.AttachmentFolder) {
+        if (folderOrDash42 != null && folderOrDash42.getEntityCode() == EntityHelper.AttachmentFolder) {
             String viewFile = getParameter(request, "file");
             // 查看目录内文件
             if (ID.isId(viewFile)) {
@@ -140,16 +143,18 @@ public class FileShareController extends BaseController {
                 map.put("folderName", folderName);
 
                 Object[][] array = Application.createQueryNoFilter(
-                        "select attachmentId,fileName,fileSize,fileType from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
+                        "select attachmentId,fileName,fileSize,fileType,modifiedOn from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
                         .setParameter(1, folderOrDash42)
                         .array();
                 List<String[]> files = new ArrayList<>();
+                DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                 for (Object[] o : array) {
                     files.add(new String[]{
                             shareKey + "?file=" + o[0],
                             (String) o[1],
                             FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(o[2])),
-                            (String) o[3]
+                            (String) o[3],
+                            df.format((Date) o[4]),
                     });
                 }
                 map.put("folderFiles", files);
@@ -224,9 +229,8 @@ public class FileShareController extends BaseController {
      * @param fileUrl
      * @param checkIfLocal
      * @return
-     * @see FileDownloader#download(HttpServletRequest, HttpServletResponse)
      */
-    String makePublicUrl(String fileUrl, String checkIfLocal) {
+    public static String makePublicUrl(String fileUrl, String checkIfLocal) {
         String publicUrl;
         if (QiniuCloud.instance().available()) {
             publicUrl = QiniuCloud.instance().makeUrl(fileUrl, 15 * 60);

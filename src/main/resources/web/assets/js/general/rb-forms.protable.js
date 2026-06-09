@@ -31,29 +31,25 @@ class ProTable extends React.Component {
 
     const formFields = this.state.formFields
     const readonly = this.state.readonly || this.props.$$$main.props.readonly
-    // const fixedWidth = formFields.length <= 5
-    const fixedWidth = false // v42
     const inlineForms = this.state.inlineForms || []
-    const colActionClazz = `col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
+    const colActionClazz = `col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} column-fixed`
+    const fixedColumn44 = this._extConf40.fixedColumn === true
 
     return (
-      <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
-        <table className={`table table-sm ${fixedWidth && 'table-fixed'}`}>
+      <div className="protable rb-scroller" ref={(c) => (this._$scroller = c)}>
+        <table className="table table-sm">
           <thead>
             <tr>
-              <th className="col-index" />
-              {formFields.map((item) => {
+              <th className={`col-index ${fixedColumn44 && 'column-fixed'}`} />
+              {formFields.map((item, idx) => {
                 if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
                 let colStyle2 = { minWidth: _PT_COLUMN_DEF_WIDTH }
-                if (!fixedWidth) {
-                  // v35, v38, v42
-                  let _colspan = ~~(item.colspan || 2)
-                  if (_colspan === 9) _colspan = 1.5
-                  if (_colspan === 8) _colspan = 2.5
-                  colStyle2.minWidth = (_PT_COLUMN_DEF_WIDTH / 2) * _colspan
-                  if (_PT_COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
-                }
+                let _colspan = ~~(item.colspan || 2)
+                if (_colspan === 9) _colspan = 1.5
+                if (_colspan === 8) _colspan = 2.5
+                colStyle2.minWidth = (_PT_COLUMN_DEF_WIDTH / 2) * _colspan
+                if (_PT_COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
                 // v37 LAB
                 if (item.width) {
                   colStyle2.width = item.width
@@ -61,7 +57,7 @@ class ProTable extends React.Component {
                 }
 
                 return (
-                  <th key={item.field} data-field={item.field} style={colStyle2} className={item.nullable ? '' : 'required'}>
+                  <th key={item.field} data-field={item.field} style={colStyle2} className={`${!item.nullable && 'required'} ${fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}`}>
                     {item.label}
                     {item.tip && <i className="tipping zmdi zmdi-info-outline" title={item.tip} />}
                     <i className="dividing hide" />
@@ -82,7 +78,7 @@ class ProTable extends React.Component {
                     $(this._$tbody).find('tr.active').removeClass('active')
                     $(e.currentTarget).addClass('active')
                   }}>
-                  <th className={`col-index ${!readonly && 'action'}`}>
+                  <th className={`col-index ${fixedColumn44 && 'column-fixed'} ${!readonly && 'action'}`}>
                     <span>{idx + 1}</span>
                     {!readonly && (
                       <a title={$L('展开编辑')} onClick={() => this._expandLineForm(key)}>
@@ -92,7 +88,7 @@ class ProTable extends React.Component {
                   </th>
                   {FORM}
                   {!readonly && (
-                    <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
+                    <td className="col-action column-fixed">
                       {this._initModel.detailsCopiable && (
                         <button className="btn btn-light J_copy-detail" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={readonly}>
                           <i className="icon zmdi zmdi-copy fs-13" />
@@ -110,12 +106,13 @@ class ProTable extends React.Component {
           {this._extConf40.showCounts && (
             <tfoot className={inlineForms.length === 0 ? 'hide' : ''}>
               <tr>
-                <th className="col-idx" />
-                {formFields.map((item) => {
+                <th className={`col-index ${fixedColumn44 && 'column-fixed'}`} />
+                {formFields.map((item, idx) => {
                   if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
+
                   // 未配置不显示
                   if (typeof this._extConf40.showCounts === 'object') {
-                    if (!this._extConf40.showCounts[item.field]) return <th key={item.field} />
+                    if (!this._extConf40.showCounts[item.field]) return <th key={item.field} className={fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'} />
                   }
 
                   let v = this.state._counts[item.field]
@@ -125,8 +122,9 @@ class ProTable extends React.Component {
                   } else if (item.type === 'NUMBER') {
                     v = $formatNumber(v || 0, 0)
                   }
+
                   return (
-                    <th key={item.field} className="text-bold">
+                    <th key={item.field} className={`text-bold ${fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}`}>
                       {v}
                     </th>
                   )
@@ -154,7 +152,7 @@ class ProTable extends React.Component {
 
     $.post(`/app/${entity.entity}/form-model?mainLayoutId=${this.props.mainLayoutId}&id=`, JSON.stringify(initialValue), (res) => {
       // 包含错误
-      if (res.error_code > 0 || !!res.data.error) {
+      if (res.error_code > 0 || (res.data || {}).error) {
         const error = (res.data || {}).error || res.error_msg
         this.setState({ hasError: error })
         return
@@ -556,10 +554,12 @@ class InlineForm extends RbForm {
 
   render() {
     const rawModel = this.props.rawModel
+    const fixedColumn44 = this._extConf40.fixedColumn === true
+
     return (
       <RF>
         {this._extConf40.showCheckbox && (
-          <td className="col-checkbox">
+          <td className={`col-checkbox ${fixedColumn44 && 'column-fixed'}`}>
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
               <input className="custom-control-input" type="checkbox" />
               <i className="custom-control-label" />
@@ -577,11 +577,11 @@ class InlineForm extends RbForm {
           </td>
         )}
 
-        {this.props.children.map((fieldComp) => {
+        {this.props.children.map((fieldComp, idx) => {
           if (fieldComp.props.field === TYPE_DIVIDER || fieldComp.props.field === TYPE_REFFORM) return null
           const key = `fieldcomp-${fieldComp.props.field}`
           return (
-            <td key={key} ref={(c) => (this._$ref = c)}>
+            <td key={key} ref={(c) => (this._$ref = c)} className={fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}>
               {React.cloneElement(fieldComp, { $$$parent: this, ref: key })}
             </td>
           )
@@ -680,21 +680,21 @@ class ProTableTree extends ProTable {
 
     const formFields = this.state.formFields
     const readonly = this.props.$$$main.props.readonly
-    const fixedWidth = false
     const inlineForms = this.state.inlineForms || []
     // v4.0-b3
     const stcParentField = (this._extConf40.showTreeConfig || {}).parentField
     const stcMaxNodeLevel = (this._extConf40.showTreeConfig || {}).maxNodeLevel || 99
-    const colActionClazz = `col-action ${stcParentField && 'has-copy-btn'} ${!fixedWidth && 'column-fixed'}`
+    const colActionClazz = `col-action ${stcParentField && 'has-copy-btn'} column-fixed`
+    const fixedColumn44 = this._extConf40.fixedColumn === true
 
     return (
-      <div className={`protable rb-scroller ${!fixedWidth && 'column-fixed-pin'}`} ref={(c) => (this._$scroller = c)}>
-        <table className={`table table-sm ${fixedWidth && 'table-fixed'}`}>
+      <div className="protable rb-scroller" ref={(c) => (this._$scroller = c)}>
+        <table className="table table-sm">
           <thead>
             <tr>
-              <th className="col-index" />
+              <th className={`col-index ${fixedColumn44 && 'column-fixed'}`} />
               {this._extConf40.showCheckbox && (
-                <th className="col-checkbox">
+                <th className={`col-checkbox ${fixedColumn44 && 'column-fixed'}`}>
                   <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                     <input
                       className="custom-control-input"
@@ -709,18 +709,15 @@ class ProTableTree extends ProTable {
               )}
               {stcParentField && <th className="col-tree" />}
 
-              {formFields.map((item) => {
+              {formFields.map((item, idx) => {
                 if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
                 let colStyle2 = { minWidth: _PT_COLUMN_DEF_WIDTH }
-                if (!fixedWidth) {
-                  // v35, v38
-                  let _colspan = ~~(item.colspan || 2)
-                  if (_colspan === 9) _colspan = 1.5
-                  if (_colspan === 8) _colspan = 2.5
-                  colStyle2.minWidth = (_PT_COLUMN_DEF_WIDTH / 2) * _colspan
-                  if (_PT_COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
-                }
+                let _colspan = ~~(item.colspan || 2)
+                if (_colspan === 9) _colspan = 1.5
+                if (_colspan === 8) _colspan = 2.5
+                colStyle2.minWidth = (_PT_COLUMN_DEF_WIDTH / 2) * _colspan
+                if (_PT_COLUMN_WIDTH_PLUS.includes(item.type)) colStyle2.minWidth += 38 // btn
                 // v37 LAB
                 if (item.width) {
                   colStyle2.width = item.width
@@ -728,7 +725,7 @@ class ProTableTree extends ProTable {
                 }
 
                 return (
-                  <th key={item.field} data-field={item.field} style={colStyle2} className={item.nullable ? '' : 'required'}>
+                  <th key={item.field} data-field={item.field} style={colStyle2} className={`${!item.nullable && 'required'} ${fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}`}>
                     {item.label}
                     {item.tip && <i className="tipping zmdi zmdi-info-outline" title={item.tip} />}
                     <i className="dividing hide" />
@@ -743,7 +740,7 @@ class ProTableTree extends ProTable {
               const key = FORM.key
               return (
                 <tr key={`if-${key}`} data-key={key}>
-                  <th className={`col-index ${!readonly && 'action'}`}>
+                  <th className={`col-index ${fixedColumn44 && 'column-fixed'} ${!readonly && 'action'}`}>
                     <span>{idx + 1}</span>
                     {!readonly && (
                       <a title={$L('展开编辑')} onClick={() => this._expandLineForm(key)}>
@@ -752,7 +749,7 @@ class ProTableTree extends ProTable {
                     )}
                   </th>
                   {FORM}
-                  <td className={`col-action ${!fixedWidth && 'column-fixed'}`}>
+                  <td className="col-action column-fixed">
                     {stcParentField && FORM.props.rawModel._treeNodeLevel + 1 < stcMaxNodeLevel && (
                       <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
                         <i className="icon zmdi zmdi-plus fs-16" />
@@ -769,17 +766,18 @@ class ProTableTree extends ProTable {
           {this._extConf40.showCounts && (
             <tfoot className={inlineForms.length === 0 ? 'hide' : ''}>
               <tr>
-                <th className="col-idx" />
-                {this._extConf40.showCheckbox && <td className="col-checkbox" />}
+                <th className={`col-index ${fixedColumn44 && 'column-fixed'}`} />
+                {this._extConf40.showCheckbox && <td className={`col-checkbox ${fixedColumn44 && 'column-fixed'}`} />}
                 {stcParentField && <td className="col-tree" />}
-                {formFields.map((item) => {
+                {formFields.map((item, idx) => {
                   if (item.field === TYPE_DIVIDER || item.field === TYPE_REFFORM) return null
 
                   let v = this.state._counts[item.field]
                   if (item.type === 'DECIMAL') v = $formatNumber(v || 0, 2)
                   else if (item.type === 'NUMBER') v = $formatNumber(v || 0, 0)
+
                   return (
-                    <th key={item.field} className="text-bold">
+                    <th key={item.field} className={`text-bold ${fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}`}>
                       {v}
                     </th>
                   )

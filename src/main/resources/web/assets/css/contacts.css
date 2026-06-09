@@ -70,6 +70,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .contact-list div.card .card-body {
   padding: 12px 15px;
+  border-radius: auto;
 }
 
 .contact-list div.card .img {

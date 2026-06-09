@@ -18,7 +18,6 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.DataListManager;
-import com.rebuild.core.configuration.general.EasyActionManager;
 import com.rebuild.core.configuration.general.FormsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -50,6 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.rebuild.core.configuration.general.EasyActionManager.PLAT_PC;
+import static com.rebuild.core.configuration.general.EasyActionManager.instance;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_ASIDE_SHOWS;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_FILTERPANE;
 import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.ADVLIST_HIDE_CHARTS;
@@ -193,7 +194,7 @@ public class GeneralListController extends EntityController {
         mv.getModel().put("quickFieldsLabel", getQuickFieldsLabel(listEntity));
         // EasyAction
         mv.getModel().put("easyAction",
-                CommonsUtils.sanitizeHtml(EasyActionManager.instance.getEasyAction(listEntity.getName(), user)));
+                CommonsUtils.sanitizeHtml(instance.getEasyAction(listEntity.getName(), user, null, PLAT_PC)));
         // 多表单-新建
         List<ConfigBean> formsAttr = FormsManager.instance.getAllFormsAttr(entity, true);
         if (formsAttr.size() > 1) mv.getModel().put("formsAttr", JSON.toJSONString(formsAttr));

@@ -11,7 +11,10 @@
         margin: 0;
         background-color: #fff;
       }
-      .md-content {
+      .EasyMDEContainer .CodeMirror .cm-formatting {
+        display: inline !important;
+      }
+      .markdown-body {
         padding: 10px 15px;
       }
     </style>
@@ -57,12 +60,12 @@
 
             const $save = $('.editor-toolbar button.save').attr('disabled', true)
             if (_lastContent == data.content) {
-              setTimeout(() => $save.attr('disabled', false), 1000)
+              setTimeout(() => $save.attr('disabled', false), 500)
               return
             }
 
             $.post('/commons/md-editor-save', JSON.stringify(data), (res) => {
-              setTimeout(() => $save.attr('disabled', false), 1000)
+              setTimeout(() => $save.attr('disabled', false), 500)
               if (res.error_code === 0) {
                 _lastContent = data.content
                 // RbHighbar.success($L('保存成功'))
@@ -80,11 +83,24 @@
           status: false,
           spellChecker: false,
           toolbar: toolbar,
-          previewClass: 'md-content',
+          previewClass: 'markdown-body',
           autoDownloadFontAwesome: false,
         })
         _EasyMDE.toggleFullScreen()
         _lastContent = _EasyMDE.value()
+
+        // 阻止F11
+        document.addEventListener(
+          'keydown',
+          function (e) {
+            if (e.key === 'F11' || e.keyCode === 122) {
+              e.preventDefault()
+              e.stopPropagation()
+              return false
+            }
+          },
+          true,
+        )
       })
 
       window.onbeforeunload = function () {

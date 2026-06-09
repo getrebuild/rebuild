@@ -28,25 +28,11 @@ const AdvFilters = {
     })
 
     this.__$customAdvWrap = $('.dropdown-menu-advfilter__' + this.__entity) // v4.3 for View
-    if (!this.__$customAdvWrap[0]) {
-      this.__$customAdvWrap = $('#dropdown-menu-advfilter')
-    }
+    if (!this.__$customAdvWrap[0]) this.__$customAdvWrap = $('#dropdown-menu-advfilter')
 
     $(document.body).on('click', (e) => {
-      if (!e.target) return
-      const $target = $(e.target)
-      if (
-        $target.hasClass('J_filterbtn') ||
-        $target.parent().hasClass('J_filterbtn') ||
-        $target.hasClass('dropdown-menu-advfilter') ||
-        $target.parents('.dropdown-menu-advfilter')[0] ||
-        $target.hasClass('modal') ||
-        $target.parents('.modal')[0] ||
-        $target.parents('.select2-container')[0] ||
-        $target.hasClass('select2-selection__choice__remove')
-      ) {
-        return
-      }
+      // eslint-disable-next-line no-undef
+      if ($isClickAdvFilter(e)) return
       if (this.__customAdv && !this.__$customAdvWrap.hasClass('hide')) {
         this.__$customAdvWrap.addClass('hide')
       }
@@ -73,6 +59,7 @@ const AdvFilters = {
       })
 
       const $menu = that.__$el.find('.dropdown-menu')
+      let editable = false
       $(res.data).each(function () {
         const item = this
         const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate"></a></div>`).appendTo($menu)
@@ -85,6 +72,9 @@ const AdvFilters = {
 
         // 可修改
         if (item.editable) {
+          editable = true
+          $item.attr('data-seq', item.seq || 0)
+
           const $action = $(
             `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}" class="danger-hover"><i class="zmdi zmdi-delete"></i></a></div>`,
           ).appendTo($item)
@@ -121,8 +111,8 @@ const AdvFilters = {
         }
       })
 
-      // ASIDE
-      if ($('#asideFilters').length) {
+      // 有侧栏
+      function setAsideFilters() {
         const $ghost = $('.adv-search .dropdown-menu').clone()
         $ghost.removeAttr('class')
         $ghost.removeAttr('style')
@@ -134,6 +124,54 @@ const AdvFilters = {
           that._clickFilter($(this), 'aside')
         })
         $ghost.clone(true).appendTo($('#asideFilters').empty())
+
+        // active
+        $(`#asideFilters .dropdown-item[data-id="${that.current || '$ALL$'}"]`).addClass('active')
+      }
+
+      const hasAside = $('#asideFilters').length > 0
+      if (hasAside) setAsideFilters()
+
+      // v4.4 排序
+      if (editable) {
+        $menu
+          .sortable({
+            items: '.dropdown-item[data-seq]',
+            axis: 'y',
+            stop: function (e, ui) {
+              let $item = $(ui.item)
+              let $itemPrev = $item.prev('.dropdown-item[data-seq]')
+              let $itemNext = $item.next('.dropdown-item[data-seq]')
+
+              let prevSeq = ~~($itemPrev.attr('data-seq') || -1)
+              let nextSeq = ~~($itemNext.attr('data-seq') || -1)
+              let step = 1000
+              let seq
+              if (prevSeq === -1 && nextSeq >= 0) {
+                seq = nextSeq + step
+              } else if (nextSeq === -1 && prevSeq >= 0) {
+                seq = prevSeq - step
+              } else if (prevSeq >= 0 && nextSeq >= 0) {
+                seq = Math.floor((prevSeq + nextSeq) / 2)
+              } else {
+                seq = step * 10000
+              }
+
+              $item.attr('data-seq', seq)
+
+              let seqs = {
+                [$item.data('id')]: seq,
+              }
+              $.post(`/app/${that.__entity}/advfilter/post-seqs`, JSON.stringify(seqs), (res) => {
+                if (res.error_code === 0) {
+                  setAsideFilters()
+                } else {
+                  RbHighbar.error(res.error_msg)
+                }
+              })
+            },
+          })
+          .disableSelection()
       }
 
       if (!$defaultFilter) $defaultFilter = that.__$el.find('.dropdown-item:eq(0)')
@@ -217,6 +255,7 @@ const AdvFilters = {
   // 列表顶部 TAB
   __LAB_DATALIST_QUICKFILTERTAB43() {
     if (!(window.__LAB_DATALIST_QUICKFILTERTAB43 && window.__LAB_DATALIST_QUICKFILTERTAB43[this.__entity])) return
+    if (RbViewModal.mode !== 1) return
 
     const $wrap = $('.main-content').prepend('<div class="quick-filter-tabs"><div></div></div>').find('.quick-filter-tabs>div')
     const that = this
@@ -233,7 +272,7 @@ const AdvFilters = {
 
           // 列显示
           if (item.listFieldsId && that.__listFieldsId !== item.listFieldsId) {
-            $.get(`/rbmob/entity-config/list?entity=${that.__entity}&flag=${item.listFieldsId}`, (res) => {
+            $.get(`/rbmob/entity-config/list?entity=${that.__entity}&specLayout=${item.listFieldsId || ''}`, (res) => {
               that.__listFieldsId = item.listFieldsId
 
               $unmount('#react-list', 1, true)
@@ -286,6 +325,24 @@ const AdvFilters = {
 
       if (item.default) {
         $setTimeout(() => $tab.trigger('click'), 200, '__LAB_DATALIST_QUICKFILTERTAB43')
+      }
+
+      if (item.showBadge) {
+        let protocolFilterAnd = item.filterId ? `via:${item.filterId}` : null
+        if (item.filter) protocolFilterAnd = item.filter
+        let queryBody = {
+          protocolFilterAnd,
+          entity: that.__entity,
+          fields: [],
+        }
+
+        $.post('/app/entity/extras/record-count', JSON.stringify(queryBody), (res) => {
+          if (res.data && res.data > 0) {
+            let $em = $tab.find('em')
+            if (!$em[0]) $em = $('<em></em>').appendTo($tab)
+            $em.text(`(${res.data})`)
+          }
+        })
       }
     })
   },
@@ -554,7 +611,7 @@ class BatchUpdate extends BatchOperator {
                       <span className="badge badge-warning">{BU_OPS[item.op]}</span>
                     </div>
                     <div className="col-6">
-                      {item.op !== 'NULL' && <span className="badge badge-warning text-break text-left">{FieldValueSet.formatFieldText(item.value, field)}</span>}
+                      {item.op !== 'NULL' && <span className="badge badge-light text-break text-left">{FieldValueSet.formatFieldText(item.value, field)}</span>}
                       <a className="del" onClick={() => this.delItem(item.field)} title={$L('移除')}>
                         <i className="zmdi zmdi-close" />
                       </a>
@@ -590,6 +647,7 @@ class BatchUpdate extends BatchOperator {
 
     contents.push(item)
     this.setState({ updateContents: contents })
+    this._buEntry.reset()
   }
 
   delItem(fieldName) {
@@ -783,6 +841,10 @@ class BatchUpdateEntry extends React.Component {
       return data
     }
   }
+
+  reset() {
+    this._FieldValue && this._FieldValue.reset()
+  }
 }
 
 // ~ 批量审批
@@ -881,7 +943,8 @@ class BatchApprove extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create(<b>{$L('请再次确认审批数据范围和审批方式。开始审批吗？')}</b>, {
+    const _confirmTip = this._confirmTip || $L('请确认审批数据范围和审批方式。开始审批吗？')
+    RbAlert.create(<b>{_confirmTip}</b>, {
       onConfirm: function () {
         this.hide()
         that.disabled(true, true)
@@ -900,7 +963,6 @@ class BatchApprove extends BatchOperator {
           }
         })
       },
-      countdown: 5,
     })
   }
 
@@ -920,12 +982,16 @@ class BatchApprove extends BatchOperator {
             .find('.btn-primary')
             .text(res.data.isInterrupted ? $L('已终止') : $L('已完成'))
           if (res.data.succeeded > 0) {
-            RbHighbar.success($L('批量审批完成。成功 %d 条，失败 %d 条', res.data.succeeded, res.data.total - res.data.succeeded))
+            let tips = $L('审批完成')
+            if (res.data.total !== res.data.succeeded) {
+              tips += ' (' + $L('成功 %d 条，失败 %d 条', res.data.succeeded, res.data.total - res.data.succeeded) + ')'
+            }
+            RbHighbar.success(tips)
           } else {
-            RbHighbar.create($L('没有任何符合批量审批条件的记录'))
+            RbHighbar.create($L('没有任何符合审批条件的记录'))
           }
 
-          RbListPage.reload()
+          this.props.listRef.reload()
           setTimeout(() => {
             this.disabled(false)
             this.hide()
@@ -976,6 +1042,7 @@ const RbListCommon = {
     $('.input-search .btn-input-clear').on('click', () => {
       $input.val('')
       $btn.trigger('click')
+      $input[0].focus()
     })
 
     // via 默认过滤
@@ -1050,6 +1117,14 @@ const RbListCommon = {
     if (location.hash === '#!/New') {
       setTimeout(() => $('.J_new').trigger('click'), 200)
     }
+
+    // 刷新可打开
+    if (RbViewModal.mode === 1 || RbViewModal.mode === 3 || RbViewModal.mode === 4) {
+      const viewHash = (location.hash || '').split('/')
+      if (viewHash.length === 4 && viewHash[1] === 'View' && $regex.isId(viewHash[3])) {
+        setTimeout(() => RbViewModal.create({ entity: wpc.entity[0], id: viewHash[3] }), 500)
+      }
+    }
   },
 }
 
@@ -1066,12 +1141,12 @@ class RbList extends React.Component {
   constructor(props) {
     super(props)
 
-    this._$wrapper = $(props.$wrapper || '#react-list')
-    this._entity = props.config.entity
-
     this.__defaultFilterKey = `AdvFilter-${this._entity}`
     this.__sortFieldKey = `SortField-${this._entity}`
     this.__columnWidthKey = `ColumnWidth-${this._entity}.`
+
+    this._$wrapper = $(props.$wrapper || '#react-list')
+    this._entity = props.config.entity
 
     const fields = props.config.fields || []
 
@@ -1260,9 +1335,9 @@ class RbList extends React.Component {
 
       $addResizeHandler(() => {
         let mh = $(window).height() - (61 + 20 + 61 + 60 + 3) /* Nav, MarginTop20, TableHeader, TableFooter */
-        if ($('.main-content>.nav-tabs-classic')[0]) mh -= 38 // Has detail-tab
-        if ($('.main-content .quick-filter-pane')[0]) mh -= 92 // Has filter-pane
-        if ($('.main-content .quick-filter-tabs')[0]) mh -= 44 // Has list-view
+        if ($('.main-content>.nav-tabs-classic')[0]) mh -= 38 // .detail-tab
+        if ($('.main-content .quick-filter-pane')[0]) mh -= 98 // .filter-pane
+        if ($('.main-content .quick-filter-tabs')[0]) mh -= 44 // .list-view
 
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
@@ -1539,11 +1614,7 @@ class RbList extends React.Component {
   }
 
   _openView($tr) {
-    if (!wpc.type) return
     const id = $($tr).data('id')
-    if (!wpc.forceSubView) {
-      location.hash = `!/View/${this._entity}/${id}`
-    }
     CellRenders.clickView({ id: id, entity: this._entity })
   }
 
@@ -1611,6 +1682,7 @@ class RbList extends React.Component {
     this.advFilterId = id
     this.pageNo = 1
     this.fetchList(this._buildQuick())
+
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
   }
@@ -1829,13 +1901,8 @@ class RbListPagination extends React.Component {
 const CellRenders = {
   // 打开记录
   clickView(v, e) {
-    const _RbViewModal = window.RbViewModal ? window.RbViewModal : parent && parent.RbViewModal ? parent.RbViewModal : null
-    if (_RbViewModal && wpc.forceOpenNewtab !== true) {
-      _RbViewModal.create({ id: v.id, entity: v.entity }, wpc.forceSubView)
-    } else {
-      window.open(`${rb.baseUrl}/app/redirect?id=${v.id}&type=newtab`)
-    }
     e && $stopEvent(e, true)
+    RbViewModal.openView({ id: v.id, entity: v.entity }, wpc.forceSubView)
     return false
   },
 

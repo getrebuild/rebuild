@@ -1,6 +1,38 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #75 (v4.4)
+alter table `meta_field`
+  change column `MAX_LENGTH` `MAX_LENGTH` int(11) default '701';
+
+-- #74 (v4.4)
+alter table `filter_config`
+  add column `SEQ` int(11) default '0' comment '排序 (小到大)';
+
+-- #73 (v4.4)
+alter table `aibot_chat`
+  add column `TOKEN` bigint(20) comment '词元用量';
+
+-- #72 (v4.4)
+-- ************ Entity [RobotApprovalHub] DDL ************
+create table if not exists `robot_approval_hub` (
+  `HUB_ID`             char(20) not null,
+  `HUB_BATCH`          varchar(100) comment '提交批次',
+  `RECORD_ID`          char(20) not null comment '审批记录',
+  `APPROVAL_STEP_ID`   char(20) not null comment '审批步骤',
+  `USER_SUBMIT`        char(20) comment '提交用户',
+  `USER_APPROVE`       char(20) comment '审批用户',
+  `USER_CC`            char(20) comment '抄送用户',
+  `STATE`              smallint(6) default '1' comment '审批结果',
+  `APPROVED_ON`        datetime null default null comment '审批时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`HUB_ID`),
+  index IX0_robot_approval_hub (`STATE`, `USER_SUBMIT`, `USER_APPROVE`, `USER_CC`),
+  index IX1_robot_approval_hub (`APPROVAL_STEP_ID`),
+  index IX2_robot_approval_hub (`HUB_BATCH`)
+)Engine=InnoDB;
+
 -- #71 (v4.3)
 -- ************ Entity [CommonsConfig] DDL ************
 create table if not exists `commons_config` (

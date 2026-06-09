@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.CommonsUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -59,7 +60,6 @@ public class QueryHelper {
         String filterSql = useVarRecord
                 ? new AdvFilterParser(advFilter, recordId).toSqlWhere()
                 : new AdvFilterParser(advFilter).toSqlWhere();
-
         return isMatchFilter(recordId, filterSql);
     }
 
@@ -104,7 +104,6 @@ public class QueryHelper {
      */
     public static Record recordNoFilter(ID recordId) throws NoRecordFoundException {
         Record o = Application.getQueryFactory().recordNoFilter(recordId);
-
         if (o == null) throw new NoRecordFoundException(recordId);
         return o;
     }
@@ -126,7 +125,6 @@ public class QueryHelper {
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(fields, ","), detailEntity.getName(),
                 MetadataHelper.getDetailToMainField(detailEntity).getName());
-
         return Application.createQueryNoFilter(sql).setParameter(1, mainId).list();
     }
 
@@ -215,13 +213,72 @@ public class QueryHelper {
     }
 
     /**
+     * 查询字段值
+     *
      * @param recordId
      * @param fieldName
      * @return
+     * @see #queryFieldValue(ID, String, boolean)
      */
     public static Object queryFieldValue(ID recordId, String fieldName) {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, fieldName);
         return o == null || o[0] == null ? null : o[0];
+    }
+
+    /**
+     * 查询字段值，可兼容 N2N 点连接字段
+     *
+     * @param recordId
+     * @param fieldName
+     * @param compatibleN2N 可以查询多引用连接字段
+     * @return
+     */
+    public static Object[] queryFieldValue(ID recordId, String fieldName, boolean compatibleN2N) {
+        if (!compatibleN2N) {
+            Object o = queryFieldValue(recordId, fieldName);
+            return o == null ? new Object[0] : new Object[]{o};
+        }
+
+        List<Object> res = new ArrayList<>();
+        String[] filePath = fieldName.split("\\.");
+
+        Set<ID> prevRecordIds = new HashSet<>();
+        prevRecordIds.add(recordId);
+
+        for (int i = 0; i < filePath.length; i++) {
+            ID[] prevRecordIdsHold = prevRecordIds.toArray(new ID[0]);
+            prevRecordIds.clear();
+
+            for (ID id : prevRecordIdsHold) {
+                Object[] o = Application.getQueryFactory().uniqueNoFilter(id, filePath[i]);
+                Object oVal = o == null || o[0] == null ? null : o[0];
+                if (oVal == null) continue;
+
+                // Last
+                if (i + 1 == filePath.length) {
+                    res.add(oVal);
+                } else {
+                    if (oVal instanceof ID) prevRecordIds.add((ID) oVal);
+                    else if (oVal instanceof ID[]) CollectionUtils.addAll(prevRecordIds, (ID[]) oVal);
+                }
+            }
+        }
+        return res.toArray(new Object[0]);
+    }
+
+    /**
+     * @param recordId
+     * @param fieldNames
+     * @param compatibleN2N
+     * @return
+     */
+    public static Object[] queryFieldValue(ID recordId, String[] fieldNames, boolean compatibleN2N) {
+        List<Object> res = new ArrayList<>();
+        for (String fieldName : fieldNames) {
+            Object[] o = queryFieldValue(recordId, fieldName, compatibleN2N);
+            if (o.length > 0) CollectionUtils.addAll(res, o);
+        }
+        return res.toArray(new Object[0]);
     }
 
     /**
@@ -242,5 +299,53 @@ public class QueryHelper {
 
         if (snap == null) throw new NoRecordFoundException(primaryId);
         return snap;
+    }
+
+    /**
+     * 查询相关项
+     *
+     * @param recordId
+     * @param relatedEntity
+     * @return
+     */
+    public static ID[] queryRelatedIds(ID recordId, Entity relatedEntity) {
+        Entity me = MetadataHelper.getEntity(recordId.getEntityCode());
+        Field[] reftoFields = MetadataHelper.getReferenceToFields(me, relatedEntity, true);
+        if (reftoFields.length == 0) return new ID[0];
+
+        List<String> or = new ArrayList<>();
+        for (Field field : reftoFields) {
+            if (field.getType() == FieldType.REFERENCE) {
+                or.add(String.format("%s = '%s'", field.getName(), recordId));
+            } else {
+                // N2N
+                String exists = String.format(
+                        "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
+                        field.getOwnEntity().getPrimaryField().getName(), field.getName(), recordId);
+                or.add(exists);
+            }
+        }
+
+        String sql = String.format("select %s from %s where ( %s )",
+                relatedEntity.getPrimaryField().getName(), relatedEntity.getName(),
+                StringUtils.join(or.iterator(), " or "));
+        Object[][] array = Application.createQuery(sql).array();
+
+        Set<ID> ids = new HashSet<>();
+        for (Object[] o : array) ids.add((ID) o[0]);
+
+        return ids.toArray(new ID[0]);
+    }
+
+    /**
+     * 获取明细的主记录 ID
+     *
+     * @param detailId
+     * @return
+     */
+    public static ID queryMainId(ID detailId) {
+        Entity e = MetadataHelper.getEntity(detailId.getEntityCode());
+        String dtfName = MetadataHelper.getDetailToMainField(e).getName();
+        return (ID) QueryHelper.queryFieldValue(detailId, dtfName);
     }
 }

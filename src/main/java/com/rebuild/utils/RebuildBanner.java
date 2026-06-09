@@ -45,14 +45,19 @@ public class RebuildBanner {
     }
 
     /**
+     * @param stars
      * @param texts
      * @return
      */
-    public static String formatSimple(String... texts) {
-        StringBuilder banner = new StringBuilder("\n");
+    public static String formatSimple(boolean stars, String... texts) {
+        StringBuilder banner = new StringBuilder("\n\n");
+        if (stars) banner.append("  **********\n");
+
         for (String t : texts) {
             banner.append("  ").append(t).append("\n");
         }
+
+        if (stars) banner.append("  **********\n");
         return banner.toString();
     }
 }

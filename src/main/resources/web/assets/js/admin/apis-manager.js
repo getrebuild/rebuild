@@ -310,7 +310,7 @@ class AppLogsViewer extends RbModal {
           dataShow: reset ? _data[0] : this.state.dataShow || _data[0],
           showMore: _data.length >= 40,
         },
-        () => {}
+        () => {},
       )
       this.setState({ _search: false })
     })
@@ -318,7 +318,7 @@ class AppLogsViewer extends RbModal {
 
   _isRespOk(resp) {
     try {
-      return resp.error_code === 0
+      return resp.error_code === 0 || resp.length >= 32767
     } catch (err) {
       try {
         return resp.includes('调用成功') || resp.length >= 32767

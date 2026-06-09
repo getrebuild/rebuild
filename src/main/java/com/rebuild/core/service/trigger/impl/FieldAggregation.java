@@ -252,7 +252,6 @@ public class FieldAggregation extends TriggerAction {
                 }
 
             } else {
-//                log.warn("Unsupported file-type {} with {}", dt, targetRecordId);
                 // v4.2
                 evalValue = FieldWriteback.checkoutFieldValue(evalValue, targetFieldEasy);
                 if (evalValue != null) targetRecord.setObjectValue(targetField, evalValue);
@@ -297,7 +296,7 @@ public class FieldAggregation extends TriggerAction {
 
         } finally {
             GeneralEntityServiceContextHolder.isSkipGuardOnce();
-            if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdateOnce();
+            if (forceUpdate) GeneralEntityServiceContextHolder.isAllowForceUpdate(true);
             if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
         }
 

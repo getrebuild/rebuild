@@ -195,27 +195,27 @@ public class ViewAddonsManager extends BaseLayoutManager {
         }
 
         JSONArray addons = new JSONArray();
-        for (Object o : ((JSONObject) configJson).getJSONArray ("items")) {
+        for (Object o : ((JSONObject) configJson).getJSONArray("items")) {
             String key;
             String label = null;
+            // v4.4 布局
+            String layout44 = null;
             // compatible: v2.8
             if (o instanceof JSONArray) {
+                // [Key, Label, Filter, Layout]
                 key = (String) ((JSONArray) o).get(0);
                 label = (String) ((JSONArray) o).get(1);
+                if (((JSONArray) o).size() > 3) layout44 = (String) ((JSONArray) o).get(3);
             } else {
                 key = o.toString();
             }
 
             // Entity.Field (v1.9)
             String[] ef = key.split("\\.");
-            if (!MetadataHelper.containsEntity(ef[0])) {
-                continue;
-            }
+            if (!MetadataHelper.containsEntity(ef[0])) continue;
 
             Entity addonEntity = MetadataHelper.getEntity(ef[0]);
-            if (ef.length > 1 && !MetadataHelper.checkAndWarnField(addonEntity, ef[1])) {
-                continue;
-            }
+            if (ef.length > 1 && !MetadataHelper.checkAndWarnField(addonEntity, ef[1])) continue;
 
             if (Application.getPrivilegesManager().allow(user, addonEntity.getEntityCode(), useAction)) {
                 JSONObject show = ef.length > 1
@@ -226,13 +226,16 @@ public class ViewAddonsManager extends BaseLayoutManager {
                     show.put("_entityLabel", show.getString("entityLabel"));
                     show.put("entityLabel", label);
                 }
+
+                if (ID.isId(layout44)) show.put("layout", layout44);
+
                 addons.add(show);
             }
         }
 
         return JSONUtils.toJSONObject(
-                new String[] { "items", "autoExpand", "autoHide", "defaultList" },
-                new Object[] { addons,
+                new String[]{"items", "autoExpand", "autoHide", "defaultList"},
+                new Object[]{addons,
                         ((JSONObject) configJson).getBooleanValue("autoExpand"),
                         ((JSONObject) configJson).getBooleanValue("autoHide"),
                         ((JSONObject) configJson).getBooleanValue("defaultList")});

@@ -219,7 +219,7 @@ class RbFormHandler extends RbModalHandler {
     this.state = { ...props }
   }
 
-  handleChange = (e, call) => {
+  handleChange = (e, cb) => {
     const target = e.target
     const name = target.dataset.id || target.name
     if (!name) return
@@ -227,7 +227,7 @@ class RbFormHandler extends RbModalHandler {
     const val = target.type === 'checkbox' ? target.checked : target.value
     const s = {}
     s[name] = val
-    this.setState(s, call)
+    this.setState(s, cb)
     this.handleChangeAfter(name, val)
   }
 
@@ -273,7 +273,7 @@ class RbAlert extends React.Component {
           this._dlg = c
           this._element = c
         }}>
-        <div className="modal-dialog modal-dialog-centered" style={style2}>
+        <div className={`modal-dialog modal-dialog-centered ${this.props.useScrollable && 'modal-dialog-scrollable'}`} style={style2}>
           <div className="modal-content">
             <div className="modal-header pb-0">
               <button className="close" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
@@ -504,13 +504,20 @@ class RbHighbar extends React.Component {
   }
 }
 
+const __TypeIcons = {
+  'success': 'check',
+  'danger': 'close-circle-o',
+  'warning': 'alert-circle-o',
+  'primary': 'info-outline',
+  'info': 'help-outline',
+}
 // ~~ 提示条
 class RbAlertBox extends React.Component {
   render() {
     const props = this.props
     const type = (props || {}).type || 'warning'
     let icon = props.icon
-    if (!icon) icon = type === 'success' ? 'check' : type === 'danger' ? 'close-circle-o' : 'info-outline'
+    if (!icon) icon = __TypeIcons[type] || 'info-outline'
 
     return (
       <div className={`alert alert-icon alert-icon-border alert-sm alert-${type} ${props.unclose ? '' : 'alert-dismissible'} ${props.className || ''}`} ref={(c) => (this._element = c)}>
@@ -536,7 +543,7 @@ class RbAlertBox extends React.Component {
 }
 
 // ~~ 加载动画 @see spinner.html
-function RbSpinner(props) {
+function RbSpinner({ fully }) {
   const spinner = (
     <div className="rb-spinner">
       {$.browser.msie ? (
@@ -549,8 +556,13 @@ function RbSpinner(props) {
     </div>
   )
 
-  if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
+  if (fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
+}
+
+// ~~ 无值
+function NoValue({ text }) {
+  return <span className="text-muted">{text || $L('无')}</span>
 }
 
 // ~~ 用户选择器
@@ -951,7 +963,7 @@ class RecordSelector extends React.Component {
   render() {
     return (
       <div className="input-group has-append">
-        <select className="form-control form-control-sm" ref={(c) => (this._$select = c)} />
+        <select className="form-control form-control-sm" ref={(c) => (this._$select = c)} multiple={this.props.allowMultiple} />
         <div className="input-group-append">
           <button className="btn btn-secondary" onClick={() => this._showSearcher()} ref={(c) => (this._$btn = c)}>
             <i className="icon zmdi zmdi-search" />
@@ -962,11 +974,18 @@ class RecordSelector extends React.Component {
   }
 
   componentDidMount() {
-    this._initSelect2()
+    this._initSelect2(false, () => {
+      const iv = this.props.initValue || this.props.defaultValue
+      if (iv) {
+        if (typeof iv === 'object') this.setValue(iv.id, iv.text)
+        else this.setValue(iv)
+      }
+    })
   }
 
-  _initSelect2(reset) {
-    const props = this.state // use state
+  _initSelect2(reset, cb) {
+    let props = this.state
+    if (!props.entity) props = { ...(this.props.initValue || this.props.defaultValue) }
     if (!props.entity) return
 
     if (reset) {
@@ -983,17 +1002,15 @@ class RecordSelector extends React.Component {
     }).on('change', (e) => {
       typeof props.onSelect === 'function' && props.onSelect(e.target.value)
     })
+
+    cb && cb()
   }
 
   _showSearcher() {
     const that = this
     window.referenceSearch__call = function (selected) {
-      const id = selected[0]
-      if ($(that._$select).find(`option[value="${id}"]`).length > 0) {
-        that.__select2.val(id).trigger('change')
-      } else {
-        that._setValue(id)
-      }
+      if (that.props.allowMultiple !== true) selected = selected[0]
+      that._setValue(selected)
       that._ReferenceSearcher.hide()
     }
 
@@ -1008,11 +1025,20 @@ class RecordSelector extends React.Component {
     }
   }
 
-  _setValue(id) {
-    $.get(`/commons/search/read-labels?ids=${id}`, (res) => {
+  _setValue(ids) {
+    ids = typeof ids === 'string' ? [ids] : ids
+    $.get(`/commons/search/read-labels?ids=${ids.join(',')}`, (res) => {
       const _data = res.data || {}
-      const o = new Option(_data[id], id, true, true)
-      this.__select2.append(o).trigger('change')
+      for (let id in _data) {
+        let currentVal = this.__select2.val()
+        if (currentVal && currentVal.includes(id)) {
+          // 已有
+        } else {
+          const o = new Option(_data[id], id, true, true)
+          this.__select2.append(o)
+        }
+      }
+      this.__select2.trigger('change')
     })
   }
 
@@ -1099,23 +1125,22 @@ class AnyRecordSelector extends RecordSelector {
               this.setState(
                 {
                   entity: e.target.value,
-                  entityLabel: this.__select2Entity.select2('data')[0].text,
+                  entityLabel: this.props.entityLabel || this.__select2Entity.select2('data')[0].text,
                 },
-                () => this._initSelect2(true),
+                () => {
+                  if (this._stopEvent) return // for `setValue`
+                  this._initSelect2(true)
+                },
               )
             }
           })
         // init
         entities[0] && $(this._$entity).val(entities[0].name).trigger('change')
 
-        // 编辑时
-        const iv = this.props.initValue
+        const iv = this.props.initValue || this.props.defaultValue
         if (iv) {
-          $(this._$entity).val(iv.entity).trigger('change')
-          setTimeout(() => {
-            const o = new Option(iv.text, iv.id, true, true)
-            $(this._$select).append(o)
-          }, 200)
+          if (typeof iv === 'object') this.setValue(iv.id, iv.text)
+          else this.setValue(iv)
         }
       })
     })
@@ -1127,6 +1152,23 @@ class AnyRecordSelector extends RecordSelector {
       v = { ...v, entity: $(this._$entity).val() }
     }
     return v
+  }
+
+  setValue(id, text) {
+    super.setValue(id, text)
+
+    const that = this
+    function _FN() {
+      let idCode = id.substring(0, 3)
+      let e = that.state.entities ? that.state.entities.find((x) => x.entityCode + '' === idCode) : null
+      if (e) {
+        that._stopEvent = true
+        $(that._$entity).val(e.name).trigger('change')
+        that._stopEvent = false
+      }
+    }
+    if (this.__select2Entity) _FN()
+    else setTimeout(_FN, 200)
   }
 
   componentWillUnmount() {
@@ -1142,7 +1184,7 @@ class RecordSelectorModal extends RbAlert {
       <div className="form ml-3 mr-3">
         <div className="form-group">
           <label className="text-bold">{this.props.title || $L('选择记录')}</label>
-          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} allowBizz={this.props.allowBizz} />
+          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} allowBizz={this.props.allowBizz} allowMultiple={this.props.allowMultiple} />
         </div>
         <div className="form-group mb-2">
           <button
@@ -1283,6 +1325,7 @@ class Md2Html extends React.Component {
     })
 
     this.setState({ md2html: cHtml }, () => {
+      // 链接安全
       $(this._$md2html)
         .find('a')
         .each(function () {
@@ -1427,7 +1470,7 @@ class CodeViewport extends React.Component {
   }
 
   componentDidMount() {
-    this._$code.innerHTML = $formattedCode(this.props.code || '', this.props.type)
+    this._$code.innerHTML = $formatCode(this.props.code || '', this.props.type)
 
     if (this._$copy) {
       const that = this
@@ -1444,8 +1487,276 @@ class CodeViewport extends React.Component {
   UNSAFE_componentWillReceiveProps(newProps) {
     // eslint-disable-next-line eqeqeq
     if (newProps.code && newProps.code != this.props.code) {
-      this._$code.innerHTML = $formattedCode(newProps.code, this.props.type)
+      this._$code.innerHTML = $formatCode(newProps.code, this.props.type)
     }
+  }
+}
+
+// ~~ 代码编辑器
+class CodeEditor extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      <div className={`code-editor ${this.props.readonly && 'cm-readonly'}`} ref={(c) => (this._$element = c)}>
+        <textarea
+          className="form-control formula-code"
+          spellCheck="false"
+          defaultValue={this.props.value || ''}
+          ref={(c) => (this._$content = c)}
+          onChange={(e) => {
+            if (!window.CodeMirror) {
+              let cc = e.target.value
+              console.log('Code change:', cc)
+              typeof this.props.onChange === 'function' && this.props.onChange(cc)
+            }
+          }}
+          readOnly={this.props.readonly === true}
+        />
+        {this.renderActions()}
+      </div>
+    )
+  }
+
+  renderActions() {
+    return (
+      <div className={`code-editor-actions ${this.props.isCode === false ? 'light' : ''}`}>
+        {!this.props.readonly && (
+          <a title={$L('格式化')} onClick={() => this.formatCode()}>
+            <i className="icon mdi mdi-wrap" />
+          </a>
+        )}
+        <a title={$L('全屏')} onClick={() => this.fullscreen()}>
+          <i className="icon mdi mdi-fullscreen" />
+        </a>
+        {this.props.extraActions &&
+          this.props.extraActions.map((a, idx) => {
+            return (
+              <a onClick={() => a.onClick(this)} title={a.name} key={idx}>
+                <i className={`icon mdi mdi-${a.icon}`} />
+              </a>
+            )
+          })}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    if (window.CodeMirror) {
+      setTimeout(() => this.initCodeMirror(), 200)
+    }
+    this.props.autoFocus === true && setTimeout(() => this.focus(), 220)
+  }
+
+  initCodeMirror() {
+    this.destroy()
+
+    let options = {
+      mode: 'text/jsx',
+      theme: 'material',
+      lineNumbers: true,
+      dragDrop: false,
+      smartIndent: true,
+      styleActiveLine: true,
+      autoCloseBrackets: true,
+      matchBrackets: this.props.readonly ? false : true,
+      lint: {
+        esversion: 6,
+      },
+      hintOptions: {
+        completeSingle: false,
+        useGlobalScope: false,
+      },
+      readOnly: this.props.readonly === true ? 'nocursor' : false,
+      viewportMargin: Infinity,
+      lineWrapping: true,
+      ...this.props.cmOptions,
+    }
+
+    const cm5 = window.CodeMirror.fromTextArea(this._$content, options)
+    cm5.on('change', (instance) => {
+      // let se = instance.getScrollerElement()
+      // instance.setSize(null, se.scrollHeight)
+
+      let cc = instance.getValue()
+      typeof this.props.onChange === 'function' && this.props.onChange(cc)
+    })
+
+    this._CodeMirror = cm5
+
+    // 自动高度
+    if (this.props.autoHeight) cm5.setSize('100%', '100%')
+  }
+
+  componentWillUnmount() {
+    this.destroy()
+  }
+
+  destroy() {
+    if (this._CodeMirror) {
+      this._CodeMirror.toTextArea()
+      this._CodeMirror = null
+    }
+  }
+
+  val() {
+    if (arguments.length) {
+      if (this._CodeMirror) this._CodeMirror.setValue(arguments[0])
+      else this._$content.value = arguments[0]
+    } else {
+      if (this._CodeMirror) return this._CodeMirror.getValue()
+      else return this._$content.value
+    }
+  }
+
+  focus() {
+    if (this._CodeMirror) this._CodeMirror.focus()
+    else if (this._$content) this._$content.focus()
+  }
+
+  insertAtCursor(text) {
+    if (this._CodeMirror) this._CodeMirror.replaceSelection(text)
+    else if (this._$content) $(this._$content).insertAtCursor(text)
+  }
+
+  formatCode() {
+    let cc = this.val()
+    cc = $formatCode(cc)
+    this.val(cc)
+  }
+
+  fullscreen() {
+    let $s = $('.modal-wrapper>.modal.show')
+    let $e = $(this._$element)
+    let $cm = $e.find('.CodeMirror')
+    let is = this._fullscreen === 1
+
+    if (is) {
+      $s.scrollTop(this._fullscreen_scrollTop)
+      $('html').removeClass('mde-fullscreen')
+      $e.removeClass('code-editor-fullscreen')
+      $cm.height(300)
+
+      this._fullscreen = 0
+    } else {
+      this._fullscreen_scrollTop = $s.scrollTop()
+      $s.scrollTop(0)
+      $('html').addClass('mde-fullscreen')
+      $e.addClass('code-editor-fullscreen')
+      $cm.height($(window).height())
+
+      this._fullscreen = 1
+    }
+  }
+}
+
+// ~~ HTML 编辑器
+class HtmlEditor extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      <div className="html-editor">
+        <textarea className="form-control" spellCheck="false" defaultValue={this.props.value || ''} ref={(c) => (this._$content = c)} />
+        <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._$content_image = c)} />
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    this.initTnyMCE()
+  }
+
+  initTnyMCE() {
+    this.destroy()
+
+    let _scrollTop = 0
+    window.tinymce.init({
+      // selector: undefined,
+      target: this._$content,
+      license_key: 'gpl',
+      language: rb.locale,
+      plugins: 'table code image lists pagebreak autoresize fullscreen',
+      menubar: 'edit view insert format table',
+      toolbar: 'undo redo styles bold italic alignleft aligncenter alignright alignjustify fullscreen',
+      highlight_on_focus: false,
+      setup: (editor) => {
+        this._TinyMCE = editor
+
+        // 上传图片
+        $createUploader(this._$content_image, null, (res) => {
+          this.image_callback(`${rb.baseUrl}/filex/img/${res.key}`)
+        })
+        //
+        editor.on('NodeChange', () => {
+          let cc = editor.getContent()
+          typeof this.props.onChange === 'function' && this.props.onChange(cc)
+        })
+        //
+        editor.on('FullscreenStateChanged', (e) => {
+          let $s = $('.modal-wrapper>.modal.show')
+          if (e.state) {
+            _scrollTop = $s.scrollTop()
+            $s.scrollTop(0)
+          } else {
+            $s.scrollTop(_scrollTop)
+          }
+        })
+      },
+      file_picker_callback: (callback, value, meta) => {
+        if (meta.filetype === 'image') {
+          this.image_callback = callback
+          this._$content_image.click()
+        }
+      },
+      resize: false,
+      font_family_formats: ['黑体', '仿宋', '楷体', '标楷体', '华文仿宋', '华文楷体', '宋体', '微软雅黑', 'Arial', 'Tahoma', 'Verdana', 'Times New Roman', 'Courier New'].join(';'),
+      protect: [/<style[^>]*>[\s\S]*?<\/style>/g],
+      height: 300,
+      width: '100%',
+      min_height: 300,
+      max_height: 2000,
+      autoresize_bottom_margin: 1,
+    })
+  }
+
+  componentWillUnmount() {
+    this.destroy()
+  }
+
+  destroy() {
+    if (this._TinyMCE) {
+      this._TinyMCE.remove()
+      this._TinyMCE = null
+    }
+  }
+
+  val() {
+    if (arguments.length) {
+      this._TinyMCE.setContent(arguments[0])
+    } else {
+      return this._TinyMCE.getContent()
+    }
+  }
+
+  focus() {
+    this._TinyMCE.focus()
+  }
+
+  insertAtCursor(text) {
+    this._TinyMCE.insertContent(text)
+  }
+
+  formatCode() {
+    let cc = this.val()
+    cc = $formatCode(cc, 'html')
+    this.val(cc)
   }
 }
 
@@ -1577,7 +1888,7 @@ class FileRename extends RbAlert {
             {$L('确定')}
           </button>
           {(isOffice || isMd) && (
-            <a className={`btn btn-link ml-1 ${isMd && 'bosskey-show'}`} href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
+            <a className="btn btn-link ml-1" href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
               <i className="mdi mdi-microsoft-office icon" />
               &nbsp;
               {$L('在线编辑')} (LAB)
@@ -1642,17 +1953,17 @@ class BaiduMap extends React.Component {
       that._map = map
 
       // 初始位置
-      const _lnglat = that.props.lnglat
-      if (_lnglat) {
-        if (_lnglat.lng && _lnglat.lat) {
-          that.center(_lnglat)
-        } else if (_lnglat.text) {
+      const init = that.props.lnglat
+      if (init) {
+        if (init.lng && init.lat) {
+          that.center(init)
+        } else if (init.text) {
           const geoc = new _BMapGL.Geocoder()
-          geoc.getPoint(_lnglat.text, function (point) {
+          geoc.getPoint(init.text, function (point) {
             that.center(point)
           })
         }
-      } else {
+      } else if (this.props.autoPosition !== false) {
         const geol = new _BMapGL.Geolocation()
         geol.enableSDKLocation()
         geol.getCurrentPosition(function (e) {
@@ -1665,11 +1976,11 @@ class BaiduMap extends React.Component {
         })
       }
 
+      // 点选
       if (that.props.canPin) {
         const geoc = new _BMapGL.Geocoder()
         let lastMarker = null
 
-        // 点选
         map.addEventListener('click', function (e) {
           if (lastMarker) map.removeOverlay(lastMarker)
 
@@ -1733,6 +2044,10 @@ class BaiduMap extends React.Component {
 
   search(s) {
     this._mapLocalSearch.search(s)
+  }
+
+  getMap() {
+    return this._map
   }
 }
 
@@ -2059,5 +2374,199 @@ class FilesHandlerComponent extends RbModalHandler {
       typeof onSuccess === 'function' && onSuccess(res)
     })
     setTimeout(() => $file.click(), 20)
+  }
+}
+
+// ~~ 视图
+
+class RbViewModal extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, inLoad: true, isHide: true, destroy: false }
+
+    this._forceWidth = props.subView === true ? 1344 : 1404
+    if ($(window).width() < 1464) this._forceWidth -= 184
+  }
+
+  render() {
+    return this.state.destroy ? null : (
+      <div className="modal-wrapper">
+        <div className="modal rbview" ref={(c) => (this._$rbview = c)}>
+          <div className="modal-dialog">
+            <div className="modal-content" style={{ width: this._forceWidth }}>
+              <div className={`modal-body iframe rb-loading ${this.state.inLoad === true && 'rb-loading-active'}`}>
+                <iframe
+                  data-subview={this.props.subView || false}
+                  ref={(c) => (this._$iframe = c)}
+                  className={this.state.isHide ? 'invisible' : ''}
+                  src={this.state.showAfterUrl || 'about:blank'}
+                  frameBorder="0"
+                  scrolling="no"
+                />
+                <RbSpinner />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const $root = $(this._$rbview)
+    const $rootp = $root.parent().parent()
+    const $mc = $root.find('.modal-content')
+    const that = this
+    $root
+      .on('hidden.bs.modal', function () {
+        $mc.css({ 'margin-right': -1500 })
+        that.setState({ inLoad: true, isHide: true })
+        if (!$keepModalOpen()) location.hash = '!/View/'
+
+        // SubView 子视图不保持
+        if (that.state.disposeOnHide === true) {
+          $root.modal('dispose')
+          that.setState({ destroy: true }, () => {
+            RbViewModal.holder(that.state.id, 'DISPOSE')
+            $unmount($rootp)
+          })
+        }
+      })
+      .on('shown.bs.modal', function () {
+        $mc.css('margin-right', 0)
+        const $mcbd = $('body>.modal-backdrop.show')
+        if ($mcbd[0]) {
+          $mcbd.addClass('o')
+          $mcbd.eq(0).removeClass('o')
+        }
+      })
+    this.show()
+  }
+
+  hideLoading() {
+    this.setState({ inLoad: false, isHide: false })
+  }
+
+  showLoading() {
+    this.setState({ inLoad: true, isHide: true })
+  }
+
+  show(url, option) {
+    let urlChanged = true
+    if (url && url === this.state.url) urlChanged = false
+    option = option || {}
+    url = url || this.state.url
+
+    this.setState({ ...option, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
+      $(this._$rbview).modal({ show: true, backdrop: true, keyboard: false })
+      setTimeout(() => {
+        this.setState({ showAfterUrl: this.state.url })
+      }, 210) // 0.2s
+
+      // v4.4
+      typeof this.props.onUrlChanged === 'function' && this.props.onUrlChanged(url)
+    })
+  }
+
+  hide() {
+    $(this._$rbview).modal('hide')
+  }
+
+  // -- Usage
+
+  /**
+   * @param {object} props
+   * @param {boolean} subView
+   */
+  static create(props, subView) {
+    if (props.id) props.id = props.id.toLowerCase()
+
+    this.__HOLDERs = this.__HOLDERs || {}
+    this.__HOLDERsStack = this.__HOLDERsStack || []
+    const that = this
+    let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
+    if (!props.entity) {
+      viewUrl = `${rb.baseUrl}/app/redirect?id=${props.id}&type=newtab`
+      subView = true
+    }
+
+    if (subView) {
+      renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide subView />, function () {
+        that.__HOLDERs[props.id] = this
+        that.__HOLDERsStack.push(this)
+      })
+    } else {
+      if (this.__HOLDER) {
+        this.__HOLDER.show(viewUrl)
+        this.__HOLDERs[props.id] = this.__HOLDER
+      } else {
+        renderRbcomp(<RbViewModal url={viewUrl} id={props.id} />, function () {
+          that.__HOLDERs[props.id] = this
+          that.__HOLDERsStack.push(this)
+          that.__HOLDER = this
+        })
+      }
+
+      // 刷新可打开
+      if (RbViewModal.mode === 1 || RbViewModal.mode === 3 || RbViewModal.mode === 4) {
+        if (props.entity) location.hash = `!/View/${props.entity}/${props.id}`
+      }
+    }
+  }
+
+  /**
+   * 获取视图
+   * @param {string} id
+   * @param {string} action [DISPOSE|HIDE|LOADING]
+   */
+  static holder(id, action) {
+    this.__HOLDERs = this.__HOLDERs || {}
+    this.__HOLDERsStack = this.__HOLDERsStack || []
+
+    if (action === 'DISPOSE') {
+      delete this.__HOLDERs[id]
+      this.__HOLDERsStack.pop() // 销毁后替换
+      this.__HOLDERsStack.forEach((x) => {
+        if (x.props.id === id) this.__HOLDERs[id] = x
+      })
+    } else if (action === 'HIDE') {
+      this.__HOLDERs[id] && this.__HOLDERs[id].hide()
+    } else if (action === 'LOADING') {
+      this.__HOLDERs[id] && this.__HOLDERs[id].showLoading()
+    } else {
+      return this.__HOLDERs[id]
+    }
+  }
+
+  /**
+   * 当前主视图
+   */
+  static currentHolder(reload) {
+    if (reload && this.__HOLDER) {
+      this.__HOLDER.showLoading()
+      this.__HOLDER._$iframe.contentWindow.location.reload()
+    }
+    return this.__HOLDER
+  }
+
+  /**
+   * v4.4 打开视图
+   * @param {object} props
+   * @param {boolean} subView
+   * @param {boolean} forceOpenNewTab
+   */
+  static openView(props, subView, forceOpenNewTab) {
+    // 新窗口
+    if (rb.__LAB_FORCEOPENNEWTAB44 || forceOpenNewTab) {
+      if (props.url) window.open(props.url)
+      else if (props.id) window.open(`${rb.baseUrl}/app/redirect?id=${props.id}&type=newtab`)
+      else console.error('RbViewModal.openView: props.url or props.id is required')
+
+      // ~
+    } else {
+      // 优先父级
+      const _RbViewModal = parent && parent.RbViewModal ? parent.RbViewModal : window.RbViewModal
+      _RbViewModal.create(props, subView)
+    }
   }
 }

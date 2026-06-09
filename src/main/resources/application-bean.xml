@@ -36,15 +36,15 @@
 
     <bean name="rb37Dialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect"/>
 
+    <bean name="rb44MetadataFactory" class="com.rebuild.core.metadata.impl.DynamicMetadataFactory">
+        <constructor-arg index="0" value="metadata-conf.xml"/>
+        <constructor-arg index="1" ref="rb37Dialect"/>
+    </bean>
+
     <bean class="cn.devezhao.persist4j.engine.PersistManagerFactoryImpl">
         <constructor-arg index="0" ref="rb37DataSource"/>
         <constructor-arg index="1" ref="rb37Dialect"/>
-        <constructor-arg index="2">
-            <bean class="com.rebuild.core.metadata.impl.DynamicMetadataFactory">
-                <constructor-arg index="0" value="metadata-conf.xml"/>
-                <constructor-arg index="1" ref="rb37Dialect"/>
-            </bean>
-        </constructor-arg>
+        <constructor-arg index="2" ref="rb44MetadataFactory"/>
     </bean>
 
     <bean name="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

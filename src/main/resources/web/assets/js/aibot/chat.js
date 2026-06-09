@@ -65,7 +65,7 @@ class Chat extends React.Component {
           this.setState({ chatid: d._chatid })
           this._ChatSidebar.setState({ current: d._chatid })
         }
-        this._ChatMessages.setMessages(d.messages || [])
+        this._ChatMessages.setMessages(d.messages || [], true)
       } else {
         this._ChatMessages.setMessages([{ error: res.error_msg }])
       }
@@ -77,8 +77,9 @@ class Chat extends React.Component {
   }
 
   send(data) {
+    scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
-    // FIXME 不延迟会覆盖?
+
     setTimeout(() => {
       this._ChatMessages.appendMessage({
         role: 'assistant',
@@ -89,12 +90,13 @@ class Chat extends React.Component {
           })
         },
       })
-    }, 20)
+    }, 40)
   }
 
   sendStream(data, onDone) {
+    scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
-    // FIXME 不延迟会覆盖
+
     setTimeout(() => {
       this._ChatMessages.appendMessage({
         role: 'assistant',
@@ -118,15 +120,13 @@ class ChatInput extends React.Component {
         <div className={`chat-input ${this.state.active && 'active'}`}>
           <div className="chat-input-input">
             <div className="chat-input-attach">
-              <ul className="m-0 list-unstyled">
-                {this.state.attach.map((item, idx) => {
-                  return (
-                    <li key={idx}>
-                      <Attach {...item} _ChatInput={this} />
-                    </li>
-                  )
-                })}
-              </ul>
+              {this.state.attach && this.state.attach.length > 0 && (
+                <RF>
+                  {this.state.attach.map((item, idx) => {
+                    return <Attach {...item} _ChatInput={this} key={idx} />
+                  })}
+                </RF>
+              )}
             </div>
             <textarea
               rows="2"
@@ -150,11 +150,11 @@ class ChatInput extends React.Component {
               <i className="mdi mdi-attachment-plus" />
             </button>
             <div className="dropdown-menu dropdown-menu-right">
-              <a className="dropdown-item" onClick={() => this.attachRecord()}>
-                {$L('选择记录')}
-              </a>
               <a className="dropdown-item" onClick={() => this.attachFile()}>
                 {$L('选择文件')}
+              </a>
+              <a className="dropdown-item" onClick={() => this.attachRecord()}>
+                {$L('选择记录')}
               </a>
               <a className="dropdown-item" onClick={() => this.attachPageData()}>
                 {$L('选择当前页数据')}
@@ -172,6 +172,7 @@ class ChatInput extends React.Component {
               <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : 'mdi mdi-stop'} />
             </button>
           </div>
+          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" data-maxsize="20971520" multiple />
         </div>
       </div>
     )
@@ -208,19 +209,41 @@ class ChatInput extends React.Component {
     this.setState({ attach })
   }
 
-  attachRecord() {
-    RecordSelectorModal.create({
-      onConfirm: (v) => {
-        const attach = [...this.state.attach, { record: v, id: $random('attach-', true) }]
-        this.setState({ attach })
-      },
-      allowEntities: window.__LAB_AIALLOWENTITIES435 || null,
-      allowBizz: false,
+  componentDidMount() {
+    $multipleUploader(this._$file, (res) => {
+      const attach = [...this.state.attach, { file: res.key, id: $random('attach-', true) }]
+      this.setState({ attach })
     })
   }
+
   attachFile() {
-    RbHighbar.createl('暂不支持')
+    if (rb.commercial < 1) {
+      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+      return false
+    }
+    this._$file.click()
   }
+
+  attachRecord() {
+    const ps = {
+      onConfirm: (v) => {
+        let attach = [...this.state.attach]
+        if (typeof v === 'object') {
+          v.forEach((id) => {
+            attach.push({ record: id, id: $random('attach-', true) })
+          })
+        } else {
+          attach.push({ record: v, id: $random('attach-', true) })
+        }
+        this.setState({ attach })
+      },
+      allowMultiple: true,
+      allowEntities: window.__LAB_AIALLOWENTITIES435 || null,
+      allowBizz: false,
+    }
+    renderRbcomp(<RecordSelectorModal2 {...ps} zIndex="1050" />)
+  }
+
   attachPageData() {
     if (typeof window.attachAibotPageData === 'function') {
       window.attachAibotPageData((data) => {
@@ -255,17 +278,18 @@ class ChatMessages extends React.Component {
     this.setMessages([...this.state.messages, data])
   }
 
-  setMessages(messages) {
+  setMessages(messages, forceScroll) {
     this.setState({ messages: messages }, () => {
-      setTimeout(scrollToBottom, 100)
+      scrollToBottom(forceScroll)
     })
   }
 
   componentDidMount() {
+    // scrollToBottom
     let _lastScroll = 0
     const $ms = $(this._$messages).on('scroll', function () {
       let currentScroll = $(this).scrollTop()
-      if (_lastScroll - currentScroll > 30) {
+      if (_lastScroll - currentScroll > 60) {
         __evt_ScrollToBottomStop = true
       } else {
         if (__evt_ScrollToBottomStop) {
@@ -326,7 +350,16 @@ class ChatMessage extends React.Component {
     else if (this.props.role === 'system') c = this.renderSystem()
     else c = this.renderError()
 
-    return <div className="chat-message">{c}</div>
+    return (
+      <div className="chat-message">
+        {c}
+        <div className="msg-action">
+          <a title={$L('复制')} onClick={() => $clipboard2(this.state.content || '')}>
+            <i className="mdi mdi-content-copy icon" />
+          </a>
+        </div>
+      </div>
+    )
   }
 
   renderUser() {
@@ -381,14 +414,16 @@ class ChatMessage extends React.Component {
     if (!md) return null
     return (
       <div className="msg-text">
-        <span className="md-content" dangerouslySetInnerHTML={{ __html: marked.parse(md) }}></span>
+        <span className="markdown-body" dangerouslySetInnerHTML={{ __html: marked.parse(md) }}></span>
       </div>
     )
   }
 }
 
-function scrollToBottom() {
+function scrollToBottom(forceScroll) {
+  if (forceScroll) __evt_ScrollToBottomStop = false
   if (__evt_ScrollToBottomStop) return
+
   $setTimeout(
     () => {
       const el = $('.chat-messages')[0]
@@ -500,7 +535,7 @@ class ChatSidebar extends React.Component {
               this.toggleShow(false)
             }}>
             <i className="mdi mdi-chat-plus-outline mr-1 icon" />
-            {$L('新对话')}
+            {$L('新会话')}
           </a>
         </div>
         <div className="chat-list">
@@ -576,9 +611,10 @@ class ChatSidebar extends React.Component {
 class Attach extends React.Component {
   render() {
     if (!this.state) return null
+
     if (this.props._ChatInput) {
       return (
-        <span>
+        <span className="text-ellipsis">
           {this.state.name}
           <a className="close" onClick={() => this.props._ChatInput.removeAttach(this.props.id)}>
             &times;
@@ -586,10 +622,11 @@ class Attach extends React.Component {
         </span>
       )
     }
+
     // View
     if (this.state.viewUrl) {
       return (
-        <a href={this.state.viewUrl} target={'_blank'}>
+        <a href={this.state.viewUrl} target="_blank" title={$L('查看')}>
           {this.state.name}
         </a>
       )
@@ -602,10 +639,21 @@ class Attach extends React.Component {
     if (props.record) {
       $.get(`/commons/search/read-labels?id=${props.record}`, (res) => {
         const d = res.data || {}
-        this.setState({ name: `[${$L('记录')}] ${d[props.record]}`, viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab` })
+        this.setState({
+          name: `[${$L('记录')}] ${d[props.record] || '[DELETED]'}`,
+          viewUrl: `${rb.baseUrl}/app/redirect?id=${props.record}&type=newtab`,
+        })
       })
     } else if (props.listFilter) {
-      this.setState({ name: props.name || $L('列表数据') })
+      this.setState({
+        name: props.name || $L('列表数据'),
+        viewUrl: `${rb.baseUrl}/app/${props.listFilter.entity}/list?via=`,
+      })
+    } else if (props.file) {
+      this.setState({
+        name: `[${$L('文件')}] ${$fileCutName(props.file)}`,
+        viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(`/temp/${props.file}`),
+      })
     }
   }
 
@@ -682,5 +730,31 @@ class DlgAttachRecordList extends RbAlert {
     const s = $(this._$select).find('input:checked').val()
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(s)
     this.hide()
+  }
+}
+
+// ~~ 选择记录
+class RecordSelectorModal2 extends RecordSelectorModal {
+  renderContent() {
+    return (
+      <div className="form ml-3 mr-3">
+        <div className="form-group">
+          <label className="text-bold">{this.props.title || $L('选择记录')}</label>
+          <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowEntities={this.props.allowEntities} allowBizz={this.props.allowBizz} allowMultiple={this.props.allowMultiple} />
+        </div>
+
+        <div className="form-group mb-2">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => {
+              typeof this.props.onConfirm === 'function' && this.props.onConfirm(this._AnyRecordSelector.val())
+              this.hide()
+            }}>
+            {$L('确定')}
+          </button>
+        </div>
+      </div>
+    )
   }
 }

@@ -77,12 +77,12 @@ public class ErrorPageView extends BaseController {
         response.sendRedirect(error);
     }
 
-    @GetMapping("/error/server-status")
+    @GetMapping({"/error/server-status", "/gw/server-status"})
     public ModelAndView pageServerStatus(HttpServletRequest request) {
         boolean realtime = "1".equals(request.getParameter("check"));
 
         ModelAndView mv = createModelAndView("/error/server-status");
-        mv.getModel().put("ok", ServerStatus.isStatusOK() && Application.isReady());
+        mv.getModel().put("ok", ServerStatus.isStatusOK() && Application.isStateReady());
         mv.getModel().put("status", ServerStatus.getLastStatus(realtime));
         mv.getModel().put("MemoryUsage", OshiUtils.getOsMemoryUsed());
         mv.getModel().put("MemoryUsageJvm", OshiUtils.getJvmMemoryUsed());
@@ -104,12 +104,12 @@ public class ErrorPageView extends BaseController {
         return mv;
     }
 
-    @GetMapping("/error/server-status.json")
+    @GetMapping({"/error/server-status.json", "/gw/server-status.json"})
     public void apiServerStatus(HttpServletRequest request, HttpServletResponse response) {
         boolean realtime = "1".equals(request.getParameter("check"));
 
         JSONObject s = new JSONObject();
-        s.put("ok", ServerStatus.isStatusOK() && Application.isReady());
+        s.put("ok", ServerStatus.isStatusOK() && Application.isStateReady());
         s.put("uptime", System.currentTimeMillis() - ServerStatus.STARTUP_TIME.getTime());
 
         JSONObject status = new JSONObject();
@@ -134,15 +134,6 @@ public class ErrorPageView extends BaseController {
         }
 
         ServletUtils.writeJson(response, s.toJSONString());
-    }
-
-    @GetMapping({"/gw/server-status", "/gw/server-status.json"})
-    public String v1Fix(HttpServletRequest request) {
-        if (request.getRequestURI().contains("server-status.json")) {
-            return "redirect:/error/server-status.json";
-        } else {
-            return "redirect:/error/server-status";
-        }
     }
 
     @GetMapping("/error/request-support")

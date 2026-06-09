@@ -142,7 +142,7 @@ public class EasyDecimal extends EasyField {
     public static String clearFlaged(Object flagedValue) {
         if (flagedValue == null) return null;
         Matcher m = PATT_CF.matcher(flagedValue.toString());
-        if (m.find()) return m.group().replaceAll(",", "");
+        if (m.find()) return m.group().replace(",", "");
         return null;
     }
 }

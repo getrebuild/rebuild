@@ -53,9 +53,8 @@ const RevTypes = {
 
 class DataList extends React.Component {
   state = { ...this.props }
-
   render() {
-    return <RbList ref={(c) => (this._List = c)} config={ListConfig} />
+    return <RbList2 ref={(c) => (this._List = c)} config={ListConfig} />
   }
 
   componentDidMount() {
@@ -178,6 +177,11 @@ class DlgDetails extends RbAlert {
       super.componentDidMount()
       this.setState({ data: res.data || [] })
     })
+  }
+}
+class RbList2 extends RbList {
+  _openView() {
+    return false
   }
 }
 

@@ -148,6 +148,7 @@ $(document).ready(() => {
             if (set && set.items && set.items.length > 0) $active.addClass('active')
             else $active.removeClass('active')
           }}
+          showPreview
         />,
         function () {
           advFilters[filterKey] = this

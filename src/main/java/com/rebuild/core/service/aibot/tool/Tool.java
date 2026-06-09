@@ -5,9 +5,10 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.service.aibot.tools;
+package com.rebuild.core.service.aibot.tool;
 
-import com.alibaba.fastjson.JSONObject;
+import com.openai.models.chat.completions.ChatCompletionTool;
+import com.rebuild.core.support.Lab;
 
 /**
  * 探索中
@@ -16,10 +17,22 @@ import com.alibaba.fastjson.JSONObject;
  * @author Zixin
  * @since 2025/4/19
  */
-public interface FunctionCalling {
+@Lab
+public interface Tool {
 
     /**
+     * 定义 Tool
+     *
      * @return
      */
-    JSONObject toAiJSON();
+    ChatCompletionTool def();
+
+    /**
+     * 执行
+     *
+     * @param arguments
+     * @return
+     */
+    Object execute(String arguments);
+
 }

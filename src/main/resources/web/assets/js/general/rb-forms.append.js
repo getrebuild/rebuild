@@ -674,7 +674,7 @@ class LiteFormModal extends RbModalHandler {
           </LiteForm>
 
           <div className="footer" ref={(c) => (this._$formAction = c)}>
-            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改选中的 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-2" />}
+            {this._ids.length > 1 && <RbAlertBox message={WrapHtml($L('本次保存将修改选中的 **%d** 条记录', this.props.ids.length))} type="info" className="mt-0 mb-3" />}
 
             <button className="btn btn-primary" type="button" disabled={this.state.readonly === true} onClick={() => this._handleSave()}>
               {props.confirmText || $L('保存')}
@@ -1228,7 +1228,7 @@ class ExcelClipboardDataModalWithForm extends React.Component {
   componentDidMount() {
     $.post(`/app/${this.props.entity}/form-model?layout=${this.props.specLayout || ''}`, (res) => {
       // 包含错误
-      if (res.error_code > 0 || !!res.data.error) {
+      if (res.error_code > 0 || (res.data || {}).error) {
         const error = (res.data || {}).error || res.error_msg
         RbHighbar.error(error)
         return
