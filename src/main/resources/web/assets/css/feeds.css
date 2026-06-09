@@ -136,7 +136,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .types-bar .nav-tabs > li.nav-item a.nav-link {
   padding-top: 12px;
   padding-bottom: 9px;
-  font-weight: bold;
 }
 
 .types-bar .nav-tabs > li.nav-item a.nav-link.active {

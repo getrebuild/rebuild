@@ -395,10 +395,17 @@ class RelatedList extends React.Component {
         )}
 
         {this.state.showMore && (
-          <div className="text-center mt-3 pb-3">
+          <div className="text-center mt-4 pb-2">
             <a className="show-more-pill" onClick={() => this.fetchData(1)}>
               {$L('显示更多')}
             </a>
+          </div>
+        )}
+        {!this.state.showMore && this.state.dataList && this.state.dataList.length > 0 && (
+          <div className="mt-6">
+            <div className="loadmore-line">
+              <span className="bg-white">{$L('已加载全部')}</span>
+            </div>
           </div>
         )}
       </RF>
