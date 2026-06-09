@@ -217,14 +217,14 @@ public class QueryParser {
         }
         if (StringUtils.isNotBlank(sortClause)) {
             fullSql.append(" order by ").append(sortClause);
-            // v3.9.1
+            // fix:3.9.1 可能导致分页数据重复
             if (!sortClause.contains(" autoId") && entity.containsField(EntityHelper.AutoId)) fullSql.append(", autoId");
         }
 
         this.sql = fullSql.toString();
         this.countSql = this.buildCountSql(pkName) + whereClause;
         if (groupBy != null) {
-            // TODO NULL 未计入
+            // TODO NULL 不会计入
             String distinctSql = String.format("select count(distinct %s", groupBy);
             this.countSql = distinctSql + this.countSql.substring(this.countSql.indexOf(")"));
         }

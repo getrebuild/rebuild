@@ -74,7 +74,7 @@ class FilesList extends React.Component {
           </div>
         )}
         {this._pageNo > 1 && this.state.currentSize > 0 && this.state.currentSize < PAGE_SIZE && (
-          <div className="mt-6 pb-1">
+          <div className="mt-6" style={{ paddingBottom: 8 }}>
             <div className="loadmore-line">
               <span>{$L('已加载全部')}</span>
             </div>

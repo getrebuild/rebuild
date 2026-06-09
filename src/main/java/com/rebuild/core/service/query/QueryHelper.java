@@ -230,7 +230,7 @@ public class QueryHelper {
      *
      * @param recordId
      * @param fieldName
-     * @param compatibleN2N
+     * @param compatibleN2N 可以查询多引用连接字段
      * @return
      */
     public static Object[] queryFieldValue(ID recordId, String fieldName, boolean compatibleN2N) {

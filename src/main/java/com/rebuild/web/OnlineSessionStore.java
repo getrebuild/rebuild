@@ -106,6 +106,7 @@ public class OnlineSessionStore implements HttpSessionListener {
         if (requestUri == null) requestUri = request.getRequestURI();
         if (requestUri.contains("/filex/access/")
                 || requestUri.contains("/notification/check-state")
+                || requestUri.contains("/app/entity/filter-badge")
                 || requestUri.contains("/redirect")) {
             return;
         }

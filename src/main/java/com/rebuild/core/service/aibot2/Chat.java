@@ -15,12 +15,16 @@ import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionChunk;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
+import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
+import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
 import com.openai.services.blocking.chat.ChatCompletionService;
 import com.rebuild.core.service.aibot.AiBotException;
 import com.rebuild.core.service.aibot.StreamEcho;
+import com.rebuild.core.service.aibot.tool.ToolDefs;
 import com.rebuild.core.service.query.QueryHelper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -71,6 +75,11 @@ public class Chat implements Serializable {
         ChatCompletionCreateParams params = buildRequestParams(chatRequest.getUserContent(), chatRequest);
         ChatCompletion resp = completions().create(params);
         ChatCompletionMessage ai = resp.choices().get(0).message();
+
+        List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
+        if (CollectionUtils.isNotEmpty(toolCalls)) {
+            log.warn("toolCalls : {}", toolCalls);
+        }
 
         String content = ai.content().orElse("");
         return completionAfter(content, chatRequest);
@@ -140,6 +149,9 @@ public class Chat implements Serializable {
             if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);
             else if (ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(content);
         }
+
+//        builder.toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO)
+//                .tools(ToolDefs.tools());
         return builder.build();
     }
 
