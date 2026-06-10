@@ -12,7 +12,13 @@ useEditComp = function (name) {
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
       let models = ['deepseek-v4-flash', 'qwen3.6-flash', 'gpt-5', 'gemini-2.5-pro']
-      $autoComplete($('input[name="AibotBaseDefModel"]'), null, { options: models })
+      $autoComplete($('input[name="AibotBaseDefModel"]'), null, {
+        options: models,
+        onSelect: (v) => {
+          // eslint-disable-next-line no-undef
+          changeValue({ target: { value: v, name: 'AibotBaseDefModel' } })
+        },
+      })
     }, 500)
   }
 }
