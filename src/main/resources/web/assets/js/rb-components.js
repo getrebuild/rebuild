@@ -1497,6 +1497,7 @@ class CodeEditor extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
+    this._isCode = true
   }
 
   render() {
@@ -1545,7 +1546,7 @@ class CodeEditor extends React.Component {
   }
 
   componentDidMount() {
-    if (window.CodeMirror) {
+    if (window.CodeMirror && this._isCode) {
       setTimeout(() => this.initCodeMirror(), 200)
     }
     this.props.autoFocus === true && setTimeout(() => this.focus(), 220)

@@ -148,7 +148,7 @@ class ContentSendNotification extends ActionContentSpec {
             <div className="form-group row">
               <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('内容')}</label>
               <div className="col-12 col-lg-8">
-                <EditorWithFieldVars isCode={false} entity={wpc.sourceEntity} ref={(c) => (this._content = c)} />
+                <EditorWithFieldVars entity={wpc.sourceEntity} ref={(c) => (this._content = c)} />
                 <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('内容 (及标题) 支持字段变量，字段变量如 `{createdOn}` (其中 createdOn 为源实体的字段内部标识)') }} />
               </div>
             </div>
@@ -175,6 +175,13 @@ class ContentSendNotification extends ActionContentSpec {
                 </div>
               </RF>
             )}
+            <div className="form-group row bosskey-show">
+              <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('发送后回填')} (LAB)</label>
+              <div className="col-12 col-lg-8">
+                <select className="form-control form-control-sm" ref={(c) => (this._$sendFillback = c)}></select>
+                <p className="form-text">{$L('可将发送后的结果回填至指定字段')}</p>
+              </div>
+            </div>
           </div>
         </form>
       </div>
@@ -192,6 +199,32 @@ class ContentSendNotification extends ActionContentSpec {
     $.get('/admin/robot/trigger/sendnotification-atypes', (res) => this.setState({ ...res.data }))
 
     const content = this.props.content
+
+    $.get(`/commons/metadata/fields?deep=1&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
+      let fs = []
+      res.data &&
+        res.data.forEach((item) => {
+          if (['TEXT', 'NTEXT'].includes(item.type) && item.updatable) {
+            fs.push({ id: item.name, text: item.label })
+          }
+        })
+
+      let s = content && content.sendFillback ? content.sendFillback : null
+      $(this._$sendFillback)
+        .select2({
+          placeholder: `${$L('(可选)')}`,
+          data: fs,
+          allowClear: true,
+          language: {
+            noResults: () => $L('无可用字段'),
+          },
+        })
+        .val(s)
+        .trigger('change')
+
+      if (s) $(this._$sendFillback).parents('.bosskey-show').removeClass('bosskey-show')
+    })
+
     if (content) {
       if (content.sendTo) {
         if (content.type === 4) {
@@ -292,6 +325,7 @@ class ContentSendNotification extends ActionContentSpec {
       content: this._content.val(),
       attach: this._attach ? this._attach.val() : null,
       mergeSend: $val(this._$mergeSend),
+      sendFillback: $(this._$sendFillback).val() || null,
     }
 
     if (!_data.content) {

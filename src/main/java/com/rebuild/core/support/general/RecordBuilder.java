@@ -118,11 +118,25 @@ public class RecordBuilder implements JSONable {
      *
      * @param editor
      * @return
-     * @see com.rebuild.core.service.CommonsService#createOrUpdate(Record)
+     * @see #save(ID, boolean)
      */
     public Record save(ID editor) {
+        return save(editor, false);
+    }
+
+    /**
+     * 保存
+     *
+     * @param editor
+     * @return
+     * @see com.rebuild.core.service.CommonsService#createOrUpdate(Record)
+     * @see com.rebuild.core.service.general.GeneralEntityService#createOrUpdate(Record)
+     */
+    public Record save(ID editor, boolean useEntityService) {
         Record r = build(editor);
-        Application.getCommonsService().createOrUpdate(r);
+        if (useEntityService) Application.getBestService(r.getEntity()).createOrUpdate(r);
+        else Application.getCommonsService().createOrUpdate(new Record[]{r}, false);
+
         return r;
     }
 }
