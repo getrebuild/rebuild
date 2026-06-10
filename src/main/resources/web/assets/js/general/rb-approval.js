@@ -717,6 +717,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     if (state === 10) {
       selectUsers = this.getSelectUsers()
       if (!selectUsers) return false
+    } else if (state === 110) {
+      selectUsers = {
+        selectCcs: this.state.ccSelfSelecting ? this._ccSelector.getSelected() : [],
+      }
     }
 
     const data = {
