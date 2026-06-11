@@ -90,7 +90,7 @@ class MessageList extends React.Component {
             </div>
           </div>
           {append && (
-            <a title={$L('查看记录')} className="badge link" href={`${rb.baseUrl}/app/redirect?id=${item[5]}&type=newtab`} target="_blank">
+            <a title={$L('查看记录')} className="badge link" onClick={(e) => $openView(item[5], e)} href="#/View">
               {$L('查看')}
             </a>
           )}
@@ -133,7 +133,7 @@ class MessageList extends React.Component {
             focusItem = null
           })
         })
-      }
+      },
     )
   }
 
@@ -173,7 +173,7 @@ class ApprovalList extends MessageList {
         $.get(`/notification/approvals?pageNo=${this.state.page || 1}`, (res) => {
           this.setState({ list: res.data || [] })
         })
-      }
+      },
     )
   }
 

@@ -226,7 +226,7 @@ code {
 .badge.text-id {
   color: #555;
   font-size: 12px !important;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
 }
 
@@ -5424,7 +5424,7 @@ pre.unstyle {
 
 .code-editor .code-editor-actions {
   position: absolute;
-  right: 10px;
+  right: 15px;
   top: 10px;
   background-color: rgba(255, 255, 255, 0.2);
   z-index: 101;

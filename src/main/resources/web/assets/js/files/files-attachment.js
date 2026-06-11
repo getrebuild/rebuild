@@ -29,7 +29,7 @@ const EntityTree = {
         function () {
           const e = (location.hash || '').split('Entity/')[1]
           if (e) this.triggerClick(~~e)
-        }
+        },
       )
     })
   },
@@ -45,7 +45,7 @@ class FilesList4Atts extends FilesList {
   renderExtras(item) {
     return item.relatedRecord ? (
       <span>
-        <a title={$L('查看记录')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/redirect?id=${item.relatedRecord[0]}&type=newtab`} target="_blank">
+        <a title={$L('查看记录')} onClick={(e) => $openView(item.relatedRecord[0], e)} href="#/View">
           {item.relatedRecord[1]}
         </a>
       </span>
