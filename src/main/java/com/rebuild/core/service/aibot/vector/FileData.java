@@ -56,6 +56,7 @@ public class FileData implements VectorData {
         } else {
             file = RebuildConfiguration.getFileOfTemp(filepath);
             if (!file.exists()) file = RebuildConfiguration.getFileOfData(filepath);
+            if (!file.exists()) file = new File(filepath);
         }
 
         if (file == null || !file.isFile()) {

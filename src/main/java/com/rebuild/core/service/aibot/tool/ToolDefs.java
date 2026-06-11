@@ -24,6 +24,8 @@ public class ToolDefs {
     public static List<ChatCompletionTool> tools() {
         List<ChatCompletionTool> tools = new ArrayList<>();
         tools.add(new HowtoTool().def());
+        tools.add(new EntitiesMeta().def());
+        tools.add(new File2Record().def());
         return tools;
     }
 }
