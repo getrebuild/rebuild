@@ -22,11 +22,9 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.EasyMultiSelect;
-import com.rebuild.core.metadata.easymeta.EasyN2NReference;
-import com.rebuild.core.metadata.easymeta.EasyTag;
 import com.rebuild.core.metadata.easymeta.MediaValue;
 import com.rebuild.core.metadata.easymeta.MixValue;
+import com.rebuild.core.metadata.easymeta.MultiValue;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.EasyExcelListGenerator;
 import com.rebuild.core.service.datareport.ReportsException;
@@ -119,7 +117,7 @@ public class DataExporter extends SetUser {
                 head4Excel.add(Collections.singletonList(h));
             }
 
-            List<List<String>> datas = this.buildData(builder, Boolean.FALSE);
+            List<List<Object>> datas = this.buildData(builder, false);
             if (datas.isEmpty()) throw new DefinedException(Language.L("暂无数据"));
 
             EasyExcel.write(file)
@@ -141,10 +139,10 @@ public class DataExporter extends SetUser {
                     writer.write("\ufeff");
                     writer.write(mergeLine(head));
 
-                    List<List<String>> datas = this.buildData(builder, Boolean.TRUE);
+                    List<List<Object>> datas = this.buildData(builder, true);
                     if (datas.isEmpty()) throw new DefinedException(Language.L("暂无数据"));
 
-                    for (List<String> row : datas) {
+                    for (List<Object> row : datas) {
                         writer.newLine();
                         writer.write(mergeLine(row));
                         count++;
@@ -159,14 +157,14 @@ public class DataExporter extends SetUser {
         return file;
     }
 
-    private String mergeLine(List<String> line) {
+    private String mergeLine(List<?> line) {
         StringBuilder sb = new StringBuilder();
         boolean b = true;
-        for (String s : line) {
+        for (Object s : line) {
             if (b) b = false;
             else sb.append(",");
 
-            sb.append(s.replace(", ", " / "));
+            sb.append(s == null ? "" : s.toString().replace(", ", " / "));
         }
         return sb.toString();
     }
@@ -191,21 +189,21 @@ public class DataExporter extends SetUser {
      * 內容
      *
      * @param builder
-     * @param cleanContent
+     * @param isCvs
      * @return
      */
-    protected List<List<String>> buildData(DataListBuilderImpl builder, boolean cleanContent) {
+    protected List<List<Object>> buildData(DataListBuilderImpl builder, boolean isCvs) {
         final JSONArray data = ((JSONObject) builder.getJSONResult()).getJSONArray("data");
 
         final String labelNop = Language.L("[无权限]");
         final String labelUns = Language.L("[暂不支持]");
 
-        List<List<String>> dataList = new ArrayList<>();
+        List<List<Object>> dataList = new ArrayList<>();
         for (Object row : data) {
             JSONArray rowJson = (JSONArray) row;
 
             int cellIndex = 0;
-            List<String> cellVals = new ArrayList<>();
+            List<Object> cellVals = new ArrayList<>();
             for (Object cellVal : rowJson) {
                 // 最后添加的记录 ID
                 // 详情可见 QueryParser#doParseIfNeed (L171)
@@ -227,6 +225,12 @@ public class DataExporter extends SetUser {
                     cellVal = labelUns;
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replaceAll("[^0-9|^.-]", "");  // 仅保留数字
+
+//                    if (dt == DisplayType.DECIMAL) {
+//                        cellVal = EasyDecimal.fixedDecimalScale(cellVal, easyField);
+//                    } else {
+//                        cellVal = ObjectUtils.toLong(cellVal);
+//                    }
                 } else if (dt == DisplayType.ID) {
                     cellVal = ((JSONObject) cellVal).getString("id");
                 }
@@ -235,13 +239,12 @@ public class DataExporter extends SetUser {
                         (cellVal instanceof JSONObject || cellVal instanceof JSONArray)) {
                     cellVal = ((MixValue) easyField).unpackWrapValue(cellVal);
 
-                    if (cleanContent && cellVal.toString().contains(", ")
-                            && (easyField instanceof EasyMultiSelect || easyField instanceof EasyN2NReference || easyField instanceof EasyTag)) {
+                    if (isCvs && cellVal.toString().contains(", ") && easyField instanceof MultiValue) {
                         cellVal = cellVal.toString().replace(", ", " / ");
                     }
                 }
 
-                cellVals.add(cellVal.toString());
+                cellVals.add(cellVal);
             }
             dataList.add(cellVals);
         }
