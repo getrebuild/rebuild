@@ -161,7 +161,7 @@ class PlanBoxes extends React.Component {
         items: '>.task-card',
         placeholder: 'task-card highlight',
         revert: false,
-        delay: 200,
+        delay: 400,
         start: function (e, ui) {
           ui.placeholder.height(ui.helper.height())
           startState = 1

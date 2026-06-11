@@ -2177,6 +2177,7 @@ class RbFormImage extends RbFormElement {
             cursor: 'move',
             forcePlaceholderSize: true,
             forceHelperSize: true,
+            delay: 400,
             stop: function () {
               let s = []
               $sortable.find('>[data-key]').each(function () {
