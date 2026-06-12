@@ -7,10 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dataimport;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.enums.CellDataTypeEnum;
+import com.alibaba.excel.metadata.data.DataFormatData;
+import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.metadata.style.WriteFont;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
@@ -20,6 +24,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDecimal;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MediaValue;
@@ -37,13 +42,16 @@ import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -206,7 +214,7 @@ public class DataExporter extends SetUser {
             List<Object> cellVals = new ArrayList<>();
             for (Object cellVal : rowJson) {
                 // 最后添加的记录 ID
-                // 详情可见 QueryParser#doParseIfNeed (L171)
+                // 详情可见 QueryParser#doParseIfNeed:L171
                 if (cellIndex >= headFields.size()) {
                     break;
                 }
@@ -226,11 +234,23 @@ public class DataExporter extends SetUser {
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replaceAll("[^0-9|^.-]", "");  // 仅保留数字
 
-//                    if (dt == DisplayType.DECIMAL) {
-//                        cellVal = EasyDecimal.fixedDecimalScale(cellVal, easyField);
-//                    } else {
-//                        cellVal = ObjectUtils.toLong(cellVal);
-//                    }
+                    if (dt == DisplayType.DECIMAL) {
+                        cellVal = EasyDecimal.fixedDecimalScale(cellVal, easyField);
+
+                        // 单元格格式
+                        WriteCellData<Object> wcd = new WriteCellData<>();
+                        wcd.setType(CellDataTypeEnum.NUMBER);
+                        wcd.setNumberValue((BigDecimal) cellVal);
+                        WriteCellStyle style = new WriteCellStyle();
+                        DataFormatData format = new DataFormatData();
+                        format.setFormat("0." + "0000000000".substring(0, ((EasyDecimal) easyField).getScale()));
+                        style.setDataFormatData(format);
+                        wcd.setWriteCellStyle(style);
+                        cellVal = wcd;
+                    } else {
+                        cellVal = ObjectUtils.toLong(cellVal);
+                    }
+
                 } else if (dt == DisplayType.ID) {
                     cellVal = ((JSONObject) cellVal).getString("id");
                 }
@@ -274,6 +294,10 @@ public class DataExporter extends SetUser {
         contentStyle.setWriteFont(baseFont);
         contentStyle.setBorderBottom(BorderStyle.THIN);
         contentStyle.setBorderRight(BorderStyle.THIN);
+        // 换行
+        contentStyle.setWrapped(true);
+        contentStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        contentStyle.setHorizontalAlignment(HorizontalAlignment.LEFT);
 
         return new HorizontalCellStyleStrategy(headStyle, contentStyle);
     }
