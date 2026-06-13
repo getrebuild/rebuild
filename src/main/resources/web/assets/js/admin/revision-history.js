@@ -219,7 +219,7 @@ class HistoryViewport extends React.Component {
                     <h5>
                       {WrapHtml($L('**%s** 由 %s %s', item[2].split(' UTC')[0], item[3], RevTypes[item[1]]))}
                       {item[4] && (
-                        <a href={`../robot/trigger/${item[4]}`} target="_blank" className="ml-1" title={$L('触发器')}>
+                        <a href={`../robot/trigger/${item[4]}`} target="_blank" className="ml-2 light-link" title={$L('由触发器变更')}>
                           (T)
                         </a>
                       )}

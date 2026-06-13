@@ -135,22 +135,8 @@ $(document).ready(() => {
     $('#defaultOpen').attr('checked', false)
   })
 
-  let overwriteMode = false
   let cfgid = $urlp('id')
   if (!cfgid) cfgid = $.cookie('AppHome.Nav') // v4.0 优先当前
-
-  const saveFn = function (cfg) {
-    const $btn = $('.J_save').button('loading')
-    const std = _Share2 ? _Share2.getData() : { shareTo: 'SELF' }
-    $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(cfg), (res) => {
-      if (res.error_code === 0) {
-        parent.location.reload()
-      } else {
-        $btn.button('reset')
-        RbHighbar.error(res.error_msg)
-      }
-    })
-  }
 
   $('.J_save').on('click', () => {
     const navItems = []
@@ -160,16 +146,17 @@ $(document).ready(() => {
     })
     if (navItems.length === 0) return RbHighbar.create($L('请至少设置 1 个菜单项'))
 
-    if (overwriteMode) {
-      RbAlert.create($L('保存将覆盖你现有的导航菜单。继续吗？'), {
-        confirm: function () {
-          this.hide()
-          saveFn(navItems)
-        },
-      })
-    } else {
-      saveFn(navItems)
-    }
+    const std = _Share2 ? _Share2.getData() : { shareTo: 'SELF' }
+    const $btn = $('.J_save').button('loading')
+    $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(navItems), (res) => {
+      if (res.error_code === 0) {
+        $.cookie('AppHome.Nav', res.data, { expires: 30 })
+        parent.location.reload()
+      } else {
+        $btn.button('reset')
+        RbHighbar.error(res.error_msg)
+      }
+    })
   })
 
   // 加载
@@ -189,19 +176,16 @@ $(document).ready(() => {
           use_sortable($subUl)
         }
       })
-
-      // 覆盖自有配置
-      overwriteMode = !rb.isAdminUser && res.data.shareTo !== 'SELF'
     }
 
     const _current = res.data || {}
     $.get('/app/settings/nav-settings/alist', (res) => {
       const alist = res.data || []
-      const c = alist.find((x) => x[0] === _current.id)
+      const cc = alist.find((x) => x[0] === _current.id)
 
       if (rb.isAdminUser) {
         const shareTo39 = _current.id ? _current.shareTo : 'ALL'
-        renderRbcomp(<Share2 title={$L('导航菜单')} list={alist} configName={c ? c[1] : ''} shareTo={shareTo39} id={_current.id} />, 'shareTo', function () {
+        renderRbcomp(<Share2 title={$L('导航菜单')} list={alist} configName={cc ? cc[1] : ''} shareTo={shareTo39} id={_current.id} />, 'shareTo', function () {
           _Share2 = this
 
           const $menu = $(this._$switch).find('.dropdown-menu')
@@ -218,13 +202,7 @@ $(document).ready(() => {
         })
       } else {
         // eslint-disable-next-line no-undef
-        renderSwitchButton(alist, $L('导航菜单'), c ? c[0] : null)
-      }
-
-      // 有自有才提示覆盖
-      if (overwriteMode) {
-        const haveSelf = alist.find((x) => x[2] === 'SELF')
-        overwriteMode = !!haveSelf
+        renderSwitchButton(alist, $L('导航菜单'), cc ? cc[0] : null, cc && cc[2] === 'SELF')
       }
     })
     // ~

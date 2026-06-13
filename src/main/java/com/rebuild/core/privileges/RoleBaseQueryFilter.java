@@ -139,7 +139,12 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             if (customFilter == null) {
                 return ALLOWED.evaluate(null);
             } else {
-                return String.format("(%s or %s)", customFilter, shareFilter);
+                // 永真
+                if (customFilterWithAndOr.startsWith("or ")) {
+                    return "( 1 = 1 )";
+                } else {
+                    return String.format("(%s or %s)", customFilter, shareFilter);
+                }
             }
         }
 

@@ -22,6 +22,7 @@ import com.rebuild.core.service.aibot.AiBotException;
 import com.rebuild.core.service.aibot.StreamEcho;
 import com.rebuild.core.service.aibot.tool.ToolDefs;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.License;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -150,8 +151,12 @@ public class Chat implements Serializable {
             else if (ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(content);
         }
 
-//        builder.toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO)
-//                .tools(ToolDefs.tools());
+        // TODO
+        if (false && License.isRbvAttached()) {
+            builder.toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO)
+                .tools(ToolDefs.tools());
+        }
+
         return builder.build();
     }
 

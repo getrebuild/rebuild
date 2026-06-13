@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.notification.Message;
@@ -30,10 +31,12 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.ContentWithFieldVars;
+import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.integration.SMSenderContextHolder;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
@@ -42,6 +45,7 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -137,7 +141,7 @@ public class SendNotification extends TriggerAction {
 
         final Set<Object> send = new HashSet<>();
 
-        // v4.1 邮件合并发送。需要邮件服务器支持，否则还是会单个发送
+        // v4.1 邮件合并发送（需要邮件服务器支持，否则还是会单个发送）
         if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
             for (ID user : toUsers) {
                 String email = Application.getUserStore().getUser(user).getEmail();
@@ -147,7 +151,16 @@ public class SendNotification extends TriggerAction {
             if (!send.isEmpty()) {
                 TransactionManual.registerAfterCommit(() -> {
                     SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                    SMSender.sendMail(StringUtils.join(send, ","), contentAndTitle[1], emailContent2, emailAttach2);
+                    Object res;
+                    try {
+                        res = SMSender.sendMail(StringUtils.join(send, ","), contentAndTitle[1], emailContent2, emailAttach2);
+
+                        onSendAfter(send, res, actionContext, operatingContext);
+                    } catch (Exception ex) {
+                        onSendAfter(send, ex, actionContext, operatingContext);
+                    } finally {
+                        SMSenderContextHolder.getFromSourceOnce();
+                    }
                 });
             }
             return send;
@@ -174,9 +187,19 @@ public class SendNotification extends TriggerAction {
         if ((msgType == MTYPE_MAIL || msgType == MTYPE_SMS) && !send.isEmpty()) {
             TransactionManual.registerAfterCommit(() -> {
                 SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                for (Object a : send) {
-                    if (msgType == MTYPE_SMS) SMSender.sendSMS((String) a, contentAndTitle[0]);
-                    else SMSender.sendMailAsync((String) a, contentAndTitle[1], emailContent2, emailAttach2);
+                Object res = null;
+                try {
+                    if (msgType == MTYPE_SMS) {
+                        for (Object a : send) res = SMSender.sendSMS((String) a, contentAndTitle[0]);
+                    } else {
+                        for (Object a : send) res = SMSender.sendMail((String) a, contentAndTitle[1], emailContent2, emailAttach2);
+                    }
+
+                    onSendAfter(send, res, actionContext, operatingContext);
+                } catch (Exception ex) {
+                    onSendAfter(send, ex, actionContext, operatingContext);
+                } finally {
+                    SMSenderContextHolder.getFromSourceOnce();
                 }
             });
         }
@@ -245,7 +268,7 @@ public class SendNotification extends TriggerAction {
 
         Set<Object> send = new HashSet<>();
 
-        // v4.1 合并发送
+        // v4.1 邮件合并发送（需要邮件服务器支持，否则还是会单个发送）
         if (msgType == MTYPE_MAIL && content.getBooleanValue("mergeSend")) {
             for (Object me : toAccounts) {
                 String email = me == null ? null : me.toString().trim();
@@ -255,7 +278,16 @@ public class SendNotification extends TriggerAction {
             if (!send.isEmpty()) {
                 TransactionManual.registerAfterCommit(() -> {
                     SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                    SMSender.sendMail(StringUtils.join(send, ","), contentAndTitle[1], emailContent2, emailAttach2);
+                    Object res;
+                    try {
+                        res = SMSender.sendMail(StringUtils.join(send, ","), contentAndTitle[1], emailContent2, emailAttach2);
+
+                        onSendAfter(send, res, actionContext, operatingContext);
+                    } catch (Exception ex) {
+                        onSendAfter(send, ex, actionContext, operatingContext);
+                    } finally {
+                        SMSenderContextHolder.getFromSourceOnce();
+                    }
                 });
             }
             return send;
@@ -277,9 +309,19 @@ public class SendNotification extends TriggerAction {
         if ((msgType == MTYPE_MAIL || msgType == MTYPE_SMS) && !send.isEmpty()) {
             TransactionManual.registerAfterCommit(() -> {
                 SMSenderContextHolder.setFromSource(operatingContext.getFixedRecordId());
-                for (Object a : send) {
-                    if (msgType == MTYPE_SMS) SMSender.sendSMS((String) a, contentAndTitle[0]);
-                    else SMSender.sendMailAsync((String) a, contentAndTitle[1], emailContent2, emailAttach2);
+                Object res = null;
+                try {
+                    if (msgType == MTYPE_SMS) {
+                        for (Object a : send) res = SMSender.sendSMS((String) a, contentAndTitle[0]);
+                    } else {
+                        for (Object a : send) res = SMSender.sendMail((String) a, contentAndTitle[1], emailContent2, emailAttach2);
+                    }
+
+                    onSendAfter(send, res, actionContext, operatingContext);
+                } catch (Exception ex) {
+                    onSendAfter(send, ex, actionContext, operatingContext);
+                } finally {
+                    SMSenderContextHolder.getFromSourceOnce();
                 }
             });
         }
@@ -325,6 +367,26 @@ public class SendNotification extends TriggerAction {
     }
 
     // --
+
+    /**
+     * @param toList
+     * @param res
+     * @param actionContext
+     * @param operatingContext
+     */
+    public static void onSendAfter(Collection<?> toList, Object res, ActionContext actionContext, OperatingContext operatingContext) {
+        JSONObject content = (JSONObject) actionContext.getActionContent();
+        String sendFillback = content.getString("sendFillback");
+        if (sendFillback == null || !actionContext.getSourceEntity().containsField(sendFillback)) return;
+
+        String desc = "Unknow";
+        if (res instanceof Throwable) desc = "ERR:" + CommonsUtils.getRootMessage((Throwable) res);
+        else if (res != null) desc = res.toString();
+
+        RecordBuilder.builder(operatingContext.getFixedRecordId())
+                .add(sendFillback, CommonsUtils.maxstr(desc, 200))
+                .save(UserService.SYSTEM_USER);
+    }
 
     /**
      * 处理消息内容

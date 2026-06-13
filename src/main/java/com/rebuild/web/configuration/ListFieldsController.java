@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
@@ -33,11 +34,11 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,13 +54,13 @@ import java.util.Map;
  * @since 01/07/2019
  * @see com.rebuild.web.admin.metadata.ListStatsController
  */
-@Controller
+@RestController
 @RequestMapping("/app/{entity}/")
 public class ListFieldsController extends BaseController implements ShareTo {
 
     @PostMapping("list-fields")
-    public void sets(@PathVariable String entity,
-                     HttpServletRequest request, HttpServletResponse response) {
+    public RespBody sets(@PathVariable String entity,
+                         HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList),
@@ -88,11 +89,11 @@ public class ListFieldsController extends BaseController implements ShareTo {
         putCommonsFields(request, record);
         Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 
-        writeSuccess(response, null);
+        return RespBody.ok(record.getPrimary());
     }
 
     @GetMapping("list-fields")
-    public void gets(@PathVariable String entity,
+    public RespBody gets(@PathVariable String entity,
                      HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
         final Entity entityMeta = MetadataHelper.getEntity(entity);
@@ -181,7 +182,7 @@ public class ListFieldsController extends BaseController implements ShareTo {
         res.put("entity", entity);
         res.put("nameField", entityMeta.getNameField().getName());
 
-        writeSuccess(response, res);
+        return RespBody.ok(res);
     }
 
     private boolean canListField(Field field) {
@@ -189,7 +190,7 @@ public class ListFieldsController extends BaseController implements ShareTo {
     }
 
     @GetMapping("list-fields/alist")
-    public void getsList(@PathVariable String entity,
+    public RespBody getsList(@PathVariable String entity,
                          HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
         MetadataHelper.getEntity(entity);  // fix:entity check
@@ -204,7 +205,7 @@ public class ListFieldsController extends BaseController implements ShareTo {
             sql += "configId in ('" + StringUtils.join(uses, "', '") + "')";
         }
 
-        Object[][] list = Application.createQueryNoFilter(sql).array();
-        writeSuccess(response, list);
+        Object[][] res = Application.createQueryNoFilter(sql).array();
+        return RespBody.ok(res);
     }
 }

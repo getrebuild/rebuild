@@ -1704,6 +1704,7 @@ function $autoComplete($el, fieldKey, option) {
 }
 
 // 打开记录详情页
+// @see RbViewModal#openView
 function $openView(id, e) {
   e && $stopEvent(e, true)
   if (typeof id === 'string') id = { id: id }

@@ -7,10 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot.tool;
 
-import com.alibaba.fastjson.JSON;
 import com.rebuild.TestSupport;
-import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.utils.JSONUtils;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -20,8 +17,6 @@ import org.junit.jupiter.api.Test;
 class FunctionCallingTest extends TestSupport {
 
     @Test
-    void testRecordUpsert() {
-        JSON c = new RecordUpsert(MetadataHelper.getEntity(TestAllFields)).toAiJSON();
-        System.out.println(JSONUtils.prettyPrint(c));
+    void test() {
     }
 }

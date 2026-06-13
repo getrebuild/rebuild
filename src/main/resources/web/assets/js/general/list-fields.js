@@ -19,7 +19,6 @@ $(document).ready(() => {
   // Hide if bizz
   if (['User', 'Department', 'Role', 'Team'].includes(entity)) $('#shareTo').addClass('hide')
 
-  let overwriteMode = false
   let shareToComp
   let cfgid = $urlp('id')
 
@@ -53,16 +52,12 @@ $(document).ready(() => {
 
     _refreshConfigStar()
 
-    // 覆盖自有配置
-    if (res.data) {
-      overwriteMode = !rb.isAdminUser && res.data.shareTo !== 'SELF'
-    }
-
     $.get(`${settingsUrl}/alist`, (res) => {
-      const ccfg = res.data.find((x) => x[0] === cfgid)
+      const cc = res.data.find((x) => x[0] === cfgid)
+
       if (rb.isAdminUser) {
         const shareTo39 = _data.configId ? _data.shareTo : 'ALL'
-        renderRbcomp(<Share2 title={$L('列显示')} list={res.data} entity={entity} configName={ccfg ? ccfg[1] : ''} shareTo={shareTo39} id={_data.configId} />, 'shareTo', function () {
+        renderRbcomp(<Share2 title={$L('列显示')} list={res.data} entity={entity} configName={cc ? cc[1] : ''} shareTo={shareTo39} id={_data.configId} />, 'shareTo', function () {
           shareToComp = this
         })
       } else {
@@ -71,13 +66,7 @@ $(document).ready(() => {
           return x
         })
         // eslint-disable-next-line no-undef
-        renderSwitchButton(data, $L('列显示'), cfgid)
-      }
-
-      // 有自有才提示覆盖
-      if (overwriteMode) {
-        const haveSelf = res.data.find((x) => x[2] === 'SELF')
-        overwriteMode = !!haveSelf
+        renderSwitchButton(data, $L('列显示'), cfgid, cc && cc[2] === 'SELF')
       }
     })
   })
@@ -95,31 +84,16 @@ $(document).ready(() => {
     })
     if (config.length === 0) return RbHighbar.create($L('请至少选择 1 个显示列'))
 
-    const saveFn = function () {
-      const shareToData = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
-      const url = `${settingsUrl}?id=${cfgid}&configName=${shareToData.configName || ''}&shareTo=${shareToData.shareTo || ''}`
-
-      $btn.button('loading')
-      $.post(url, JSON.stringify(config), (res) => {
-        if (res.error_code === 0) {
-          parent.location.reload()
-        } else {
-          RbHighbar.error(res.error_msg)
-          $btn.button('reset')
-        }
-      })
-    }
-
-    if (overwriteMode) {
-      RbAlert.create($L('保存将覆盖你现有的列显示。继续吗？'), {
-        confirm: function () {
-          this.hide()
-          saveFn()
-        },
-      })
-    } else {
-      saveFn()
-    }
+    const std = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
+    $btn.button('loading')
+    $.post(`${settingsUrl}?id=${cfgid}&configName=${std.configName || ''}&shareTo=${std.shareTo || ''}`, JSON.stringify(config), (res) => {
+      if (res.error_code === 0) {
+        parent.location.reload()
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      }
+    })
   })
 
   // 搜索字段

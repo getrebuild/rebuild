@@ -170,6 +170,7 @@ const AdvFilters = {
                 }
               })
             },
+            delay: 400,
           })
           .disableSelection()
       }

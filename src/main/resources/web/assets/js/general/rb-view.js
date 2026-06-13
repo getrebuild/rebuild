@@ -1074,7 +1074,6 @@ const RbViewPage = {
     if (parent && parent.RbViewModal) {
       parent.RbViewModal.create({ entity: urlSpec[2], id: urlSpec[3] }, true)
     } else {
-      // window.open(`${rb.baseUrl}/app/redirect?id=${urlSpec[3]}&type=newtab`)
       window.open(`${rb.baseUrl}/app/${urlSpec[2]}/view/${urlSpec[3]}`)
     }
     return false

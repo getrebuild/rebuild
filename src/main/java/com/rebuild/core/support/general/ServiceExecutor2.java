@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.support;
+package com.rebuild.core.support.general;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.UserContextHolder;
@@ -13,6 +13,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
+import com.rebuild.core.support.Executor2;
 
 /**
  * @author ZHAO

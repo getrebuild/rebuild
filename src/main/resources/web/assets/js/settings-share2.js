@@ -258,14 +258,14 @@ class Share2Settings extends Share2Switch {
 
 // 普通用户切换设置
 // eslint-disable-next-line no-unused-vars
-const renderSwitchButton = (data, title, current) => {
+const renderSwitchButton = function (data, title, current, showDel44) {
   if (!data || data.length === 0) return null
 
   const comp = (
     <div className="float-left">
       <div className="btn-group">
         <button type="button" className="btn btn-link" data-toggle="dropdown">
-          <i className="zmdi zmdi-swap-vertical icon mr-1" />
+          <i className="zmdi zmdi-swap-vertical icon" style={{ marginRight: 1 }} />
           {$L('切换%s', title)}
         </button>
         <div className="dropdown-menu">
@@ -297,6 +297,31 @@ const renderSwitchButton = (data, title, current) => {
             )
           })}
         </div>
+
+        {showDel44 && (
+          <button
+            type="button"
+            className="btn btn-link danger-hover ml-2"
+            onClick={() => {
+              const id = current
+              RbAlert.create($L('确认删除%s？', title), {
+                confirm: function () {
+                  this.disabled(true)
+                  $.post(`/app/entity/common-delete?id=${id}`, (res) => {
+                    if (res.error_code === 0) {
+                      parent.location.reload()
+                    } else {
+                      RbHighbar.error(res.error_msg)
+                      this.disabled()
+                    }
+                  })
+                },
+              })
+            }}>
+            <i className="zmdi zmdi-delete icon" style={{ marginRight: 2 }} />
+            {$L('删除')}
+          </button>
+        )}
       </div>
     </div>
   )

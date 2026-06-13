@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static com.rebuild.core.service.files.FilesHelper.checkObjectReadable;
 
@@ -45,7 +46,7 @@ public class BatchDownload extends HeavyTask<File> {
         FileUtils.forceMkdir(tmp);
 
         File tmpZip = RebuildConfiguration.getFileOfTemp(tmpName + ".zip");
-
+        Map<String, Integer> fileIndex = new java.util.HashMap<>();
         for (String path : files) {
             if (StringUtils.isBlank(path)) continue;
 
@@ -57,8 +58,18 @@ public class BatchDownload extends HeavyTask<File> {
                 path = filePath;
             }
 
+            // be: v4.4-b1 重名文件
+            String fileName = QiniuCloud.parseFileName(path);
+            if (fileIndex.containsKey(fileName)) {
+                int i = fileIndex.get(fileName) + 1;
+                fileIndex.put(fileName, i);
+                fileName = i + "-" + fileName;
+            } else {
+                fileIndex.put(fileName, 1);
+            }
+
             // FIXME 太大的文件不适用于下载
-            File dest = new File(tmp, QiniuCloud.parseFileName(path));
+            File dest = new File(tmp, fileName);
             try {
                 if (QiniuCloud.instance().available()) {
                     QiniuCloud.instance().download(path, dest);

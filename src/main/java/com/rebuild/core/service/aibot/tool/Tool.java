@@ -7,8 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot.tool;
 
+import com.alibaba.fastjson.JSON;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.support.Lab;
+import com.rebuild.utils.CommonsUtils;
+import org.springframework.util.Assert;
 
 /**
  * 探索中
@@ -25,7 +28,12 @@ public interface Tool {
      *
      * @return
      */
-    ChatCompletionTool def();
+    default ChatCompletionTool def() {
+        String toolName = getClass().getSimpleName();
+        String d = CommonsUtils.getStringOfRes(String.format("tool/%s.json", toolName));
+        Assert.notNull(d, "Tool definition cannot be null");
+        return JSON.parseObject(d, ChatCompletionTool.class);
+    }
 
     /**
      * 执行
@@ -33,6 +41,6 @@ public interface Tool {
      * @param arguments
      * @return
      */
-    Object execute(String arguments);
+    Object tool(String arguments);
 
 }

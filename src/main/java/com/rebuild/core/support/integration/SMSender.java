@@ -155,7 +155,7 @@ public class SMSender {
 
         if (Application.devMode()) {
             log.warn("[dev] FAKE SEND EMAIL. T:{}, S:{}, M:{}, F:{}", to, subject, content, attach);
-            return null;
+            return "FAKE-ON-DEV";
         }
 
         // 使用邮件模板
@@ -401,7 +401,7 @@ public class SMSender {
 
         if (Application.devMode()) {
             log.warn("[dev] FAKE SEND SMS. T:{}, M:{}", to, content);
-            return null;
+            return "FAKE-ON-DEV";
         }
 
         Map<String, Object> params = new HashMap<>();

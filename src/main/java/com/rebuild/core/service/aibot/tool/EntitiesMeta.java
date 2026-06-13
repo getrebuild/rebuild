@@ -1,10 +1,3 @@
-/*!
-Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
-
-rebuild is dual-licensed under commercial and open source licenses (GPLv3).
-See LICENSE and COMMERCIAL in the project root for license information.
-*/
-
 package com.rebuild.core.service.aibot.tool;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2026/6/9
  */
 @Slf4j
-public class HowtoTool implements Tool {
+public class EntitiesMeta implements Tool {
 
     @Override
     public Object tool(String arguments) {

@@ -388,6 +388,16 @@ public class NavBuilder extends NavManager {
             }
         }
 
+        // fix:4.4 自己的/我的
+        if (!isAdmin) {
+            for (Object[] d : alls) {
+                if (UserHelper.isSelf(user, (ID) d[2])) {
+                    allow.add(0, new Object[]{d[0], null, Language.L("我的")});
+                    break;
+                }
+            }
+        }
+
         return allow;
     }
 

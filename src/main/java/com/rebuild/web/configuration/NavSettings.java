@@ -80,7 +80,7 @@ public class NavSettings extends BaseController implements ShareTo {
         putCommonsFields(request, record);
         Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 
-        return RespBody.ok();
+        return RespBody.ok(record.getPrimary());
     }
 
     @GetMapping("nav-settings")
