@@ -7,18 +7,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(() => {
   let isH5App40 = false
-  // eslint-disable-next-line eqeqeq
-  if (top && top != self) {
+  if (window.top !== window.self) {
     try {
-      isH5App40 = !!top.FrontJS5
+      isH5App40 = !!window.top.FrontJS5
       if (isH5App40) {
         // 非同源会抛出
       } else {
         parent.location.reload()
         return
       }
-    } catch (ignored) {
-      // NOOP
+    } catch (e) {
+      // ignore
     }
   }
 

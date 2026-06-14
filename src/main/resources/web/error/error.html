@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="utf-8" />
@@ -63,7 +63,7 @@
     </div>
     <script>
       var $btn = document.getElementById('goHome')
-      if (self != top) {
+      if (window.self != window.top) {
         $btn.parentNode.removeChild($btn)
         if (parent && parent.RbViewModal) {
           try {

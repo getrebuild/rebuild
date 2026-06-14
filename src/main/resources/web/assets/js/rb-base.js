@@ -128,7 +128,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.cookie.defaults = { expires: 14, path: '/', secure: location.protocol === 'https:' }
 
   // for `watermark`
-  if (window.watermark && self === top) {
+  if (window.watermark && window.self === window.top) {
     var wt = rb._markWatermarkText
     if (wt) wt = JSON.parse(wt)
     if (!wt) wt = [rb.currentUser ? '***' + rb.currentUser.substr(7) : null, rb.appName]
