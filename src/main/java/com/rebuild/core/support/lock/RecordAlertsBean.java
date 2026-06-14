@@ -13,10 +13,14 @@ import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author ZHAO
@@ -35,25 +39,47 @@ public class RecordAlertsBean implements JSONable {
     // [Text, Color]
     private List<String[]> tips = new ArrayList<>();
 
+    // 不锁定字段可以修改
+    @Getter
+    private Set<String> noLockFields = new HashSet<>();
+
     protected RecordAlertsBean() {
         super();
     }
 
+    /**
+     * @param tips
+     * @param tipsColor
+     */
     protected void addTips(String tips, String tipsColor) {
         this.tips.add(new String[]{tips, tipsColor});
     }
 
+    /**
+     * @param another
+     */
     protected void merge(RecordAlertsBean another) {
         tips.addAll(another.tips);
         locked = another.locked || locked;
         lockedTips = (String) ObjectUtils.defaultIfNull(another.lockedTips, lockedTips);
         lockedRecordId = (ID) ObjectUtils.defaultIfNull(another.lockedRecordId, lockedRecordId);
+        noLockFields.addAll(another.noLockFields);
     }
 
-    protected void setLocked(String tips, ID recordId) {
+    /**
+     * @param tips
+     * @param recordId
+     * @param noLockFields
+     */
+    protected void setLocked(String tips, ID recordId, Collection<?> noLockFields) {
         this.locked = true;
         this.lockedTips = tips;
         this.lockedRecordId = recordId;
+        if (CollectionUtils.isNotEmpty(noLockFields)) {
+            for (Object f : noLockFields) {
+                this.noLockFields.add(f.toString());
+            }
+        }
     }
 
     /**
@@ -75,11 +101,11 @@ public class RecordAlertsBean implements JSONable {
     }
 
     /**
-     * 有效
+     * 是否有效配置
      *
      * @return
      */
-    public boolean isValid() {
+    protected boolean isValid() {
         return locked || !tips.isEmpty();
     }
 
