@@ -141,7 +141,7 @@ public class AviatorUtils {
      */
     public static Object eval(String expression, Map<String, Object> env, boolean quietly) {
         // 注入公式变量
-        Map<String, Object> __FormData44 = TriggerContext.getFormData(true);
+        Map<String, Object> __FormData44 = TriggerContext.getFormData(false);
         if (MapUtils.isNotEmpty(__FormData44) && env != null) env.put("__FormData", __FormData44);
 
         try {
