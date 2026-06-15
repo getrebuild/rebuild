@@ -3688,7 +3688,7 @@ class RbFormTag extends RbFormElement {
     super(props)
 
     this._initOptions()
-    this.__maxSelect = props.tagMaxSelect || 9
+    this.__maxSelect = props.tagMaxSelect || 99
   }
 
   renderElement() {
