@@ -1142,12 +1142,12 @@ class RbList extends React.Component {
   constructor(props) {
     super(props)
 
+    this._$wrapper = $(props.$wrapper || '#react-list')
+    this._entity = props.config.entity
+
     this.__defaultFilterKey = `AdvFilter-${this._entity}`
     this.__sortFieldKey = `SortField-${this._entity}`
     this.__columnWidthKey = `ColumnWidth-${this._entity}.`
-
-    this._$wrapper = $(props.$wrapper || '#react-list')
-    this._entity = props.config.entity
 
     const fields = props.config.fields || []
 
@@ -1189,7 +1189,8 @@ class RbList extends React.Component {
 
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
-    this.advFilterId = wpc.advFilter !== true ? null : $storage.get(this.__defaultFilterKey) // 无高级查询
+    // 默认过滤器
+    this.advFilterId = wpc.advFilter !== true ? null : $storage.get(this.__defaultFilterKey)
     // v4.1 可编辑
     this._enabledListEditable = ['RecordList', 'DetailList'].includes(wpc.type) && (window.__LAB_DATALIST_EDITABLE41 === true || wpc.enabledListEditable)
     // 复选框
