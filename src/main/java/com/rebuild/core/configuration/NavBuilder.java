@@ -74,7 +74,7 @@ public class NavBuilder extends NavManager {
                     new Object[]{"chart-donut", "动态", "BUILTIN", NAV_FEEDS},
                     new Object[]{"folder", "文件", "BUILTIN", NAV_FILEMRG},
                     new Object[]{"account-box-phone", "通讯录", "BUILTIN", NAV_CONTACT},
-                    new Object[]{"progress-check", "审批中心", "BUILTIN", NAV_APPROVAL},
+                    new Object[]{"mdi-progress-check", "审批中心", "BUILTIN", NAV_APPROVAL},
                     new Object[]{"shape", "项目", "BUILTIN", NAV_PROJECT},
             });
     // 新建项目
@@ -82,6 +82,8 @@ public class NavBuilder extends NavManager {
             NAV_ITEM_PROPS,
             new String[]{"plus", "添加项目", "BUILTIN", NAV_PROJECT + "--add"}
     );
+    // 项目所在位置
+    private static final int NAV_PROJECT__INDEX = 4;
 
     private static final Pattern PATT_LISTURL437 = Pattern.compile("/app/(\\w+)/(list|view|form)");
 
@@ -146,7 +148,7 @@ public class NavBuilder extends NavManager {
         }
         if (config == null) {
             JSONArray useDefault = (JSONArray) JSONUtils.clone(NAVS_DEFAULT);
-            ((JSONObject) useDefault.get(3)).put("sub", buildAvailableProjects(user));
+            ((JSONObject) useDefault.get(NAV_PROJECT__INDEX)).put("sub", buildAvailableProjects(user));
             return useDefault;
         }
 
