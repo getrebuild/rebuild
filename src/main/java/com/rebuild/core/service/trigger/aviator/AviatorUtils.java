@@ -35,9 +35,11 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.trigger.TriggerContext;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.state.StateHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -134,10 +136,14 @@ public class AviatorUtils {
      *
      * @param expression
      * @param env
-     * @param quietly    true 表示不抛出异常
+     * @param quietly `true` 表示不抛出异常
      * @return
      */
     public static Object eval(String expression, Map<String, Object> env, boolean quietly) {
+        // 注入公式变量
+        Map<String, Object> __FormData44 = TriggerContext.getFormData(false);
+        if (MapUtils.isNotEmpty(__FormData44) && env != null) env.put("__FormData", __FormData44);
+
         try {
             return AVIATOR.execute(expression, env == null ? Collections.emptyMap() : env);
         } catch (Exception ex) {

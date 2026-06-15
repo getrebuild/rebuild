@@ -648,7 +648,21 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             if (checkId != null) {
                 RecordAlertsBean L = CommonsLock.isLocked44(checkId, true);
-                if (L != null && L.isLocked()) throw new DataSpecificationException(L.getLockedTips());
+                if (L != null && L.isLocked()) {
+                    boolean throwEx = true;
+                    // 强制修改字段
+                    if (action == BizzPermission.UPDATE && CollectionUtils.isNotEmpty(L.getNoLockFields())) {
+                        for (String field : L.getNoLockFields()) {
+                            if (record.hasValue(field, true)) {
+                                throwEx = false;
+                                log.info("Ignore [allowForceUpdateFields] : {}", field);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (throwEx) throw new DataSpecificationException(L.getLockedTips());
+                }
             }
         }
 

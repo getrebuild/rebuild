@@ -74,7 +74,7 @@ public class DatabaseBackup {
         String port = url.split("/")[0].split(":")[1];
         String dbname = url.split("/")[1];
 
-        String destName = "backup_database." + CalendarUtils.getPlainDateTimeFormat().format(CalendarUtils.now());
+        String destName = "backup_database." + CalendarUtils.getPlainDateTimeFormat().format(CalendarUtils.now()) + ".sql";
         File dest = new File(backups, destName);
 
         String mysqldump = RebuildConfiguration.get(ConfigurationItem.MysqldumpBin);

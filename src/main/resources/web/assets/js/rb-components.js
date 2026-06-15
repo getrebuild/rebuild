@@ -473,7 +473,7 @@ class RbHighbar extends React.Component {
    * @param {*} option
    */
   static create(message, option) {
-    if (top !== self && parent.RbHighbar) {
+    if (window.top !== window.self && parent.RbHighbar) {
       parent.RbHighbar.create(message, option)
     } else {
       option = option || {}
@@ -1428,7 +1428,7 @@ class RbGritter extends React.Component {
    * @param {*} option
    */
   static create(message, option = {}) {
-    if (top !== self && parent.RbGritter) {
+    if (window.top !== window.self && parent.RbGritter) {
       parent.RbGritter.create(message, option)
     } else {
       if (this._RbGritter) {
