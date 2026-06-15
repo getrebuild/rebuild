@@ -16,22 +16,22 @@ import java.util.Map;
 public class TriggerContext {
 
     // 用于触发器执行时前端传值
-    private static final ThreadLocal<Map<String, Object>> FORM_DATA = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String, Object>> LITEFORM_DATA = new ThreadLocal<>();
 
     /**
      * @param map
      */
-    public static void setFormData(Map<String, Object> map) {
-        FORM_DATA.set(map);
+    public static void setLiteFormData(Map<String, Object> map) {
+        LITEFORM_DATA.set(map);
     }
 
     /**
      * @param once
      * @return
      */
-    public static Map<String, Object> getFormData(boolean once) {
-        Map<String, Object> map = FORM_DATA.get();
-        if (map != null && once) FORM_DATA.remove();
+    public static Map<String, Object> getLiteFormData(boolean once) {
+        Map<String, Object> map = LITEFORM_DATA.get();
+        if (map != null && once) LITEFORM_DATA.remove();
         return map;
     }
 }
