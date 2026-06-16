@@ -10,6 +10,7 @@ package com.rebuild.core.service.trigger.aviator;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Map;
 
@@ -35,5 +36,11 @@ public abstract class BaseFunction extends AbstractFunction {
         String v = getString(env, arg);
         if (v == null) return defaultValue;
         return v;
+    }
+
+    public Boolean getBoolean(Map<String, Object> env, AviatorObject arg) {
+        String v = getString(env, arg);
+        if (v == null) return false;
+        return BooleanUtils.toBoolean(v);
     }
 }
