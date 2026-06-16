@@ -1898,7 +1898,7 @@ class RbFormDateTime extends RbFormElement {
         this.__datetimepicker = null
       }
     } else if (!_readonly37) {
-      const format = (this.props.datetimeFormat || this.props.dateFormat).replace(' (E)', '').replace('mm', 'ii').toLowerCase()
+      const format = (this.props.datetimeFormat || this.props.dateFormat || 'yyyy-MM-dd').replace(' (E)', '').replace('mm', 'ii').toLowerCase()
       let minView = 0
       let startView = 'month'
       // 年
@@ -3688,7 +3688,7 @@ class RbFormTag extends RbFormElement {
     super(props)
 
     this._initOptions()
-    this.__maxSelect = props.tagMaxSelect || 9
+    this.__maxSelect = props.tagMaxSelect || 99
   }
 
   renderElement() {

@@ -750,7 +750,7 @@ const _handleTag = function (tagList, tagMaxSelect) {
 
   if (tagMaxSelect) $('.J_tagMaxSelect b').text(tagMaxSelect)
   $('#tagMaxSelect')
-    .slider({ value: tagMaxSelect || 9 })
+    .slider({ value: tagMaxSelect || 99 })
     .on('change', function (e) {
       $('.J_tagMaxSelect b').text(e.value.newValue)
     })

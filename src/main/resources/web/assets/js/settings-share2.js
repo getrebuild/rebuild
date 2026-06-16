@@ -301,7 +301,8 @@ const renderSwitchButton = function (data, title, current, showDel44) {
         {showDel44 && (
           <button
             type="button"
-            className="btn btn-link danger-hover ml-2"
+            className="btn btn-link danger-hover ml-3"
+            title={$L('删除')}
             onClick={() => {
               const id = current
               RbAlert.create($L('确认删除%s？', title), {
@@ -319,7 +320,6 @@ const renderSwitchButton = function (data, title, current, showDel44) {
               })
             }}>
             <i className="zmdi zmdi-delete icon" style={{ marginRight: 2 }} />
-            {$L('删除')}
           </button>
         )}
       </div>

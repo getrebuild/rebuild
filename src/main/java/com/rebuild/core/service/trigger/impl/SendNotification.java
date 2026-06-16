@@ -43,7 +43,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -353,8 +352,8 @@ public class SendNotification extends TriggerAction {
             for (Object path : paths) {
                 try {
                     files.add(QiniuCloud.downloadFile((String) path));
-                } catch (IOException ex) {
-                    log.warn("Cannot get storage file : {}", path, ex);
+                } catch (Exception ex) {
+                    log.warn("Read attach fails : {}", path, ex);
                 }
             }
         }

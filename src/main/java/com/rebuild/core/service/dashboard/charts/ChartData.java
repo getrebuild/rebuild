@@ -45,8 +45,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -326,17 +326,13 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      * @return
      */
     protected String getSortSql() {
-        Set<String> sorts = new HashSet<>();
+        Set<String> sorts = new LinkedHashSet<>();
         for (Axis dim : getDimensions()) {
             FormatSort fs = dim.getFormatSort();
             if (fs != FormatSort.NONE) {
                 sorts.add(dim.getSqlName() + " " + fs.toString().toLowerCase());
             }
         }
-//        // NOTE 优先维度排序
-//        if (!sorts.isEmpty()) {
-//            return String.join(", ", sorts);
-//        }
 
         for (Numerical num : getNumericals()) {
             FormatSort fs = num.getFormatSort();
@@ -344,6 +340,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                 sorts.add(num.getSqlName() + " " + fs.toString().toLowerCase());
             }
         }
+
         return sorts.isEmpty() ? null : String.join(", ", sorts);
     }
 

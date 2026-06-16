@@ -673,7 +673,7 @@ class BatchUpdate extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create(<b>{$L('请再次确认修改数据范围和修改内容。开始修改吗？')}</b>, {
+    RbAlert.create(<b>{$L('请确认修改数据范围和修改内容。开始修改吗？')}</b>, {
       onConfirm: function () {
         this.hide()
         that.disabled(true, true)
@@ -692,7 +692,8 @@ class BatchUpdate extends BatchOperator {
           }
         })
       },
-      countdown: 5,
+      countdown: 0,
+      type: 'warning',
     })
   }
 
@@ -860,7 +861,6 @@ class BatchApprove extends BatchOperator {
         <sup className="rbv" />
       </RF>
     )
-    this._confirmText = $L('审批')
   }
 
   renderOperator() {
@@ -900,8 +900,6 @@ class BatchApprove extends BatchOperator {
   }
 
   componentDidMount() {
-    // super.componentDidMount()
-
     $.get(`/app/entity/approval/alist?entity=${wpc.entity[0]}&valid=true`, (res) => {
       $(this._$useApproval).select2({
         placeholder: $L('无'),
@@ -912,6 +910,19 @@ class BatchApprove extends BatchOperator {
         data: res.data || [],
       })
     })
+  }
+
+  handleChangeAfter(name, val) {
+    if (name === 'approveState') {
+      const text = {
+        10: $L('通过'),
+        11: $L('驳回'),
+        1: $L('提交'),
+      }
+      $(this._btns)
+        .find('.btn-primary')
+        .text(text[val] || $L('确定'))
+    }
   }
 
   handleConfirm() {
@@ -964,6 +975,7 @@ class BatchApprove extends BatchOperator {
           }
         })
       },
+      countdown: 0,
     })
   }
 
@@ -1142,12 +1154,12 @@ class RbList extends React.Component {
   constructor(props) {
     super(props)
 
+    this._$wrapper = $(props.$wrapper || '#react-list')
+    this._entity = props.config.entity
+
     this.__defaultFilterKey = `AdvFilter-${this._entity}`
     this.__sortFieldKey = `SortField-${this._entity}`
     this.__columnWidthKey = `ColumnWidth-${this._entity}.`
-
-    this._$wrapper = $(props.$wrapper || '#react-list')
-    this._entity = props.config.entity
 
     const fields = props.config.fields || []
 
@@ -1189,7 +1201,8 @@ class RbList extends React.Component {
 
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
-    this.advFilterId = wpc.advFilter !== true ? null : $storage.get(this.__defaultFilterKey) // 无高级查询
+    // 默认过滤器
+    this.advFilterId = wpc.advFilter !== true ? null : $storage.get(this.__defaultFilterKey)
     // v4.1 可编辑
     this._enabledListEditable = ['RecordList', 'DetailList'].includes(wpc.type) && (window.__LAB_DATALIST_EDITABLE41 === true || wpc.enabledListEditable)
     // 复选框

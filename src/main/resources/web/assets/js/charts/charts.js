@@ -325,7 +325,7 @@ class ChartIndex extends BaseChart {
       </div>
     )
 
-    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => this.resize(1))
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => this.resize(1))
   }
 
   resize(delay) {
@@ -356,7 +356,7 @@ class ChartTable extends BaseChart {
       </div>
     )
 
-    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb
         .find('.ctable')
@@ -595,13 +595,6 @@ const renderEChart = function (option, $target) {
   $target.addEventListener('contextmenu', function (e) {
     e.preventDefault()
   })
-  // v4.3 包装数据
-  if (window.FrontJS && window.FrontJS.__cbCharts) {
-    const FN1 = window.FrontJS.__cbCharts['*']
-    if (typeof FN1 === 'function') option = FN1(option)
-    const FN2 = window.FrontJS.__cbCharts[option.__id || '-']
-    if (typeof FN2 === 'function') option = FN2(option)
-  }
   if (rb.env === 'dev') console.log(option)
   c.setOption(option)
   return c
@@ -683,7 +676,7 @@ class ChartLine extends BaseChart {
       }
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -777,11 +770,11 @@ class ChartBar extends BaseChart {
       }
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_chartWrapper43(this.renderChartBefore(option, data), this), elid)
+      this._echarts = renderEChart(_ChartWrapper43(this._renderChartBarBefore(option, data), this), elid)
     })
   }
 
-  renderChartBefore(option) {
+  _renderChartBarBefore(option) {
     return option
   }
 }
@@ -808,7 +801,7 @@ class ChartPareto extends ChartBar3 {
     super(props)
   }
 
-  renderChartBefore(option, data) {
+  _renderChartBarBefore(option, data) {
     const dataFlags = data._renderOption.dataFlags || []
     let sums = 0
     data.yyyAxis[0].data.forEach((v) => {
@@ -859,7 +852,7 @@ class ChartPie extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -914,7 +907,7 @@ class ChartFunnel extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -979,7 +972,7 @@ class ChartTreemap extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -1107,7 +1100,7 @@ class ApprovalList extends BaseChart {
         {tableComp}
       </div>
     )
-    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb &&
         $tb
@@ -1231,7 +1224,7 @@ class FeedsSchedule extends BaseChart {
       )
 
     const chartdata = <div className="chart FeedsSchedule">{table}</div>
-    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb
         .find('.FeedsSchedule')
@@ -1350,7 +1343,7 @@ class ChartRadar extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -1428,7 +1421,7 @@ class ChartScatter extends BaseChart {
       if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
 
       option.__id = this.props.id
-      this._echarts = renderEChart(_chartWrapper43(option, this), elid)
+      this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
   }
 }
@@ -1506,7 +1499,7 @@ class ProjectTasks extends BaseChart {
       )
 
     const chartdata = <div className="chart ProjectTasks">{table}</div>
-    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $tb = $(this._$body)
       $tb
         .find('.ProjectTasks')
@@ -1651,7 +1644,7 @@ class DataList extends BaseChart {
       )
 
     const chartdata = <div className="chart ctable table-header-fixed2">{table}</div>
-    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       this._$tb = $(this._$body)
       this._$tb
         .find('.ctable')
@@ -2006,7 +1999,7 @@ class MyNotification extends BaseChart {
       </RF>
     )
 
-    this.setState({ chartdata: _chartWrapper43(chartdata, this) }, () => {
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
       const $scroller = $(this._$box).find('.rb-scroller').perfectScrollbar('destroy')
       $scroller.css('height', $(this._$body).height() - 34)
       dd.length > 0 && $scroller.perfectScrollbar()
@@ -2391,8 +2384,14 @@ class ChartSelect extends RbModalHandler {
   }
 }
 
-// 对图表数据包装
-function _chartWrapper43(chartData, chartComp) {
+/**
+ * 对图表数据二次处理
+ *
+ * @param {*} chartData
+ * @param {*} chartComp
+ * @returns
+ */
+function _ChartWrapper43(chartData, chartComp) {
   if (typeof window.__LAB_CHARTWRAPPER43 !== 'function') return chartData
   const w = window.__LAB_CHARTWRAPPER43(chartData, chartComp)
   return w ? w : chartData
