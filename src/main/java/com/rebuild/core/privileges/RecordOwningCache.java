@@ -12,7 +12,9 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.Application;
 import com.rebuild.core.cache.BaseCacheTemplate;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -99,5 +101,31 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
      */
     public void cleanOwningUser(ID record) {
         evict(record.toLiteral());
+
+        final String cKey = "CREATEDBY44-" + record;
+        evict(cKey);
+    }
+
+    /**
+     * @param record
+     * @return
+     */
+    public ID getCreatedBy(ID record) {
+        final String cKey = "CREATEDBY44-" + record;
+        ID createdBy = getx(cKey);
+        if (createdBy != null) return createdBy;
+
+        Entity e = MetadataHelper.getEntity(record.getEntityCode());
+        if (!e.containsField(EntityHelper.CreatedBy)) {
+            log.warn("No [createdBy] field in [{}]", e.getEntityCode());
+            return null;
+        }
+
+        Object[] c = Application.getQueryFactory().uniqueNoFilter(record, EntityHelper.CreatedBy);
+        if (c == null) return null;
+
+        createdBy = (ID) c[0];
+        putx(cKey, createdBy);
+        return createdBy;
     }
 }
