@@ -242,7 +242,7 @@ class BatchApprove2 extends BatchApprove {
             {$L('取消')}
           </button>
           <button className="btn btn-primary btn-space mr-1" type="button" onClick={() => this.handleConfirm()}>
-            {$L('审批')}
+            {$L('确定')}
           </button>
         </div>
       </RbModal>
@@ -273,9 +273,7 @@ class BatchApprove2 extends BatchApprove {
     )
   }
 
-  componentDidMount() {
-    // super.componentDidMount()
-  }
+  componentDidMount() {}
 
   getQueryData() {
     return {
