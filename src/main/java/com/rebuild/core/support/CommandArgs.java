@@ -57,7 +57,7 @@ public class CommandArgs {
     public static final String _HomeURLLocal = "_HomeURLLocal";
     public static final String _CreatedDept = "_CreatedDept";
 
-    // v4.4
+    // v4.4 
     public static final String _DistributedNode = "_DistributedNode";
     public static final String _DistributedNodeUrl = "_DistributedNodeUrl";
     public static final String _DistributedMasterUrl = "_DistributedMasterUrl";
