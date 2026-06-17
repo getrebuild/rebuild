@@ -9,6 +9,7 @@ const wpc = window.__PageConfig
 
 let _Principal
 let _Members
+let _MembersShareTo44
 let _PlanList
 
 $(document).ready(() => {
@@ -18,6 +19,14 @@ $(document).ready(() => {
   renderRbcomp(<UserSelector defaultValue={wpc.members} />, 'members', function () {
     _Members = this
   })
+
+  const shareTo = wpc.extraDefinition ? wpc.extraDefinition.shareTo : null
+  renderRbcomp(<UserSelector defaultValue={shareTo} />, 'membersShareTo', function () {
+    _MembersShareTo44 = this
+  })
+  if (shareTo && shareTo.length) {
+    $('#membersShareTo').parents('.bosskey-show').removeClass('bosskey-show')
+  }
 
   if (wpc.scope === 2) $('#scope_2').attr('checked', true)
 
@@ -51,6 +60,7 @@ $(document).ready(() => {
     })
     const extra = wpc.extraDefinition || {}
     extra.cardFields = fs
+    extra.shareTo = _MembersShareTo44.val() || []
     data.extraDefinition = extra
 
     $btn.button('loading')
