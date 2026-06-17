@@ -18,7 +18,7 @@ import com.rebuild.core.support.RbvFunction;
 public interface UseDistributed {
 
     /**
-     * 通知刷新
+     * 数据改变后，被动通知刷新
      *
      * @return
      */
