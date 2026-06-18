@@ -103,8 +103,12 @@ public class FileUploader extends BaseController {
                 String iw = CommandArgs.getString(CommandArgs._ImageWatermark, getParameter(request, "iw"));
                 if (StringUtils.isNotBlank(iw)) {
                     iw = AppUtils.formatWatermarkText(user, iw);
-                    ImageMaker.makeWatermark(dest, iw, dest, thumbSizeMB > 0 ? ImageView2.ORIGIN_WIDTH * 2 : 0);
-                    FilesHelper.storeFileSize(uploadName, FileUtils.sizeOf(dest));
+                    try {
+                        ImageMaker.makeWatermark(dest, iw, dest, thumbSizeMB > 0 ? ImageView2.ORIGIN_WIDTH * 2 : 0);
+                        FilesHelper.storeFileSize(uploadName, FileUtils.sizeOf(dest));
+                    } catch (Exception ex) {
+                        log.warn("Image watermark failed : {}", dest, ex);
+                    }
 
                 } else if (thumbSizeMB > 0) {
                     File destNew = ImageView2.thumbQuietly(dest, ImageView2.ORIGIN_WIDTH * 2);
