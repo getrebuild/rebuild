@@ -133,7 +133,8 @@ public class KVStorage {
             value = Application.getCommonsCache().get(key);
             if (noCache) value = null;
             if (value != null) {
-                return StringUtils.isEmpty(value) ? null : value;
+                if (StringUtils.isNotEmpty(value)) return value;
+                return defaultValue == null ? null : defaultValue.toString();
             }
 
             // 1.1. 从数据库

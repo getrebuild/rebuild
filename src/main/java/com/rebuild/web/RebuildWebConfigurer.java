@@ -108,8 +108,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         String aibot = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
         if (aibot != null) {
             aibot = RebuildConfiguration.get(ConfigurationItem.AibotName);
-            thymeleafViewResolver.addStaticVariable("_AiBot",
-                    StringUtils.defaultIfBlank(aibot, (String) ConfigurationItem.AibotName.getDefaultValue()));
+            thymeleafViewResolver.addStaticVariable("_AiBot", aibot);
         }
 
         // 清理缓存
