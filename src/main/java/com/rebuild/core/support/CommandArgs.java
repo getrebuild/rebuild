@@ -64,9 +64,8 @@ public class CommandArgs {
     public static final String _DistributedAllowJobs = "_DistributedAllowJobs";
     public static final String _DistributedDisallowJobs = "_DistributedDisallowJobs";
     public static final String _DistributedAk = "_DistributedAk";
-    // 压缩/水印
-    public static final String _ImageBigThumb = "_ImageBigThumb";
-    public static final String _ImageWatermark = "_ImageWatermark";
+
+    public static final String _TriggerLessLog = "_TriggerLessLog";
 
     /**
      * 内部消息同步发送短信
@@ -85,13 +84,17 @@ public class CommandArgs {
      */
     public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
     /**
-     * 更少的触发器日志输出
-     */
-    public static final String _TriggerLessLog = "_TriggerLessLog";
-    /**
      * 新版本检测
      */
     public static final String _NotCheckBuild = "_NotCheckBuild";
+    /**
+     * 图片启用压缩
+     */
+    public static final String _ImageBigThumb = "_ImageBigThumb";
+    /**
+     * 图片启用水印
+     */
+    public static final String _ImageWatermark = "_ImageWatermark";
 
     // --
 
