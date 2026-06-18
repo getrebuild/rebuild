@@ -5,6 +5,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Position;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -125,12 +126,14 @@ public class ImageMaker {
         }
 
         // 创建水印
-        int iwm = Math.min(Math.max((int) (iw * 0.8), 100), 600);
-        BufferedImage w = createTextWatermark(text, createFont(32f), Color.WHITE, iwm);
+        int maxWidth = (int) (iw * 0.75);
+        int fontSize = Math.min(Math.max((int) (iw * 0.015), 24), 120);
+        BufferedImage w = createTextWatermark(text, createFont(fontSize), Color.WHITE, maxWidth);
 
-        builder.watermark(Positions.TOP_LEFT, w, 0.6f)
+        builder.watermark(TL10, w, 0.6f)
                 .toFile(dest);
     }
+    private static final Position TL10 = (enclosingWidth, enclosingHeight, width, height, insetLeft, insetRight, insetTop, insetBottom) -> new Point(20, 20);
 
     /**
      * 获取默认字体
