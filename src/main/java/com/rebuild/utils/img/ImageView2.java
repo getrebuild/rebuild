@@ -52,20 +52,6 @@ public class ImageView2 {
     /**
      * @param img
      * @return
-     */
-    public File thumbQuietly(File img) {
-        try {
-            File thumb = thumb(img);
-            return thumb != null && thumb.exists() ? thumb : img;
-        } catch (Exception ex) {
-            log.warn("Image thumb failed : {}", img, ex);
-        }
-        return img;
-    }
-
-    /**
-     * @param img
-     * @return
      * @throws IOException
      */
     public File thumb(File img) throws IOException {
@@ -105,5 +91,23 @@ public class ImageView2 {
     private String formatFileKey(File file) {
         return String.format("thumb%d.%s.%s", getWidth(),
                 CommonsUtils.maxstr(file.getParentFile().getName(), 50), file.getName());
+    }
+
+    // --
+
+    /**
+     * 压缩图片大小
+     * 
+     * @param img
+     * @return
+     */
+    public static File thumbQuietly(File img, int width) {
+        try {
+            File thumb = new ImageView2(width).thumb(img);
+            return thumb != null && thumb.exists() ? thumb : img;
+        } catch (Exception ex) {
+            log.warn("Image thumb failed : {}", img, ex);
+        }
+        return img;
     }
 }

@@ -57,13 +57,16 @@ public class CommandArgs {
     public static final String _HomeURLLocal = "_HomeURLLocal";
     public static final String _CreatedDept = "_CreatedDept";
 
-    // v4.4 
+    // v4.4
     public static final String _DistributedNode = "_DistributedNode";
     public static final String _DistributedNodeUrl = "_DistributedNodeUrl";
     public static final String _DistributedMasterUrl = "_DistributedMasterUrl";
     public static final String _DistributedAllowJobs = "_DistributedAllowJobs";
     public static final String _DistributedDisallowJobs = "_DistributedDisallowJobs";
     public static final String _DistributedAk = "_DistributedAk";
+    // 压缩/水印
+    public static final String _ImageBigThumb = "_ImageBigThumb";
+    public static final String _ImageWatermark = "_ImageWatermark";
 
     /**
      * 内部消息同步发送短信

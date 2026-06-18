@@ -12,12 +12,14 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.service.files.FilesHelper;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.utils.img.ImageMaker;
+import com.rebuild.utils.img.ImageView2;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -34,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 
+import static cn.devezhao.commons.DateFormatUtils.getUTCDateTimeFormat;
 import static com.rebuild.web.commons.FileDownloader.checkUser;
 
 /**
@@ -89,13 +92,31 @@ public class FileUploader extends BaseController {
                 return;
             }
 
-            // 添加 iw 参数支持水印
-            String iw42 = getParameter(request, "iw");
-            if (StringUtils.isNotBlank(iw42) && CommonsUtils.isImageFile(dest)) {
-                if (iw42.contains("{USER}")) iw42 = iw42.replace("{USER}", user.toLiteral().toLowerCase());
-                if (iw42.contains("{DATE}")) iw42 = iw42.replace("{DATE}", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+            if (CommonsUtils.isImageFile(dest)) {
+                // v4.4 压缩大图
+                int thumbSizeMB = CommandArgs.getInt(CommandArgs._ImageBigThumb);
+                long imgSize = FileUtils.sizeOf(dest) / 1024 / 1024;
+                if (thumbSizeMB < 1 || thumbSizeMB > imgSize) {
+                    thumbSizeMB = 0;
+                }
 
-                ImageMaker.makeWatermark(dest, iw42, dest);
+                // v4.2 添加 iw 参数支持水印
+                String iw = CommandArgs.getString(CommandArgs._ImageWatermark, getParameter(request, "iw"));
+                if (StringUtils.isNotBlank(iw)) {
+                    if (iw.contains("{USER}")) iw = iw.replace("{USER}", user.toLiteral().toLowerCase());
+                    if (iw.contains("{DATE}")) iw = iw.replace("{DATE}", getUTCDateTimeFormat().format(CalendarUtils.now()));
+
+                    ImageMaker.makeWatermark(dest, iw, dest, thumbSizeMB > 0 ? ImageView2.ORIGIN_WIDTH * 2 : 0);
+                    FilesHelper.storeFileSize(uploadName, FileUtils.sizeOf(dest));
+
+                } else if (thumbSizeMB > 0) {
+                    File destNew = ImageView2.thumbQuietly(dest, ImageView2.ORIGIN_WIDTH * 2);
+                    if (destNew != null) {
+                        FileUtils.deleteQuietly(destNew);
+                        FileUtils.moveFile(destNew, dest);
+                        FilesHelper.storeFileSize(uploadName, FileUtils.sizeOf(dest));
+                    }
+                }
             }
 
         } catch (Exception ex) {
@@ -117,9 +138,7 @@ public class FileUploader extends BaseController {
     @ResponseBody
     public RespBody storeFilesize(HttpServletRequest request) {
         long fileSize = ObjectUtils.toLong(getParameter(request, "fs"));
-        if (fileSize < 1) {
-            return RespBody.error();
-        }
+        if (fileSize < 1) return RespBody.error();
 
         String filePath = request.getParameter("fp");
         if (StringUtils.isNotBlank(filePath)) {
