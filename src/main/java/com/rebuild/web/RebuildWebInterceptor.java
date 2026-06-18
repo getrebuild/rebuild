@@ -110,7 +110,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             }
             // v4.2 watermark
             if (RebuildConfiguration.getBool(ConfigurationItem.MarkWatermark)) {
-                String wt = AppUtils.getWatermarkText(requestEntry.getRequestUser());
+                String wt = AppUtils.getWatermarkText(requestEntry.getRequestUser(), null);
                 if (wt != null) request.setAttribute("markWatermarkText", wt);
             }
             // v4.3.4

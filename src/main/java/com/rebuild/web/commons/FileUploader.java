@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
@@ -16,6 +15,7 @@ import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.utils.img.ImageMaker;
@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 
-import static cn.devezhao.commons.DateFormatUtils.getUTCDateTimeFormat;
 import static com.rebuild.web.commons.FileDownloader.checkUser;
 
 /**
@@ -103,9 +102,7 @@ public class FileUploader extends BaseController {
                 // v4.2 添加 iw 参数支持水印
                 String iw = CommandArgs.getString(CommandArgs._ImageWatermark, getParameter(request, "iw"));
                 if (StringUtils.isNotBlank(iw)) {
-                    if (iw.contains("{USER}")) iw = iw.replace("{USER}", user.toLiteral().toLowerCase());
-                    if (iw.contains("{DATE}")) iw = iw.replace("{DATE}", getUTCDateTimeFormat().format(CalendarUtils.now()));
-
+                    iw = AppUtils.getWatermarkText(user, iw);
                     ImageMaker.makeWatermark(dest, iw, dest, thumbSizeMB > 0 ? ImageView2.ORIGIN_WIDTH * 2 : 0);
                     FilesHelper.storeFileSize(uploadName, FileUtils.sizeOf(dest));
 

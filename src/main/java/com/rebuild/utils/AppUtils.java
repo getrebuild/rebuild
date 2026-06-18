@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -179,10 +180,11 @@ public class AppUtils {
      * 水印内容
      *
      * @param user
+     * @param wt 优先使用
      * @return
      */
-    public static String getWatermarkText(ID user) {
-        String wt = RebuildConfiguration.get(ConfigurationItem.MarkWatermarkFormat);
+    public static String getWatermarkText(ID user, String wt) {
+        wt = wt == null ? RebuildConfiguration.get(ConfigurationItem.MarkWatermarkFormat) : wt;
         if (StringUtils.isBlank(wt)) return null;
 
         // 兼容中文变量
@@ -191,6 +193,7 @@ public class AppUtils {
         wt = wt.replace("{邮箱}", "{EMAIL}");
         wt = wt.replace("{电话}", "{PHONE}");
         wt = wt.replace("{系统}", "{SYS}");
+        wt = wt.replace("{日期}", "{DATE}");
 
         List<String> t = new ArrayList<>();
         User u = user == null ? null : Application.getUserStore().getUser(user);
@@ -214,6 +217,10 @@ public class AppUtils {
             // 系统名称
             if (item.contains("{SYS}")) {
                 item = item.replace("{SYS}", RebuildConfiguration.get(ConfigurationItem.AppName));
+            }
+            // 系统名称
+            if (item.contains("{DATE}")) {
+                item = item.replace("{DATE}", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
             }
             t.add(item);
         }
