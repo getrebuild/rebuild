@@ -24,8 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 封裝一些有用的工具方法
@@ -177,13 +175,11 @@ public class AppUtils {
     }
 
     /**
-     * 水印内容
-     *
      * @param user
-     * @param wt 优先使用
+     * @param wt
      * @return
      */
-    public static String getWatermarkText(ID user, String wt) {
+    public static String formatWatermarkText(ID user, String wt) {
         wt = wt == null ? RebuildConfiguration.get(ConfigurationItem.MarkWatermarkFormat) : wt;
         if (StringUtils.isBlank(wt)) return null;
 
@@ -195,35 +191,29 @@ public class AppUtils {
         wt = wt.replace("{系统}", "{SYS}");
         wt = wt.replace("{日期}", "{DATE}");
 
-        List<String> t = new ArrayList<>();
         User u = user == null ? null : Application.getUserStore().getUser(user);
-        for (String item : wt.split(" ")) {
-            // 用户ID
-            if (item.contains("{USER}")) {
-                item = item.replace("{USER}", u == null ? "" : ("***" + user.toLiteral().substring(7)));
-            }
-            // 姓名
-            if (item.contains("{NAME}")) {
-                item = item.replace("{NAME}", u == null ? "" : u.getFullName());
-            }
-            // 邮箱
-            if (item.contains("{EMAIL}")) {
-                item = item.replace("{EMAIL}", u == null ? "" : StringUtils.defaultIfBlank(u.getEmail(), ""));
-            }
-            // 电话
-            if (item.contains("{PHONE}")) {
-                item = item.replace("{PHONE}", u == null ? "" : StringUtils.defaultIfBlank(u.getWorkphone(), ""));
-            }
-            // 系统名称
-            if (item.contains("{SYS}")) {
-                item = item.replace("{SYS}", RebuildConfiguration.get(ConfigurationItem.AppName));
-            }
-            // 系统名称
-            if (item.contains("{DATE}")) {
-                item = item.replace("{DATE}", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
-            }
-            t.add(item);
-        }
-        return JSON.toJSONString(t);
+        wt = wt.replace("{USER}", u == null ? "" : ("***" + user.toLiteral().substring(7)));
+        wt = wt.replace("{NAME}", u == null ? "" : u.getFullName());
+        wt = wt.replace("{EMAIL}", u == null ? "" : StringUtils.defaultIfBlank(u.getEmail(), ""));
+        wt = wt.replace("{PHONE}", u == null ? "" : StringUtils.defaultIfBlank(u.getWorkphone(), ""));
+        wt = wt.replace("{SYS}", RebuildConfiguration.get(ConfigurationItem.AppName));
+        wt = wt.replace("{DATE}", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+
+        return wt;
+    }
+
+    /**
+     * 水印内容
+     *
+     * @param user
+     * @param wt 优先使用
+     * @return
+     */
+    public static String getWatermarkText(ID user, String wt) {
+        wt = formatWatermarkText(user, wt);
+        if (wt == null) return null;
+
+        String[] ss = wt.split("\\s+");
+        return JSON.toJSONString(ss);
     }
 }

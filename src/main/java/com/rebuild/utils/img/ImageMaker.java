@@ -172,7 +172,7 @@ public class ImageMaker {
         List<String> lines = new ArrayList<>();
 
         // 先按 \n 换行，再对每行自动折行
-        for (String paragraph : text.split("\\\\n")) {
+        for (String paragraph : text.split("[\\r\\n]+")) {
             StringBuilder line = new StringBuilder();
             for (char c : paragraph.toCharArray()) {
                 line.append(c);

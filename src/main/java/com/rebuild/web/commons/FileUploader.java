@@ -102,7 +102,7 @@ public class FileUploader extends BaseController {
                 // v4.2 添加 iw 参数支持水印
                 String iw = CommandArgs.getString(CommandArgs._ImageWatermark, getParameter(request, "iw"));
                 if (StringUtils.isNotBlank(iw)) {
-                    iw = AppUtils.getWatermarkText(user, iw);
+                    iw = AppUtils.formatWatermarkText(user, iw);
                     ImageMaker.makeWatermark(dest, iw, dest, thumbSizeMB > 0 ? ImageView2.ORIGIN_WIDTH * 2 : 0);
                     FilesHelper.storeFileSize(uploadName, FileUtils.sizeOf(dest));
 

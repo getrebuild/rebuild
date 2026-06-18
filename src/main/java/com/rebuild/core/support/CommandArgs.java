@@ -15,6 +15,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Properties;
 
@@ -160,8 +162,9 @@ public class CommandArgs {
             File rebuildConf = RebuildConfiguration.getFileOfData("rebuild.conf");
             if (rebuildConf.exists()) {
                 Properties conf = new Properties();
-                try {
-                    conf.load(Files.newInputStream(rebuildConf.toPath()));
+                try (InputStreamReader reader = new InputStreamReader(
+                        Files.newInputStream(rebuildConf.toPath()), StandardCharsets.UTF_8)) {
+                    conf.load(reader);
                     CONF39 = conf;
                     log.info("Use REBUILD conf file : {}", rebuildConf);
                 } catch (IOException e) {
