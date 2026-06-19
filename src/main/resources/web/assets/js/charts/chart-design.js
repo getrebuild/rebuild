@@ -672,6 +672,11 @@ class DlgAxisProps extends RbFormHandler {
   }
 
   render() {
+    let scale = this.state.scale
+    let unit = this.state.unit
+    if ($empty(scale)) scale = '-1'
+    if ($empty(unit)) unit = '-1'
+
     return (
       <RbModal title={$L('显示样式')} ref={(c) => (this._dlg = c)} className="sm-height">
         <div className="form">
@@ -686,7 +691,8 @@ class DlgAxisProps extends RbFormHandler {
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('小数位长度')}</label>
                 <div className="col-sm-7">
-                  <select className="form-control form-control-sm" value={this.state.scale || 2} data-id="scale" onChange={this.handleChange}>
+                  <select className="form-control form-control-sm" value={scale} data-id="scale" onChange={this.handleChange}>
+                    <option value="-1">{$L('默认')}</option>
                     <option value="0">0</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -700,8 +706,8 @@ class DlgAxisProps extends RbFormHandler {
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('数字单位')}</label>
                 <div className="col-sm-7">
-                  <select className="form-control form-control-sm" value={this.state.unit || 0} data-id="unit" onChange={this.handleChange}>
-                    <option value="0">{$L('默认')}</option>
+                  <select className="form-control form-control-sm" value={unit} data-id="unit" onChange={this.handleChange}>
+                    <option value="-1">{$L('默认')}</option>
                     <option value="1000">{$L('千')}</option>
                     <option value="10000">{$L('万')}</option>
                     <option value="100000">{$L('十万')}</option>

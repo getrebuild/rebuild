@@ -245,7 +245,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             Object[] o = Application.createQueryNoFilter(maxAidSql).unique();
             long maxAid = ObjectUtils.toLong(o[0]);
             if (maxAid > 100000) {
-                String previewFilter = String.format("(%s >= %d) and ", EntityHelper.AutoId, Math.max(maxAid - 5000, 0));
+                String previewFilter = String.format("(%s >= %d)", EntityHelper.AutoId, Math.max(maxAid - 5000, 0));
                 filtersAnd.add(previewFilter);
             }
         }

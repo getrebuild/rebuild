@@ -213,8 +213,11 @@ public class TableChart extends ChartData {
         if (ChartsHelper.isZero(value)) return ChartsHelper.VALUE_ZERO;
         if (ID.isId(value)) value = 1d;
 
+        // 小数位:数字单位
         String flag = getNumericalFlag(numerical);
-        if (StringUtils.isBlank(flag) || "0:0".equals(flag)) return super.wrapAxisValue(numerical, value, useThousands);
+        if (StringUtils.isBlank(flag) || "0:0".equals(flag)|| "-1:-1".equals(flag)) {
+            return super.wrapAxisValue(numerical, value, useThousands);
+        }
 
         // v3.9
         String flagUnit = "";
