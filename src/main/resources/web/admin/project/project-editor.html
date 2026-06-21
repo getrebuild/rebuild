@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -87,6 +87,12 @@
                   <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('项目成员')}]]</label>
                   <div class="col-12 col-lg-9">
                     <div id="members"></div>
+                  </div>
+                </div>
+                <div class="form-group row bosskey-show">
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('共享给')}]] (LAB)</label>
+                  <div class="col-12 col-lg-9">
+                    <div id="membersShareTo"></div>
                   </div>
                 </div>
                 <div class="form-group row">

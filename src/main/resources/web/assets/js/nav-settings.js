@@ -136,7 +136,14 @@ $(document).ready(() => {
   })
 
   let cfgid = $urlp('id')
-  if (!cfgid) cfgid = $.cookie('AppHome.Nav') // v4.0 优先当前
+  if (!cfgid) {
+    // v4.0 当前的
+    cfgid = $.cookie('AppHome.Nav')
+    if (cfgid) {
+      // v4.4 没有找到/不可用的
+      if (!$(`.navbar-nav .nav-item[data-id="${cfgid}"]`)[0]) cfgid = null
+    }
+  }
 
   $('.J_save').on('click', () => {
     const navItems = []

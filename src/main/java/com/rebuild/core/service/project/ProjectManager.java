@@ -11,6 +11,7 @@ import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
@@ -61,7 +62,12 @@ public class ProjectManager implements ConfigManager {
         for (ConfigBean e : projects) {
             boolean isMember = e.get("members", Set.class).contains(user);
             boolean isPublic = e.getInteger("scope") == ProjectConfigService.SCOPE_ALL;
-            if (isAdmin || isMember || isPublic) {
+            // 共享
+            JSONArray shareTo44 = (JSONArray) e.getJSON("shareTo");
+            Collection<ID> users = shareTo44 == null ? null : UserHelper.parseUsers(shareTo44, null);
+            boolean isShareTo = users != null && users.contains(user);
+
+            if (isAdmin || isMember || isPublic || isShareTo) {
                 boolean isArchived = e.getInteger("status") == STATUS_ARCHIVED;
                 if (isArchived) {
                     // 仅负责人

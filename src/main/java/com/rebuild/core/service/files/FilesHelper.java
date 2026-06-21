@@ -58,6 +58,7 @@ public class FilesHelper {
      * @see #createAttachment(String, ID)
      */
     public static void storeFileSize(String filePath, long fileSize) {
+        if (FILESIZES.containsKey(filePath)) return;
         FILESIZES.put(filePath, fileSize);
     }
 

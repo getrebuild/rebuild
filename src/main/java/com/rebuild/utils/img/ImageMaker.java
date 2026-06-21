@@ -5,6 +5,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Position;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -90,6 +91,51 @@ public class ImageMaker {
     }
 
     /**
+     * 添加水印
+     *
+     * @param image
+     * @param text
+     * @param dest
+     * @throws IOException
+     */
+    public static void makeWatermark(File image, String text, File dest) throws IOException {
+        makeWatermark(image, text, dest, 0);
+    }
+
+    /**
+     * 添加水印（可选压缩）
+     *
+     * @param image
+     * @param text
+     * @param dest
+     * @param thumbWh >0 则压缩
+     * @throws IOException
+     * @see ImageView2#thumbQuietly(File, int)
+     */
+    public static void makeWatermark(File image, String text, File dest, int thumbWh) throws IOException {
+        BufferedImage bi = ImageIO.read(image);
+        Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);
+
+        // 压缩大小
+        int iw = bi.getWidth();
+        if (thumbWh > 0 && iw > thumbWh) {
+            builder.size(thumbWh, thumbWh);
+            iw = thumbWh;
+        } else {
+            builder.scale(1.0);  // MUST
+        }
+
+        // 创建水印
+        int maxWidth = (int) (iw * 0.75);
+        int fontSize = Math.min(Math.max((int) (iw * 0.015), 24), 120);
+        BufferedImage w = createTextWatermark(text, createFont(fontSize), Color.WHITE, maxWidth);
+
+        builder.watermark(TL10, w, 0.6f)
+                .toFile(dest);
+    }
+    private static final Position TL10 = (enclosingWidth, enclosingHeight, width, height, insetLeft, insetRight, insetTop, insetBottom) -> new Point(20, 20);
+
+    /**
      * 获取默认字体
      *
      * @param size
@@ -111,27 +157,6 @@ public class ImageMaker {
     }
 
     /**
-     * 添加水印
-     *
-     * @param image
-     * @param text
-     * @param dest
-     * @throws IOException
-     */
-    public static void makeWatermark(File image, String text, File dest) throws IOException {
-        BufferedImage inputImage = ImageIO.read(image);
-        int iw = inputImage.getWidth();
-        int iwm = Math.min(Math.max((int) (iw * 0.8), 100), 600);
-        BufferedImage w = createTextWatermark(text, createFont(32f), Color.WHITE, iwm);
-
-        Thumbnails.of(image)
-                .scale(1.0)
-                .watermark(Positions.BOTTOM_RIGHT, w, 0.6f)
-                .outputQuality(1.0)
-                .toFile(dest);
-    }
-
-    /**
      * 生成水印图
      *
      * @param text
@@ -149,8 +174,8 @@ public class ImageMaker {
 
         List<String> lines = new ArrayList<>();
 
-        // 先按 \n 手动换行，再对每行自动折行
-        for (String paragraph : text.split("\n")) {
+        // 先按 \n 换行，再对每行自动折行
+        for (String paragraph : text.split("[\\r\\n]+")) {
             StringBuilder line = new StringBuilder();
             for (char c : paragraph.toCharArray()) {
                 line.append(c);

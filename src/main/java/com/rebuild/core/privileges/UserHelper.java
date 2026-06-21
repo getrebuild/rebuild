@@ -16,7 +16,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.CombinedRole;
@@ -473,7 +472,7 @@ public class UserHelper {
         try {
             ID createdBy = otherUserOrAnyRecordId;
             if (otherUserOrAnyRecordId.getEntityCode() != EntityHelper.User) {
-                createdBy = getCreatedBy(otherUserOrAnyRecordId);
+                createdBy = Application.getRecordOwningCache().getCreatedBy(otherUserOrAnyRecordId);
                 if (createdBy == null) return false;
             }
 
@@ -485,28 +484,5 @@ public class UserHelper {
             log.warn("Check isSelf error : {}, {}", user, otherUserOrAnyRecordId, ex);
             return false;
         }
-    }
-
-    private static ID getCreatedBy(ID anyRecordId) {
-        final String ckey = "CreatedBy-" + anyRecordId;
-        ID createdBy = (ID) Application.getCommonsCache().getx(ckey);
-        if (createdBy != null) {
-            return createdBy;
-        }
-
-        Entity entity = MetadataHelper.getEntity(anyRecordId.getEntityCode());
-        if (!entity.containsField(EntityHelper.CreatedBy)) {
-            log.warn("No [createdBy] field in [{}]", entity.getEntityCode());
-            return null;
-        }
-
-        Object[] c = Application.getQueryFactory().uniqueNoFilter(anyRecordId, EntityHelper.CreatedBy);
-        if (c == null) {
-            throw new RebuildException("No record found : " + anyRecordId);
-        }
-
-        createdBy = (ID) c[0];
-        Application.getCommonsCache().putx(ckey, createdBy);
-        return createdBy;
     }
 }

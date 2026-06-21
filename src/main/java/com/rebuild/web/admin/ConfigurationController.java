@@ -82,7 +82,7 @@ public class ConfigurationController extends BaseController {
 
         ModelAndView mv = createModelAndView("/admin/system-cfg");
         for (ConfigurationItem item : ConfigurationItem.values()) {
-            String value = RebuildConfiguration.get(item);
+            String value = RebuildConfiguration.getValue(item.name());
             if (value != null) {
                 if (item == ConfigurationItem.OnlyofficeJwt || item == ConfigurationItem.PortalBaiduMapAk) {
                     value = DataDesensitized.any(value);
@@ -365,7 +365,7 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Dingtalk")) {
-                String value = RebuildConfiguration.get(item);
+                String value = RebuildConfiguration.getValue(item.name());
 
                 if (value != null && item == ConfigurationItem.DingtalkAppsecret) {
                     value = DataDesensitized.any(value);
@@ -403,7 +403,7 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Wxwork")) {
-                String value = RebuildConfiguration.get(item);
+                String value = RebuildConfiguration.getValue(item.name());
 
                 if (value != null && item == ConfigurationItem.WxworkSecret) {
                     value = DataDesensitized.any(value);
@@ -440,7 +440,7 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Feishu")) {
-                String value = RebuildConfiguration.get(item);
+                String value = RebuildConfiguration.getValue(item.name());
 
                 if (value != null && item == ConfigurationItem.FeishuAppSecret) {
                     value = DataDesensitized.any(value);
@@ -486,7 +486,7 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Aibot")) {
-                String value = RebuildConfiguration.get(item);
+                String value = RebuildConfiguration.getValue(item.name());
                 if (value != null && item == ConfigurationItem.AibotDSSecret) {
                     value = DataDesensitized.any(value);
                 }
@@ -528,7 +528,7 @@ public class ConfigurationController extends BaseController {
     }
 
     private String defaultIfBlank(JSONObject data, ConfigurationItem item) {
-        return StringUtils.defaultIfBlank(data.getString(item.name()), RebuildConfiguration.get(item));
+        return StringUtils.defaultIfBlank(data.getString(item.name()), RebuildConfiguration.getValue(item.name()));
     }
 
     private void setValues(JSONObject data) {

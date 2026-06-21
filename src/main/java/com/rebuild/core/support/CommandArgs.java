@@ -15,6 +15,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Properties;
 
@@ -65,6 +67,8 @@ public class CommandArgs {
     public static final String _DistributedDisallowJobs = "_DistributedDisallowJobs";
     public static final String _DistributedAk = "_DistributedAk";
 
+    public static final String _TriggerLessLog = "_TriggerLessLog";
+
     /**
      * 内部消息同步发送短信
      */
@@ -82,13 +86,17 @@ public class CommandArgs {
      */
     public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
     /**
-     * 更少的触发器日志输出
-     */
-    public static final String _TriggerLessLog = "_TriggerLessLog";
-    /**
      * 新版本检测
      */
     public static final String _NotCheckBuild = "_NotCheckBuild";
+    /**
+     * 图片启用压缩
+     */
+    public static final String _ImageBigThumb = "_ImageBigThumb";
+    /**
+     * 图片启用水印
+     */
+    public static final String _ImageWatermark = "_ImageWatermark";
 
     // --
 
@@ -154,8 +162,9 @@ public class CommandArgs {
             File rebuildConf = RebuildConfiguration.getFileOfData("rebuild.conf");
             if (rebuildConf.exists()) {
                 Properties conf = new Properties();
-                try {
-                    conf.load(Files.newInputStream(rebuildConf.toPath()));
+                try (InputStreamReader reader = new InputStreamReader(
+                        Files.newInputStream(rebuildConf.toPath()), StandardCharsets.UTF_8)) {
+                    conf.load(reader);
                     CONF39 = conf;
                     log.info("Use REBUILD conf file : {}", rebuildConf);
                 } catch (IOException e) {

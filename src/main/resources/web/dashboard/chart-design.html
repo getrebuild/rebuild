@@ -129,7 +129,7 @@
                     <span class="custom-control-label">[[${bundle.L('显示图例')}]]</span>
                   </label>
                 </div>
-                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO">
+                <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-SCATTER">
                   <label class="custom-control custom-control-sm custom-checkbox">
                     <input class="custom-control-input" type="checkbox" data-name="showMarkLine" />
                     <span class="custom-control-label">[[${bundle.L('显示均线')}]]</span>
@@ -196,11 +196,11 @@
                   </div>
                 </div>
                 <div class="hide J_opt-DATALIST2 J_opt-TABLE">
-                  <label class="line-style">[[${bundle.L('最大显示条数')}]]</label>
+                  <label class="line-style mr-1">[[${bundle.L('最大显示条数')}]]</label>
                   <input type="text" data-name="pageSize" th:placeholder="${bundle.L('默认')}" maxlength="4" />
                 </div>
                 <div class="hide J_opt-CNMAP">
-                  <label class="line-style">[[${bundle.L('样式')}]]</label>
+                  <label class="line-style mr-1">[[${bundle.L('样式')}]]</label>
                   <select data-name="themeStyle">
                     <option value="">[[${bundle.L('默认')}]]</option>
                     <option value="dark">[[${bundle.L('深色')}]]</option>
@@ -208,7 +208,7 @@
                   </select>
                 </div>
                 <div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
-                  <label class="line-style">[[${bundle.L('样式')}]]</label>
+                  <label class="line-style mr-1">[[${bundle.L('样式')}]]</label>
                   <select data-name="themeStyle" class="themeStyle">
                     <option value="">[[${bundle.L('默认')}]]</option>
                     <option value="shine">SHINE</option>

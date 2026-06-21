@@ -114,7 +114,7 @@ public class FileDownloader extends BaseController {
                     return;
                 }
 
-                writeLocalFile(iv2.thumbQuietly(img), response);
+                writeLocalFile(iv2.thumb(img), response);
             }
 
         } else {

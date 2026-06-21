@@ -186,7 +186,7 @@ class ShowStyles2 extends ShowStyles {
         <div className="form-group row pt-1 pb-0">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('颜色')}</label>
           <div className="col-sm-7">
-            <div className="rbcolors mt-1">
+            <div className="rbcolors mt-1" ref={(c) => (this._$rbcolors = c)}>
               <a className="default" title={$L('默认')} />
               {RBCOLORS.map((c) => {
                 return <a style={{ backgroundColor: c }} data-color={c} key={c} />
@@ -201,7 +201,7 @@ class ShowStyles2 extends ShowStyles {
   componentDidMount() {
     super.componentDidMount()
 
-    const $cs = $('.rbcolors')
+    const $cs = $(this._$rbcolors)
     $cs.find('>a').on('click', function () {
       $cs.find('>a .zmdi').remove()
       $('<i class="zmdi zmdi-check"></i>').appendTo(this)
@@ -215,9 +215,9 @@ class ShowStyles2 extends ShowStyles {
     // init
     if (this.props.color) {
       $cs.find(`a[data-color="${this.props.color}"]`).trigger('click')
-      $('.rbcolors>input').val(this.props.color)
+      $cs.find('>input').val(this.props.color)
     } else {
-      $('.rbcolors>a:eq(0)').trigger('click')
+      $cs.find('>a:eq(0)').trigger('click')
     }
   }
 

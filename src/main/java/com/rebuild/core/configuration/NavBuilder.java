@@ -240,11 +240,12 @@ public class NavBuilder extends NavManager {
             }
             // URL 绑定实体权限 https://juejin.cn/post/7045494433797652511
             // 如 https://www.baidu.com/::ENTITY_NAME
-            else if (value.contains("::")) {
-                String[] ss = value.split("::");
-                if (ss.length > 2) {
-                    bindUrl = ss[0];
-                    bindEntity = ss[1];
+            else if (value.contains("::") || value.contains("%3A%3A")) {
+                String[] ss = value.contains("::") ? value.split("::") : value.split("%3A%3A");
+                if (ss.length >= 2) {
+                    bindEntity = ss[ss.length - 1];
+                    ss[ss.length - 1] = null;
+                    bindUrl = StringUtils.join(ss, "");
                 }
             }
 

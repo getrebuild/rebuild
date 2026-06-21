@@ -595,7 +595,7 @@ const renderEChart = function (option, $target) {
   $target.addEventListener('contextmenu', function (e) {
     e.preventDefault()
   })
-  if (rb.env === 'dev') console.log(option)
+  if (rb.env === 'dev') console.log(JSON.stringify(option))
   c.setOption(option)
   return c
 }
@@ -1363,6 +1363,7 @@ class ChartScatter extends BaseChart {
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
       const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
+      const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
 
       const axisOption = {
         splitLine: {
@@ -1397,6 +1398,18 @@ class ChartScatter extends BaseChart {
           },
         })
       })
+
+      // v4.4-b4
+      if (showMarkLine) {
+        seriesData.forEach((item, idx) => {
+          let markLine = ECHART_MARK_LINE2(showNumerical, dataFlags[idx])
+          markLine.data = [
+            { type: 'average', name: $L('均线'), valueIndex: 0 },
+            { type: 'average', name: $L('均线'), valueIndex: 1 },
+          ]
+          item.markLine = markLine
+        })
+      }
 
       const option = {
         ...$clone(ECHART_BASE),
