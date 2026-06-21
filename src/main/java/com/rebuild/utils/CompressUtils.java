@@ -7,7 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.hutool.core.compiler.CompilerUtil;
+import cn.hutool.core.util.ZipUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.archivers.zip.Zip64Mode;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileUtils;
@@ -58,8 +61,9 @@ public class CompressUtils {
         ZipArchiveOutputStream zipArchiveOutputStream = null;
 
         try {
-            bufferedOutputStream = new BufferedOutputStream(destZipOutputStream);
+            bufferedOutputStream = new BufferedOutputStream(destZipOutputStream, 8192 * 10);
             zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream);
+            zipArchiveOutputStream.setUseZip64(Zip64Mode.AsNeeded);
 
             addFileToZip(zipArchiveOutputStream, fileOrDir, null, filter);
 

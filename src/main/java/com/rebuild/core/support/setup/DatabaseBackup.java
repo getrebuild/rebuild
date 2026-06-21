@@ -104,7 +104,7 @@ public class DatabaseBackup {
         boolean isGotError = echo.contains("Got error");
         if (isGotError) throw new RuntimeException(echo);
 
-        File dest2Zip = new File(backups, destName + ".zip");
+        File dest2Zip = new File(backups, destName.replace(".sql", ".zip"));
         try {
             CompressUtils.forceZip(dest2Zip, dest, null);
 
