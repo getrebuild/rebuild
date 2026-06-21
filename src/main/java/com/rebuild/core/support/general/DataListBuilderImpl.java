@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class DataListBuilderImpl implements DataListBuilder {
 
-    private static final String[] STATS_COLS = new String[]{"label", "value"};
+    private static final String[] STATS_COLS = new String[]{"label", "value", "color"};
 
     final protected Entity entity;
     final protected QueryParser queryParser;
@@ -97,14 +97,14 @@ public class DataListBuilderImpl implements DataListBuilder {
         long totalRows = 0;
         JSONArray stats = null;
         if (isNeedReload()) {
-            List<Object[]> stats2 = getStats();
-            totalRows = (long) stats2.get(0)[1];
+            List<Object[]> statsRaw = getStats();
+            totalRows = (long) statsRaw.get(0)[1];
 
             // 统计字段
-            if (stats2.size() > 1) {
+            if (statsRaw.size() > 1) {
                 stats = new JSONArray();
-                for (int i = 1; i < stats2.size(); i++) {
-                    stats.add(JSONUtils.toJSONObject(STATS_COLS, stats2.get(i)));
+                for (int i = 1; i < statsRaw.size(); i++) {
+                    stats.add(JSONUtils.toJSONObject(STATS_COLS, statsRaw.get(i)));
                 }
             }
         }
@@ -124,12 +124,12 @@ public class DataListBuilderImpl implements DataListBuilder {
      * @return
      */
     public JSONArray getJSONStats() {
-        List<Object[]> stats2 = getStats();
-        if (stats2.size() < 2) return null;
+        List<Object[]> statsRaw = getStats();
+        if (statsRaw.size() < 2) return null;
 
         JSONArray stats = new JSONArray();
-        for (int i = 1; i < stats2.size(); i++) {
-            stats.add(JSONUtils.toJSONObject(STATS_COLS, stats2.get(i)));
+        for (int i = 1; i < statsRaw.size(); i++) {
+            stats.add(JSONUtils.toJSONObject(STATS_COLS, statsRaw.get(i)));
         }
         return stats;
     }
@@ -143,7 +143,7 @@ public class DataListBuilderImpl implements DataListBuilder {
         List<Object[]> stats = new ArrayList<>();
 
         final Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
-        stats.add(new Object[]{null, count[0]});
+        stats.add(new Object[]{null, count[0], null});
         if (count.length < 2) return stats;
 
         List<Map<String, Object>> statsFields = queryParser.getCountFields();

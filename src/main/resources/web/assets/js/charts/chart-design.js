@@ -452,7 +452,7 @@ function add_axis($target, axis) {
         scale: $dd.attr('data-scale'),
         unit: $dd.attr('data-unit'),
       }
-      state.callback = (s) => {
+      state.onConfirm = (s) => {
         $dd.attr({ 'data-label': s.label, 'data-scale': s.scale, 'data-unit': s.unit })
         render_preview()
       }
@@ -672,11 +672,6 @@ class DlgAxisProps extends RbFormHandler {
   }
 
   render() {
-    let scale = this.state.scale
-    let unit = this.state.unit
-    if ($empty(scale)) scale = '-1'
-    if ($empty(unit)) unit = '-1'
-
     return (
       <RbModal title={$L('显示样式')} ref={(c) => (this._dlg = c)} className="sm-height">
         <div className="form">
@@ -691,8 +686,8 @@ class DlgAxisProps extends RbFormHandler {
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('小数位长度')}</label>
                 <div className="col-sm-7">
-                  <select className="form-control form-control-sm" value={scale} data-id="scale" onChange={this.handleChange}>
-                    <option value="-1">{$L('默认')}</option>
+                  <select className="form-control form-control-sm" value={this.state.scale || ''} data-id="scale" onChange={this.handleChange}>
+                    <option value="">{$L('默认')}</option>
                     <option value="0">0</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -706,8 +701,8 @@ class DlgAxisProps extends RbFormHandler {
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('数字单位')}</label>
                 <div className="col-sm-7">
-                  <select className="form-control form-control-sm" value={unit} data-id="unit" onChange={this.handleChange}>
-                    <option value="-1">{$L('默认')}</option>
+                  <select className="form-control form-control-sm" value={this.state.unit || ''} data-id="unit" onChange={this.handleChange}>
+                    <option value="">{$L('默认')}</option>
                     <option value="1000">{$L('千')}</option>
                     <option value="10000">{$L('万')}</option>
                     <option value="100000">{$L('十万')}</option>
@@ -734,8 +729,14 @@ class DlgAxisProps extends RbFormHandler {
     )
   }
 
+  componentDidMount() {
+    // super.componentDidMount()
+  }
+
   saveProps() {
-    this.state.callback(this.state)
+    const data = { ...this.state }
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
     this.hide()
   }
 }

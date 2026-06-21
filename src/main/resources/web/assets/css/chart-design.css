@@ -532,10 +532,9 @@ a.ui-draggable.ui-draggable-dragging {
 .themeStyle {
   border: 0 none;
   outline: 0 none;
-  width: 80px;
+  width: 101px;
   border-bottom: 1px solid #ccc;
   padding: 2px;
-  margin-left: 5px;
   text-align: center;
 }
 
