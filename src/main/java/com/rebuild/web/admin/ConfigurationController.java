@@ -20,8 +20,10 @@ import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -56,6 +58,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
+
+import static com.rebuild.core.support.ConfigurationItem.PasswordExpiredDays;
 
 /**
  * 系统配置
@@ -125,7 +129,7 @@ public class ConfigurationController extends BaseController {
                 ConfigurationItem.RecycleBinKeepingDays,
                 ConfigurationItem.RevisionHistoryKeepingDays,
                 ConfigurationItem.DBBackupsKeepingDays,
-                ConfigurationItem.PasswordExpiredDays,
+                PasswordExpiredDays,
                 ConfigurationItem.PortalUploadMaxSize,
         };
         for (ConfigurationItem item : validNumbers) {
@@ -145,8 +149,22 @@ public class ConfigurationController extends BaseController {
             Application.getCommonsCache().evict(ETAG_DIMGBGIMGTIME);
         }
 
+        // fix: v4.4-b5
+        String pedHasValue = RebuildConfiguration.get(PasswordExpiredDays);
+
         setValues(data);
         Application.getBean(RebuildWebConfigurer.class).init();
+
+        // 原关闭现启用，要移除历史
+        if (ObjectUtils.toInt(pedHasValue) <= 0) {
+            pedHasValue = RebuildConfiguration.get(PasswordExpiredDays);
+            if (ObjectUtils.toInt(pedHasValue) >= 1) {
+                for (User user : Application.getUserStore().getAllUsers()) {
+                    String key = PasswordExpiredDays.name() + user.getId();
+                    KVStorage.removeCustomValue(key);
+                }
+            }
+        }
 
         return RespBody.ok();
     }
