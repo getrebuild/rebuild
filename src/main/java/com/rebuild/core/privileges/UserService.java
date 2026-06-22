@@ -101,11 +101,6 @@ public class UserService extends BaseService {
 
     @Override
     public Record update(Record record) {
-        if (ADMIN_USER.equals(record.getPrimary())) {
-            Boolean b = record.getBoolean("isDisabled");
-            if (b != null && b) throw new OperationDeniedException("超管账户不能禁用");
-        }
-
         checkAdminGuard(BizzPermission.UPDATE, record.getPrimary());
 
         saveBefore(record);
@@ -156,6 +151,7 @@ public class UserService extends BaseService {
         if (record.hasValue("loginName")) {
             checkLoginName(record.getString("loginName"));
         }
+
         if (record.hasValue("jobNumber")) {
             checkJobNumber(record.getString("jobNumber"));
         }
@@ -176,6 +172,20 @@ public class UserService extends BaseService {
 
         if (record.hasValue("fullName")) {
             UserHelper.generateAvatar(record.getString("fullName"), true);
+        }
+
+        if (ADMIN_USER.equals(record.getPrimary()) || SYSTEM_USER.equals(record.getPrimary())) {
+            Boolean b = record.getBoolean("isDisabled");
+            if (b != null && b) throw new OperationDeniedException("内置用户不能禁用");
+
+            ID deptIdNew = record.getID("deptId");
+            if (DepartmentService.ROOT_DEPT.equals(deptIdNew)) deptIdNew = null;
+            ID roleIdNew = record.getID("roleId");
+            if (RoleService.ADMIN_ROLE.equals(roleIdNew)) roleIdNew = null;
+
+            if (deptIdNew != null || roleIdNew != null) {
+                throw new OperationDeniedException("内置用户不能修改部门或角色");
+            }
         }
     }
 
@@ -355,6 +365,7 @@ public class UserService extends BaseService {
         }
 
         if (changed) {
+            saveBefore(record);
             super.update(record);
         }
 
