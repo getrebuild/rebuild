@@ -186,7 +186,8 @@ public class FieldValueSourceDetector {
         for (Object[] o : array) {
             Field sourceRefField = entity.getField((String) o[0]);
             Entity sourceRefEntity = sourceRefField.getReferenceEntity();
-            Field sourceValueField = sourceRefEntity.getField((String) o[1]);
+            Field sourceValueField = MetadataHelper.getLastJoinField(sourceRefEntity, (String) o[1]);
+            if (sourceValueField == null) continue;
 
             String desc = String.format(
                     "选择 [%s](/admin/entity/%s/field/%s/auto-fillin) 时从 [%s](/admin/entity/%s/field/%s)",

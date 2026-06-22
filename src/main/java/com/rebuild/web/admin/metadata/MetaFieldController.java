@@ -34,6 +34,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -300,7 +301,7 @@ public class MetaFieldController extends BaseController {
             return RespBody.ok(res);
         } catch (Exception ex) {
             log.error("field-value-detect", ex);
+            return RespBody.error(CommonsUtils.getRootMessage(ex));
         }
-        return RespBody.ok();
     }
 }
