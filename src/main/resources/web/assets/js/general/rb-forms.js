@@ -341,7 +341,7 @@ class RbForm extends React.Component {
 
   render() {
     return (
-      <div className={`rbform form-layout ${this._verticalLayout42 && 'vertical38'}`}>
+      <div className={`rbform form-layout ${this._verticalLayout42 && 'vertical38'} form-${this.props.entity}`}>
         <div className="form row" ref={(c) => (this._$form = c)}>
           {this.props.children.map((fieldComp) => {
             let refKey = `fieldcomp-${fieldComp.props.field}`

@@ -1218,7 +1218,7 @@ class RbList extends React.Component {
 
     return (
       <RF>
-        <div className="row rb-datatable-body">
+        <div className={`row rb-datatable-body datalist-${this._entity}`}>
           <div className="col-sm-12">
             <div className="rb-scroller" ref={(c) => (this._$scroller = c)}>
               <table className={`table table-hover table-striped ${window.__LAB_DATALIST_BORDERED42 && 'table-bordered42'}`}>
