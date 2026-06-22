@@ -270,13 +270,4 @@ public class RebuildConfiguration extends KVStorage {
         }
         setValue(name.name(), value);
     }
-
-    /**
-     * @param itemName
-     * @return
-     * @see #get(ConfigurationItem)
-     */
-    public static String getValue(String itemName) {
-        return getValue(itemName, false, null);
-    }
 }
