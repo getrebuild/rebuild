@@ -151,16 +151,17 @@ public class ConfigurationController extends BaseController {
         }
 
         // fix: v4.4-b5
-        String pedHasValue = RebuildConfiguration.get(PasswordExpiredDays);
+        String pedBeforeValue = RebuildConfiguration.get(PasswordExpiredDays);
 
         setValues(data);
         Application.getBean(RebuildWebConfigurer.class).init();
 
         // 原关闭现启用，要移除历史
-        if (ObjectUtils.toInt(pedHasValue) <= 0) {
-            pedHasValue = RebuildConfiguration.get(PasswordExpiredDays);
-            if (ObjectUtils.toInt(pedHasValue) >= 1) {
+        if (ObjectUtils.toInt(pedBeforeValue) <= 0) {
+            pedBeforeValue = RebuildConfiguration.get(PasswordExpiredDays);
+            if (ObjectUtils.toInt(pedBeforeValue) >= 1) {
                 for (User user : Application.getUserStore().getAllUsers()) {
+                    // @see UserService#getPasswdExpiredDayLeft
                     String key = PasswordExpiredDays.name() + user.getId();
                     KVStorage.removeCustomValue(key);
                 }
