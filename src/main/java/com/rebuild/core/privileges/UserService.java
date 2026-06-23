@@ -24,6 +24,7 @@ import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.NeedRbvException;
@@ -43,6 +44,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.rebuild.core.support.ConfigurationItem.PasswordExpiredDays;
 
 /**
  * for User
@@ -98,11 +101,6 @@ public class UserService extends BaseService {
 
     @Override
     public Record update(Record record) {
-        if (ADMIN_USER.equals(record.getPrimary())) {
-            Boolean b = record.getBoolean("isDisabled");
-            if (b != null && b) throw new OperationDeniedException("超管账户不能禁用");
-        }
-
         checkAdminGuard(BizzPermission.UPDATE, record.getPrimary());
 
         saveBefore(record);
@@ -111,7 +109,7 @@ public class UserService extends BaseService {
 
         // @see #getPasswdExpiredDayLeft
         if (record.hasValue("password")) {
-            String key = ConfigurationItem.PasswordExpiredDays.name() + r.getPrimary();
+            String key = PasswordExpiredDays.name() + r.getPrimary();
             RebuildConfiguration.setCustomValue(key,
                     CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
         }
@@ -153,6 +151,7 @@ public class UserService extends BaseService {
         if (record.hasValue("loginName")) {
             checkLoginName(record.getString("loginName"));
         }
+
         if (record.hasValue("jobNumber")) {
             checkJobNumber(record.getString("jobNumber"));
         }
@@ -173,6 +172,20 @@ public class UserService extends BaseService {
 
         if (record.hasValue("fullName")) {
             UserHelper.generateAvatar(record.getString("fullName"), true);
+        }
+
+        if (ADMIN_USER.equals(record.getPrimary()) || SYSTEM_USER.equals(record.getPrimary())) {
+            Boolean b = record.getBoolean("isDisabled");
+            if (b != null && b) throw new OperationDeniedException("内置用户不能禁用");
+
+            ID deptIdNew = record.getID("deptId");
+            if (DepartmentService.ROOT_DEPT.equals(deptIdNew)) deptIdNew = null;
+            ID roleIdNew = record.getID("roleId");
+            if (RoleService.ADMIN_ROLE.equals(roleIdNew)) roleIdNew = null;
+
+            if (deptIdNew != null || roleIdNew != null) {
+                throw new OperationDeniedException("内置用户不能修改部门或角色");
+            }
         }
     }
 
@@ -352,6 +365,7 @@ public class UserService extends BaseService {
         }
 
         if (changed) {
+            saveBefore(record);
             super.update(record);
         }
 
@@ -521,12 +535,17 @@ public class UserService extends BaseService {
      * @return
      */
     public static Integer getPasswdExpiredDayLeft(ID user) {
-        int peDays = RebuildConfiguration.getInt(ConfigurationItem.PasswordExpiredDays);
-        if (peDays > 0 && hasLogin(user)) {
-            String key = ConfigurationItem.PasswordExpiredDays.name() + user;
-            String lastChanged = StringUtils.defaultIfBlank(RebuildConfiguration.getCustomValue(key), "2021-06-30");
-            int peLeft = -CalendarUtils.getDayLeft(CalendarUtils.parse(lastChanged));
-            return peDays - peLeft;
+        int ped = RebuildConfiguration.getInt(PasswordExpiredDays);
+        if (ped > 0 && hasLogin(user)) {
+            String key = PasswordExpiredDays.name() + user;
+            String lastChanged = RebuildConfiguration.getCustomValue(key);
+            if (StringUtils.isBlank(lastChanged)) {
+                java.lang.Object d = QueryHelper.queryFieldValue(user, EntityHelper.CreatedOn);
+                lastChanged = CalendarUtils.getUTCDateFormat().format(d);
+            }
+
+            int pedLeft = -CalendarUtils.getDayLeft(CalendarUtils.parse(lastChanged));
+            return ped - pedLeft;
         }
         return null;
     }

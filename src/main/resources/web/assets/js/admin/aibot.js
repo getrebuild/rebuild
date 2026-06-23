@@ -11,7 +11,7 @@ useEditComp = function (name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2048" />
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
-      let models = ['deepseek-v4-flash', 'qwen3.6-flash', 'gpt-5', 'gemini-2.5-pro']
+      let models = 'deepseek-v4-flash qwen3.6-flash hy3-preview gpt-5 gemini-2.5-pro'.split(' ')
       $autoComplete($('input[name="AibotBaseDefModel"]'), null, {
         options: models,
         onSelect: (v) => {

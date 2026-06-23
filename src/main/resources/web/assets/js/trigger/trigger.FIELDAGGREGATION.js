@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FormulaAggregation, ActionContentSpec, MatchFields */
+/* global FormulaAggregation, FormulaEditor, ActionContentSpec, MatchFields */
 
 const CALC_MODES_FULL = {
   ...FormulaAggregation.CALC_MODES,
@@ -80,7 +80,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               <div className="items">
                 {(this.state.items || []).length > 0 &&
                   this.state.items.map((item, idx) => {
-                    const isFORMULACode = item.calcMode === 'FORMULA' && FormulaAggregation.isCode(item.sourceFormula)
+                    const isFORMULACode = item.calcMode === 'FORMULA' && FormulaEditor.isCode(item.sourceFormula)
                     return (
                       <div key={item.targetField}>
                         <div className="row">

@@ -20,8 +20,11 @@ import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.OnlyOffice;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -57,6 +60,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 
+import static com.rebuild.core.support.ConfigurationItem.PasswordExpiredDays;
+
 /**
  * 系统配置
  *
@@ -82,7 +87,7 @@ public class ConfigurationController extends BaseController {
 
         ModelAndView mv = createModelAndView("/admin/system-cfg");
         for (ConfigurationItem item : ConfigurationItem.values()) {
-            String value = RebuildConfiguration.getValue(item.name());
+            String value = RebuildConfiguration.get(item);
             if (value != null) {
                 if (item == ConfigurationItem.OnlyofficeJwt || item == ConfigurationItem.PortalBaiduMapAk) {
                     value = DataDesensitized.any(value);
@@ -125,7 +130,7 @@ public class ConfigurationController extends BaseController {
                 ConfigurationItem.RecycleBinKeepingDays,
                 ConfigurationItem.RevisionHistoryKeepingDays,
                 ConfigurationItem.DBBackupsKeepingDays,
-                ConfigurationItem.PasswordExpiredDays,
+                PasswordExpiredDays,
                 ConfigurationItem.PortalUploadMaxSize,
         };
         for (ConfigurationItem item : validNumbers) {
@@ -145,8 +150,23 @@ public class ConfigurationController extends BaseController {
             Application.getCommonsCache().evict(ETAG_DIMGBGIMGTIME);
         }
 
+        // fix: v4.4-b5
+        String pedBeforeValue = RebuildConfiguration.get(PasswordExpiredDays);
+
         setValues(data);
         Application.getBean(RebuildWebConfigurer.class).init();
+
+        // 原关闭现启用，要移除历史
+        if (ObjectUtils.toInt(pedBeforeValue) <= 0) {
+            pedBeforeValue = RebuildConfiguration.get(PasswordExpiredDays);
+            if (ObjectUtils.toInt(pedBeforeValue) >= 1) {
+                for (User user : Application.getUserStore().getAllUsers()) {
+                    // @see UserService#getPasswdExpiredDayLeft
+                    String key = PasswordExpiredDays.name() + user.getId();
+                    KVStorage.removeCustomValue(key);
+                }
+            }
+        }
 
         return RespBody.ok();
     }
@@ -365,7 +385,7 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Dingtalk")) {
-                String value = RebuildConfiguration.getValue(item.name());
+                String value = RebuildConfiguration.get(item);
 
                 if (value != null && item == ConfigurationItem.DingtalkAppsecret) {
                     value = DataDesensitized.any(value);
@@ -403,7 +423,7 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Wxwork")) {
-                String value = RebuildConfiguration.getValue(item.name());
+                String value = RebuildConfiguration.get(item);
 
                 if (value != null && item == ConfigurationItem.WxworkSecret) {
                     value = DataDesensitized.any(value);
@@ -440,7 +460,7 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Feishu")) {
-                String value = RebuildConfiguration.getValue(item.name());
+                String value = RebuildConfiguration.get(item);
 
                 if (value != null && item == ConfigurationItem.FeishuAppSecret) {
                     value = DataDesensitized.any(value);
@@ -477,6 +497,7 @@ public class ConfigurationController extends BaseController {
 
         setValues(data);
         Application.getBean(RebuildWebConfigurer.class).init();
+        Config.getClient(true);
         return RespBody.ok();
     }
 
@@ -486,7 +507,7 @@ public class ConfigurationController extends BaseController {
         for (ConfigurationItem item : ConfigurationItem.values()) {
             String name = item.name();
             if (name.startsWith("Aibot")) {
-                String value = RebuildConfiguration.getValue(item.name());
+                String value = RebuildConfiguration.get(item);
                 if (value != null && item == ConfigurationItem.AibotDSSecret) {
                     value = DataDesensitized.any(value);
                 }
@@ -528,7 +549,7 @@ public class ConfigurationController extends BaseController {
     }
 
     private String defaultIfBlank(JSONObject data, ConfigurationItem item) {
-        return StringUtils.defaultIfBlank(data.getString(item.name()), RebuildConfiguration.getValue(item.name()));
+        return StringUtils.defaultIfBlank(data.getString(item.name()), RebuildConfiguration.get(item));
     }
 
     private void setValues(JSONObject data) {

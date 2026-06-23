@@ -41,7 +41,7 @@ public class FieldValueSourceDetector {
     public List<Object> detect(Field field) {
         List<Object> res = detectTriggers(field);
         res.addAll(detectAutoFillin(field));
-        res.addAll(detectTransform(field));
+        res.addAll(detectTransformFillback(field));
         return res;
     }
 
@@ -108,7 +108,7 @@ public class FieldValueSourceDetector {
                 }
             }
 
-            // 目标不一致
+            // 目标实体不一致
             if (!targetEntity.equalsIgnoreCase(fieldOfEntity.getName())) continue;
 
             JSONArray sourceAndTargetItems = configJson.getJSONArray("items");
@@ -186,7 +186,8 @@ public class FieldValueSourceDetector {
         for (Object[] o : array) {
             Field sourceRefField = entity.getField((String) o[0]);
             Entity sourceRefEntity = sourceRefField.getReferenceEntity();
-            Field sourceValueField = sourceRefEntity.getField((String) o[1]);
+            Field sourceValueField = MetadataHelper.getLastJoinField(sourceRefEntity, (String) o[1]);
+            if (sourceValueField == null) continue;
 
             String desc = String.format(
                     "选择 [%s](/admin/entity/%s/field/%s/auto-fillin) 时从 [%s](/admin/entity/%s/field/%s)",
@@ -203,7 +204,7 @@ public class FieldValueSourceDetector {
      * @param field
      * @return
      */
-    protected List<Object> detectTransform(Field field) {
+    protected List<Object> detectTransformFillback(Field field) {
         Entity entity = field.getOwnEntity();
         String fieldName = field.getName();
         Object[][] array = Application.createQueryNoFilter(

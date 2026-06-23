@@ -30,7 +30,7 @@ class RbViewForm extends React.Component {
     return (
       <RF>
         {this.state.fjsAlertMessage}
-        <div className={`rbview-form form-layout ${this._verticalLayout42 && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
+        <div className={`rbview-form form-layout ${this._verticalLayout42 && 'vertical38'} view-${this.props.entity}`} ref={(c) => (this._viewForm = c)}>
           {this.state.formComponent}
         </div>
       </RF>

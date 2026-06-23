@@ -54,7 +54,7 @@
                           data-id="AibotBaseDefModel"
                           th:data-value="${AibotBaseDefModel ?:''}"
                           data-optional="true"
-                          th:data-form-text="${bundle.L('请正确填写模型名称，如 `deepseek-v4-flash` `qwen3.6-flash` `gpt-5` `gemini-2.5-pro` 等')}"
+                          th:data-form-text="${bundle.L('请正确填写模型名称，如 %s 等', 'deepseek-v4-flash qwen3.6-flash hy3-preview gpt-5 gemini-2.5-pro')}"
                         >
                           [[${AibotBaseDefModel ?:bundle.L('默认')}]]
                         </td>
