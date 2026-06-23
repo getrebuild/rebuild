@@ -21,6 +21,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.KVStorage;
@@ -495,6 +496,7 @@ public class ConfigurationController extends BaseController {
 
         setValues(data);
         Application.getBean(RebuildWebConfigurer.class).init();
+        Config.getClient(true);
         return RespBody.ok();
     }
 

@@ -35,7 +35,12 @@ public class Config {
      * @return
      */
     public static OpenAIClient getClient(boolean reset) {
-        if (reset && CLIENT != null) CLIENT.close();
+        if (reset && CLIENT != null) {
+            CLIENT.close();
+            CLIENT = null;
+        }
+
+        if (CLIENT != null) return CLIENT;
 
         CLIENT = OpenAIOkHttpClient.builder()
                 .baseUrl(getServerUrl(null))
