@@ -71,4 +71,9 @@ public class MermaidController extends BaseController {
         mv.getModel().put("chartFilter", listFilterJson == null ? null : listFilterJson.toJSONString());
         return mv;
     }
+
+    @RequestMapping("/commons/frame")
+    public ModelAndView pageFrame44() {
+        return createModelAndView("/common/frame");
+    }
 }
