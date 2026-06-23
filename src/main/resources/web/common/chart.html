@@ -17,21 +17,31 @@
       .chart-wrap {
         min-height: 500px;
       }
-      .chart-box {
+      .chart-box .chart-head .chart-title {
+        cursor: default;
+      }
+      .chart-box .chart-head .chart-oper {
+        display: block;
+      }
+      .chart-box .chart-head .chart-oper .J_fullscreen {
+        display: none !important;
+      }
+
+      .less-head .chart-box {
         padding: 0;
       }
-      .chart-box .chart-head {
+      .less-head .chart-box .chart-head {
         visibility: hidden;
       }
-      .chart-box.TABLE .chart-head {
+      .less-head .chart-box.TABLE .chart-head {
         display: none;
       }
-      .chart-box.TABLE .chart-body {
+      .less-head .chart-box.TABLE .chart-body {
         padding: 0;
         margin: 10px 10px 0;
         margin: 0;
       }
-      .chart.ctable {
+      .less-head .chart.ctable {
         margin: 0;
         padding: 0;
       }
@@ -39,9 +49,10 @@
   </head>
   <body>
     <div class="main-content m-0 p-0">
-      <div class="chart-wrap"></div>
+      <div class="chart-wrap less-head"></div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/general/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
     <script th:src="@{/assets/lib/charts/tablecellsselection.js}"></script>
     <script th:src="@{/assets/js/charts/charts.mapstyle.js}" type="text/babel"></script>
@@ -57,10 +68,13 @@
       const wpc = window.__PageConfig
       // if (window.frameElement) $(window.frameElement).parents('.modal-content').find('.modal-title').text(wpc.chartConfig.title)
       $(document).ready(() => {
-        const conf = $clone(wpc.chartConfig)
+        let conf = $clone(wpc.chartConfig)
+        conf = conf.config
         conf.extconfig = { chart_filter: wpc.chartFilter }
         conf.editable = false
         renderRbcomp(detectChart(conf, wpc.chartId), $('.chart-wrap'))
+        // v4.4-b6
+        if (~~$urlp('head') === 1) $('.less-head').removeClass('less-head')
       })
     </script>
   </body>
