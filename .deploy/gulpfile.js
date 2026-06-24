@@ -22,7 +22,9 @@ const BABEL_OPTIONS = {
   presets: ['@babel/preset-env', '@babel/preset-react'],
   plugins: ['@babel/plugin-proposal-class-properties'],
   minified: true,
-  comments: false,
+  generatorOpts: {
+    comments: false,
+  },
 }
 
 const WEB_ROOT = '../src/main/resources/web'
@@ -35,18 +37,26 @@ function compileJs(m) {
     .pipe(
       debug({
         title: 'Compiled .js   :',
-      })
+      }),
     )
     .pipe(dest(`${OUT_ROOT}/assets/js`))
 }
 
 function compileCss(m) {
   return src(`${m || WEB_ROOT}/assets/css/**/*.css`)
-    .pipe(cleanCSS())
+    .pipe(
+      cleanCSS({
+        level: {
+          1: {
+            specialComments: 0,
+          },
+        },
+      }),
+    )
     .pipe(
       debug({
         title: 'Compiled .css  :',
-      })
+      }),
     )
     .pipe(dest(`${OUT_ROOT}/assets/css`))
 }
@@ -83,7 +93,7 @@ function compileHtml(m) {
         if (p.trim().length === 0) return '<!-- No script -->'
         const jsmin = babelCore.transformSync(p, BABEL_OPTIONS).code
         return '<script>\n' + jsmin + '\n</script>'
-      })
+      }),
     )
     .pipe(replace(/ type="text\/babel"/gi, ''))
     .pipe(
@@ -98,14 +108,14 @@ function compileHtml(m) {
           file += '?v=' + _useAssetsHex(file.split('?')[0])
           return '<script th:src="@{' + file + '}"></script>'
         }
-      })
+      }),
     )
     .pipe(
       replace(/<style>([\s\S]*)<\/style>/gim, (m, p) => {
         if (p.trim().length === 0) return '<!-- No style -->'
         const cssmin = new cleanCSS2({}).minify(p).styles
         return '<style>\n' + cssmin + '\n</style>'
-      })
+      }),
     )
     .pipe(
       replace(/<link rel="stylesheet" type="text\/css" th:href="@\{(.*)\}" \/>/gi, (m, p) => {
@@ -117,12 +127,12 @@ function compileHtml(m) {
           file += '?v=' + _useAssetsHex(file.split('?')[0])
           return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
         }
-      })
+      }),
     )
     .pipe(
       debug({
         title: 'Compiled .html :',
-      })
+      }),
     )
     .pipe(dest(OUT_ROOT))
 }
@@ -147,10 +157,10 @@ exports.default = series(
     () => compileJs(WEB_ROOT),
     () => compileCss(WEB_ROOT),
     () => compileJs(RBV_ROOT),
-    () => compileCss(RBV_ROOT)
+    () => compileCss(RBV_ROOT),
   ),
   () => compileHtml(WEB_ROOT),
-  () => compileHtml(RBV_ROOT)
+  () => compileHtml(RBV_ROOT),
 )
 
 exports.mvn = maven
