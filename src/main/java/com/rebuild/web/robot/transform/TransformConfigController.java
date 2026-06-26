@@ -29,6 +29,8 @@ import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.admin.ConfigCommons;
 import com.rebuild.web.general.MetaFormatter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +49,7 @@ import java.util.List;
  * @author devezhao
  * @since 2020/10/27
  */
+@Slf4j
 @RestController
 @RequestMapping("/admin/robot/")
 public class TransformConfigController extends BaseController {
@@ -229,14 +232,41 @@ public class TransformConfigController extends BaseController {
         String belongEntity = getParameter(request, "entity");
         String q = getParameter(request, "q");
 
-        String sql = "select configId,belongEntity,belongEntity,targetEntity,targetEntity,modifiedOn,name,isDisabled from TransformConfig" +
+        String sql = "select configId,belongEntity,targetEntity,name,isDisabled,modifiedOn,belongEntity from TransformConfig" +
                 " where (1=1) and (2=2)" +
                 " order by modifiedOn desc, name";
 
         Object[][] data = ConfigCommons.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : data) {
-            o[4] = EasyMetaFactory.getLabel(MetadataHelper.getEntity((String) o[4]));
+            String se = (String) o[1];
+            o[1] = new Object[]{se, EasyMetaFactory.getLabel(se)};
+            o[2] = new Object[]{o[6], o[2]};
+            o[6] = null;
+
+            // v4.4-b6
+            ConfigBean cb = TransformManager.instance.getTransformConfig((ID) o[0], se);
+            JSONObject cbJson = (JSONObject) cb.getJSON("config");
+            JSONArray fmDetails = cbJson == null ? null : cbJson.getJSONArray("fieldsMappingDetails");
+            if (CollectionUtils.isEmpty(fmDetails)) continue;
+
+            JSONArray stList = new JSONArray();
+            // 主
+            JSON item = JSONUtils.toJSONObject(new String[]{"s", "t"}, new Object[]{o[1], o[2]});
+            stList.add(item);
+            // 明细
+            for (Object fm : fmDetails) {
+                JSONObject st = ((JSONObject) fm).getJSONObject("_");
+                if (st == null) continue;
+                String s = st.getString("source");
+                String t = st.getString("target");
+
+                item = JSONUtils.toJSONObject(new String[]{"s", "t"},
+                        new Object[]{new Object[]{s, EasyMetaFactory.getLabel(s)}, new Object[]{t, EasyMetaFactory.getLabel(t)}});
+                stList.add(item);
+            }
+            o[6] = stList;
         }
+
         return data;
     }
 }

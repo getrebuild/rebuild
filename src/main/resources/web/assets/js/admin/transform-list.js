@@ -21,23 +21,44 @@ class TransformList extends ConfigList {
     return (
       <RF>
         {(this.state.data || []).map((item) => {
-          const name = taggedTitle(item[6]) || `${item[2]} · ${item[4]}`
+          const s = item[1]
+          const t = item[2]
+
+          let ts = null
+          if (item[6]) {
+            ts = item[6].map((item, idx) => {
+              return (
+                <div key={idx}>
+                  <a href={`${rb.baseUrl}/admin/entity/${item.t[0]}/base`} className="light-link" target={`_${item.t[0]}`}>
+                    {item.t[1]}
+                  </a>
+                  <span className="icon mdi mdi-arrow-left-bold" style={{ margin: '0 3px', color: '#555' }} />
+                  <a href={`${rb.baseUrl}/admin/entity/${item.s[0]}/base`} className="light-link" target={`_${item.s[0]}`}>
+                    {item.s[1]}
+                  </a>
+                </div>
+              )
+            })
+          } else {
+            ts = (
+              <a href={`${rb.baseUrl}/admin/entity/${t[0]}/base`} className="light-link" target={`_${t[0]}`}>
+                {t[1]}
+              </a>
+            )
+          }
+
           return (
             <tr key={item[0]}>
               <td className="name">
-                <a href={`transform/${item[0]}`}>{name}</a>
+                <a href={`transform/${item[0]}`}>{taggedTitle(item[3])}</a>
               </td>
               <td>
-                <a href={`${rb.baseUrl}/admin/entity/${item[1]}/base`} className="light-link" target={`_${item[1]}`}>
-                  {item[2] || item[1]}
+                <a href={`${rb.baseUrl}/admin/entity/${s[0]}/base`} className="light-link" target={`_${s[0]}`}>
+                  {s[1]}
                 </a>
               </td>
-              <td>
-                <a href={`${rb.baseUrl}/admin/entity/${item[3]}/base`} className="light-link" target={`_${item[3]}`}>
-                  {item[4] || item[3]}
-                </a>
-              </td>
-              <td>{ShowEnable(item[7])}</td>
+              <td>{ts}</td>
+              <td>{ShowEnable(item[4])}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>
@@ -57,7 +78,7 @@ class TransformList extends ConfigList {
   }
 
   handleEdit(item) {
-    renderRbcomp(<TransformEditor id={item[0]} name={item[6]} isDisabled={item[7]} />)
+    renderRbcomp(<TransformEditor id={item[0]} name={item[3]} isDisabled={item[4]} />)
   }
 
   handleDelete(id) {

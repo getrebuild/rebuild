@@ -388,7 +388,7 @@ class RbAlertFree43 extends RbAlert {
           </h4>
           <div>{this.props.message}</div>
         </div>
-        <div className="mt-3">
+        <div className="mt-4 mb-1">
           <a className="btn btn-dark btn-pill btn-lg w-100" target="_blank" href="https://getrebuild.com/market/go/buy-26a">
             {$L('立即升级')}
           </a>
