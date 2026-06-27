@@ -15,7 +15,7 @@ const _STATES = {
   '21': ['驳回', 'danger'],
   '12': ['撤回', 'danger'],
   '100': ['已作废'],
-  '101': ['已转审'],
+  '101': ['已转审', 'info'],
 }
 
 let currentSearch
