@@ -152,7 +152,12 @@ public class EasyMetaFactory {
      * @return
      */
     public static String getLabel(String entityName) {
-        return getLabel(MetadataHelper.getEntity(entityName));
+        if (MetadataHelper.containsEntity(entityName)) {
+            return getLabel(MetadataHelper.getEntity(entityName));
+        }
+
+        log.error("No such entity : {}", entityName);
+        return String.format("[%s]", entityName.toUpperCase());
     }
 
     /**

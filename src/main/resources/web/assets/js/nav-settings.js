@@ -141,7 +141,11 @@ $(document).ready(() => {
     cfgid = $.cookie('AppHome.Nav')
     if (cfgid) {
       // v4.4 没有找到/不可用的
-      if (!$(`.navbar-nav .nav-item[data-id="${cfgid}"]`)[0]) cfgid = null
+      let pp = window.parent || window
+      if (pp.$(`.navbar .navbar-nav .nav-item[data-id="${cfgid}"]`).length === 0) {
+        $.removeCookie('AppHome.Nav')
+        cfgid = null
+      }
     }
   }
 

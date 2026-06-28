@@ -189,7 +189,7 @@ public class DataReportManager implements ConfigManager {
 
         File file = RebuildConfiguration.getFileOfData(templateFile);
         if (!file.exists()) {
-            throw new ConfigurationException("File of template not extsts : " + file);
+            throw new ConfigurationException("File of template not exists : " + file);
         }
 
         return new TemplateFile(file, entity, type, isV33, reportId);

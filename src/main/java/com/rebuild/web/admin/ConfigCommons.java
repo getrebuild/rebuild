@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin;
 
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.CommonsUtils;
@@ -25,7 +24,7 @@ public class ConfigCommons {
     /**
      * 查询配置列表
      *
-     * @param sql
+     * @param sql 注意查询列
      * @param belongEntity
      * @param q
      */
@@ -39,7 +38,7 @@ public class ConfigCommons {
 
         Object[][] array = Application.createQuery(sql).setLimit(5000).array();
         for (Object[] o : array) {
-            o[2] = EasyMetaFactory.getLabel(MetadataHelper.getEntity((String) o[2]));
+            o[2] = EasyMetaFactory.getLabel((String) o[2]);
             if (o[5] instanceof Date) o[5] = I18nUtils.formatDate((Date) o[5]);
         }
         return array;

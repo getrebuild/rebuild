@@ -54,8 +54,12 @@ class RbViewForm extends React.Component {
       let hadSop = res.data.hadSop && rb.commercial > 1
       if (wpc.type === 'DetailView') {
         if (hadApproval === 2 || hadApproval === 10) {
-          if (window.RbViewPage) window.RbViewPage.setReadonly()
-          else $('.J_edit, .J_delete').remove()
+          if (window.RbViewPage) {
+            this.onViewEditable = false
+            window.RbViewPage.setReadonly()
+          } else {
+            $('.J_edit, .J_delete').remove()
+          }
 
           hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录不能编辑') : $L('主记录已审批完成，明细记录不能编辑')} />
         }
@@ -64,7 +68,10 @@ class RbViewForm extends React.Component {
 
       // v4.3.4
       if (res.data.readonlyMessage) {
-        if (window.RbViewPage) window.RbViewPage.setReadonly()
+        if (window.RbViewPage) {
+          this.onViewEditable = false
+          window.RbViewPage.setReadonly()
+        }
         hadAlert = (
           <RF>
             {hadAlert && hadAlert}
@@ -73,7 +80,11 @@ class RbViewForm extends React.Component {
         )
       }
       if (res.data.alertsMessage) {
-        if (window.RbViewPage && res.data.alertsMessage.locked) window.RbViewPage.setReadonly()
+        if (window.RbViewPage && res.data.alertsMessage.locked) {
+          this.onViewEditable = false
+          window.RbViewPage.setReadonly()
+        }
+
         hadAlert = (
           <RF>
             {hadAlert && hadAlert}
@@ -84,7 +95,9 @@ class RbViewForm extends React.Component {
 
       this.__ViewData = {}
       this.__lastModified = res.data.lastModified || 0
-      if (res.data.onViewEditable === false) this.onViewEditable = false
+      if (res.data.onViewEditable === false) {
+        this.onViewEditable = false
+      }
       this._verticalLayout42 = this._verticalLayout42 || res.data.verticalLayout === 1 || res.data.verticalLayout === 3
 
       let _dividerRefs = []

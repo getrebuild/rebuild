@@ -121,11 +121,11 @@ public class ChartsFactory {
                 new ApprovalList(),
                 new FeedsSchedule(),
                 new ProjectTasks(),
-                new DataList(),
-                new HeadingText(),
-                new EmbedFrame(),
                 new MyNotification(),
                 new MyBookmark(),
+                new HeadingText(),
+                new EmbedFrame(),
+                new DataList(),
         };
     }
 }
