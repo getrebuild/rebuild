@@ -43,6 +43,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.util.Assert;
 
+import javax.mail.internet.MimeUtility;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -304,7 +305,14 @@ public class SMSender {
             for (File a : attach) {
                 EmailAttachment attachment = new EmailAttachment();
                 attachment.setPath(a.getAbsolutePath());
-                attachment.setName(QiniuCloud.parseFileName(a.getName()));
+
+                String encodeName = QiniuCloud.parseFileName(a.getName());
+                try {
+                    encodeName = MimeUtility.encodeText(encodeName, "UTF-8", "B");
+                } catch (Exception e) {
+                    log.error("Encode attachment name error : {}", a.getName(), e);
+                }
+                attachment.setName(encodeName);
                 email.attach(attachment);
             }
         }
