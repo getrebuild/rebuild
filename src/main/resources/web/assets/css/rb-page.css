@@ -6705,3 +6705,36 @@ div.formula-code {
 .draggable-modal.modal {
   /* v4.4 */
 }
+
+.markdown-body,
+.EasyMDEContainer .CodeMirror-lines {
+  font-size: 14px;
+}
+
+.EasyMDEContainer .cm-s-easymde .cm-header-1 {
+  font-size: 2em;
+}
+
+.EasyMDEContainer .cm-s-easymde .cm-header-2 {
+  font-size: 1.5em;
+}
+
+.EasyMDEContainer .cm-s-easymde .cm-header-3 {
+  font-size: 1.25em;
+}
+
+.EasyMDEContainer .cm-s-easymde .cm-header-4 {
+  font-size: 1em;
+}
+
+.EasyMDEContainer .cm-s-easymde .cm-header-5 {
+  font-size: 0.875em;
+}
+
+.EasyMDEContainer .cm-s-easymde .cm-header-6 {
+  font-size: 0.852em;
+}
+
+.EasyMDEContainer .cm-s-easymde .cm-comment {
+  font-size: 85%;
+}

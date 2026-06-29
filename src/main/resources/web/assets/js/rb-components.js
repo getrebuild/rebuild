@@ -2385,7 +2385,7 @@ class RbViewModal extends React.Component {
     super(props)
     this.state = { ...props, inLoad: true, isHide: true, destroy: false }
 
-    this._forceWidth = props.subView === true ? 1344 : 1404
+    this._forceWidth = props.subView === true ? 1384 : 1404
     if ($(window).width() < 1464) this._forceWidth -= 184
   }
 
