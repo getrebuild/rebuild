@@ -92,6 +92,15 @@ class TransformList extends ConfigList {
       },
     })
   }
+
+  renderEntityTree(data) {
+    let dataNew = []
+    data.forEach((item) => {
+      dataNew.push([item[0], item[1][0], item[1][1]])
+    })
+
+    super.renderEntityTree(dataNew)
+  }
 }
 
 class TransformEditor extends ConfigFormDlg {
