@@ -636,5 +636,6 @@
   "connection_id",
   "last_insert_id",
   "row_count",
-  "found_rows"
+  "found_rows",
+  "createdDept"
 ]

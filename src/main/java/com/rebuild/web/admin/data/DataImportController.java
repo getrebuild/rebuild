@@ -129,6 +129,7 @@ public class DataImportController extends BaseController {
         for (Field field : MetadataSorter.sortFields(entity)) {
             String fieldName = field.getName();
             if (EntityHelper.OwningDept.equals(fieldName)
+                    || EntityHelper._CreatedDept.equals(fieldName)
                     || MetadataHelper.isApprovalField(fieldName)
                     || MetadataHelper.isSystemField(fieldName)) continue;
 
