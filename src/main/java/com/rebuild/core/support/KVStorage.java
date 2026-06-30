@@ -118,7 +118,6 @@ public class KVStorage {
      */
     protected static String getValue(final String key, boolean noCache, Object defaultValue) {
         String value = null;
-        log.warn("Get value : {}", key);
 
         // 0.1. 从命令行
         if (ConfigurationItem.SN.name().equals(key)) {
