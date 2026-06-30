@@ -20,6 +20,7 @@ import cn.devezhao.persist4j.record.JsonRecordCreator;
 import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDate;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.PatternValue;
@@ -286,13 +287,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
         if (StringUtils.isNotBlank(value)) {
             // v4.1, v4.2 处理为标准日期格式
             if (fieldType == FieldType.DATE || fieldType == FieldType.TIMESTAMP) {
-                Date d = CommonsUtils.parseDate(value);
-                if (d == null) {
-                    log.warn("Cannot parse date from : {}", value);
-                    value = null;
-                } else {
-                    value = CalendarUtils.getUTCDateTimeFormat().format(d);
-                }
+                value = EasyDate.clearFlaged(value);
             }
             // v4.3 处理位置字段
             else if (fieldType == FieldType.STRING && EasyMetaFactory.getDisplayType(field) == DisplayType.LOCATION) {
