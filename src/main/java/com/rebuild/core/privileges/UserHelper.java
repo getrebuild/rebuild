@@ -12,6 +12,7 @@ import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.bizz.security.member.Team;
+import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -484,5 +485,27 @@ public class UserHelper {
             log.warn("Check isSelf error : {}, {}", user, otherUserOrAnyRecordId, ex);
             return false;
         }
+    }
+
+    /**
+     * @param user
+     * @return
+     */
+    public static String getValidEmail(ID user) {
+        User u = Application.getUserStore().getUser(user);
+        String email = u.getEmail();
+        if (!RegexUtils.isEMail(email)) email = u.getName();
+        return RegexUtils.isEMail(email) ? email : null;
+    }
+
+    /**
+     * @param user
+     * @return
+     */
+    public static String getValidMobile(ID user) {
+        User u = Application.getUserStore().getUser(user);
+        String mobile = u.getWorkphone();
+        if (!RegexUtils.isCNMobile(mobile)) mobile = u.getName();
+        return RegexUtils.isCNMobile(mobile) ? mobile : null;
     }
 }
