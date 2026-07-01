@@ -184,7 +184,7 @@ public class UserSettingsController extends BaseController {
         else {
             int ed = getIntParameter(request, "ed", 1);
             mv.getModelMap().put("Tip1", Language.L("你的密码将在 **%d** 天后过期", ed));
-            mv.getModelMap().put("Tip2", Language.L("过期后系统将强制修改密码，新密码会发送至你的邮箱"));
+            mv.getModelMap().put("Tip2", Language.L("过期后系统将强制修改密码，新密码会发送至你的邮箱或手机"));
         }
         return mv;
     }

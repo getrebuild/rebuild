@@ -333,7 +333,7 @@ public class FileDownloader extends BaseController {
         }
 
         long size = FileUtils.sizeOf(file);
-        response.setHeader("Content-Length", String.valueOf(size));
+        if (size > 0) response.setHeader("Content-Length", String.valueOf(size));
 
         try (InputStream fis = Files.newInputStream(file.toPath())) {
             return writeStream(fis, response);

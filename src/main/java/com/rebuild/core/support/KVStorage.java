@@ -60,10 +60,11 @@ public class KVStorage {
      *
      * @param key
      * @param value
+     * @see #THROTTLED_TIMER
      */
     public static void setCustomValueAsync(String key, Object value) {
         synchronized (THROTTLED_QUEUE_LOCK) {
-            THROTTLED_QUEUE.put(CUSTOM_PREFIX + key, value);
+            THROTTLED_QUEUE.put(key, value);
         }
     }
 
@@ -145,8 +146,15 @@ public class KVStorage {
             value = fromDb == null ? null : StringUtils.defaultIfEmpty((String) fromDb[0], null);
 
             // 1.2. 从异步池
-            if (value == null && THROTTLED_QUEUE.containsKey(key)) {
-                value = String.valueOf(THROTTLED_QUEUE.get(key));
+            if (value == null) {
+                if (THROTTLED_QUEUE.containsKey(key)) {
+                    value = String.valueOf(THROTTLED_QUEUE.get(key));
+                } else if (key.startsWith(CUSTOM_PREFIX)) {
+                    String k2 = key.substring(CUSTOM_PREFIX.length());
+                    if (THROTTLED_QUEUE.containsKey(k2)) {
+                        value = String.valueOf(THROTTLED_QUEUE.get(k2));
+                    }
+                }
             }
         }
 

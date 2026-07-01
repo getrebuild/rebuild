@@ -23,6 +23,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.springframework.http.HttpHeaders;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +34,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +54,7 @@ import static java.util.Locale.getDefault;
 public class OkHttpUtils {
 
     private static OkHttpClient okHttpClient = null;
+    private static OkHttpClient okHttpClientUnsafe = null;
 
     public static final String RB_UA = String.format("RB/%s (%s/%s)",
             Application.BUILD, SystemUtils.OS_NAME, SystemUtils.JAVA_SPECIFICATION_VERSION);
@@ -72,9 +79,53 @@ public class OkHttpUtils {
                     .retryOnConnectionFailure(true)
                     .hostnameVerifier((s, sslSession) -> true)  // NOT SAFE!!!
                     .build();
-            RB_CI = ComputerIdentifier.generateIdentifierKey();
+            if (RB_CI == null) RB_CI = ComputerIdentifier.generateIdentifierKey();
         }
         return okHttpClient;
+    }
+
+    /**
+     * 忽略证书错误的 OkHttpClient
+     *
+     * @return
+     */
+    protected static OkHttpClient getHttpClientUnsafe() {
+        if (okHttpClientUnsafe != null) return okHttpClientUnsafe;
+
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                        }
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                        }
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[]{};
+                        }
+                    }
+            };
+
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+            okHttpClientUnsafe = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(120, TimeUnit.SECONDS)
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .retryOnConnectionFailure(true)
+                    .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
+                    .hostnameVerifier((s, sslSession) -> true)  // NOT SAFE!!!
+                    .build();
+            if (RB_CI == null) RB_CI = ComputerIdentifier.generateIdentifierKey();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return okHttpClientUnsafe;
     }
 
     /**

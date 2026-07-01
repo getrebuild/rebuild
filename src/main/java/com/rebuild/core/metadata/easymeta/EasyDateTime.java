@@ -12,14 +12,17 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
+import java.util.regex.Matcher;
 
 /**
  * @author devezhao
  * @since 2020/11/17
  */
+@Slf4j
 public class EasyDateTime extends EasyField {
     private static final long serialVersionUID = 3882003543084097603L;
 
@@ -88,5 +91,22 @@ public class EasyDateTime extends EasyField {
         String format = StringUtils.defaultIfBlank(
                 getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT), getDisplayType().getDefaultFormat());
         return CalendarUtils.getDateFormat(format).format(value);
+    }
+
+    /**
+     * 清除周
+     *
+     * @param dateString
+     * @return
+     */
+    public static String clearFlaged(String dateString) {
+        if (StringUtils.isBlank(dateString)) return null;
+
+        Date d = CommonsUtils.parseDate(dateString);
+        if (d == null) {
+            log.warn("Cannot parse date from : {}", dateString);
+            return null;
+        }
+        return CalendarUtils.getUTCDateTimeFormat().format(d);
     }
 }

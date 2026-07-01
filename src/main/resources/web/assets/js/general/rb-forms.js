@@ -330,6 +330,7 @@ class RbForm extends React.Component {
     }
 
     this.isNew = !props.id
+    this.componentId = $random('form-')
 
     const $$$props = props.$$$parent && props.$$$parent.props ? props.$$$parent.props : {}
     this._postBefore = props.postBefore || $$$props.postBefore
@@ -337,6 +338,7 @@ class RbForm extends React.Component {
     this._onProTableLineUpdated = props.onProTableLineUpdated || $$$props.onProTableLineUpdated
     this._dividerRefs = []
     this._verticalLayout42 = window.__LAB_VERTICALLAYOUT || props.rawModel.verticalLayout === 1 || props.rawModel.verticalLayout === 3
+    // v4.4.1
   }
 
   render() {

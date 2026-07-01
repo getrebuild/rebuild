@@ -112,7 +112,7 @@ $(document).ready(() => {
 
   const SYS_FIELDS = ['approvalId', 'approvalLastUser']
   const CAN_NAME = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'DATE', 'DATETIME', 'TIME', 'REFERENCE']
-  const CAN_QUICK = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'REFERENCE']
+  const CAN_QUICK = ['TEXT', 'EMAIL', 'URL', 'PHONE', 'SERIES', 'LOCATION', 'PICKLIST', 'CLASSIFICATION', 'REFERENCE', 'NTEXT']
 
   $.get(`/commons/metadata/fields?deep=2&entity=${wpc.entity}`, (res) => {
     // 名称字段

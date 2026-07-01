@@ -359,8 +359,7 @@ public class UserService extends BaseService {
             changed = true;
         }
         if (passwdNew != null) {
-            checkPassword(passwdNew);
-            record.setString("password", EncryptUtils.toSHA256Hex(passwdNew));
+            record.setString("password", passwdNew);
             changed = true;
         }
 
