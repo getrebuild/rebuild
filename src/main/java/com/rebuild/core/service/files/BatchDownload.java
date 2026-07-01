@@ -31,8 +31,7 @@ import static com.rebuild.core.service.files.FilesHelper.checkObjectReadable;
 @Slf4j
 public class BatchDownload extends HeavyTask<File> {
 
-    final private List<String> files;
-
+    private List<String> files;
     private File destZip;
 
     public BatchDownload(List<String> files) {
@@ -40,7 +39,7 @@ public class BatchDownload extends HeavyTask<File> {
     }
 
     @Override
-    protected File exec() throws Exception {
+    public File exec() throws Exception {
         final String tmpName = CommonsUtils.genPrettyName("RBFILE", true);
         File tmp = RebuildConfiguration.getFileOfTemp(tmpName);
         FileUtils.forceMkdir(tmp);

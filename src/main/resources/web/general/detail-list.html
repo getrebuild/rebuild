@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -96,6 +96,7 @@
                             <i class="icon mdi mdi-table-arrow-right"></i> [[${bundle.L('数据导入')}]]
                           </a>
                           <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch-update"><i class="icon mdi mdi-playlist-edit"></i> [[${bundle.L('批量修改')}]]</a>
+                          <a class="dropdown-item J_batch-download bosskey-show"><i class="icon zmdi zmdi-download"></i> [[${bundle.L('批量下载')}]] <sup class="rbv"></sup></a>
                           <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('列显示')}]]</a>
                         </div>
                       </div>

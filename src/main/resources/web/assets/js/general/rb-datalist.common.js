@@ -1018,6 +1018,120 @@ class BatchApprove extends BatchOperator {
   }
 }
 
+// ~ 批量下载
+
+// eslint-disable-next-line no-unused-vars
+class BatchDownload extends BatchOperator {
+  constructor(props) {
+    super(props)
+    this._title = (
+      <RF>
+        {$L('批量下载')}
+        <sup className="rbv" />
+      </RF>
+    )
+  }
+
+  renderOperator() {
+    return (
+      <div>
+        <div className="form-group">
+          <label className="text-bold">{$L('下载哪些文件')}</label>
+          <select className="form-control form-control-sm" ref={(c) => (this._$dlFields = c)} multiple>
+            {this.state.dlFields &&
+              this.state.dlFields.map((item) => {
+                return (
+                  <option value={item.name} key={item.name}>
+                    {item.label}
+                  </option>
+                )
+              })}
+          </select>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/commons/metadata/fields?entity=${this.props.entity}`, (res) => {
+      const fs = []
+      const fsVal = []
+      res.data &&
+        res.data.forEach((F) => {
+          if (F.type === 'FILE' || F.type === 'IMAGE') {
+            fs.push(F)
+            fsVal.push(F.name)
+          }
+        })
+
+      this.setState({ dlFields: fs }, () => {
+        $(this._$dlFields)
+          .select2({
+            placeholder: $L('请选择'),
+            allowClear: true,
+          })
+          .val(fsVal)
+          .trigger('change')
+      })
+    })
+  }
+
+  handleConfirm() {
+    const d = {
+      queryData: this.getQueryData(),
+      dlFields: $(this._$dlFields).val() || [],
+    }
+    if (d.dlFields.length === 0) {
+      RbHighbar.createl('请选择下载字段')
+      return
+    }
+    if (rb.env === 'dev') console.log(JSON.stringify(d))
+
+    this.disabled(true, true)
+    $.post(`/app/${this.props.entity}/batch-download/submit?dr=${this.state.dataRange}`, JSON.stringify(d), (res) => {
+      if (res.error_code === 0) {
+        const mp_parent = $(this._dlg._element).find('.modal-body').attr('id', $random('node-'))
+        $mp.start('#' + $(mp_parent).attr('id'))
+        this._checkState(res.data)
+      } else {
+        this.disabled(false)
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  _checkState(taskid) {
+    $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.hasError) {
+          $mp.end()
+          RbHighbar.error(res.data.hasError)
+          return
+        }
+
+        if (res.data.isCompleted) {
+          $mp.end()
+
+          if (res.data.execResults && res.data.execResults.fileKey) {
+            $openWindow(`${rb.baseUrl}/filex/download/${res.data.execResults.fileKey}`)
+
+            setTimeout(() => {
+              this.disabled(false)
+              this.hide()
+            }, 3000)
+            return
+          }
+
+          this.disabled(false, false)
+          RbHighbar.error(null)
+        } else {
+          setTimeout(() => this._checkState(taskid), 1500)
+        }
+      }
+    })
+  }
+}
+
 // ~ 通用操作
 
 // eslint-disable-next-line no-unused-vars
@@ -1120,6 +1234,7 @@ const RbListCommon = {
     $('.J_export').on('click', () => renderRbcomp(<DataExport listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-update').on('click', () => renderRbcomp(<BatchUpdate listRef={_RbList()} entity={entity[0]} />))
     $('.J_batch-approve').on('click', () => renderRbcomp(<BatchApprove listRef={_RbList()} entity={entity[0]} />))
+    $('.J_batch-download').on('click', () => renderRbcomp(<BatchDownload listRef={_RbList()} entity={entity[0]} />))
     $('.J_record-merge').on('click', () => {
       const ids = _RbList().getSelectedIds(true)
       if (ids.length < 2) return RbHighbar.createl('请至少选择两条记录')
