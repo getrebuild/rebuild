@@ -1164,7 +1164,7 @@ class AnyRecordSelector extends RecordSelector {
       if (e) {
         that._stopEvent = true
         $(that._$entity).val(e.name).trigger('change')
-        that._stopEvent = false
+        setTimeout(() => (that._stopEvent = false), 20)
       }
     }
     if (this.__select2Entity) _FN()
