@@ -240,7 +240,8 @@ public class ParseHelper {
                 || dt == DisplayType.URL
                 || dt == DisplayType.PHONE
                 || dt == DisplayType.SERIES
-                || dt == DisplayType.LOCATION) {
+                || dt == DisplayType.LOCATION
+                || dt == DisplayType.NTEXT) {
             return StringUtils.defaultIfEmpty(fieldPath, field.getName());
 
         } else if (dt == DisplayType.ANYREFERENCE) {
