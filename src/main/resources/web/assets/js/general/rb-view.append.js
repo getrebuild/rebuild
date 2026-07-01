@@ -128,7 +128,7 @@ class LightTaskList extends RelatedList {
       <div className={`card priority-${item.priority} status-${item.status}`} key={item.id}>
         <div className="row header-title">
           <div className="col-8 title">
-            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ptask">
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ptask" title={item.status > 0 ? $L('未完成') : $L('已完成')}>
               <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={readonly} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label" />
             </label>
