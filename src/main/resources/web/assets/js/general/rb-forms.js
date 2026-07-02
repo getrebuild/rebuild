@@ -2096,8 +2096,7 @@ class RbFormImage extends RbFormElement {
   }
 
   _filePreview(urlKey, idx) {
-    const p = parent || window
-    p.RbPreview.create(urlKey, idx)
+    RbPreview.create(urlKey, idx)
   }
 
   _fileDownload(url) {

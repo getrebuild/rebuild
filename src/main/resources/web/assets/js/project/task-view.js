@@ -599,7 +599,7 @@ class ValueAttachments extends ValueComp {
           {this.state.attachments.map((item) => {
             const fileName = $fileCutName(item)
             return (
-              <a key={item} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create(item)}>
+              <a key={item} className="img-thumbnail" title={fileName} onClick={() => RbPreview.create(item)}>
                 <i className="file-icon" data-type={$fileExtName(fileName)} />
                 <span>{fileName}</span>
                 {del && (
@@ -1270,7 +1270,7 @@ class RichTextEditor extends React.Component {
             {data.attachments.map((item) => {
               const fileName = $fileCutName(item)
               return (
-                <a key={'file-' + item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+                <a key={'file-' + item} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
                   <i className="file-icon" data-type={$fileExtName(fileName)} />
                   <span>{fileName}</span>
                 </a>

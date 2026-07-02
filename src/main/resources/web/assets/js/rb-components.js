@@ -911,7 +911,7 @@ class FileShow extends React.Component {
     }
 
     return (
-      <div data-key={file} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create(file)}>
+      <div data-key={file} className="img-thumbnail" title={fileName} onClick={() => RbPreview.create(file)}>
         <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
           {isImage && <img src={imageUrl} />}
         </i>
@@ -1353,8 +1353,7 @@ class Md2Html extends React.Component {
             imgs.push(srcNew)
             $img.on('click', (e) => {
               $stopEvent(e, true)
-              const p = parent || window
-              p.RbPreview.create(imgs, imgs.indexOf(srcNew) || 0)
+              RbPreview.create(imgs, imgs.indexOf(srcNew) || 0)
             })
           }
         })
