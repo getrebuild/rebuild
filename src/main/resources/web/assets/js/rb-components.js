@@ -1274,12 +1274,12 @@ const DEFAULT_MDE_TOOLBAR = (rest) => {
       className: 'mdi mdi-eye no-disable',
       title: $L('预览'),
     },
-    {
-      name: 'fullscreen',
-      action: EasyMDE.toggleFullScreen,
-      className: 'mdi mdi-fullscreen no-disable',
-      title: $L('全屏'),
-    },
+    // {
+    //   name: 'fullscreen',
+    //   action: EasyMDE.toggleFullScreen,
+    //   className: 'mdi mdi-fullscreen no-disable',
+    //   title: $L('全屏'),
+    // },
     '|',
     {
       name: 'guide',
@@ -1529,7 +1529,7 @@ class CodeEditor extends React.Component {
             <i className="icon mdi mdi-wrap" />
           </a>
         )}
-        <a title={$L('全屏')} onClick={() => this.fullscreen()}>
+        <a title={$L('全屏')} onClick={() => this.fullscreen()} className="hide">
           <i className="icon mdi mdi-fullscreen" />
         </a>
         {this.props.extraActions &&
@@ -1586,9 +1586,6 @@ class CodeEditor extends React.Component {
     })
 
     this._CodeMirror = cm5
-
-    // 自动高度
-    if (this.props.autoHeight) cm5.setSize('100%', '100%')
   }
 
   componentWillUnmount() {
@@ -1638,7 +1635,7 @@ class CodeEditor extends React.Component {
       $s.scrollTop(this._fullscreen_scrollTop)
       $('html').removeClass('mde-fullscreen')
       $e.removeClass('code-editor-fullscreen')
-      $cm.height(300)
+      // $cm.height(300)
 
       this._fullscreen = 0
     } else {

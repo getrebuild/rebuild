@@ -5394,6 +5394,14 @@ pre.unstyle {
 
 .code-editor .CodeMirror {
   padding: 0 !important;
+  height: auto;
+}
+
+.code-editor .CodeMirror-scroll {
+  height: auto;
+  overflow-y: hidden;
+  overflow-x: auto;
+  min-height: 300px;
 }
 
 .code-editor.code-editor-fullscreen,
@@ -6644,8 +6652,15 @@ div.formula-code {
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
   padding: 6px 8px;
-  height: 300px;
-  height: 251px; /* toolbar */
+  height: auto;
+}
+
+.type-NTEXT .EasyMDEContainer .CodeMirror-scroll,
+.form-control-plaintext .EasyMDEContainer .CodeMirror-scroll {
+  height: auto;
+  overflow-y: hidden;
+  overflow-x: auto;
+  min-height: 251px !important;
 }
 
 .EasyMDEContainer .editor-toolbar {
