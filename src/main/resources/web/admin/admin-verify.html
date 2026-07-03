@@ -1,21 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('管理中心')}]]</title>
     <style>
-      .rb-navbar-header .rb-toggle-left-sidebar,
+      .rb-navbar-header > .rb-toggle-left-sidebar,
+      .navbar-collapse > .navbar-nav,
       .rb-icons-nav {
         display: none !important;
-      }
-      @media (max-width: 767px) {
-        .splash-footer,
-        .navbar {
-          display: none;
-        }
-        .rb-wrapper {
-          padding-top: 0;
-        }
       }
     </style>
   </head>

@@ -6643,8 +6643,6 @@ div.formula-code {
 .EasyMDEContainer .CodeMirror {
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
-  border-color: #eee;
-  border-width: 2px;
   padding: 6px 8px;
   height: 300px;
   height: 251px; /* toolbar */
@@ -6653,8 +6651,11 @@ div.formula-code {
 .EasyMDEContainer .editor-toolbar {
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
-  border-color: #eee;
-  border-width: 2px;
+}
+
+.EasyMDEContainer .CodeMirror,
+.EasyMDEContainer .editor-toolbar {
+  border-color: rgb(213, 216, 222);
 }
 
 .EasyMDEContainer .CodeMirror .cm-formatting {
