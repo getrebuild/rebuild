@@ -497,7 +497,7 @@ public class UserStore implements Initialization, UseDistributed {
             try {
                 newTeam.addMember(getUser((ID) member[0]));
             } catch (NoMemberFoundException ex) {
-                log.warn(ex.getLocalizedMessage());
+                log.error(ex.getLocalizedMessage());
             }
         }
 
