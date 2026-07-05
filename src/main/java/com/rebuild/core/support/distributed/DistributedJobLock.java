@@ -71,9 +71,9 @@ public abstract class DistributedJobLock {
      */
     public static boolean isAllowJob(String jobName) {
         String disallowJobs = CommandArgs.getString(CommandArgs._DistributedDisallowJobs);
-        if (disallowJobs != null && disallowJobs.contains(jobName)) return false;
+        if (disallowJobs != null && (disallowJobs.contains(jobName) || disallowJobs.equals("*"))) return false;
 
         String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
-        return allowJobs == null || allowJobs.contains(jobName);
+        return allowJobs == null || allowJobs.contains(jobName) || allowJobs.equals("*");
     }
 }
