@@ -20,7 +20,6 @@ import com.rebuild.core.support.setup.RebuildBootException;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -38,6 +37,9 @@ import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 
 import static com.rebuild.core.support.CommandArgs.getString;
+import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 /**
  * @author devezhao
@@ -64,7 +66,7 @@ public class BootConfiguration implements InstallState {
         net.sf.ehcache.CacheManager cacheManager;
 
         String datadir = BootEnvironmentPostProcessor.getProperty(ConfigurationItem.DataDirectory.name());
-        if (StringUtils.isBlank(datadir)) {
+        if (isBlank(datadir)) {
             cacheManager = new net.sf.ehcache.CacheManager(CommonsUtils.getStreamOfRes("ehcache.xml"));
         } else {
             // 使用数据目录存储缓存文件
@@ -88,11 +90,11 @@ public class BootConfiguration implements InstallState {
             String banner = RebuildBanner.formatSimple(true,
                     "USE DISTRIBUTED ENV.",
                     "        _DistributedNode : " + DistributedSupport.getNodeName(),
-                    "     _DistributedNodeUrl : " + getString(CommandArgs._DistributedNodeUrl),
-                    "   _DistributedAllowJobs : " + getString(CommandArgs._DistributedAllowJobs),
-                    "_DistributedDisallowJobs : " + getString(CommandArgs._DistributedDisallowJobs),
-                    "   _DistributedMasterUrl : " + getString(CommandArgs._DistributedMasterUrl),
-                    "          _DistributedAk : " + getString(CommandArgs._DistributedAk));
+                    "     _DistributedNodeUrl : " + getString(CommandArgs._DistributedNodeUrl, EMPTY),
+                    "   _DistributedAllowJobs : " + getString(CommandArgs._DistributedAllowJobs, EMPTY),
+                    "_DistributedDisallowJobs : " + getString(CommandArgs._DistributedDisallowJobs, EMPTY),
+                    "   _DistributedMasterUrl : " + getString(CommandArgs._DistributedMasterUrl, EMPTY),
+                    "          _DistributedAk : " + getString(CommandArgs._DistributedAk, EMPTY));
             log.info(banner);
 
             try {
@@ -117,16 +119,16 @@ public class BootConfiguration implements InstallState {
      * @return
      */
     public static JedisPool createJedisPoolInternal() {
-        String useHost = BootEnvironmentPostProcessor.getProperty("db.CacheHost");
-        if ("0".equals(useHost)) return USE_EHCACHE;
+        String host = BootEnvironmentPostProcessor.getProperty("db.CacheHost");
+        if ("0".equals(host)) return USE_EHCACHE;
 
-        String spec = BootEnvironmentPostProcessor.getProperty(ConfigurationItem.RedisDatabase.name());
-        int database = NumberUtils.toInt(spec, (Integer) ConfigurationItem.RedisDatabase.getDefaultValue());
+        String s = BootEnvironmentPostProcessor.getProperty(ConfigurationItem.RedisDatabase.name());
+        int database = NumberUtils.toInt(s, (Integer) ConfigurationItem.RedisDatabase.getDefaultValue());
 
-        return new KnownJedisPool(
-                StringUtils.defaultIfBlank(useHost, "127.0.0.1"),
-                ObjectUtils.toInt(BootEnvironmentPostProcessor.getProperty("db.CachePort"), 6379),
-                BootEnvironmentPostProcessor.getProperty("db.CachePassword", null),
-                database);
+        host = defaultIfBlank(host, "127.0.0.1");
+        int port = ObjectUtils.toInt(BootEnvironmentPostProcessor.getProperty("db.CachePort"), 6379);
+        String password = BootEnvironmentPostProcessor.getProperty("db.CachePassword", null);
+
+        return new KnownJedisPool(host, port, password, database);
     }
 }

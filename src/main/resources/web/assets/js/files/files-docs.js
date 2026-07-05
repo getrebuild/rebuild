@@ -281,7 +281,7 @@ class FileUploadDlg extends RbFormHandler {
                       className="img-thumbnail"
                       title={file}
                       onClick={() => {
-                        state.key && RbPreview.create(state.key)
+                        if (state.key) RbPreview.create(state.key)
                       }}>
                       <i className="file-icon" data-type={$fileExtName(file)} />
                       <span>{file}</span>

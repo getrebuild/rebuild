@@ -7,11 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.aviator;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,5 +45,16 @@ public abstract class BaseFunction extends AbstractFunction {
         String v = getString(env, arg);
         if (v == null) return false;
         return BooleanUtils.toBoolean(v);
+    }
+
+    public ID[] getIdArray(Map<String, Object> env, AviatorObject arg) {
+        String v = getString(env, arg);
+        if (v == null) return new ID[0];
+
+        List<ID> idsList = new ArrayList<>();
+        for (String id : v.split("[,;|]")) {
+            if (ID.isId(id)) idsList.add(ID.valueOf(id));
+        }
+        return idsList.toArray(new ID[0]);
     }
 }

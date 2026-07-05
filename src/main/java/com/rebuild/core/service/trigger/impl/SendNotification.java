@@ -393,6 +393,7 @@ public class SendNotification extends TriggerAction {
      * @param actionContext
      * @param operatingContext
      * @return
+     * @see ContentWithFieldVars
      */
     public static String[] formatMessageContent(ActionContext actionContext, OperatingContext operatingContext) {
         final JSONObject content = (JSONObject) actionContext.getActionContent();

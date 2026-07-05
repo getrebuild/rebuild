@@ -1723,6 +1723,9 @@ class RbFormNText extends RbFormElement {
           $cm.height(251)
         }
       },
+      codeMirrorOptions: {
+        viewportMargin: Infinity,
+      },
     })
     this._EasyMDE = mde
 
@@ -1749,10 +1752,6 @@ class RbFormNText extends RbFormElement {
           $(this._fieldValue__upload).trigger('change')
         }
       })
-
-      // 自动高度
-      // mde.codemirror.setSize('100%', '100%')
-      // mde.codemirror.on('change', () => mde.codemirror.setSize('100%', null))
     }
   }
 
@@ -2096,8 +2095,7 @@ class RbFormImage extends RbFormElement {
   }
 
   _filePreview(urlKey, idx) {
-    const p = parent || window
-    p.RbPreview.create(urlKey, idx)
+    RbPreview.create(urlKey, idx)
   }
 
   _fileDownload(url) {

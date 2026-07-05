@@ -338,7 +338,7 @@ const CTs = {
   L4: $L('4级'),
 }
 
-let _dlgAxisProps
+let _axisPropsComps = {}
 let _axisAdvFilters = {}
 let _axisAdvFilters__data = {}
 // 添加维度
@@ -397,7 +397,7 @@ function add_axis($target, axis) {
   if ($dd.find('li:eq(0)').hasClass('dropdown-divider')) $dd.find('.dropdown-divider').remove()
 
   // Click option
-  const aopts = $dd.find('.dropdown-menu .dropdown-item').on('click', function () {
+  const $aOpts = $dd.find('.dropdown-menu .dropdown-item').on('click', function () {
     const $this = $(this)
     if ($this.hasClass('disabled') || $this.parent().hasClass('disabled')) return false
 
@@ -410,7 +410,7 @@ function add_axis($target, axis) {
       } else {
         $dd.find('span').text(`${fieldLabel} (${$this.text()})`)
         $dd.attr('data-calc', calc)
-        aopts.each(function () {
+        $aOpts.each(function () {
           if ($(this).data('calc')) $(this).removeClass('check')
         })
         $this.addClass('check')
@@ -418,7 +418,7 @@ function add_axis($target, axis) {
       }
     } else if (sort) {
       $dd.attr('data-sort', sort)
-      aopts.each(function () {
+      $aOpts.each(function () {
         if ($(this).data('sort')) $(this).removeClass('check')
       })
       $this.addClass('check')
@@ -457,11 +457,11 @@ function add_axis($target, axis) {
         render_preview()
       }
 
-      if (_dlgAxisProps) {
-        _dlgAxisProps.show(state)
+      if (_axisPropsComps[fkey]) {
+        _axisPropsComps[fkey].show(state)
       } else {
         renderRbcomp(<DlgAxisProps {...state} />, function () {
-          _dlgAxisProps = this
+          _axisPropsComps[fkey] = this
         })
       }
     }
@@ -542,12 +542,6 @@ function render_option() {
     if (numsAxis >= 1 && dimsAxis >= 1) $('.J_numerical .J_sort').addClass('disabled')
     else $sort.addClass('disabled')
   }
-  // v3.7 Filter
-  // v4.3 全面支持
-  // const $filter = $('.axis-editor .J_filter').addClass('disabled')
-  // if (['INDEX', 'FUNNEL', 'TABLE', 'LINE', 'BAR', 'BAR2', 'BAR3'].includes(ct)) {
-  //   $filter.removeClass('disabled')
-  // }
 
   render_preview()
 }
@@ -735,7 +729,6 @@ class DlgAxisProps extends RbFormHandler {
 
   saveProps() {
     const data = { ...this.state }
-
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
     this.hide()
   }

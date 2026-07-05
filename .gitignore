@@ -47,3 +47,4 @@ test.*
 
 /.deploy/build/
 package-lock.json
+/.qoder/

@@ -19,6 +19,7 @@ import org.apache.tika.Tika;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * 文件
@@ -34,33 +35,42 @@ public class FileData implements VectorData {
         TIKA.setMaxStringLength(1024 * 1024 * 50);  // 50M
     }
 
-    private final String filepath;
+    private final Object fileOrPath;
 
     public FileData(String filepath) {
-        this.filepath = filepath;
+        this.fileOrPath = filepath;
+    }
+
+    public FileData(File file) {
+        this.fileOrPath = file;
     }
 
     @Override
     public String toVector() {
-        final String fileKey = "FileData:" + filepath;
+        final String filePath = fileOrPath.toString();
+        final String fileKey = "FileData:" + filePath;
         String cached = Application.getCommonsCache().get(fileKey);
         if (cached != null) return cached;
 
         File file = null;
-        if (CommonsUtils.isExternalUrl(filepath)) {
+        if (fileOrPath instanceof File) {
+            file = (File) fileOrPath;
+        } else if (fileOrPath instanceof Path) {
+            file = ((Path) fileOrPath).toFile();
+        } else if (CommonsUtils.isExternalUrl(filePath)) {
             try {
-                file = OkHttpUtils.readBinary(filepath);
+                file = OkHttpUtils.readBinary(filePath);
             } catch (IOException e) {
-                log.error("Reading file error : {}", filepath, e);
+                log.error("Reading file error : {}", filePath, e);
             }
         } else {
-            file = RebuildConfiguration.getFileOfTemp(filepath);
-            if (!file.exists()) file = RebuildConfiguration.getFileOfData(filepath);
-            if (!file.exists()) file = new File(filepath);
+            file = RebuildConfiguration.getFileOfTemp(filePath);
+            if (!file.exists()) file = RebuildConfiguration.getFileOfData(filePath);
+            if (!file.exists()) file = new File(filePath);
         }
 
         if (file == null || !file.isFile()) {
-            throw new AiBotException("无法读取文件:" + filepath);
+            throw new AiBotException("无法读取文件:" + filePath);
         }
 
         String content;
@@ -74,7 +84,7 @@ public class FileData implements VectorData {
             throw new AiBotException("无法识别文件:" + e.getLocalizedMessage());
         }
 
-        String name = QiniuCloud.parseFileName(filepath);
+        String name = QiniuCloud.parseFileName(filePath);
         String res = String.format("文件（%s）内容如下：", name)
                 + NN + content + NN +
                 String.format("文件（%s）内容结束", name);

@@ -347,8 +347,7 @@ class FeedsEditor extends React.Component {
   }
 
   _filePreview(urlKey, idx) {
-    const p = parent || window
-    p.RbPreview.create(urlKey, idx)
+    RbPreview.create(urlKey, idx)
   }
 
   _selectEmoji(emoji) {
