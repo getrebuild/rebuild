@@ -911,7 +911,7 @@ class FileShow extends React.Component {
     }
 
     return (
-      <div data-key={file} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create(file)}>
+      <div data-key={file} className="img-thumbnail" title={fileName} onClick={() => RbPreview.create(file)}>
         <i className={`file-icon ${isImage && 'image'}`} data-type={$fileExtName(fileName)}>
           {isImage && <img src={imageUrl} />}
         </i>
@@ -1274,12 +1274,12 @@ const DEFAULT_MDE_TOOLBAR = (rest) => {
       className: 'mdi mdi-eye no-disable',
       title: $L('预览'),
     },
-    {
-      name: 'fullscreen',
-      action: EasyMDE.toggleFullScreen,
-      className: 'mdi mdi-fullscreen no-disable',
-      title: $L('全屏'),
-    },
+    // {
+    //   name: 'fullscreen',
+    //   action: EasyMDE.toggleFullScreen,
+    //   className: 'mdi mdi-fullscreen no-disable',
+    //   title: $L('全屏'),
+    // },
     '|',
     {
       name: 'guide',
@@ -1353,8 +1353,7 @@ class Md2Html extends React.Component {
             imgs.push(srcNew)
             $img.on('click', (e) => {
               $stopEvent(e, true)
-              const p = parent || window
-              p.RbPreview.create(imgs, imgs.indexOf(srcNew) || 0)
+              RbPreview.create(imgs, imgs.indexOf(srcNew) || 0)
             })
           }
         })
@@ -1530,7 +1529,7 @@ class CodeEditor extends React.Component {
             <i className="icon mdi mdi-wrap" />
           </a>
         )}
-        <a title={$L('全屏')} onClick={() => this.fullscreen()}>
+        <a title={$L('全屏')} onClick={() => this.fullscreen()} className="hide">
           <i className="icon mdi mdi-fullscreen" />
         </a>
         {this.props.extraActions &&
@@ -1587,9 +1586,6 @@ class CodeEditor extends React.Component {
     })
 
     this._CodeMirror = cm5
-
-    // 自动高度
-    if (this.props.autoHeight) cm5.setSize('100%', '100%')
   }
 
   componentWillUnmount() {
@@ -1639,7 +1635,7 @@ class CodeEditor extends React.Component {
       $s.scrollTop(this._fullscreen_scrollTop)
       $('html').removeClass('mde-fullscreen')
       $e.removeClass('code-editor-fullscreen')
-      $cm.height(300)
+      // $cm.height(300)
 
       this._fullscreen = 0
     } else {

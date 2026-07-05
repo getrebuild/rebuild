@@ -5394,6 +5394,14 @@ pre.unstyle {
 
 .code-editor .CodeMirror {
   padding: 0 !important;
+  height: auto;
+}
+
+.code-editor .CodeMirror-scroll {
+  height: auto;
+  overflow-y: hidden;
+  overflow-x: auto;
+  min-height: 300px;
 }
 
 .code-editor.code-editor-fullscreen,
@@ -6643,18 +6651,26 @@ div.formula-code {
 .EasyMDEContainer .CodeMirror {
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
-  border-color: #eee;
-  border-width: 2px;
   padding: 6px 8px;
-  height: 300px;
-  height: 251px; /* toolbar */
+  height: auto;
+}
+
+.type-NTEXT .EasyMDEContainer .CodeMirror-scroll,
+.form-control-plaintext .EasyMDEContainer .CodeMirror-scroll {
+  height: auto;
+  overflow-y: hidden;
+  overflow-x: auto;
+  min-height: 251px !important;
 }
 
 .EasyMDEContainer .editor-toolbar {
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
-  border-color: #eee;
-  border-width: 2px;
+}
+
+.EasyMDEContainer .CodeMirror,
+.EasyMDEContainer .editor-toolbar {
+  border-color: rgb(213, 216, 222);
 }
 
 .EasyMDEContainer .CodeMirror .cm-formatting {
@@ -6708,33 +6724,47 @@ div.formula-code {
 
 .markdown-body,
 .EasyMDEContainer .CodeMirror-lines {
-  font-size: 14px;
+  font-size: 13px;
 }
 
+.markdown-body h1,
 .EasyMDEContainer .cm-s-easymde .cm-header-1 {
+  font-size: 2em;
+  font-size: 2.5em;
+}
+
+.markdown-body h2,
+.EasyMDEContainer .cm-s-easymde .cm-header-2 {
+  font-size: 1.5em;
   font-size: 2em;
 }
 
-.EasyMDEContainer .cm-s-easymde .cm-header-2 {
-  font-size: 1.5em;
+.markdown-body h3,
+.EasyMDEContainer .cm-s-easymde .cm-header-3 {
+  font-size: 1.25em;
+  font-size: 1.75em;
 }
 
-.EasyMDEContainer .cm-s-easymde .cm-header-3 {
+.markdown-body h4,
+.EasyMDEContainer .cm-s-easymde .cm-header-4 {
+  font-size: 1em;
   font-size: 1.25em;
 }
 
-.EasyMDEContainer .cm-s-easymde .cm-header-4 {
+.markdown-body h5,
+.EasyMDEContainer .cm-s-easymde .cm-header-5 {
+  font-size: 0.875em;
   font-size: 1em;
 }
 
-.EasyMDEContainer .cm-s-easymde .cm-header-5 {
+.markdown-body h6,
+.EasyMDEContainer .cm-s-easymde .cm-header-6 {
+  font-size: 0.852em;
   font-size: 0.875em;
 }
 
-.EasyMDEContainer .cm-s-easymde .cm-header-6 {
-  font-size: 0.852em;
-}
-
+.markdown-body .highlight pre,
+.markdown-body pre,
 .EasyMDEContainer .cm-s-easymde .cm-comment {
-  font-size: 85%;
+  font-size: 12px;
 }

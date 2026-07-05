@@ -62,8 +62,8 @@ public class ApiGateway extends Controller implements Initialization {
 
     // 基于 IP 限流
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
-            new int[]{10, 60},
-            new int[]{600, 3000});
+            new int[]{10, 200},
+            new int[]{60, 600});
 
     private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
 

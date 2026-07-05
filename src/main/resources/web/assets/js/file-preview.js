@@ -398,6 +398,12 @@ class RbPreview extends React.Component {
    * @param {*} id
    */
   static create(urls, index, id) {
+    // v4.4.2 使用父级窗口
+    if (window.top !== window.self && parent && parent.RbPreview) {
+      parent.RbPreview.create(urls, index, id)
+      return
+    }
+
     if (!urls) return
     if (typeof urls === 'string') urls = [urls]
     renderRbcomp(<RbPreview urls={urls} currentIndex={index || 0} id={id} />)

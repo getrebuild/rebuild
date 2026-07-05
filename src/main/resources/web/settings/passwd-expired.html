@@ -1,11 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('密码即将过期')}]]</title>
     <style>
-      .rb-navbar-header .rb-toggle-left-sidebar,
-      .rb-top-header .search-container {
+      .rb-navbar-header > .rb-toggle-left-sidebar,
+      .navbar-collapse > .navbar-nav,
+      .rb-icons-nav {
         display: none !important;
       }
     </style>

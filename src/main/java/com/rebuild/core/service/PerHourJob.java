@@ -70,10 +70,11 @@ public class PerHourJob extends DistributedJobLock {
      * 执行备份
      */
     protected void doBackups() {
+        SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
+        SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatafileBackupFail, null);
+
         // 未开启备份
         if (!RebuildConfiguration.getBool((ConfigurationItem.DBBackupsEnable))) {
-            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
-            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatafileBackupFail, null);
             return;
         }
 
@@ -82,7 +83,8 @@ public class PerHourJob extends DistributedJobLock {
             try {
                 FileUtils.forceMkdir(backups);
             } catch (IOException e) {
-                log.error("Cannot mkdir `_backups`", e);
+                log.error("Cannot mkdir `_backups` : {}", backups);
+                SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, e.getLocalizedMessage());
                 return;
             }
         }
@@ -93,7 +95,6 @@ public class PerHourJob extends DistributedJobLock {
         } else {
             try {
                 new DatabaseBackup().backup(backups);
-                SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
             } catch (Exception e) {
                 log.error("Executing [DatabaseBackup] fails", e);
                 SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, e.getLocalizedMessage());
@@ -103,7 +104,6 @@ public class PerHourJob extends DistributedJobLock {
         // FILES
         try {
             new DatafileBackup().backup(backups);
-            SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatafileBackupFail, null);
         } catch (Exception e) {
             log.error("Executing [DatafileBackup] fails", e);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatafileBackupFail, e.getLocalizedMessage());

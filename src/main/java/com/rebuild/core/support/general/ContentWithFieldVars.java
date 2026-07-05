@@ -48,6 +48,8 @@ public class ContentWithFieldVars {
     public static final String VAR_ID = "{ID}";
     // 当前日期时间
     public static final String VAR_NOW = "{NOW}";
+    // 当前日期时间
+    public static final String VAR_CURRENT = "{CURRENT}";
 
     /**
      * 替换文本中的字段变量
@@ -123,12 +125,12 @@ public class ContentWithFieldVars {
                     if (dt == DisplayType.IMAGE && RebuildConfiguration.getBool(ConfigurationItem.UnsafeImgAccess)) {
                         StringBuilder value4Image = new StringBuilder();
                         for (Object img : JSON.parseArray(value)) {
-                            String path = img.toString();
-                            if (!CommonsUtils.isExternalUrl(path)) {
-                                path = RebuildConfiguration.getHomeUrl("/filex/img/" + path);
-                                path += "?_UNSAFEIMGACCESS=" + System.currentTimeMillis();
+                            String imgUrl = img.toString();
+                            if (!CommonsUtils.isExternalUrl(imgUrl)) {
+                                imgUrl = RebuildConfiguration.getHomeUrl("/filex/img/" + imgUrl);
+                                imgUrl += "?_UNSAFEIMGACCESS=" + System.currentTimeMillis();
                             }
-                            value4Image.append(String.format("![](%s)\n", path));
+                            value4Image.append(String.format("![](%s)\n", imgUrl));
                         }
                         value = value4Image.toString();
 
@@ -161,6 +163,9 @@ public class ContentWithFieldVars {
         }
         if (content.contains(VAR_NOW)) {
             content = content.replace(VAR_NOW, CalendarUtils.getUTCDateFormat().format(CalendarUtils.now()));
+        }
+        if (content.contains(VAR_CURRENT)) {
+            content = content.replace(VAR_CURRENT, CalendarUtils.getUTCDateFormat().format(CalendarUtils.now()));
         }
         return content;
     }

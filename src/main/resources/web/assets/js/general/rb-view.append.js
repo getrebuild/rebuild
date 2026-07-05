@@ -375,7 +375,7 @@ class LightAttachmentList extends RelatedList {
           <a
             onClick={() => {
               $.get(`/files/check-readable?id=${item.id}`, (res) => {
-                if (res.data) (parent || window).RbPreview.create(res.data)
+                if (res.data) RbPreview.create(res.data)
                 else RbHighbar.create($L('你没有查看此文件的权限'))
               })
             }}
