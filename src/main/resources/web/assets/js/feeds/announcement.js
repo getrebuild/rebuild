@@ -15,7 +15,7 @@ class AnnouncementModal extends React.Component {
     const contentHtml = $converEmoji(props.content.replace(/\n/g, '<br/>'))
 
     return (
-      <div className="modal" tabIndex={state.tabIndex || -1} ref={(c) => (this._dlg = c)}>
+      <div className="modal fade" tabIndex={state.tabIndex || -1} ref={(c) => (this._dlg = c)}>
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -56,7 +56,7 @@ class AnnouncementModal extends React.Component {
 
   componentDidMount() {
     const root = $(this._dlg)
-      .modal({ show: true, keyboard: true })
+      .modal({ show: true, keyboard: true, backdrop: 'static' })
       .on('hidden.bs.modal', () => {
         root.modal('dispose')
         $unmount(root.parent())
