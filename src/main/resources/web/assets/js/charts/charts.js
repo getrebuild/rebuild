@@ -1963,11 +1963,12 @@ class MyNotification extends BaseChart {
           <div className="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
             <label className="btn btn-secondary active" onClick={() => this.renderChart(data, 1)}>
               <input type="radio" name="__typeOfMyNotification" defaultChecked={type === 1} />
-              {$L('未读')} ({data.unread.length})
+              {$L('未读')} ({data.unread.length}
+              {data.unread.length >= 500 ? '+' : ''})
             </label>
             <label className="btn btn-secondary" onClick={() => this.renderChart(data, 2)}>
               <input type="radio" name="__typeOfMyNotification" defaultChecked={type === 2} />
-              {$L('已读')} ({data.readed.length})
+              {$L('已读')}
             </label>
           </div>
         </div>
@@ -1984,7 +1985,7 @@ class MyNotification extends BaseChart {
                 },
               })
             }}>
-            <i className="zmdi zmdi-check-all icon"></i> {$L('已读全部')}
+            <i className="icon mdi mdi-broom"></i> {$L('已读全部')}
           </button>
         </div>
         <div className="clearfix"></div>
