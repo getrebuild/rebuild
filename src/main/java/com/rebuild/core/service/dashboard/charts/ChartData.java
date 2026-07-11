@@ -285,6 +285,16 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                 String customName = custom.getString("entity");
                 if ("SystemCommon".equals(customName)) {
                     custom.put("entity", getSourceEntity().getName());
+
+                    // fix:4.4.2 明细的所属用户/部门要使用父级的
+                    if (getSourceEntity().getMainEntity() != null) {
+                        String dtmField = MetadataHelper.getDetailToMainField(getSourceEntity()).getName();
+                        String customStr = custom.toString();
+                        customStr = customStr.replace(EntityHelper.OwningDept, dtmField + ".owningDept");
+                        customStr = customStr.replace(EntityHelper.OwningUser, dtmField + ".owningUser");
+                        custom = JSON.parseObject(customStr);
+                    }
+
                 } else if (getSourceEntity().getName().equals(customName)) {
                     // 相等才能使用
                 } else {

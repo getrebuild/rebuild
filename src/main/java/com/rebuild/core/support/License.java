@@ -76,7 +76,7 @@ public final class License {
         return queryAuthority(true);
     }
 
-    private static JSONObject queryAuthority(boolean cached) {
+    public static JSONObject queryAuthority(boolean cached) {
         final String api = "api/authority/query";
         JSONObject auth = TaskExecutors.invoke(() -> {
             if (cached) return siteApi(api);
@@ -185,13 +185,13 @@ public final class License {
             }
 
         } catch (Exception ex) {
-            log.error("Call site-api `{}` error : {}", api.split("\\?")[0], ex.toString());
+            log.error("Call X-SiteApi `{}` error : {}", api.split("\\?")[0], ex.toString());
         }
 
         if (domain == null) {
             return siteApi(api, t, "http://rebuild.ruifang-tech.com/");
         } else {
-            return JSONUtils.toJSONObject("error", "Call site-api fails");
+            return JSONUtils.toJSONObject("error", "Call X-SiteApi fails");
         }
     }
 }

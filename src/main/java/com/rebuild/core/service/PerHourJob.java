@@ -58,6 +58,8 @@ public class PerHourJob extends DistributedJobLock {
             doCleanTempFiles();
             doCleanExpiredSharedUrls();
             doCleanSystemRefs();
+        } else if (hour % 2 == 0) {
+            License.queryAuthority(true);
         }
 
         new SysbaseHeartbeat().heartbeat();

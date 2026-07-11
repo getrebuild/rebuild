@@ -70,9 +70,12 @@ public class MarkdownUtils {
      * @param targetBlank
      * @param keepHtml HTML 代码保持
      * @return
+     * @see CommonsUtils#escapeHtml(Object)
      */
     public static String render(String md, boolean targetBlank, boolean keepHtml) {
-        if (!keepHtml) {
+        if (keepHtml) {
+            md = CommonsUtils.sanitizeHtml(md);
+        } else {
             md = CommonsUtils.escapeHtml(md);
             md = md.replace("&gt; ", "> ");  // for MD quote
         }

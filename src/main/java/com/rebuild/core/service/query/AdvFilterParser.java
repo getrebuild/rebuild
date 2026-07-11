@@ -427,8 +427,8 @@ public class AdvFilterParser extends SetUser {
                     || ParseHelper.YTA.equalsIgnoreCase(op)
                     || ParseHelper.TTA.equalsIgnoreCase(op)
                     || ParseHelper.DDD.equalsIgnoreCase(op) || isHHH
-                    || ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op)
-                    || ParseHelper.EVW2.equalsIgnoreCase(op) || ParseHelper.EVM2.equalsIgnoreCase(op)) {
+                    || ParseHelper.EVW.equalsIgnoreCase(op) || ParseHelper.EVM.equalsIgnoreCase(op) || ParseHelper.EVY.equalsIgnoreCase(op)
+                    || ParseHelper.EVW2.equalsIgnoreCase(op) || ParseHelper.EVM2.equalsIgnoreCase(op) || ParseHelper.EVY2.equalsIgnoreCase(op)) {
 
                 if (ParseHelper.DDD.equalsIgnoreCase(op)) {
                     int x = NumberUtils.toInt(value);
@@ -466,9 +466,14 @@ public class AdvFilterParser extends SetUser {
                         today.set(Calendar.DAY_OF_MONTH, x);
                     }
                     value = formatDate(today.getTime(), 0);
-                } else if (ParseHelper.EVW2.equalsIgnoreCase(op) || ParseHelper.EVM2.equalsIgnoreCase(op)) {
+
+                } else if (ParseHelper.EVW2.equalsIgnoreCase(op) || ParseHelper.EVM2.equalsIgnoreCase(op) || ParseHelper.EVY2.equalsIgnoreCase(op)) {
                     int x = NumberUtils.toInt(value);
-                    if (ParseHelper.EVW2.equalsIgnoreCase(op)) {
+                    if (ParseHelper.EVY2.equalsIgnoreCase(op)) {
+                        field = String.format("MONTH(%s)", field);
+                        if (x < 1) x = 1;
+                        if (x > 12) x = 12;
+                    } else if (ParseHelper.EVW2.equalsIgnoreCase(op)) {
                         field = String.format("DAYOFWEEK(%s)", field);
                         if (x < 1) x = 1;
                         if (x > 7) x = 7;
@@ -480,6 +485,20 @@ public class AdvFilterParser extends SetUser {
                         field = String.format("DAY(%s)", field);
                     }
                     value = x + "";
+                }
+                else if (ParseHelper.EVY.equalsIgnoreCase(op)) {
+                    int x = NumberUtils.toInt(value);
+                    if (x < 1) x = 1;
+                    if (x > 12) x = 12;
+
+                    Calendar cal = CalendarUtils.getInstance();
+                    cal.set(Calendar.MONTH, x - 1);
+                    cal.set(Calendar.DAY_OF_MONTH, 1);
+                    value = formatDate(cal.getTime(), 2);
+                    cal.set(Calendar.MONTH, x);
+                    cal.add(Calendar.DAY_OF_MONTH, -1);
+                    valueEnd = formatDate(cal.getTime(), 1);
+                    op = ParseHelper.BW;
                 }
                 else if (ParseHelper.YTA.equalsIgnoreCase(op)) {
                     value = formatDate(addDay(-1), 0);

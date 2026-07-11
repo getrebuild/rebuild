@@ -59,8 +59,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: block;
   margin: 0 0 6px;
   line-height: 1;
-  color: #504e4e;
-  color: #404040;
+  color: #555;
 }
 
 .quick-filter-pane .col-item.operating {
