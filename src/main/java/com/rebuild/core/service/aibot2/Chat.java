@@ -15,24 +15,28 @@ import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionChunk;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
+import com.openai.models.chat.completions.ChatCompletionMessageFunctionToolCall;
 import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
+import com.openai.models.chat.completions.ChatCompletionToolMessageParam;
 import com.openai.services.blocking.chat.ChatCompletionService;
 import com.rebuild.core.service.aibot.AiBotException;
 import com.rebuild.core.service.aibot.StreamEcho;
 import com.rebuild.core.service.aibot.tool.ToolDefs;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.core.support.License;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.rebuild.core.service.aibot2.Message.ROLE_AI;
 import static com.rebuild.core.service.aibot2.Message.ROLE_USER;
@@ -46,6 +50,8 @@ import static com.rebuild.core.service.aibot2.Message.ROLE_USER;
 @Slf4j
 public class Chat implements Serializable {
     private static final long serialVersionUID = 471922851634230399L;
+
+    private static final int MAX_TOOL_ROUNDS = 5;
 
     @Getter
     private ID chatid;
@@ -73,13 +79,32 @@ public class Chat implements Serializable {
      * @return
      */
     public Message post(ChatRequest chatRequest) {
-        ChatCompletionCreateParams params = buildRequestParams(chatRequest.getUserContent(), chatRequest);
-        ChatCompletion resp = completions().create(params);
+        ChatCompletionCreateParams.Builder builder = requestParams(chatRequest.getUserContent(), chatRequest);
+        ChatCompletion resp = completions().create(builder.build());
         ChatCompletionMessage ai = resp.choices().get(0).message();
 
         List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
-        if (CollectionUtils.isNotEmpty(toolCalls)) {
-            log.warn("toolCalls : {}", toolCalls);
+        int maxRounds = MAX_TOOL_ROUNDS;
+        while (CollectionUtils.isNotEmpty(toolCalls) && maxRounds-- > 0) {
+            log.info("Tool calls round {} : {}", MAX_TOOL_ROUNDS - maxRounds, toolCalls.size());
+            builder.addMessage(ai);
+
+            for (ChatCompletionMessageToolCall tc : toolCalls) {
+                ChatCompletionMessageFunctionToolCall fn = tc.asFunction();
+                String toolCallId = fn.id();
+                String fnName = fn.function().name();
+                String fnArgs = fn.function().arguments();
+                String toolResult = ToolDefs.execute(fnName, fnArgs);
+
+                builder.addMessage(ChatCompletionToolMessageParam.builder()
+                        .toolCallId(toolCallId)
+                        .content(toolResult)
+                        .build());
+            }
+
+            resp = completions().create(builder.build());
+            ai = resp.choices().get(0).message();
+            toolCalls = ai.toolCalls().orElse(null);
         }
 
         String content = ai.content().orElse("");
@@ -103,13 +128,42 @@ public class Chat implements Serializable {
         httpResp.setHeader("Cache-Control", "no-cache");
         httpResp.setHeader("Connection", "keep-alive");
 
-        ChatCompletionCreateParams params = buildRequestParams(chatRequest.getUserContent(), chatRequest);
+        ChatCompletionCreateParams.Builder builder = requestParams(chatRequest.getUserContent(), chatRequest);
+        streamInternal(builder, writer, chatRequest, MAX_TOOL_ROUNDS);
+    }
+
+    /**
+     * @param builder
+     * @param writer
+     * @param chatRequest
+     * @param maxRounds
+     */
+    private void streamInternal(ChatCompletionCreateParams.Builder builder, PrintWriter writer,
+                                ChatRequest chatRequest, int maxRounds) {
         StringBuilder fullContent = new StringBuilder();
-        try (StreamResponse<ChatCompletionChunk> resp = completions().createStreaming(params)) {
+        Map<Integer, String[]> toolCallAccumulator = new LinkedHashMap<>();
+
+        try (StreamResponse<ChatCompletionChunk> resp = completions().createStreaming(builder.build())) {
             resp.stream().forEach(chunk -> chunk.choices().forEach(choice -> {
                 String content = choice.delta().content().orElse("");
-                StreamEcho.text(content, writer);
-                fullContent.append(content);
+                if (StringUtils.isNotBlank(content)) {
+                    StreamEcho.text(content, writer);
+                    fullContent.append(content);
+                }
+
+                choice.delta().toolCalls().ifPresent(toolCalls -> {
+                    for (com.openai.models.chat.completions.ChatCompletionChunk.Choice.Delta.ToolCall tc : toolCalls) {
+                        int idx = (int) tc.index();
+                        String[] entry = toolCallAccumulator.computeIfAbsent(idx, k -> new String[3]);
+                        tc.id().ifPresent(id -> entry[0] = id);
+                        tc.function().ifPresent(fn -> {
+                            fn.name().ifPresent(name -> entry[1] = name);
+                            fn.arguments().ifPresent(args -> {
+                                entry[2] = entry[2] == null ? args : entry[2] + args;
+                            });
+                        });
+                    }
+                });
 
                 // 中断
                 if (StreamEcho.isInterrupted(chatRequest.getChatid())) {
@@ -118,8 +172,50 @@ public class Chat implements Serializable {
                 }
             }));
 
-            StreamEcho.echo(getChatid().toLiteral(), writer, "_chatid");
-            completionAfter(fullContent.toString(), chatRequest);
+            if (toolCallAccumulator.isEmpty() || maxRounds <= 0) {
+                StreamEcho.echo(getChatid().toLiteral(), writer, "_chatid");
+                completionAfter(fullContent.toString(), chatRequest);
+                return;
+            }
+
+            log.info("Tool calls round {} : {}", MAX_TOOL_ROUNDS - maxRounds + 1, toolCallAccumulator.size());
+            List<ChatCompletionMessageToolCall> assembledToolCalls = new ArrayList<>();
+            for (String[] entry : toolCallAccumulator.values()) {
+                String tcId = entry[0];
+                String fnName = entry[1];
+                String fnArgs = entry[2] == null ? "" : entry[2];
+
+                ChatCompletionMessageFunctionToolCall fn = ChatCompletionMessageFunctionToolCall.builder()
+                        .id(tcId)
+                        .function(ChatCompletionMessageFunctionToolCall.Function.builder()
+                                .name(fnName)
+                                .arguments(fnArgs)
+                                .build())
+                        .build();
+                assembledToolCalls.add(ChatCompletionMessageToolCall.ofFunction(fn));
+            }
+
+            ChatCompletionMessage assistantMsg = ChatCompletionMessage.builder()
+                    .content(fullContent.length() > 0 ? fullContent.toString() : null)
+                    .refusal((String) null)
+                    .toolCalls(assembledToolCalls)
+                    .build();
+
+            builder.addMessage(assistantMsg);
+
+            for (String[] entry : toolCallAccumulator.values()) {
+                String tcId = entry[0];
+                String fnName = entry[1];
+                String fnArgs = entry[2] == null ? "" : entry[2];
+                String toolResult = ToolDefs.execute(fnName, fnArgs);
+
+                builder.addMessage(ChatCompletionToolMessageParam.builder()
+                        .toolCallId(tcId)
+                        .content(toolResult)
+                        .build());
+            }
+
+            streamInternal(builder, writer, chatRequest, maxRounds - 1);
         }
     }
 
@@ -130,9 +226,34 @@ public class Chat implements Serializable {
      * @return
      */
     public String ask(String userMessage) {
-        ChatCompletionCreateParams params = buildRequestParams(userMessage, null);
-        ChatCompletion resp = completions().create(params);
+        ChatCompletionCreateParams.Builder builder = requestParams(userMessage, null);
+        ChatCompletion resp = completions().create(builder.build());
         ChatCompletionMessage ai = resp.choices().get(0).message();
+
+        List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
+        int maxRounds = MAX_TOOL_ROUNDS;
+        while (CollectionUtils.isNotEmpty(toolCalls) && maxRounds-- > 0) {
+            log.info("Tool calls round {} : {}", MAX_TOOL_ROUNDS - maxRounds, toolCalls.size());
+            builder.addMessage(ai);
+
+            for (ChatCompletionMessageToolCall tc : toolCalls) {
+                ChatCompletionMessageFunctionToolCall fn = tc.asFunction();
+                String toolCallId = fn.id();
+                String fnName = fn.function().name();
+                String fnArgs = fn.function().arguments();
+                String toolResult = ToolDefs.execute(fnName, fnArgs);
+
+                builder.addMessage(ChatCompletionToolMessageParam.builder()
+                        .toolCallId(toolCallId)
+                        .content(toolResult)
+                        .build());
+            }
+
+            resp = completions().create(builder.build());
+            ai = resp.choices().get(0).message();
+            toolCalls = ai.toolCalls().orElse(null);
+        }
+
         return ai.content().orElse("");
     }
 
@@ -140,9 +261,18 @@ public class Chat implements Serializable {
         return Config.getClient().chat().completions();
     }
 
-    private ChatCompletionCreateParams buildRequestParams(String userMessage, ChatRequest chatRequest) {
-        Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
-        messages.add(message);
+    /**
+     * 构建参数
+     *
+     * @param userMessage
+     * @param chatRequest
+     * @return
+     */
+    private ChatCompletionCreateParams.Builder requestParams(String userMessage, ChatRequest chatRequest) {
+        if (userMessage != null) {
+            Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
+            messages.add(message);
+        }
 
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, model);
         for (Message m : messages) {
@@ -151,13 +281,10 @@ public class Chat implements Serializable {
             else if (ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(content);
         }
 
-        // TODO
-        if (false && License.isRbvAttached()) {
-            builder.toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO)
-                .tools(ToolDefs.tools());
-        }
+        builder.tools(ToolDefs.tools())
+                .toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO);
 
-        return builder.build();
+        return builder;
     }
 
     /**

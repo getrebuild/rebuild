@@ -1,0 +1,31 @@
+{
+  "type": "function",
+  "function": {
+    "name": "HttpFetchTool",
+    "description": "调用外部 HTTP 资源，支持 GET 和 POST 请求",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "请求的 URL 地址（必须包含 http:// 或 https://）"
+        },
+        "method": {
+          "type": "string",
+          "description": "HTTP 请求方法，支持 GET 或 POST，默认 GET",
+          "enum": ["GET", "POST"]
+        },
+        "headers": {
+          "type": "object",
+          "description": "HTTP 请求头，键值对形式",
+          "properties": {}
+        },
+        "body": {
+          "type": "string",
+          "description": "POST 请求体内容（仅 POST 方法时使用）"
+        }
+      },
+      "required": ["url"]
+    }
+  }
+}
