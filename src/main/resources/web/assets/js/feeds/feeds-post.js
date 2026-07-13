@@ -49,7 +49,7 @@ class FeedsPost extends React.Component {
 
         <div className="mt-3">
           <div className="float-right">
-            <button className="btn btn-primary" ref={(c) => (this._$btn = c)} onClick={this._post}>
+            <button type="button" className="btn btn-primary" ref={(c) => (this._$btn = c)} onClick={this._post}>
               <i className="mdi mdi-send icon mr-1" />
               {$L('发布')}
             </button>
@@ -112,7 +112,7 @@ class FeedsScope extends React.Component {
   render() {
     return (
       <div className="btn-group border-0">
-        <button className="btn btn-scope btn-link" data-toggle="dropdown" ref={(c) => (this._$btn = c)}>
+        <button type="button" className="btn btn-scope btn-link" data-toggle="dropdown" ref={(c) => (this._$btn = c)}>
           <i className="icon up-1 zmdi zmdi-chart-donut" />
           {$L('公开')}
         </button>

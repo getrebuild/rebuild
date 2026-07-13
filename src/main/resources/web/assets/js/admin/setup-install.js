@@ -237,16 +237,16 @@ class DatabaseConf extends React.Component {
               </div>
             </div>
           )}
-          <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
+          <button type="button" className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
             <i className="zmdi zmdi-chevron-left icon" />
             {$L('选择安装模式')}
           </button>
           <div className="float-right">
-            <button className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
+            <button type="button" className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
               {this.state.inTest && <i className="zmdi icon zmdi-refresh zmdi-hc-spin mr-1" />}
               {$L('测试连接')}
             </button>
-            <button className="btn btn-secondary" onClick={this._next}>
+            <button type="button" className="btn btn-secondary" onClick={this._next}>
               {$L('下一步')}
             </button>
           </div>
@@ -365,18 +365,18 @@ class CacheConf extends DatabaseConf {
               <div className="message" dangerouslySetInnerHTML={{ __html: this.state.testMessage }} />
             </div>
           )}
-          <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
+          <button type="button" className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
             <i className="zmdi zmdi-chevron-left icon" />
             {$L('设置数据库')}
           </button>
           <div className="float-right">
             {this.state.cacheType === 'redis' && (
-              <button className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
+              <button type="button" className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
                 {this.state.inTest && <i className="zmdi icon zmdi-refresh zmdi-hc-spin mr-1" />}
                 {$L('测试连接')}
               </button>
             )}
-            <button className="btn btn-secondary" onClick={this._next}>
+            <button type="button" className="btn btn-secondary" onClick={this._next}>
               {$L('下一步')}
             </button>
           </div>
@@ -455,19 +455,19 @@ class AdminConf extends DatabaseConf {
         </div>
         <div className="splash-footer">
           {this.props.$$$parent.state.installType === 1 && (
-            <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}>
+            <button type="button" className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}>
               <i className="zmdi zmdi-chevron-left icon" />
               {$L('设置缓存服务')}
             </button>
           )}
           {this.props.$$$parent.state.installType === 99 && (
-            <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(0)}>
+            <button type="button" className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(0)}>
               <i className="zmdi zmdi-chevron-left icon" />
               {$L('选择安装模式')}
             </button>
           )}
           <div className="float-right">
-            <button className="btn btn-secondary" onClick={this._next}>
+            <button type="button" className="btn btn-secondary" onClick={this._next}>
               {$L('下一步')}
             </button>
           </div>
@@ -521,12 +521,12 @@ class ModelConf extends React.Component {
           <div className="progress-bar" style={{ width: '80%' }} />
         </div>
         <div className="splash-footer">
-          <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(4)}>
+          <button type="button" className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(4)}>
             <i className="zmdi zmdi-chevron-left icon" />
             {$L('设置超级管理员')}
           </button>
           <div className="float-right">
-            <button className="btn btn-primary" onClick={this._next}>
+            <button type="button" className="btn btn-primary" onClick={this._next}>
               {$L('完成安装')}
             </button>
           </div>

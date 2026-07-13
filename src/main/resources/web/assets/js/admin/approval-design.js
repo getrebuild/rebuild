@@ -263,7 +263,7 @@ class ConditionNode extends NodeSpec {
         <div className="branch-wrap">
           <div className="branch-box-wrap">
             <div className="branch-box">
-              <button className="add-branch" onClick={this.addBranch}>
+              <button type="button" className="add-branch" onClick={this.addBranch}>
                 {$L('添加分支')}
               </button>
               {this.state.branches.map((item, idx) => {
@@ -862,7 +862,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                   </tbody>
                 </table>
                 <div>
-                  <button className="btn btn-secondary btn-sm" onClick={() => renderRbcomp(<DlgFields selected={this.state.editableFields} call={(fs) => this.setEditableFields(fs)} />)}>
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => renderRbcomp(<DlgFields selected={this.state.editableFields} call={(fs) => this.setEditableFields(fs)} />)}>
                     + {$L('选择字段')}
                   </button>
                 </div>

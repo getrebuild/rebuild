@@ -332,10 +332,10 @@ class FeedsComments extends React.Component {
           <span className={`${!this.state.openComment && 'hide'}`}>
             <FeedsEditor placeholder={$L('添加评论')} ref={(c) => (this._FeedsEditor = c)} />
             <div className="mt-2 text-right">
-              <button onClick={() => this._commentState(false)} className="btn btn-sm btn-link mr-1">
+              <button type="button" onClick={() => this._commentState(false)} className="btn btn-sm btn-link mr-1">
                 {$L('取消')}
               </button>
-              <button className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post()}>
+              <button type="button" className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post()}>
                 {$L('评论')}
               </button>
             </div>
@@ -396,10 +396,10 @@ class FeedsComments extends React.Component {
                     <div className={`comment-reply ${!item.shownReply && 'hide'}`}>
                       {item.shownReplyReal && <FeedsEditor placeholder={$L('添加回复')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />}
                       <div className="mt-2 text-right">
-                        <button onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">
+                        <button type="button" onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">
                           {$L('取消')}
                         </button>
-                        <button className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post(item._editor)}>
+                        <button type="button" className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post(item._editor)}>
                           {$L('回复')}
                         </button>
                       </div>

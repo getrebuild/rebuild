@@ -82,7 +82,7 @@ class ClassificationSelector extends React.Component {
                 </div>
               )}
               <div>
-                <button className="btn btn-primary btn-outline w-100" onClick={() => this.confirm()}>
+                <button type="button" className="btn btn-primary btn-outline w-100" onClick={() => this.confirm()}>
                   <i className="icon zmdi zmdi-check" /> {$L('确定')}
                 </button>
               </div>
@@ -1026,7 +1026,7 @@ class ExcelClipboardData extends React.Component {
             </h5>
           </span>
           <span className="float-right">
-            <button className="btn btn-primary" onClick={() => this._handleConfirm()} ref={(c) => (this._$btn = c)}>
+            <button type="button" className="btn btn-primary" onClick={() => this._handleConfirm()} ref={(c) => (this._$btn = c)}>
               {this.props.confirmText || $L('确定')}
             </button>
           </span>
