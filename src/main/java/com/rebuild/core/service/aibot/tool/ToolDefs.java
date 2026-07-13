@@ -9,12 +9,15 @@ package com.rebuild.core.service.aibot.tool;
 
 import com.alibaba.fastjson.JSON;
 import com.openai.models.chat.completions.ChatCompletionTool;
+import com.rebuild.core.RebuildException;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.ReflectUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -27,9 +30,29 @@ public class ToolDefs {
     private static final Map<String, Tool> TOOL_MAP = new HashMap<>();
 
     static {
-        register(new EntitiesMeta());
-        register(new HttpFetch());
-        register(new SuggestCustom());
+        autoScan();
+    }
+
+    /**
+     * 自动扫描 com.rebuild 包下所有 Tool 实现类并注册
+     */
+    private static void autoScan() {
+        Set<Class<?>> toolClasses;
+        try {
+            toolClasses = cn.devezhao.commons.ReflectUtils.getAllSubclasses(
+                    Tool.class.getPackage().getName(), Tool.class);
+            toolClasses.addAll(cn.devezhao.commons.ReflectUtils.getAllSubclasses(
+                    "com.rebuild.rbv.aibot", Tool.class));
+        } catch (Exception e) {
+            throw new RebuildException("Failed to scan Tool subclasses", e);
+        }
+
+        for (Class<?> c : toolClasses) {
+            Tool tool = (Tool) ReflectUtils.newInstance(c);
+            register(tool);
+        }
+
+        log.info("Added {} Tool(s)", TOOL_MAP.size());
     }
 
     /**
