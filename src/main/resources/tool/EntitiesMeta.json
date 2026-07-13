@@ -1,0 +1,16 @@
+{
+  "type": "function",
+  "function": {
+    "name": "EntitiesMeta",
+    "description": "获取系统的实体元数据信息。传入实体名称可获取该实体的详细字段定义，不传则返回所有可用实体列表",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "实体名称、数字code或标签名称，支持模糊匹配（可选，不传则返回所有实体列表）"
+        }
+      }
+    }
+  }
+}

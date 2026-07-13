@@ -95,7 +95,9 @@ class ConfigList extends React.Component {
     entity = entity || this.__entity
     this.__entity = entity
 
-    $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(this.getSearchKey())}`, (res) => {
+    let url = this.requestUrl + (this.requestUrl.includes('?') ? '&' : '?')
+    url += `entity=${entity || ''}&q=${$encode(this.getSearchKey())}`
+    $.get(url, (res) => {
       if (res.error_code === 0) {
         const data = res.data || []
         if (this.renderEntityTree(data) !== false) {
@@ -244,7 +246,7 @@ $(document).ready(() => {
             })
           },
           200,
-          '$dropdownMenuSearch'
+          '$dropdownMenuSearch',
         )
       })
       setTimeout(() => $input[0].focus(), 20)

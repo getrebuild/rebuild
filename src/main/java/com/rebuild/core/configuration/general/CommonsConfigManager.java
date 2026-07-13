@@ -25,6 +25,8 @@ public class CommonsConfigManager implements ConfigManager {
 
     // 记录提醒
     public static final String TYPE_RECORD_ALERTS = "RECORD_ALERTS";
+    // OpenApi 数据订阅
+    public static final String TYPE_DATA_SUBSCRIBE45 = "DATA_SUBSCRIBE";
 
     public static final CommonsConfigManager instance = new CommonsConfigManager();
 
@@ -45,6 +47,22 @@ public class CommonsConfigManager implements ConfigManager {
             }
         }
         return alerts;
+    }
+
+    /**
+     * @param entity
+     * @return
+     */
+    public List<ConfigBean> getDataSubscribe(String entity) {
+        ConfigBean[] cbs = getConfig(entity, TYPE_DATA_SUBSCRIBE45);
+
+        List<ConfigBean> subscribes = new ArrayList<>();
+        for (ConfigBean cb : cbs) {
+            if (cb.getJSON("config") != null) {
+                subscribes.add(cb);
+            }
+        }
+        return subscribes;
     }
 
     /**

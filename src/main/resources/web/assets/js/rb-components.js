@@ -965,7 +965,7 @@ class RecordSelector extends React.Component {
       <div className="input-group has-append">
         <select className="form-control form-control-sm" ref={(c) => (this._$select = c)} multiple={this.props.allowMultiple} />
         <div className="input-group-append">
-          <button className="btn btn-secondary" onClick={() => this._showSearcher()} ref={(c) => (this._$btn = c)}>
+          <button className="btn btn-secondary" type="button" onClick={() => this._showSearcher()} ref={(c) => (this._$btn = c)}>
             <i className="icon zmdi zmdi-search" />
           </button>
         </div>
@@ -998,7 +998,7 @@ class RecordSelector extends React.Component {
     this.__select2 = $initReferenceSelect2(this._$select, {
       searchType: 'search',
       entity: props.entity,
-      placeholder: props.entityLabel || undefined,
+      placeholder: props.placeholder || props.entityLabel || undefined,
     }).on('change', (e) => {
       typeof props.onSelect === 'function' && props.onSelect(e.target.value)
     })

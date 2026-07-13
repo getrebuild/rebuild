@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "function": {
+    "name": "SuggestCustom",
+    "description": "当用户的需求超出现有工具的能力范围，无法通过现有功能完成时调用此工具。工具会返回定制开发联系提示，你需要将提示内容转达给用户",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "requirement": {
+          "type": "string",
+          "description": "用户的具体需求描述"
+        }
+      },
+      "required": ["requirement"]
+    }
+  }
+}

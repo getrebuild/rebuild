@@ -6,6 +6,30 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global Chat */
 
+const _chatMarked = new marked.Marked({
+  renderer: {
+    link({ href, title, tokens }) {
+      const text = this.parser.parseInline(tokens)
+      let safeHref = href
+      if (/^https?:\/\//i.test(href)) {
+        try {
+          const url = new URL(href, window.location.href)
+          if (url.hostname !== window.location.hostname) {
+            safeHref = `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent(href)}`
+          }
+        } catch (e) {
+          safeHref = `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent(href)}`
+        }
+      }
+
+      let out = `<a href="${safeHref}"`
+      if (title) out += ` title="${title}"`
+      out += ` target="_blank" rel="noopener noreferrer">${text}</a>`
+      return out
+    },
+  },
+})
+
 let __evt_ScrollToBottomStop = false
 let __evt_StreamCancel = false
 
@@ -414,7 +438,7 @@ class ChatMessage extends React.Component {
     if (!md) return null
     return (
       <div className="msg-text">
-        <span className="markdown-body" dangerouslySetInnerHTML={{ __html: marked.parse(md) }}></span>
+        <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
       </div>
     )
   }
