@@ -1,7 +1,7 @@
 {
   "type": "function",
   "function": {
-    "name": "HttpFetchTool",
+    "name": "HttpFetch",
     "description": "调用外部 HTTP 资源，支持 GET 和 POST 请求",
     "parameters": {
       "type": "object",

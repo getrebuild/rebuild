@@ -28,7 +28,8 @@ public class ToolDefs {
 
     static {
         register(new EntitiesMeta());
-        register(new HttpFetchTool());
+        register(new HttpFetch());
+        register(new SuggestCustom());
     }
 
     /**
