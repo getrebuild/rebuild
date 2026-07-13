@@ -197,7 +197,7 @@ class EntityNew2 extends RbModalHandler {
               <InitModels ref={(c) => (this._InitModels = c)} />
               <div className="dialog-footer">
                 <div className="float-right">
-                  <button className="btn btn-primary" onClick={() => this.postRbImports()}>
+                  <button type="button" className="btn btn-primary" onClick={() => this.postRbImports()}>
                     {$L('开始导入')}
                   </button>
                 </div>

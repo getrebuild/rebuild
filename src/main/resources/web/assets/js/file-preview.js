@@ -430,12 +430,12 @@ class FileShare extends RbModalHandler {
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
+              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
                 <i className="icon zmdi zmdi-copy" />
               </button>
             </span>
             <span className="input-group-append">
-              <button className="btn btn-secondary" title={$L('二维码')} data-toggle="dropdown">
+              <button type="button" className="btn btn-secondary" title={$L('二维码')} data-toggle="dropdown">
                 <i className="icon zmdi zmdi-mdi-qrcode" />
               </button>
               <div className="dropdown-menu dropdown-menu-right p-0">

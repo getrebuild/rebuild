@@ -91,11 +91,11 @@ class ApprovalList extends React.Component {
                 )}
                 <span className={state[1] ? `badge badge-${state[1]}` : ''}>{state[0]}</span>
 
-                <button className="btn btn-link btn-sm ml-2" onClick={(e) => this._handleDetail(item, e)}>
+                <button type="button" className="btn btn-link btn-sm ml-2" onClick={(e) => this._handleDetail(item, e)}>
                   {$L('详情')}
                 </button>
                 {item.state === 1 && item.imApprover && (
-                  <button className="btn btn-secondary btn-sm" onClick={(e) => this._handleApprove(item, e)}>
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={(e) => this._handleApprove(item, e)}>
                     {$L('审批')}
                   </button>
                 )}

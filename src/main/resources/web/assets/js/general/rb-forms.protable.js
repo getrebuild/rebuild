@@ -90,11 +90,11 @@ class ProTable extends React.Component {
                   {!readonly && (
                     <td className="col-action column-fixed">
                       {this._initModel.detailsCopiable && (
-                        <button className="btn btn-light J_copy-detail" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={readonly}>
+                        <button type="button" className="btn btn-light J_copy-detail" title={$L('复制')} onClick={() => this.copyLine(key)} disabled={readonly}>
                           <i className="icon zmdi zmdi-copy fs-13" />
                         </button>
                       )}
-                      <button className="btn btn-light J_remove-detail" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
+                      <button type="button" className="btn btn-light J_remove-detail" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
                         <i className="icon zmdi zmdi-close fs-16" />
                       </button>
                     </td>
@@ -751,11 +751,11 @@ class ProTableTree extends ProTable {
                   {FORM}
                   <td className="col-action column-fixed">
                     {stcParentField && FORM.props.rawModel._treeNodeLevel + 1 < stcMaxNodeLevel && (
-                      <button className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
+                      <button type="button" className="btn btn-light" title={$L('添加子级')} onClick={() => this.insertLine(key, idx + 1)} disabled={readonly}>
                         <i className="icon zmdi zmdi-plus fs-16" />
                       </button>
                     )}
-                    <button className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
+                    <button type="button" className="btn btn-light" title={$L('移除')} onClick={() => this.removeLine(key)} disabled={readonly}>
                       <i className="icon zmdi zmdi-close fs-16" />
                     </button>
                   </td>

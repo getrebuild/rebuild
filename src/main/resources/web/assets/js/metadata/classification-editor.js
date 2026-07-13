@@ -409,7 +409,7 @@ class DlgImports extends RbModalHandler {
                         </div>
                       </div>
                       <div className="float-right">
-                        <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.import4Rbstore}>
+                        <button type="button" disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.import4Rbstore}>
                           {$L('导入')}
                         </button>
                       </div>

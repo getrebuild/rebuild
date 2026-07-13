@@ -49,7 +49,7 @@ class TaskForm extends React.Component {
           </div>
           {this.props.editable && this.state.isManageable && (
             <div className="col-2 text-right">
-              <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 1 }} data-toggle="dropdown">
+              <button className="btn btn-secondary" type="button" style={{ minWidth: 80, marginTop: 1 }} data-toggle="dropdown">
                 {$L('操作')} <i className="icon zmdi zmdi-more-vert" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
@@ -415,10 +415,10 @@ class ValueDescription extends ValueComp {
           <textarea defaultValue={this.state.description || ''} ref={(c) => (this._$editor = c)} />
           <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />
           <div className="mt-2 text-right">
-            <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link mr-1">
+            <button type="button" onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link mr-1">
               {$L('取消')}
             </button>
-            <button className="btn btn-sm btn-primary" onClick={() => this.handleChange()}>
+            <button className="btn btn-sm btn-primary" type="button" onClick={() => this.handleChange()}>
               {$L('确定')}
             </button>
           </div>
@@ -810,13 +810,13 @@ class ValueTagsEditor extends React.Component {
           </div>
           <div className="row">
             <div className="col">
-              <button typeof="button" className="btn btn-primary w-100" onClick={() => this._saveTag()}>
+              <button type="button" className="btn btn-primary w-100" onClick={() => this._saveTag()}>
                 {$L('确定')}
               </button>
             </div>
             {this.state.tagId && (
               <div className="col pl-0">
-                <button typeof="button" className="btn btn-danger btn-outline w-100" onClick={() => this._deleteTag(this.state.tagId)}>
+                <button type="button" className="btn btn-danger btn-outline w-100" onClick={() => this._deleteTag(this.state.tagId)}>
                   {$L('删除')}
                 </button>
               </div>
@@ -915,10 +915,10 @@ class ValueRelatedRecord extends ValueComp {
             <AnyRecordSelector initValue={this.state.relatedRecordData} ref={(c) => (this._relatedRecord = c)} />
           </div>
           <div className="col-3" style={{ paddingTop: '0.18rem' }}>
-            <button onClick={() => this.setState({ editMode: false })} className="btn btn-sm btn-link mr-1">
+            <button type="button" onClick={() => this.setState({ editMode: false })} className="btn btn-sm btn-link mr-1">
               {$L('取消')}
             </button>
-            <button className="btn btn-sm btn-primary" onClick={() => this.handleChange()}>
+            <button type="button" className="btn btn-sm btn-primary" onClick={() => this.handleChange()}>
               {$L('确定')}
             </button>
           </div>
@@ -1060,10 +1060,10 @@ class TaskComment extends React.Component {
           <span className={`${!this.state.openComment && 'hide'}`}>
             <RichTextEditor placeholder={$L('添加评论')} ref={(c) => (this._RichTextEditor = c)} />
             <div className="mt-2 text-right" ref={(c) => (this._btns = c)}>
-              <button onClick={() => this.commentState(false)} className="btn btn-sm btn-link mr-1">
+              <button type="button" onClick={() => this.commentState(false)} className="btn btn-sm btn-link mr-1">
                 {$L('取消')}
               </button>
-              <button className="btn btn-sm btn-primary" ref={(c) => (this._btn = c)} onClick={() => this._post()}>
+              <button type="button" className="btn btn-sm btn-primary" ref={(c) => (this._btn = c)} onClick={() => this._post()}>
                 {$L('评论')}
               </button>
             </div>

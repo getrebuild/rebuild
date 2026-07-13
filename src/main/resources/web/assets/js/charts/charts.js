@@ -1074,7 +1074,7 @@ class ApprovalList extends BaseChart {
                     </td>
                     <td className="actions text-right text-nowrap">
                       {viewState === 1 && (
-                        <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
                           {$L('审批')}
                         </button>
                       )}
@@ -1211,7 +1211,7 @@ class FeedsSchedule extends BaseChart {
                       <span className="cell-detail-description">{scheduleTimeTip}</span>
                     </td>
                     <td className="actions text-right text-nowrap">
-                      <button className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>
                         {$L('完成')}
                       </button>
                     </td>

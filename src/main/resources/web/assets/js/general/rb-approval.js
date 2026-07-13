@@ -30,7 +30,7 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-warning shadow-sm">
         <span className="close">
-          <button className="btn btn-secondary" onClick={this.submit}>
+          <button type="button" className="btn btn-secondary" onClick={this.submit}>
             {$L('提交')}
           </button>
         </span>
@@ -60,28 +60,28 @@ class ApprovalProcessor extends React.Component {
       <div className="alert alert-warning shadow-sm">
         <span className="close">
           {this.state.imApprover && this.state.imApproveState === 1 && (
-            <button className="btn btn-secondary" onClick={this.approve}>
+            <button type="button" className="btn btn-secondary" onClick={this.approve}>
               {$L('审批')}
               {imApproverCurrent && this.state.expiresTime > 0 && ` (${$L('已超时')})`}
             </button>
           )}
           {this.state.canUrge && imApproverCurrent === false && (
-            <button className="btn btn-secondary" onClick={this.urge}>
+            <button type="button" className="btn btn-secondary" onClick={this.urge}>
               {$L('催审')}
             </button>
           )}
           {this.state.canCancel && (
-            <button className="btn btn-secondary" onClick={this.cancel}>
+            <button type="button" className="btn btn-secondary" onClick={this.cancel}>
               {$L('撤回')}
             </button>
           )}
           {this.state.canCancel38 && (
-            <button className="btn btn-secondary bosskey-show" onClick={this.cancel38}>
+            <button type="button" className="btn btn-secondary bosskey-show" onClick={this.cancel38}>
               {$L('退回')} (LAB)
             </button>
           )}
 
-          <button className="btn btn-secondary" onClick={this.viewSteps}>
+          <button type="button" className="btn btn-secondary" onClick={this.viewSteps}>
             {$L('详情')}
           </button>
         </span>
@@ -101,11 +101,11 @@ class ApprovalProcessor extends React.Component {
       <div className="alert alert-success shadow-sm">
         <span className="close">
           {(rb.isAdminUser || this.state.canRevoke) && (
-            <button className="btn btn-secondary" onClick={this.revoke}>
+            <button type="button" className="btn btn-secondary" onClick={this.revoke}>
               {$L('撤销')}
             </button>
           )}
-          <button className="btn btn-secondary" onClick={this.viewSteps}>
+          <button type="button" className="btn btn-secondary" onClick={this.viewSteps}>
             {$L('详情')}
           </button>
         </span>
@@ -122,10 +122,10 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-danger shadow-sm">
         <span className="close">
-          <button className="btn btn-secondary" onClick={this.submit}>
+          <button type="button" className="btn btn-secondary" onClick={this.submit}>
             {$L('再次提交')}
           </button>
-          <button className="btn btn-secondary" onClick={this.viewSteps}>
+          <button type="button" className="btn btn-secondary" onClick={this.viewSteps}>
             {$L('详情')}
           </button>
         </span>
@@ -142,10 +142,10 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-warning shadow-sm">
         <span className="close">
-          <button className="btn btn-secondary" onClick={this.submit}>
+          <button type="button" className="btn btn-secondary" onClick={this.submit}>
             {$L('再次提交')}
           </button>
-          <button className="btn btn-secondary" onClick={this.viewSteps}>
+          <button type="button" className="btn btn-secondary" onClick={this.viewSteps}>
             {$L('详情')}
           </button>
         </span>
@@ -162,10 +162,10 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-warning shadow-sm">
         <span className="close">
-          <button className="btn btn-secondary" onClick={this.submit}>
+          <button type="button" className="btn btn-secondary" onClick={this.submit}>
             {$L('再次提交')}
           </button>
-          <button className="btn btn-secondary" onClick={this.viewSteps}>
+          <button type="button" className="btn btn-secondary" onClick={this.viewSteps}>
             {$L('详情')}
           </button>
         </span>
@@ -537,6 +537,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           {this.props.$$$parent && (
             <div className="float-left">
               <button
+                type="button"
                 className="btn btn-link btn-sm pl-1"
                 onClick={() => {
                   this.props.$$$parent.viewSteps()
@@ -550,7 +551,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
 
           {(this.state.allowReferral || this.state.allowCountersign || this.state.allowFinish) && (
             <div className="btn-group btn-space mr-2">
-              <button className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
+              <button type="button" className="btn btn-secondary dropdown-toggle w-auto" data-toggle="dropdown" title={$L('更多操作')}>
                 <i className="icon zmdi zmdi-more-vert" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
