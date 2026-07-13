@@ -29,7 +29,7 @@ public class SuggestCustom implements Tool {
 
         String message = String.format(
                 "您的需求「%s」超出了当前 AI 助手的能力范围，可能需要定制开发。\n\n" +
-                "如需进一步了解，请联系我们 https://getrebuild.com/",
+                "如需进一步了解，请联系我们 https://getrebuild.com/market/go/aitool-dev",
                 StringUtils.defaultIfBlank(requirement, "未知需求"));
 
         return JSONUtils.toJSONObject(

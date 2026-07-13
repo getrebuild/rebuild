@@ -49,18 +49,11 @@ public class ToolDefs {
 
         for (Class<?> c : toolClasses) {
             Tool tool = (Tool) ReflectUtils.newInstance(c);
-            register(tool);
+            String name = tool.getClass().getSimpleName();
+            TOOL_MAP.put(name, tool);
         }
 
         log.info("Added {} Tool(s)", TOOL_MAP.size());
-    }
-
-    /**
-     * @param tool
-     */
-    private static void register(Tool tool) {
-        String name = tool.getClass().getSimpleName();
-        TOOL_MAP.put(name, tool);
     }
 
     /**
