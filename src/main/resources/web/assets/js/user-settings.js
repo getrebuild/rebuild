@@ -334,7 +334,7 @@ class DlgTempAuth extends RbModalHandler {
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.tempUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
+              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
                 <i className="icon zmdi zmdi-copy" />
               </button>
             </span>
@@ -379,7 +379,7 @@ class DlgCropper extends RbModalHandler {
             {this.state.inLoad && <RbSpinner />}
           </div>
           <div className="mt-3">
-            <button className="btn btn-primary w-100 btn-lg" onClick={this.post} ref={(c) => (this._btn = c)}>
+            <button type="button" className="btn btn-primary w-100 btn-lg" onClick={this.post} ref={(c) => (this._btn = c)}>
               {$L('修改')}
             </button>
           </div>

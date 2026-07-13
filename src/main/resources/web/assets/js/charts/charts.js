@@ -1074,7 +1074,7 @@ class ApprovalList extends BaseChart {
                     </td>
                     <td className="actions text-right text-nowrap">
                       {viewState === 1 && (
-                        <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
                           {$L('审批')}
                         </button>
                       )}
@@ -1211,7 +1211,7 @@ class FeedsSchedule extends BaseChart {
                       <span className="cell-detail-description">{scheduleTimeTip}</span>
                     </td>
                     <td className="actions text-right text-nowrap">
-                      <button className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>
                         {$L('完成')}
                       </button>
                     </td>
@@ -1963,11 +1963,12 @@ class MyNotification extends BaseChart {
           <div className="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
             <label className="btn btn-secondary active" onClick={() => this.renderChart(data, 1)}>
               <input type="radio" name="__typeOfMyNotification" defaultChecked={type === 1} />
-              {$L('未读')} ({data.unread.length})
+              {$L('未读')} ({data.unread.length}
+              {data.unread.length >= 500 ? '+' : ''})
             </label>
             <label className="btn btn-secondary" onClick={() => this.renderChart(data, 2)}>
               <input type="radio" name="__typeOfMyNotification" defaultChecked={type === 2} />
-              {$L('已读')} ({data.readed.length})
+              {$L('已读')}
             </label>
           </div>
         </div>
@@ -1984,7 +1985,7 @@ class MyNotification extends BaseChart {
                 },
               })
             }}>
-            <i className="zmdi zmdi-check-all icon"></i> {$L('已读全部')}
+            <i className="icon mdi mdi-broom"></i> {$L('已读全部')}
           </button>
         </div>
         <div className="clearfix"></div>

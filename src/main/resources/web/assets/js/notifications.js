@@ -19,10 +19,10 @@ $(document).ready(() => {
     mList.fetchList(1, $(this).data('type'))
   })
 
-  const ntype = (location.hash || '#unread').split('=')
-  focusItem = ntype[1]
-  let activeNav = $(`.notification-type a[href="${ntype[0]}"]`)
-  if (ntype.length === 0) activeNav = $('.notification-type a[href="#unread"]')
+  const nType = (location.hash || '#unread').split('=')
+  focusItem = nType[1]
+  let activeNav = $(`.notification-type a[href="${nType[0]}"]`)
+  if (activeNav.length === 0) activeNav = $('.notification-type a[href="#unread"]')
   activeNav.trigger('click')
 })
 
@@ -90,7 +90,7 @@ class MessageList extends React.Component {
             </div>
           </div>
           {append && (
-            <a title={$L('查看记录')} className="badge link" onClick={(e) => $openView(item[5], e)} href="#/View">
+            <a title={$L('查看记录')} className="badge link" onClick={() => $openView(item[5])} href="#/View">
               {$L('查看')}
             </a>
           )}

@@ -186,9 +186,9 @@ public class AutoFillinManager implements ConfigManager {
                     // 明细可携带主记录
                     if (formdataMain != null) {
                         formdataMain.remove(EntityRecordCreator.META_FIELD);
-                        String dtfName = MetadataHelper.getDetailToMainField(field.getOwnEntity()).getName() + ".";
+                        String dtmField = MetadataHelper.getDetailToMainField(field.getOwnEntity()).getName() + ".";
                         for (Map.Entry<String, Object> item : formdataMain.entrySet()) {
-                            varsInFormula.put(dtfName + item.getKey(), item.getValue());
+                            varsInFormula.put(dtmField + item.getKey(), item.getValue());
                         }
                     }
 
