@@ -18,17 +18,25 @@ class FieldValueSet extends React.Component {
     if (field.type === 'REFERENCE' || field.type === 'N2NREFERENCE') {
       return (
         <RecordSelector
-          initValue={this.props.defaultValue}
           entity={field.ref[0]}
-          entityLabel={this.props.placeholder || $L('新值')}
           allowMultiple={field.type === 'N2NREFERENCE'}
+          initValue={this.props.defaultValue}
+          placeholder={this.props.placeholder || $L('新值')}
+          entityLabel={this.props.entityLabel || null}
           ref={(c) => (this._RecordSelector = c)}
         />
       )
     }
     // v4.4
     if (field.type === 'ANYREFERENCE') {
-      return <AnyRecordSelector initValue={this.props.defaultValue} entityLabel={this.props.placeholder || $L('新值')} ref={(c) => (this._AnyRecordSelector = c)} />
+      return (
+        <AnyRecordSelector
+          initValue={this.props.defaultValue}
+          placeholder={this.props.placeholder || $L('新值')}
+          entityLabel={this.props.entityLabel || null}
+          ref={(c) => (this._AnyRecordSelector = c)}
+        />
+      )
     }
 
     if (field.type === 'PICKLIST' || field.type === 'STATE' || field.type === 'BOOL' || field.type === 'MULTISELECT' || field.type === 'CLASSIFICATION' || field.type === 'TAG') {
