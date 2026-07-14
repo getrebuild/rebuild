@@ -353,20 +353,41 @@ class BaiduMapModal extends RbModal {
     // https://bootstrap-autocomplete.readthedocs.io/en/latest/
     const that = this
     function _autoComplete() {
+      var _searchTimer = null
       $(that._$searchValue)
         .autoComplete({
           bootstrapVersion: '4',
           noResultsText: '',
           minLength: 2,
-          resolverSettings: {
-            url: '/commons/map/suggest',
-          },
           events: {
+            search: function (q, cb) {
+              if (_searchTimer) clearTimeout(_searchTimer)
+              _searchTimer = setTimeout(function () {
+                const ak = rb._baiduMapAk || 'a8d512be98070f8dc45348eb3dc36f49'
+                const postStr = JSON.stringify({ keyWord: q, level: 11, mapBound: '-180,-90,180,90', queryType: 7, start: 0, count: 10 })
+                const url = `https://api.tianditu.gov.cn/v2/search?postStr=${encodeURIComponent(postStr)}&type=query&tk=${ak}`
+                fetch(url)
+                  .then(function (res) {
+                    return res.json()
+                  })
+                  .then(function (data) {
+                    cb(data)
+                  })
+                  .catch(function () {
+                    cb({ pois: [] })
+                  })
+              }, 500)
+            },
             searchPost: function (res) {
-              const result = res.data ? res.data.result || [] : []
+              const pois = res.pois || []
               const _data = []
-              result.forEach((item) => {
-                item.address && _data.push({ text: item.address.replaceAll('-', ''), id: item.location })
+              pois.forEach(function (item) {
+                if (item.address && item.lonlat) {
+                  const ll = item.lonlat.split(',')
+                  if (ll[0] && ll[1]) {
+                    _data.push({ text: item.address.replaceAll('-', ''), id: { lat: parseFloat(ll[1]), lng: parseFloat(ll[0]) } })
+                  }
+                }
               })
               return _data
             },
@@ -384,6 +405,7 @@ class BaiduMapModal extends RbModal {
           }
         })
     }
+
     if (jQuery.prototype.autoComplete) {
       _autoComplete()
     } else {

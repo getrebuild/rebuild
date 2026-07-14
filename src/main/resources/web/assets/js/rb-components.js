@@ -1923,7 +1923,7 @@ class FileRename extends RbAlert {
 }
 
 // ~~ 百度地图
-// https://mapopen-pub-jsapi.bj.bcebos.com/jsapi/reference/jsapi_webgl_1_0.html#a1b0
+// https://lbs.tianditu.gov.cn/api/js4.0/guide-helloworld.html
 class BaiduMap extends React.Component {
   constructor(props) {
     super(props)
@@ -1937,17 +1937,18 @@ class BaiduMap extends React.Component {
   componentDidMount() {
     const that = this
     $useMap(() => {
-      const _BMapGL = window.BMapGL
-      const map = new _BMapGL.Map(that._mapid)
-      map.addControl(new _BMapGL.ZoomControl())
-      map.addControl(new _BMapGL.ScaleControl())
+      const map = new window.T.Map(that._mapid)
+      map.addControl(new window.T.Control.Zoom())
+      map.addControl(new window.T.Control.Scale())
       // 滚动缩放
       if (that.props.disableScrollWheelZoom !== true) {
-        map.addControl(new _BMapGL.LocationControl())
         map.enableScrollWheelZoom()
       }
 
       that._map = map
+
+      // 默认中心点（天地图 LocalSearch 需要 map 已有 bounds）
+      map.centerAndZoom(new window.T.LngLat(116.40769, 39.89945), 12)
 
       // 初始位置
       const init = that.props.lnglat
@@ -1955,54 +1956,88 @@ class BaiduMap extends React.Component {
         if (init.lng && init.lat) {
           that.center(init)
         } else if (init.text) {
-          const geoc = new _BMapGL.Geocoder()
-          geoc.getPoint(init.text, function (point) {
-            that.center(point)
+          // 使用 LocalSearch 查找地址
+          const ls = new window.T.LocalSearch(map, {
+            onSearchComplete: function (data) {
+              const pois = data.getPois ? data.getPois() : data.pois || []
+              if (pois && pois.length > 0) {
+                const p = pois[0]
+                const lonlat = p.lonlat || p.LonLat
+                if (lonlat) {
+                  const lng = lonlat.getLng ? lonlat.getLng() : lonlat.lng
+                  const lat = lonlat.getLat ? lonlat.getLat() : lonlat.lat
+                  that.center({ lng, lat })
+                }
+              }
+            },
           })
+          ls.search(init.text)
         }
       } else if (this.props.autoPosition !== false) {
-        const geol = new _BMapGL.Geolocation()
-        geol.enableSDKLocation()
-        geol.getCurrentPosition(function (e) {
-          if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
-            map.centerAndZoom(e.point, 14)
-          } else {
-            map.centerAndZoom('北京市', 14)
-            console.log('Geolocation failed :', this.getStatus())
-          }
-        })
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              map.centerAndZoom(new window.T.LngLat(position.coords.longitude, position.coords.latitude), 14)
+            },
+            function () {
+              map.centerAndZoom(new window.T.LngLat(116.40769, 39.89945), 14)
+              console.log('Geolocation failed')
+            },
+          )
+        } else {
+          map.centerAndZoom(new window.T.LngLat(116.40769, 39.89945), 14)
+        }
       }
 
       // 点选
       if (that.props.canPin) {
-        const geoc = new _BMapGL.Geocoder()
+        const geoc = new window.T.Geocoder()
         let lastMarker = null
 
         map.addEventListener('click', function (e) {
-          if (lastMarker) map.removeOverlay(lastMarker)
+          if (lastMarker) map.removeOverLay(lastMarker)
 
-          const latlng = e.latlng
-          lastMarker = new _BMapGL.Marker(new _BMapGL.Point(latlng.lng, latlng.lat))
-          map.addOverlay(lastMarker)
+          const lnglat = e.lnglat
+          const lng = lnglat.getLng ? lnglat.getLng() : lnglat.lng
+          const lat = lnglat.getLat ? lnglat.getLat() : lnglat.lat
+          lastMarker = new window.T.Marker(new window.T.LngLat(lng, lat))
+          map.addOverLay(lastMarker)
 
-          geoc.getLocation(latlng, (r) => {
+          var _geoDone = false
+          var _geoTimer = setTimeout(function () {
+            if (!_geoDone) {
+              _geoDone = true
+              typeof that.props.onPin === 'function' && that.props.onPin({ lng: lng, lat: lat, text: null })
+            }
+          }, 3000)
+          geoc.getLocation(lnglat, (r) => {
+            clearTimeout(_geoTimer)
+            if (_geoDone) return
+            _geoDone = true
             const v = {
-              lng: latlng.lng,
-              lat: latlng.lat,
-              text: r.address,
+              lng: lng,
+              lat: lat,
+              text: r ? (r.getAddress ? r.getAddress() : r.address) : null,
             }
             typeof that.props.onPin === 'function' && that.props.onPin(v)
           })
         })
 
         // 搜索
-        that._mapLocalSearch = new _BMapGL.LocalSearch(map, {
-          renderOptions: { map: map },
-          onSearchComplete: function (results) {
+        that._mapLocalSearch = new window.T.LocalSearch(map, {
+          onSearchComplete: function (data) {
             that.__lastSearchResults43 = []
-            if (results && results.getCurrentNumPois && results.getCurrentNumPois() > 0) {
-              for (let i = 0; i < results.getCurrentNumPois(); i++) {
-                that.__lastSearchResults43.push(results.getPoi(i))
+            const pois = data.getPois ? data.getPois() : data.pois || []
+            if (pois && pois.length > 0) {
+              for (let i = 0; i < pois.length; i++) {
+                const poi = pois[i]
+                const lonlat = poi.lonlat || poi.LonLat
+                const lng = lonlat ? (lonlat.getLng ? lonlat.getLng() : lonlat.lng) : 0
+                const lat = lonlat ? (lonlat.getLat ? lonlat.getLat() : lonlat.lat) : 0
+                that.__lastSearchResults43.push({
+                  point: { lat: lat, lng: lng },
+                  address: poi.address || poi.name,
+                })
               }
             }
             typeof that.props.onSearch === 'function' && that.props.onSearch(that.__lastSearchResults43)
@@ -2020,23 +2055,13 @@ class BaiduMap extends React.Component {
   center(lnglat) {
     if (!lnglat.lng || !lnglat.lat) return
 
-    const _BMapGL = window.BMapGL
     const map = this._map
+    const point = new window.T.LngLat(lnglat.lng, lnglat.lat)
+    map.clearOverLays()
+    map.panTo(point)
+    map.setZoom(14)
 
-    const point = new _BMapGL.Point(lnglat.lng, lnglat.lat)
-    if (map.isLoaded()) {
-      map.clearOverlays()
-      // map.panTo(point)
-      map.flyTo(point, 14)
-    } else {
-      setTimeout(() => map.centerAndZoom(point, 14), 200)
-    }
-
-    map.addOverlay(
-      new _BMapGL.Marker(point, {
-        title: lnglat.text || lnglat.address || '',
-      }),
-    )
+    map.addOverLay(new window.T.Marker(point))
   }
 
   search(s) {

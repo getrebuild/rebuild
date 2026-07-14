@@ -1277,7 +1277,7 @@ var _getLang = function (key) {
 }
 
 // 加载地图脚本
-// https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
+// https://lbs.tianditu.gov.cn/api/js4.0/guide-helloworld.html
 var $useMap__Loaded
 var $useMap__Callbacks = []
 var $useMap = function (cb, v3) {
@@ -1289,13 +1289,12 @@ var $useMap = function (cb, v3) {
     $useMap__Callbacks = []
   }
 
-  var _BMap = v3 ? window.BMap : window.BMapGL
-  if ($useMap__Loaded === 2 && _BMap) {
+  if ($useMap__Loaded === 2 && window.T) {
     typeof cb === 'function' && cb()
   } else if ($useMap__Loaded === 1) {
     typeof cb === 'function' && $useMap__Callbacks.push(cb)
     var _timer = setInterval(function () {
-      if ($useMap__Loaded === 2 && _BMap) {
+      if ($useMap__Loaded === 2 && window.T) {
         _cbs()
         clearInterval(_timer)
       }
@@ -1303,43 +1302,57 @@ var $useMap = function (cb, v3) {
   } else {
     $useMap__Loaded = 1
     typeof cb === 'function' && $useMap__Callbacks.push(cb)
-    window['$useMap__callback'] = function () {
+
+    // 天地图 JSAPI v4.0
+    var apiUrl = 'https://api.tianditu.gov.cn/api?v=4.0&tk=' + (rb._baiduMapAk || 'a8d512be98070f8dc45348eb3dc36f49')
+    $getScript(apiUrl, function () {
       _cbs()
       $useMap__Loaded = 2
-    }
-
-    // JSAPI WebGL v1.0
-    var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'Z8YJOqCIysCGK0MsNJChsxPCWeWbqYXS') + '&callback=$useMap__callback'
-    if (window._BMapSecurityConfig && window._BMapSecurityConfig.serviceHost) {
-      apiUrl = window._BMapSecurityConfig.serviceHost + 'api?v=1.0&type=webgl&callback=$useMap__callback'
-    }
-    // JSAPI v3.0
-    if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
-    $getScript(apiUrl)
+    })
   }
 }
 
 // 自动定位（有误差）
 var $autoLocation = function (callback) {
-  $useMap(function () {
-    var geo = new window.BMapGL.Geolocation()
-    geo.enableSDKLocation()
-    geo.getCurrentPosition(function (e) {
-      if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
-        var geoc = new window.BMapGL.Geocoder()
-        geoc.getLocation(e.point, function (r) {
-          var v = {
-            lat: e.latitude,
-            lng: e.longitude,
-            text: r ? r.address : null,
-          }
-          typeof callback === 'function' && callback(v)
-        })
-      } else {
-        console.log('Geolocation failed :', this.getStatus())
-      }
-    })
-  })
+  if (!navigator.geolocation) {
+    console.log('Geolocation not supported')
+    return
+  }
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      var lat = position.coords.latitude
+      var lng = position.coords.longitude
+      $useMap(function () {
+        if (window.T && window.T.Geocoder) {
+          var geoc = new window.T.Geocoder()
+          var _geoDone = false
+          var _geoTimer = setTimeout(function () {
+            if (!_geoDone) {
+              _geoDone = true
+              typeof callback === 'function' && callback({ lat: lat, lng: lng, text: null })
+            }
+          }, 3000)
+          geoc.getLocation(new window.T.LngLat(lng, lat), function (r) {
+            clearTimeout(_geoTimer)
+            if (_geoDone) return
+            _geoDone = true
+            typeof callback === 'function' &&
+              callback({
+                lat: lat,
+                lng: lng,
+                text: r ? (r.getAddress ? r.getAddress() : r.address) : null,
+              })
+          })
+        } else {
+          typeof callback === 'function' && callback({ lat: lat, lng: lng, text: null })
+        }
+      })
+    },
+    function () {
+      console.log('Geolocation failed')
+      typeof callback === 'function' && callback(null)
+    },
+  )
 }
 
 // Mask prefix `SYS `

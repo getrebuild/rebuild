@@ -18,7 +18,7 @@ $(document).ready(function () {
     },
     function (res) {
       __cropper.setImg(res.key)
-    }
+    },
   )
 
   $('.J_email').on('click', () => renderRbcomp(<DlgChangeEmail />))
@@ -79,26 +79,46 @@ $(document).ready(function () {
 
   $('.J_location').on('click', function () {
     const $btn = $(this).button('loading')
-    $useMap(() => {
-      const geo = new window.BMapGL.Geolocation()
-      geo.enableSDKLocation()
-      geo.getCurrentPosition(
-        function (e) {
-          if (this.getStatus() === window.BMAP_STATUS_SUCCESS) {
-            let addr = e.address || {}
-            addr = [addr.country || '', addr.province || '', addr.city || '', addr.district || '', addr.street || '', addr.street_number || '']
-            RbHighbar.success($L('已允许获取位置') + ': ' + addr.join(''))
+    if (!navigator.geolocation) {
+      RbHighbar.create($L('无法获取位置'))
+      $btn.button('reset')
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        const lat = position.coords.latitude
+        const lng = position.coords.longitude
+        $useMap(() => {
+          if (window.T && window.T.Geocoder) {
+            const geoc = new window.T.Geocoder()
+            let _geoDone = false
+            const _geoTimer = setTimeout(function () {
+              if (!_geoDone) {
+                _geoDone = true
+                RbHighbar.success($L('已允许获取位置') + ': ' + lat.toFixed(6) + ', ' + lng.toFixed(6))
+                $btn.button('reset')
+              }
+            }, 3000)
+            geoc.getLocation(new window.T.LngLat(lng, lat), function (r) {
+              clearTimeout(_geoTimer)
+              if (_geoDone) return
+              _geoDone = true
+              const addr = r ? (r.getAddress ? r.getAddress() : r.address) : ''
+              RbHighbar.success($L('已允许获取位置') + ': ' + (addr || ''))
+              $btn.button('reset')
+            })
           } else {
-            RbHighbar.create($L('无法获取位置'))
+            RbHighbar.success($L('已允许获取位置') + ': ' + lat.toFixed(6) + ', ' + lng.toFixed(6))
+            $btn.button('reset')
           }
-          $btn.button('reset')
-        },
-        function () {
-          RbHighbar.create($L('无法获取位置'))
-          $(this).button('reset')
-        }
-      )
-    })
+        })
+      },
+      function () {
+        RbHighbar.create($L('无法获取位置'))
+        $btn.button('reset')
+      },
+    )
   })
 
   $('.J_notification').on('click', function () {

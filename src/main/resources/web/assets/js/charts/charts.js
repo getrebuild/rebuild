@@ -1707,95 +1707,73 @@ class ChartCNMap extends BaseChart {
     const elid = `echarts-cnmap-${this.state.id || 'id'}`
     this.setState({ chartdata: <div className="chart cnmap" id={elid} /> }, () => {
       const _renderOption = data._renderOption || {}
-      const themeStyle = data._renderOption.themeStyle
       const defaultZoom = _renderOption.defaultZoom || 10
 
       // #1 Map
       $useMap(() => {
         this._componentWillUnmount()
 
-        const _BMapGL = window.BMapGL
-        this._map = new _BMapGL.Map(elid, {})
-        if (themeStyle) {
-          // dark light
-          this._map.setMapStyleV2({
-            styleJson: themeStyle === 'dark' ? window.MAP_STYLE_DARK : window.MAP_STYLE_LIGHT,
-          })
-        }
+        this._map = new window.T.Map(elid)
         // 中心点
-        let point = new _BMapGL.Point(116.414, 39.915)
+        let point = new window.T.LngLat(116.414, 39.915)
         if (data.data[0] && data.data[0][1]) {
           const first = data.data[0][1].split(',')
-          point = new _BMapGL.Point(first[0], first[1])
+          point = new window.T.LngLat(first[0], first[1])
         }
         this._map.centerAndZoom(point, defaultZoom)
         this._map.enableScrollWheelZoom(true)
         // 刻度
-        const scaleCtrl = new _BMapGL.ScaleControl()
+        const scaleCtrl = new window.T.Control.Scale()
         this._map.addControl(scaleCtrl)
-        // 类型
-        // const typeCtrl = new _BMapGL.MapTypeControl()
-        // this._map.addControl(typeCtrl)
-        // 定位
-        const locCtrl = new _BMapGL.LocationControl()
-        this._map.addControl(locCtrl)
 
-        // #2 Cluster
-        // https://lbs.baidu.com/index.php?title=jspopularGL/guide/cluster#service-page-anchor1
-        $getScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => this._renderCluster(data, this._map))
-      }, false)
+        // #2 Markers
+        this._renderMarkers(data, this._map)
+      })
     })
   }
 
-  _renderCluster(data, map) {
-    const _BMapGL = window.BMapGL
-    const _Cluster = window.Cluster
-    const points = _Cluster.pointTransformer(data.data, function (data) {
-      return {
-        point: (data[1] || '0,0').split(','),
-        properties: {
-          name: data[0] || '-',
-          data: data,
-        },
-      }
-    })
+  _renderMarkers(data, map) {
+    this._markers = []
 
-    this._cluster = new _Cluster.View(map)
-    this._cluster.on(_Cluster.ClusterEvent.CLICK, (e) => {
-      console.log('CLICK', e)
-    })
-    this._cluster.on(_Cluster.ClusterEvent.MOUSE_OVER, (e) => {
-      console.log('MOUSE_OVER', e)
-      if (e && e.properties) {
-        let content = `<div class="CNMAP-tip"><strong>${e.properties.name}</strong>`
-        data.name.forEach((item, idx) => {
-          if (idx > 0) {
-            content += `<div>${item} : ${e.properties.data[idx + 1]}</div>`
-          }
-        })
-        content += '</div>'
+    data.data.forEach((item) => {
+      const coords = (item[1] || '0,0').split(',')
+      const lng = parseFloat(coords[0])
+      const lat = parseFloat(coords[1])
+      if (isNaN(lng) || isNaN(lat)) return
 
-        const iw = new _BMapGL.InfoWindow(content, {
-          width: 249,
-          title: false,
-          // enableAutoPan: false,
-        })
-        map.openInfoWindow(iw, new _BMapGL.Point(e.latLng[0], e.latLng[1]))
-      }
+      const marker = new window.T.Marker(new window.T.LngLat(lng, lat))
+      map.addOverLay(marker)
+
+      const name = item[0] || '-'
+      let content = `<div class="CNMAP-tip"><strong>${name}</strong>`
+      data.name.forEach((n, idx) => {
+        if (idx > 0) {
+          content += `<div>${n} : ${item[idx + 1]}</div>`
+        }
+      })
+      content += '</div>'
+
+      const that = this
+      marker.addEventListener('mouseover', function () {
+        if (that._currentInfoWin) map.closeInfoWindow()
+        that._currentInfoWin = new window.T.InfoWindow(content, { minWidth: 249 })
+        map.openInfoWindow(that._currentInfoWin, new window.T.LngLat(lng, lat))
+      })
+      marker.addEventListener('mouseout', function () {
+        // 保持信息窗口打开
+      })
+
+      this._markers.push(marker)
     })
-    this._cluster.on(_Cluster.ClusterEvent.MOUSE_OUT, (e) => {
-      console.log('MOUSE_OUT', e)
-      map.closeInfoWindow()
-    })
-    this._cluster.setData(points)
   }
 
   _componentWillUnmount() {
     if (this._map) {
-      this._map.clearOverlays()
+      this._map.clearOverLays()
       this._map = null
     }
-    this._cluster && this._cluster.destroy()
+    this._markers = null
+    this._currentInfoWin = null
   }
 
   componentWillUnmount() {
