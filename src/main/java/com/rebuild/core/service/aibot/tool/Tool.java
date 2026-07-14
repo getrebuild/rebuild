@@ -18,9 +18,6 @@ import com.rebuild.utils.CommonsUtils;
 import org.springframework.util.Assert;
 
 /**
- * 探索中
- * https://api-docs.deepseek.com/zh-cn/guides/function_calling
- *
  * @author Zixin
  * @since 2025/4/19
  */
@@ -28,13 +25,13 @@ import org.springframework.util.Assert;
 public interface Tool {
 
     /**
-     * 定义 Tool
+     * 定义
      *
      * @return
      */
     default ChatCompletionTool def() {
         String toolName = getClass().getSimpleName();
-        String d = CommonsUtils.getStringOfRes(String.format("tool/%s.json", toolName));
+        String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
         Assert.notNull(d, "Tool definition cannot be null");
 
         JSONObject json = JSONObject.parseObject(d);
