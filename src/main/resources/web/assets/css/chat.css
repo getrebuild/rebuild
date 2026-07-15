@@ -118,6 +118,29 @@ See LICENSE and COMMERCIAL in the project root for license information.
   max-height: 18px;
 }
 
+.chat-input .chat-input-action .skill-btn {
+  border-radius: 20px;
+  padding: 0 14px;
+  width: auto !important;
+  height: 32px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: auto;
+  margin-right: 4px;
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #555;
+}
+
+.chat-input .chat-input-action .skill-btn.btn-primary {
+  background-color: var(--rb-theme-color);
+  color: #fff;
+}
+
+.chat-input .chat-input-action .skill-btn .mdi {
+  font-size: 1rem;
+  margin-right: 2px;
+}
+
 .chat-messages {
   padding: 16px 16px 100px;
   height: 600px;

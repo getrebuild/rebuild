@@ -135,10 +135,11 @@ class Chat extends React.Component {
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [] }
+    this.state = { postState: 0, attach: [], skills: [], activeSkill: null }
   }
 
   render() {
+    const skills = this.state.skills || []
     return (
       <div className="chat-input-container">
         <div className={`chat-input ${this.state.active && 'active'}`}>
@@ -170,6 +171,26 @@ class ChatInput extends React.Component {
             />
           </div>
           <div className="chat-input-action dropup">
+            <button
+              type="button"
+              className={`btn btn-sm skill-btn ${this.state.activeSkill ? 'btn-primary' : 'btn-outline-default'}`}
+              data-toggle="dropdown"
+              disabled={this.state.postState !== 0}
+              title={$L('技能')}>
+              <i className="mdi mdi-flash-outline" />
+              {this.state.activeSkill ? this.state.activeSkill : $L('技能')}
+            </button>
+            <div className="dropdown-menu">
+              <a className="dropdown-item" onClick={() => this.setState({ activeSkill: null })}>
+                {$L('默认')}
+              </a>
+              <div className="dropdown-divider" />
+              {skills.map((s, idx) => (
+                <a key={idx} className="dropdown-item" onClick={() => this.setState({ activeSkill: s.name })} title={s.description}>
+                  {s.name}
+                </a>
+              ))}
+            </div>
             <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0}>
               <i className="mdi mdi-attachment-plus" />
             </button>
@@ -208,6 +229,7 @@ class ChatInput extends React.Component {
       role: 'user',
       content: this.state.content,
       attach: this.state.attach,
+      skill: this.state.activeSkill,
     }
     this.props._Chat &&
       this.props._Chat.sendStream(data, () => {
@@ -233,7 +255,14 @@ class ChatInput extends React.Component {
     this.setState({ attach })
   }
 
+  _loadSkills() {
+    $.get('/aibot2/skills', (res) => {
+      this.setState({ skills: res.data || [] })
+    })
+  }
+
   componentDidMount() {
+    this._loadSkills()
     $multipleUploader(this._$file, (res) => {
       const attach = [...this.state.attach, { file: res.key, id: $random('attach-', true) }]
       this.setState({ attach })
@@ -454,7 +483,7 @@ function scrollToBottom(forceScroll) {
       el && el.scrollTo(0, el.scrollHeight)
     },
     40,
-    'scrollToBottom',
+    'scrollToBottom'
   )
 }
 
@@ -615,7 +644,7 @@ class ChatSidebar extends React.Component {
             $.post(`/aibot2/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList())
           }
         }}
-      />,
+      />
     )
   }
 

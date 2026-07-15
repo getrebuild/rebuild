@@ -27,6 +27,8 @@ public class CommonsConfigManager implements ConfigManager {
     public static final String TYPE_RECORD_ALERTS = "RECORD_ALERTS";
     // OpenApi 数据订阅
     public static final String TYPE_DATA_SUBSCRIBE45 = "DATA_SUBSCRIBE";
+    // AI 技能
+    public static final String TYPE_AIBOT_SKILL = "AIBOT_SKILL";
 
     public static final CommonsConfigManager instance = new CommonsConfigManager();
 
@@ -63,6 +65,15 @@ public class CommonsConfigManager implements ConfigManager {
             }
         }
         return subscribes;
+    }
+
+    /**
+     * 获取 AI 技能列表
+     *
+     * @return
+     */
+    public ConfigBean[] getAibotSkills() {
+        return getConfig("N", TYPE_AIBOT_SKILL);
     }
 
     /**

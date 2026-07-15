@@ -274,7 +274,17 @@ public class Chat implements Serializable {
             messages.add(message);
         }
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, model);
+        // 合并 skill 提示词
+        String systemPrompt = prompt;
+        if (chatRequest != null) {
+            String skillPrompt = SkillDefs.getSystemPrompt(chatRequest.getSkill());
+            if (skillPrompt != null) {
+                systemPrompt = StringUtils.isBlank(systemPrompt)
+                        ? skillPrompt : systemPrompt + "\n\n" + skillPrompt;
+            }
+        }
+
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model);
         for (Message m : messages) {
             String content = m.getContent();
             if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);

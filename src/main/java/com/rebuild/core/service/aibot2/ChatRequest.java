@@ -62,6 +62,15 @@ public class ChatRequest {
     }
 
     /**
+     * 获取请求中指定的技能名称（支持逗号分隔多个）
+     *
+     * @return
+     */
+    public String getSkill() {
+        return reqJson.getString("skill");
+    }
+
+    /**
      * @return
      */
     public String getUserContent() {
