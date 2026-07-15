@@ -100,10 +100,12 @@ public class EntitiesMeta implements Tool {
     }
 
     /**
+     * 解析实体（支持名称、code、标签模糊匹配）
+     *
      * @param name
      * @return
      */
-    private Entity resolveEntity(String name) {
+    public static Entity resolveEntity(String name) {
         if (StringUtils.isBlank(name)) return null;
 
         // 精确匹配实体名称

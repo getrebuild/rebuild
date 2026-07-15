@@ -31,6 +31,7 @@ $(document).ready(() => {
   })
 
   _loadSkills()
+  _loadTools()
   $('.J_addSkill').on('click', () => _editSkill())
 })
 
@@ -155,6 +156,25 @@ class DlgSkillEdit extends RbModalHandler {
       }
     })
   }
+}
+
+// ~~ Tools
+
+const _loadTools = function () {
+  $.get('./aibot/tools', (res) => {
+    const data = res.data || []
+    const $tbody = $('#toolsList').empty()
+
+    data.forEach((item) => {
+      $(
+        `<tr>
+          <td>${item.name}</td>
+          <td>${item.description || $L('无')}</td>
+          <td class="actions"><span class="badge badge-light">${$L('内置')}</span></td>
+        </tr>`,
+      ).appendTo($tbody)
+    })
+  })
 }
 
 const _deleteSkill = function (item) {

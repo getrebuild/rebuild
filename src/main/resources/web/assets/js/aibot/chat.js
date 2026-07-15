@@ -145,7 +145,7 @@ class ChatInput extends React.Component {
         <div className={`chat-input ${this.state.active && 'active'}`}>
           <div className="chat-input-input">
             <div className="chat-input-attach">
-              {this.state.activeSkill && <Attach skill={this.state.activeSkill} _ChatInput={this} id={`skill-${this.state.activeSkill}`} />}
+              {this.state.activeSkill && <Attach key={`skill-${this.state.activeSkill}`} skill={this.state.activeSkill} _ChatInput={this} id={`skill-${this.state.activeSkill}`} />}
               {this.state.attach && this.state.attach.length > 0 && (
                 <RF>
                   {this.state.attach.map((item, idx) => {
@@ -173,7 +173,7 @@ class ChatInput extends React.Component {
           </div>
           <div className="chat-input-action">
             <span className="dropup">
-              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0}>
+              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
                 <i className="mdi mdi-flash-outline" style={{ paddingTop: 3 }} />
               </button>
               <div className="dropdown-menu dropdown-menu-right">
@@ -190,8 +190,8 @@ class ChatInput extends React.Component {
                 ))}
               </div>
             </span>
-            <span className="dropup ml-1">
-              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0}>
+            <span className="dropup">
+              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('数据')}>
                 <i className="mdi mdi-attachment-plus" />
               </button>
               <div className="dropdown-menu dropdown-menu-right">

@@ -114,10 +114,10 @@
           <div class="row mt-4">
             <div class="col-lg-9 col-12">
               <div class="card">
-                <div class="card-header pb-1">[[${bundle.L('技能')}]]</div>
+                <div class="card-header pb-1">[[${bundle.L('能力扩展')}]]</div>
                 <div class="card-body">
                   <h5>
-                    Skills
+                    [[${bundle.L('技能/Skills')}]]
                     <a href="###" class="float-right J_addSkill"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
                   </h5>
                   <table class="table table-striped table-hover">
@@ -129,6 +129,17 @@
                       </tr>
                     </thead>
                     <tbody id="skillsList"></tbody>
+                  </table>
+                  <h5>[[${bundle.L('工具/Tools')}]]</h5>
+                  <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="toolsList"></tbody>
                   </table>
                 </div>
               </div>
