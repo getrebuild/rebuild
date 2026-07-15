@@ -15,6 +15,10 @@
         font-weight: bold;
         cursor: pointer;
       }
+      textarea.form-control.prompt {
+        font-size: 1rem;
+        padding: 4px 10px;
+      }
     </style>
   </head>
   <body>
@@ -106,32 +110,32 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="row mt-2">
-          <div class="col-lg-9 col-12">
-            <div class="card">
-              <div class="card-header pb-1">
-                [[${bundle.L('AI 技能')}]]
-                <a href="###" class="float-right J_addSkill"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加技能')}]]</a>
-              </div>
-              <div class="card-body">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th>[[${bundle.L('名称')}]]</th>
-                      <th>[[${bundle.L('描述')}]]</th>
-                      <th width="80">[[${bundle.L('操作')}]]</th>
-                    </tr>
-                  </thead>
-                  <tbody id="skillsList"></tbody>
-                </table>
-                <p class="text-muted m-0 J_skillsEmpty">[[${bundle.L('暂无技能，点击右上角添加')}]]</p>
+          <div class="row mt-4">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header pb-1">[[${bundle.L('技能')}]]</div>
+                <div class="card-body">
+                  <h5>
+                    Skills
+                    <a href="###" class="float-right J_addSkill"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+                  </h5>
+                  <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="skillsList"></tbody>
+                  </table>
+                </div>
               </div>
             </div>
+            <div class="col-lg-3 col-12 col-right-compact"></div>
           </div>
         </div>
-
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />

@@ -279,8 +279,7 @@ public class Chat implements Serializable {
         if (chatRequest != null) {
             String skillPrompt = SkillDefs.getSystemPrompt(chatRequest.getSkill());
             if (skillPrompt != null) {
-                systemPrompt = StringUtils.isBlank(systemPrompt)
-                        ? skillPrompt : systemPrompt + "\n\n" + skillPrompt;
+                systemPrompt = StringUtils.isBlank(systemPrompt) ? skillPrompt : systemPrompt + "\n\n" + skillPrompt;
             }
         }
 

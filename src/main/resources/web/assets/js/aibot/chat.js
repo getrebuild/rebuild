@@ -145,6 +145,7 @@ class ChatInput extends React.Component {
         <div className={`chat-input ${this.state.active && 'active'}`}>
           <div className="chat-input-input">
             <div className="chat-input-attach">
+              {this.state.activeSkill && <Attach skill={this.state.activeSkill} _ChatInput={this} id={`skill-${this.state.activeSkill}`} />}
               {this.state.attach && this.state.attach.length > 0 && (
                 <RF>
                   {this.state.attach.map((item, idx) => {
@@ -170,41 +171,41 @@ class ChatInput extends React.Component {
               ref={(c) => (this._$textarea = c)}
             />
           </div>
-          <div className="chat-input-action dropup">
-            <button
-              type="button"
-              className={`btn btn-sm skill-btn ${this.state.activeSkill ? 'btn-primary' : 'btn-outline-default'}`}
-              data-toggle="dropdown"
-              disabled={this.state.postState !== 0}
-              title={$L('技能')}>
-              <i className="mdi mdi-flash-outline" />
-              {this.state.activeSkill ? this.state.activeSkill : $L('技能')}
-            </button>
-            <div className="dropdown-menu">
-              <a className="dropdown-item" onClick={() => this.setState({ activeSkill: null })}>
-                {$L('默认')}
-              </a>
-              <div className="dropdown-divider" />
-              {skills.map((s, idx) => (
-                <a key={idx} className="dropdown-item" onClick={() => this.setState({ activeSkill: s.name })} title={s.description}>
-                  {s.name}
+          <div className="chat-input-action">
+            <span className="dropup">
+              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0}>
+                <i className="mdi mdi-flash-outline" style={{ paddingTop: 3 }} />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                {skills.map((s, idx) => (
+                  <a
+                    key={idx}
+                    className="dropdown-item"
+                    onClick={() => {
+                      this.setState({ activeSkill: s.name })
+                    }}>
+                    {s.name}
+                    {s.description && <div className="text-muted fs-12">{s.description}</div>}
+                  </a>
+                ))}
+              </div>
+            </span>
+            <span className="dropup ml-1">
+              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0}>
+                <i className="mdi mdi-attachment-plus" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                <a className="dropdown-item" onClick={() => this.attachFile()}>
+                  {$L('选择文件')}
                 </a>
-              ))}
-            </div>
-            <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0}>
-              <i className="mdi mdi-attachment-plus" />
-            </button>
-            <div className="dropdown-menu dropdown-menu-right">
-              <a className="dropdown-item" onClick={() => this.attachFile()}>
-                {$L('选择文件')}
-              </a>
-              <a className="dropdown-item" onClick={() => this.attachRecord()}>
-                {$L('选择记录')}
-              </a>
-              <a className="dropdown-item" onClick={() => this.attachPageData()}>
-                {$L('选择当前页数据')}
-              </a>
-            </div>
+                <a className="dropdown-item" onClick={() => this.attachRecord()}>
+                  {$L('选择记录')}
+                </a>
+                <a className="dropdown-item" onClick={() => this.attachPageData()}>
+                  {$L('选择当前页数据')}
+                </a>
+              </div>
+            </span>
             <button
               type="button"
               className="btn btn-sm ml-1"
@@ -245,14 +246,18 @@ class ChatInput extends React.Component {
   }
 
   reset(autoFocus) {
-    this.setState({ content: '', attach: [], postState: 0 }, () => {
+    this.setState({ content: '', attach: [], postState: 0, activeSkill: null }, () => {
       if (autoFocus) this._$textarea.focus()
     })
   }
 
   removeAttach(id) {
-    const attach = this.state.attach.filter((item) => item.id !== id)
-    this.setState({ attach })
+    if (id && id.startsWith('skill-')) {
+      this.setState({ activeSkill: null })
+    } else {
+      const attach = this.state.attach.filter((item) => item.id !== id)
+      this.setState({ attach })
+    }
   }
 
   _loadSkills() {
@@ -419,6 +424,11 @@ class ChatMessage extends React.Component {
     return (
       <div className="msg-user">
         <div className="msg-content">{this.renderContent()}</div>
+        {this.state.skill && (
+          <div className="msg-attach">
+            <Attach skill={this.state.skill} _chatid={this.props._chatid} />
+          </div>
+        )}
         {this.state.attach && (
           <div className="msg-attach">
             {this.state.attach.map((item, idx) => {
@@ -483,7 +493,7 @@ function scrollToBottom(forceScroll) {
       el && el.scrollTo(0, el.scrollHeight)
     },
     40,
-    'scrollToBottom'
+    'scrollToBottom',
   )
 }
 
@@ -644,7 +654,7 @@ class ChatSidebar extends React.Component {
             $.post(`/aibot2/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList())
           }
         }}
-      />
+      />,
     )
   }
 
@@ -707,17 +717,29 @@ class Attach extends React.Component {
         name: `[${$L('文件')}] ${$fileCutName(props.file)}`,
         viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(`/temp/${props.file}`),
       })
+    } else if (props.skill) {
+      this.setState({
+        name: (
+          <RF>
+            <i className="mdi mdi-flash-outline" />
+            <span>{props.skill + ''}</span>
+          </RF>
+        ),
+      })
     }
   }
 
   val() {
     const props = this.props
-    let res = { id: props.id }
+    let rest = { id: props.id }
     if (props.record) {
-      return { ...res, record: props.record }
+      return { ...rest, record: props.record }
     }
     if (props.listFilter) {
-      return { ...res, listFilter: props.listFilter }
+      return { ...rest, listFilter: props.listFilter }
+    }
+    if (props.skill) {
+      return { ...rest, skill: props.skill }
     }
     return null
   }

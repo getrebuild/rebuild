@@ -46,8 +46,8 @@ const _loadSkills = function () {
       const cfg = item.config || {}
       const $tr = $(
         `<tr>
-          <td>${item.name || ''}</td>
-          <td class="text-muted">${cfg.description || ''}</td>
+          <td>${item.name}</td>
+          <td>${cfg.description || $L('无')}</td>
           <td class="actions">
             <a title="${$L('修改')}" class="icon"><i class="zmdi zmdi-edit"></i></a>
             <a title="${$L('删除')}" class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a>
@@ -65,42 +65,66 @@ const _editSkill = function (item) {
   renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('编辑技能') : $L('添加技能')} />)
 }
 
-class DlgSkillEdit extends RbModal {
+class DlgSkillEdit extends RbModalHandler {
   constructor(props) {
     super(props)
     this.state = { ...props }
   }
 
-  renderContent() {
-    const item = this.props.item || {}
-    const cfg = item.config || {}
+  render() {
+    const conf = (this.props.item || {}).config || {}
     return (
-      <div className="form">
-        <div className="form-group">
-          <label className="text-bold">{$L('技能名称')}</label>
-          <input type="text" className="form-control form-control-sm" maxLength="40" defaultValue={cfg.name || item.name || ''} ref={(c) => (this._$name = c)} autoFocus />
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加技能')} disposeOnHide __root18={this.props.__root18}>
+        <div>
+          <form>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('技能名称')}</label>
+              <div className="col-sm-7">
+                <input className="form-control form-control-sm" type="text" maxLength="40" ref={(c) => (this._$name = c)} defaultValue={conf.name || ''} autoFocus />
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
+              <div className="col-sm-7">
+                <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} />
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('提示词')}</label>
+              <div className="col-sm-7">
+                <textarea className="form-control prompt" maxLength="6000" rows="3" ref={(c) => (this._$prompt = c)} defaultValue={conf.prompt || ''} />
+              </div>
+            </div>
+
+            <div className="form-group row footer">
+              <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+                <button className="btn btn-primary" type="button" onClick={() => this._onSave()}>
+                  {$L('确定')}
+                </button>
+                <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                  {$L('取消')}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
-        <div className="form-group">
-          <label className="text-bold">{$L('描述')}</label>
-          <input type="text" className="form-control form-control-sm" maxLength="100" defaultValue={cfg.description || ''} ref={(c) => (this._$desc = c)} />
-        </div>
-        <div className="form-group">
-          <label className="text-bold">{$L('提示词')}</label>
-          <textarea className="form-control form-control-sm row3" maxLength="4000" defaultValue={cfg.prompt || ''} ref={(c) => (this._$prompt = c)} />
-        </div>
-        <div className="form-group mb-2">
-          <button className="btn btn-primary" type="button" onClick={() => this._onSave()}>{$L('保存')}</button>
-        </div>
-      </div>
+      </RbModal>
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount()
+
+    // eslint-disable-next-line no-undef
+    autosize(this._$prompt)
   }
 
   _onSave() {
     const item = this.props.item || {}
-    const isEdit = !!item.id
     const name = $(this._$name).val()
-    if (!name) {
-      RbHighbar.create($L('请输入技能名称'))
+    const prompt = $(this._$prompt).val()
+    if (!name || !prompt) {
+      RbHighbar.create($L('请输入技能名称和提示词'))
       return
     }
 
@@ -109,32 +133,32 @@ class DlgSkillEdit extends RbModal {
       type: 'AIBOT_SKILL',
       belongEntity: 'N',
       shareTo: 'ALL',
-      config: JSON.stringify({
+      config: {
         name: name,
         description: $(this._$desc).val(),
-        prompt: $(this._$prompt).val(),
-      }),
+        prompt: prompt,
+      },
       metadata: {
         entity: 'CommonsConfig',
-        id: isEdit ? item.id : null,
+        id: item.id || null,
       },
     }
 
-    this.disabled(true)
+    const $btn = $(this._$btn).find('.btn').button('loading')
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         this.hide()
         _loadSkills()
       } else {
         RbHighbar.error(res.error_msg)
-        this.disabled()
+        $btn.button('reset')
       }
     })
   }
 }
 
 const _deleteSkill = function (item) {
-  RbAlert.create($L('确认删除技能「%s」？', item.name || ''), {
+  RbAlert.create($L('确认删除此技能？'), {
     type: 'danger',
     confirmText: $L('删除'),
     confirm: function () {
