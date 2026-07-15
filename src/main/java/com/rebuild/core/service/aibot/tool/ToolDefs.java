@@ -32,6 +32,7 @@ public class ToolDefs {
         register(new EntitiesMeta());
         register(new HttpFetch());
         register(new SuggestCustom());
+        register(new HelpDocs());
     }
 
     /**
