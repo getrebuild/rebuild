@@ -81,6 +81,7 @@ class Chat extends React.Component {
     this.setState({ chatid: chatid || null })
     this._ChatMessages.setMessages([])
     this._ChatInput.reset(true)
+    this._ChatSidebar.setState({ current: null })
 
     $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}`, (res) => {
       if (res.error_code === 0) {
@@ -611,8 +612,8 @@ class ChatSidebar extends React.Component {
                     title={item.subject}
                     onClick={() => {
                       this.props._Chat.initChat(item.chatid)
-                      // this.toggleShow(false)
                       this.setState({ current: item.chatid })
+                      // this.toggleShow(false)
                     }}>
                     {item.subject}
                   </div>

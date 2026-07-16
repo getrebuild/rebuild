@@ -21,7 +21,10 @@ class AiBot extends React.Component {
             <div className="modal-header">
               <i className="icon mdi mdi-shimmer" />
               <h3 className="modal-title">{rb._aibotName || $L('AI 助手')}</h3>
-              <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('对话列表')}>
+              <button className="close" type="button" onClick={() => this.newChat()} title={$L('新会话')}>
+                <span className="mdi mdi-chat-plus-outline" />
+              </button>
+              <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('会话列表')}>
                 <span className="mdi mdi-segment" />
               </button>
               <button className="close hide2" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
@@ -58,6 +61,10 @@ class AiBot extends React.Component {
 
   openChatSidebar() {
     this._Chat.toggleSidebar()
+  }
+
+  newChat() {
+    this._Chat.initChat()
   }
 
   hide() {

@@ -32,7 +32,10 @@ $(document).ready(() => {
 
   _loadSkills()
   _loadTools()
-  $('.J_addSkill').on('click', () => _editSkill())
+  $('.J_addSkill').on('click', (e) => {
+    $stopEvent(e, true)
+    _editSkill()
+  })
 })
 
 // ~~ Skills
@@ -63,7 +66,7 @@ const _loadSkills = function () {
 }
 
 const _editSkill = function (item) {
-  renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('编辑技能') : $L('添加技能')} />)
+  renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('修改技能') : $L('添加技能')} />)
 }
 
 class DlgSkillEdit extends RbModalHandler {
@@ -75,7 +78,7 @@ class DlgSkillEdit extends RbModalHandler {
   render() {
     const conf = (this.props.item || {}).config || {}
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加技能')} disposeOnHide __root18={this.props.__root18}>
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
         <div>
           <form>
             <div className="form-group row">
@@ -166,6 +169,7 @@ const _loadTools = function () {
     const $tbody = $('#toolsList').empty()
 
     data.forEach((item) => {
+      if (['SuggestCustom', 'HelpDocs'].includes(item.name)) return
       $(
         `<tr>
           <td>${item.name}</td>
