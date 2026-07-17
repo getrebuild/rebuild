@@ -42,23 +42,18 @@ public class EntitiesMeta implements Tool {
     /**
      * 获取指定实体的元数据（含字段定义）
      *
-     * @param name
+     * @param entityIdent
      * @return
      */
-    private JSONObject getEntityMeta(String name) {
-        Entity entity = resolveEntity(name);
+    private JSONObject getEntityMeta(String entityIdent) {
+        Entity entity = resolveEntity(entityIdent);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + name);
+            throw new ToolException("未知实体 : " + entityIdent);
         }
+
         JSONObject entityJson = EasyMetaFactory.toJSON(entity);
         entityJson.put("name", entity.getName());
         entityJson.put("label", EasyMetaFactory.getLabel(entity));
-
-        // 主实体
-        Entity mainEntity = entity.getMainEntity();
-        if (mainEntity != null) {
-            entityJson.put("mainEntity", mainEntity.getName());
-        }
 
         // 字段列表
         JSONArray fields = new JSONArray();
@@ -68,16 +63,13 @@ public class EntitiesMeta implements Tool {
             JSONObject fieldJson = EasyMetaFactory.toJSON(field);
             fieldJson.put("name", field.getName());
             fieldJson.put("label", EasyMetaFactory.getLabel(field));
-
             DisplayType dt = EasyMetaFactory.valueOf(field).getDisplayType();
             fieldJson.put("type", dt.name());
-            fieldJson.put("typeLabel", dt.getDisplayName());
 
             // 引用实体
-            if (field.getType() == FieldType.REFERENCE
-                    || field.getType() == FieldType.REFERENCE_LIST) {
+            if (field.getType() == FieldType.REFERENCE || field.getType() == FieldType.REFERENCE_LIST) {
                 Entity refEntity = field.getReferenceEntity();
-                fieldJson.put("refEntity", refEntity.getName());
+                fieldJson.put("referenceEntity", refEntity.getName());
             }
 
             fields.add(fieldJson);
@@ -85,6 +77,12 @@ public class EntitiesMeta implements Tool {
         entityJson.put("fields", fields);
 
         // 明细实体
+        Entity mainEntity = entity.getMainEntity();
+        if (mainEntity != null) {
+            entityJson.put("mainEntity", mainEntity.getName());
+        }
+
+        // 主实体
         if (entity.getDetailEntity() != null) {
             JSONArray details = new JSONArray();
             for (Entity de : MetadataSorter.sortDetailEntities(entity)) {
@@ -102,20 +100,20 @@ public class EntitiesMeta implements Tool {
     }
 
     /**
-     * 解析实体：支持名称、数字 code、标签（模糊匹配）
+     * 解析实体（支持名称、code、标签模糊匹配）
      *
      * @param name
      * @return
      */
-    private Entity resolveEntity(String name) {
+    public static Entity resolveEntity(String name) {
         if (StringUtils.isBlank(name)) return null;
 
-        // 1. 精确匹配实体名称
+        // 精确匹配实体名称
         if (MetadataHelper.containsEntity(name)) {
             return MetadataHelper.getEntity(name);
         }
 
-        // 2. 数字 code
+        // CODE
         if (StringUtils.isNumeric(name)) {
             int code = Integer.parseInt(name);
             if (MetadataHelper.containsEntity(code)) {
@@ -164,6 +162,7 @@ public class EntitiesMeta implements Tool {
                     JSONObject deItem = new JSONObject();
                     deItem.put("name", de.getName());
                     deItem.put("label", EasyMetaFactory.getLabel(de));
+                    deItem.put("comments", StringUtils.defaultIfBlank(EasyMetaFactory.valueOf(de).getComments(), ""));
                     details.add(deItem);
                 }
                 item.put("detailEntities", details);

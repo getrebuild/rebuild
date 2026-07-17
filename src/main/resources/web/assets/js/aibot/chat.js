@@ -81,6 +81,7 @@ class Chat extends React.Component {
     this.setState({ chatid: chatid || null })
     this._ChatMessages.setMessages([])
     this._ChatInput.reset(true)
+    this._ChatSidebar.setState({ current: null })
 
     $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}`, (res) => {
       if (res.error_code === 0) {
@@ -135,15 +136,17 @@ class Chat extends React.Component {
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [] }
+    this.state = { postState: 0, attach: [], skills: [], activeSkill: null }
   }
 
   render() {
+    const skills = this.state.skills || []
     return (
       <div className="chat-input-container">
         <div className={`chat-input ${this.state.active && 'active'}`}>
           <div className="chat-input-input">
             <div className="chat-input-attach">
+              {this.state.activeSkill && <Attach key={`skill-${this.state.activeSkill}`} skill={this.state.activeSkill} _ChatInput={this} id={`skill-${this.state.activeSkill}`} />}
               {this.state.attach && this.state.attach.length > 0 && (
                 <RF>
                   {this.state.attach.map((item, idx) => {
@@ -169,21 +172,41 @@ class ChatInput extends React.Component {
               ref={(c) => (this._$textarea = c)}
             />
           </div>
-          <div className="chat-input-action dropup">
-            <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0}>
-              <i className="mdi mdi-attachment-plus" />
-            </button>
-            <div className="dropdown-menu dropdown-menu-right">
-              <a className="dropdown-item" onClick={() => this.attachFile()}>
-                {$L('选择文件')}
-              </a>
-              <a className="dropdown-item" onClick={() => this.attachRecord()}>
-                {$L('选择记录')}
-              </a>
-              <a className="dropdown-item" onClick={() => this.attachPageData()}>
-                {$L('选择当前页数据')}
-              </a>
-            </div>
+          <div className="chat-input-action">
+            <span className="dropup">
+              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
+                <i className="mdi mdi-flash-outline" style={{ paddingTop: 3 }} />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                {skills.map((s, idx) => (
+                  <a
+                    key={idx}
+                    className="dropdown-item"
+                    onClick={() => {
+                      this.setState({ activeSkill: s.name })
+                    }}>
+                    {s.name}
+                    {s.description && <div className="text-muted fs-12">{s.description}</div>}
+                  </a>
+                ))}
+              </div>
+            </span>
+            <span className="dropup">
+              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('数据')}>
+                <i className="mdi mdi-attachment-plus" />
+              </button>
+              <div className="dropdown-menu dropdown-menu-right">
+                <a className="dropdown-item" onClick={() => this.attachFile()}>
+                  {$L('选择文件')}
+                </a>
+                <a className="dropdown-item" onClick={() => this.attachRecord()}>
+                  {$L('选择记录')}
+                </a>
+                <a className="dropdown-item" onClick={() => this.attachPageData()}>
+                  {$L('选择当前页数据')}
+                </a>
+              </div>
+            </span>
             <button
               type="button"
               className="btn btn-sm ml-1"
@@ -208,6 +231,7 @@ class ChatInput extends React.Component {
       role: 'user',
       content: this.state.content,
       attach: this.state.attach,
+      skill: this.state.activeSkill,
     }
     this.props._Chat &&
       this.props._Chat.sendStream(data, () => {
@@ -223,17 +247,28 @@ class ChatInput extends React.Component {
   }
 
   reset(autoFocus) {
-    this.setState({ content: '', attach: [], postState: 0 }, () => {
+    this.setState({ content: '', attach: [], postState: 0, activeSkill: null }, () => {
       if (autoFocus) this._$textarea.focus()
     })
   }
 
   removeAttach(id) {
-    const attach = this.state.attach.filter((item) => item.id !== id)
-    this.setState({ attach })
+    if (id && id.startsWith('skill-')) {
+      this.setState({ activeSkill: null })
+    } else {
+      const attach = this.state.attach.filter((item) => item.id !== id)
+      this.setState({ attach })
+    }
+  }
+
+  _loadSkills() {
+    $.get('/aibot2/skills', (res) => {
+      this.setState({ skills: res.data || [] })
+    })
   }
 
   componentDidMount() {
+    this._loadSkills()
     $multipleUploader(this._$file, (res) => {
       const attach = [...this.state.attach, { file: res.key, id: $random('attach-', true) }]
       this.setState({ attach })
@@ -390,6 +425,11 @@ class ChatMessage extends React.Component {
     return (
       <div className="msg-user">
         <div className="msg-content">{this.renderContent()}</div>
+        {this.state.skill && (
+          <div className="msg-attach">
+            <Attach skill={this.state.skill} _chatid={this.props._chatid} />
+          </div>
+        )}
         {this.state.attach && (
           <div className="msg-attach">
             {this.state.attach.map((item, idx) => {
@@ -572,8 +612,8 @@ class ChatSidebar extends React.Component {
                     title={item.subject}
                     onClick={() => {
                       this.props._Chat.initChat(item.chatid)
-                      // this.toggleShow(false)
                       this.setState({ current: item.chatid })
+                      // this.toggleShow(false)
                     }}>
                     {item.subject}
                   </div>
@@ -678,17 +718,29 @@ class Attach extends React.Component {
         name: `[${$L('文件')}] ${$fileCutName(props.file)}`,
         viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(`/temp/${props.file}`),
       })
+    } else if (props.skill) {
+      this.setState({
+        name: (
+          <RF>
+            <i className="mdi mdi-flash-outline" />
+            <span>{props.skill + ''}</span>
+          </RF>
+        ),
+      })
     }
   }
 
   val() {
     const props = this.props
-    let res = { id: props.id }
+    let rest = { id: props.id }
     if (props.record) {
-      return { ...res, record: props.record }
+      return { ...rest, record: props.record }
     }
     if (props.listFilter) {
-      return { ...res, listFilter: props.listFilter }
+      return { ...rest, listFilter: props.listFilter }
+    }
+    if (props.skill) {
+      return { ...rest, skill: props.skill }
     }
     return null
   }

@@ -29,7 +29,176 @@ $(document).ready(() => {
     $el.find('strong').text(res.data.aibotCount || 0)
     _renderStats(res.data.aibot, $el)
   })
+
+  _loadSkills()
+  _loadTools()
+  $('.J_addSkill').on('click', (e) => {
+    $stopEvent(e, true)
+    _editSkill()
+  })
 })
+
+// ~~ Skills
+
+const _loadSkills = function () {
+  $.get('/admin/commons-config/list?type=AIBOT_SKILL', (res) => {
+    const data = res.data || []
+    const $tbody = $('#skillsList').empty()
+    $('.J_skillsEmpty').toggle(data.length === 0)
+
+    data.forEach((item) => {
+      const cfg = item.config || {}
+      const $tr = $(
+        `<tr>
+          <td>${item.name}</td>
+          <td>${cfg.description || $L('无')}</td>
+          <td class="actions">
+            <a title="${$L('修改')}" class="icon"><i class="zmdi zmdi-edit"></i></a>
+            <a title="${$L('删除')}" class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a>
+          </td>
+        </tr>`,
+      ).appendTo($tbody)
+
+      $tr.find('a:eq(0)').on('click', () => _editSkill(item))
+      $tr.find('a:eq(1)').on('click', () => _deleteSkill(item))
+    })
+  })
+}
+
+const _editSkill = function (item) {
+  renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('修改技能') : $L('添加技能')} />)
+}
+
+class DlgSkillEdit extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    const conf = (this.props.item || {}).config || {}
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
+        <div>
+          <form>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('技能名称')}</label>
+              <div className="col-sm-7">
+                <input className="form-control form-control-sm" type="text" maxLength="40" ref={(c) => (this._$name = c)} defaultValue={conf.name || ''} autoFocus />
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
+              <div className="col-sm-7">
+                <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} />
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('提示词')}</label>
+              <div className="col-sm-7">
+                <textarea className="form-control prompt" maxLength="6000" rows="3" ref={(c) => (this._$prompt = c)} defaultValue={conf.prompt || ''} />
+              </div>
+            </div>
+
+            <div className="form-group row footer">
+              <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+                <button className="btn btn-primary" type="button" onClick={() => this._onSave()}>
+                  {$L('确定')}
+                </button>
+                <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                  {$L('取消')}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount()
+
+    // eslint-disable-next-line no-undef
+    autosize(this._$prompt)
+  }
+
+  _onSave() {
+    const item = this.props.item || {}
+    const name = $(this._$name).val()
+    const prompt = $(this._$prompt).val()
+    if (!name || !prompt) {
+      RbHighbar.create($L('请输入技能名称和提示词'))
+      return
+    }
+
+    const data = {
+      name: name,
+      type: 'AIBOT_SKILL',
+      belongEntity: 'N',
+      shareTo: 'ALL',
+      config: {
+        name: name,
+        description: $(this._$desc).val(),
+        prompt: prompt,
+      },
+      metadata: {
+        entity: 'CommonsConfig',
+        id: item.id || null,
+      },
+    }
+
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        _loadSkills()
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      }
+    })
+  }
+}
+
+// ~~ Tools
+
+const _loadTools = function () {
+  $.get('./aibot/tools', (res) => {
+    const data = res.data || []
+    const $tbody = $('#toolsList').empty()
+
+    data.forEach((item) => {
+      if (['SuggestCustom', 'HelpDocs'].includes(item.name)) return
+      $(
+        `<tr>
+          <td>${item.name}</td>
+          <td>${item.description || $L('无')}</td>
+          <td class="actions"><span class="badge badge-light">${$L('内置')}</span></td>
+        </tr>`,
+      ).appendTo($tbody)
+    })
+  })
+}
+
+const _deleteSkill = function (item) {
+  RbAlert.create($L('确认删除此技能？'), {
+    type: 'danger',
+    confirmText: $L('删除'),
+    confirm: function () {
+      this.disabled(true)
+      $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+        if (res.error_code === 0) {
+          this.hide()
+          _loadSkills()
+        } else {
+          RbHighbar.error(res.error_msg)
+          this.disabled()
+        }
+      })
+    },
+  })
+}
 
 const _renderStats = function (data, $el) {
   const xAxis = []

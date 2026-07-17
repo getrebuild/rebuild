@@ -8,16 +8,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.aibot.tool;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletionTool;
-import com.rebuild.core.RebuildException;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.ReflectUtils;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -27,33 +27,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ToolDefs {
 
-    private static final Map<String, Tool> TOOL_MAP = new HashMap<>();
-
+    private static final Map<String, Tool> TOOL_MAP = new LinkedHashMap<>();
     static {
-        autoScan();
+        register(new EntitiesMeta());
+        register(new HttpFetch());
+        register(new SuggestCustom());
+        register(new HelpDocs());
     }
 
     /**
-     * 自动扫描 com.rebuild 包下所有 Tool 实现类并注册
+     * @param tool
      */
-    private static void autoScan() {
-        Set<Class<?>> toolClasses;
-        try {
-            toolClasses = cn.devezhao.commons.ReflectUtils.getAllSubclasses(
-                    Tool.class.getPackage().getName(), Tool.class);
-            toolClasses.addAll(cn.devezhao.commons.ReflectUtils.getAllSubclasses(
-                    "com.rebuild.rbv.aibot", Tool.class));
-        } catch (Exception e) {
-            throw new RebuildException("Failed to scan Tool subclasses", e);
-        }
-
-        for (Class<?> c : toolClasses) {
-            Tool tool = (Tool) ReflectUtils.newInstance(c);
-            String name = tool.getClass().getSimpleName();
-            TOOL_MAP.put(name, tool);
-        }
-
-        log.info("Added {} Tool(s)", TOOL_MAP.size());
+    public static void register(Tool tool) {
+        String name = tool.getClass().getSimpleName();
+        TOOL_MAP.put(name, tool);
+        log.info("Tool registered : {}", name);
     }
 
     /**
@@ -62,6 +50,28 @@ public class ToolDefs {
     public static List<ChatCompletionTool> tools() {
         return TOOL_MAP.values().stream()
                 .map(Tool::def).collect(Collectors.toList());
+    }
+
+    /**
+     * 列出所有可用工具（供前端展示）
+     *
+     * @return
+     */
+    public static List<JSONObject> listTools() {
+        List<JSONObject> tools = new ArrayList<>();
+        for (String toolName : TOOL_MAP.keySet()) {
+            String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
+            if (d == null) continue;
+
+            JSONObject json = JSONObject.parseObject(d);
+            JSONObject funcJson = json.getJSONObject("function");
+
+            JSONObject tool = new JSONObject();
+            tool.put("name", funcJson.getString("name"));
+            tool.put("description", funcJson.getString("description"));
+            tools.add(tool);
+        }
+        return tools;
     }
 
     /**

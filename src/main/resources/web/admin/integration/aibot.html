@@ -15,6 +15,10 @@
         font-weight: bold;
         cursor: pointer;
       }
+      textarea.form-control.prompt {
+        font-size: 1rem;
+        padding: 4px 10px;
+      }
     </style>
   </head>
   <body>
@@ -105,6 +109,46 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header pb-1">[[${bundle.L('能力扩展')}]]</div>
+                <div class="card-body">
+                  <h5>
+                    [[${bundle.L('技能 /Skills')}]]
+                    <a href="###" class="float-right J_addSkill"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+                  </h5>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="skillsList"></tbody>
+                  </table>
+                  <div class="J_skillsEmpty text-muted text-center mt-6 mb-6" style="display: none">[[${bundle.L('暂无技能')}]]</div>
+                  <h5>
+                    [[${bundle.L('工具 /Tools')}]]
+                    <a href="https://getrebuild.com/market/go/aitool" target="_blank" class="float-right"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('定制')}]]</a>
+                  </h5>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="toolsList"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-12 col-right-compact"></div>
           </div>
         </div>
       </div>

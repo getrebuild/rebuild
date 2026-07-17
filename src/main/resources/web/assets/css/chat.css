@@ -61,25 +61,26 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-input .chat-input-action {
-  width: 94px;
+  width: 110px;
   text-align: right;
   margin-top: auto;
 }
 
 .chat-input .chat-input-action button {
   border: 0 none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding-top: 4px;
+  padding-left: 6px;
+  border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.1);
   color: #4285f4;
   color: var(--rb-theme-color);
   min-width: 0 !important;
-  font-size: 22px;
 }
 
 .chat-input .chat-input-action button .mdi {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
 }
 
 .chat-input .chat-input-action button:disabled {
@@ -91,6 +92,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #4285f4;
   background-color: var(--rb-theme-color);
   color: #fff;
+}
+
+.chat-input .chat-input-action span > button {
+  background-color: transparent;
+  box-shadow: none;
 }
 
 .chat-input .chat-input-attach > span,
@@ -358,6 +364,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .aibot .modal-content .modal-header .close {
   margin-top: -10px;
+  color: #fff;
 }
 
 .aibot .modal-content .modal-body {
@@ -378,6 +385,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   transition: all 0.4s;
 }
 
-.chat-message .msg-user .markdown-body {
+.chat-message .msg-user .markdown-body,
+.chat-message .msg-user .markdown-body a {
   color: #fff;
 }

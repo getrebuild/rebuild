@@ -22,6 +22,7 @@ import com.rebuild.core.service.aibot2.ChatManager;
 import com.rebuild.core.service.aibot2.ChatRequest;
 import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.service.aibot2.Message;
+import com.rebuild.core.service.aibot2.SkillDefs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
@@ -112,6 +113,11 @@ public class AiBot2Controller extends BaseController {
 
         return RespBody.ok(JSONUtils.toJSONObject(
                 new String[]{"_chatid", "messages"}, new Object[]{chatid, messages}));
+    }
+
+    @GetMapping("skills")
+    public RespBody skills() {
+        return RespBody.ok(SkillDefs.listSkills());
     }
 
     @PostMapping("post/chat-delete")

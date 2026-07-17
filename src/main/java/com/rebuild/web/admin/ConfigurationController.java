@@ -21,6 +21,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.service.aibot.tool.ToolDefs;
 import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
@@ -515,6 +516,11 @@ public class ConfigurationController extends BaseController {
             }
         }
         return mv;
+    }
+
+    @GetMapping("integration/aibot/tools")
+    public RespBody listAibotTools() {
+        return RespBody.ok(ToolDefs.listTools());
     }
 
     @GetMapping("integration/aibot/stats")

@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -32,7 +33,6 @@ public class HttpFetch implements Tool {
 
     private final static int MAX_LEN = 20000;
 
-    // 不安全的 header，禁止 AI 设置
     private static final Set<String> BLOCKED_HEADERS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "host", "connection", "content-length", "transfer-encoding",
             "authorization", "proxy-authorization", "cookie", "set-cookie",
@@ -50,10 +50,10 @@ public class HttpFetch implements Tool {
         if (StringUtils.isBlank(method)) method = "GET";
         method = method.toUpperCase();
 
-        // headers
+        // Headers
         Map<String, String> headers = null;
         JSONObject headersJson = args.getJSONObject("headers");
-        if (headersJson != null && !headersJson.isEmpty()) {
+        if (MapUtils.isNotEmpty(headersJson)) {
             headers = new HashMap<>();
             for (Map.Entry<String, Object> e : headersJson.entrySet()) {
                 String hName = e.getKey();

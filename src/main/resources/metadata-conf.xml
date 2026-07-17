@@ -165,6 +165,7 @@
         <field name="type" type="string" max-length="100" nullable="false" description="类型"/>
         <field name="name" type="string" max-length="100" description="名称"/>
         <field name="config" type="text" description="规则"/>
+        <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
     <entity name="DashboardConfig" type-code="016" name-field="title" description="仪表盘" queryable="false">
