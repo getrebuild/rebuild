@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #76 (v4.5)
+alter table `commons_config`
+  add column `IS_DISABLED` char(1) default 'F' comment '是否禁用';
+
 -- #75 (v4.4)
 alter table `meta_field`
   change column `MAX_LENGTH` `MAX_LENGTH` int(11) default '701';

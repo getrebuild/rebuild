@@ -90,7 +90,7 @@ public class CommonsConfigManager implements ConfigManager {
         if (cache != null) return cache;
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,config from CommonsConfig where belongEntity = ? and type = ? order by createdOn desc")
+                "select configId,config,isDisabled,name from CommonsConfig where belongEntity = ? and type = ? order by createdOn desc")
                 .setParameter(1, entity)
                 .setParameter(2, type)
                 .array();
@@ -99,7 +99,9 @@ public class CommonsConfigManager implements ConfigManager {
         for (Object[] o : array) {
             ConfigBean cb = new ConfigBean()
                     .set("id", o[0])
-                    .set("config", JSON.parse((String) o[1]));
+                    .set("config", JSON.parse((String) o[1]))
+                    .set("name", o[3])
+                    .set("isDisabled", o[2] != null && (Boolean) o[2]);
             list.add(cb);
         }
 

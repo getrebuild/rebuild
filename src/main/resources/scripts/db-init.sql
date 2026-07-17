@@ -236,6 +236,7 @@ create table if not exists `commons_config` (
   `TYPE`               varchar(100) not null comment '类型',
   `NAME`               varchar(100) comment '名称',
   `CONFIG`             text(65535) comment '规则',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
@@ -1019,4 +1020,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 75);
+  values ('021-9000000000000001', 'DBVer', 76);
