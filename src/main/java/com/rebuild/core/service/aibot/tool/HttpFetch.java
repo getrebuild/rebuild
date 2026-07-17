@@ -16,9 +16,11 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * HTTP 资源调用工具，支持 GET / POST 请求
@@ -31,10 +33,10 @@ public class HttpFetch implements Tool {
 
     private final static int MAX_LEN = 20000;
 
-    private static final List<String> BLOCKED_HEADERS = Arrays.asList(
+    private static final Set<String> BLOCKED_HEADERS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "host", "connection", "content-length", "transfer-encoding",
             "authorization", "proxy-authorization", "cookie", "set-cookie",
-            "expect", "te", "upgrade", "via");
+            "expect", "te", "upgrade", "via")));
 
     @Override
     public Object tool(String arguments) throws Exception {

@@ -15,7 +15,7 @@ import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ToolDefs {
 
-    private static final Map<String, Tool> TOOL_MAP = new HashMap<>();
+    private static final Map<String, Tool> TOOL_MAP = new LinkedHashMap<>();
     static {
         register(new EntitiesMeta());
         register(new HttpFetch());

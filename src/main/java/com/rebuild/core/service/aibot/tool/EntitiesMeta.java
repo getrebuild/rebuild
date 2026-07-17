@@ -153,7 +153,7 @@ public class EntitiesMeta implements Tool {
             JSONObject item = new JSONObject();
             item.put("name", e.getName());
             item.put("label", EasyMetaFactory.getLabel(e));
-            item.put("comments", EasyMetaFactory.valueOf(e).getComments());
+            item.put("comments", StringUtils.defaultIfBlank(EasyMetaFactory.valueOf(e).getComments(), ""));
 
             // 明细实体
             if (e.getDetailEntity() != null) {
@@ -162,7 +162,7 @@ public class EntitiesMeta implements Tool {
                     JSONObject deItem = new JSONObject();
                     deItem.put("name", de.getName());
                     deItem.put("label", EasyMetaFactory.getLabel(de));
-                    deItem.put("comments", EasyMetaFactory.valueOf(de).getComments());
+                    deItem.put("comments", StringUtils.defaultIfBlank(EasyMetaFactory.valueOf(de).getComments(), ""));
                     details.add(deItem);
                 }
                 item.put("detailEntities", details);

@@ -274,7 +274,7 @@ public class Chat implements Serializable {
             messages.add(message);
         }
 
-        // 合并 skill 提示词
+        // 合并 Skills 提示词
         String systemPrompt = prompt;
         if (chatRequest != null) {
             String skillPrompt = SkillDefs.getSystemPrompt(chatRequest.getSkill());
