@@ -35,6 +35,8 @@ public class SkillDefs {
         ConfigBean[] cbs = CommonsConfigManager.instance.getAibotSkills();
         List<JSONObject> skills = new ArrayList<>();
         for (ConfigBean cb : cbs) {
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+
             JSONObject config = (JSONObject) cb.getJSON("config");
             if (config == null) continue;
 
@@ -61,6 +63,8 @@ public class SkillDefs {
 
         ConfigBean[] cbs = CommonsConfigManager.instance.getAibotSkills();
         for (ConfigBean cb : cbs) {
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+
             JSONObject config = (JSONObject) cb.getJSON("config");
             if (config == null) continue;
 
