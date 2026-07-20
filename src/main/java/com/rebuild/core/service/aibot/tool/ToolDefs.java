@@ -75,9 +75,7 @@ public class ToolDefs {
         Tool tool = TOOL_MAP.get(toolName);
         if (tool == null) {
             log.warn("Tool not found : {}", toolName);
-            return JSONUtils.toJSONObject(
-                    new String[]{"status", "message"},
-                    new Object[]{"error", "Tool not found: " + toolName}).toJSONString();
+            throw new ToolException("Tool not found: " + toolName);
         }
 
         if (getDisabledTools().contains(toolName)) {
@@ -96,10 +94,7 @@ public class ToolDefs {
 
         } catch (Exception ex) {
             log.error("Tool execution failed : {}", toolName, ex);
-
-            return JSONUtils.toJSONObject(
-                    new String[]{"status", "message"},
-                    new Object[]{"error", ex.getMessage()}).toJSONString();
+            throw new ToolException(CommonsUtils.getRootMessage(ex), ex);
         }
     }
 
@@ -127,10 +122,8 @@ public class ToolDefs {
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
             String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
-            if (d == null) continue;
-
-            JSONObject json = JSONObject.parseObject(d);
-            JSONObject funcJson = json.getJSONObject("function");
+            JSONObject dJson = JSONObject.parseObject(d);
+            JSONObject funcJson = dJson.getJSONObject("function");
 
             JSONObject tool = new JSONObject();
             tool.put("name", funcJson.getString("name"));
