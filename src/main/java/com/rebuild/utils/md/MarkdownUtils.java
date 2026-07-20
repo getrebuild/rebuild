@@ -18,6 +18,7 @@ import com.vladsch.flexmark.parser.ParserEmulationProfile;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -87,6 +88,29 @@ public class MarkdownUtils {
             Node document = PARSER.parse(md);
             return RENDERER.render(document);
         }
+    }
+
+    /**
+     * MD 渲染，仅启用指定的语法（HTML 标签白名单）
+     *
+     * @param md
+     * @param allowedTags
+     * @return
+     */
+    public static String renderSafe444(String md, String... allowedTags) {
+        String html = render(md, true, true);
+        if (allowedTags == null || allowedTags.length == 0) {
+            return Jsoup.clean(html, Safelist.none());
+        }
+
+        Safelist safelist = Safelist.none().addTags(allowedTags);
+        safelist.addAttributes("a", "href", "target", "title");
+        safelist.addAttributes("img", "src", "alt", "title");
+        safelist.addAttributes("font", "color", "size");
+        safelist.addProtocols("img", "src", "http", "https");
+        safelist.addProtocols("a", "href", "http", "https", "mailto", "ftp");
+
+        return Jsoup.clean(html, safelist);
     }
 
     /**
