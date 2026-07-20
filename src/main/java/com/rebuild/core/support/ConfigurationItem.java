@@ -128,6 +128,7 @@ public enum ConfigurationItem {
     AibotDSSecret,
     AibotBasePrompt,
     AibotBaseDefModel("deepseek-v4-flash"),
+    AibotToolsDisabled,
 
     // PORTALs
     PortalBaiduMapAk,
