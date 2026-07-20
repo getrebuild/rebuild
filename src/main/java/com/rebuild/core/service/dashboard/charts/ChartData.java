@@ -17,7 +17,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -50,6 +49,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.rebuild.core.metadata.EntityHelper.AutoId;
+import static com.rebuild.core.metadata.EntityHelper.CreatedOn;
+import static com.rebuild.core.metadata.EntityHelper.OwningDept;
+import static com.rebuild.core.metadata.EntityHelper.OwningUser;
 
 /**
  * 图表数据
@@ -240,12 +244,12 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         List<String> filtersAnd = new ArrayList<>();
 
         // 限制预览数据量
-        if (isFromPreview() && getSourceEntity().containsField(EntityHelper.AutoId)) {
+        if (isFromPreview() && getSourceEntity().containsField(AutoId)) {
             String maxAidSql = String.format("select max(autoId) from %s", getSourceEntity().getName());
             Object[] o = Application.createQueryNoFilter(maxAidSql).unique();
             long maxAid = ObjectUtils.toLong(o[0]);
             if (maxAid > 100000) {
-                String previewFilter = String.format("(%s >= %d)", EntityHelper.AutoId, Math.max(maxAid - 5000, 0));
+                String previewFilter = String.format("(%s >= %d)", AutoId, Math.max(maxAid - 5000, 0));
                 filtersAnd.add(previewFilter);
             }
         }
@@ -270,13 +274,17 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             if (s != null) filtersAnd.add(s);
         }
 
+        // 明细
+        Field dtmField = getSourceEntity().getMainEntity() != null
+                ? MetadataHelper.getDetailToMainField(getSourceEntity()) : null;
+
         // v4.2 仪表盘全局过滤
         if (params != null && params.get("dash_filter_user") != null) {
-            String s = parseGlobalFilter42(params.get("dash_filter_user"), EntityHelper.OwningUser);
+            String s = parseGlobalFilter42(params.get("dash_filter_user"), OwningUser, dtmField);
             if (s != null) filtersAnd.add(s);
         }
         if (params != null && params.get("dash_filter_date") != null) {
-            String s = parseGlobalFilter42(params.get("dash_filter_date"), EntityHelper.CreatedOn);
+            String s = parseGlobalFilter42(params.get("dash_filter_date"), CreatedOn, dtmField);
             if (s != null) filtersAnd.add(s);
         }
         if (params != null && params.get("dash_filter_custom") != null) {
@@ -287,11 +295,10 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                     custom.put("entity", getSourceEntity().getName());
 
                     // fix:4.4.2 明细的所属用户/部门要使用父级的
-                    if (getSourceEntity().getMainEntity() != null) {
-                        String dtmField = MetadataHelper.getDetailToMainField(getSourceEntity()).getName();
+                    if (dtmField != null) {
                         String customStr = custom.toString();
-                        customStr = customStr.replace(EntityHelper.OwningDept, dtmField + ".owningDept");
-                        customStr = customStr.replace(EntityHelper.OwningUser, dtmField + ".owningUser");
+                        customStr = customStr.replace(OwningDept, dtmField.getName() + ".owningDept");
+                        customStr = customStr.replace(OwningUser, dtmField.getName() + ".owningUser");
                         custom = JSON.parseObject(customStr);
                     }
 
@@ -315,14 +322,18 @@ public abstract class ChartData extends SetUser implements ChartSpec {
      *
      * @param value
      * @param fieldDefault
+     * @param dtmField
      * @return
      */
-    private String parseGlobalFilter42(Object value, String fieldDefault) {
+    private String parseGlobalFilter42(Object value, String fieldDefault, Field dtmField) {
         JSONObject filterItem = JSONUtils.toJSONObject(
                 new String[]{"field", "op"},
                 new Object[]{fieldDefault, value});
 
-        if (ParseHelper.SFD.equals(value)) filterItem.put("field", EntityHelper.OwningDept);
+        if (ParseHelper.SFD.equals(value)) filterItem.put("field", OwningDept);
+
+        // fix:4.4.4 明细的
+        if (dtmField != null) filterItem.put("field", dtmField.getName() + "." + filterItem.getString("field"));
 
         JSONObject filter = JSONUtils.toJSONObject(
                 new String[]{"entity", "items"},
