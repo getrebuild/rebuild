@@ -1,0 +1,25 @@
+{
+  "type": "function",
+  "function": {
+    "name": "ReportExport",
+    "description": "导出系统报表。传入实体名称可查询该实体下可用的报表模板列表；传入报表ID和记录ID可生成报表文件并返回下载链接",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称或标签（用于查询可用报表模板）"
+        },
+        "report": {
+          "type": "string",
+          "description": "报表模板ID（可选，不传则返回该实体下可用报表列表）"
+        },
+        "record": {
+          "type": "string",
+          "description": "要导出报表的记录名称、编号或ID。支持模糊搜索，若匹配多条会返回列表供用户选择（导出报表时必填）"
+        }
+      },
+      "required": ["entity"]
+    }
+  }
+}

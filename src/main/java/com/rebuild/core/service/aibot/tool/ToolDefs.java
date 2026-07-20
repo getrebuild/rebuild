@@ -39,6 +39,7 @@ public class ToolDefs {
         register(new HttpFetch());
         register(new SuggestCustom());
         register(new HelpDocs());
+        register(new ReportExport());
     }
 
     /**
