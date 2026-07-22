@@ -57,7 +57,7 @@ class ProTable extends React.Component {
                 }
 
                 return (
-                  <th key={item.field} data-field={item.field} style={colStyle2} className={`${!item.nullable && 'required'} ${fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}`}>
+                  <th key={item.field} data-field={item.field} style={colStyle2} className={`${item.nullable ? '' : 'required'} ${fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}`}>
                     {item.label}
                     {item.tip && <i className="tipping zmdi zmdi-info-outline" title={item.tip} />}
                     <i className="dividing hide" />
