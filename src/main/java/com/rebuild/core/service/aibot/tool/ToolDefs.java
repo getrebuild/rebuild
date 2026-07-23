@@ -133,4 +133,27 @@ public class ToolDefs {
         }
         return tools;
     }
+
+    /**
+     * 列出 MCP 协议格式的工具（含 inputSchema，供原生 MCP 端点 tools/list 使用）
+     *
+     * @return
+     */
+    public static List<JSONObject> mcpTools() {
+        Set<String> disabled = getDisabledTools();
+        List<JSONObject> tools = new ArrayList<>();
+        for (String toolName : TOOL_MAP.keySet()) {
+            if (disabled.contains(toolName)) continue;
+
+            String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
+            JSONObject funcJson = JSONObject.parseObject(d).getJSONObject("function");
+
+            JSONObject tool = new JSONObject(true);
+            tool.put("name", funcJson.getString("name"));
+            tool.put("description", funcJson.getString("description"));
+            tool.put("inputSchema", funcJson.getJSONObject("parameters"));
+            tools.add(tool);
+        }
+        return tools;
+    }
 }
