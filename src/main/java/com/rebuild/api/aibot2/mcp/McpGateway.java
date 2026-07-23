@@ -17,7 +17,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.RateLimiters;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
