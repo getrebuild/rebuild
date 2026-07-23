@@ -57,7 +57,7 @@ class ProTable extends React.Component {
                 }
 
                 return (
-                  <th key={item.field} data-field={item.field} style={colStyle2} className={`${!item.nullable && 'required'} ${fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}`}>
+                  <th key={item.field} data-field={item.field} style={colStyle2} className={`${item.nullable ? '' : 'required'} ${fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}`}>
                     {item.label}
                     {item.tip && <i className="tipping zmdi zmdi-info-outline" title={item.tip} />}
                     <i className="dividing hide" />
@@ -112,7 +112,7 @@ class ProTable extends React.Component {
 
                   // 未配置不显示
                   if (typeof this._extConf40.showCounts === 'object') {
-                    if (!this._extConf40.showCounts[item.field]) return <th key={item.field} className={fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'} />
+                    if (!this._extConf40.showCounts[item.field]) return <th key={item.field} className={fixedColumn44 && idx === 0 ? 'column-fixed column-fixed-last' : ''} />
                   }
 
                   let v = this.state._counts[item.field]
@@ -581,7 +581,7 @@ class InlineForm extends RbForm {
           if (fieldComp.props.field === TYPE_DIVIDER || fieldComp.props.field === TYPE_REFFORM) return null
           const key = `fieldcomp-${fieldComp.props.field}`
           return (
-            <td key={key} ref={(c) => (this._$ref = c)} className={fixedColumn44 && idx === 0 && 'column-fixed column-fixed-last'}>
+            <td key={key} ref={(c) => (this._$ref = c)} className={fixedColumn44 && idx === 0 ? 'column-fixed column-fixed-last' : ''}>
               {React.cloneElement(fieldComp, { $$$parent: this, ref: key })}
             </td>
           )
