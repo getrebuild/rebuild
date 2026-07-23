@@ -225,9 +225,10 @@ public class RecordCheckout {
         final String val = cell.asString();
         final Entity refEntity = field.getReferenceEntity();
 
-        // 支持ID
+        // 支持 ID
         ID vla2id = MetadataHelper.checkSpecEntityId(val, refEntity.getEntityCode());
         if (vla2id != null) {
+            if (EntityHelper.isUnsavedId(vla2id)) return vla2id;
             if (QueryHelper.exists(vla2id)) return vla2id;
 
             log.warn("Reference ID `{}` not exists", vla2id);

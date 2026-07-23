@@ -295,7 +295,11 @@ function _LabelOfIdGet(id) {
   })
 
   if (L && L[id]) {
-    _LabelOfId[id] = <span title={id}>{L[id]}</span>
+    _LabelOfId[id] = (
+      <a title={id} href={`${rb.baseUrl}/app/redirect?id=${id}&type=newtab`} target="_blank">
+        {L[id]}
+      </a>
+    )
   } else {
     _LabelOfId[id] = id
   }
