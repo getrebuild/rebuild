@@ -38,7 +38,7 @@ import java.util.Set;
  * @since 2026/7/20
  */
 @Slf4j
-public class ReportExport implements Tool {
+public class ExportReport implements Tool {
 
     private static final int MAX_SEARCH_RESULTS = 10;
 
@@ -51,7 +51,7 @@ public class ReportExport implements Tool {
             throw new ToolException("实体名称不能为空");
         }
 
-        Entity entity = EntitiesMeta.resolveEntity(entityName);
+        Entity entity = ListEntities.resolveEntity(entityName);
         if (entity == null) {
             throw new ToolException("未知实体 : " + entityName);
         }

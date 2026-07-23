@@ -171,7 +171,7 @@ const _loadTools = function () {
     const $tbody = $('#toolsList').empty()
 
     _toolsData.forEach((item) => {
-      if (['SuggestCustom', 'HelpDocs'].includes(item.name)) return
+      if (['SuggestCustom', 'SearchHelp'].includes(item.name)) return
 
       const htmlid = `tool-enable-${item.name}`
       $(

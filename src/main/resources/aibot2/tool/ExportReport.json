@@ -1,7 +1,7 @@
 {
   "type": "function",
   "function": {
-    "name": "ReportExport",
+    "name": "ExportReport",
     "description": "导出系统报表。传入实体名称可查询该实体下可用的报表模板列表；传入报表ID和记录ID可生成报表文件并返回下载链接",
     "parameters": {
       "type": "object",

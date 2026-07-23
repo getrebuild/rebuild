@@ -35,11 +35,11 @@ public class ToolDefs {
 
     private static final Map<String, Tool> TOOL_MAP = new LinkedHashMap<>();
     static {
-        register(new EntitiesMeta());
-        register(new HttpFetch());
+        register(new ListEntities());
+        register(new FetchUrl());
         register(new SuggestCustom());
-        register(new HelpDocs());
-        register(new ReportExport());
+        register(new SearchHelp());
+        register(new ExportReport());
     }
 
     /**

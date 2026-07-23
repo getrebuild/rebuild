@@ -18,7 +18,7 @@ $(document).ready(function () {
     },
     function (res) {
       __cropper.setImg(res.key)
-    }
+    },
   )
 
   $('.J_email').on('click', () => renderRbcomp(<DlgChangeEmail />))
@@ -96,7 +96,7 @@ $(document).ready(function () {
         function () {
           RbHighbar.create($L('无法获取位置'))
           $(this).button('reset')
-        }
+        },
       )
     })
   })
@@ -170,6 +170,9 @@ $(document).ready(function () {
 
   if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
   else if (location.hash === '#logs') $('.nav-tabs a:eq(2)').trigger('click')
+
+  // AK 管理
+  _initAccessKey()
 })
 
 // 修改密码
@@ -412,5 +415,89 @@ class DlgCropper extends RbModalHandler {
     const xywh = [~~data.x, ~~data.y, ~~data.width, ~~data.height].join(',')
     $(this._btn).button('loading')
     $.post(`/account/user-avatar-update?avatar=${$encode(this.state.img)}&xywh=${xywh}`, () => location.reload())
+  }
+}
+
+// Access Key 管理
+function _initAccessKey() {
+  $.get('/settings/access-token/status', (res) => {
+    if (res.error_code === 0 && res.data.hasToken) {
+      $('.J_ak-generate').text($L('重置'))
+      $('.J_ak-revoke').removeClass('hide')
+    }
+  })
+
+  $('.J_ak-generate').on('click', () => {
+    const isReset = $('.J_ak-generate').text() === $L('重置')
+    const msg = isReset ? $L('重置后原秘钥会立即失效，确认重置吗？') : $L('生成后可用于外部工具连接授权')
+
+    RbAlert.create(msg, {
+      confirmText: isReset ? $L('重置') : $L('生成'),
+      onConfirm: function () {
+        this.hide()
+        $.post('/settings/access-token/generate', (res) => {
+          if (res.error_code === 0) {
+            renderRbcomp(<DlgAccessKey token={res.data.token} />)
+            $('.J_ak-generate').text($L('重置'))
+            $('.J_ak-revoke').removeClass('hide')
+          } else {
+            RbHighbar.create(res.error_msg)
+          }
+        })
+      },
+    })
+  })
+
+  $('.J_ak-revoke').on('click', () => {
+    RbAlert.create($L('删除后立即失效，确认删除吗？'), {
+      type: 'danger',
+      confirmText: $L('删除'),
+      onConfirm: function () {
+        this.hide()
+        $.post('/settings/access-token/revoke', (res) => {
+          if (res.error_code === 0) {
+            RbHighbar.success($L('已删除'))
+            $('.J_ak-generate').text($L('生成'))
+            $('.J_ak-revoke').addClass('hide')
+          } else {
+            RbHighbar.create(res.error_msg)
+          }
+        })
+      },
+    })
+  })
+}
+
+// AK 显示弹窗
+// eslint-disable-next-line no-unused-vars
+class DlgAccessKey extends RbModalHandler {
+  render() {
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('个人秘钥')} disposeOnHide>
+        <div className="file-share">
+          <label className="text-dark text-bold">{$L('秘钥仅显示一次请复制保存')}</label>
+          <div className="input-group input-group-sm">
+            <input className="form-control" value={this.props.token} readOnly onClick={(e) => $(e.target).select()} />
+            <span className="input-group-append">
+              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
+                <i className="icon zmdi zmdi-copy" />
+              </button>
+            </span>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    const that = this
+    const initCopy = function () {
+      $clipboard($(that._$copy), that.props.token)
+    }
+    if (window.ClipboardJS) {
+      initCopy()
+    } else {
+      $getScript('/assets/lib/clipboard.min.js', initCopy)
+    }
   }
 }

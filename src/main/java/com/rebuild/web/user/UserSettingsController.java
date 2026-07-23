@@ -22,12 +22,14 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginAction;
 import com.rebuild.web.user.signup.LoginController;
@@ -245,5 +247,44 @@ public class UserSettingsController extends BaseController {
     private void throwIfTempAuth(HttpServletRequest request) {
         Object tempAuth = ServletUtils.getSessionAttribute(request, LoginController.SK_TEMP_AUTH);
         if (tempAuth != null) throw new DefinedException(Language.L("无权访问该页面"));
+    }
+
+    // ----- Access Key -----
+
+    public static final String AK_PREFIX = "rbak_";
+    public static final String KEY_AK = "MCPAK.";
+    public static final String KEY_REV = "MCPAK_REV.";
+
+    @GetMapping("/access-token/status")
+    public RespBody akStatus(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        boolean has = KVStorage.getCustomValue(KEY_AK + user) != null;
+        return RespBody.ok(JSONUtils.toJSONObject("hasToken", has));
+    }
+
+    @PostMapping("/access-token/generate")
+    public RespBody akGenerate(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
+        String oldHash = KVStorage.getCustomValue(KEY_AK + user);
+        if (oldHash != null) KVStorage.removeCustomValue(KEY_REV + oldHash);
+
+        String plainAk = AK_PREFIX + CodecUtils.randomCode(40);
+        String akHash = EncryptUtils.toSHA256Hex(plainAk);
+        KVStorage.setCustomValue(KEY_AK + user, akHash);
+        KVStorage.setCustomValue(KEY_REV + akHash, user.toLiteral());
+
+        return RespBody.ok(JSONUtils.toJSONObject("token", plainAk));
+    }
+
+    @PostMapping("/access-token/revoke")
+    public RespBody akRevoke(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        String oldHash = KVStorage.getCustomValue(KEY_AK + user);
+        if (oldHash != null) {
+            KVStorage.removeCustomValue(KEY_REV + oldHash);
+            KVStorage.removeCustomValue(KEY_AK + user);
+        }
+        return RespBody.ok();
     }
 }
