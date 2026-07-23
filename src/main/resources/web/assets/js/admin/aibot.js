@@ -163,21 +163,46 @@ class DlgSkillEdit extends RbModalHandler {
 
 // ~~ Tools
 
+let _toolsData = []
+
 const _loadTools = function () {
   $.get('./aibot/tools', (res) => {
-    const data = res.data || []
+    _toolsData = res.data || []
     const $tbody = $('#toolsList').empty()
 
-    data.forEach((item) => {
-      if (['SuggestCustom', 'HelpDocs'].includes(item.name)) return
+    _toolsData.forEach((item) => {
+      if (['SuggestCustom', 'SearchHelp'].includes(item.name)) return
+
+      const htmlid = `tool-enable-${item.name}`
       $(
         `<tr>
           <td>${item.name}</td>
           <td>${item.description || $L('无')}</td>
-          <td class="actions"><span class="badge badge-light">${$L('内置')}</span></td>
+          <td>
+            <div class="switch-button switch-button-xs switch-button-success">
+              <input type="checkbox" id="${htmlid}" ${item.disabled ? '' : 'checked'} />
+              <span><label for="${htmlid}"></label></span>
+            </div>
+          </td>
         </tr>`,
       ).appendTo($tbody)
+
+      $(`#${htmlid}`).on('change', function () {
+        _saveToolsDisabled()
+      })
     })
+  })
+}
+
+const _saveToolsDisabled = function () {
+  const disabled = []
+  _toolsData.forEach((item) => {
+    const $input = $(`#tool-enable-${item.name}`)
+    if ($input[0] && !$input[0].checked) disabled.push(item.name)
+  })
+
+  $.post(location.href, JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
+    if (res.error_code !== 0) RbHighbar.error(res.error_msg)
   })
 }
 

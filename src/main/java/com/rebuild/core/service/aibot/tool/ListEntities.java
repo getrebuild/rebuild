@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
  * @since 2026/7/10
  */
 @Slf4j
-public class EntitiesMeta implements Tool {
+public class ListEntities implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {

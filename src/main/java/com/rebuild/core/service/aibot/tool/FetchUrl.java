@@ -29,7 +29,7 @@ import java.util.Set;
  * @since 2026/7/10
  */
 @Slf4j
-public class HttpFetch implements Tool {
+public class FetchUrl implements Tool {
 
     private final static int MAX_LEN = 20000;
 

@@ -209,6 +209,17 @@
                           <button class="btn btn-primary btn-outline J_temp-auth" type="button">[[${bundle.L('获取')}]]</button>
                         </div>
                       </div>
+                      <div class="form-group row">
+                        <label class="col-2 col-form-label">个人秘钥 (AK)</label>
+                        <div class="col-7 pl-0">
+                          <div class="form-control-plaintext text-muted">[[${bundle.L('可用于外部工具连接授权')}]]</div>
+                        </div>
+                        <div class="col-3 text-right J_ak-btns">
+                          <button class="btn btn-primary btn-outline J_ak-generate" type="button">[[${bundle.L('生成')}]]</button>
+                          <button class="btn btn-danger btn-outline J_ak-revoke hide" type="button">[[${bundle.L('删除')}]]</button>
+                        </div>
+                      </div>
+
                       <div class="form-group row bosskey-show">
                         <label class="col-2 col-form-label">[[${bundle.L('客户端权限')}]] (LAB)</label>
                         <div class="col-5 pl-0">

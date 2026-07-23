@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets;
  * @since 2026/7/15
  */
 @Slf4j
-public class HelpDocs implements Tool {
+public class SearchHelp implements Tool {
 
     private static final String SEARCH_URL = "https://getrebuild.com/docs/search?wd=";
     private static final String DOCS_HOME = "https://getrebuild.com/docs/";
