@@ -60,8 +60,7 @@ public class McpServer {
         if (parsed instanceof JSONArray) {
             JSONArray batch = (JSONArray) parsed;
             JSONArray results = new JSONArray();
-            for (int i = 0; i < batch.size(); i++) {
-                Object item = batch.get(i);
+            for (Object item : batch) {
                 if (!(item instanceof JSONObject)) {
                     results.add(rpcError(null, -32600, "Invalid Request"));
                     continue;

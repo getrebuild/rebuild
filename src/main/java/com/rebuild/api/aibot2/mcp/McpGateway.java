@@ -20,9 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.util.StreamUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,22 +46,30 @@ import static com.rebuild.web.user.UserSettingsController.KEY_REV;
 @RequestMapping("/gw/mcp/")
 public class McpGateway {
 
-    // 基于用户限流
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
-            new int[]{60, 600, 3600},
+            new int[]{600, 6000, 36000},
             new int[]{30, 100, 500});
 
-    // 原生 MCP 协议服务器：系统名称取 AppName，版本取 Application.VER，工具取自 ToolDefs
     private static final McpServer MCP_SERVER = new McpServer(
             () -> RebuildConfiguration.get(ConfigurationItem.AppName),
             () -> Application.VER);
 
-    /**
-     * MCP Streamable HTTP 端点。
-     * 用户在 AI 客户端直接配置本端点 URL 即可接入，无需本地代理。
-     * 协议处理委托给可复用的 {@link McpServer}，此处仅负责认证、限流与传输。
-     */
-    @PostMapping
+    @GetMapping("sse")
+    public SseEmitter mcpSse(HttpServletRequest request, HttpServletResponse response) {
+        String ak = extractBearerToken(request);
+        if (ak == null || verifyAk(ak) == null) {
+            response.setStatus(401);
+            SseEmitter emitter = new SseEmitter(0L);
+            emitter.complete();
+            return emitter;
+        }
+
+        SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
+        emitter.onTimeout(emitter::complete);
+        return emitter;
+    }
+
+    @PostMapping("sse")
     public void mcp(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String ak = extractBearerToken(request);
         if (ak == null) {

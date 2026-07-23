@@ -36,10 +36,6 @@ $(document).ready(() => {
     $stopEvent(e, true)
     _editSkill()
   })
-  $('.J_mcpConfig').on('click', (e) => {
-    $stopEvent(e, true)
-    $clipboard2($('.J_mcpConfig').text(), true)
-  })
 })
 
 // ~~ Skills

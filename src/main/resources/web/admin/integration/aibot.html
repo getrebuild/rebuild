@@ -19,17 +19,6 @@
         font-size: 1rem;
         padding: 4px 10px;
       }
-      pre.J_mcpConfig {
-        background-color: #f8f9fa;
-        border: 1px solid #eee;
-        border-radius: 3px;
-        padding: 12px 15px;
-        font-size: 12px;
-        line-height: 1.6;
-        color: #404040;
-        margin-bottom: 0;
-        user-select: all;
-      }
     </style>
   </head>
   <body>
@@ -144,7 +133,7 @@
                   <div class="J_skillsEmpty text-muted text-center mt-6 mb-6" style="display: none">[[${bundle.L('暂无技能')}]]</div>
                   <h5>
                     [[${bundle.L('工具 /Tools')}]]
-                    <a href="https://getrebuild.com/market/go/aitool" target="_blank" class="float-right"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('定制')}]]</a>
+                    <a href="https://getrebuild.com/market/go/aitool" target="_blank" class="float-right"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
                   </h5>
                   <table class="table table-hover">
                     <thead>
@@ -157,18 +146,20 @@
                     <tbody id="toolsList"></tbody>
                   </table>
                   <h5 class="mt-5">[[${bundle.L('MCP 接入')}]]</h5>
-                  <pre class="J_mcpConfig" th:data-url="${HomeUrl} + 'gw/mcp/'">
+                  <div class="code-viewport mt-3">
+                    <pre class="J_mcpConfig">
 {
   "mcpServers": {
     "rebuild": {
-      "url": "[[${HomeUrl}]]gw/mcp/",
+      "url": "[[${HomeUrl}]]gw/mcp/sse",
       "headers": {
-        "Authorization": "Bearer &lt;Access Key&gt;"
+        "Authorization": "Bearer &lt;<a href="../../settings/user#secure" target="_blank">你的个人秘钥</a>&gt;"
       }
     }
   }
-}</pre
-                  >
+}
+</pre>
+                  </div>
                 </div>
               </div>
             </div>
