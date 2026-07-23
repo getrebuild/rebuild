@@ -81,10 +81,10 @@ public class McpGateway {
             writeJson(response, 401, McpServer.errorBody(-32001, "Invalid Access Key"));
             return;
         }
-        if (RRL.overLimitWhenIncremented("mcp:" + user)) {
-            writeJson(response, 429, McpServer.errorBody(-32000, "Rate limit exceeded"));
-            return;
-        }
+//        if (RRL.overLimitWhenIncremented("mcp:" + user)) {
+//            writeJson(response, 429, McpServer.errorBody(-32000, "Rate limit exceeded"));
+//            return;
+//        }
 
         String body;
         try {
