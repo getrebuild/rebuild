@@ -8,14 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.api.aibot2.mcp;
 
 import cn.devezhao.commons.EncryptUtils;
-import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.service.aibot.tool.ToolDefs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -58,48 +53,6 @@ public class McpGateway {
     private static final McpServer MCP_SERVER = new McpServer(
             () -> RebuildConfiguration.get(ConfigurationItem.AppName),
             () -> Application.VER);
-
-    @PostMapping("tool/invoke")
-    public JSON invokeTool(HttpServletRequest request) {
-        String ak = extractBearerToken(request);
-        if (ak == null) {
-            return RespBody.error("Missing Authorization header", 401).toJSON();
-        }
-        ID user = verifyAk(ak);
-        if (user == null) {
-            return RespBody.error("Invalid Access Key", 401).toJSON();
-        }
-
-        if (RRL.overLimitWhenIncremented("mcp:" + user)) {
-            return RespBody.error("Rate limit exceeded", 429).toJSON();
-        }
-
-        JSONObject body;
-        try {
-            body = (JSONObject) ServletUtils.getRequestJson(request);
-        } catch (Exception e) {
-            return RespBody.error("Invalid request body", 400).toJSON();
-        }
-
-        String tool = body.getString("tool");
-        if (StringUtils.isBlank(tool)) {
-            return RespBody.error("Missing [tool] parameter", 400).toJSON();
-        }
-
-        JSONObject params = body.getJSONObject("params");
-        if (params == null) params = new JSONObject();
-
-        try {
-            UserContextHolder.setUser(user);
-            String result = ToolDefs.execute(tool, params.toJSONString());
-            return RespBody.ok(JSON.parse(result)).toJSON();
-        } catch (Exception e) {
-            log.error("MCP tool invoke error : {}", tool, e);
-            return RespBody.error(e.getMessage(), 500).toJSON();
-        } finally {
-            UserContextHolder.clear();
-        }
-    }
 
     /**
      * MCP Streamable HTTP 端点。

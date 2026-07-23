@@ -19,6 +19,17 @@
         font-size: 1rem;
         padding: 4px 10px;
       }
+      pre.J_mcpConfig {
+        background-color: #f8f9fa;
+        border: 1px solid #eee;
+        border-radius: 3px;
+        padding: 12px 15px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #404040;
+        margin-bottom: 0;
+        user-select: all;
+      }
     </style>
   </head>
   <body>
@@ -145,6 +156,19 @@
                     </thead>
                     <tbody id="toolsList"></tbody>
                   </table>
+                  <h5 class="mt-5">[[${bundle.L('MCP 接入')}]]</h5>
+                  <pre class="J_mcpConfig" th:data-url="${HomeUrl} + 'gw/mcp/'">
+{
+  "mcpServers": {
+    "rebuild": {
+      "url": "[[${HomeUrl}]]gw/mcp/",
+      "headers": {
+        "Authorization": "Bearer &lt;Access Key&gt;"
+      }
+    }
+  }
+}</pre
+                  >
                 </div>
               </div>
             </div>

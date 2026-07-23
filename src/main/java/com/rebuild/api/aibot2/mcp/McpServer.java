@@ -61,7 +61,12 @@ public class McpServer {
             JSONArray batch = (JSONArray) parsed;
             JSONArray results = new JSONArray();
             for (int i = 0; i < batch.size(); i++) {
-                JSONObject r = dispatch(batch.getJSONObject(i));
+                Object item = batch.get(i);
+                if (!(item instanceof JSONObject)) {
+                    results.add(rpcError(null, -32600, "Invalid Request"));
+                    continue;
+                }
+                JSONObject r = dispatch((JSONObject) item);
                 if (r != null) results.add(r);
             }
             return results.isEmpty() ? null : results.toJSONString();
@@ -104,7 +109,13 @@ public class McpServer {
         if ("initialize".equals(method)) return rpcResult(id, initResult(params));
         if ("ping".equals(method)) return rpcResult(id, new JSONObject());
         if ("tools/list".equals(method)) return rpcResult(id, toolsListResult());
-        if ("tools/call".equals(method)) return rpcResult(id, toolsCallResult(params));
+        if ("tools/call".equals(method)) {
+            String toolName = params.getString("name");
+            if (StringUtils.isBlank(toolName)) {
+                return rpcError(id, -32602, "Invalid params: missing tool name");
+            }
+            return rpcResult(id, toolsCallResult(params));
+        }
 
         // 通知（无 id，如 notifications/initialized）无需响应
         if (id == null) return null;
@@ -113,8 +124,7 @@ public class McpServer {
 
     private JSONObject initResult(JSONObject params) {
         JSONObject result = new JSONObject(true);
-        String clientVer = params.getString("protocolVersion");
-        result.put("protocolVersion", StringUtils.isNotBlank(clientVer) ? clientVer : PROTOCOL_VERSION);
+        result.put("protocolVersion", PROTOCOL_VERSION);
 
         JSONObject caps = new JSONObject();
         caps.put("tools", new JSONObject());

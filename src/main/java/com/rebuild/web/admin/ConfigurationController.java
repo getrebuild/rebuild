@@ -515,6 +515,7 @@ public class ConfigurationController extends BaseController {
                 mv.getModel().put(name, value);
             }
         }
+        mv.getModel().put("HomeUrl", RebuildConfiguration.getHomeUrl());
         return mv;
     }
 
