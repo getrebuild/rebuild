@@ -121,6 +121,8 @@ public class ToolDefs {
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
             String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
+            if (d == null) continue;
+
             JSONObject dJson = JSONObject.parseObject(d);
             JSONObject funcJson = dJson.getJSONObject("function");
 
@@ -145,6 +147,8 @@ public class ToolDefs {
             if (disabled.contains(toolName)) continue;
 
             String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
+            if (d == null) continue;
+
             JSONObject funcJson = JSONObject.parseObject(d).getJSONObject("function");
 
             JSONObject tool = new JSONObject(true);
