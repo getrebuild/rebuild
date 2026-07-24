@@ -17,6 +17,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.feeds.FeedsService;
 import com.rebuild.core.service.feeds.FeedsType;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -91,7 +92,10 @@ public class CreateFeed implements Tool {
             String scheduleTime = args.getString("scheduleTime");
             Date scheduleDate;
             if (StringUtils.isNotBlank(scheduleTime)) {
-                scheduleDate = CalendarUtils.parse(scheduleTime);
+                scheduleDate = CommonsUtils.parseDate(scheduleTime);
+                if (scheduleDate == null) {
+                    throw new ToolException("无法解析日程时间: " + scheduleTime + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
+                }
             } else {
                 // 默认: 当前时间+1D
                 scheduleDate = CalendarUtils.addDay(1);

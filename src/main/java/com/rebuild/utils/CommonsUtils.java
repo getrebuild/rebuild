@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -275,6 +276,31 @@ public class CommonsUtils {
     public static boolean isExternalUrl(String str) {
         return str != null
                 && (str.startsWith("http://") || str.startsWith("https://"));
+    }
+
+    /**
+     * URL 安全校验（防 SSRF），仅允许 HTTP/HTTPS 且拒绝内网地址
+     *
+     * @param url
+     * @throws RebuildException
+     */
+    public static void checkUrlSafe(String url) {
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            throw new RebuildException("Only HTTP/HTTPS URLs are allowed");
+        }
+
+        try {
+            String host = new URL(url).getHost();
+            InetAddress addr = InetAddress.getByName(host);
+            if (addr.isLoopbackAddress() || addr.isSiteLocalAddress()
+                    || addr.isLinkLocalAddress() || addr.isAnyLocalAddress()) {
+                throw new RebuildException("Access to internal network addresses is not allowed");
+            }
+        } catch (RebuildException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RebuildException("URL resolution failed : " + url);
+        }
     }
 
     /**

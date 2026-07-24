@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.aibot.tool;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -20,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.service.project.ProjectPlanConfigService;
 import com.rebuild.core.service.project.ProjectTaskService;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -74,15 +74,18 @@ public class CreateProjectTask implements Tool {
         record.setString("taskName", taskName);
 
         // 优先级
-        int priority = args.getIntValue("priority");
-        if (priority >= 0 && priority <= 3) {
+        Integer priority = args.getInteger("priority");
+        if (priority != null && priority >= 0 && priority <= 3) {
             record.setInt("priority", priority);
         }
 
         // 截止时间
         String deadline = args.getString("deadline");
         if (StringUtils.isNotBlank(deadline)) {
-            Date deadlineDate = CalendarUtils.parse(deadline);
+            Date deadlineDate = CommonsUtils.parseDate(deadline);
+            if (deadlineDate == null) {
+                throw new ToolException("无法解析截止时间: " + deadline + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
+            }
             record.setDate("deadline", deadlineDate);
         }
 
@@ -174,9 +177,7 @@ public class CreateProjectTask implements Tool {
                     return plan.getID("id");
                 }
             }
-            // 没有可新建的面板，取第一个
-            if (plans.length > 0) return plans[0].getID("id");
-            throw new ToolException("该项目下没有可用的任务面板");
+            throw new ToolException("该项目下没有可新建任务的面板");
         }
 
         // 精确 ID

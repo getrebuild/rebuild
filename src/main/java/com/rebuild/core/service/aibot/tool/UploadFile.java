@@ -63,7 +63,9 @@ public class UploadFile implements Tool {
             CommonsUtils.base64ToFile(base64, tmpFile);
 
         } else {
-            // URL 方式
+            // URL 方式（SSRF 防护）
+            CommonsUtils.checkUrlSafe(url);
+
             tmpFile = OkHttpUtils.readBinary(url);
             if (tmpFile == null || !tmpFile.exists()) {
                 throw new ToolException("无法从 URL 下载文件: " + url);
@@ -87,6 +89,9 @@ public class UploadFile implements Tool {
 
             long fileSize = FileUtils.sizeOf(tmpFile);
             String fileKey = QiniuCloud.uploadFile(tmpFile, finalFileName);
+            if (fileKey == null) {
+                throw new ToolException("文件上传失败，请稍后重试");
+            }
 
             // 缓存文件大小
             FilesHelper.storeFileSize(fileKey, fileSize);
