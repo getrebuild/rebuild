@@ -1,0 +1,62 @@
+{
+  "type": "function",
+  "function": {
+    "name": "QueryRecords",
+    "description": "查询业务记录，支持按名称模糊搜索、按字段条件过滤和分页排序",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称、数字code或标签名称，支持模糊匹配（可通过 ListEntities 工具查询可用实体）"
+        },
+        "name": {
+          "type": "string",
+          "description": "名称或编号关键词（模糊匹配），会在名称字段和自动编号字段中搜索。不传则返回记录列表"
+        },
+        "filter": {
+          "type": "array",
+          "description": "字段过滤条件数组，每个条件包含 field(字段名)、op(操作符)、value(值)。操作符支持：EQ(等于)、NEQ(不等于)、GT(大于)、LT(小于)、GE(大于等于)、LE(小于等于)、LK(包含)、NLK(不包含)、NL(为空)、NT(不为空)、IN(在列表中，值用逗号分隔)、BW(区间，值用逗号分隔)。示例：[{\"field\":\"status\",\"op\":\"EQ\",\"value\":\"已完成\"},{\"field\":\"amount\",\"op\":\"GT\",\"value\":\"10000\"}]",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "字段名称（必须是实体中存在的字段）"
+              },
+              "op": {
+                "type": "string",
+                "description": "操作符",
+                "enum": ["EQ", "NEQ", "GT", "LT", "GE", "LE", "LK", "NLK", "NL", "NT", "IN", "BW"]
+              },
+              "value": {
+                "type": "string",
+                "description": "过滤值（NL/NT操作符可不传）"
+              }
+            },
+            "required": ["field", "op"]
+          }
+        },
+        "fields": {
+          "type": "string",
+          "description": "返回的字段名称列表（逗号分隔），不传则返回所有可查询字段"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "返回记录数量上限，默认20，最大100"
+        },
+        "sort": {
+          "type": "string",
+          "description": "排序字段及方向，格式为 字段名:asc 或 字段名:desc（如 modifiedOn:desc）。不传则默认按修改时间倒序"
+        },
+        "pageNo": {
+          "type": "integer",
+          "description": "页码（从1开始），配合 limit 实现分页。默认为1"
+        }
+      },
+      "required": [
+        "entity"
+      ]
+    }
+  }
+}
