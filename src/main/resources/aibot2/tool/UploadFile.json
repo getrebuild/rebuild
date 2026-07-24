@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "UploadFile",
-    "description": "上传文件或图片到系统存储。支持 base64 编码数据或 URL 地址两种方式。上传成功后返回 fileKey，可传给 CreateFeed 等工具的 images/attachments 参数使用",
+    "description": "上传文件或图片，支持 BASE64 和 URL 两种方式，返回 fileKey 供其他工具引用",
     "parameters": {
       "type": "object",
       "properties": {

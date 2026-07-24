@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "SuggestCustom",
-    "description": "当用户的需求超出现有工具的能力范围，无法通过现有功能完成时调用此工具。工具会返回定制开发联系提示，你需要将提示内容转达给用户",
+    "description": "当用户需求超出当前工具能力时，引导用户联系定制开发",
     "parameters": {
       "type": "object",
       "properties": {

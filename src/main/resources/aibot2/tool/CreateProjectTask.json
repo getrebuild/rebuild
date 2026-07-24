@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "CreateProjectTask",
-    "description": "在指定项目中新建一条任务。支持指定任务面板、执行人、优先级、截止时间和描述。项目名称支持模糊匹配",
+    "description": "在项目中创建任务，支持指定面板、执行人、优先级、截止时间和附件",
     "parameters": {
       "type": "object",
       "properties": {

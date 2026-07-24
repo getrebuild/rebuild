@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "CreateFeed",
-    "description": "新建一条动态（支持普通动态、跟进、日程三种类型）。可发布文字内容，支持关联业务记录、设置日程提醒和可见范围",
+    "description": "发布动态，支持普通动态、跟进、日程三种类型，可附带图片附件、关联业务记录和设置可见范围",
     "parameters": {
       "type": "object",
       "properties": {

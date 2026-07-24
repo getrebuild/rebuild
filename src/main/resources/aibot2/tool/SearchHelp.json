@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "SearchHelp",
-    "description": "搜索 REBUILD 帮助文档。当用户询问系统使用方法、功能说明、操作指南或配置方式时调用此工具，会返回相关的帮助文档标题、链接和内容摘要",
+    "description": "搜索 REBUILD 帮助文档，返回相关文档标题、链接和摘要。适用于查询系统用法、功能说明和配置指南",
     "parameters": {
       "type": "object",
       "properties": {
