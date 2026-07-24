@@ -11,7 +11,6 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
@@ -68,13 +67,13 @@ public class CreateFeed implements Tool {
         }
 
         // 图片（支持单个 fileKey 字符串或数组）
-        String imagesStr = resolveFileKeys(args.get("images"));
+        String imagesStr = ToolHelper.resolveFileKeys(args.get("images"));
         if (imagesStr != null) {
             record.setString("images", imagesStr);
         }
 
         // 附件（支持单个 fileKey 字符串或数组）
-        String attachmentsStr = resolveFileKeys(args.get("attachments"));
+        String attachmentsStr = ToolHelper.resolveFileKeys(args.get("attachments"));
         if (attachmentsStr != null) {
             record.setString("attachments", attachmentsStr);
         }
@@ -113,23 +112,5 @@ public class CreateFeed implements Tool {
                 new String[]{"status", "id", "message"},
                 new Object[]{"ok", record.getPrimary().toLiteral(),
                         String.format("已成功发布%s，ID: %s", typeName, record.getPrimary())});
-    }
-
-    /**
-     * 解析文件 key 参数（支持字符串或数组）
-     */
-    static String resolveFileKeys(Object value) {
-        if (value == null) return null;
-
-        if (value instanceof JSONArray) {
-            JSONArray arr = (JSONArray) value;
-            return arr.isEmpty() ? null : arr.toJSONString();
-        }
-
-        String str = value.toString().trim();
-        if (str.isEmpty()) return null;
-
-        // 单个 fileKey 字符串，包装为数组
-        return JSON.toJSONString(new String[]{str});
     }
 }

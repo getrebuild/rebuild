@@ -104,39 +104,10 @@ public class ListEntities implements Tool {
      *
      * @param name
      * @return
+     * @see ToolHelper#resolveEntity(String)
      */
     public static Entity resolveEntity(String name) {
-        if (StringUtils.isBlank(name)) return null;
-
-        // 精确匹配实体名称
-        if (MetadataHelper.containsEntity(name)) {
-            return MetadataHelper.getEntity(name);
-        }
-
-        // CODE
-        if (StringUtils.isNumeric(name)) {
-            int code = Integer.parseInt(name);
-            if (MetadataHelper.containsEntity(code)) {
-                return MetadataHelper.getEntity(code);
-            }
-        }
-
-        // 3. 标签模糊匹配
-        String nameLower = name.toLowerCase();
-        Entity fuzzyMatch = null;
-        for (Entity e : MetadataHelper.getEntities()) {
-            String label = EasyMetaFactory.getLabel(e);
-            if (StringUtils.isBlank(label)) continue;
-
-            if (label.equalsIgnoreCase(name)) {
-                return e;
-            }
-            if (label.toLowerCase().contains(nameLower)
-                    || nameLower.contains(label.toLowerCase())) {
-                if (fuzzyMatch == null) fuzzyMatch = e;
-            }
-        }
-        return fuzzyMatch;
+        return ToolHelper.resolveEntity(name);
     }
 
     /**

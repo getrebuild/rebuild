@@ -17,7 +17,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.service.project.ProjectPlanConfigService;
 import com.rebuild.core.service.project.ProjectTaskService;
@@ -96,14 +95,14 @@ public class CreateProjectTask implements Tool {
         // 执行人
         String executor = args.getString("executor");
         if (StringUtils.isNotBlank(executor)) {
-            ID executorId = resolveUser(executor);
+            ID executorId = ToolHelper.resolveUser(executor);
             if (executorId != null) {
                 record.setID("executor", executorId);
             }
         }
 
         // 附件（支持单个 fileKey 字符串或数组）
-        String attachmentsStr = CreateFeed.resolveFileKeys(args.get("attachments"));
+        String attachmentsStr = ToolHelper.resolveFileKeys(args.get("attachments"));
         if (attachmentsStr != null) {
             record.setString("attachments", attachmentsStr);
         }
@@ -194,20 +193,5 @@ public class CreateProjectTask implements Tool {
         }
 
         throw new ToolException("未找到匹配的任务面板: " + planIdent);
-    }
-
-    /**
-     * 解析用户（支持 ID 或全名）
-     */
-    private ID resolveUser(String userIdent) {
-        if (ID.isId(userIdent)) {
-            return ID.valueOf(userIdent);
-        }
-        // 按全名查找
-        ID user = UserHelper.findUserByFullName(userIdent);
-        if (user == null && Application.getUserStore().existsName(userIdent)) {
-            user = Application.getUserStore().getUser(userIdent).getId();
-        }
-        return user;
     }
 }
