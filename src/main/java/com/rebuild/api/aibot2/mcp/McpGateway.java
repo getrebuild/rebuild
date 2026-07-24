@@ -18,6 +18,7 @@ import com.rebuild.utils.RateLimiters;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,6 +50,7 @@ public class McpGateway {
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
             new int[]{600, 6000, 36000},
             new int[]{30, 100, 500});
+    private static final boolean RRL_DISABLED = true;
 
     private static final McpServer MCP_SERVER = new McpServer(
             () -> RebuildConfiguration.get(ConfigurationItem.AppName),
@@ -58,7 +60,7 @@ public class McpGateway {
     public SseEmitter mcpSse(HttpServletRequest request, HttpServletResponse response) {
         String ak = extractBearerToken(request);
         if (ak == null || verifyAk(ak) == null) {
-            response.setStatus(401);
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
             SseEmitter emitter = new SseEmitter(0L);
             emitter.complete();
             return emitter;
@@ -73,24 +75,26 @@ public class McpGateway {
     public void mcp(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String ak = extractBearerToken(request);
         if (ak == null) {
-            writeJson(response, 401, McpServer.errorBody(-32001, "Missing Authorization header"));
+            writeJson(response, HttpStatus.UNAUTHORIZED.value(), McpServer.errorBody(McpServer.ERR_UNAUTHORIZED, "Missing Authorization header"));
             return;
         }
+
         ID user = verifyAk(ak);
         if (user == null) {
-            writeJson(response, 401, McpServer.errorBody(-32001, "Invalid Access Key"));
+            writeJson(response, HttpStatus.UNAUTHORIZED.value(), McpServer.errorBody(McpServer.ERR_UNAUTHORIZED, "Invalid Access Key"));
             return;
         }
-//        if (RRL.overLimitWhenIncremented("mcp:" + user)) {
-//            writeJson(response, 429, McpServer.errorBody(-32000, "Rate limit exceeded"));
-//            return;
-//        }
+
+        if (!RRL_DISABLED && RRL.overLimitWhenIncremented("mcp:" + user)) {
+            writeJson(response, HttpStatus.TOO_MANY_REQUESTS.value(), McpServer.errorBody(McpServer.ERR_RATE_LIMIT, "Rate limit exceeded"));
+            return;
+        }
 
         String body;
         try {
             body = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
         } catch (Exception e) {
-            writeJson(response, 400, McpServer.errorBody(-32700, "Parse error"));
+            writeJson(response, HttpStatus.BAD_REQUEST.value(), McpServer.errorBody(McpServer.ERR_PARSE, "Parse error"));
             return;
         }
 
@@ -98,10 +102,11 @@ public class McpGateway {
         try {
             String result = MCP_SERVER.handle(body);
             if (result == null) {
-                response.setStatus(202);
+                response.setStatus(HttpStatus.ACCEPTED.value());
                 return;
             }
-            writeJson(response, 200, result);
+            writeJson(response, HttpStatus.OK.value(), result);
+
         } finally {
             UserContextHolder.clear();
         }

@@ -13,7 +13,6 @@ import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -82,9 +81,7 @@ public class ToolDefs {
 
         if (getDisabledTools().contains(toolName)) {
             log.warn("Tool disabled : {}", toolName);
-            return JSONUtils.toJSONObject(
-                    new String[]{"status", "message"},
-                    new Object[]{"error", "Tool disabled: " + toolName}).toJSONString();
+            throw new ToolException("Tool disabled: " + toolName);
         }
 
         log.info("Tool call: {} args={}", toolName, arguments);

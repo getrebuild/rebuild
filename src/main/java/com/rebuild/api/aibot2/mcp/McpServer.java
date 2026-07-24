@@ -31,6 +31,14 @@ public class McpServer {
 
     private static final String PROTOCOL_VERSION = "2024-11-05";
 
+    // JSON-RPC 2.0 错误码
+    public static final int ERR_PARSE = -32700;
+    public static final int ERR_INVALID_REQUEST = -32600;
+    public static final int ERR_METHOD_NOT_FOUND = -32601;
+    public static final int ERR_INVALID_PARAMS = -32602;
+    public static final int ERR_RATE_LIMIT = -32000;
+    public static final int ERR_UNAUTHORIZED = -32001;
+
     private final Supplier<String> serverName;
     private final Supplier<String> serverVersion;
 
@@ -54,7 +62,7 @@ public class McpServer {
         try {
             parsed = JSON.parse(requestBody);
         } catch (Exception e) {
-            return errorBody(-32700, "Parse error");
+            return errorBody(ERR_PARSE, "Parse error");
         }
 
         if (parsed instanceof JSONArray) {
@@ -62,7 +70,7 @@ public class McpServer {
             JSONArray results = new JSONArray();
             for (Object item : batch) {
                 if (!(item instanceof JSONObject)) {
-                    results.add(rpcError(null, -32600, "Invalid Request"));
+                    results.add(rpcError(null, ERR_INVALID_REQUEST, "Invalid Request"));
                     continue;
                 }
                 JSONObject r = dispatch((JSONObject) item);
@@ -75,7 +83,7 @@ public class McpServer {
             return r == null ? null : r.toJSONString();
 
         } else {
-            return errorBody(-32600, "Invalid Request");
+            return errorBody(ERR_INVALID_REQUEST, "Invalid Request");
         }
     }
 
@@ -111,14 +119,14 @@ public class McpServer {
         if ("tools/call".equals(method)) {
             String toolName = params.getString("name");
             if (StringUtils.isBlank(toolName)) {
-                return rpcError(id, -32602, "Invalid params: missing tool name");
+                return rpcError(id, ERR_INVALID_PARAMS, "Invalid params: missing tool name");
             }
             return rpcResult(id, toolsCallResult(params));
         }
 
         // 通知（无 id，如 notifications/initialized）无需响应
         if (id == null) return null;
-        return rpcError(id, -32601, "Method not found: " + method);
+        return rpcError(id, ERR_METHOD_NOT_FOUND, "Method not found: " + method);
     }
 
     private JSONObject initResult(JSONObject params) {
