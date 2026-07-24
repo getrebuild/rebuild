@@ -1,0 +1,41 @@
+{
+  "type": "function",
+  "function": {
+    "name": "CreateProjectTask",
+    "description": "在指定项目中新建一条任务。支持指定任务面板、执行人、优先级、截止时间和描述。项目名称支持模糊匹配",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "taskName": {
+          "type": "string",
+          "description": "任务标题（必填）"
+        },
+        "project": {
+          "type": "string",
+          "description": "项目名称或ID（必填，支持模糊匹配。若匹配多个会返回列表供选择）"
+        },
+        "projectPlan": {
+          "type": "string",
+          "description": "任务面板名称或ID（可选，不传则使用第一个可新建的面板）"
+        },
+        "executor": {
+          "type": "string",
+          "description": "执行人用户名或ID（可选，不传则不指定执行人）"
+        },
+        "priority": {
+          "type": "integer",
+          "description": "优先级: 0=较低, 1=普通(默认), 2=紧急, 3=非常紧急"
+        },
+        "deadline": {
+          "type": "string",
+          "description": "截止时间，格式 yyyy-MM-dd HH:mm:ss（可选）"
+        },
+        "description": {
+          "type": "string",
+          "description": "任务描述/备注（可选）"
+        }
+      },
+      "required": ["taskName", "project"]
+    }
+  }
+}

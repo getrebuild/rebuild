@@ -1,0 +1,33 @@
+{
+  "type": "function",
+  "function": {
+    "name": "CreateFeed",
+    "description": "新建一条动态（支持普通动态、跟进、日程三种类型）。可发布文字内容，支持关联业务记录、设置日程提醒和可见范围",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "动态内容文本（必填）"
+        },
+        "type": {
+          "type": "integer",
+          "description": "动态类型: 1=动态(默认), 2=跟进(需关联业务记录), 4=日程(可设置提醒时间)"
+        },
+        "relatedRecord": {
+          "type": "string",
+          "description": "关联的业务记录ID（type=2 跟进时使用，可通过 QueryRecords 工具查询获取）"
+        },
+        "scheduleTime": {
+          "type": "string",
+          "description": "日程时间，格式 yyyy-MM-dd HH:mm:ss（type=4 日程时使用，不传则默认为明天此时）"
+        },
+        "scope": {
+          "type": "string",
+          "description": "可见范围: ALL=公开(默认), SELF=私密, 或传入团队ID表示仅团队可见"
+        }
+      },
+      "required": ["content"]
+    }
+  }
+}
