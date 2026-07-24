@@ -38,13 +38,9 @@ public class ToolDefs {
         register(new FetchUrl());
         register(new SuggestCustom());
         register(new SearchHelp());
-        register(new CreateFeed());
-        register(new CreateProjectTask());
         register(new UploadFile());
         register(new QueryRecords());
         register(new DataStatistics());
-        register(new ExportReport());
-        register(new UpsertRecord());
     }
 
     /**
