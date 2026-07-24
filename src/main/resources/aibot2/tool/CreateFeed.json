@@ -25,6 +25,16 @@
         "scope": {
           "type": "string",
           "description": "可见范围: ALL=公开(默认), SELF=私密, 或传入团队ID表示仅团队可见"
+        },
+        "images": {
+          "type": ["string", "array"],
+          "items": { "type": "string" },
+          "description": "图片文件key（已通过 UploadFile 工具上传的文件标识）。支持单个字符串或数组"
+        },
+        "attachments": {
+          "type": ["string", "array"],
+          "items": { "type": "string" },
+          "description": "附件文件key（已通过 UploadFile 工具上传的文件标识）。支持单个字符串或数组"
         }
       },
       "required": ["content"]

@@ -102,6 +102,12 @@ public class CreateProjectTask implements Tool {
             }
         }
 
+        // 附件（支持单个 fileKey 字符串或数组）
+        String attachmentsStr = CreateFeed.resolveFileKeys(args.get("attachments"));
+        if (attachmentsStr != null) {
+            record.setString("attachments", attachmentsStr);
+        }
+
         record = Application.getBean(ProjectTaskService.class).create(record);
 
         // 获取任务编号

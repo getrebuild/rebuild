@@ -1,0 +1,25 @@
+{
+  "type": "function",
+  "function": {
+    "name": "UploadFile",
+    "description": "上传文件或图片到系统存储。支持 base64 编码数据或 URL 地址两种方式。上传成功后返回 fileKey，可传给 CreateFeed 等工具的 images/attachments 参数使用",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "base64": {
+          "type": "string",
+          "description": "文件的 base64 编码内容（与 url 二选一）。支持带 data:image/png;base64, 前缀或纯 base64 字符串"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件的 HTTP/HTTPS 下载地址（与 base64 二选一）"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "文件名（含扩展名，如 report.pdf、photo.jpg）。不传则自动生成"
+        }
+      },
+      "required": []
+    }
+  }
+}

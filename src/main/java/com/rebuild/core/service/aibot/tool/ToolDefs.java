@@ -41,6 +41,7 @@ public class ToolDefs {
         register(new SearchHelp());
         register(new CreateFeed());
         register(new CreateProjectTask());
+        register(new UploadFile());
     }
 
     /**
