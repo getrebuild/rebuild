@@ -1,0 +1,25 @@
+{
+  "type": "function",
+  "function": {
+    "name": "ExportReport",
+    "description": "导出报表文件。可查看实体下可用报表模板，指定报表和记录后生成下载链接",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称或标签（用于查询可用报表模板）"
+        },
+        "report": {
+          "type": "string",
+          "description": "报表模板ID（可选，不传则返回该实体下可用报表列表）"
+        },
+        "record": {
+          "type": "string",
+          "description": "要导出报表的记录名称、编号或ID。支持模糊搜索，若匹配多条会返回列表供用户选择（导出报表时必填）"
+        }
+      },
+      "required": ["entity"]
+    }
+  }
+}

@@ -9,6 +9,7 @@ package com.rebuild.core.service.aibot.tool;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,7 @@ public class FetchUrl implements Tool {
         if (StringUtils.isBlank(url)) {
             throw new ToolException("URL cannot be blank");
         }
+        CommonsUtils.checkUrlSafe(url);
 
         String method = args.getString("method");
         if (StringUtils.isBlank(method)) method = "GET";

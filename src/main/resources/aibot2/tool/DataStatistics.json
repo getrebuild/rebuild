@@ -1,0 +1,47 @@
+{
+  "type": "function",
+  "function": {
+    "name": "DataStatistics",
+    "description": "数据统计分析，支持 COUNT/SUM/AVG/MAX/MIN 聚合、分组统计和条件过滤",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称、数字code或标签名称（可通过 ListEntities 工具查询可用实体）"
+        },
+        "aggField": {
+          "type": "string",
+          "description": "聚合字段名（COUNT 时可不传或传 *，SUM/AVG/MAX/MIN 时必须为数值或日期字段）"
+        },
+        "aggFunc": {
+          "type": "string",
+          "description": "聚合函数",
+          "enum": ["COUNT", "SUM", "AVG", "MAX", "MIN"]
+        },
+        "groupBy": {
+          "type": "string",
+          "description": "分组字段名（可选，支持逗号分隔多个字段）。如按「状态」分组统计、按「区域」分组等"
+        },
+        "filter": {
+          "type": "array",
+          "description": "过滤条件数组，格式同 QueryRecords 的 filter 参数。每个条件包含 field(字段名)、op(操作符)、value(值)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": { "type": "string" },
+              "op": { "type": "string", "enum": ["EQ", "NEQ", "GT", "LT", "GE", "LE", "LK", "NLK", "NL", "NT", "IN", "BW"] },
+              "value": { "type": "string" }
+            },
+            "required": ["field", "op"]
+          }
+        },
+        "limit": {
+          "type": "integer",
+          "description": "分组结果返回数量上限，默认20，最大100（仅 groupBy 时有效）"
+        }
+      },
+      "required": ["entity", "aggFunc"]
+    }
+  }
+}

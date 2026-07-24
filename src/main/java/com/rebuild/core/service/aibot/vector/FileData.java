@@ -58,6 +58,7 @@ public class FileData implements VectorData {
         } else if (fileOrPath instanceof Path) {
             file = ((Path) fileOrPath).toFile();
         } else if (CommonsUtils.isExternalUrl(filePath)) {
+            CommonsUtils.checkUrlSafe(filePath);
             try {
                 file = OkHttpUtils.readBinary(filePath);
             } catch (IOException e) {

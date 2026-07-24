@@ -1,0 +1,25 @@
+{
+  "type": "function",
+  "function": {
+    "name": "UploadFile",
+    "description": "上传文件或图片，支持 BASE64 和 URL 两种方式，返回 fileKey 供其他工具引用",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "base64": {
+          "type": "string",
+          "description": "文件的 base64 编码内容（与 url 二选一）。支持带 data:image/png;base64, 前缀或纯 base64 字符串"
+        },
+        "url": {
+          "type": "string",
+          "description": "文件的 HTTP/HTTPS 下载地址（与 base64 二选一）"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "文件名（含扩展名，如 report.pdf、photo.jpg）。不传则自动生成"
+        }
+      },
+      "required": []
+    }
+  }
+}
