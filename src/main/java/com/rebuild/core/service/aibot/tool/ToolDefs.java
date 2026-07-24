@@ -41,6 +41,10 @@ public class ToolDefs {
         register(new UploadFile());
         register(new QueryRecords());
         register(new DataStatistics());
+        register(new UpsertRecord());
+        register(new CreateFeed());
+        register(new CreateProjectTask());
+        register(new ExportReport());
     }
 
     /**
@@ -159,4 +163,5 @@ public class ToolDefs {
         }
         return tools;
     }
+
 }
