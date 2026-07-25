@@ -45,6 +45,7 @@ public class ToolDefs {
         register(new CreateFeed());
         register(new CreateProjectTask());
         register(new ExportReport());
+        register(new Approval());
     }
 
     /**
