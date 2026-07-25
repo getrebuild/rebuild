@@ -88,15 +88,18 @@ public class ExportReport implements Tool {
         }
 
         if (ID.isId(record)) {
-            return exportReport(entity, reportId, ID.valueOf(record));
+            return exportReport(entity, reportId, tt, ID.valueOf(record));
         }
 
-        return searchAndExport(entity, reportId, record);
+        return searchAndExport(entity, reportId, tt, record);
     }
 
     private JSONObject listReports(Entity entity) {
         JSONArray reports = DataReportManager.instance.getReportTemplates(entity, TYPE_RECORD, null);
+        for (Object o : reports) ((JSONObject) o).put("type", "RECORD");
+
         JSONArray listReports = DataReportManager.instance.getReportTemplates(entity, TYPE_LIST, null);
+        for (Object o : listReports) ((JSONObject) o).put("type", "LIST");
         reports.addAll(listReports);
 
         if (reports.isEmpty()) {
@@ -110,7 +113,7 @@ public class ExportReport implements Tool {
                 new Object[]{"ok", entity.getName(), reports});
     }
 
-    private JSONObject searchAndExport(Entity entity, ID reportId, String keyword) {
+    private JSONObject searchAndExport(Entity entity, ID reportId, TemplateFile tt, String keyword) {
         Set<String> searchFields = ParseHelper.buildQuickFields(entity, null);
         if (searchFields.isEmpty()) {
             throw new ToolException("实体 [" + entity.getName() + "] 无可搜索字段");
@@ -132,7 +135,7 @@ public class ExportReport implements Tool {
 
         if (array.length == 1) {
             ID recordId = (ID) array[0][0];
-            return exportReport(entity, reportId, recordId);
+            return exportReport(entity, reportId, tt, recordId);
         }
 
         JSONArray records = new JSONArray();
@@ -155,10 +158,9 @@ public class ExportReport implements Tool {
         return result;
     }
 
-    private JSONObject exportReport(Entity entity, ID reportId, ID recordId) {
+    private JSONObject exportReport(Entity entity, ID reportId, TemplateFile tt, ID recordId) {
         File output;
         try {
-            TemplateFile tt = DataReportManager.instance.buildTemplateFile(reportId, entity);
             EasyExcelGenerator reportGenerator;
 
             if (tt.type == DataReportManager.TYPE_WORD) {
@@ -185,28 +187,8 @@ public class ExportReport implements Tool {
             throw new ToolException("无法输出报表，请检查报表模板是否有误");
         }
 
-        if (output instanceof ReportsFile) {
-            try {
-                output = ((ReportsFile) output).toZip(false);
-            } catch (IOException e) {
-                throw new ToolException("报表打包失败 : " + e.getMessage());
-            }
-        }
-
         String fileName = DataReportManager.getPrettyReportName(reportId, recordId, output.getName());
-
-        String fileUrl = String.format("/filex/download/%s?temp=yes&_csrfToken=%s&attname=%s",
-                CodecUtils.urlEncode(output.getName()),
-                AuthTokenManager.generateCsrfToken(90),
-                CodecUtils.urlEncode(fileName));
-        fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
-
-        JSONObject result = new JSONObject();
-        result.put("status", "ok");
-        result.put("fileName", fileName);
-        result.put("downloadUrl", fileUrl);
-        result.put("message", String.format("报表 [%s] 已生成，请点击下载链接获取文件", fileName));
-        return result;
+        return buildDownloadResult(fileName, output);
     }
 
     /**
@@ -276,6 +258,18 @@ public class ExportReport implements Tool {
             throw new ToolException("无法输出报表，请检查报表模板是否有误");
         }
 
+        String fileName = DataReportManager.getPrettyReportName(reportId, entity.getName(), output.getName());
+
+        JSONObject result = buildDownloadResult(fileName, output);
+        result.put("exportCount", exportCount);
+        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，请点击下载链接获取文件", fileName, exportCount));
+        return result;
+    }
+
+    /**
+     * 构建下载结果
+     */
+    private JSONObject buildDownloadResult(String fileName, File output) {
         if (output instanceof ReportsFile) {
             try {
                 output = ((ReportsFile) output).toZip(false);
@@ -283,8 +277,6 @@ public class ExportReport implements Tool {
                 throw new ToolException("报表打包失败 : " + e.getMessage());
             }
         }
-
-        String fileName = DataReportManager.getPrettyReportName(reportId, entity.getName(), output.getName());
 
         String fileUrl = String.format("/filex/download/%s?temp=yes&_csrfToken=%s&attname=%s",
                 CodecUtils.urlEncode(output.getName()),
@@ -296,8 +288,7 @@ public class ExportReport implements Tool {
         result.put("status", "ok");
         result.put("fileName", fileName);
         result.put("downloadUrl", fileUrl);
-        result.put("exportCount", exportCount);
-        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，请点击下载链接获取文件", fileName, exportCount));
+        result.put("message", String.format("报表 [%s] 已生成，请点击下载链接获取文件", fileName));
         return result;
     }
 }
