@@ -46,7 +46,7 @@ public class CreateFeed implements Tool {
         if (type < 1) type = FeedsType.ACTIVITY.getMask();
         // 不允许通过 AI 创建公告
         if (type == FeedsType.ANNOUNCEMENT.getMask()) {
-            throw new ToolException("公告仅管理员可在前端发布，不支持通过 AI 创建");
+            throw new ToolException("公告仅管理员可在前端发布，不支持通过 AI 创建。可选类型: 1=动态, 2=跟进, 4=日程");
         }
         // 校验类型有效性
         if (type != FeedsType.ACTIVITY.getMask()

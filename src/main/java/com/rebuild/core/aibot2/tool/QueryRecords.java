@@ -50,7 +50,7 @@ public class QueryRecords implements Tool {
 
         Entity entity = ListEntities.resolveEntity(entityName);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityName);
+            throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
         String name = args.getString("name");
@@ -64,8 +64,9 @@ public class QueryRecords implements Tool {
         int pageNo = args.getIntValue("pageNo");
         if (pageNo < 1) pageNo = 1;
 
-        // 构建查询字段列表
-        List<String> queryFields = buildQueryFields(entity, fields);
+        // 构建查询字段列表（同时收集无效字段名）
+        JSONArray invalidFields = new JSONArray();
+        List<String> queryFields = buildQueryFields(entity, fields, invalidFields);
         Field primaryField = entity.getPrimaryField();
         Field nameField = entity.getNameField();
 
@@ -74,18 +75,22 @@ public class QueryRecords implements Tool {
         // 分页偏移量
         int offset = (pageNo - 1) * limit;
 
+        JSONObject result;
         // 按名称/编号模糊匹配
         if (StringUtils.isNotBlank(name)) {
-            return queryByName(entity, primaryField, nameField, queryFields, name, limit, offset, orderBy);
+            result = queryByName(entity, primaryField, nameField, queryFields, name, limit, offset, orderBy);
+        } else if (filter != null && !filter.isEmpty()) {
+            // 按字段条件过滤
+            result = queryByFilter(entity, primaryField, nameField, queryFields, filter, equation, limit, offset, orderBy);
+        } else {
+            // 返回记录列表
+            result = queryList(entity, primaryField, nameField, queryFields, limit, offset, orderBy);
         }
 
-        // 按字段条件过滤
-        if (filter != null && !filter.isEmpty()) {
-            return queryByFilter(entity, primaryField, nameField, queryFields, filter, equation, limit, offset, orderBy);
+        if (!invalidFields.isEmpty()) {
+            result.put("invalidFields", invalidFields);
         }
-
-        // 返回记录列表
-        return queryList(entity, primaryField, nameField, queryFields, limit, offset, orderBy);
+        return result;
     }
 
     /**
@@ -125,9 +130,7 @@ public class QueryRecords implements Tool {
             records.add(buildRecordJson(entity, primaryField, nameField, queryFields, row));
         }
 
-        return JSONUtils.toJSONObject(
-                new String[]{"status", "entity", "total", "records"},
-                new Object[]{"ok", entity.getName(), records.size(), records});
+        return buildResult(entity, records, limit, offset, whereClause.toString());
     }
 
     /**
@@ -156,9 +159,7 @@ public class QueryRecords implements Tool {
             records.add(buildRecordJson(entity, primaryField, nameField, queryFields, row));
         }
 
-        return JSONUtils.toJSONObject(
-                new String[]{"status", "entity", "total", "records"},
-                new Object[]{"ok", entity.getName(), records.size(), records});
+        return buildResult(entity, records, limit, offset, whereClause);
     }
 
     /**
@@ -178,9 +179,7 @@ public class QueryRecords implements Tool {
             records.add(buildRecordJson(entity, primaryField, nameField, queryFields, row));
         }
 
-        return JSONUtils.toJSONObject(
-                new String[]{"status", "entity", "total", "records"},
-                new Object[]{"ok", entity.getName(), records.size(), records});
+        return buildResult(entity, records, limit, offset, null);
     }
 
     /**
@@ -196,7 +195,7 @@ public class QueryRecords implements Tool {
         String direction = parts.length > 1 && "asc".equalsIgnoreCase(parts[1].trim()) ? "asc" : "desc";
 
         if (!entity.containsField(sortField)) {
-            throw new ToolException("排序字段不存在 : " + sortField);
+            throw new ToolException("排序字段不存在 : " + sortField + ToolHelper.suggestField(entity, sortField));
         }
 
         return " order by " + sortField + " " + direction;
@@ -205,7 +204,7 @@ public class QueryRecords implements Tool {
     /**
      * 构建查询字段列表（不含主键和名称字段，它们会被单独添加）
      */
-    private List<String> buildQueryFields(Entity entity, String fields) {
+    private List<String> buildQueryFields(Entity entity, String fields, JSONArray invalidFields) {
         Set<String> result = new LinkedHashSet<>();
         Field primaryField = entity.getPrimaryField();
         Field nameField = entity.getNameField();
@@ -225,7 +224,16 @@ public class QueryRecords implements Tool {
             for (String f : fields.split("[,;]")) {
                 f = f.trim();
                 if (StringUtils.isBlank(f)) continue;
-                if (!entity.containsField(f)) continue;
+                if (!entity.containsField(f)) {
+                    if (invalidFields != null) {
+                        JSONObject invalid = new JSONObject();
+                        invalid.put("name", f);
+                        String suggestion = ToolHelper.suggestField(entity, f);
+                        if (StringUtils.isNotBlank(suggestion)) invalid.put("suggestion", suggestion);
+                        invalidFields.add(invalid);
+                    }
+                    continue;
+                }
                 if (f.equals(primaryField.getName())) continue;
                 if (nameField != null && f.equals(nameField.getName())) continue;
                 result.add(f);
@@ -251,6 +259,38 @@ public class QueryRecords implements Tool {
         }
         fields.addAll(queryFields);
         return StringUtils.join(fields, ",");
+    }
+
+    /**
+     * 构建统一响应结果，包含真实总数和分页信息
+     */
+    private JSONObject buildResult(Entity entity, JSONArray records, int limit, int offset, String whereClause) {
+        String countSql = whereClause != null
+                ? String.format("select count(%s) from %s where %s",
+                    entity.getPrimaryField().getName(), entity.getName(), whereClause)
+                : String.format("select count(%s) from %s",
+                    entity.getPrimaryField().getName(), entity.getName());
+
+        int totalCount = records.size();
+        try {
+            Object[] countResult = Application.createQueryNoFilter(countSql).unique();
+            if (countResult != null && countResult.length > 0 && countResult[0] instanceof Number) {
+                totalCount = ((Number) countResult[0]).intValue();
+            }
+        } catch (Exception ex) {
+            log.warn("Failed to count total for {}", entity.getName(), ex);
+        }
+
+        boolean hasMore = offset + records.size() < totalCount;
+
+        JSONObject ret = new JSONObject();
+        ret.put("status", "ok");
+        ret.put("entity", entity.getName());
+        ret.put("entityLabel", EasyMetaFactory.getLabel(entity));
+        ret.put("total", totalCount);
+        ret.put("hasMore", hasMore);
+        ret.put("records", records);
+        return ret;
     }
 
     /**

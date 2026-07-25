@@ -48,7 +48,7 @@ public class ListEntities implements Tool {
     private JSONObject getEntityMeta(String entityIdent) {
         Entity entity = resolveEntity(entityIdent);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityIdent);
+            throw new ToolException("未知实体 : " + entityIdent + ToolHelper.suggestEntity(entityIdent));
         }
 
         JSONObject entityJson = EasyMetaFactory.toJSON(entity);
@@ -118,7 +118,7 @@ public class ListEntities implements Tool {
     private JSONObject listEntities() {
         JSONArray list = new JSONArray();
         for (Entity e : MetadataHelper.getEntities()) {
-            if (!(MetadataHelper.isBusinessEntity(e) || MetadataHelper.isBizzEntity(e))) continue;
+            if (!MetadataHelper.isBusinessEntity(e)) continue;
             if (e.getMainEntity() != null) continue;
 
             JSONObject item = new JSONObject();

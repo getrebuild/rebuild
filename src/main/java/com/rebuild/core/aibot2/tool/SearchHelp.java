@@ -55,7 +55,28 @@ public class SearchHelp implements Tool {
 
         Document doc = Jsoup.parse(html, DOCS_HOME);
 
-        // 定位搜索结果容器（h6 标签包含总条数）
+        // 检测搜索服务异常（h5 标签包含错误信息）
+        Element errorEl = doc.selectFirst("div.results h5");
+        if (errorEl != null) {
+            String errorText = errorEl.text().trim();
+            // 搜索服务不可用
+            if (errorText.contains("暂不可用") || errorText.contains("不可用")) {
+                log.warn("Help search service unavailable : {}", keyword);
+                throw new ToolException("帮助文档搜索服务暂不可用，请稍后重试或直接访问 " + DOCS_HOME);
+            }
+            // 无搜索结果
+            if (errorText.contains("没有找到") || errorText.contains("未找到")) {
+                JSONObject ret = new JSONObject();
+                ret.put("status", "ok");
+                ret.put("keyword", keyword);
+                ret.put("message", "未找到与「" + keyword + "」匹配的帮助文档，请尝试更换关键词");
+                ret.put("searchUrl", url);
+                ret.put("docsHome", DOCS_HOME);
+                return ret;
+            }
+        }
+
+        // 定位搜索结果容器（优先通过 h6 标签，其次通过 div.results）
         Element countEl = doc.selectFirst("h6:contains(搜索结果)");
         int total = 0;
         Element resultsContainer = null;
@@ -66,6 +87,10 @@ public class SearchHelp implements Tool {
             if (StringUtils.isNotBlank(numStr)) {
                 total = Integer.parseInt(numStr);
             }
+        }
+        // 回退方案：直接使用 div.results 作为容器
+        if (resultsContainer == null) {
+            resultsContainer = doc.selectFirst("div.results");
         }
 
         JSONArray results = new JSONArray();
@@ -102,9 +127,13 @@ public class SearchHelp implements Tool {
         }
 
         if (results.isEmpty()) {
-            return JSONUtils.toJSONObject(
-                    new String[]{"status", "keyword", "message"},
-                    new Object[]{"ok", keyword, "未找到匹配的帮助文档，请尝试更换关键词或访问 " + DOCS_HOME});
+            JSONObject ret = new JSONObject();
+            ret.put("status", "ok");
+            ret.put("keyword", keyword);
+            ret.put("message", "未找到匹配的帮助文档，请尝试更换关键词");
+            ret.put("searchUrl", url);
+            ret.put("docsHome", DOCS_HOME);
+            return ret;
         }
 
         JSONObject ret = new JSONObject();
@@ -113,6 +142,7 @@ public class SearchHelp implements Tool {
         ret.put("total", total);
         ret.put("results", results);
         ret.put("searchUrl", url);
+        ret.put("docsHome", DOCS_HOME);
         return ret;
     }
 }

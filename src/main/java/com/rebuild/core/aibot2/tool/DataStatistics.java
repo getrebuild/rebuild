@@ -13,6 +13,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +46,7 @@ public class DataStatistics implements Tool {
 
         Entity entity = ListEntities.resolveEntity(entityName);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityName);
+            throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
         String aggFunc = args.getString("aggFunc");
@@ -94,6 +96,7 @@ public class DataStatistics implements Tool {
         JSONObject ret = new JSONObject();
         ret.put("status", "ok");
         ret.put("entity", entity.getName());
+        ret.put("entityLabel", EasyMetaFactory.getLabel(entity));
         ret.put("aggFunc", aggFunc);
         ret.put("value", value);
         return ret;
@@ -111,7 +114,7 @@ public class DataStatistics implements Tool {
             gf = gf.trim();
             if (StringUtils.isBlank(gf)) continue;
             if (!entity.containsField(gf)) {
-                throw new ToolException("分组字段不存在 : " + gf);
+                throw new ToolException("分组字段不存在 : " + gf + ToolHelper.suggestField(entity, gf));
             }
             groupFields.add(entity.getField(gf));
             groupFieldNames.add(gf);
@@ -150,6 +153,7 @@ public class DataStatistics implements Tool {
         JSONObject ret = new JSONObject();
         ret.put("status", "ok");
         ret.put("entity", entity.getName());
+        ret.put("entityLabel", EasyMetaFactory.getLabel(entity));
         ret.put("aggFunc", aggFunc);
         ret.put("groupBy", groupFieldNames);
         ret.put("total", rows.size());
@@ -168,11 +172,12 @@ public class DataStatistics implements Tool {
         }
 
         if (StringUtils.isBlank(aggField) || "*".equals(aggField.trim())) {
-            throw new ToolException(aggFunc + " 聚合必须指定 aggField（数值或日期字段）");
+            throw new ToolException(aggFunc + " 聚合必须指定 aggField（数值或日期字段）。"
+                    + "实体 [" + EasyMetaFactory.getLabel(entity) + "] 可用字段: " + ToolHelper.listFields(entity));
         }
 
         if (!entity.containsField(aggField)) {
-            throw new ToolException("聚合字段不存在 : " + aggField);
+            throw new ToolException("聚合字段不存在 : " + aggField + ToolHelper.suggestField(entity, aggField));
         }
 
         return aggField;

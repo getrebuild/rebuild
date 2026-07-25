@@ -20,6 +20,7 @@ import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.ReportsFile;
 import com.rebuild.core.service.datareport.TemplateFile;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -62,7 +63,7 @@ public class ExportReport implements Tool {
 
         Entity entity = ListEntities.resolveEntity(entityName);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityName);
+            throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
         String report = args.getString("report");
@@ -105,7 +106,7 @@ public class ExportReport implements Tool {
         if (reports.isEmpty()) {
             return JSONUtils.toJSONObject(
                     new String[]{"status", "message"},
-                    new Object[]{"ok", "实体 [" + entity.getName() + "] 下暂无可用报表模板"});
+                    new Object[]{"ok", "实体 [" + EasyMetaFactory.getLabel(entity) + "] 下暂无可用报表模板"});
         }
 
         return JSONUtils.toJSONObject(
@@ -116,7 +117,7 @@ public class ExportReport implements Tool {
     private JSONObject searchAndExport(Entity entity, ID reportId, TemplateFile tt, String keyword) {
         Set<String> searchFields = ParseHelper.buildQuickFields(entity, null);
         if (searchFields.isEmpty()) {
-            throw new ToolException("实体 [" + entity.getName() + "] 无可搜索字段");
+            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 无可搜索字段");
         }
 
         String like = " like '%" + CommonsUtils.escapeSql(keyword) + "%'";

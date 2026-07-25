@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.ApprovalException;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalProcessor;
@@ -79,13 +80,14 @@ public class Approval implements Tool {
         // 验证实体支持审批
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         if (!MetadataHelper.hasApprovalField(entity)) {
-            throw new ToolException("实体 [" + entity.getName() + "] 不支持审批");
+            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持审批");
         }
 
         // 获取可用审批流程
         FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, user);
         if (defs.length == 0) {
-            throw new ToolException("当前记录没有可用的审批流程");
+            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 未配置审批流程，无法提交审批。"
+                    + "请管理员在「配置中心 - 审批流程」中为该实体配置审批流程");
         }
 
         ID approvalId;
@@ -118,7 +120,8 @@ public class Approval implements Tool {
                     new Object[]{"ok", approvalId.toLiteral(), useDef.getString("name"),
                             "已成功提交审批"});
         } else {
-            throw new ToolException("提交审批失败，可能未配置审批人");
+            throw new ToolException("提交审批失败，审批流程 [" + useDef.getString("name")
+                    + "] 的首个审批节点未配置审批人，请管理员检查流程配置");
         }
     }
 
@@ -193,7 +196,7 @@ public class Approval implements Tool {
         if (!MetadataHelper.hasApprovalField(entity)) {
             return JSONUtils.toJSONObject(
                     new String[]{"status", "message"},
-                    new Object[]{"ok", "实体 [" + entity.getName() + "] 不支持审批"});
+                    new Object[]{"ok", "实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持审批"});
         }
 
         ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);

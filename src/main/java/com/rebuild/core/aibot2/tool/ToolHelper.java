@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2.tool;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -177,5 +178,78 @@ public class ToolHelper {
         if (filter == null || filter.isEmpty()) return null;
         JSONObject filterExpr = buildFilterExpr(entity, filter, equation);
         return new AdvFilterParser(filterExpr, entity).toSqlWhere();
+    }
+
+    /**
+     * 模糊匹配相似字段名
+     *
+     * @param entity 实体
+     * @param fieldName 用户输入的字段名
+     * @return 建议字符串，无匹配返回空字符串
+     */
+    public static String suggestField(Entity entity, String fieldName) {
+        if (StringUtils.isBlank(fieldName)) return "";
+
+        String lower = fieldName.toLowerCase();
+        List<String> candidates = new ArrayList<>();
+
+        for (Field f : entity.getFields()) {
+            if (MetadataHelper.isSystemField(f)) continue;
+            String fn = f.getName().toLowerCase();
+            if (fn.contains(lower) || lower.contains(fn)) {
+                candidates.add(f.getName());
+            }
+        }
+
+        if (candidates.isEmpty()) return "";
+        return candidates.size() == 1
+                ? "，你是否想用 " + candidates.get(0) + "？"
+                : "，相似字段: " + StringUtils.join(candidates, ", ");
+    }
+
+    /**
+     * 列出实体中可用的字段名
+     *
+     * @param entity 实体
+     * @return 逗号分隔的字段名列表，无可用字段返回"（无）"
+     */
+    public static String listFields(Entity entity) {
+        List<String> fields = new ArrayList<>();
+        for (Field f : entity.getFields()) {
+            if (MetadataHelper.isSystemField(f)) continue;
+            fields.add(f.getName());
+        }
+        return fields.isEmpty() ? "（无）" : StringUtils.join(fields, ", ");
+    }
+
+    /**
+     * 模糊匹配相似实体名
+     *
+     * @param name 用户输入的实体名
+     * @return 建议字符串，无匹配返回空字符串
+     */
+    public static String suggestEntity(String name) {
+        if (StringUtils.isBlank(name)) return "";
+
+        String lower = name.toLowerCase();
+        List<String> candidates = new ArrayList<>();
+
+        for (Entity e : MetadataHelper.getEntities()) {
+            if (!MetadataHelper.isBusinessEntity(e)) continue;
+
+            String eName = e.getName().toLowerCase();
+            String eLabel = EasyMetaFactory.getLabel(e);
+            String eLabelLower = eLabel != null ? eLabel.toLowerCase() : "";
+
+            if (eName.contains(lower) || lower.contains(eName)
+                    || eLabelLower.contains(lower) || lower.contains(eLabelLower)) {
+                candidates.add(eLabel + "(" + e.getName() + ")");
+            }
+        }
+
+        if (candidates.isEmpty()) return "";
+        return candidates.size() == 1
+                ? "，你是否想用 " + candidates.get(0) + "？"
+                : "，相似实体: " + StringUtils.join(candidates, ", ");
     }
 }
