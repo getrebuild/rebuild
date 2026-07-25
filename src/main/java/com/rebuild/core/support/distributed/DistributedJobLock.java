@@ -42,7 +42,7 @@ public abstract class DistributedJobLock {
         }
 
         // v4.4
-        if (DistributedSupport.isDistributedEnv() && !isAllowJob(jobName)) {
+        if (DistributedSupport.isDistributedEnv()) {
             if (!isAllowJob(jobName)) {
                 log.info("The job [ {} ] is not allowed to execute on this node : {}",
                         jobName, DistributedSupport.getNodeName());
