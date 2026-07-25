@@ -16,7 +16,7 @@
         },
         "filter": {
           "type": "array",
-          "description": "字段过滤条件数组，每个条件包含 field(字段名)、op(操作符)、value(值)。操作符支持：EQ(等于)、NEQ(不等于)、GT(大于)、LT(小于)、GE(大于等于)、LE(小于等于)、LK(包含)、NLK(不包含)、NL(为空)、NT(不为空)、IN(在列表中，值用逗号分隔)、BW(区间，值用逗号分隔)。示例：[{\"field\":\"status\",\"op\":\"EQ\",\"value\":\"已完成\"},{\"field\":\"amount\",\"op\":\"GT\",\"value\":\"10000\"}]",
+          "description": "字段过滤条件数组，每个条件包含 field(字段名)、op(操作符)、value(值)。操作符支持：EQ(等于)、NEQ(不等于)、GT(大于)、LT(小于)、GE(大于等于)、LE(小于等于)、LK(包含)、NLK(不包含)、NL(为空)、NT(不为空)、IN(在列表中，值用逗号分隔)、BW(区间，需同时传value和value2)。多条件间默认为OR关系（任一满足即匹配）。示例：[{\"field\":\"status\",\"op\":\"EQ\",\"value\":\"已完成\"},{\"field\":\"amount\",\"op\":\"GT\",\"value\":\"10000\"}]",
           "items": {
             "type": "object",
             "properties": {
@@ -26,16 +26,24 @@
               },
               "op": {
                 "type": "string",
-                "description": "操作符",
+                "description": "操作符：EQ=等于, NEQ=不等于, GT=大于, LT=小于, GE=大于等于, LE=小于等于, LK=包含, NLK=不包含, NL=为空, NT=不为空, IN=在列表中, BW=区间(需value2)",
                 "enum": ["EQ", "NEQ", "GT", "LT", "GE", "LE", "LK", "NLK", "NL", "NT", "IN", "BW"]
               },
               "value": {
                 "type": "string",
                 "description": "过滤值（NL/NT操作符可不传）"
+              },
+              "value2": {
+                "type": "string",
+                "description": "区间结束值（仅 BW 操作符使用）"
               }
             },
             "required": ["field", "op"]
           }
+        },
+        "equation": {
+          "type": "string",
+          "description": "多条件间逻辑关系。支持：OR（任一满足，默认）、AND（全部满足）、高级表达式（如 \"1 and (2 or 3)\"，数字代表 filter 中条件的位置，从1开始）"
         },
         "fields": {
           "type": "string",

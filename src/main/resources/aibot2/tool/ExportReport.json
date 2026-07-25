@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "ExportReport",
-    "description": "导出报表文件。可查看实体下可用报表模板，指定报表和记录后生成下载链接",
+    "description": "导出报表文件。指定报表和记录后生成下载链接",
     "parameters": {
       "type": "object",
       "properties": {
@@ -16,7 +16,38 @@
         },
         "record": {
           "type": "string",
-          "description": "要导出报表的记录名称、编号或ID。支持模糊搜索，若匹配多条会返回列表供用户选择（导出报表时必填）"
+          "description": "要导出报表的记录名称、编号或ID。单记录报表必填，支持模糊搜索，若匹配多条会返回列表供用户选择；LIST 报表可选，作为搜索关键词筛选多条记录，不传则导出全部。若传了 filter 参数则优先使用 filter"
+        },
+        "filter": {
+          "type": "array",
+          "description": "过滤条件数组（仅 LIST 报表有效），用于精确筛选导出的记录。每个条件含 field(字段名)、op(操作符)、value(值)。操作符：EQ(等于)、NEQ(不等于)、GT(大于)、LT(小于)、GE(大于等于)、LE(小于等于)、LK(包含)、NLK(不包含)、NL(为空)、NT(不为空)、IN(在列表中，值用逗号分隔)、BW(区间，需同时传value和value2)。多条件间默认为OR关系（任一满足即匹配）。示例：[{\"field\":\"status\",\"op\":\"EQ\",\"value\":\"active\"},{\"field\":\"amount\",\"op\":\"GT\",\"value\":\"10000\"}]",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "字段名称（必须是实体中存在的字段）"
+              },
+              "op": {
+                "type": "string",
+                "description": "操作符：EQ=等于, NEQ=不等于, GT=大于, LT=小于, GE=大于等于, LE=小于等于, LK=包含, NLK=不包含, NL=为空, NT=不为空, IN=在列表中, BW=区间(需value2)",
+                "enum": ["EQ", "NEQ", "GT", "LT", "GE", "LE", "LK", "NLK", "NL", "NT", "IN", "BW"]
+              },
+              "value": {
+                "type": "string",
+                "description": "过滤值（NL/NT操作符可不传）"
+              },
+              "value2": {
+                "type": "string",
+                "description": "区间结束值（仅 BW 操作符使用）"
+              }
+            },
+            "required": ["field", "op"]
+          }
+        },
+        "equation": {
+          "type": "string",
+          "description": "多条件间逻辑关系（仅 LIST 报表有效）。支持：OR（任一满足，默认）、AND（全部满足）、高级表达式（如 \"1 and (2 or 3)\"，数字代表 filter 中条件的位置，从1开始）"
         }
       },
       "required": ["entity"]

@@ -11,10 +11,12 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -126,5 +128,54 @@ public class ToolHelper {
             user = Application.getUserStore().getUser(userIdent).getId();
         }
         return user;
+    }
+
+    /**
+     * 构建过滤表达式（AdvFilterParser 所需格式）
+     * 将工具传入的 filter 条件数组包装为 { entity, items } 格式
+     *
+     * @param entity 实体
+     * @param filter 过滤条件数组（每个元素含 field/op/value），可为 null
+     * @return 过滤表达式 JSONObject
+     */
+    public static JSONObject buildFilterExpr(Entity entity, JSONArray filter) {
+        return buildFilterExpr(entity, filter, null);
+    }
+
+    /**
+     * 构建过滤表达式（AdvFilterParser 所需格式）
+     * 将工具传入的 filter 条件数组包装为 { entity, items, equation } 格式
+     *
+     * @param entity 实体
+     * @param filter 过滤条件数组（每个元素含 field/op/value），可为 null
+     * @param equation 条件间关系：AND/OR，或高级表达式如 "1 and (2 or 3)"，为空默认 OR
+     * @return 过滤表达式 JSONObject
+     */
+    public static JSONObject buildFilterExpr(Entity entity, JSONArray filter, String equation) {
+        JSONObject filterExpr = new JSONObject();
+        filterExpr.put("entity", entity.getName());
+        filterExpr.put("items", filter != null ? filter : new JSONArray());
+        if (StringUtils.isNotBlank(equation)) {
+            filterExpr.put("equation", equation);
+        }
+        return filterExpr;
+    }
+
+    public static String parseFilterToWhere(Entity entity, JSONArray filter) {
+        return parseFilterToWhere(entity, filter, null);
+    }
+
+    /**
+     * 解析过滤条件为 SQL where 子句
+     *
+     * @param entity 实体
+     * @param filter 过滤条件数组（每个元素含 field/op/value）
+     * @param equation 条件间关系：AND/OR，或高级表达式如 "1 and (2 or 3)"，为空默认 OR
+     * @return SQL where 子句，无有效条件时返回 null
+     */
+    public static String parseFilterToWhere(Entity entity, JSONArray filter, String equation) {
+        if (filter == null || filter.isEmpty()) return null;
+        JSONObject filterExpr = buildFilterExpr(entity, filter, equation);
+        return new AdvFilterParser(filterExpr, entity).toSqlWhere();
     }
 }

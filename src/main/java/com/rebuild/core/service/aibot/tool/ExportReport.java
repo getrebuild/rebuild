@@ -15,10 +15,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
+import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.ReportsFile;
+import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.CommonsUtils;
@@ -45,6 +48,9 @@ public class ExportReport implements Tool {
 
     private static final int MAX_SEARCH_RESULTS = 10;
 
+    // LIST 报表最大导出行数
+    private static final int MAX_LIST_EXPORT_ROWS = 1000;
+
     @Override
     public Object tool(String arguments) throws Exception {
         JSONObject args = StringUtils.isBlank(arguments) ? new JSONObject() : JSON.parseObject(arguments);
@@ -66,15 +72,26 @@ public class ExportReport implements Tool {
             return listReports(entity);
         }
 
+        ID reportId = ID.valueOf(report);
+        TemplateFile tt = DataReportManager.instance.buildTemplateFile(reportId, entity);
+
+        JSONArray filter = args.getJSONArray("filter");
+        String equation = args.getString("equation");
+
+        // LIST 报表按条件导出多条记录，其他为单记录报表
+        if (tt.type == DataReportManager.TYPE_LIST) {
+            return exportListReport(entity, reportId, record, filter, equation);
+        }
+
         if (StringUtils.isBlank(record)) {
             throw new ToolException("请提供要导出报表的记录名称或编号 (record)");
         }
 
         if (ID.isId(record)) {
-            return exportReport(entity, ID.valueOf(report), ID.valueOf(record));
+            return exportReport(entity, reportId, ID.valueOf(record));
         }
 
-        return searchAndExport(entity, ID.valueOf(report), record);
+        return searchAndExport(entity, reportId, record);
     }
 
     private JSONObject listReports(Entity entity) {
@@ -141,12 +158,27 @@ public class ExportReport implements Tool {
     private JSONObject exportReport(Entity entity, ID reportId, ID recordId) {
         File output;
         try {
-            EasyExcelGenerator reportGenerator = EasyExcelGenerator.create(reportId, Collections.singletonList(recordId));
+            TemplateFile tt = DataReportManager.instance.buildTemplateFile(reportId, entity);
+            EasyExcelGenerator reportGenerator;
+
+            if (tt.type == DataReportManager.TYPE_WORD) {
+                reportGenerator = RbvFunction.call().createWord(reportId, new ID[]{recordId});
+            } else if (tt.type == DataReportManager.TYPE_HTML5) {
+                reportGenerator = RbvFunction.call().createHtml5(reportId, new ID[]{recordId}, false);
+            } else {
+                reportGenerator = EasyExcelGenerator.create(reportId, Collections.singletonList(recordId));
+            }
+
+            if (reportGenerator == null) {
+                throw new ToolException("当前环境不支持此类型报表的导出");
+            }
             reportGenerator.setReportId(reportId);
             output = reportGenerator.generate();
+        } catch (ToolException ex) {
+            throw ex;
         } catch (Exception ex) {
             log.error("Report export failed : {} / {}", reportId, recordId, ex);
-            throw new ToolException("报表生成失败 : " + ex.getMessage());
+            throw new ToolException("报表生成失败 : " + CommonsUtils.getRootMessage(ex));
         }
 
         if (output == null) {
@@ -174,6 +206,98 @@ public class ExportReport implements Tool {
         result.put("fileName", fileName);
         result.put("downloadUrl", fileUrl);
         result.put("message", String.format("报表 [%s] 已生成，请点击下载链接获取文件", fileName));
+        return result;
+    }
+
+    /**
+     * 导出 LIST 报表（列表报表），可按条件导出多条记录
+     *
+     * @param entity
+     * @param reportId
+     * @param keyword 搜索关键词（可为空，为空则导出全部）
+     * @return
+     */
+    private JSONObject exportListReport(Entity entity, ID reportId, String keyword, JSONArray filter, String equation) {
+        // 构建查询数据
+        JSONObject queryData = new JSONObject();
+        queryData.put("entity", entity.getName());
+        queryData.put("pageNo", 1);
+        queryData.put("pageSize", MAX_LIST_EXPORT_ROWS);
+
+        JSONArray fields = new JSONArray();
+        fields.add(entity.getPrimaryField().getName());
+        queryData.put("fields", fields);
+
+        JSONObject filterObj = ToolHelper.buildFilterExpr(entity, null, equation);
+        queryData.put("filter", filterObj);
+
+        // 优先使用 filter 条件，其次使用关键词搜索
+        if (filter != null && !filter.isEmpty()) {
+            filterObj.put("items", filter);
+        } else if (StringUtils.isNotBlank(keyword)) {
+            if (ID.isId(keyword)) {
+                JSONObject item = new JSONObject();
+                item.put("op", ParseHelper.IN);
+                item.put("field", entity.getPrimaryField().getName());
+                item.put("value", keyword);
+
+                JSONArray items = new JSONArray();
+                items.add(item);
+                filterObj.put("items", items);
+            } else {
+                Set<String> searchFields = ParseHelper.buildQuickFields(entity, null);
+                if (!searchFields.isEmpty()) {
+                    JSONArray items = new JSONArray();
+                    for (String field : searchFields) {
+                        JSONObject item = new JSONObject();
+                        item.put("op", ParseHelper.LK);
+                        item.put("field", field);
+                        item.put("value", keyword);
+                        items.add(item);
+                    }
+                    filterObj.put("items", items);
+                    filterObj.put("equation", "OR");
+                }
+            }
+        }
+
+        File output;
+        int exportCount;
+        try {
+            DataExporter exporter = new DataExporter(queryData);
+            output = exporter.export(reportId);
+            exportCount = exporter.getExportCount();
+        } catch (Exception ex) {
+            log.error("List report export failed : {} / {}", reportId, keyword, ex);
+            throw new ToolException("列表报表生成失败 : " + CommonsUtils.getRootMessage(ex));
+        }
+
+        if (output == null) {
+            throw new ToolException("无法输出报表，请检查报表模板是否有误");
+        }
+
+        if (output instanceof ReportsFile) {
+            try {
+                output = ((ReportsFile) output).toZip(false);
+            } catch (IOException e) {
+                throw new ToolException("报表打包失败 : " + e.getMessage());
+            }
+        }
+
+        String fileName = DataReportManager.getPrettyReportName(reportId, entity.getName(), output.getName());
+
+        String fileUrl = String.format("/filex/download/%s?temp=yes&_csrfToken=%s&attname=%s",
+                CodecUtils.urlEncode(output.getName()),
+                AuthTokenManager.generateCsrfToken(90),
+                CodecUtils.urlEncode(fileName));
+        fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
+
+        JSONObject result = new JSONObject();
+        result.put("status", "ok");
+        result.put("fileName", fileName);
+        result.put("downloadUrl", fileUrl);
+        result.put("exportCount", exportCount);
+        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，请点击下载链接获取文件", fileName, exportCount));
         return result;
     }
 }

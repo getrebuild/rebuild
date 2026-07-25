@@ -17,7 +17,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +55,7 @@ public class QueryRecords implements Tool {
 
         String name = args.getString("name");
         JSONArray filter = args.getJSONArray("filter");
+        String equation = args.getString("equation");
         String fields = args.getString("fields");
         String sort = args.getString("sort");
         int limit = args.getIntValue("limit");
@@ -81,7 +81,7 @@ public class QueryRecords implements Tool {
 
         // 按字段条件过滤
         if (filter != null && !filter.isEmpty()) {
-            return queryByFilter(entity, primaryField, nameField, queryFields, filter, limit, offset, orderBy);
+            return queryByFilter(entity, primaryField, nameField, queryFields, filter, equation, limit, offset, orderBy);
         }
 
         // 返回记录列表
@@ -134,15 +134,10 @@ public class QueryRecords implements Tool {
      * 按字段条件过滤查询（使用 AdvFilterParser 解析条件）
      */
     private JSONObject queryByFilter(Entity entity, Field primaryField, Field nameField,
-                                     List<String> queryFields, JSONArray filter, int limit, int offset, String orderBy) {
-        // 构建 AdvFilterParser 所需的过滤表达式
-        JSONObject filterExpr = new JSONObject();
-        filterExpr.put("entity", entity.getName());
-        filterExpr.put("items", filter);
-
+                                     List<String> queryFields, JSONArray filter, String equation, int limit, int offset, String orderBy) {
         String whereClause;
         try {
-            whereClause = new AdvFilterParser(filterExpr, entity).toSqlWhere();
+            whereClause = ToolHelper.parseFilterToWhere(entity, filter, equation);
         } catch (Exception ex) {
             throw new ToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
         }
