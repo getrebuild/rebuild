@@ -1,0 +1,111 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+package com.rebuild.core.aibot2;
+
+import com.openai.client.OpenAIClient;
+import com.openai.client.okhttp.OpenAIOkHttpClient;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
+
+/**
+ * @author Zixin
+ * @since 2025/6/8
+ */
+public class Config {
+
+    private static OpenAIClient CLIENT;
+
+    /**
+     * @return
+     */
+    public static OpenAIClient getClient() {
+        return getClient(false);
+    }
+
+    /**
+     * @param reset
+     * @return
+     */
+    public static OpenAIClient getClient(boolean reset) {
+        if (reset && CLIENT != null) {
+            CLIENT.close();
+            CLIENT = null;
+        }
+
+        if (CLIENT != null) return CLIENT;
+
+        CLIENT = OpenAIOkHttpClient.builder()
+                .baseUrl(getServerUrl(null))
+                .apiKey(getSecret())
+                .build();
+        return CLIENT;
+    }
+
+    /**
+     * @param system
+     * @param model
+     * @return
+     */
+    public static ChatCompletionCreateParams.Builder createBuilder(String system, String model) {
+        if (StringUtils.isBlank(model)) model = getDefModel();
+        ChatCompletionCreateParams.Builder b = ChatCompletionCreateParams.builder()
+                .model(model);
+        if (StringUtils.isNotBlank(system)) b.addSystemMessage(system);
+        return b;
+    }
+
+    // --
+
+    /**
+     * 是否可用
+     *
+     * @return
+     */
+    public static boolean availableAiBot() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotDSSecret) != null;
+    }
+
+    /**
+     * @param path
+     * @return
+     */
+    public static String getServerUrl(String path) {
+        String url = RebuildConfiguration.get(ConfigurationItem.AibotDSUrl);
+        if (!url.endsWith("/")) url += "/";
+        if (path == null) return url;
+
+        if (path.startsWith("/")) path = path.substring(1);
+        return url + path;
+    }
+
+    /**
+     * @return
+     */
+    public static String getSecret() {
+        String sk = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
+        Assert.notNull(sk, "[AibotDSSecret] is not set");
+        return sk;
+    }
+
+    /**
+     * @return
+     */
+    public static String getBasePrompt() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotBasePrompt);
+    }
+
+    /**
+     * @return
+     */
+    public static String getDefModel() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
+    }
+}

@@ -10,7 +10,7 @@ package com.rebuild.api.aibot2.mcp;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.service.aibot.tool.ToolDefs;
+import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

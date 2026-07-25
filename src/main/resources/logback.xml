@@ -31,6 +31,22 @@
     <logger name="com.rebuild.core" level="INFO" />
     <logger name="com.rebuild.rbv" level="INFO" />
     <logger name="com.rebuild.customized" level="INFO" />
+
+    <!-- AI 工具独立日志 -->
+    <appender name="FILE-AIBOT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%-20thread] [%reqid] %logger{36}:%line - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_HOME}/rebuild.AIBOT.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+    </appender>
+    <logger name="com.rebuild.core.aibot2" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-AIBOT" />
+    </logger>
     <!-- <logger name="cn.devezhao.persist4j.query.AjqlResultImpl" level="DEBUG" /> -->
     <!-- <logger name="org.springframework.transaction.support" level="DEBUG" /> -->
     <!-- <logger name="org.springframework.jdbc.datasource" level="DEBUG" /> -->
