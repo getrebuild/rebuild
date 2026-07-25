@@ -521,7 +521,7 @@ public class ConfigurationController extends BaseController {
 
     @GetMapping("integration/aibot/tools")
     public RespBody listAibotTools() {
-        return RespBody.ok(ToolDefs.listTools());
+        return RespBody.ok(ToolDefs.listTools(true, false));
     }
 
     @GetMapping("integration/aibot/stats")

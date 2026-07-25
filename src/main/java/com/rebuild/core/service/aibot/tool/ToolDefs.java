@@ -116,39 +116,17 @@ public class ToolDefs {
     }
 
     /**
-     * 列出所有可用工具（供前端展示）
+     * 列出工具定义
      *
+     * @param includeDisabled
+     * @param includeSchema MCP 需要
      * @return
      */
-    public static List<JSONObject> listTools() {
+    public static List<JSONObject> listTools(boolean includeDisabled, boolean includeSchema) {
         Set<String> disabled = getDisabledTools();
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
-            String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
-            if (d == null) continue;
-
-            JSONObject dJson = JSONObject.parseObject(d);
-            JSONObject funcJson = dJson.getJSONObject("function");
-
-            JSONObject tool = new JSONObject();
-            tool.put("name", funcJson.getString("name"));
-            tool.put("description", funcJson.getString("description"));
-            tool.put("disabled", disabled.contains(toolName));
-            tools.add(tool);
-        }
-        return tools;
-    }
-
-    /**
-     * 列出 MCP 协议格式的工具（含 inputSchema，供原生 MCP 端点 tools/list 使用）
-     *
-     * @return
-     */
-    public static List<JSONObject> mcpTools() {
-        Set<String> disabled = getDisabledTools();
-        List<JSONObject> tools = new ArrayList<>();
-        for (String toolName : TOOL_MAP.keySet()) {
-            if (disabled.contains(toolName)) continue;
+            if (!includeDisabled && disabled.contains(toolName)) continue;
 
             String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
             if (d == null) continue;
@@ -158,7 +136,8 @@ public class ToolDefs {
             JSONObject tool = new JSONObject(true);
             tool.put("name", funcJson.getString("name"));
             tool.put("description", funcJson.getString("description"));
-            tool.put("inputSchema", funcJson.getJSONObject("parameters"));
+            if (includeDisabled) tool.put("disabled", disabled.contains(toolName));
+            if (includeSchema) tool.put("inputSchema", funcJson.getJSONObject("parameters"));
             tools.add(tool);
         }
         return tools;

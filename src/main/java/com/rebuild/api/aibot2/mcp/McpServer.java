@@ -146,7 +146,7 @@ public class McpServer {
 
     private JSONObject toolsListResult() {
         JSONObject result = new JSONObject(true);
-        result.put("tools", ToolDefs.mcpTools());
+        result.put("tools", ToolDefs.listTools(false, true));
         return result;
     }
 

@@ -31,6 +31,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.rebuild.core.service.datareport.DataReportManager.TYPE_LIST;
+import static com.rebuild.core.service.datareport.DataReportManager.TYPE_RECORD;
+
 /**
  * 报表导出工具
  *
@@ -75,10 +78,8 @@ public class ExportReport implements Tool {
     }
 
     private JSONObject listReports(Entity entity) {
-        JSONArray reports = DataReportManager.instance.getReportTemplates(
-                entity, DataReportManager.TYPE_RECORD, null);
-        JSONArray listReports = DataReportManager.instance.getReportTemplates(
-                entity, DataReportManager.TYPE_LIST, null);
+        JSONArray reports = DataReportManager.instance.getReportTemplates(entity, TYPE_RECORD, null);
+        JSONArray listReports = DataReportManager.instance.getReportTemplates(entity, TYPE_LIST, null);
         reports.addAll(listReports);
 
         if (reports.isEmpty()) {
