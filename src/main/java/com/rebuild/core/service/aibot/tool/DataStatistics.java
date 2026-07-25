@@ -1,5 +1,8 @@
 /*!
-Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.core.service.aibot.tool;
@@ -10,10 +13,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.general.FieldValueHelper;
-import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 数据统计/聚合工具。支持 COUNT/SUM/AVG/MAX/MIN + GROUP BY + 条件过滤
+ * 数据统计/聚合工具
  *
  * @author RB
  * @since 2026/7/23

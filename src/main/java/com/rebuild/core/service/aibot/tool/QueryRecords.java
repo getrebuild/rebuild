@@ -1,5 +1,8 @@
 /*!
-Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.core.service.aibot.tool;
@@ -104,7 +107,9 @@ public class QueryRecords implements Tool {
         }
 
         String fieldsSql = buildFieldsSql(primaryField, nameField, queryFields);
-        String likeValue = "'%" + name.replace("'", "''") + "%'";
+        // 转义 LIKE 通配符防注入，同时处理单引号
+        String escapedName = name.replace("'", "''").replace("%", "\\%").replace("_", "\\_");
+        String likeValue = "'%" + escapedName + "%'";
         StringBuilder whereClause = new StringBuilder();
         for (int i = 0; i < searchFields.size(); i++) {
             if (i > 0) whereClause.append(" or ");

@@ -42,7 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 将文件或文本内容解析为实体记录 JSON，默认保存，可选输出 JSON
+ * 将文件或文本内容解析为实体记录 JSON 默认保存
  *
  * @author RB
  * @since 2026/6/11

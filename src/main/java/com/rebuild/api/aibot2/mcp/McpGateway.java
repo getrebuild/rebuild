@@ -56,6 +56,8 @@ public class McpGateway {
             () -> RebuildConfiguration.get(ConfigurationItem.AppName),
             () -> Application.VER);
 
+    // TODO SSE 流式传输尚未实现，当前 MCP 通信通过 POST /gw/mcp/sse 完成
+
     @GetMapping("sse")
     public SseEmitter mcpSse(HttpServletRequest request, HttpServletResponse response) {
         String ak = extractBearerToken(request);
@@ -66,8 +68,10 @@ public class McpGateway {
             return emitter;
         }
 
-        SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
-        emitter.onTimeout(emitter::complete);
+        // v4.5 暂不支持 SSE 流式，返回 405
+        response.setStatus(HttpStatus.METHOD_NOT_ALLOWED.value());
+        SseEmitter emitter = new SseEmitter(0L);
+        emitter.complete();
         return emitter;
     }
 

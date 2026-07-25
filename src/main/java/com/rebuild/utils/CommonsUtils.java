@@ -279,7 +279,9 @@ public class CommonsUtils {
     }
 
     /**
-     * URL 安全校验（防 SSRF），仅允许 HTTP/HTTPS 且拒绝内网地址
+     * URL 安全校验（防 SSRF），仅允许 HTTP/HTTPS 且拒绝内网地址。
+     * 注意：存在 DNS Rebinding 绕过风险（首次解析为公网 IP 通过检查，实际请求时 DNS 可能解析为内网 IP），
+     * 当前为开发版实现，后续可考虑在 HTTP 客户端层面复用已解析的 IP 进行连接。
      *
      * @param url
      * @throws RebuildException
@@ -549,12 +551,22 @@ public class CommonsUtils {
      * @return
      */
     public static boolean isImageFile(File file) {
-        String filename = file.getName().toLowerCase();
-        return  filename.endsWith(".gif")
-                || filename.endsWith(".png")
-                || filename.endsWith(".jpg")
-                || filename.endsWith(".jpeg")
-                || filename.endsWith(".bmp");
+        return isImageFile(file.getName());
+    }
+
+    /**
+     * 是否图片
+     *
+     * @param fileName
+     * @return
+     */
+    public static boolean isImageFile(String fileName) {
+        fileName = fileName.toLowerCase();
+        return  fileName.endsWith(".gif")
+                || fileName.endsWith(".png")
+                || fileName.endsWith(".jpg")
+                || fileName.endsWith(".jpeg")
+                || fileName.endsWith(".bmp");
     }
 
     /**

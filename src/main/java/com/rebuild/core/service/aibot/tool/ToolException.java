@@ -9,7 +9,6 @@ package com.rebuild.core.service.aibot.tool;
 
 import com.rebuild.core.service.aibot.AiBotException;
 
-
 /**
  * @author devezhao
  * @since 2026/7/10

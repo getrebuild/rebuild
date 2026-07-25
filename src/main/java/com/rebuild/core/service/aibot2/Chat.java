@@ -24,6 +24,7 @@ import com.rebuild.core.service.aibot.AiBotException;
 import com.rebuild.core.service.aibot.StreamEcho;
 import com.rebuild.core.service.aibot.tool.ToolDefs;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.utils.CommonsUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -94,7 +95,7 @@ public class Chat implements Serializable {
                 String toolCallId = fn.id();
                 String fnName = fn.function().name();
                 String fnArgs = fn.function().arguments();
-                String toolResult = ToolDefs.execute(fnName, fnArgs);
+                String toolResult = safeExecute(fnName, fnArgs);
 
                 builder.addMessage(ChatCompletionToolMessageParam.builder()
                         .toolCallId(toolCallId)
@@ -207,7 +208,7 @@ public class Chat implements Serializable {
                 String tcId = entry[0];
                 String fnName = entry[1];
                 String fnArgs = entry[2] == null ? "" : entry[2];
-                String toolResult = ToolDefs.execute(fnName, fnArgs);
+                String toolResult = safeExecute(fnName, fnArgs);
 
                 builder.addMessage(ChatCompletionToolMessageParam.builder()
                         .toolCallId(tcId)
@@ -241,7 +242,7 @@ public class Chat implements Serializable {
                 String toolCallId = fn.id();
                 String fnName = fn.function().name();
                 String fnArgs = fn.function().arguments();
-                String toolResult = ToolDefs.execute(fnName, fnArgs);
+                String toolResult = safeExecute(fnName, fnArgs);
 
                 builder.addMessage(ChatCompletionToolMessageParam.builder()
                         .toolCallId(toolCallId)
@@ -255,6 +256,22 @@ public class Chat implements Serializable {
         }
 
         return ai.content().orElse("");
+    }
+
+    /**
+     * 安全执行工具调用，异常时返回错误信息而非中断会话
+     *
+     * @param toolName
+     * @param arguments
+     * @return
+     */
+    private String safeExecute(String toolName, String arguments) {
+        try {
+            return ToolDefs.execute(toolName, arguments);
+        } catch (Exception ex) {
+            log.error("Tool execution failed in chat : {}", toolName, ex);
+            return CommonsUtils.getRootMessage(ex);
+        }
     }
 
     private ChatCompletionService completions() {
