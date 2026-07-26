@@ -25,7 +25,7 @@
         },
         "filter": {
           "type": "array",
-          "description": "过滤条件数组，格式同 QueryRecords 的 filter 参数。每个条件包含 field(字段名)、op(操作符)、value(值)",
+          "description": "过滤条件数组，格式同 QueryRecords 的 filter 参数。每个条件包含 field(字段名)、op(操作符)、value(值)。REFERENCE字段按名称筛选在字段名前加&前缀，如 &WarehouseId",
           "items": {
             "type": "object",
             "properties": {
