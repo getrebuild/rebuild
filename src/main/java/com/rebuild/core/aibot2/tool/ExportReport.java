@@ -15,12 +15,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.ReportsFile;
 import com.rebuild.core.service.datareport.TemplateFile;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -126,7 +126,7 @@ public class ExportReport implements Tool {
         String sql = String.format("select %s from %s where %s order by modifiedOn desc",
                 entity.getPrimaryField().getName(), entity.getName(), where);
 
-        Object[][] array = Application.createQueryNoFilter(sql).setLimit(MAX_SEARCH_RESULTS).array();
+        Object[][] array = Application.createQuery(sql).setLimit(MAX_SEARCH_RESULTS).array();
 
         if (array == null || array.length == 0) {
             return JSONUtils.toJSONObject(

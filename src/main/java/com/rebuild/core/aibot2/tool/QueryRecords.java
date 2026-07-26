@@ -18,7 +18,6 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.general.FieldValueHelper;
-import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -124,7 +123,7 @@ public class QueryRecords implements Tool {
         String sql = String.format("select %s from %s where %s%s",
                 fieldsSql, entity.getName(), whereClause, orderBy);
 
-        Object[][] results = Application.createQueryNoFilter(sql).setLimit(limit, offset).array();
+        Object[][] results = Application.createQuery(sql).setLimit(limit, offset).array();
         JSONArray records = new JSONArray();
         for (Object[] row : results) {
             records.add(buildRecordJson(entity, primaryField, nameField, queryFields, row));
@@ -153,7 +152,7 @@ public class QueryRecords implements Tool {
         String sql = String.format("select %s from %s where %s%s",
                 fieldsSql, entity.getName(), whereClause, orderBy);
 
-        Object[][] results = Application.createQueryNoFilter(sql).setLimit(limit, offset).array();
+        Object[][] results = Application.createQuery(sql).setLimit(limit, offset).array();
         JSONArray records = new JSONArray();
         for (Object[] row : results) {
             records.add(buildRecordJson(entity, primaryField, nameField, queryFields, row));
@@ -170,7 +169,7 @@ public class QueryRecords implements Tool {
         String fieldsSql = buildFieldsSql(primaryField, nameField, queryFields);
         String sql = String.format("select %s from %s%s", fieldsSql, entity.getName(), orderBy);
 
-        Object[][] results = Application.createQueryNoFilter(sql)
+        Object[][] results = Application.createQuery(sql)
                 .setLimit(limit, offset)
                 .array();
 
@@ -273,7 +272,7 @@ public class QueryRecords implements Tool {
 
         int totalCount = records.size();
         try {
-            Object[] countResult = Application.createQueryNoFilter(countSql).unique();
+            Object[] countResult = Application.createQuery(countSql).unique();
             if (countResult != null && countResult.length > 0 && countResult[0] instanceof Number) {
                 totalCount = ((Number) countResult[0]).intValue();
             }

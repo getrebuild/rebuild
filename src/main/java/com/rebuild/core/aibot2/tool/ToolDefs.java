@@ -10,6 +10,7 @@ package com.rebuild.core.aibot2.tool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletionTool;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
@@ -78,6 +79,8 @@ public class ToolDefs {
      * @return 执行结果（JSON 字符串）
      */
     public static String execute(String toolName, String arguments) {
+        UserContextHolder.getUser();
+
         Tool tool = TOOL_MAP.get(toolName);
         if (tool == null) {
             log.warn("Tool not found : {}", toolName);
