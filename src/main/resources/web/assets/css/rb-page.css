@@ -4644,6 +4644,23 @@ html.external-auth .auth-body.must-center .login {
   color: #777;
 }
 
+.skill-import-list > div {
+  border: 1px solid #eee;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 2px;
+}
+
+.skill-import-list > div p {
+  max-height: 36px;
+  line-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  font-size: 12px;
+  color: #777;
+}
+
 .btn.btn-light {
   box-shadow: none;
 }

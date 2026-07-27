@@ -52,6 +52,17 @@ public class RBStore {
     }
 
     /**
+     * for Skills
+     *
+     * @param fileUri
+     * @return
+     */
+    public static JSON fetchSkills(String fileUri) {
+        return fetchRemoteJson("skills/" +
+                StringUtils.defaultIfBlank(fileUri, "index.json"));
+    }
+
+    /**
      * @param fileUrl
      * @return
      * @throws RebuildException
