@@ -101,18 +101,11 @@ public class LoginController extends LoginAction {
         }
 
         // 登录页
-
-        ModelAndView mv;
-        if (RebuildConfiguration.getInt(ConfigurationItem.LoginPageStyle) == 44) {
-            mv = createModelAndView("/signup/login-v44");
-            String m = RebuildConfiguration.get(LoginBulletinBoard);
-            if (StringUtils.isBlank(m)) m = (String) LoginBulletinBoard.getDefaultValue();
-
-            m = MarkdownUtils.render(m, true, true);
-            mv.getModel().put("_LoginBulletinBoard", m);
-        } else {
-            mv = createModelAndView("/signup/login");
-        }
+        ModelAndView mv = createModelAndView("/signup/login");
+        String m = RebuildConfiguration.get(LoginBulletinBoard);
+        if (StringUtils.isBlank(m)) m = (String) LoginBulletinBoard.getDefaultValue();
+        m = MarkdownUtils.render(m, true, true);
+        mv.getModel().put("_LoginBulletinBoard", m);
 
         // 切换语言
         putLocales(mv, AppUtils.getReuqestLocale(request));
