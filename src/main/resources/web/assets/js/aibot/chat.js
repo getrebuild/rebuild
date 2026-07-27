@@ -177,7 +177,7 @@ class ChatInput extends React.Component {
               <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
                 <i className="mdi mdi-flash-outline" style={{ paddingTop: 3 }} />
               </button>
-              <div className="dropdown-menu dropdown-menu-right">
+              <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 300 }} ref={(c) => (this._$skills = c)}>
                 {skills.map((s, idx) => (
                   <a
                     key={idx}
@@ -186,7 +186,7 @@ class ChatInput extends React.Component {
                       this.setState({ activeSkill: s.name })
                     }}>
                     {s.name}
-                    {s.description && <div className="text-muted fs-12">{s.description}</div>}
+                    {s.description && <div className="text-muted fs-12 text-break">{s.description}</div>}
                   </a>
                 ))}
               </div>
@@ -263,7 +263,9 @@ class ChatInput extends React.Component {
 
   _loadSkills() {
     $.get('/aibot2/skills', (res) => {
-      this.setState({ skills: res.data || [] })
+      this.setState({ skills: res.data || [] }, () => {
+        $(this._$skills).perfectScrollbar()
+      })
     })
   }
 
