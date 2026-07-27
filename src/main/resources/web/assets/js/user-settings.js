@@ -333,7 +333,7 @@ class DlgTempAuth extends RbModalHandler {
     return (
       <RbModal title={$L('临时授权')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="file-share">
-          <label className="text-dark">{$L('临时授权链接')}</label>
+          <label className="text-dark text-bold">{$L('临时授权链接')}</label>
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.tempUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
@@ -342,7 +342,10 @@ class DlgTempAuth extends RbModalHandler {
               </button>
             </span>
           </div>
-          <p className="form-text text-danger text-bold">{$L('通过临时授权链接可登录你的账号')}</p>
+          <p className="form-text text-danger">
+            <i className="icon mdi mdi-alert mr-1" />
+            {$L('通过临时授权链接可登录你的账号，请勿向陌生人提供')}
+          </p>
         </div>
       </RbModal>
     )
@@ -419,52 +422,66 @@ class DlgCropper extends RbModalHandler {
 }
 
 // Access Key 管理
+let _hasAk = false
+
 function _initAccessKey() {
   $.get('/settings/access-token/status', (res) => {
     if (res.error_code === 0 && res.data.hasToken) {
+      _hasAk = true
       $('.J_ak-generate').text($L('重置'))
-      $('.J_ak-revoke').removeClass('hide')
     }
   })
 
   $('.J_ak-generate').on('click', () => {
-    const isReset = $('.J_ak-generate').text() === $L('重置')
-    const msg = isReset ? $L('重置后原秘钥会立即失效，确认重置吗？') : $L('生成后可用于外部工具连接授权')
-
-    RbAlert.create(msg, {
-      confirmText: isReset ? $L('重置') : $L('生成'),
-      onConfirm: function () {
-        this.hide()
-        $.post('/settings/access-token/generate', (res) => {
-          if (res.error_code === 0) {
-            renderRbcomp(<DlgAccessKey token={res.data.token} />)
-            $('.J_ak-generate').text($L('重置'))
-            $('.J_ak-revoke').removeClass('hide')
-          } else {
-            RbHighbar.create(res.error_msg)
-          }
-        })
-      },
-    })
+    if (_hasAk) {
+      // 已有秘钥：提供重置/删除选项
+      RbAlert.create($L('重置后原秘钥立即失效，确认重置吗？'), {
+        confirmText: $L('重置'),
+        cancelText: $L('删除'),
+        onConfirm: function () {
+          this.hide()
+          _generateAk()
+        },
+        onCancel: function () {
+          this.hide()
+          _revokeAk()
+        },
+      })
+    } else {
+      RbAlert.create(<strong>{$L('注意!!! 请勿将个人秘钥分享给他人')}</strong>, $L('安全提示'), {
+        type: 'danger',
+        confirmText: $L('我知道了'),
+        onConfirm: function () {
+          this.hide()
+          _generateAk()
+        },
+        countdown: 5,
+      })
+    }
   })
+}
 
-  $('.J_ak-revoke').on('click', () => {
-    RbAlert.create($L('删除后立即失效，确认删除吗？'), {
-      type: 'danger',
-      confirmText: $L('删除'),
-      onConfirm: function () {
-        this.hide()
-        $.post('/settings/access-token/revoke', (res) => {
-          if (res.error_code === 0) {
-            RbHighbar.success($L('已删除'))
-            $('.J_ak-generate').text($L('生成'))
-            $('.J_ak-revoke').addClass('hide')
-          } else {
-            RbHighbar.create(res.error_msg)
-          }
-        })
-      },
-    })
+const _generateAk = function () {
+  $.post('/settings/access-token/generate', (res) => {
+    if (res.error_code === 0) {
+      renderRbcomp(<DlgAccessKey token={res.data.token} />)
+      _hasAk = true
+      $('.J_ak-generate').text($L('重置'))
+    } else {
+      RbHighbar.create(res.error_msg)
+    }
+  })
+}
+
+const _revokeAk = function () {
+  $.post('/settings/access-token/revoke', (res) => {
+    if (res.error_code === 0) {
+      RbHighbar.success($L('个人秘钥已删除'))
+      _hasAk = false
+      $('.J_ak-generate').text($L('获取'))
+    } else {
+      RbHighbar.create(res.error_msg)
+    }
   })
 }
 
@@ -484,6 +501,10 @@ class DlgAccessKey extends RbModalHandler {
               </button>
             </span>
           </div>
+          <p className="form-text text-danger">
+            <i className="icon mdi mdi-alert mr-1" />
+            {$L('通过个人秘钥可以访问你的数据，请勿将秘钥分享给他人')}
+          </p>
         </div>
       </RbModal>
     )

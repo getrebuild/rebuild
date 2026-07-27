@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "ListEntities",
-    "description": "获取系统的实体元数据信息。传入实体名称可获取该实体的详细字段定义，不传则返回所有可用实体列表",
+    "description": "查看实体及其字段结构。不传名称返回所有可用实体列表，传入名称返回该实体的完整字段定义",
     "parameters": {
       "type": "object",
       "properties": {

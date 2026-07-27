@@ -1,0 +1,55 @@
+{
+  "type": "function",
+  "function": {
+    "name": "ExportReport",
+    "description": "导出报表文件。指定报表和记录后生成下载链接",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称或标签（用于查询可用报表模板）"
+        },
+        "report": {
+          "type": "string",
+          "description": "报表模板ID（可选，不传则返回该实体下可用报表列表）"
+        },
+        "record": {
+          "type": "string",
+          "description": "要导出报表的记录名称、编号或ID。单记录报表必填，支持模糊搜索，若匹配多条会返回列表供用户选择；LIST 报表可选，作为搜索关键词筛选多条记录，不传则导出全部。若传了 filter 参数则优先使用 filter"
+        },
+        "filter": {
+          "type": "array",
+          "description": "过滤条件数组（仅 LIST 报表有效），用于精确筛选导出的记录。每个条件含 field(字段名)、op(操作符)、value(值)。操作符：【通用】EQ=等于,NEQ=不等于,GT=大于,LT=小于,GE=大于等于,LE=小于等于,LK=包含,NLK=不包含,NL=为空,NT=不为空,IN=在列表中(值用|分隔),NIN=不在列表中,BW=区间(需value+value2)；【日期】TDA=今天,YTA=昨天,CUW=本周,CUM=本月,CUQ=本季度,CUY=本年,RED=最近N天,REM=最近N月,REY=最近N年,FUD=未来N天,FUM=未来N月,FUY=未来N年；【用户】SFU=当前用户,SFB=当前部门,SFD=当前部门及下级。多条件间默认为OR关系，可通过equation参数指定。示例：[{\"field\":\"createdOn\",\"op\":\"CUM\"},{\"field\":\"status\",\"op\":\"EQ\",\"value\":\"已完成\"}]。注意：REFERENCE字段按名称筛选时在字段名前加&前缀，如 &WarehouseId",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "字段名称（必须是实体中存在的字段）"
+              },
+              "op": {
+                "type": "string",
+                "description": "操作符。通用：EQ/NEQ/GT/LT/GE/LE/LK/NLK/NL/NT/IN/NIN/BW；日期：TDA/YTA/CUW/CUM/CUQ/CUY/RED/REM/REY/FUD/FUM/FUY；用户：SFU/SFB/SFD"
+              },
+              "value": {
+                "type": "string",
+                "description": "过滤值。NL/NT及日期快捷操作符(TDA/CUW/CUM等)和用户操作符(SFU/SFB/SFD)无需传值；RED/FUD等传天数数字；IN/NIN传多个值用|分隔；BW传开始值并需配合value2。REFERENCE类型字段(如WarehouseId、ProductId等)如需按名称筛选在字段名前加&即可，如 &WarehouseId；不加&则须传记录ID"
+              },
+              "value2": {
+                "type": "string",
+                "description": "区间结束值（仅 BW 操作符使用）"
+              }
+            },
+            "required": ["field", "op"]
+          }
+        },
+        "equation": {
+          "type": "string",
+          "description": "多条件间逻辑关系（仅 LIST 报表有效）。支持：OR（任一满足，默认）、AND（全部满足）、高级表达式（如 \"1 and (2 or 3)\"，数字代表 filter 中条件的位置，从1开始）"
+        }
+      },
+      "required": ["entity"]
+    }
+  }
+}

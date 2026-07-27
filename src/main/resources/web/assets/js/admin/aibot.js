@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// eslint-disable-next-line no-undef
+// eslint-disable-next-line no-undef, react/display-name
 useEditComp = function (name) {
   if ('AibotBasePrompt' === name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2048" />
@@ -35,6 +35,10 @@ $(document).ready(() => {
   $('.J_addSkill').on('click', (e) => {
     $stopEvent(e, true)
     _editSkill()
+  })
+  $('.J_importSkill').on('click', (e) => {
+    $stopEvent(e, true)
+    renderRbcomp(<DlgSkillImport title={$L('导入技能')} />)
   })
 })
 
@@ -171,7 +175,7 @@ const _loadTools = function () {
     const $tbody = $('#toolsList').empty()
 
     _toolsData.forEach((item) => {
-      if (['SuggestCustom', 'SearchHelp'].includes(item.name)) return
+      if (['SuggestCustom'].includes(item.name)) return
 
       const htmlid = `tool-enable-${item.name}`
       $(
@@ -204,6 +208,126 @@ const _saveToolsDisabled = function () {
   $.post(location.href, JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
     if (res.error_code !== 0) RbHighbar.error(res.error_msg)
   })
+}
+
+// ~~ Import Skills
+
+class DlgSkillImport extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, data: null }
+    this._$refs = {}
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
+          <div className="mb-7">
+            <RbAlertBox message={this.state.hasError} />
+          </div>
+        </RbModal>
+      )
+    }
+
+    const skills = this.state.skills || []
+
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
+        <div className="init-models" ref={(c) => (this._$skills = c)}>
+          <fieldset>
+            <legend>
+              <div className="row">
+                <div className="col">
+                  <strong>{$L('共 %d 个可用技能', skills.length)}</strong>
+                </div>
+                <div className="col text-right">
+                  <label className="custom-control custom-checkbox custom-control-inline custom-control-sm" title={$L('全选')}>
+                    <input className="custom-control-input" type="checkbox" onClick={(e) => this._handleSelectAll(e)} />
+                    <span className="custom-control-label" />
+                  </label>
+                </div>
+              </div>
+            </legend>
+            <form>
+              {skills.map((item, idx) => {
+                return (
+                  <div key={idx}>
+                    <label className="custom-control custom-checkbox m-0" title={item.description} ref={(c) => (this._$refs[item.name] = c)}>
+                      <input className="custom-control-input" type="checkbox" value={item.name} />
+                      <span className="custom-control-label text-bold">{item.name}</span>
+                      <p>{item.description}</p>
+                    </label>
+                  </div>
+                )
+              })}
+            </form>
+            <div className="clearfix" />
+          </fieldset>
+
+          <div className="dialog-footer">
+            <div className="float-right">
+              <button type="button" className="btn btn-primary" onClick={() => this._onImport()}>
+                {$L('开始导入')}
+              </button>
+            </div>
+            <div className="float-right">
+              <p className="protips mt-2 pr-2">{$L('可在导入后根据自身需求做适当调整/修改')}</p>
+            </div>
+            <div className="clearfix" />
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount()
+    this._loadSkills()
+  }
+
+  _loadSkills() {
+    $.get('/admin/rbstore/load-index?type=skills', (res) => {
+      let hasError = res.error_code > 0 ? res.error_msg || $L('暂无可用技能') : null
+      this.setState({ skills: res.data || [], hasError })
+    })
+  }
+
+  _handleSelectAll(e) {
+    const chk = $(e.currentTarget).prop('checked')
+    $(this._$skills)
+      .find('form input')
+      .each(function () {
+        $(this).prop('checked', chk)
+      })
+  }
+
+  _onImport() {
+    const selected = []
+    $(this._$skills)
+      .find('form input')
+      .each(function () {
+        const $chk = $(this)
+        if ($chk.prop('checked')) selected.push($chk.val())
+      })
+
+    if (selected.length === 0) {
+      RbHighbar.create($L('请选择要导入的技能'))
+      return
+    }
+
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post(`/admin/rbstore/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        RbHighbar.success($L('成功导入 %d 个技能', selected.length))
+        _loadSkills()
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      }
+    })
+  }
 }
 
 const _deleteSkill = function (item) {

@@ -145,13 +145,6 @@ useEditComp = function (name) {
         <option value="35">{$L('宫格')}</option>
       </select>
     )
-  } else if ('LoginPageStyle' === name) {
-    return (
-      <select className="form-control form-control-sm">
-        <option value="44">{$L('默认')}</option>
-        <option value="43">{$L('经典')}</option>
-      </select>
-    )
   }
 }
 

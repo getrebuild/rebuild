@@ -1,0 +1,33 @@
+{
+  "type": "function",
+  "function": {
+    "name": "Approval",
+    "description": "对业务记录进行审批操作，支持提交审批、同意、驳回、撤回、撤销和查询审批状态。提交审批前可通过 QueryRecords 工具查询记录ID",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "record": {
+          "type": "string",
+          "description": "业务记录ID（必填，可通过 QueryRecords 工具查询获取）"
+        },
+        "action": {
+          "type": "string",
+          "description": "审批操作类型（必填）: submit=提交审批, approve=同意, reject=驳回, cancel=撤回审批中记录, revoke=撤销已通过审批, state=查询审批状态"
+        },
+        "approvalId": {
+          "type": "string",
+          "description": "审批流程ID（可选，action=submit 时使用。不传则自动选择第一个可用审批流程）"
+        },
+        "remark": {
+          "type": "string",
+          "description": "审批批注（可选，action=approve 或 reject 时使用）"
+        },
+        "rejectNode": {
+          "type": "string",
+          "description": "驳回到的目标节点ID（可选，action=reject 时使用，不传则直接驳回给提交人）"
+        }
+      },
+      "required": ["record", "action"]
+    }
+  }
+}

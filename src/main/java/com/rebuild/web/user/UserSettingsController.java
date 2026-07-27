@@ -251,7 +251,7 @@ public class UserSettingsController extends BaseController {
 
     // ----- Access Key -----
 
-    public static final String AK_PREFIX = "rbak_";
+    public static final String AK_PREFIX = "rbak-";
     public static final String KEY_AK = "MCPAK.";
     public static final String KEY_REV = "MCPAK_REV.";
 

@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "FetchUrl",
-    "description": "调用外部 HTTP 资源，支持 GET 和 POST 请求",
+    "description": "请求外部 HTTP 接口，支持 GET/POST 方法及自定义请求头",
     "parameters": {
       "type": "object",
       "properties": {

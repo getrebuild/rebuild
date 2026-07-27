@@ -15,9 +15,13 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.rbstore.RBStore;
+import com.rebuild.core.rbstore.SkillImporter;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author devezhao-mbp
  * @since 2019/04/28
  */
+@Slf4j
 @RestController
 public class RBStoreController extends BaseController {
 
@@ -54,5 +59,24 @@ public class RBStoreController extends BaseController {
             }
         }
         return index;
+    }
+
+    @PostMapping("/admin/rbstore/import-skills")
+    public RespBody importSkills(HttpServletRequest request) {
+        String[] names = getParameterNotNull(request, "names").split(",");
+
+        SkillImporter importer = new SkillImporter();
+        importer.setSkillNames(names);
+        importer.setUser(getRequestUser(request));
+
+        try {
+            TaskExecutors.run(importer);
+            return importer.getSucceeded() > 0
+                    ? RespBody.ok() : RespBody.error(importer.getErrorMessage());
+
+        } catch (Exception ex) {
+            log.error("Cannot import skills : {}", getParameter(request, "names"), ex);
+            return RespBody.error(ex.getLocalizedMessage());
+        }
     }
 }

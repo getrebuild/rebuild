@@ -161,16 +161,6 @@
                           <p class="mt-2 text-muted hide">[[${bundle.L('建议尺寸 1920 × 1080')}]]</p>
                         </td>
                       </tr>
-                      <tr class="bosskey-show">
-                        <td>
-                          [[${bundle.L('登录页样式')}]]
-                          <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
-                        </td>
-                        <td th:data-id="LoginPageStyle" th:data-value="${LoginPageStyle}" data-optional="true" id="_LoginPageStyle">
-                          <th:block th:if="${LoginPageStyle != '44'}">[[${bundle.L('经典')}]]</th:block>
-                          <th:block th:if="${LoginPageStyle == '44'}">[[${bundle.L('新版')}]]</th:block>
-                        </td>
-                      </tr>
                       <tr>
                         <td>
                           [[${bundle.L('登录页布告栏')}]] <sup class="rbv"></sup>

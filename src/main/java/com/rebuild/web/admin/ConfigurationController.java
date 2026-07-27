@@ -19,10 +19,10 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.aibot2.Config;
+import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.service.aibot.tool.ToolDefs;
-import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.KVStorage;
@@ -521,7 +521,7 @@ public class ConfigurationController extends BaseController {
 
     @GetMapping("integration/aibot/tools")
     public RespBody listAibotTools() {
-        return RespBody.ok(ToolDefs.listTools());
+        return RespBody.ok(ToolDefs.listTools(true, false));
     }
 
     @GetMapping("integration/aibot/stats")
