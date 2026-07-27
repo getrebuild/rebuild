@@ -10,7 +10,6 @@ package com.rebuild.core.aibot2.tool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +35,8 @@ public class SearchHelp implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = StringUtils.isBlank(arguments) ? new JSONObject() : JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
+
         String keyword = args.getString("keyword");
         if (StringUtils.isBlank(keyword)) {
             throw new ToolException("搜索关键词不能为空");

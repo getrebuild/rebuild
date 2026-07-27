@@ -92,6 +92,9 @@ public class ToolDefs {
             throw new ToolException("Tool disabled: " + toolName);
         }
 
+        // 统一空值保护
+        if (StringUtils.isBlank(arguments)) arguments = "{}";
+
         log.info("Tool call: {} args={}", toolName, arguments);
         try {
             Object res = tool.tool(arguments);

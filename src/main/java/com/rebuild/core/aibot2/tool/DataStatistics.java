@@ -36,7 +36,7 @@ public class DataStatistics implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = StringUtils.isBlank(arguments) ? new JSONObject() : JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
 
         String entityName = args.getString("entity");
         if (StringUtils.isBlank(entityName)) {
@@ -130,7 +130,6 @@ public class DataStatistics implements Tool {
             sql += " where " + whereClause;
         }
         sql += " group by " + groupFieldsSql;
-        sql += " order by 2 desc";  // 按聚合值降序
 
         Object[][] results = Application.createQuery(sql).setLimit(limit).array();
 

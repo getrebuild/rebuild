@@ -178,6 +178,8 @@ public class RecordDataCleaner extends RecordCheckout {
         } catch (Exception e) {
             if (e instanceof RebuildException) throw (RebuildException) e;
             throw new RebuildException(e);
+        } finally {
+            FileUtils.deleteQuietly(tmp);
         }
     }
 

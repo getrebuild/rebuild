@@ -32,7 +32,8 @@ public class ListEntities implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = StringUtils.isBlank(arguments) ? new JSONObject() : JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
+
         String name = args.getString("name");
         if (StringUtils.isNotBlank(name)) return getEntityMeta(name);
 

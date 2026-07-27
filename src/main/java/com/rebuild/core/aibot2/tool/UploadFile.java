@@ -32,7 +32,7 @@ public class UploadFile implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = StringUtils.isBlank(arguments) ? new JSONObject() : JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
 
         String base64 = args.getString("base64");
         String url = args.getString("url");

@@ -35,7 +35,7 @@ public class CreateFeed implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = StringUtils.isBlank(arguments) ? new JSONObject() : JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
 
         String content = args.getString("content");
         if (StringUtils.isBlank(content)) {

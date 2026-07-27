@@ -40,7 +40,7 @@ public class Approval implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = StringUtils.isBlank(arguments) ? new JSONObject() : JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
 
         String recordId = args.getString("record");
         if (StringUtils.isBlank(recordId) || !ID.isId(recordId)) {

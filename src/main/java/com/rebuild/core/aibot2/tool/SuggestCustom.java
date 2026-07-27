@@ -24,7 +24,7 @@ public class SuggestCustom implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
         String requirement = args.getString("requirement");
 
         String message = String.format(

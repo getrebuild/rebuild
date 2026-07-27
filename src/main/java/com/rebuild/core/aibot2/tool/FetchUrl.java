@@ -41,7 +41,8 @@ public class FetchUrl implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
+
         String url = args.getString("url");
         if (StringUtils.isBlank(url)) {
             throw new ToolException("URL cannot be blank");

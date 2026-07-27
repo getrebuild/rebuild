@@ -18,14 +18,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RecordDataCleaner;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.ChatManager;
+import com.rebuild.core.aibot2.vector.FileData;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.aibot2.vector.FileData;
-import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -57,7 +57,8 @@ public class UpsertRecord implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
+
         String file = args.getString("file");
         String content = args.getString("content");
         String entityName = args.getString("entity");

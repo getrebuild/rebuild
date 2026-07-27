@@ -40,7 +40,7 @@ public class CreateProjectTask implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-        JSONObject args = StringUtils.isBlank(arguments) ? new JSONObject() : JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
 
         String taskName = args.getString("taskName");
         if (StringUtils.isBlank(taskName)) {
