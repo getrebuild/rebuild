@@ -66,6 +66,9 @@ public class ApprovalFields2Schema extends Field2Schema {
             if (!entity.containsField(EntityHelper.ApprovalSubmitUser)) {
                 complement.add(buildApprovalSubmitUser(entity));
             }
+            if (!entity.containsField(EntityHelper.ApprovalSubmitTime)) {
+                complement.add(buildApprovalSubmitTime(entity));
+            }
 
             if (complement.isEmpty()) return false;
             schema2DatabaseInternal(entity, complement.toArray(new Field[0]));
@@ -132,6 +135,12 @@ public class ApprovalFields2Schema extends Field2Schema {
                 DisplayType.REFERENCE, true, false, false, true, true, null, "User", CascadeModel.Ignore, null, null);
     }
 
+    // v4.5 最后审批时间
+    private Field buildApprovalSubmitTime(Entity entity) {
+        return createUnsafeField(entity, EntityHelper.ApprovalSubmitTime, Language.L("审批提交时间"),
+                DisplayType.DATETIME, true, false, false, true, true, null, null, null, null, null);
+    }
+
     private void schema2DatabaseInternal(Entity entity, Field... fields) {
         boolean schemaReady = schema2Database(entity, fields, null, null, true);
 
@@ -151,7 +160,8 @@ public class ApprovalFields2Schema extends Field2Schema {
         final String[] approvalFields = new String[] {
                 EntityHelper.ApprovalId, EntityHelper.ApprovalState, EntityHelper.ApprovalStepNode,
                 EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark,
-                EntityHelper.ApprovalStepUsers, EntityHelper.ApprovalStepNodeName, EntityHelper.ApprovalSubmitUser
+                EntityHelper.ApprovalStepUsers, EntityHelper.ApprovalStepNodeName, EntityHelper.ApprovalSubmitUser,
+                EntityHelper.ApprovalSubmitTime
         };
 
         List<String> drops = new ArrayList<>();

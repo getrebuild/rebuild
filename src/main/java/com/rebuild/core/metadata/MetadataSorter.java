@@ -188,7 +188,8 @@ public class MetadataSorter {
         final String[] specSortsApproval = new String[] {
                 EntityHelper.ApprovalId, EntityHelper.ApprovalState,
                 EntityHelper.ApprovalStepNodeName, EntityHelper.ApprovalStepUsers, EntityHelper.ApprovalSubmitUser,
-                EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark
+                EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark,
+                EntityHelper.ApprovalSubmitTime
         };
         List<BaseMeta> approvalFields = new ArrayList<>();
         for (String s : specSortsApproval) {

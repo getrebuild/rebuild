@@ -350,6 +350,7 @@ public class EntityHelper {
     public static final String ApprovalLastTime = "approvalLastTime";
     public static final String ApprovalLastRemark = "approvalLastRemark";
     public static final String ApprovalSubmitUser = "approvalSubmitUser";
+    public static final String ApprovalSubmitTime = "approvalSubmitTime";
 
     // 用户
 
