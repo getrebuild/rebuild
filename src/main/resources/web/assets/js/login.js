@@ -47,6 +47,16 @@ $(document).ready(() => {
     $(this).attr('src', `captcha?${$random()}`)
   })
 
+  // 密码显示/隐藏
+  $('.passwd-toggle').on('click', function () {
+    const $input = $('#passwd')
+    const isHidden = $input.attr('type') === 'password'
+    $input.attr('type', isHidden ? 'text' : 'password')
+    $(this).find('i').attr('class', isHidden ? 'zmdi zmdi-eye' : 'zmdi zmdi-eye-off')
+    $(this).attr('title', isHidden ? $L('隐藏密码') : $L('显示密码'))
+    $input.focus()
+  })
+
   $('#login-form').on('submit', function (e) {
     $stopEvent(e, true)
 
