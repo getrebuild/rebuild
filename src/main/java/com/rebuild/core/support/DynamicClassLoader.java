@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -23,7 +24,7 @@ import java.util.stream.Stream;
  * 通过 ASM 读取字节码中的真实类名，无需按包结构放置文件。
  *
  * @author devezhao
- * @see DynamicClassLoadingInitializer
+ * @see DynamicClassRegistrar
  * @since 2026/7/28
  */
 @Slf4j
@@ -81,5 +82,9 @@ public class DynamicClassLoader extends ClassLoader {
 
     public Class<?> getLoadedClass(String className) {
         return loadedClasses.get(className);
+    }
+
+    public Collection<Class<?>> getLoadedClasses() {
+        return loadedClasses.values();
     }
 }
