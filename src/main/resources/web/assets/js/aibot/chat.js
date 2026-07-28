@@ -476,8 +476,10 @@ class ChatMessage extends React.Component {
   }
 
   renderContent(content) {
-    const md = content || this.state.content
+    let md = content || this.state.content
     if (!md) return null
+
+    md = fixMdTables(md)
     return (
       <div className="msg-text">
         <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
@@ -835,4 +837,36 @@ class RecordSelectorModal2 extends RecordSelectorModal {
       </div>
     )
   }
+}
+
+// 修复 AI 回复中表格缺少换行/空行导致无法渲染的问题
+// GFM 要求表格前有空行，AI 有时忽略此规则
+function fixMdTables(md) {
+  if (!md || md.indexOf('|') === -1) return md
+  if (!/\|[\s:]*-{2,}/.test(md)) return md
+
+  const lines = md.split('\n')
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i]
+    // C1
+    if (/\|[\s:]*-{2,}/.test(line) && /(\|)\s*(\|)/.test(line)) {
+      const firstPipe = line.indexOf('|')
+      let work = firstPipe > 0 ? line.substring(0, firstPipe).trimEnd() + '\n\n' + line.substring(firstPipe) : line
+      work = work.replace(/(\|)\s*(\|)/g, '$1\n$2')
+      lines[i] = work
+      continue
+    }
+
+    if (i + 1 < lines.length && /\|[\s:]*-{2,}/.test(lines[i + 1])) {
+      const pipeIdx = line.indexOf('|')
+      if (pipeIdx > 0) {
+        // C2
+        lines[i] = line.substring(0, pipeIdx).trimEnd() + '\n\n' + line.substring(pipeIdx)
+      } else if (pipeIdx === 0 && i > 0 && lines[i - 1].trim() !== '') {
+        // C3
+        lines[i] = '\n' + line
+      }
+    }
+  }
+  return lines.join('\n')
 }
