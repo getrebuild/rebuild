@@ -124,9 +124,9 @@ public abstract class ChatManager {
     /**
      * 直接提问/回答（支持图片视觉识别）
      *
-     * @param userContent 用户内容
-     * @param prompt      系统提示词（可为空）
-     * @param imageFiles  图片文件列表（可为空，为空则按纯文本处理）
+     * @param userContent
+     * @param prompt
+     * @param imageFiles
      * @return AI 回答内容
      */
     public static String ask(String userContent, String prompt, List<File> imageFiles) {
@@ -140,19 +140,17 @@ public abstract class ChatManager {
     /**
      * 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
      *
-     * @param userContent 提示词
-     * @param prompt     系统提示词
-     * @param imageFiles 图片文件列表
-     * @return AI 返回的文本描述
+     * @param userContent
+     * @param prompt
+     * @param imageFiles
+     * @return
      */
     private static String askWithImage(String userContent, String prompt, List<File> imageFiles) {
         List<ChatCompletionContentPart> parts = new ArrayList<>();
 
-        // 文本提示
         parts.add(ChatCompletionContentPart.ofText(
                 ChatCompletionContentPartText.builder().text(userContent).build()));
 
-        // 图片内容
         for (File imageFile : imageFiles) {
             String base64 = CommonsUtils.fileToBase64(imageFile);
             String mimeType;
@@ -162,16 +160,17 @@ public abstract class ChatManager {
                 mimeType = "image/png";
                 log.warn("Failed to detect image mime type, fallback to png : {}", imageFile.getName(), e);
             }
+
             String dataUrl = String.format("data:%s;base64,%s", mimeType, base64);
 
             parts.add(ChatCompletionContentPart.ofImageUrl(
                     ChatCompletionContentPartImage.builder()
-                            .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder()
-                                    .url(dataUrl).build())
+                            .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder().url(dataUrl).build())
                             .build()));
         }
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, null)
+        ChatCompletionCreateParams.Builder builder = Config
+                .createBuilder(prompt, null)
                 .addUserMessageOfArrayOfContentParts(parts);
 
         ChatCompletion resp = Config.getClient().chat().completions().create(builder.build());

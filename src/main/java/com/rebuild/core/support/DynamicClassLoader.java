@@ -20,8 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
- * 动态类加载器，从数据目录下 <code>_classes</code> 加载外部 <b>.class</b> 文件。
- * 通过 ASM 读取字节码中的真实类名，无需按包结构放置文件。
+ * 动态类加载器，从数据目录下 <code>_classes</code>
  *
  * @author devezhao
  * @see DynamicClassRegistrar
@@ -40,11 +39,11 @@ public class DynamicClassLoader extends ClassLoader {
         super(parent);
     }
 
-    public static synchronized DynamicClassLoader init(File rootDir) {
+    public static synchronized DynamicClassLoader init(File rootd) {
         if (instance != null) return instance;
 
         instance = new DynamicClassLoader(Thread.currentThread().getContextClassLoader());
-        instance.scan(rootDir);
+        instance.scan(rootd);
         return instance;
     }
 
@@ -56,34 +55,34 @@ public class DynamicClassLoader extends ClassLoader {
         return instance != null;
     }
 
-    private void scan(File rootDir) {
-        try (Stream<Path> paths = Files.walk(rootDir.toPath())) {
+    private void scan(File rootd) {
+        try (Stream<Path> paths = Files.walk(rootd.toPath())) {
             paths.filter(p -> p.toString().endsWith(".class"))
                     .forEach(p -> {
                         try {
-                            byte[] bytes = Files.readAllBytes(p);
-                            String name = new ClassReader(bytes).getClassName().replace('/', '.');
-
+                            byte[] bs = Files.readAllBytes(p);
+                            String name = new ClassReader(bs).getClassName().replace('/', '.');
                             if (loadedClasses.containsKey(name)) return;
 
-                            Class<?> clazz = defineClass(name, bytes, 0, bytes.length);
+                            Class<?> clazz = defineClass(name, bs, 0, bs.length);
                             loadedClasses.put(name, clazz);
                             log.info("Loaded external class: {}", name);
+
                         } catch (Throwable e) {
                             log.warn("Cannot load external class: {}", p, e);
                         }
                     });
+
         } catch (IOException e) {
-            log.error("Cannot scan classes directory: {}", rootDir, e);
+            log.error("Cannot scan classes directory: {}", rootd, e);
         }
 
-        log.info("Loaded {} external classes from: {}", loadedClasses.size(), rootDir);
+        log.info("Loaded {} external classes from: {}", loadedClasses.size(), rootd);
     }
 
-    public Class<?> getLoadedClass(String className) {
-        return loadedClasses.get(className);
-    }
-
+    /**
+     * @return
+     */
     public Collection<Class<?>> getLoadedClasses() {
         return loadedClasses.values();
     }
