@@ -74,7 +74,7 @@ class FieldNew2 extends RbModalHandler {
             <div className={`form-group row ${this.state.fieldType === 'STATE' ? '' : 'hide'}`}>
               <label className="col-sm-3 col-form-label text-sm-right">{$L('状态类 (StateSpec)')}</label>
               <div className="col-sm-7">
-                <input className="form-control form-control-sm" type="text" placeholder="com.rebuild.core.support.state.HowtoState" ref={(c) => (this._$stateClass = c)} />
+                <input className="form-control form-control-sm code" type="text" placeholder="eg. com.rebuild.core.support.state.HowtoState" ref={(c) => (this._$stateClass = c)} />
               </div>
             </div>
             <div className="form-group row">

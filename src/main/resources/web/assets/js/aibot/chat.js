@@ -173,24 +173,26 @@ class ChatInput extends React.Component {
             />
           </div>
           <div className="chat-input-action">
-            <span className="dropup">
-              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
-                <i className="mdi mdi-flash-outline" style={{ paddingTop: 3 }} />
-              </button>
-              <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 300 }} ref={(c) => (this._$skills = c)}>
-                {skills.map((s, idx) => (
-                  <a
-                    key={idx}
-                    className="dropdown-item"
-                    onClick={() => {
-                      this.setState({ activeSkill: s.name })
-                    }}>
-                    {s.name}
-                    {s.description && <div className="text-muted fs-12 text-break">{s.description}</div>}
-                  </a>
-                ))}
-              </div>
-            </span>
+            {skills.length > 0 && (
+              <span className="dropup">
+                <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
+                  <i className="mdi mdi-flash-outline" style={{ paddingTop: 3 }} />
+                </button>
+                <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 300 }} ref={(c) => (this._$skills = c)}>
+                  {skills.map((s, idx) => (
+                    <a
+                      key={idx}
+                      className="dropdown-item"
+                      onClick={() => {
+                        this.setState({ activeSkill: s.name })
+                      }}>
+                      {s.name}
+                      {s.description && <div className="text-muted fs-12 text-break">{s.description}</div>}
+                    </a>
+                  ))}
+                </div>
+              </span>
+            )}
             <span className="dropup">
               <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('数据')}>
                 <i className="mdi mdi-attachment-plus" />
