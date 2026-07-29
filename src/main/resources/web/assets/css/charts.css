@@ -121,6 +121,41 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #fff;
 }
 
+.chart.dolor {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.chart.dolor .dolor-inner {
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chart.dolor .dolor-word {
+  position: absolute;
+  display: inline-block;
+  line-height: 1.4;
+  cursor: default;
+  white-space: nowrap;
+  transition: text-shadow 0.2s ease;
+}
+
+.chart.dolor .dolor-word:hover {
+  text-shadow: 0 0 8px currentColor;
+  z-index: 10;
+}
+
+.chart.dolor .dolor-count {
+  font-size: 0.55em;
+  margin-left: 4px;
+  opacity: 0.6;
+  font-weight: 400;
+}
+
 .chart.index {
   overflow: hidden;
   position: relative;
