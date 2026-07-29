@@ -39,6 +39,10 @@ public class DynamicClassLoader extends ClassLoader {
         super(parent);
     }
 
+    /**
+     * @param rootd
+     * @return
+     */
     public static synchronized DynamicClassLoader init(File rootd) {
         if (instance != null) return instance;
 
@@ -47,14 +51,16 @@ public class DynamicClassLoader extends ClassLoader {
         return instance;
     }
 
+    /**
+     * @return
+     */
     public static DynamicClassLoader getInstance() {
         return instance;
     }
 
-    public static boolean isInitialized() {
-        return instance != null;
-    }
-
+    /**
+     * @param rootd
+     */
     private void scan(File rootd) {
         try (Stream<Path> paths = Files.walk(rootd.toPath())) {
             paths.filter(p -> p.toString().endsWith(".class"))
@@ -78,6 +84,14 @@ public class DynamicClassLoader extends ClassLoader {
         }
 
         log.info("Loaded {} external classes from: {}", loadedClasses.size(), rootd);
+    }
+
+    /**
+     * @param className
+     * @return
+     */
+    public Class<?> getLoadedClass(String className) {
+        return loadedClasses.get(className);
     }
 
     /**
