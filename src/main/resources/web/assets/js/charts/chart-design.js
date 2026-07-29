@@ -569,7 +569,7 @@ function render_preview() {
         return
       }
 
-      if (!(conf.type === 'CNMAP' || conf.type === 'DATALIST2')) {
+      if (!(conf.type === 'CNMAP' || conf.type === 'DATALIST2' || conf.type === 'DOLOR')) {
         if ($('.axis-editor span[data-type="map"]')[0]) {
           render_preview_error($L('选择的字段仅适用于“地图”、“数据列表”图表'))
           return
