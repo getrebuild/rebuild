@@ -31,6 +31,17 @@ $(document).ready(() => {
   })
 })
 
+// eslint-disable-next-line no-undef
+postBefore = function (data) {
+  const $ds = $('td[data-id="AibotDSSecret"]')
+  if (!data['AibotDSSecret'] && !$ds.data('value')) {
+    RbHighbar.create($L('%s不能为空', $ds.prev().text()))
+    return false
+  }
+
+  return data
+}
+
 const _renderStats = function (data, $el) {
   const xAxis = []
   const series = []
