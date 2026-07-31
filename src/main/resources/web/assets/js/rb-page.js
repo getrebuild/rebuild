@@ -656,7 +656,7 @@ var _initGlobalSearch = function () {
   })
 
   // v4.5
-  $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer ai-color"></i> ' + $L('问 AI') + '</a>').appendTo($gs)
+  $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer"></i> ' + $L('问 AI') + '</a>').appendTo($gs)
 
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
