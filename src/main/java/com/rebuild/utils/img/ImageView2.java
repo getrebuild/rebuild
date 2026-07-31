@@ -12,11 +12,16 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * 粗略图
@@ -28,7 +33,10 @@ import java.io.IOException;
 @Slf4j
 public class ImageView2 {
 
+    // 默认压缩宽度
     public static final int ORIGIN_WIDTH = 1000;
+    // 极限压缩大小 50M
+    public static final long MAX_FILE_SIZE = 50 * 1024 * 1024L;;
 
     private String imageView2;
     private int width = -1;
@@ -60,13 +68,19 @@ public class ImageView2 {
         File thumb = RebuildConfiguration.getFileOfTemp(fileKey);
         if (thumb.exists()) return thumb;
 
-        BufferedImage bi = ImageIO.read(img);
+        // 文件过大直接跳过避免 OOM
+        if (FileUtils.sizeOf(img) > MAX_FILE_SIZE) {
+            log.warn("Image file too large to thumbnail ({}) : {}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(img)), img);
+            return null;
+        }
+
+        int wh = getWidth();
+        BufferedImage bi = readSubsampled(img, wh);
         if (bi == null) {
             log.debug("Unsupportted image type : {}", img);
             return null;
         }
 
-        int wh = getWidth();
         Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);
         if (bi.getWidth() > wh) {
             builder.size(wh, wh);
@@ -76,6 +90,40 @@ public class ImageView2 {
 
         builder.toFile(thumb);
         return thumb;
+    }
+
+    /**
+     * 使用 Subsampled 读取图片，避免大图全量解码导致 OOM
+     *
+     * @param img
+     * @param targetWidth
+     * @return
+     * @throws IOException
+     */
+    protected static BufferedImage readSubsampled(File img, int targetWidth) throws IOException {
+        try (ImageInputStream iis = ImageIO.createImageInputStream(img)) {
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+            if (!readers.hasNext()) return null;
+
+            ImageReader reader = readers.next();
+            try {
+                reader.setInput(iis, true, true);
+
+                int srcWidth = reader.getWidth(0);
+                int srcHeight = reader.getHeight(0);
+
+                ImageReadParam param = reader.getDefaultReadParam();
+                // 计算 subsampling 步长，确保解码后宽度不超过目标的 2 倍
+                int subsample = Math.max(1, srcWidth / (targetWidth * 2));
+                if (subsample > 1) {
+                    param.setSourceSubsampling(subsample, subsample, 0, 0);
+                }
+
+                return reader.read(0, param);
+            } finally {
+                reader.dispose();
+            }
+        }
     }
 
     // imageView2/2/w/300/interlace/1/q/100
@@ -105,7 +153,7 @@ public class ImageView2 {
         try {
             File thumb = new ImageView2(width).thumb(img);
             return thumb != null && thumb.exists() ? thumb : img;
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             log.warn("Image thumb failed : {}", img, ex);
         }
         return img;
