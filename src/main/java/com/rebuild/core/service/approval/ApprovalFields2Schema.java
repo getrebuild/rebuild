@@ -135,7 +135,7 @@ public class ApprovalFields2Schema extends Field2Schema {
                 DisplayType.REFERENCE, true, false, false, true, true, null, "User", CascadeModel.Ignore, null, null);
     }
 
-    // v4.5 最后审批时间
+    // v4.5 审批提交时间
     private Field buildApprovalSubmitTime(Entity entity) {
         return createUnsafeField(entity, EntityHelper.ApprovalSubmitTime, Language.L("审批提交时间"),
                 DisplayType.DATETIME, true, false, false, true, true, null, null, null, null, null);
