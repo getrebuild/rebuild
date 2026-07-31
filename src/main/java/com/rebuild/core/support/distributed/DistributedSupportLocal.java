@@ -9,13 +9,12 @@ package com.rebuild.core.support.distributed;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -35,9 +34,7 @@ public class DistributedSupportLocal implements DistributedSupport {
 
     @Override
     public Lock getLock(String namespace) {
-        synchronized (LOCAL_LOCKS) {
-            return LOCAL_LOCKS.computeIfAbsent(namespace, k -> new ReentrantLock());
-        }
+        return LOCAL_LOCKS.computeIfAbsent(namespace, k -> new ReentrantLock());
     }
 
     @Override
@@ -59,11 +56,11 @@ public class DistributedSupportLocal implements DistributedSupport {
 
     @Override
     public <T> List<T> getList(String namespace) {
-        return (List<T>) LOCAL_LIST.computeIfAbsent(namespace, k -> new ArrayList<T>());
+        return (List<T>) LOCAL_LIST.computeIfAbsent(namespace, k -> new CopyOnWriteArrayList<T>());
     }
 
     @Override
     public <T> Set<T> getSet(String namespace) {
-        return (Set<T>) LOCAL_SET.computeIfAbsent(namespace, k -> new HashSet<T>());
+        return (Set<T>) LOCAL_SET.computeIfAbsent(namespace, k -> ConcurrentHashMap.newKeySet());
     }
 }

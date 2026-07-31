@@ -768,7 +768,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .side-wrapper + .announcement-wrapper > div p {
-  white-space: unset !important;
+  white-space: pre-line !important;
   max-height: 125px;
 }
 

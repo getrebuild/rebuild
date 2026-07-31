@@ -17,6 +17,7 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.util.Assert;
 
 import java.util.HashSet;
 
@@ -39,6 +40,7 @@ public class FieldWritebackRefresh {
     /**
      */
     public void refresh() {
+        Assert.isTrue(beforeValue instanceof ID || beforeValue instanceof ID[], "[beforeValue] must be ID or ID[]");
         if (beforeValue instanceof ID[] && ((ID[]) beforeValue).length == 0) return;
         if (NullValue.isNull(beforeValue)) return;
 

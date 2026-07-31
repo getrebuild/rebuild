@@ -6,7 +6,6 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Position;
-import net.coobird.thumbnailator.geometry.Positions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -113,7 +112,13 @@ public class ImageMaker {
      * @see ImageView2#thumbQuietly(File, int)
      */
     public static void makeWatermark(File image, String text, File dest, int thumbWh) throws IOException {
-        BufferedImage bi = ImageIO.read(image);
+        // 使用 Subsampled 读取，避免大图 OOM
+        BufferedImage bi = thumbWh > 0 ? ImageView2.readSubsampled(image, thumbWh) : ImageIO.read(image);
+        if (bi == null) {
+            log.warn("Unsupported image type : {}", image);
+            return;
+        }
+
         Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);
 
         // 压缩大小
