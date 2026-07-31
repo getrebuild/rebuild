@@ -53,6 +53,8 @@ import org.apache.commons.lang.StringUtils;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -277,7 +279,16 @@ public class FieldWriteback extends FieldAggregation {
                 if (clearFields) {
                     Record beforeRecord = operatingContext.getBeforeRecord();
                     Object beforeValue = beforeRecord == null ? null : beforeRecord.getObjectValue(targetFieldEntity[0]);
-                    if (beforeValue != null && !beforeValue.equals(o)) {
+                    if (beforeValue != null && !CommonsUtils.isSame(beforeValue, o)) {
+                        // fix:4.4.5 获取差值（多引用）
+                        if (beforeValue instanceof ID[] && o instanceof ID[]) {
+                            ID[] beforeValue2 = (ID[]) beforeValue;
+                            ID[] o2 = (ID[]) o;
+                            // 旧有新无
+                            Collection<ID> removed = CollectionUtils.subtract(Arrays.asList(beforeValue2), Arrays.asList(o2));
+                            beforeValue = removed.toArray(new ID[0]);
+                        }
+
                         fieldWritebackRefresh = new FieldWritebackRefresh(this, beforeValue);
                     }
                 }
