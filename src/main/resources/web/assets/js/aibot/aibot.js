@@ -34,6 +34,8 @@ class AiBot extends React.Component {
             <div className="modal-body">
               <Chat
                 chatid={this.props.chatid}
+                presetMessage={this.props.presetMessage}
+                autoSend={this.props.autoSend}
                 onChatidChanged={(id) => {
                   this.setState({ chatid: id })
                   typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(id)
@@ -78,12 +80,27 @@ class AiBot extends React.Component {
   // --
 
   static init(props, toggleShow) {
+    var presetMessage = props && props.presetMessage
+    var autoSend = props && props.autoSend
     if (window._AiBot) {
       if (toggleShow) {
         if (window._AiBot.state.hide) window._AiBot.show()
         else window._AiBot.hide()
       } else {
         window._AiBot.show()
+      }
+      // 将搜索词填入已有会话输入框并自动发送
+      if (presetMessage) {
+        var _Chat = window._AiBot._Chat
+        if (_Chat && _Chat._ChatInput) {
+          _Chat._ChatInput.setState({ content: presetMessage }, function () {
+            if (autoSend) {
+              _Chat._ChatInput.hanldeSend()
+            } else {
+              _Chat._ChatInput._$textarea && _Chat._ChatInput._$textarea.focus()
+            }
+          })
+        }
       }
     } else {
       renderRbcomp(<AiBot {...props} />, function () {

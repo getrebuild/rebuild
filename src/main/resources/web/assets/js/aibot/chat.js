@@ -41,6 +41,9 @@ class Chat extends React.Component {
       ...props,
       messages: [],
     }
+    // 搜索框问AI时传入的预设消息（仅首次使用）
+    this._presetMessage = props.presetMessage
+    this._autoSend = props.autoSend
   }
 
   render() {
@@ -80,7 +83,10 @@ class Chat extends React.Component {
   initChat(chatid) {
     this.setState({ chatid: chatid || null })
     this._ChatMessages.setMessages([])
-    this._ChatInput.reset(true)
+    this._ChatInput.reset(true, this._presetMessage)
+    this._presetMessage = null
+    var _autoSend = this._autoSend
+    this._autoSend = null
     this._ChatSidebar.setState({ current: null })
 
     $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}`, (res) => {
@@ -91,6 +97,10 @@ class Chat extends React.Component {
           this._ChatSidebar.setState({ current: d._chatid })
         }
         this._ChatMessages.setMessages(d.messages || [], true)
+
+        if (_autoSend && this._ChatInput.state.content) {
+          this._ChatInput.hanldeSend()
+        }
       } else {
         this._ChatMessages.setMessages([{ error: res.error_msg }])
       }
@@ -248,8 +258,8 @@ class ChatInput extends React.Component {
     __evt_StreamCancel = true
   }
 
-  reset(autoFocus) {
-    this.setState({ content: '', attach: [], postState: 0, activeSkill: null }, () => {
+  reset(autoFocus, presetContent) {
+    this.setState({ content: presetContent || '', attach: [], postState: 0, activeSkill: null }, () => {
       if (autoFocus) this._$textarea.focus()
     })
   }
@@ -482,6 +492,7 @@ class ChatMessage extends React.Component {
     if (!md) return null
 
     md = fixMdTables(md)
+    md = fixMdEmphasis(md)
     return (
       <div className="msg-text">
         <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
@@ -871,4 +882,12 @@ function fixMdTables(md) {
     }
   }
   return lines.join('\n')
+}
+
+// 修复 CJK 全角标点（如 ：）导致 **bold** 紧跟非空白字符时粗体无法渲染的问题
+// marked 可能不将某些 CJK 标点识别为 Unicode 标点，导致闭合 ** 的 flanking 规则失效
+function fixMdEmphasis(md) {
+  if (!md) return md
+  // 闭合 ** 后紧跟非空白字符时补充空格，确保粗体正确渲染
+  return md.replace(/(\S)\*\*(?=\S)/g, '$1** ')
 }
