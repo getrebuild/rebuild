@@ -7,7 +7,7 @@
   "websiteUrl": "https://getrebuild.com",
   "icons": [
     {
-      "src": "https://getrebuild.com/favicon.ico",
+      "src": "https://getrebuild.com/img/logo512.png",
       "mimeType": "image/png",
       "sizes": ["any"]
     }

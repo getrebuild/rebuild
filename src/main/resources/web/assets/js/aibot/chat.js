@@ -491,8 +491,7 @@ class ChatMessage extends React.Component {
     let md = content || this.state.content
     if (!md) return null
 
-    md = fixMdTables(md)
-    md = fixMdEmphasis(md)
+    md = fixMd(md)
     return (
       <div className="msg-text">
         <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
@@ -852,42 +851,41 @@ class RecordSelectorModal2 extends RecordSelectorModal {
   }
 }
 
-// 修复 AI 回复中表格缺少换行/空行导致无法渲染的问题
-// GFM 要求表格前有空行，AI 有时忽略此规则
-function fixMdTables(md) {
-  if (!md || md.indexOf('|') === -1) return md
-  if (!/\|[\s:]*-{2,}/.test(md)) return md
+// 修复 AI 回复中常见的 Markdown 语法问题，确保 marked 正确渲染
+function fixMd(md) {
+  if (!md) return md
 
-  const lines = md.split('\n')
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i]
-    // C1
-    if (/\|[\s:]*-{2,}/.test(line) && /(\|)\s*(\|)/.test(line)) {
-      const firstPipe = line.indexOf('|')
-      let work = firstPipe > 0 ? line.substring(0, firstPipe).trimEnd() + '\n\n' + line.substring(firstPipe) : line
-      work = work.replace(/(\|)\s*(\|)/g, '$1\n$2')
-      lines[i] = work
-      continue
-    }
+  // 1. 表格：GFM 要求表格前有空行，AI 有时忽略此规则
+  if (md.indexOf('|') !== -1 && /\|[\s:]*-{2,}/.test(md)) {
+    const lines = md.split('\n')
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i]
+      if (/\|[\s:]*-{2,}/.test(line) && /(\|)\s*(\|)/.test(line)) {
+        const firstPipe = line.indexOf('|')
+        let work = firstPipe > 0 ? line.substring(0, firstPipe).trimEnd() + '\n\n' + line.substring(firstPipe) : line
+        work = work.replace(/(\|)\s*(\|)/g, '$1\n$2')
+        lines[i] = work
+        continue
+      }
 
-    if (i + 1 < lines.length && /\|[\s:]*-{2,}/.test(lines[i + 1])) {
-      const pipeIdx = line.indexOf('|')
-      if (pipeIdx > 0) {
-        // C2
-        lines[i] = line.substring(0, pipeIdx).trimEnd() + '\n\n' + line.substring(pipeIdx)
-      } else if (pipeIdx === 0 && i > 0 && lines[i - 1].trim() !== '') {
-        // C3
-        lines[i] = '\n' + line
+      if (i + 1 < lines.length && /\|[\s:]*-{2,}/.test(lines[i + 1])) {
+        const pipeIdx = line.indexOf('|')
+        if (pipeIdx > 0) {
+          lines[i] = line.substring(0, pipeIdx).trimEnd() + '\n\n' + line.substring(pipeIdx)
+        } else if (pipeIdx === 0 && i > 0 && lines[i - 1].trim() !== '') {
+          lines[i] = '\n' + line
+        }
       }
     }
+    md = lines.join('\n')
   }
-  return lines.join('\n')
-}
 
-// 修复 CJK 全角标点（如 ：）导致 **bold** 紧跟非空白字符时粗体无法渲染的问题
-// marked 可能不将某些 CJK 标点识别为 Unicode 标点，导致闭合 ** 的 flanking 规则失效
-function fixMdEmphasis(md) {
-  if (!md) return md
-  // 闭合 ** 后紧跟非空白字符时补充空格，确保粗体正确渲染
-  return md.replace(/(\S)\*\*(?=\S)/g, '$1** ')
+  // 2. 粗体：去除开启/闭合 ** 内侧多余空格（仅同行，避免跨行吞表格结构）
+  md = md.replace(/(\*\*)[ \t]+([^\n*]+?)[ \t]*(\*\*)/g, '$1$2$3')
+  md = md.replace(/(\*\*[^\n*]+\*\*)(?=[^\s\)\]}>.,;:!?，。；：！？、）】])/g, '$1 ')
+
+  // 3. 标题：CommonMark 要求 # 后必须有空格
+  md = md.replace(/^(#{1,6})(?=[^\s#])/gm, '$1 ')
+
+  return md
 }

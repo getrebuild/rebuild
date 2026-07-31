@@ -94,7 +94,7 @@ class AiBot extends React.Component {
         var _Chat = window._AiBot._Chat
         if (_Chat && _Chat._ChatInput) {
           _Chat._ChatInput.setState({ content: presetMessage }, function () {
-            if (autoSend) {
+            if (autoSend && _Chat._ChatInput.state.postState === 0) {
               _Chat._ChatInput.hanldeSend()
             } else {
               _Chat._ChatInput._$textarea && _Chat._ChatInput._$textarea.focus()
