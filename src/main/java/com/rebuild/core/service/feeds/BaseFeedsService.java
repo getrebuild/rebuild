@@ -124,7 +124,7 @@ public abstract class BaseFeedsService extends ObservableService {
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
                     }
                 } else {
-                    aiReply = Language.L("请配置 AI 助手参数后使用");
+                    aiReply = Language.L("请联系管理员配置 AI 助手后使用");
                 }
 
                 aiReply = StringUtils.trim(aiReply);

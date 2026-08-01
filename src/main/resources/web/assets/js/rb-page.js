@@ -655,6 +655,9 @@ var _initGlobalSearch = function () {
     }, 100)
   })
 
+  // v4.5
+  $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer"></i> ' + $L('问 AI') + '</a>').appendTo($gs)
+
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
     var $a = $item.find('>a')
@@ -667,6 +670,11 @@ var _initGlobalSearch = function () {
 
   var $es = $gs.find('a').on('click', function () {
     var s = $('.search-input-gs').val()
+    if ($(this).hasClass('aibot-quick')) {
+      $('.search-container .dropdown-toggle').dropdown('toggle')
+      window.AiBot && window.AiBot.init({ draggable: true, presetMessage: s, autoSend: true }, false)
+      return
+    }
     $storage.set('GlobalSearch-gs', s || '')
     location.href = $(this).data('url') + ($(this).hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
   })
@@ -692,6 +700,11 @@ var _initGlobalSearch = function () {
       _tryActive($active, $next)
     } else if (e.keyCode === 13) {
       var s = $('.search-input-gs').val()
+      if ($active.hasClass('aibot-quick')) {
+        $('.search-container .dropdown-toggle').dropdown('toggle')
+        window.AiBot && window.AiBot.init({ draggable: true, presetMessage: s, autoSend: true }, false)
+        return
+      }
       $storage.set('GlobalSearch-gs', s || '')
       location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
     }

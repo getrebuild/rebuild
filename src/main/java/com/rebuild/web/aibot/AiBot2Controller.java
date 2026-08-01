@@ -60,7 +60,7 @@ public class AiBot2Controller extends BaseController {
     @PostMapping("post/chat-stream")
     public void chatStream(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (!Config.availableAiBot()) {
-            StreamEcho.error(Language.L("请配置 AI 助手参数后使用"), resp.getWriter());
+            StreamEcho.error(Language.L("请联系管理员配置 AI 助手后使用"), resp.getWriter());
             return;
         }
 

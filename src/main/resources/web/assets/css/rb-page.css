@@ -3619,6 +3619,11 @@ a.user-show:not([href]) {
   color: #fff !important;
 }
 
+.global-search > .dropdown-menu a.badge.aibot-quick {
+  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe) !important;
+  color: #fff !important;
+}
+
 .rb-icons-nav > li.dropdown.global-create2 {
   position: relative;
 }

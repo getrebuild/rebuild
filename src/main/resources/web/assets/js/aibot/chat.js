@@ -41,6 +41,9 @@ class Chat extends React.Component {
       ...props,
       messages: [],
     }
+    // 搜索框问AI时传入的预设消息（仅首次使用）
+    this._presetMessage = props.presetMessage
+    this._autoSend = props.autoSend
   }
 
   render() {
@@ -80,7 +83,10 @@ class Chat extends React.Component {
   initChat(chatid) {
     this.setState({ chatid: chatid || null })
     this._ChatMessages.setMessages([])
-    this._ChatInput.reset(true)
+    this._ChatInput.reset(true, this._presetMessage)
+    this._presetMessage = null
+    var _autoSend = this._autoSend
+    this._autoSend = null
     this._ChatSidebar.setState({ current: null })
 
     $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}`, (res) => {
@@ -91,6 +97,10 @@ class Chat extends React.Component {
           this._ChatSidebar.setState({ current: d._chatid })
         }
         this._ChatMessages.setMessages(d.messages || [], true)
+
+        if (_autoSend && this._ChatInput.state.content) {
+          this._ChatInput.hanldeSend()
+        }
       } else {
         this._ChatMessages.setMessages([{ error: res.error_msg }])
       }
@@ -173,24 +183,26 @@ class ChatInput extends React.Component {
             />
           </div>
           <div className="chat-input-action">
-            <span className="dropup">
-              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
-                <i className="mdi mdi-flash-outline" style={{ paddingTop: 3 }} />
-              </button>
-              <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 300 }} ref={(c) => (this._$skills = c)}>
-                {skills.map((s, idx) => (
-                  <a
-                    key={idx}
-                    className="dropdown-item"
-                    onClick={() => {
-                      this.setState({ activeSkill: s.name })
-                    }}>
-                    {s.name}
-                    {s.description && <div className="text-muted fs-12 text-break">{s.description}</div>}
-                  </a>
-                ))}
-              </div>
-            </span>
+            {skills.length > 0 && (
+              <span className="dropup">
+                <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
+                  <i className="mdi mdi-flash-outline" style={{ paddingTop: 3 }} />
+                </button>
+                <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 300 }} ref={(c) => (this._$skills = c)}>
+                  {skills.map((s, idx) => (
+                    <a
+                      key={idx}
+                      className="dropdown-item"
+                      onClick={() => {
+                        this.setState({ activeSkill: s.name })
+                      }}>
+                      {s.name}
+                      {s.description && <div className="text-muted fs-12 text-break">{s.description}</div>}
+                    </a>
+                  ))}
+                </div>
+              </span>
+            )}
             <span className="dropup">
               <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('数据')}>
                 <i className="mdi mdi-attachment-plus" />
@@ -246,8 +258,8 @@ class ChatInput extends React.Component {
     __evt_StreamCancel = true
   }
 
-  reset(autoFocus) {
-    this.setState({ content: '', attach: [], postState: 0, activeSkill: null }, () => {
+  reset(autoFocus, presetContent) {
+    this.setState({ content: presetContent || '', attach: [], postState: 0, activeSkill: null }, () => {
       if (autoFocus) this._$textarea.focus()
     })
   }
@@ -476,8 +488,10 @@ class ChatMessage extends React.Component {
   }
 
   renderContent(content) {
-    const md = content || this.state.content
+    let md = content || this.state.content
     if (!md) return null
+
+    md = fixMd(md)
     return (
       <div className="msg-text">
         <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
@@ -835,4 +849,43 @@ class RecordSelectorModal2 extends RecordSelectorModal {
       </div>
     )
   }
+}
+
+// 修复 AI 回复中常见的 Markdown 语法问题，确保 marked 正确渲染
+function fixMd(md) {
+  if (!md) return md
+
+  // 1. 表格：GFM 要求表格前有空行，AI 有时忽略此规则
+  if (md.indexOf('|') !== -1 && /\|[\s:]*-{2,}/.test(md)) {
+    const lines = md.split('\n')
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i]
+      if (/\|[\s:]*-{2,}/.test(line) && /(\|)\s*(\|)/.test(line)) {
+        const firstPipe = line.indexOf('|')
+        let work = firstPipe > 0 ? line.substring(0, firstPipe).trimEnd() + '\n\n' + line.substring(firstPipe) : line
+        work = work.replace(/(\|)\s*(\|)/g, '$1\n$2')
+        lines[i] = work
+        continue
+      }
+
+      if (i + 1 < lines.length && /\|[\s:]*-{2,}/.test(lines[i + 1])) {
+        const pipeIdx = line.indexOf('|')
+        if (pipeIdx > 0) {
+          lines[i] = line.substring(0, pipeIdx).trimEnd() + '\n\n' + line.substring(pipeIdx)
+        } else if (pipeIdx === 0 && i > 0 && lines[i - 1].trim() !== '') {
+          lines[i] = '\n' + line
+        }
+      }
+    }
+    md = lines.join('\n')
+  }
+
+  // 2. 粗体：去除开启/闭合 ** 内侧多余空格（仅同行，避免跨行吞表格结构）
+  md = md.replace(/(\*\*)[ \t]+([^\n*]+?)[ \t]*(\*\*)/g, '$1$2$3')
+  md = md.replace(/(\*\*[^\n*]+\*\*)(?=[^\s\)\]}>.,;:!?，。；：！？、）】])/g, '$1 ')
+
+  // 3. 标题：CommonMark 要求 # 后必须有空格
+  md = md.replace(/^(#{1,6})(?=[^\s#])/gm, '$1 ')
+
+  return md
 }

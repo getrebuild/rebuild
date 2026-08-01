@@ -17,7 +17,7 @@ class ContentSendNotification extends ActionContentSpec {
     const state = this.state
     return (
       <div className="send-notification">
-        <form className="simple">
+        <form className="simple" onSubmit={(e) => e.preventDefault()}>
           <div className="form-group row pt-1">
             <label className="col-12 col-lg-3 col-form-label text-lg-right" style={{ paddingTop: 19 }}>
               {$L('通知类型')}
