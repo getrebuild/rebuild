@@ -101,7 +101,7 @@ public class LoginController extends LoginAction {
         }
 
         // 登录页
-        ModelAndView mv = createModelAndView("/signup/login");
+        ModelAndView mv = createModelAndView("/signup/login-v44");
         String m = RebuildConfiguration.get(LoginBulletinBoard);
         if (StringUtils.isBlank(m)) m = (String) LoginBulletinBoard.getDefaultValue();
         m = MarkdownUtils.render(m, true, true);
