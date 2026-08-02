@@ -1727,7 +1727,6 @@ function $openView(id, e) {
 }
 
 // Mermaid 图表渲染支持
-// 全局注册 mermaid 代码块 renderer，所有 marked.parse() 自动处理
 var _mermaidCodeRenderer = function (token) {
   var text, lang
   if (typeof token === 'object' && token !== null) {
@@ -1738,9 +1737,9 @@ var _mermaidCodeRenderer = function (token) {
     lang = arguments[1]
   }
   if (lang === 'mermaid') return '<div class="mermaid-to-render">' + text + '</div>'
-  return false // 回退到默认渲染器
+  return false
 }
-
+// 全局注册 mermaid 代码块 renderer，所有 marked.parse() 自动处理
 if (typeof marked !== 'undefined') {
   marked.use({ renderer: { code: _mermaidCodeRenderer } })
 }
@@ -1748,16 +1747,16 @@ if (typeof marked !== 'undefined') {
 var _mermaidLoaded = false
 var _mermaidLoading = false
 var _mermaidQueue = []
-
-// 懒加载 mermaid 并渲染 .mermaid-to-render 元素
-function renderMermaid($container) {
+// 懒加载 mermaid 并渲染
+function $renderMermaid($container) {
   if (!$container || !$container.length) $container = $(document)
 
   function doRender() {
-    // 每次实时查询，避免 React 重渲染后闭包持有过期 DOM
     var $nodes = $container.find('.mermaid-to-render')
     if ($nodes.length === 0) return
     if (typeof mermaid === 'undefined') return
+
+    // eslint-disable-next-line no-undef
     mermaid.initialize({ securityLevel: 'loose', startOnLoad: false })
     var nodes = []
     $nodes.each(function () {
@@ -1765,8 +1764,8 @@ function renderMermaid($container) {
       $node.removeClass('mermaid-to-render').addClass('mermaid')
       nodes.push($node[0])
     })
+    // eslint-disable-next-line no-undef
     mermaid.run({ nodes: nodes }).catch(function (err) {
-      // eslint-disable-next-line no-console
       console.error('Mermaid render error:', err)
     })
   }
@@ -1777,14 +1776,11 @@ function renderMermaid($container) {
     _mermaidQueue.push(doRender)
     if (!_mermaidLoading) {
       _mermaidLoading = true
-      var script = document.createElement('script')
-      script.src = rb.baseUrl + '/assets/lib/charts/mermaid.min.js?v=10.4.0'
-      script.onload = function () {
+      $getScript('/assets/lib/charts/mermaid.min.js?v=10.4.0', function () {
         _mermaidLoaded = true
         _mermaidLoading = false
         while (_mermaidQueue.length) _mermaidQueue.shift()()
-      }
-      document.head.appendChild(script)
+      })
     }
   }
 }

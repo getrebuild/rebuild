@@ -416,9 +416,10 @@ class ChatMessage extends React.Component {
   componentDidUpdate(props, prevState) {
     if (prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning) {
       scrollToBottom()
+
       if (_chatMermaidTimer) clearTimeout(_chatMermaidTimer)
       _chatMermaidTimer = setTimeout(function () {
-        renderMermaid($(document.body))
+        $renderMermaid($(document.body))
       }, 300)
     }
   }
