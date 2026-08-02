@@ -389,3 +389,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chat-message .msg-user .markdown-body a {
   color: #fff;
 }
+
+.chat-message .msg-text .mermaid,
+.chat-message .msg-text .mermaid-to-render {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}

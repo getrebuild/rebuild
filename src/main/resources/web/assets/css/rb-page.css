@@ -6774,7 +6774,6 @@ div.formula-code {
   font-size: 12px;
 }
 
-/* Mermaid 图表 */
 .markdown-body .mermaid,
 .markdown-body .mermaid-to-render {
   display: flex;
@@ -6788,11 +6787,4 @@ div.formula-code {
 .markdown-body .mermaid svg {
   max-width: 100%;
   height: auto;
-}
-
-.chat-message .msg-text .mermaid,
-.chat-message .msg-text .mermaid-to-render {
-  display: flex;
-  justify-content: center;
-  margin: 8px 0;
 }
