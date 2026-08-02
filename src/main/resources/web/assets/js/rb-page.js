@@ -1645,12 +1645,14 @@ function $modalDraggable($modal, option) {
     let last = $storage.get(option.keepPositionKey)
     if (last) {
       last = last.split(',').map((v) => parseInt(v))
-      $($modal).find('.modal-dialog').css({
-        left: last[0],
-        top: last[1],
-        right: 'unset',
-        bottom: 'unset',
-      })
+      $($modal)
+        .find('.modal-dialog')
+        .css({
+          left: Math.max(0, last[0]),
+          top: Math.max(-22, last[1]),
+          right: 'unset',
+          bottom: 'unset',
+        })
     }
   }
 }
@@ -1736,7 +1738,6 @@ var _mermaidCodeRenderer = function (token) {
     text = arguments[0]
     lang = arguments[1]
   }
-  if (lang === 'mermaid') return '<div class="mermaid-to-render">' + text + '</div>'
   return false
 }
 // 全局注册 mermaid 代码块 renderer，所有 marked.parse() 自动处理

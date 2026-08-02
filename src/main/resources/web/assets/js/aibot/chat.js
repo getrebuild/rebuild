@@ -29,10 +29,7 @@ const _chatMarked = new marked.Marked({
     },
   },
 })
-// mermaid 代码块渲染器
-_chatMarked.use({ renderer: { code: _mermaidCodeRenderer } })
 
-var _chatMermaidTimer = null
 let __evt_ScrollToBottomStop = false
 let __evt_StreamCancel = false
 
@@ -416,11 +413,6 @@ class ChatMessage extends React.Component {
   componentDidUpdate(props, prevState) {
     if (prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning) {
       scrollToBottom()
-
-      if (_chatMermaidTimer) clearTimeout(_chatMermaidTimer)
-      _chatMermaidTimer = setTimeout(function () {
-        $renderMermaid($(document.body))
-      }, 300)
     }
   }
 
