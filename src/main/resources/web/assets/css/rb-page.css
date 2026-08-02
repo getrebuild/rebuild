@@ -6773,3 +6773,26 @@ div.formula-code {
 .EasyMDEContainer .cm-s-easymde .cm-comment {
   font-size: 12px;
 }
+
+/* Mermaid 图表 */
+.markdown-body .mermaid,
+.markdown-body .mermaid-to-render {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+  text-align: center;
+  background: transparent;
+  overflow-x: auto;
+}
+
+.markdown-body .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.chat-message .msg-text .mermaid,
+.chat-message .msg-text .mermaid-to-render {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}
