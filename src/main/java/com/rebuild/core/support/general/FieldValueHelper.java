@@ -89,6 +89,8 @@ public class FieldValueHelper {
      */
     public static final String CURRENT = "{CURRENT}";
     public static final String CURRENT2 = "{@CURRENT}";
+    // v4.4.6 随机数
+    public static final String _RAND = "{RAND}";
 
     /**
      * @param value
