@@ -998,7 +998,7 @@ class RecordSelector extends React.Component {
     this.__select2 = $initReferenceSelect2(this._$select, {
       searchType: 'search',
       entity: props.entity,
-      placeholder: props.entityLabel || undefined,
+      placeholder: props.placeholder || props.entityLabel || undefined,
     }).on('change', (e) => {
       typeof props.onSelect === 'function' && props.onSelect(e.target.value)
     })
