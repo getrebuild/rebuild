@@ -6788,3 +6788,100 @@ div.formula-code {
   max-width: 100%;
   height: auto;
 }
+
+/* Mermaid */
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+  background: transparent;
+}
+
+.mermaid .node rect {
+  rx: 8;
+  ry: 8;
+}
+
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+  stroke-width: 1.5px !important;
+}
+
+.mermaid .nodeLabel,
+.mermaid .node text {
+  font-family:
+    'Segoe UI',
+    'Microsoft YaHei',
+    -apple-system,
+    sans-serif !important;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.mermaid .edgePath .path,
+.mermaid .flowchart-link {
+  stroke-width: 1.8px !important;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mermaid .edgeLabel {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: 12px;
+}
+
+.mermaid .edgeLabel rect,
+.mermaid .edgeLabel path {
+  fill: transparent !important;
+}
+
+.mermaid marker path,
+.mermaid .marker path {
+  fill: #5f6368 !important;
+}
+
+.mermaid .cluster rect {
+  rx: 10 !important;
+  ry: 10 !important;
+  fill: rgba(66, 133, 244, 0.04) !important;
+  stroke: #c2d7fc !important;
+  stroke-width: 1px !important;
+  stroke-dasharray: 5 5;
+}
+
+.mermaid .cluster text,
+.mermaid .cluster-label {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-weight: 600;
+}
+
+.mermaid .er.entityBox {
+  rx: 8 !important;
+  ry: 8 !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+}
+
+.mermaid .er.attributeBoxOdd,
+.mermaid .er.attributeBoxEven {
+  stroke-width: 0.5px;
+}
+
+.mermaid .actor {
+  rx: 6 !important;
+  ry: 6 !important;
+}
+.mermaid .messageLine {
+  stroke-width: 1.5px !important;
+  stroke-linecap: round;
+}
+
+.mermaid text {
+  font-family:
+    'Segoe UI',
+    'Microsoft YaHei',
+    -apple-system,
+    sans-serif;
+}

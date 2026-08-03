@@ -1759,7 +1759,29 @@ function $renderMermaid($container) {
     if (typeof mermaid === 'undefined') return
 
     // eslint-disable-next-line no-undef
-    mermaid.initialize({ securityLevel: 'loose', startOnLoad: false })
+    mermaid.initialize({
+      securityLevel: 'loose',
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#e8f0fe',
+        primaryTextColor: '#1565c0',
+        primaryBorderColor: '#4285f4',
+        lineColor: '#5f6368',
+        secondaryColor: '#e6f4ea',
+        tertiaryColor: '#f3e8fd',
+        clusterBkg: 'rgba(66, 133, 244, 0.04)',
+        clusterBorder: '#c2d7fc',
+        fontFamily: '"Segoe UI", "Microsoft YaHei", -apple-system, sans-serif',
+        fontSize: '13px',
+      },
+      flowchart: {
+        curve: 'basis',
+        padding: 15,
+        nodeSpacing: 50,
+        rankSpacing: 60,
+      },
+    })
     var nodes = []
     $nodes.each(function () {
       var $node = $(this)
