@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controller;
 import com.rebuild.api.RespBody;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.EntityHelper;
@@ -251,14 +252,10 @@ public class UserSettingsController extends BaseController {
 
     // ----- Access Key -----
 
-    public static final String AK_PREFIX = "rbak-";
-    public static final String KEY_AK = "MCPAK.";
-    public static final String KEY_REV = "MCPAK_REV.";
-
     @GetMapping("/access-token/status")
     public RespBody akStatus(HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        boolean has = KVStorage.getCustomValue(KEY_AK + user) != null;
+        boolean has = KVStorage.getCustomValue(AuthTokenManager.KEY_AK + user) != null;
         return RespBody.ok(JSONUtils.toJSONObject("hasToken", has));
     }
 
@@ -266,13 +263,13 @@ public class UserSettingsController extends BaseController {
     public RespBody akGenerate(HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
-        String oldHash = KVStorage.getCustomValue(KEY_AK + user);
-        if (oldHash != null) KVStorage.removeCustomValue(KEY_REV + oldHash);
+        String oldHash = KVStorage.getCustomValue(AuthTokenManager.KEY_AK + user);
+        if (oldHash != null) KVStorage.removeCustomValue(AuthTokenManager.KEY_REV + oldHash);
 
-        String plainAk = AK_PREFIX + CodecUtils.randomCode(40);
+        String plainAk = AuthTokenManager.AK_PREFIX + CodecUtils.randomCode(40);
         String akHash = EncryptUtils.toSHA256Hex(plainAk);
-        KVStorage.setCustomValue(KEY_AK + user, akHash);
-        KVStorage.setCustomValue(KEY_REV + akHash, user.toLiteral());
+        KVStorage.setCustomValue(AuthTokenManager.KEY_AK + user, akHash);
+        KVStorage.setCustomValue(AuthTokenManager.KEY_REV + akHash, user.toLiteral());
 
         return RespBody.ok(JSONUtils.toJSONObject("token", plainAk));
     }
@@ -280,10 +277,10 @@ public class UserSettingsController extends BaseController {
     @PostMapping("/access-token/revoke")
     public RespBody akRevoke(HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        String oldHash = KVStorage.getCustomValue(KEY_AK + user);
+        String oldHash = KVStorage.getCustomValue(AuthTokenManager.KEY_AK + user);
         if (oldHash != null) {
-            KVStorage.removeCustomValue(KEY_REV + oldHash);
-            KVStorage.removeCustomValue(KEY_AK + user);
+            KVStorage.removeCustomValue(AuthTokenManager.KEY_REV + oldHash);
+            KVStorage.removeCustomValue(AuthTokenManager.KEY_AK + user);
         }
         return RespBody.ok();
     }

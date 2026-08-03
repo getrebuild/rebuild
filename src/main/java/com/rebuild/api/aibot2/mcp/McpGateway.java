@@ -7,17 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.api.aibot2.mcp;
 
-import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.RateLimiters;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.StreamUtils;
@@ -31,9 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import static com.rebuild.web.user.UserSettingsController.AK_PREFIX;
-import static com.rebuild.web.user.UserSettingsController.KEY_REV;
 
 /**
  * MCP Gateway
@@ -60,8 +55,7 @@ public class McpGateway {
 
     @GetMapping("sse")
     public SseEmitter mcpSse(HttpServletRequest request, HttpServletResponse response) {
-        String ak = extractBearerToken(request);
-        if (ak == null || verifyAk(ak) == null) {
+        if (AppUtils.getRequestUserViaAk(request, true) == null) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             SseEmitter emitter = new SseEmitter(0L);
             emitter.complete();
@@ -77,13 +71,7 @@ public class McpGateway {
 
     @PostMapping("sse")
     public void mcp(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String ak = extractBearerToken(request);
-        if (ak == null) {
-            writeJson(response, HttpStatus.UNAUTHORIZED.value(), McpServer.errorBody(McpServer.ERR_UNAUTHORIZED, "Missing Authorization header"));
-            return;
-        }
-
-        ID user = verifyAk(ak);
+        ID user = AppUtils.getRequestUserViaAk(request, true);
         if (user == null) {
             writeJson(response, HttpStatus.UNAUTHORIZED.value(), McpServer.errorBody(McpServer.ERR_UNAUTHORIZED, "Invalid Access Key"));
             return;
@@ -114,20 +102,6 @@ public class McpGateway {
         } finally {
             UserContextHolder.clear();
         }
-    }
-
-    private ID verifyAk(String ak) {
-        if (StringUtils.isBlank(ak) || !ak.startsWith(AK_PREFIX)) return null;
-        String userId = KVStorage.getCustomValue(KEY_REV + EncryptUtils.toSHA256Hex(ak));
-        return ID.isId(userId) ? ID.valueOf(userId) : null;
-    }
-
-    private String extractBearerToken(HttpServletRequest request) {
-        String auth = request.getHeader("Authorization");
-        if (auth != null && auth.startsWith("Bearer ")) {
-            return auth.substring(7);
-        }
-        return null;
     }
 
     private void writeJson(HttpServletResponse response, int status, String body) throws IOException {
