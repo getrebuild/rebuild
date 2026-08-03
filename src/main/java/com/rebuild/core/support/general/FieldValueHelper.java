@@ -506,7 +506,7 @@ public class FieldValueHelper {
 
         // DECIMAL 去除精度比较
         if (field.getType() == FieldType.DECIMAL) {
-            BigDecimal decimalValue = EasyDecimal.fixedDecimalScale(newValue, field);
+            BigDecimal decimalValue = newValue == null ? null : EasyDecimal.fixedDecimalScale(newValue, field);
             return CommonsUtils.isSame(decimalValue, oldValue);
         }
 
