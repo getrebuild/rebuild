@@ -1738,6 +1738,7 @@ var _mermaidCodeRenderer = function (token) {
     text = arguments[0]
     lang = arguments[1]
   }
+  if (lang === 'mermaid') return '<div class="mermaid-to-render">' + text + '</div>'
   return false
 }
 // 全局注册 mermaid 代码块 renderer，所有 marked.parse() 自动处理
