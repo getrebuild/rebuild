@@ -1759,7 +1759,17 @@ function $renderMermaid($container) {
     if (typeof mermaid === 'undefined') return
 
     // eslint-disable-next-line no-undef
-    mermaid.initialize({ securityLevel: 'loose', startOnLoad: false })
+    mermaid.initialize({
+      securityLevel: 'loose',
+      startOnLoad: false,
+      theme: 'neutral',
+      flowchart: {
+        curve: 'basis',
+        padding: 20,
+        nodeSpacing: 80,
+        rankSpacing: 100,
+      },
+    })
     var nodes = []
     $nodes.each(function () {
       var $node = $(this)

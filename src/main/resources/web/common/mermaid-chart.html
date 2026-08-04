@@ -20,7 +20,6 @@
         min-height: 500px;
       }
       pre.mermaid {
-        color: #fff;
         padding: 0;
         margin: 0;
       }
@@ -52,6 +51,12 @@
         mermaid.initialize({
           securityLevel: 'loose',
           startOnLoad: false,
+          theme: 'neutral',
+          flowchart: {
+            padding: 20,
+            nodeSpacing: 100,
+            rankSpacing: 120,
+          },
         })
         mermaid
           .run({

@@ -6788,3 +6788,14 @@ div.formula-code {
   max-width: 100%;
   height: auto;
 }
+
+/* Mermaid */
+
+.mermaid rect {
+  rx: 6;
+  ry: 6;
+}
+
+.mermaid text {
+  font-family: inherit;
+}
