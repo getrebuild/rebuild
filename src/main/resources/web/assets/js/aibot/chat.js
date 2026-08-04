@@ -81,6 +81,11 @@ class Chat extends React.Component {
   }
 
   initChat(chatid) {
+    // 如果当前正在对话，仅关闭前端连接，后端继续完成并保存完整内容
+    if (this._ChatInput && this._ChatInput.state.postState !== 0) {
+      __evt_StreamCancel = true
+    }
+
     this.setState({ chatid: chatid || null })
     this._ChatMessages.setMessages([], false, null)
     this._ChatInput.reset(true, this._presetMessage)

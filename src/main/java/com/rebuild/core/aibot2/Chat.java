@@ -145,6 +145,7 @@ public class Chat implements Serializable {
         StringBuilder fullContent = new StringBuilder();
         Map<Integer, String[]> toolCallAccumulator = new LinkedHashMap<>();
         boolean[] interrupted = {false};
+        boolean[] clientGone = {false};
 
         try (StreamResponse<ChatCompletionChunk> resp = completions().createStreaming(builder.build())) {
             try {
@@ -152,7 +153,20 @@ public class Chat implements Serializable {
                     chunk.choices().forEach(choice -> {
                         String content = choice.delta().content().orElse("");
                         if (StringUtils.isNotBlank(content)) {
-                            StreamEcho.text(content, writer);
+                            // 客户端断开后不再写入，但仍累积内容
+                            if (!clientGone[0]) {
+                                try {
+                                    StreamEcho.text(content, writer);
+                                } catch (Exception e) {
+                                    clientGone[0] = true;
+                                }
+                                if (!clientGone[0] && writer.checkError()) {
+                                    clientGone[0] = true;
+                                }
+                                if (clientGone[0]) {
+                                    log.info("Client disconnected, continuing stream : {}", chatRequest.getChatid());
+                                }
+                            }
                             fullContent.append(content);
                         }
 
@@ -180,8 +194,8 @@ public class Chat implements Serializable {
                 });
 
             } catch (Exception e) {
-                if (!interrupted[0]) throw e;
-                log.debug("Stream closed due to interrupt");
+                if (!interrupted[0] && !clientGone[0]) throw e;
+                log.debug("Stream closed (interrupt or client disconnect)");
             }
 
             if (interrupted[0] || toolCallAccumulator.isEmpty() || maxRounds <= 0) {
