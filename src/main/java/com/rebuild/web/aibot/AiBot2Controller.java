@@ -22,6 +22,7 @@ import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.Message;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.StreamEcho;
+import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -98,6 +99,8 @@ public class AiBot2Controller extends BaseController {
         ID chatid = getIdParameter(req, "chatid");
 
         JSONArray messages = new JSONArray();
+        // 新会话时返回引导问题
+        JSONArray suggestQuestions = null;
         if (chatid != null) {
             Chat chat = ChatManager.getChat(chatid);
             chat.getMessages().forEach(m -> messages.add(m.toJSON()));
@@ -109,10 +112,24 @@ public class AiBot2Controller extends BaseController {
                     new String[]{"role", "content"},
                     new Object[]{"ai", aibotName});
             messages.add(welcome);
+
+            try {
+                String result = ToolDefs.execute("SuggestQuestions", "{}");
+                JSONObject resObj = JSON.parseObject(result);
+                if (resObj != null && "ok".equals(resObj.getString("status"))) {
+                    suggestQuestions = resObj.getJSONArray("questions");
+                }
+            } catch (Exception ex) {
+                log.warn("SuggestQuestions tool failed", ex);
+            }
         }
 
-        return RespBody.ok(JSONUtils.toJSONObject(
-                new String[]{"_chatid", "messages"}, new Object[]{chatid, messages}));
+        JSONObject data = JSONUtils.toJSONObject(
+                new String[]{"_chatid", "messages"}, new Object[]{chatid, messages});
+        if (suggestQuestions != null) {
+            data.put("suggestQuestions", suggestQuestions);
+        }
+        return RespBody.ok(data);
     }
 
     @GetMapping("skills")

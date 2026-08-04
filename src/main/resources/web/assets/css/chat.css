@@ -396,3 +396,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   justify-content: center;
   margin: 8px 0;
 }
+
+/* 引导问题 */
+
+.chat-suggest {
+  padding: 0;
+  padding-left: 42px;
+}
+
+.chat-suggest .badge {
+  font-size: 1rem;
+  padding: 6px 14px;
+}
+
+.chat-suggest .badge:hover {
+  background-color: var(--rb-theme-color);
+  color: #fff !important;
+}

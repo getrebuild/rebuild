@@ -85,6 +85,19 @@
                         <td width="40%">[[${bundle.L('默认提示词')}]]</td>
                         <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
                       </tr>
+                      <tr>
+                        <td width="40%">[[${bundle.L('引导问题')}]]</td>
+                        <td
+                          data-id="AibotSuggestQuestions"
+                          style="white-space: pre-line"
+                          th:data-value="${AibotSuggestQuestions ?:''}"
+                          data-optional="true"
+                          th:data-form-text="${bundle.L('新会话时展示，每行一个问题')}"
+                          th:text="${AibotSuggestQuestions ?:bundle.L('默认')}"
+                        >
+                          默认
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                   <div class="edit-footer">

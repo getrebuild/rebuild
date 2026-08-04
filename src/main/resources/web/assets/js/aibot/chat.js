@@ -82,7 +82,7 @@ class Chat extends React.Component {
 
   initChat(chatid) {
     this.setState({ chatid: chatid || null })
-    this._ChatMessages.setMessages([])
+    this._ChatMessages.setMessages([], false, null)
     this._ChatInput.reset(true, this._presetMessage)
     this._presetMessage = null
     var _autoSend = this._autoSend
@@ -96,7 +96,7 @@ class Chat extends React.Component {
           this.setState({ chatid: d._chatid })
           this._ChatSidebar.setState({ current: d._chatid })
         }
-        this._ChatMessages.setMessages(d.messages || [], true)
+        this._ChatMessages.setMessages(d.messages || [], true, d.suggestQuestions || null)
 
         if (_autoSend && this._ChatInput.state.content) {
           this._ChatInput.hanldeSend()
@@ -334,25 +334,55 @@ class ChatMessages extends React.Component {
     super(props)
     this.state = {
       messages: [],
+      suggestQuestions: null,
     }
   }
 
   render() {
+    const showSuggest = this.state.suggestQuestions && this.state.suggestQuestions.length > 0 && !this._hasUserMessage()
     return (
       <div className="chat-messages" ref={(c) => (this._$messages = c)}>
         {this.state.messages.map((item, idx) => {
           return <ChatMessage {...item} key={idx} _ChatMessages={this} />
         })}
+        {showSuggest && (
+          <div className="chat-suggest">
+            <div className="text-muted mb-1">{$L('你可以问我')}</div>
+            <div className="d-flex flex-wrap">
+              {this.state.suggestQuestions.map((q, idx) => (
+                <a key={idx} className="badge badge-pill mr-1 mb-1" onClick={() => this._handleSuggestClick(q)}>
+                  <i className="mdi mdi-chat-processing-outline mr-1" />
+                  {q}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     )
+  }
+
+  _hasUserMessage() {
+    return this.state.messages.some((m) => m.role === 'user')
+  }
+
+  _handleSuggestClick(question) {
+    const _Chat = this.props._Chat
+    const _ChatInput = _Chat._ChatInput
+    if (!_ChatInput || _ChatInput.state.postState !== 0) return
+    _ChatInput.setState({ content: question }, () => {
+      _ChatInput.hanldeSend()
+    })
   }
 
   appendMessage(data) {
     this.setMessages([...this.state.messages, data])
   }
 
-  setMessages(messages, forceScroll) {
-    this.setState({ messages: messages }, () => {
+  setMessages(messages, forceScroll, suggestQuestions) {
+    const state = { messages: messages }
+    if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
+    this.setState(state, () => {
       scrollToBottom(forceScroll)
     })
   }

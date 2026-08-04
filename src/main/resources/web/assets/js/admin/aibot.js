@@ -9,6 +9,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 useEditComp = function (name) {
   if ('AibotBasePrompt' === name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2048" />
+  } else if ('AibotSuggestQuestions' === name) {
+    return <textarea className="form-control form-control-sm row2x" maxLength="2000" placeholder={'你能做什么？\n统计分析数据'} />
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
       let models = 'deepseek-v4-flash qwen3.6-flash hy3-preview gpt-5 gemini-2.5-pro'.split(' ')
@@ -175,7 +177,7 @@ const _loadTools = function () {
     const $tbody = $('#toolsList').empty()
 
     _toolsData.forEach((item) => {
-      if (['SuggestCustom'].includes(item.name)) return
+      if (['SuggestCustom', 'SuggestQuestions'].includes(item.name)) return
 
       const htmlid = `tool-enable-${item.name}`
       $(
