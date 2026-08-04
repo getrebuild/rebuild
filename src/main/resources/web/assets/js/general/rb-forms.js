@@ -1709,6 +1709,10 @@ class RbFormNText extends RbFormElement {
       // eslint-disable-next-line no-undef
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
       previewClass: 'markdown-body',
+      previewRender: (plainText, preview) => {
+        setTimeout(() => $renderMermaid($(preview)), 100)
+        return marked.parse(plainText)
+      },
       onToggleFullScreen: (is) => {
         let $s = $('.modal-wrapper>.modal.show')
         let $cm = $s.find('.CodeMirror-fullscreen')

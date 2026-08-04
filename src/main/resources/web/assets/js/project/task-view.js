@@ -487,6 +487,10 @@ class ValueDescription extends ValueComp {
           // eslint-disable-next-line no-undef
           toolbar: DEFAULT_MDE_TOOLBAR(this),
           previewClass: 'markdown-body',
+          previewRender: (plainText, preview) => {
+            setTimeout(() => $renderMermaid($(preview)), 100)
+            return marked.parse(plainText)
+          },
           minHeight: 158,
           maxHeight: 2000,
         })

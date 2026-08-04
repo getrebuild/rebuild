@@ -6792,10 +6792,13 @@ div.formula-code {
 /* Mermaid */
 
 .mermaid rect {
-  rx: 6;
-  ry: 6;
+  rx: 6px;
+  ry: 6px;
 }
 
-.mermaid text {
+.mermaid text,
+.mermaid .nodeLabel,
+.mermaid .edgeLabel {
   font-family: inherit;
+  font-size: 13px;
 }
