@@ -222,13 +222,13 @@ class ChatInput extends React.Component {
             <button
               type="button"
               className="btn btn-sm ml-1"
-              title={$L('发送')}
-              disabled={this.state.postState === 1 || $empty(this.state.content)}
+              title={this.state.postState === 0 ? $L('发送') : this.state.postState === 2 ? $L('中断中') : $L('停止')}
+              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content))}
               onClick={() => {
                 if (this.state.postState === 0) this.hanldeSend()
-                else this.handleCancel()
+                else if (this.state.postState === 1) this.handleCancel()
               }}>
-              <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : 'mdi mdi-stop'} />
+              <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : this.state.postState === 2 ? 'mdi mdi-spin mdi-loading' : 'mdi mdi-stop'} />
             </button>
           </div>
           <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" data-maxsize="20971520" multiple />
@@ -255,7 +255,13 @@ class ChatInput extends React.Component {
   }
 
   handleCancel() {
+    this.setState({ postState: 2 })
     __evt_StreamCancel = true
+    // 通知后端中断流式输出
+    const chatid = this.props._Chat.state.chatid
+    if (chatid) {
+      $.post(`/aibot2/post/chat-stream-stop?chatid=${chatid}`)
+    }
   }
 
   reset(autoFocus, presetContent) {
@@ -561,7 +567,7 @@ function fetchStream(url, data, onChunk, onDone) {
     .then((response) => {
       const reader = response.body.getReader()
       function readChunk() {
-        // FIXME 停止后后台仍旧输出
+        // 前端中止 + 后端中断
         if (__evt_StreamCancel) {
           controller.abort()
           __evt_StreamCancel = false
@@ -596,7 +602,8 @@ function fetchStream(url, data, onChunk, onDone) {
     })
     .catch((err) => {
       console.error('Error on stream :', err)
-      typeof cb === 'function' && onChunk({ error: err })
+      typeof onChunk === 'function' && onChunk({ error: err })
+      typeof onDone === 'function' && onDone(null, true)
     })
 }
 

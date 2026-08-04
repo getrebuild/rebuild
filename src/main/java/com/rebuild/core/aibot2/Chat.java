@@ -20,8 +20,6 @@ import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
 import com.openai.models.chat.completions.ChatCompletionToolMessageParam;
 import com.openai.services.blocking.chat.ChatCompletionService;
-import com.rebuild.core.aibot2.AiBotException;
-import com.rebuild.core.aibot2.StreamEcho;
 import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.CommonsUtils;
@@ -129,6 +127,9 @@ public class Chat implements Serializable {
         httpResp.setHeader("Cache-Control", "no-cache");
         httpResp.setHeader("Connection", "keep-alive");
 
+        // 先回传 chatid 供前端使用（如中断）
+        StreamEcho.echo(getChatid().toLiteral(), writer, "_chatid");
+
         ChatCompletionCreateParams.Builder builder = requestParams(chatRequest.getUserContent(), chatRequest);
         streamInternal(builder, writer, chatRequest, MAX_TOOL_ROUNDS);
     }
@@ -143,38 +144,47 @@ public class Chat implements Serializable {
                                 ChatRequest chatRequest, int maxRounds) {
         StringBuilder fullContent = new StringBuilder();
         Map<Integer, String[]> toolCallAccumulator = new LinkedHashMap<>();
+        boolean[] interrupted = {false};
 
         try (StreamResponse<ChatCompletionChunk> resp = completions().createStreaming(builder.build())) {
-            resp.stream().forEach(chunk -> chunk.choices().forEach(choice -> {
-                String content = choice.delta().content().orElse("");
-                if (StringUtils.isNotBlank(content)) {
-                    StreamEcho.text(content, writer);
-                    fullContent.append(content);
-                }
+            try {
+                resp.stream().forEach(chunk -> {
+                    chunk.choices().forEach(choice -> {
+                        String content = choice.delta().content().orElse("");
+                        if (StringUtils.isNotBlank(content)) {
+                            StreamEcho.text(content, writer);
+                            fullContent.append(content);
+                        }
 
-                choice.delta().toolCalls().ifPresent(toolCalls -> {
-                    for (com.openai.models.chat.completions.ChatCompletionChunk.Choice.Delta.ToolCall tc : toolCalls) {
-                        int idx = (int) tc.index();
-                        String[] entry = toolCallAccumulator.computeIfAbsent(idx, k -> new String[3]);
-                        tc.id().ifPresent(id -> entry[0] = id);
-                        tc.function().ifPresent(fn -> {
-                            fn.name().ifPresent(name -> entry[1] = name);
-                            fn.arguments().ifPresent(args -> {
-                                entry[2] = entry[2] == null ? args : entry[2] + args;
-                            });
+                        choice.delta().toolCalls().ifPresent(toolCalls -> {
+                            for (com.openai.models.chat.completions.ChatCompletionChunk.Choice.Delta.ToolCall tc : toolCalls) {
+                                int idx = (int) tc.index();
+                                String[] entry = toolCallAccumulator.computeIfAbsent(idx, k -> new String[3]);
+                                tc.id().ifPresent(id -> entry[0] = id);
+                                tc.function().ifPresent(fn -> {
+                                    fn.name().ifPresent(name -> entry[1] = name);
+                                    fn.arguments().ifPresent(args -> {
+                                        entry[2] = entry[2] == null ? args : entry[2] + args;
+                                    });
+                                });
+                            }
                         });
+                    });
+
+                    // 中断检查
+                    if (StreamEcho.isInterrupted(chatRequest.getChatid())) {
+                        log.warn("Chat interrupted : {}", chatRequest.getChatid());
+                        interrupted[0] = true;
+                        resp.stream().close();
                     }
                 });
 
-                // 中断
-                if (StreamEcho.isInterrupted(chatRequest.getChatid())) {
-                    log.warn("Chat interrupted : {}", chatRequest.getChatid());
-                    resp.stream().close();
-                }
-            }));
+            } catch (Exception e) {
+                if (!interrupted[0]) throw e;
+                log.debug("Stream closed due to interrupt");
+            }
 
-            if (toolCallAccumulator.isEmpty() || maxRounds <= 0) {
-                StreamEcho.echo(getChatid().toLiteral(), writer, "_chatid");
+            if (interrupted[0] || toolCallAccumulator.isEmpty() || maxRounds <= 0) {
                 completionAfter(fullContent.toString(), chatRequest);
                 return;
             }
