@@ -199,8 +199,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-message .msg-ai > .avatar img {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   display: inline-block;
   border-radius: 50%;
 }

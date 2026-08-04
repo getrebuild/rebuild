@@ -347,7 +347,7 @@ class ChatMessages extends React.Component {
         })}
         {showSuggest && (
           <div className="chat-suggest">
-            <div className="text-muted mb-1">{$L('你可以问我')}</div>
+            <div className="text-muted mb-1 fs-13">{$L('你可以问我')}</div>
             <div className="d-flex flex-wrap">
               {this.state.suggestQuestions.map((q, idx) => (
                 <a key={idx} className="badge badge-pill mr-1 mb-1" onClick={() => this._handleSuggestClick(q)}>
