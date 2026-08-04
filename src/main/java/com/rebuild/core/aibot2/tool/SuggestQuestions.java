@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,47 +37,35 @@ public class SuggestQuestions implements Tool {
     public Object tool(String arguments) throws Exception {
         JSONArray questions = new JSONArray();
 
-        List<EntityData> entityDataList = collectEntityData();
-        entityDataList.sort(Comparator.comparingLong(EntityData::getCount).reversed());
-
-        // 取有数据的实体
-        List<EntityData> withData = new ArrayList<>();
-        for (EntityData ed : entityDataList) {
-            if (ed.count > 0) withData.add(ed);
-        }
-
-        if (!withData.isEmpty()) {
-            EntityData top = withData.get(0);
-            // 查询（QueryRecords）
-            questions.add(String.format("查询%s列表", top.label));
-
-            // 创建跟进（CreateFeed），客户类实体优先
-            if (questions.size() < MAX_QUESTIONS - 1) {
-                EntityData customer = findCustomerEntity(withData);
-                if (customer != null) {
-                    questions.add(String.format("创建%s跟进", customer.label));
-                }
-            }
-
-            // 统计分析（DataStatistics），用另一个实体避免重复
-            if (questions.size() < MAX_QUESTIONS - 1 && withData.size() > 1) {
-                questions.add(String.format("统计分析%s", withData.get(1).label));
-            }
-
-            // 审批（Approval）
-            if (questions.size() < MAX_QUESTIONS - 1) {
-                questions.add("查询待审批记录");
+        // 优先配置的
+        String sqConfig = RebuildConfiguration.get(ConfigurationItem.AibotSuggestQuestions);
+        if (StringUtils.isNotBlank(sqConfig)) {
+            for (String line : sqConfig.split("\n")) {
+                if (questions.size() >= MAX_QUESTIONS) break;
+                String q = line.trim();
+                if (!q.isEmpty()) questions.add(q);
             }
         }
 
         if (questions.size() < MAX_QUESTIONS) {
-            // 兜底：读取管理员配置（每行一个问题）
-            String sqConfig = RebuildConfiguration.get(ConfigurationItem.AibotSuggestQuestions);
-            if (StringUtils.isNotBlank(sqConfig)) {
-                for (String line : sqConfig.split("\n")) {
-                    if (questions.size() >= MAX_QUESTIONS) break;
-                    String q = line.trim();
-                    if (!q.isEmpty()) questions.add(q);
+            List<EntityData> withData = collectEntityData();
+            if (!withData.isEmpty()) {
+                EntityData top = withData.get(0);
+                questions.add(String.format("查询%s列表", top.label));
+
+                if (questions.size() < MAX_QUESTIONS - 1) {
+                    EntityData customer = findCustomerEntity(withData);
+                    if (customer != null) {
+                        questions.add(String.format("创建%s跟进", customer.label));
+                    }
+                }
+
+                if (questions.size() < MAX_QUESTIONS - 1 && withData.size() > 1) {
+                    questions.add(String.format("统计分析%s", withData.get(1).label));
+                }
+
+                if (questions.size() < MAX_QUESTIONS - 1) {
+                    questions.add("查询待审批记录");
                 }
             }
         }
@@ -89,7 +76,7 @@ public class SuggestQuestions implements Tool {
     }
 
     /**
-     * 收集业务实体及其数据量
+     * 收集有数据的业务实体（按元数据顺序）
      *
      * @return
      */
@@ -103,9 +90,9 @@ public class SuggestQuestions implements Tool {
             if (checked >= MAX_ENTITIES_TO_CHECK) break;
             checked++;
 
+            if (!hasRecords(e)) continue;
             String label = EasyMetaFactory.getLabel(e);
-            long count = countRecords(e);
-            list.add(new EntityData(e.getName(), label, count));
+            list.add(new EntityData(e.getName(), label));
         }
 
         return list;
@@ -129,33 +116,30 @@ public class SuggestQuestions implements Tool {
         return null;
     }
 
-    private long countRecords(Entity entity) {
+    /**
+     * 轻量存在性检查（LIMIT 1），比 COUNT 快得多
+     *
+     * @param entity
+     * @return
+     */
+    private boolean hasRecords(Entity entity) {
         try {
-            String sql = String.format("select count(%s) from %s",
+            String sql = String.format("select %s from %s",
                     entity.getPrimaryField().getName(), entity.getName());
-            Object[] result = Application.createQuery(sql).unique();
-            if (result != null && result.length > 0 && result[0] instanceof Long) {
-                return (Long) result[0];
-            }
+            return Application.createQuery(sql).setLimit(1).array().length > 0;
         } catch (Exception ex) {
-            log.warn("Failed to count records for entity: {}", entity.getName(), ex);
+            log.warn("Failed to check records for entity: {}", entity.getName(), ex);
         }
-        return 0;
+        return false;
     }
 
     private static class EntityData {
         final String name;
         final String label;
-        final long count;
 
-        EntityData(String name, String label, long count) {
+        EntityData(String name, String label) {
             this.name = name;
             this.label = label;
-            this.count = count;
-        }
-
-        long getCount() {
-            return count;
         }
     }
 }
