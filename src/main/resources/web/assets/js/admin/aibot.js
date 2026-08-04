@@ -8,9 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // eslint-disable-next-line no-undef, react/display-name
 useEditComp = function (name) {
   if ('AibotBasePrompt' === name) {
-    return <textarea className="form-control form-control-sm row2x" maxLength="2048" />
+    return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
   } else if ('AibotSuggestQuestions' === name) {
-    return <textarea className="form-control form-control-sm row2x" maxLength="2000" placeholder={'你能做什么？\n统计分析数据'} />
+    return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
       let models = 'deepseek-v4-flash qwen3.6-flash hy3-preview gpt-5 gemini-2.5-pro'.split(' ')
