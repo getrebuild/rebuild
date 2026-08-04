@@ -95,12 +95,10 @@ const $showAnnouncement = function () {
       if (item.readState === 1) popup39.push(`anno-${item.id}`)
 
       let c = $removeHtml(item.content)
-      // 动态页保持换行
-      if (location.href.includes('/feeds/home')) c = c.replace(/\n/g, '<br/>')
       return (
         <div key={item.id} id={`anno-${item.id}`} className={`bg-warning ${stateClazz}`} title={$L('查看详情')} onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
           <i className="icon zmdi zmdi-notifications-active" />
-          <p dangerouslySetInnerHTML={{ __html: c }} />
+          <p>{c}</p>
         </div>
       )
     })

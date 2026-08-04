@@ -112,10 +112,10 @@ public class FileUploader extends BaseController {
 
                 } else if (thumbSizeMB > 0) {
                     File destNew = ImageView2.thumbQuietly(dest, ImageView2.ORIGIN_WIDTH * 2);
-                    if (destNew != null) {
-                        FileUtils.deleteQuietly(destNew);
+                    if (destNew != null && destNew.exists()) {
+                        FilesHelper.storeFileSize(uploadName, FileUtils.sizeOf(destNew));
+                        FileUtils.deleteQuietly(dest);
                         FileUtils.moveFile(destNew, dest);
-                        FilesHelper.storeFileSize(uploadName, FileUtils.sizeOf(dest));
                     }
                 }
             }
