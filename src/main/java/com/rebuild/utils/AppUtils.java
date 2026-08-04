@@ -16,6 +16,7 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.LanguageBundle;
@@ -45,6 +46,10 @@ public class AppUtils {
     // Once 认证
     public static final String HF_ONCETOKEN = "X-OnceToken";
     public static final String URL_ONCETOKEN = "_onceToken";
+
+    // v4.5 AccessKey 认证
+    public static final String HF_AK = "Authorization";
+    public static final String URL_AK = "ak";
 
     // 语言
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
@@ -116,8 +121,30 @@ public class AppUtils {
      */
     protected static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
         String authToken = request.getHeader(HF_AUTHTOKEN);
-        return authToken == null
-                ? null : AuthTokenManager.verifyToken(authToken, false, refreshToken);
+        if (authToken != null) {
+            return AuthTokenManager.verifyToken(authToken, false, refreshToken);
+        }
+        return getRequestUserViaAk(request, false);
+    }
+
+    /**
+     * Header: Authorization: Bearer <AK> or URL: ?ak=<AK>
+     * @param request
+     * @param fromMcp
+     * @return
+     */
+    public static ID getRequestUserViaAk(HttpServletRequest request, boolean fromMcp) {
+        String auth = request.getHeader(HF_AK);
+        String ak = auth != null && auth.startsWith("Bearer ") ? auth.substring(7).trim() : null;
+        if (fromMcp && ak != null) {
+            return AuthTokenManager.verifyAccessKey(ak);
+        }
+
+        if (CommandArgs.getBoolean(CommandArgs._EnableAkAccess)) {
+            if (ak == null) ak = request.getParameter(URL_AK);
+            if (ak != null) return AuthTokenManager.verifyAccessKey(ak.trim());
+        }
+        return null;
     }
 
     /**

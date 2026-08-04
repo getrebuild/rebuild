@@ -38,6 +38,7 @@ public class ToolDefs {
         register(new ListEntities());
         register(new FetchUrl());
         register(new SuggestCustom());
+        register(new SuggestQuestions());
         register(new SearchHelp());
         register(new UploadFile());
         register(new QueryRecords());

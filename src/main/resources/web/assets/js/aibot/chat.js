@@ -81,8 +81,13 @@ class Chat extends React.Component {
   }
 
   initChat(chatid) {
+    // 如果当前正在对话，仅关闭前端连接，后端继续完成并保存完整内容
+    if (this._ChatInput && this._ChatInput.state.postState !== 0) {
+      __evt_StreamCancel = true
+    }
+
     this.setState({ chatid: chatid || null })
-    this._ChatMessages.setMessages([])
+    this._ChatMessages.setMessages([], false, null)
     this._ChatInput.reset(true, this._presetMessage)
     this._presetMessage = null
     var _autoSend = this._autoSend
@@ -96,7 +101,7 @@ class Chat extends React.Component {
           this.setState({ chatid: d._chatid })
           this._ChatSidebar.setState({ current: d._chatid })
         }
-        this._ChatMessages.setMessages(d.messages || [], true)
+        this._ChatMessages.setMessages(d.messages || [], true, d.suggestQuestions || null)
 
         if (_autoSend && this._ChatInput.state.content) {
           this._ChatInput.hanldeSend()
@@ -222,13 +227,13 @@ class ChatInput extends React.Component {
             <button
               type="button"
               className="btn btn-sm ml-1"
-              title={$L('发送')}
-              disabled={this.state.postState === 1 || $empty(this.state.content)}
+              title={this.state.postState === 0 ? $L('发送') : this.state.postState === 2 ? $L('中断中') : $L('停止')}
+              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content))}
               onClick={() => {
                 if (this.state.postState === 0) this.hanldeSend()
-                else this.handleCancel()
+                else if (this.state.postState === 1) this.handleCancel()
               }}>
-              <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : 'mdi mdi-stop'} />
+              <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : this.state.postState === 2 ? 'mdi mdi-spin mdi-loading' : 'mdi mdi-stop'} />
             </button>
           </div>
           <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" data-maxsize="20971520" multiple />
@@ -255,7 +260,13 @@ class ChatInput extends React.Component {
   }
 
   handleCancel() {
+    this.setState({ postState: 2 })
     __evt_StreamCancel = true
+    // 通知后端中断流式输出
+    const chatid = this.props._Chat.state.chatid
+    if (chatid) {
+      $.post(`/aibot2/post/chat-stream-stop?chatid=${chatid}`)
+    }
   }
 
   reset(autoFocus, presetContent) {
@@ -334,33 +345,66 @@ class ChatMessages extends React.Component {
     super(props)
     this.state = {
       messages: [],
+      suggestQuestions: null,
     }
   }
 
   render() {
+    const showSuggest = this.state.suggestQuestions && this.state.suggestQuestions.length > 0 && !this._hasUserMessage()
     return (
       <div className="chat-messages" ref={(c) => (this._$messages = c)}>
         {this.state.messages.map((item, idx) => {
           return <ChatMessage {...item} key={idx} _ChatMessages={this} />
         })}
+        {showSuggest && (
+          <div className="chat-suggest">
+            <div className="text-muted mb-1 fs-13">{$L('你可以问我')}</div>
+            <div className="d-flex flex-wrap">
+              {this.state.suggestQuestions.map((q, idx) => (
+                <a key={idx} className="badge badge-pill mr-1 mb-1" onClick={() => this._handleSuggestClick(q)}>
+                  <i className="mdi mdi-chat-processing-outline mr-1" />
+                  {q}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     )
+  }
+
+  _hasUserMessage() {
+    return this.state.messages.some((m) => m.role === 'user')
+  }
+
+  _handleSuggestClick(question) {
+    const _Chat = this.props._Chat
+    const _ChatInput = _Chat._ChatInput
+    if (!_ChatInput || _ChatInput.state.postState !== 0) return
+    _ChatInput.setState({ content: question }, () => {
+      _ChatInput.hanldeSend()
+    })
   }
 
   appendMessage(data) {
     this.setMessages([...this.state.messages, data])
   }
 
-  setMessages(messages, forceScroll) {
-    this.setState({ messages: messages }, () => {
+  setMessages(messages, forceScroll, suggestQuestions) {
+    const state = { messages: messages }
+    if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
+    this.setState(state, () => {
+      $(this._$messages).perfectScrollbar('update')
       scrollToBottom(forceScroll)
     })
   }
 
   componentDidMount() {
+    const $ms = $(this._$messages).perfectScrollbar()
+
     // scrollToBottom
     let _lastScroll = 0
-    const $ms = $(this._$messages).on('scroll', function () {
+    $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
       if (_lastScroll - currentScroll > 60) {
         __evt_ScrollToBottomStop = true
@@ -372,6 +416,10 @@ class ChatMessages extends React.Component {
       }
       _lastScroll = currentScroll
     })
+  }
+
+  componentWillUnmount() {
+    $(this._$messages).perfectScrollbar('destroy')
   }
 }
 
@@ -506,8 +554,10 @@ function scrollToBottom(forceScroll) {
 
   $setTimeout(
     () => {
-      const el = $('.chat-messages')[0]
-      el && el.scrollTo(0, el.scrollHeight)
+      const $el = $('.chat-messages')
+      if ($el.length === 0) return
+      $el.scrollTop($el[0].scrollHeight)
+      $el.perfectScrollbar('update')
     },
     40,
     'scrollToBottom',
@@ -531,7 +581,7 @@ function fetchStream(url, data, onChunk, onDone) {
     .then((response) => {
       const reader = response.body.getReader()
       function readChunk() {
-        // FIXME 停止后后台仍旧输出
+        // 前端中止 + 后端中断
         if (__evt_StreamCancel) {
           controller.abort()
           __evt_StreamCancel = false
@@ -566,7 +616,8 @@ function fetchStream(url, data, onChunk, onDone) {
     })
     .catch((err) => {
       console.error('Error on stream :', err)
-      typeof cb === 'function' && onChunk({ error: err })
+      typeof onChunk === 'function' && onChunk({ error: err })
+      typeof onDone === 'function' && onDone(null, true)
     })
 }
 
@@ -580,6 +631,11 @@ class ChatSidebar extends React.Component {
 
   componentDidMount() {
     this._loadChatList()
+    $(this._$list).perfectScrollbar()
+  }
+
+  componentWillUnmount() {
+    $(this._$list).perfectScrollbar('destroy')
   }
 
   componentDidUpdate(props, prevState) {
@@ -591,7 +647,9 @@ class ChatSidebar extends React.Component {
   _loadChatList() {
     $.get('/aibot2/post/chat-list', (res) => {
       const data = res.data || []
-      this.setState({ list: data })
+      this.setState({ list: data }, () => {
+        $(this._$list).perfectScrollbar('update')
+      })
 
       if (this.state.current) {
         const delIf = data.find((x) => x.chatid === this.state.current)
@@ -618,7 +676,7 @@ class ChatSidebar extends React.Component {
             {$L('新会话')}
           </a>
         </div>
-        <div className="chat-list">
+        <div className="chat-list" ref={(c) => (this._$list = c)}>
           <ul className="list-unstyled m-0">
             {this.state.list.map((item) => {
               return (

@@ -6773,3 +6773,29 @@ div.formula-code {
 .EasyMDEContainer .cm-s-easymde .cm-comment {
   font-size: 12px;
 }
+
+.markdown-body .mermaid,
+.markdown-body .mermaid-to-render {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+  text-align: center;
+  background: transparent;
+  overflow-x: auto;
+}
+
+.markdown-body .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mermaid */
+
+.mermaid rect {
+  rx: 6;
+  ry: 6;
+}
+
+.mermaid text {
+  font-family: inherit;
+}

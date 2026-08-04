@@ -1357,6 +1357,8 @@ class Md2Html extends React.Component {
             })
           }
         })
+
+      $renderMermaid($(this._$md2html))
     })
   }
 }

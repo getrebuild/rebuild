@@ -97,6 +97,10 @@ public class CommandArgs {
      * 图片启用水印
      */
     public static final String _ImageWatermark = "_ImageWatermark";
+    /**
+     * v4.5 激活 AK 访问
+     */
+    public static final String _EnableAkAccess = "_EnableAkAccess";
 
     // --
 

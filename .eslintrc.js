@@ -172,5 +172,6 @@ module.exports = {
     $modalDraggable: true,
     $autoComplete: true,
     $openView: true,
+    $renderMermaid: true,
   },
 }

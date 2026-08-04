@@ -1645,12 +1645,14 @@ function $modalDraggable($modal, option) {
     let last = $storage.get(option.keepPositionKey)
     if (last) {
       last = last.split(',').map((v) => parseInt(v))
-      $($modal).find('.modal-dialog').css({
-        left: last[0],
-        top: last[1],
-        right: 'unset',
-        bottom: 'unset',
-      })
+      $($modal)
+        .find('.modal-dialog')
+        .css({
+          left: last[0],
+          top: Math.max(-22, last[1]),
+          right: 'unset',
+          bottom: 'unset',
+        })
     }
   }
 }
@@ -1724,4 +1726,73 @@ function $openView(id, e) {
 
   if (window.RbViewModal) window.RbViewModal.create(id)
   else window.open(rb.baseUrl + '/app/redirect?id=' + id.id + '&type=newtab')
+}
+
+// Mermaid 图表渲染支持
+var _mermaidCodeRenderer = function (token) {
+  var text, lang
+  if (typeof token === 'object' && token !== null) {
+    text = token.text
+    lang = token.lang
+  } else {
+    text = arguments[0]
+    lang = arguments[1]
+  }
+  if (lang === 'mermaid') return '<div class="mermaid-to-render">' + text + '</div>'
+  return false
+}
+// 全局注册 mermaid 代码块 renderer，所有 marked.parse() 自动处理
+if (typeof marked !== 'undefined') {
+  marked.use({ renderer: { code: _mermaidCodeRenderer } })
+}
+
+var _mermaidLoaded = false
+var _mermaidLoading = false
+var _mermaidQueue = []
+// 懒加载 mermaid 并渲染
+function $renderMermaid($container) {
+  if (!$container || !$container.length) $container = $(document)
+
+  function doRender() {
+    var $nodes = $container.find('.mermaid-to-render')
+    if ($nodes.length === 0) return
+    if (typeof mermaid === 'undefined') return
+
+    // eslint-disable-next-line no-undef
+    mermaid.initialize({
+      securityLevel: 'loose',
+      startOnLoad: false,
+      theme: 'neutral',
+      flowchart: {
+        curve: 'basis',
+        padding: 20,
+        nodeSpacing: 80,
+        rankSpacing: 100,
+      },
+    })
+    var nodes = []
+    $nodes.each(function () {
+      var $node = $(this)
+      $node.removeClass('mermaid-to-render').addClass('mermaid')
+      nodes.push($node[0])
+    })
+    // eslint-disable-next-line no-undef
+    mermaid.run({ nodes: nodes }).catch(function (err) {
+      console.error('Mermaid render error:', err)
+    })
+  }
+
+  if (_mermaidLoaded) {
+    doRender()
+  } else {
+    _mermaidQueue.push(doRender)
+    if (!_mermaidLoading) {
+      _mermaidLoading = true
+      $getScript('/assets/lib/charts/mermaid.min.js?v=10.4.0', function () {
+        _mermaidLoaded = true
+        _mermaidLoading = false
+        while (_mermaidQueue.length) _mermaidQueue.shift()()
+      })
+    }
+  }
 }

@@ -1,0 +1,11 @@
+{
+  "type": "function",
+  "function": {
+    "name": "SuggestQuestions",
+    "description": "根据系统当前状态（实体、数据等）生成推荐问题列表，帮助用户快速开始对话",
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  }
+}
