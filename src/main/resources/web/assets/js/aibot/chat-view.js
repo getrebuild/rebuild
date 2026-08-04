@@ -15,11 +15,5 @@ $(document).ready(() => {
       }}
     />,
     'chat-wrapper',
-    () => {
-      $addResizeHandler(() => {
-        const wh = $(window).height()
-        $('#chat-wrapper .chat-messages').height(wh - 208)
-      })()
-    },
   )
 })

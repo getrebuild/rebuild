@@ -1648,7 +1648,7 @@ function $modalDraggable($modal, option) {
       $($modal)
         .find('.modal-dialog')
         .css({
-          left: Math.max(0, last[0]),
+          left: last[0],
           top: Math.max(-22, last[1]),
           right: 'unset',
           bottom: 'unset',

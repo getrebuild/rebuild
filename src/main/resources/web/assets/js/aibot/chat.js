@@ -394,14 +394,17 @@ class ChatMessages extends React.Component {
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
     this.setState(state, () => {
+      $(this._$messages).perfectScrollbar('update')
       scrollToBottom(forceScroll)
     })
   }
 
   componentDidMount() {
+    const $ms = $(this._$messages).perfectScrollbar()
+
     // scrollToBottom
     let _lastScroll = 0
-    const $ms = $(this._$messages).on('scroll', function () {
+    $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
       if (_lastScroll - currentScroll > 60) {
         __evt_ScrollToBottomStop = true
@@ -413,6 +416,10 @@ class ChatMessages extends React.Component {
       }
       _lastScroll = currentScroll
     })
+  }
+
+  componentWillUnmount() {
+    $(this._$messages).perfectScrollbar('destroy')
   }
 }
 
@@ -547,8 +554,10 @@ function scrollToBottom(forceScroll) {
 
   $setTimeout(
     () => {
-      const el = $('.chat-messages')[0]
-      el && el.scrollTo(0, el.scrollHeight)
+      const $el = $('.chat-messages')
+      if ($el.length === 0) return
+      $el.scrollTop($el[0].scrollHeight)
+      $el.perfectScrollbar('update')
     },
     40,
     'scrollToBottom',
@@ -622,6 +631,11 @@ class ChatSidebar extends React.Component {
 
   componentDidMount() {
     this._loadChatList()
+    $(this._$list).perfectScrollbar()
+  }
+
+  componentWillUnmount() {
+    $(this._$list).perfectScrollbar('destroy')
   }
 
   componentDidUpdate(props, prevState) {
@@ -633,7 +647,9 @@ class ChatSidebar extends React.Component {
   _loadChatList() {
     $.get('/aibot2/post/chat-list', (res) => {
       const data = res.data || []
-      this.setState({ list: data })
+      this.setState({ list: data }, () => {
+        $(this._$list).perfectScrollbar('update')
+      })
 
       if (this.state.current) {
         const delIf = data.find((x) => x.chatid === this.state.current)
@@ -660,7 +676,7 @@ class ChatSidebar extends React.Component {
             {$L('新会话')}
           </a>
         </div>
-        <div className="chat-list">
+        <div className="chat-list" ref={(c) => (this._$list = c)}>
           <ul className="list-unstyled m-0">
             {this.state.list.map((item) => {
               return (
