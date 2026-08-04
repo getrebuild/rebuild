@@ -1762,24 +1762,12 @@ function $renderMermaid($container) {
     mermaid.initialize({
       securityLevel: 'loose',
       startOnLoad: false,
-      theme: 'base',
-      themeVariables: {
-        primaryColor: '#e8f0fe',
-        primaryTextColor: '#1565c0',
-        primaryBorderColor: '#4285f4',
-        lineColor: '#5f6368',
-        secondaryColor: '#e6f4ea',
-        tertiaryColor: '#f3e8fd',
-        clusterBkg: 'rgba(66, 133, 244, 0.04)',
-        clusterBorder: '#c2d7fc',
-        fontFamily: '"Segoe UI", "Microsoft YaHei", -apple-system, sans-serif',
-        fontSize: '13px',
-      },
+      theme: 'neutral',
       flowchart: {
         curve: 'basis',
-        padding: 15,
-        nodeSpacing: 50,
-        rankSpacing: 60,
+        padding: 20,
+        nodeSpacing: 80,
+        rankSpacing: 100,
       },
     })
     var nodes = []
