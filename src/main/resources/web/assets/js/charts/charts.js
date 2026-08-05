@@ -372,7 +372,9 @@ class ChartTable extends BaseChart {
       // a _blank
       $tb.find('tbody td>a').each(function () {
         const $a = $(this)
-        $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}`, target: '_blank' })
+        let url = $a.attr('href') || ''
+        let id = $urlp('id', `?${url.split('?')[1]}`)
+        id && $a.on('click', (e) => $openView(id, e))
       })
 
       this._$tb = $tb

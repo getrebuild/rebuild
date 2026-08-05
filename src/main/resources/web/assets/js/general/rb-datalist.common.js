@@ -2030,6 +2030,12 @@ class RbListPagination extends React.Component {
 const CellRenders = {
   // 打开记录
   clickView(v, e) {
+    var _blank = location.href.indexOf('/chart-design') > -1
+    if (_blank) {
+      window.open(rb.baseUrl + '/app/redirect?id=' + v.id + '&type=newtab')
+      return false
+    }
+
     e && $stopEvent(e, true)
     RbViewModal.openView({ id: v.id, entity: v.entity }, wpc.forceSubView)
     return false
