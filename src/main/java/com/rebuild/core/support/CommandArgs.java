@@ -86,6 +86,10 @@ public class CommandArgs {
      */
     public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
     /**
+     * 定时执行异步
+     */
+    public static final String _TriggerTimerAsync = "_TriggerTimerAsync";
+    /**
      * 新版本检测
      */
     public static final String _NotCheckBuild = "_NotCheckBuild";
