@@ -1,6 +1,33 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #77 (v4.5)
+-- ************ Entity [AibotKnowledgeChunk] DDL ************
+create table if not exists `aibot_knowledge_chunk` (
+  `CHUNK_ID`           char(20) not null,
+  `KNOWLEDGE_ID`       char(20) not null,
+  `CONTENT`            longtext comment '片段内容',
+  `CHUNK_INDEX`        int(11) comment '分片序号',
+  `KEYWORDS`           varchar(1000) comment '关键词 (逗号分隔)',
+  primary key  (`CHUNK_ID`),
+  index IX0_aibot_knowledge_chunk (`KNOWLEDGE_ID`, `CHUNK_INDEX`)
+)Engine=InnoDB;
+-- ************ Entity [AibotKnowledge] DDL ************
+create table if not exists `aibot_knowledge` (
+  `KNOWLEDGE_ID`       char(20) not null,
+  `NAME`               varchar(200) comment '名称',
+  `DESCRIPTION`        varchar(500) comment '描述',
+  `SOURCE_TYPE`        varchar(20) comment '来源类型 (FILE/RECORD/LIST/URL/TEXT)',
+  `SOURCE_CONFIG`      longtext comment '来源配置 (JSON)',
+  `CHUNK_COUNT`        int(11) comment '分片数量',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`KNOWLEDGE_ID`)
+)Engine=InnoDB;
+
 -- #76 (v4.5)
 alter table `commons_config`
   add column `IS_DISABLED` char(1) default 'F' comment '是否禁用';

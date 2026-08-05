@@ -48,6 +48,7 @@ public class ToolDefs {
         register(new CreateProjectTask());
         register(new ExportReport());
         register(new Approval());
+        register(new SearchKnowledge());
     }
 
     /**

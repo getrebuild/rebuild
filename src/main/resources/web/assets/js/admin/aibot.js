@@ -32,8 +32,13 @@ $(document).ready(() => {
     _renderStats(res.data.aibot, $el)
   })
 
+  _loadKnowledge()
   _loadSkills()
   _loadTools()
+  $('.J_addKb').on('click', (e) => {
+    $stopEvent(e, true)
+    renderRbcomp(<DlgKbEdit title={$L('添加知识库')} />)
+  })
   $('.J_addSkill').on('click', (e) => {
     $stopEvent(e, true)
     _editSkill()
@@ -43,6 +48,205 @@ $(document).ready(() => {
     renderRbcomp(<DlgSkillImport title={$L('导入技能')} />)
   })
 })
+
+// ~~ Knowledge
+
+const _loadKnowledge = function () {
+  $.get('./aibot/kb-list', (res) => {
+    const data = res.data || []
+    const $tbody = $('#kbList').empty()
+    $('.J_kbEmpty').toggle(data.length === 0)
+
+    data.forEach((item) => {
+      const $tr = $(
+        `<tr>
+          <td>${item.name} <span class="badge badge-light ml-1">${item.chunkCount || 0}</span></td>
+          <td>${item.description || $L('无')}</td>
+          <td class="actions">
+            <a title="${$L('修改')}" class="icon"><i class="zmdi zmdi-edit"></i></a>
+            <a title="${$L('删除')}" class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a>
+          </td>
+        </tr>`,
+      ).appendTo($tbody)
+
+      $tr.find('a:eq(0)').on('click', () => _editKb(item))
+      $tr.find('a:eq(1)').on('click', () => _deleteKb(item))
+    })
+  })
+}
+
+const _editKb = function (item) {
+  renderRbcomp(<DlgKbEdit item={item} title={item ? $L('修改知识库') : $L('添加知识库')} />)
+}
+
+const _deleteKb = function (item) {
+  RbAlert.create($L('确认删除此知识库？'), {
+    type: 'danger',
+    confirmText: $L('删除'),
+    confirm: function () {
+      this.disabled(true)
+      $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+        if (res.error_code === 0) {
+          this.hide()
+          _loadKnowledge()
+        } else {
+          RbHighbar.error(res.error_msg)
+          this.disabled()
+        }
+      })
+    },
+  })
+}
+
+class DlgKbEdit extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, fileKey: null, fileName: null }
+  }
+
+  render() {
+    const item = this.props.item || {}
+    const isFile = item.sourceType === 'FILE'
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
+        <div>
+          <form>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
+              <div className="col-sm-7">
+                <input className="form-control form-control-sm" type="text" maxLength="200" ref={(c) => (this._$name = c)} defaultValue={item.name || ''} autoFocus />
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
+              <div className="col-sm-7">
+                <input className="form-control form-control-sm" type="text" maxLength="500" ref={(c) => (this._$desc = c)} defaultValue={item.description || ''} />
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('内容')}</label>
+              <div className="col-sm-7">
+                <div className="mb-2">
+                  <input type="file" ref={(c) => (this._$file = c)} onChange={(e) => this._onFileChange(e)} />
+                  {this.state.fileName ? <span className="badge badge-light ml-2">{this.state.fileName}</span> : null}
+                  {isFile && !this.state.fileName ? <span className="badge badge-light ml-2">{$L('已上传文件（重新上传或输入文本替换）')}</span> : null}
+                </div>
+                <textarea
+                  className="form-control"
+                  rows="8"
+                  ref={(c) => (this._$text = c)}
+                  defaultValue={!isFile ? this._getSourceConfig('text', item.sourceConfig) : ''}
+                  placeholder={$L('输入文本内容，或上传文件自动解析')}
+                />
+              </div>
+            </div>
+            <div className="form-group row footer">
+              <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+                <button className="btn btn-primary" type="button" onClick={() => this._onSave()}>
+                  {$L('确定')}
+                </button>
+                <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                  {$L('取消')}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </RbModal>
+    )
+  }
+
+  _getSourceConfig(key, sourceConfig) {
+    if (!sourceConfig) return ''
+    try {
+      const cfg = JSON.parse(sourceConfig)
+      return cfg[key] || ''
+    } catch (e) {
+      return ''
+    }
+  }
+
+  _onFileChange(e) {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    const fd = new FormData()
+    fd.append('file', file)
+    $.ajax({
+      url: '/filex/upload?temp=true',
+      type: 'POST',
+      data: fd,
+      processData: false,
+      contentType: false,
+      success: (res) => {
+        $btn.button('reset')
+        if (res.error_code === 0) {
+          this.setState({ fileKey: res.data, fileName: file.name })
+        } else {
+          RbHighbar.error(res.error_msg || $L('上传失败'))
+        }
+      },
+    })
+  }
+
+  _onSave() {
+    const name = $(this._$name).val()
+    if (!name) {
+      RbHighbar.create($L('请输入名称'))
+      return
+    }
+
+    const text = $(this._$text).val()
+    const fileKey = this.state.fileKey
+
+    if (!text && !fileKey) {
+      RbHighbar.create($L('请输入文本内容或上传文件'))
+      return
+    }
+
+    let sourceType, sourceConfig
+    if (fileKey) {
+      sourceType = 'FILE'
+      sourceConfig = JSON.stringify({ file: fileKey })
+    } else {
+      sourceType = 'TEXT'
+      sourceConfig = JSON.stringify({ text: text })
+    }
+
+    const itemId = (this.props.item || {}).id || null
+    const data = {
+      name: name,
+      description: $(this._$desc).val(),
+      sourceType: sourceType,
+      sourceConfig: sourceConfig,
+      metadata: {
+        entity: 'AibotKnowledge',
+        id: itemId,
+      },
+    }
+
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        const newId = itemId || res.data.id
+        $.post(`./aibot/kb-build?id=${newId}`, (bRes) => {
+          $btn.button('reset')
+          this.hide()
+          if (bRes.error_code === 0) {
+            RbHighbar.success($L('保存成功，共 %d 个分片', bRes.data.chunkCount))
+          } else {
+            RbHighbar.create($L('已保存但构建失败：%s', bRes.error_msg))
+          }
+          _loadKnowledge()
+        })
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      }
+    })
+  }
+}
 
 // ~~ Skills
 

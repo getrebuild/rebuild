@@ -924,6 +924,33 @@ create table if not exists `aibot_chat` (
   index IX0_aibot_chat (`CREATED_BY`, `MODIFIED_ON`, `CREATED_ON`)
 )Engine=InnoDB;
 
+-- ************ Entity [AibotKnowledgeChunk] DDL ************
+create table if not exists `aibot_knowledge_chunk` (
+  `CHUNK_ID`           char(20) not null,
+  `KNOWLEDGE_ID`       char(20) not null,
+  `CONTENT`            longtext comment '片段内容',
+  `CHUNK_INDEX`        int(11) comment '分片序号',
+  `KEYWORDS`           varchar(1000) comment '关键词 (逗号分隔)',
+  primary key  (`CHUNK_ID`),
+  index IX0_aibot_knowledge_chunk (`KNOWLEDGE_ID`, `CHUNK_INDEX`)
+)Engine=InnoDB;
+
+-- ************ Entity [AibotKnowledge] DDL ************
+create table if not exists `aibot_knowledge` (
+  `KNOWLEDGE_ID`       char(20) not null,
+  `NAME`               varchar(200) comment '名称',
+  `DESCRIPTION`        varchar(500) comment '描述',
+  `SOURCE_TYPE`        varchar(20) comment '来源类型 (FILE/RECORD/LIST/URL/TEXT)',
+  `SOURCE_CONFIG`      longtext comment '来源配置 (JSON)',
+  `CHUNK_COUNT`        int(11) comment '分片数量',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`KNOWLEDGE_ID`)
+)Engine=InnoDB;
+
 -- ************ Entity [ShortUrl] DDL ************
 create table if not exists `short_url` (
   `SHORT_ID`           char(20) not null,
@@ -1020,4 +1047,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 76);
+  values ('021-9000000000000001', 'DBVer', 77);

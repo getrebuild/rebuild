@@ -12,13 +12,14 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.aibot2.knowledge.KnowledgeRetriever;
 import com.rebuild.core.aibot2.vector.FileData;
 import com.rebuild.core.aibot2.vector.ListData;
 import com.rebuild.core.aibot2.vector.RecordData;
 import com.rebuild.core.aibot2.vector.VectorData;
 import com.rebuild.core.aibot2.vector.VectorDataChunk;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
@@ -44,18 +45,10 @@ public class ChatRequest {
 
     private String vectorDataContent;
 
-    /**
-     * @param request
-     * @param chatid
-     */
     public ChatRequest(HttpServletRequest request, ID chatid) {
         this((JSONObject) ServletUtils.getRequestJson(request), chatid);
     }
 
-    /**
-     * @param requestJson
-     * @param chatid
-     */
     public ChatRequest(JSONObject requestJson, ID chatid) {
         this.chatid = chatid;
         this.reqJson = requestJson;
@@ -63,25 +56,34 @@ public class ChatRequest {
 
     /**
      * 获取请求中指定的技能名称（支持逗号分隔多个）
-     *
-     * @return
      */
     public String getSkill() {
         return reqJson.getString("skill");
     }
 
     /**
-     * @return
+     * 获取用户消息内容（含知识检索 + 附加数据注入）
+     * 仅用于当前会话请求，不用于历史消息恢复
      */
     public String getUserContent() {
         String c = getUserContent(true);
+
+        try {
+            VectorData knowledgeData = KnowledgeRetriever.retrieveAsVectorData(reqJson.getString("content"));
+            if (knowledgeData != null) {
+                String kd = knowledgeData.toVector();
+                if (StringUtils.isNotBlank(kd)) c = kd + VectorData.NN + c;
+            }
+        } catch (Exception e) {
+            log.warn("Knowledge retrieve failed, skip injection", e);
+        }
+
         if (Application.devMode()) System.out.println("[dev] \n" + c);
         return c;
     }
 
     /**
-     * @param withVector
-     * @return
+     * 获取用户消息内容
      */
     public String getUserContent(boolean withVector) {
         String c = reqJson.getString("content");
@@ -92,9 +94,6 @@ public class ChatRequest {
         return vdc + VectorData.NN + c;
     }
 
-    /**
-     * @return
-     */
     protected String getVectorDataContent() {
         if (vectorDataContent != null) return vectorDataContent;
 
