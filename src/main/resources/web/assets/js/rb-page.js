@@ -40,12 +40,12 @@ $(function () {
   $(document).on('show.bs.modal', '.modal', function () {
     var total = $('.modal.show').length + 1
     $('.modal-backdrop').css('opacity', '0')
-    $(this).css('z-index', 1040 + total * 20)
+    $(this).css('z-index', 1040 + total)
   })
   $(document).on('shown.bs.modal', '.modal', function () {
     var total = $('.modal.show').length
     $('.modal-backdrop:last').css({
-      'z-index': 1040 + total * 20 - 1,
+      'z-index': 1040 + total - 1,
       'opacity': '',
     })
   })

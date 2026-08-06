@@ -845,6 +845,10 @@ body.view-body {
   min-height: 100%;
 }
 
+.select2-dropdown {
+  z-index: 1055;
+}
+
 .select2-search--dropdown .select2-search__field {
   padding: 3px 6px;
 }
