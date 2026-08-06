@@ -904,11 +904,6 @@ body.view-body {
   color: #222222;
 }
 
-/* .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
-  max-width: 100%;
-  min-width: 21px;
-} */
-
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
   border-color: #4285f4;
 }
@@ -927,6 +922,10 @@ body.view-body {
   padding-left: 0.5em;
   padding-right: 0.5em;
   transform: translateY(-1px);
+}
+
+.input-group .select2-container--default.select2-container--focus {
+  z-index: 3;
 }
 
 textarea.row1x {
