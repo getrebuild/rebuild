@@ -328,12 +328,6 @@ class RbAlert extends React.Component {
         typeof that.props.onHide === 'function' && that.props.onHide()
       })
 
-    // z-index
-    setTimeout(() => {
-      const mb = $('.modal-backdrop.show')
-      if (mb.length > 1) $(mb[mb.length - 1]).addClass('rbalert')
-    }, 0)
-
     if (this.props.countdown > 0) {
       $countdownButton($(this._$btn), this.props.countdown)
     }

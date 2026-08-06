@@ -787,14 +787,6 @@ div.dataTables_filter .filter-badge:hover .close {
   max-width: 551px;
 }
 
-.modal.show.rbalert {
-  z-index: 1051;
-}
-
-.modal-backdrop.show.rbalert {
-  z-index: 1050;
-}
-
 .modal-body.iframe {
   padding: 0 !important;
   height: 100%;
@@ -4893,6 +4885,7 @@ pre.unstyle {
   margin-left: 6px;
   margin-right: 6px;
   border-radius: 2px;
+  font-size: 14px;
 }
 
 .rb-left-sidebar.v2 .sidebar-elements > li ul li > a {
