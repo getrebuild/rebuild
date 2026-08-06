@@ -97,7 +97,6 @@ class RbModal extends React.Component {
         keyboard: true,
       })
       .on('hidden.bs.modal', () => {
-        $keepModalOpen()
         if (this.props.disposeOnHide === true) {
           $root.modal('dispose')
           $unmount($root.parent(), 0, null, this.props.__root18)
@@ -323,7 +322,6 @@ class RbAlert extends React.Component {
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
       .on('hidden.bs.modal', function () {
-        $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
         // v4.2
@@ -2420,7 +2418,7 @@ class RbViewModal extends React.Component {
       .on('hidden.bs.modal', function () {
         $mc.css({ 'margin-right': -1500 })
         that.setState({ inLoad: true, isHide: true })
-        if (!$keepModalOpen()) location.hash = '!/View/'
+        if ($('.modal.rbview').length <= 1) location.hash = '!/View/'
 
         // SubView 子视图不保持
         if (that.state.disposeOnHide === true) {
@@ -2433,11 +2431,6 @@ class RbViewModal extends React.Component {
       })
       .on('shown.bs.modal', function () {
         $mc.css('margin-right', 0)
-        const $mcbd = $('body>.modal-backdrop.show')
-        if ($mcbd[0]) {
-          $mcbd.addClass('o')
-          $mcbd.eq(0).removeClass('o')
-        }
       })
     this.show()
   }

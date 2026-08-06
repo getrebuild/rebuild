@@ -36,6 +36,32 @@ _GA()
 
 // PAGE INITIAL
 $(function () {
+  // 通用 Bootstrap 多层 modal 处理
+  $(document).on('show.bs.modal', '.modal', function () {
+    var total = $('.modal.show').length + 1
+    $('.modal-backdrop').css('opacity', '0')
+    $(this).css('z-index', 1040 + total * 20)
+  })
+  $(document).on('shown.bs.modal', '.modal', function () {
+    var total = $('.modal.show').length
+    $('.modal-backdrop:last').css({
+      'z-index': 1040 + total * 20 - 1,
+      'opacity': '',
+    })
+  })
+  $(document).on('hidden.bs.modal', '.modal', function () {
+    if ($('.modal.show').length > 0) {
+      $('body').addClass('modal-open')
+      $('.modal-backdrop:last').css('opacity', '')
+    }
+  })
+  $(document).on('keydown', function (e) {
+    if (e.key === 'Escape' && $('.modal.show').length > 1) {
+      $('.modal.show:last').modal('hide')
+      return false
+    }
+  })
+
   // for `moment`
   if (window.moment) window.moment.locale(rb.locale)
 
@@ -1089,16 +1115,6 @@ var $select2MatcherAll = function (params, data) {
   }
 
   return null
-}
-
-// 保持模态窗口（如果需要）
-var $keepModalOpen = function () {
-  if ($('.rbmodal.show, .rbview.show').length > 0) {
-    var $body = $(document.body)
-    if (!$body.hasClass('modal-open')) $body.addClass('modal-open').css({ 'padding-right': 17 })
-    return true
-  }
-  return false
 }
 
 // 禁用按钮 N 秒（用在一些危险操作上）
