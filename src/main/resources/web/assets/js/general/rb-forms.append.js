@@ -96,7 +96,6 @@ class ClassificationSelector extends React.Component {
   componentDidMount() {
     const $root = this.show()
     $root.on('hidden.bs.modal', () => {
-      this.props.keepModalOpen && $keepModalOpen()
       if (this.props.disposeOnHide === true) {
         $root.modal('dispose')
         $unmount($root.parent())
@@ -486,7 +485,6 @@ class SignPad extends React.Component {
 
   componentDidMount() {
     const $root = $(this._$dlg).on('hidden.bs.modal', () => {
-      $keepModalOpen()
       if (this.props.disposeOnHide === true) {
         $root.modal('dispose')
         $unmount($root.parent())

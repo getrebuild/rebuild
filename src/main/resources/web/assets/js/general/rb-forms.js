@@ -105,7 +105,6 @@ class RbFormModal extends React.Component {
         keyboard: true,
       })
       .on('hidden.bs.modal', () => {
-        $keepModalOpen()
         if (this.props.disposeOnHide === true) {
           $root.modal('dispose')
           $unmount($root.parent().parent())
@@ -3179,12 +3178,9 @@ class RbFormClassification extends RbFormElement {
     else {
       const p = this.props
       const that = this
-      renderRbcomp(
-        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen />,
-        function () {
-          that.__selector = this
-        },
-      )
+      renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} />, function () {
+        that.__selector = this
+      })
     }
   }
 

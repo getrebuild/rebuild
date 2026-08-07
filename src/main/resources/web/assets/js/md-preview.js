@@ -9,15 +9,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 let _lastContent = null
 let _EasyMDE
 
-// 修正分屏滚动同步
-function _syncPreviewScroll(preview) {
-  if (!_EasyMDE) return
+// 图片加载/mermaid 渲染会改变预览高度
+function _resyncPreviewScroll() {
   const cm = _EasyMDE.codemirror
+  const preview = cm.getWrapperElement().nextSibling
   const info = cm.getScrollInfo()
-  const eMax = info.height - info.clientHeight
-  const pMax = preview.scrollHeight - preview.clientHeight
-  if (eMax <= 0 || pMax <= 0) return
-  preview.scrollTop = pMax * (parseFloat(info.top) / eMax)
+  const edRange = info.height - info.clientHeight
+  const pvRange = preview.scrollHeight - preview.clientHeight
+  if (edRange <= 0 || pvRange <= 0) return
+  preview.scrollTop = pvRange * (info.top / edRange)
 }
 
 $(document).ready(() => {
@@ -77,13 +77,16 @@ $(document).ready(() => {
     autoDownloadFontAwesome: false,
     previewRender: (plainText, preview) => {
       setTimeout(() => $renderMermaid($(preview)), 200)
-      setTimeout(() => _syncPreviewScroll($(preview)), 400)
       return marked.parse(plainText)
     },
   })
   _EasyMDE.toggleFullScreen()
   _EasyMDE.toggleSideBySide()
   _lastContent = _EasyMDE.value()
+
+  const _preview = _EasyMDE.codemirror.getWrapperElement().nextSibling
+  _preview.addEventListener('load', _resyncPreviewScroll, true)
+  new MutationObserver(_resyncPreviewScroll).observe(_preview, { childList: true, subtree: true })
 
   // 阻止F11
   document.addEventListener(

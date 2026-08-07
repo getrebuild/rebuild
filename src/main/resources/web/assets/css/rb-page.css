@@ -787,14 +787,6 @@ div.dataTables_filter .filter-badge:hover .close {
   max-width: 551px;
 }
 
-.modal.show.rbalert {
-  z-index: 1051;
-}
-
-.modal-backdrop.show.rbalert {
-  z-index: 1050;
-}
-
 .modal-body.iframe {
   padding: 0 !important;
   height: 100%;
@@ -853,6 +845,10 @@ body.view-body {
   min-height: 100%;
 }
 
+.select2-dropdown {
+  z-index: 1055;
+}
+
 .select2-search--dropdown .select2-search__field {
   padding: 3px 6px;
 }
@@ -908,11 +904,6 @@ body.view-body {
   color: #222222;
 }
 
-/* .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
-  max-width: 100%;
-  min-width: 21px;
-} */
-
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
   border-color: #4285f4;
 }
@@ -931,6 +922,10 @@ body.view-body {
   padding-left: 0.5em;
   padding-right: 0.5em;
   transform: translateY(-1px);
+}
+
+.input-group .select2-container--default.select2-container--focus {
+  z-index: 3;
 }
 
 textarea.row1x {
@@ -4893,6 +4888,7 @@ pre.unstyle {
   margin-left: 6px;
   margin-right: 6px;
   border-radius: 2px;
+  font-size: 14px;
 }
 
 .rb-left-sidebar.v2 .sidebar-elements > li ul li > a {

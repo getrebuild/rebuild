@@ -6049,10 +6049,6 @@ button.close {
   opacity: 0.2;
 }
 
-.modal-backdrop.show.o {
-  opacity: 0;
-}
-
 .modal-header {
   display: -webkit-box;
   display: -ms-flexbox;
