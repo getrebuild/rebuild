@@ -63,7 +63,7 @@ class RbPreview extends React.Component {
             </div>
             <div className="float-right">
               {(xdoc433 || md433 || pdf433) && (
-                <a title={$L('适应屏幕')} onClick={() => this.setState({ fullwidth: !this.state.fullwidth })}>
+                <a title={$L('适应屏幕')} className="d-none d-sm-inline-block" onClick={() => this.setState({ fullwidth: !this.state.fullwidth })}>
                   <i className="mdi mdi-fit-to-screen-outline fs-19" />
                 </a>
               )}

@@ -1709,6 +1709,7 @@ function $openView(id, e) {
   e && $stopEvent(e, true)
   if (typeof id === 'string') id = { id: id }
 
-  if (window.RbViewModal) window.RbViewModal.create(id)
+  var _blank = location.href.indexOf('/chart-design') > -1
+  if (window.RbViewModal && !_blank) window.RbViewModal.create(id)
   else window.open(rb.baseUrl + '/app/redirect?id=' + id.id + '&type=newtab')
 }
