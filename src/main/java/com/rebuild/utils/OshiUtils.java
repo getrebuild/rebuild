@@ -118,7 +118,8 @@ public class OshiUtils {
             }
 
             for (String ip : net.getIPv4addr()) {
-                if (ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.1")) {
+                if (ip.startsWith("192.168.") || ip.startsWith("10.")
+                        || ip.matches("172\\.(1[6-9]|2\\d|3[01])\\..*")) {
                     return ip;
                 }
             }
