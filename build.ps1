@@ -12,11 +12,16 @@ param(
 $ErrorActionPreference = "Stop"
 
 if ($Mob) {
-    Push-Location $MobDir
-    yarn install
-    yarn build
-    robocopy build "$PSScriptRoot\src\main\resources\public\h5app" /MIR /NJH /NJS /NFL /NDL
-    Pop-Location
+    if (Test-Path "$MobDir\package.json") {
+        Push-Location $MobDir
+        yarn install
+        yarn build
+        robocopy build "$PSScriptRoot\src\main\resources\public\h5app" /MIR /NJH /NJS /NFL /NDL
+        Pop-Location
+    }
+    else {
+        Write-Warning "rebuild-mob not found at '$MobDir', skip building h5app. Use -MobDir to specify the path."
+    }
 }
 
 & "$PSScriptRoot\mvnw.cmd" clean package -DskipTests
