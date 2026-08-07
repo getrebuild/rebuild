@@ -10,10 +10,10 @@ package com.rebuild.core.aibot2.knowledge;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.aibot2.vector.FileData;
 import com.rebuild.core.aibot2.vector.ListData;
 import com.rebuild.core.aibot2.vector.RecordData;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.utils.CommonsUtils;
@@ -21,7 +21,6 @@ import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Safelist;
 
 import java.util.List;
 
@@ -49,9 +48,7 @@ public class KnowledgeBuilder {
         // 先提取内容（最可能失败的步骤，失败时保留旧分片）
         String content = extractContent(sourceType, sourceConfig, knowledgeName);
         if (StringUtils.isBlank(content)) {
-            log.warn("No content extracted for knowledge: {}", knowledgeName);
-            updateChunkCount(knowledgeId, 0);
-            return 0;
+            throw new IllegalStateException("未提取到内容");
         }
 
         // 分片（内容提取成功后再操作数据库）
@@ -180,7 +177,7 @@ public class KnowledgeBuilder {
      * @param knowledgeId
      * @param count
      */
-    private static void updateChunkCount(ID knowledgeId, int count) {
+    public static void updateChunkCount(ID knowledgeId, int count) {
         RecordBuilder.builder(EntityHelper.AibotKnowledge)
                 .add("knowledgeId", knowledgeId)
                 .add("chunkCount", count)

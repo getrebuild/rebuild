@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global autosize */
 
 // eslint-disable-next-line no-undef, react/display-name
 useEditComp = function (name) {
@@ -58,9 +59,15 @@ const _loadKnowledge = function () {
     $('.J_kbEmpty').toggle(data.length === 0)
 
     data.forEach((item) => {
+      // -1 构建中，0 构建失败，>0 分片数
+      let chunkBadge
+      if (item.chunkCount > 0) chunkBadge = `<span class="badge badge-light ml-1">${item.chunkCount}</span>`
+      else if (item.chunkCount === -1) chunkBadge = `<span class="badge badge-warning ml-1">${$L('构建中')}</span>`
+      else chunkBadge = `<span class="badge badge-danger ml-1">${$L('构建失败')}</span>`
+
       const $tr = $(
         `<tr>
-          <td>${item.name} <span class="badge badge-light ml-1">${item.chunkCount || 0}</span></td>
+          <td>${item.name} ${chunkBadge}</td>
           <td>${item.description || $L('无')}</td>
           <td class="actions">
             <a title="${$L('修改')}" class="icon"><i class="zmdi zmdi-edit"></i></a>
@@ -112,7 +119,7 @@ class DlgKbEdit extends RbModalHandler {
         <div>
           <form>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('知识库名称')}</label>
               <div className="col-sm-7">
                 <input className="form-control form-control-sm" type="text" maxLength="200" ref={(c) => (this._$name = c)} defaultValue={item.name || ''} autoFocus />
               </div>
@@ -126,18 +133,16 @@ class DlgKbEdit extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('内容')}</label>
               <div className="col-sm-7">
-                <div className="mb-2">
-                  <input type="file" ref={(c) => (this._$file = c)} onChange={(e) => this._onFileChange(e)} />
-                  {this.state.fileName ? <span className="badge badge-light ml-2">{this.state.fileName}</span> : null}
-                  {isFile && !this.state.fileName ? <span className="badge badge-light ml-2">{$L('已上传文件（重新上传或输入文本替换）')}</span> : null}
+                <div className="mb-1 file-select">
+                  <input type="file" className="inputfile" id="DlgKbEdit__file" data-local="temp" ref={(c) => (this._$file = c)} />
+                  <label htmlFor="DlgKbEdit__file" className="btn-secondary">
+                    <span className="zmdi zmdi-upload" />
+                    <span className="ml-1">{$L('上传文件')}</span>
+                  </label>
+                  {this.state.fileName ? <b className="text-underline ml-2">{this.state.fileName}</b> : null}
                 </div>
-                <textarea
-                  className="form-control"
-                  rows="8"
-                  ref={(c) => (this._$text = c)}
-                  defaultValue={!isFile ? this._getSourceConfig('text', item.sourceConfig) : ''}
-                  placeholder={$L('输入文本内容，或上传文件自动解析')}
-                />
+                <textarea className="form-control form-control-sm" ref={(c) => (this._$text = c)} defaultValue={!isFile ? this._getSourceConfig('text', item.sourceConfig) : ''} />
+                <p className="form-text">{WrapHtml($L('输入内容，或上传文件自动解析'))}</p>
               </div>
             </div>
             <div className="form-group row footer">
@@ -156,6 +161,16 @@ class DlgKbEdit extends RbModalHandler {
     )
   }
 
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount()
+    setTimeout(() => autosize(this._$text), 400)
+    $multipleUploader(this._$file, (res) => {
+      this.setState({ fileKey: res.key, fileName: res.file.name })
+      // 名称为空时用文件名（去后缀）回填
+      if (!$(this._$name).val()) $(this._$name).val(res.file.name.replace(/\.[^.]+$/, ''))
+    })
+  }
+
   _getSourceConfig(key, sourceConfig) {
     if (!sourceConfig) return ''
     try {
@@ -166,30 +181,6 @@ class DlgKbEdit extends RbModalHandler {
     }
   }
 
-  _onFileChange(e) {
-    const file = e.target.files[0]
-    if (!file) return
-
-    const $btn = $(this._$btn).find('.btn').button('loading')
-    const fd = new FormData()
-    fd.append('file', file)
-    $.ajax({
-      url: '/filex/upload?temp=true',
-      type: 'POST',
-      data: fd,
-      processData: false,
-      contentType: false,
-      success: (res) => {
-        $btn.button('reset')
-        if (res.error_code === 0) {
-          this.setState({ fileKey: res.data, fileName: file.name })
-        } else {
-          RbHighbar.error(res.error_msg || $L('上传失败'))
-        }
-      },
-    })
-  }
-
   _onSave() {
     const name = $(this._$name).val()
     if (!name) {
@@ -197,24 +188,27 @@ class DlgKbEdit extends RbModalHandler {
       return
     }
 
+    const item = this.props.item || {}
     const text = $(this._$text).val()
     const fileKey = this.state.fileKey
-
-    if (!text && !fileKey) {
-      RbHighbar.create($L('请输入文本内容或上传文件'))
-      return
-    }
 
     let sourceType, sourceConfig
     if (fileKey) {
       sourceType = 'FILE'
       sourceConfig = JSON.stringify({ file: fileKey })
-    } else {
+    } else if (text) {
       sourceType = 'TEXT'
       sourceConfig = JSON.stringify({ text: text })
+    } else if (item.id && item.sourceConfig) {
+      // 仅修改名称/描述，沿用原内容
+      sourceType = item.sourceType
+      sourceConfig = item.sourceConfig
+    } else {
+      RbHighbar.create($L('请输入内容或上传文件'))
+      return
     }
 
-    const itemId = (this.props.item || {}).id || null
+    const itemId = item.id || null
     const data = {
       name: name,
       description: $(this._$desc).val(),
@@ -230,14 +224,9 @@ class DlgKbEdit extends RbModalHandler {
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         const newId = itemId || res.data.id
-        $.post(`./aibot/kb-build?id=${newId}`, (bRes) => {
+        $.post(`./aibot/kb-build?id=${newId}`, () => {
           $btn.button('reset')
           this.hide()
-          if (bRes.error_code === 0) {
-            RbHighbar.success($L('保存成功，共 %d 个分片', bRes.data.chunkCount))
-          } else {
-            RbHighbar.create($L('已保存但构建失败：%s', bRes.error_msg))
-          }
           _loadKnowledge()
         })
       } else {
@@ -306,7 +295,7 @@ class DlgSkillEdit extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('提示词')}</label>
               <div className="col-sm-7">
-                <textarea className="form-control prompt" maxLength="6000" rows="3" ref={(c) => (this._$prompt = c)} defaultValue={conf.prompt || ''} />
+                <textarea className="form-control form-control-sm" ref={(c) => (this._$prompt = c)} defaultValue={conf.prompt || ''} />
               </div>
             </div>
 
@@ -328,9 +317,7 @@ class DlgSkillEdit extends RbModalHandler {
 
   componentDidMount() {
     super.componentDidMount && super.componentDidMount()
-
-    // eslint-disable-next-line no-undef
-    autosize(this._$prompt)
+    setTimeout(() => autosize(this._$prompt), 400)
   }
 
   _onSave() {

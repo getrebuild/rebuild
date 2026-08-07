@@ -148,7 +148,7 @@ public class Field2SchemaFixer extends Field2Schema {
     public boolean fixDatetime40(Field field) {
         if (field.getType() != FieldType.TIMESTAMP) return false;
 
-        changeColumn(field);
+        changeColumn2Text(field);
         return true;
     }
 
@@ -161,7 +161,7 @@ public class Field2SchemaFixer extends Field2Schema {
         if (em.getMetaId() == null) return false;
         if (!(em.getDisplayType() == DisplayType.FILE || em.getDisplayType() == DisplayType.IMAGE)) return false;
 
-        changeColumn(field);
+        changeColumn2Text(field);
 
         JSONObject attrs = em.getExtraAttrs();
         attrs.put("uploadNumber", "0,99");
@@ -209,11 +209,12 @@ public class Field2SchemaFixer extends Field2Schema {
     }
 
     /**
-     * 修改数据库行
+     * 修改文本字段为 `text`
      *
      * @param field
+     * @return
      */
-    private void changeColumn(Field field) {
+    public boolean changeColumn2Text(Field field) {
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
         final Table table = new Table40(field.getOwnEntity(), dialect);
         StringBuilder ddl = new StringBuilder();
@@ -227,5 +228,6 @@ public class Field2SchemaFixer extends Field2Schema {
 
         Application.getSqlExecutor().executeBatch(new String[]{dmlSql}, DDL_TIMEOUT);
         log.info("Fixed column of field : {}", dmlSql);
+        return true;
     }
 }

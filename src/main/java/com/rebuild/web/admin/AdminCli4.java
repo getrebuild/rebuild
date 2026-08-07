@@ -35,6 +35,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,7 +100,7 @@ public class AdminCli4 {
                         " \nclean-approval ENTITY" +
                         " \nadd-testentity" +
                         " \nchk-schemas" +
-                        " \nfix-entity ENTITY[.FIELD] [DATETIME40|UPLOADNUMBER41|ADDSEQ42]" +
+                        " \nfix-entity ENTITY[.FIELD] [DATETIME40|UPLOADNUMBER41|ADDSEQ42|NTEXT]" +
                         " \nfix-index [ENTITY]";
                 break;
             }
@@ -359,6 +360,10 @@ public class AdminCli4 {
         }
         if ("ADDSEQ42".equalsIgnoreCase(commands[2])) {
             boolean s = new Field2SchemaFixer().addSeqField(entity);
+            return s ? "OK" : "WRAN: Cannot";
+        }
+        if ("NTEXT".equalsIgnoreCase(commands[2])) {
+            boolean s = new Field2SchemaFixer().changeColumn2Text(Objects.requireNonNull(field));
             return s ? "OK" : "WRAN: Cannot";
         }
         return "OK";

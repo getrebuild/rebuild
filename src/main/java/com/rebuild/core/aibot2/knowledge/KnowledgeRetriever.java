@@ -7,10 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.knowledge;
 
-import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.vector.VectorData;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,7 +36,7 @@ public class KnowledgeRetriever {
     private static final int DEFAULT_TOP_K = 5;
     private static final int MAX_CONTENT_LENGTH = 8000;
     private static final int MIN_QUERY_LENGTH = 2;
-    private static final int MAX_KEYWORDS = 10;
+    private static final int MAX_KEYWORDS = 5;
 
     /**
      * 检索与查询最相关的知识片段
@@ -87,38 +87,28 @@ public class KnowledgeRetriever {
      * 单次查询所有关键词匹配的片段，使用 Map 去重并累加分数
      */
     private static Map<ID, KnowledgeChunk> queryChunks(List<String> keywords) {
-        // 组合 OR 条件 + 子查询过滤已禁用的知识库
         StringBuilder where = new StringBuilder(
                 "select chunkId, knowledgeId, content, chunkIndex, keywords " +
                 "from AibotKnowledgeChunk where knowledgeId in " +
                 "(select knowledgeId from AibotKnowledge where isDisabled = 'F') and (");
 
-        List<String> params = new ArrayList<>();
         boolean first = true;
         for (String kw : keywords) {
             if (kw.length() < MIN_QUERY_LENGTH) continue;
 
+            String likePattern = String.format("'%%%s%%'", escapeLike(CommonsUtils.escapeSql(kw)));
             if (!first) where.append(" or ");
             first = false;
-            where.append("content like ? or keywords like ?");
-
-            String likePattern = "%" + escapeLike(kw) + "%";
-            params.add(likePattern);
-            params.add(likePattern);
+            where.append("(content like ").append(likePattern)
+                    .append(" or keywords like ").append(likePattern).append(")");
         }
 
-        if (params.isEmpty()) return new LinkedHashMap<>();
+        if (first) return new LinkedHashMap<>();
 
         where.append(")");
 
-        Query query = Application.createQueryNoFilter(where.toString());
-        for (int i = 0; i < params.size(); i++) {
-            query.setParameter(i + 1, params.get(i));
-        }
+        Object[][] results = Application.createQueryNoFilter(where.toString()).array();
 
-        Object[][] results = query.array();
-
-        // Map 去重 + 分数累加 O(n)
         Map<ID, KnowledgeChunk> matched = new LinkedHashMap<>();
         for (Object[] row : results) {
             ID chunkId = (ID) row[0];
@@ -174,20 +164,16 @@ public class KnowledgeRetriever {
         }
         if (knowledgeIds.isEmpty()) return;
 
+        // in 列表直接拼接 ID 字面量（ID 来自自身查询结果，无注入风险）
         StringBuilder sql = new StringBuilder("select knowledgeId, name from AibotKnowledge where knowledgeId in (");
         for (int i = 0; i < knowledgeIds.size(); i++) {
             if (i > 0) sql.append(",");
-            sql.append("?");
+            sql.append("'").append(knowledgeIds.get(i)).append("'");
         }
         sql.append(")");
 
-        Query query = Application.createQueryNoFilter(sql.toString());
-        for (int i = 0; i < knowledgeIds.size(); i++) {
-            query.setParameter(i + 1, knowledgeIds.get(i));
-        }
-
         Map<ID, String> nameMap = new HashMap<>();
-        for (Object[] row : query.array()) {
+        for (Object[] row : Application.createQueryNoFilter(sql.toString()).array()) {
             nameMap.put((ID) row[0], (String) row[1]);
         }
 
@@ -207,10 +193,8 @@ public class KnowledgeRetriever {
         for (KnowledgeChunk chunk : chunks) {
             int contentLen = chunk.getContent() != null ? chunk.getContent().length() : 0;
             if (totalLen + contentLen > MAX_CONTENT_LENGTH) {
-                // 至少保留一片（截断）
                 if (result.isEmpty() && contentLen > 200) {
-                    int remaining = MAX_CONTENT_LENGTH;
-                    chunk.setContent(chunk.getContent().substring(0, Math.min(remaining, contentLen)) + "...");
+                    chunk.setContent(chunk.getContent().substring(0, Math.min(MAX_CONTENT_LENGTH, contentLen)) + "...");
                     result.add(chunk);
                 }
                 break;

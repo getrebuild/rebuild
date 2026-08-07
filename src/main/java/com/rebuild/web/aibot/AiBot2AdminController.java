@@ -20,9 +20,10 @@ import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.RebuildWebConfigurer;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.RebuildWebConfigurer;
 import com.rebuild.web.admin.ConfigurationController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -131,13 +132,16 @@ public class AiBot2AdminController extends BaseController {
         String sourceType = (String) knowledge[1];
         String sourceConfig = (String) knowledge[2];
 
-        try {
-            int chunkCount = KnowledgeBuilder.build(knowledgeId, sourceType, sourceConfig, name);
-            return RespBody.ok(JSONUtils.toJSONObject(
-                    new String[]{"chunkCount"}, new Object[]{chunkCount}));
-        } catch (Exception e) {
-            log.error("Failed to build knowledge: {}", knowledgeId, e);
-            return RespBody.error("构建失败：" + e.getMessage());
-        }
+        // 后台异步构建（-1 构建中，0 构建失败）
+        KnowledgeBuilder.updateChunkCount(knowledgeId, -1);
+        TaskExecutors.queue(() -> {
+            try {
+                KnowledgeBuilder.build(knowledgeId, sourceType, sourceConfig, name);
+            } catch (Exception e) {
+                KnowledgeBuilder.updateChunkCount(knowledgeId, 0);
+                log.error("Failed to build knowledge: {}", knowledgeId, e);
+            }
+        });
+        return RespBody.ok();
     }
 }
