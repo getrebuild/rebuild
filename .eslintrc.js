@@ -63,7 +63,6 @@ module.exports = {
     $is: true,
     $unmount: true,
     $initReferenceSelect2: true,
-    $keepModalOpen: true,
     renderRbcomp: true,
     renderRbcomp18: true,
     renderDlgcomp: true,
