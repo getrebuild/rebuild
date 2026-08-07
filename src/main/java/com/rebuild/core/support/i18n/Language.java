@@ -112,11 +112,12 @@ public class Language implements Initialization {
         if (!Application.isStateLoaded()) return LanguageBundle.SYS_BUNDLE;
 
         if (locale != null) {
+            if (locale.contains("-")) locale = locale.replace("-", "_");
             if (bundleMap.containsKey(locale)) {
                 return bundleMap.get(locale);
             }
 
-            locale = useLanguageCode(locale.split("[-_]")[0]);
+            locale = useLanguageCode(locale.split("_")[0]);
             if (locale != null) {
                 return bundleMap.get(locale);
             }
@@ -144,6 +145,7 @@ public class Language implements Initialization {
      * @return
      */
     private String useLanguageCode(String locale) {
+        if (locale.contains("-")) locale =  locale.replace("-", "_");
         for (String key : bundleMap.keySet()) {
             if (key.equals(locale) || key.startsWith(locale)) {
                 return key;
@@ -163,7 +165,8 @@ public class Language implements Initialization {
             locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         }
 
-        String[] lc = locale.split("[-_]");
+        if (locale.contains("-")) locale =  locale.replace("-", "_");
+        String[] lc = locale.split("_");
         locale = lc[0].toLowerCase();
         if (lc.length > 1) locale += "_" + lc[1].toUpperCase();
 
