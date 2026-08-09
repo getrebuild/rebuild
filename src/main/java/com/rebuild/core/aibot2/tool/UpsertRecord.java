@@ -78,7 +78,12 @@ public class UpsertRecord implements Tool {
 
         Entity entity = ListEntities.resolveEntity(entityName);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityName);
+            throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
+        }
+
+        // 校验实体权限
+        if (!entity.isQueryable() || !MetadataHelper.isBusinessEntity(entity)) {
+            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持此操作");
         }
 
         String entityMetaDesc = buildEntityMetaDesc(entity);
@@ -105,6 +110,15 @@ public class UpsertRecord implements Tool {
     private JSONObject saveRecord(JSONObject recordJson, Entity entity, String recordId) {
         ID userId = UserContextHolder.getUser(true);
         if (userId == null) userId = UserService.SYSTEM_USER;
+
+        // 校验创建/更新权限
+        boolean isUpdate = StringUtils.isNotBlank(recordId) && ID.isId(recordId);
+        if (!isUpdate && !entity.isCreatable()) {
+            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许新建记录");
+        }
+        if (isUpdate && !entity.isUpdatable()) {
+            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许更新记录");
+        }
 
         Object detailsObj = recordJson.remove(GeneralEntityService.HAS_DETAILS);
         JSONArray detailsJson = detailsObj instanceof JSONArray ? (JSONArray) detailsObj : null;

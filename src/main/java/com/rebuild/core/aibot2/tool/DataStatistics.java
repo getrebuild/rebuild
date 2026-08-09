@@ -14,7 +14,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +59,7 @@ public class DataStatistics implements Tool {
         String aggField = args.getString("aggField");
         String groupBy = args.getString("groupBy");
         JSONArray filter = args.getJSONArray("filter");
+        String equation = args.getString("equation");
         int limit = args.getIntValue("limit");
         if (limit < 1) limit = DEFAULT_LIMIT;
         if (limit > MAX_LIMIT) limit = MAX_LIMIT;
@@ -68,7 +68,12 @@ public class DataStatistics implements Tool {
         String aggFieldSql = buildAggFieldSql(entity, aggFunc, aggField);
 
         // 构建 WHERE
-        String whereClause = buildWhereClause(entity, filter);
+        String whereClause;
+        try {
+            whereClause = ToolHelper.parseFilterToWhere(entity, filter, equation);
+        } catch (Exception ex) {
+            throw new ToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+        }
 
         // 有分组
         if (StringUtils.isNotBlank(groupBy)) {
@@ -179,23 +184,6 @@ public class DataStatistics implements Tool {
         }
 
         return aggField;
-    }
-
-    /**
-     * 构建 WHERE 子句（复用 AdvFilterParser）
-     */
-    private String buildWhereClause(Entity entity, JSONArray filter) {
-        if (filter == null || filter.isEmpty()) return null;
-
-        JSONObject filterExpr = new JSONObject();
-        filterExpr.put("entity", entity.getName());
-        filterExpr.put("items", filter);
-
-        try {
-            return new AdvFilterParser(filterExpr, entity).toSqlWhere();
-        } catch (Exception ex) {
-            throw new ToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
-        }
     }
 
     private boolean isValidAggFunc(String func) {

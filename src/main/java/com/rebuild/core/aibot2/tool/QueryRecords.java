@@ -14,9 +14,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -93,17 +93,24 @@ public class QueryRecords implements Tool {
     }
 
     /**
-     * 按名称/编号模糊匹配（搜索名称字段和 SERIES 字段）
+     * 按名称/编号模糊匹配（优先使用系统配置的快速查询字段，未配置则使用名称字段 + SERIES 字段）
      */
     private JSONObject queryByName(Entity entity, Field primaryField, Field nameField,
                                    List<String> queryFields, String name, int limit, int offset, String orderBy) {
-        // 可搜索字段：名称字段 + SERIES 字段
-        List<Field> searchFields = new ArrayList<>();
-        if (nameField != null) {
-            searchFields.add(nameField);
-        }
-        for (Field f : MetadataSorter.sortFields(entity, DisplayType.SERIES)) {
-            if (!searchFields.contains(f)) searchFields.add(f);
+        // 优先使用系统配置的快速查询字段
+        Set<String> searchFields = ParseHelper.buildQuickFields(entity, null);
+
+        // 未配置快速查询字段时，使用名称字段 + SERIES 字段作为 fallback
+        if (searchFields.isEmpty()) {
+            if (nameField != null) {
+                searchFields.add(nameField.getName());
+            }
+            for (Field f : entity.getFields()) {
+                if (MetadataHelper.isSystemField(f)) continue;
+                if (EasyMetaFactory.getDisplayType(f) == DisplayType.SERIES) {
+                    searchFields.add(f.getName());
+                }
+            }
         }
 
         if (searchFields.isEmpty()) {
@@ -115,9 +122,11 @@ public class QueryRecords implements Tool {
         String escapedName = name.replace("'", "''").replace("%", "\\%").replace("_", "\\_");
         String likeValue = "'%" + escapedName + "%'";
         StringBuilder whereClause = new StringBuilder();
-        for (int i = 0; i < searchFields.size(); i++) {
+        int i = 0;
+        for (String fieldName : searchFields) {
             if (i > 0) whereClause.append(" or ");
-            whereClause.append(searchFields.get(i).getName()).append(" like ").append(likeValue);
+            whereClause.append(fieldName).append(" like ").append(likeValue);
+            i++;
         }
 
         String sql = String.format("select %s from %s where %s%s",
@@ -286,6 +295,11 @@ public class QueryRecords implements Tool {
         ret.put("status", "ok");
         ret.put("entity", entity.getName());
         ret.put("entityLabel", EasyMetaFactory.getLabel(entity));
+        Field nameField = entity.getNameField();
+        if (nameField != null && !nameField.getName().equals(entity.getPrimaryField().getName())) {
+            ret.put("nameField", nameField.getName());
+            ret.put("nameFieldLabel", EasyMetaFactory.getLabel(nameField));
+        }
         ret.put("total", totalCount);
         ret.put("hasMore", hasMore);
         ret.put("records", records);

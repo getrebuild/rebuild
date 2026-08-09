@@ -1,0 +1,25 @@
+{
+  "type": "function",
+  "function": {
+    "name": "GetRecord",
+    "description": "获取单条记录的完整字段详情。通过记录ID查询，返回所有可查询字段的值",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称、数字code或标签名称（可通过 ListEntities 工具查询可用实体）"
+        },
+        "record": {
+          "type": "string",
+          "description": "记录ID（可通过 QueryRecords 工具查询获取）"
+        },
+        "fields": {
+          "type": "string",
+          "description": "返回的字段名称列表（逗号分隔），不传则返回所有可查询字段"
+        }
+      },
+      "required": ["entity", "record"]
+    }
+  }
+}

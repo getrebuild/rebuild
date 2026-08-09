@@ -42,6 +42,7 @@ public class ToolDefs {
         register(new SearchHelp());
         register(new UploadFile());
         register(new QueryRecords());
+        register(new GetRecord());
         register(new DataStatistics());
         register(new UpsertRecord());
         register(new CreateFeed());
