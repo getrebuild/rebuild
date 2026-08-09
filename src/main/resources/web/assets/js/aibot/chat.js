@@ -236,7 +236,7 @@ class ChatInput extends React.Component {
               <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : this.state.postState === 2 ? 'mdi mdi-spin mdi-loading' : 'mdi mdi-stop'} />
             </button>
           </div>
-          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" data-maxsize="20971520" multiple />
+          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" data-maxsize="52428800" multiple />
         </div>
       </div>
     )

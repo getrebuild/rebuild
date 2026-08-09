@@ -41,6 +41,11 @@ import java.util.List;
 @Slf4j
 public class FileData implements VectorData {
 
+    /**
+     * AI 文件处理大小限制：50MB
+     */
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
+
     static final Tika TIKA = new Tika();
 
     static {
@@ -84,6 +89,10 @@ public class FileData implements VectorData {
 
         if (file == null || !file.isFile()) {
             throw new AiBotException("无法读取文件:" + filePath);
+        }
+
+        if (FileUtils.sizeOf(file) > MAX_FILE_SIZE) {
+            throw new AiBotException("文件大小超过限制（50MB）");
         }
 
         String content;
