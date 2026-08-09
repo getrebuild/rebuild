@@ -17,11 +17,10 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.tika.Tika;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -45,12 +44,6 @@ public class FileData implements VectorData {
      * AI 文件处理大小限制：50MB
      */
     private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
-
-    static final Tika TIKA = new Tika();
-
-    static {
-        TIKA.setMaxStringLength(1024 * 1024 * 50);  // 50M
-    }
 
     private final Object fileOrPath;
 
@@ -97,12 +90,12 @@ public class FileData implements VectorData {
 
         String content;
         try {
-            String mimeType = TIKA.detect(file);
+            String mimeType = Config.TIKA.detect(file);
 
             if (mimeType != null && mimeType.startsWith("image/") && Config.availableAiBot()) {
                 content = parseImageWithAI(file, mimeType);
             } else {
-                content = TIKA.parseToString(file.toPath());
+                content = Config.TIKA.parseToString(file.toPath());
                 content = content.trim();
 
                 if (StringUtils.isBlank(content)

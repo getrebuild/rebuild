@@ -85,29 +85,7 @@ public class Chat implements Serializable {
         ChatCompletion resp = completions().create(builder.build());
         ChatCompletionMessage ai = resp.choices().get(0).message();
 
-        List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
-        int maxRounds = MAX_TOOL_ROUNDS;
-        while (CollectionUtils.isNotEmpty(toolCalls) && maxRounds-- > 0) {
-            log.info("Tool calls round {} : {}", MAX_TOOL_ROUNDS - maxRounds, toolCalls.size());
-            builder.addMessage(ai);
-
-            for (ChatCompletionMessageToolCall tc : toolCalls) {
-                ChatCompletionMessageFunctionToolCall fn = tc.asFunction();
-                String toolCallId = fn.id();
-                String fnName = fn.function().name();
-                String fnArgs = fn.function().arguments();
-                String toolResult = safeExecute(fnName, fnArgs);
-
-                builder.addMessage(ChatCompletionToolMessageParam.builder()
-                        .toolCallId(toolCallId)
-                        .content(toolResult)
-                        .build());
-            }
-
-            resp = completions().create(builder.build());
-            ai = resp.choices().get(0).message();
-            toolCalls = ai.toolCalls().orElse(null);
-        }
+        ai = executeToolCalls(ai, builder);
 
         String content = ai.content().orElse("");
         return completionAfter(content, chatRequest);
@@ -258,6 +236,19 @@ public class Chat implements Serializable {
         ChatCompletion resp = completions().create(builder.build());
         ChatCompletionMessage ai = resp.choices().get(0).message();
 
+        ai = executeToolCalls(ai, builder);
+
+        return ai.content().orElse("");
+    }
+
+    /**
+     * 执行工具调用循环（post 和 ask 共用）
+     *
+     * @param ai
+     * @param builder
+     * @return 最终的 AI 消息
+     */
+    private ChatCompletionMessage executeToolCalls(ChatCompletionMessage ai, ChatCompletionCreateParams.Builder builder) {
         List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
         int maxRounds = MAX_TOOL_ROUNDS;
         while (CollectionUtils.isNotEmpty(toolCalls) && maxRounds-- > 0) {
@@ -277,12 +268,11 @@ public class Chat implements Serializable {
                         .build());
             }
 
-            resp = completions().create(builder.build());
+            ChatCompletion resp = completions().create(builder.build());
             ai = resp.choices().get(0).message();
             toolCalls = ai.toolCalls().orElse(null);
         }
-
-        return ai.content().orElse("");
+        return ai;
     }
 
     /**

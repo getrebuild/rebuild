@@ -17,12 +17,9 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.query.ParseHelper;
-import com.rebuild.core.support.general.FieldValueHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +44,7 @@ public class QueryRecords implements Tool {
             throw new ToolException("实体名称不能为空");
         }
 
-        Entity entity = ListEntities.resolveEntity(entityName);
+        Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
             throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
@@ -65,7 +62,7 @@ public class QueryRecords implements Tool {
 
         // 构建查询字段列表（同时收集无效字段名）
         JSONArray invalidFields = new JSONArray();
-        List<String> queryFields = buildQueryFields(entity, fields, invalidFields);
+        List<String> queryFields = ToolHelper.buildQueryFields(entity, fields, invalidFields);
         Field primaryField = entity.getPrimaryField();
         Field nameField = entity.getNameField();
 
@@ -117,7 +114,7 @@ public class QueryRecords implements Tool {
             throw new ToolException("该实体没有可搜索的名称或编号字段");
         }
 
-        String fieldsSql = buildFieldsSql(primaryField, nameField, queryFields);
+        String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
         // 转义 LIKE 通配符防注入，同时处理单引号
         String escapedName = name.replace("'", "''").replace("%", "\\%").replace("_", "\\_");
         String likeValue = "'%" + escapedName + "%'";
@@ -135,7 +132,7 @@ public class QueryRecords implements Tool {
         Object[][] results = Application.createQuery(sql).setLimit(limit, offset).array();
         JSONArray records = new JSONArray();
         for (Object[] row : results) {
-            records.add(buildRecordJson(entity, primaryField, nameField, queryFields, row));
+            records.add(ToolHelper.buildRecordJson(entity, primaryField, nameField, queryFields, row));
         }
 
         return buildResult(entity, records, limit, offset, whereClause.toString());
@@ -157,14 +154,14 @@ public class QueryRecords implements Tool {
             throw new ToolException("过滤条件无效，请检查字段名和操作符是否正确");
         }
 
-        String fieldsSql = buildFieldsSql(primaryField, nameField, queryFields);
+        String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
         String sql = String.format("select %s from %s where %s%s",
                 fieldsSql, entity.getName(), whereClause, orderBy);
 
         Object[][] results = Application.createQuery(sql).setLimit(limit, offset).array();
         JSONArray records = new JSONArray();
         for (Object[] row : results) {
-            records.add(buildRecordJson(entity, primaryField, nameField, queryFields, row));
+            records.add(ToolHelper.buildRecordJson(entity, primaryField, nameField, queryFields, row));
         }
 
         return buildResult(entity, records, limit, offset, whereClause);
@@ -175,7 +172,7 @@ public class QueryRecords implements Tool {
      */
     private JSONObject queryList(Entity entity, Field primaryField, Field nameField,
                                 List<String> queryFields, int limit, int offset, String orderBy) {
-        String fieldsSql = buildFieldsSql(primaryField, nameField, queryFields);
+        String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
         String sql = String.format("select %s from %s%s", fieldsSql, entity.getName(), orderBy);
 
         Object[][] results = Application.createQuery(sql)
@@ -184,7 +181,7 @@ public class QueryRecords implements Tool {
 
         JSONArray records = new JSONArray();
         for (Object[] row : results) {
-            records.add(buildRecordJson(entity, primaryField, nameField, queryFields, row));
+            records.add(ToolHelper.buildRecordJson(entity, primaryField, nameField, queryFields, row));
         }
 
         return buildResult(entity, records, limit, offset, null);
@@ -207,66 +204,6 @@ public class QueryRecords implements Tool {
         }
 
         return " order by " + sortField + " " + direction;
-    }
-
-    /**
-     * 构建查询字段列表（不含主键和名称字段，它们会被单独添加）
-     */
-    private List<String> buildQueryFields(Entity entity, String fields, JSONArray invalidFields) {
-        Set<String> result = new LinkedHashSet<>();
-        Field primaryField = entity.getPrimaryField();
-        Field nameField = entity.getNameField();
-
-        if (StringUtils.isBlank(fields)) {
-            // 默认返回所有非系统、可查询的字段
-            for (Field f : entity.getFields()) {
-                if (MetadataHelper.isSystemField(f)) continue;
-                if (f.getType() == cn.devezhao.persist4j.dialect.FieldType.PRIMARY) continue;
-                if (!EasyMetaFactory.valueOf(f).isQueryable()) continue;
-                String fn = f.getName();
-                if (fn.equals(primaryField.getName())) continue;
-                if (nameField != null && fn.equals(nameField.getName())) continue;
-                result.add(fn);
-            }
-        } else {
-            for (String f : fields.split("[,;]")) {
-                f = f.trim();
-                if (StringUtils.isBlank(f)) continue;
-                if (!entity.containsField(f)) {
-                    if (invalidFields != null) {
-                        JSONObject invalid = new JSONObject();
-                        invalid.put("name", f);
-                        String suggestion = ToolHelper.suggestField(entity, f);
-                        if (StringUtils.isNotBlank(suggestion)) invalid.put("suggestion", suggestion);
-                        invalidFields.add(invalid);
-                    }
-                    continue;
-                }
-                if (f.equals(primaryField.getName())) continue;
-                if (nameField != null && f.equals(nameField.getName())) continue;
-                result.add(f);
-            }
-        }
-
-        return new ArrayList<>(result);
-    }
-
-    /**
-     * 构建 SQL 字段列表（主键 + 名称字段 + 查询字段）
-     *
-     * @param primaryField
-     * @param nameField
-     * @param queryFields
-     * @return
-     */
-    private String buildFieldsSql(Field primaryField, Field nameField, List<String> queryFields) {
-        List<String> fields = new ArrayList<>();
-        fields.add(primaryField.getName());
-        if (nameField != null && !nameField.getName().equals(primaryField.getName())) {
-            fields.add(nameField.getName());
-        }
-        fields.addAll(queryFields);
-        return StringUtils.join(fields, ",");
     }
 
     /**
@@ -306,42 +243,4 @@ public class QueryRecords implements Tool {
         return ret;
     }
 
-    /**
-     * 将查询结果行构建为 JSON 对象
-     *
-     * @param entity
-     * @param primaryField
-     * @param nameField
-     * @param queryFields
-     * @param row
-     * @return
-     */
-    private JSONObject buildRecordJson(Entity entity, Field primaryField, Field nameField,
-                                      List<String> queryFields, Object[] row) {
-        JSONObject record = new JSONObject();
-        int idx = 0;
-
-        // 主键（记录ID）
-        record.put("id", wrapFieldValue(row[idx], primaryField));
-        idx++;
-
-        // 名称字段
-        if (nameField != null && !nameField.getName().equals(primaryField.getName())) {
-            record.put("name", wrapFieldValue(row[idx], nameField));
-            idx++;
-        }
-
-        // 其他字段
-        for (String fieldName : queryFields) {
-            Field field = entity.getField(fieldName);
-            record.put(fieldName, wrapFieldValue(row[idx], field));
-            idx++;
-        }
-
-        return record;
-    }
-
-    private Object wrapFieldValue(Object value, Field field) {
-        return FieldValueHelper.wrapFieldValue(value, field, true);
-    }
 }

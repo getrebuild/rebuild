@@ -76,7 +76,7 @@ public class UpsertRecord implements Tool {
                 ? content
                 : new FileData(file).toVector();
 
-        Entity entity = ListEntities.resolveEntity(entityName);
+        Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
             throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }

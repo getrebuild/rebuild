@@ -61,7 +61,7 @@ public class ExportReport implements Tool {
             throw new ToolException("实体名称不能为空");
         }
 
-        Entity entity = ListEntities.resolveEntity(entityName);
+        Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
             throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }

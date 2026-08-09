@@ -69,7 +69,7 @@ public class ToolDefs {
     public static List<ChatCompletionTool> tools() {
         Set<String> disabled = getDisabledTools();
         return TOOL_MAP.entrySet().stream()
-                .filter(e -> !disabled.contains(e.getKey()))
+                .filter(e -> !disabled.contains(e.getKey()) && !e.getValue().isSystem())
                 .map(e -> e.getValue().def())
                 .collect(Collectors.toList());
     }
@@ -140,7 +140,8 @@ public class ToolDefs {
         Set<String> disabled = getDisabledTools();
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
-            if (!includeDisabled && disabled.contains(toolName)) continue;
+            Tool toolImpl = TOOL_MAP.get(toolName);
+            if (disabled.contains(toolName) || toolImpl.isSystem()) continue;
 
             String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
             if (d == null) continue;

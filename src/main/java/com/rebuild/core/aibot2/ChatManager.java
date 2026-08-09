@@ -23,7 +23,6 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.Tika;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,8 +38,6 @@ import static com.rebuild.core.metadata.EntityHelper.AibotChat;
  */
 @Slf4j
 public abstract class ChatManager {
-
-    private static final Tika TIKA = new Tika();
 
     /**
      * @param user
@@ -155,7 +152,7 @@ public abstract class ChatManager {
             String base64 = CommonsUtils.fileToBase64(imageFile);
             String mimeType;
             try {
-                mimeType = TIKA.detect(imageFile);
+                mimeType = Config.TIKA.detect(imageFile);
             } catch (IOException e) {
                 mimeType = "image/png";
                 log.warn("Failed to detect image mime type, fallback to png : {}", imageFile.getName(), e);

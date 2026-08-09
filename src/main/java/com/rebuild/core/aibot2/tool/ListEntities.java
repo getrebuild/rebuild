@@ -47,7 +47,7 @@ public class ListEntities implements Tool {
      * @return
      */
     private JSONObject getEntityMeta(String entityIdent) {
-        Entity entity = resolveEntity(entityIdent);
+        Entity entity = ToolHelper.resolveEntity(entityIdent);
         if (entity == null) {
             throw new ToolException("未知实体 : " + entityIdent + ToolHelper.suggestEntity(entityIdent));
         }
@@ -98,17 +98,6 @@ public class ListEntities implements Tool {
         return JSONUtils.toJSONObject(
                 new String[]{"status", "entity"},
                 new Object[]{"ok", entityJson});
-    }
-
-    /**
-     * 解析实体（支持名称、code、标签模糊匹配）
-     *
-     * @param name
-     * @return
-     * @see ToolHelper#resolveEntity(String)
-     */
-    public static Entity resolveEntity(String name) {
-        return ToolHelper.resolveEntity(name);
     }
 
     /**

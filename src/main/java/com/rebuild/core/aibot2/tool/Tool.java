@@ -67,4 +67,13 @@ public interface Tool {
      */
     Object tool(String arguments) throws Exception;
 
+    /**
+     * 是否为系统内部工具（不暴露给 AI 模型，仅后端调用）
+     *
+     * @return
+     */
+    default boolean isSystem() {
+        return false;
+    }
+
 }

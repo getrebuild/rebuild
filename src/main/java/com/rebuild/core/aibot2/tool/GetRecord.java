@@ -16,14 +16,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.support.general.FieldValueHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 获取单条记录的完整字段详情
@@ -43,7 +39,7 @@ public class GetRecord implements Tool {
             throw new ToolException("实体名称不能为空");
         }
 
-        Entity entity = ListEntities.resolveEntity(entityName);
+        Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
             throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
@@ -62,12 +58,12 @@ public class GetRecord implements Tool {
 
         String fields = args.getString("fields");
         JSONArray invalidFields = new JSONArray();
-        List<String> queryFields = buildQueryFields(entity, fields, invalidFields);
+        List<String> queryFields = ToolHelper.buildQueryFields(entity, fields, invalidFields);
 
         Field primaryField = entity.getPrimaryField();
         Field nameField = entity.getNameField();
 
-        String fieldsSql = buildFieldsSql(primaryField, nameField, queryFields);
+        String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
         String sql = String.format("select %s from %s where %s = '%s'",
                 fieldsSql, entity.getName(), primaryField.getName(), record.toLiteral());
 
@@ -76,7 +72,7 @@ public class GetRecord implements Tool {
             throw new ToolException("未找到记录或无权限访问 : " + recordId);
         }
 
-        JSONObject recordJson = buildRecordJson(entity, primaryField, nameField, queryFields, row);
+        JSONObject recordJson = ToolHelper.buildRecordJson(entity, primaryField, nameField, queryFields, row);
 
         JSONObject result = new JSONObject(true);
         result.put("status", "ok");
@@ -93,86 +89,4 @@ public class GetRecord implements Tool {
         return result;
     }
 
-    /**
-     * 构建查询字段列表（不含主键和名称字段，它们会被单独添加）
-     */
-    private List<String> buildQueryFields(Entity entity, String fields, JSONArray invalidFields) {
-        Set<String> result = new LinkedHashSet<>();
-        Field primaryField = entity.getPrimaryField();
-        Field nameField = entity.getNameField();
-
-        if (StringUtils.isBlank(fields)) {
-            for (Field f : entity.getFields()) {
-                if (MetadataHelper.isSystemField(f)) continue;
-                if (f.getType() == cn.devezhao.persist4j.dialect.FieldType.PRIMARY) continue;
-                if (!EasyMetaFactory.valueOf(f).isQueryable()) continue;
-                String fn = f.getName();
-                if (fn.equals(primaryField.getName())) continue;
-                if (nameField != null && fn.equals(nameField.getName())) continue;
-                result.add(fn);
-            }
-        } else {
-            for (String f : fields.split("[,;]")) {
-                f = f.trim();
-                if (StringUtils.isBlank(f)) continue;
-                if (!entity.containsField(f)) {
-                    if (invalidFields != null) {
-                        JSONObject invalid = new JSONObject();
-                        invalid.put("name", f);
-                        String suggestion = ToolHelper.suggestField(entity, f);
-                        if (StringUtils.isNotBlank(suggestion)) invalid.put("suggestion", suggestion);
-                        invalidFields.add(invalid);
-                    }
-                    continue;
-                }
-                if (f.equals(primaryField.getName())) continue;
-                if (nameField != null && f.equals(nameField.getName())) continue;
-                result.add(f);
-            }
-        }
-
-        return new ArrayList<>(result);
-    }
-
-    /**
-     * 构建 SQL 字段列表（主键 + 名称字段 + 查询字段）
-     */
-    private String buildFieldsSql(Field primaryField, Field nameField, List<String> queryFields) {
-        List<String> fields = new ArrayList<>();
-        fields.add(primaryField.getName());
-        if (nameField != null && !nameField.getName().equals(primaryField.getName())) {
-            fields.add(nameField.getName());
-        }
-        fields.addAll(queryFields);
-        return StringUtils.join(fields, ",");
-    }
-
-    /**
-     * 将查询结果行构建为 JSON 对象
-     */
-    private JSONObject buildRecordJson(Entity entity, Field primaryField, Field nameField,
-                                      List<String> queryFields, Object[] row) {
-        JSONObject record = new JSONObject(true);
-        int idx = 0;
-
-        record.put("id", wrapFieldValue(row[idx], primaryField));
-        idx++;
-
-        if (nameField != null && !nameField.getName().equals(primaryField.getName())) {
-            record.put("name", wrapFieldValue(row[idx], nameField));
-            idx++;
-        }
-
-        for (String fieldName : queryFields) {
-            Field field = entity.getField(fieldName);
-            record.put(fieldName, wrapFieldValue(row[idx], field));
-            idx++;
-        }
-
-        return record;
-    }
-
-    private Object wrapFieldValue(Object value, Field field) {
-        return FieldValueHelper.wrapFieldValue(value, field, true);
-    }
 }

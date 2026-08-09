@@ -34,6 +34,11 @@ public class SuggestQuestions implements Tool {
     private static final int MAX_ENTITIES_TO_CHECK = 8;
 
     @Override
+    public boolean isSystem() {
+        return true;
+    }
+
+    @Override
     public Object tool(String arguments) throws Exception {
         JSONArray questions = new JSONArray();
 
