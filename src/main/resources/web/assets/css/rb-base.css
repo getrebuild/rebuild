@@ -20211,9 +20211,20 @@ select.form-control-xs:not([size]):not([multiple]) {
 .input-group-sm > .input-group-append > .input-group-text,
 .input-group-sm > .input-group-prepend > .btn,
 .input-group-sm > .input-group-prepend > .input-group-text {
-  height: 37px !important;
   font-size: 1rem;
   padding: 4px 10px;
+}
+
+/* fix:v4.5 */
+input.form-control-sm,
+select.form-control-sm,
+.input-group-sm > input.form-control,
+.input-group-sm > select.form-control,
+.input-group-sm > .input-group-append > .btn,
+.input-group-sm > .input-group-append > .input-group-text,
+.input-group-sm > .input-group-prepend > .btn,
+.input-group-sm > .input-group-prepend > .input-group-text {
+  height: 37px !important;
 }
 
 .form-control-lg,

@@ -1,0 +1,21 @@
+{
+  "type": "function",
+  "function": {
+    "name": "SearchKnowledge",
+    "description": "搜索系统知识库，获取与查询相关的知识片段。当需要查阅文档、流程规范、制度、FAQ 等知识时使用",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "搜索查询语句，如「报销流程」「请假制度」「产品规格」等"
+        },
+        "topK": {
+          "type": "integer",
+          "description": "返回结果数量，默认5，最大20"
+        }
+      },
+      "required": ["query"]
+    }
+  }
+}

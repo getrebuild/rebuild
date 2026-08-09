@@ -1199,7 +1199,7 @@ class RecordSelectorModal extends RbAlert {
    * @param {*} props
    */
   static create(props) {
-    renderRbcomp(<RecordSelectorModal {...props} zIndex="1050" />)
+    renderRbcomp(<RecordSelectorModal {...props} />)
   }
 }
 

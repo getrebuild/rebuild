@@ -42,12 +42,15 @@ public class ToolDefs {
         register(new SearchHelp());
         register(new UploadFile());
         register(new QueryRecords());
-        register(new DataStatistics());
+        register(new GetRecord());
+        register(new StatisticsData());
         register(new UpsertRecord());
         register(new CreateFeed());
         register(new CreateProjectTask());
         register(new ExportReport());
-        register(new Approval());
+        register(new ApproveRecord());
+        register(new SearchKnowledge());
+        register(new ScheduleTask());
     }
 
     /**
@@ -67,7 +70,7 @@ public class ToolDefs {
     public static List<ChatCompletionTool> tools() {
         Set<String> disabled = getDisabledTools();
         return TOOL_MAP.entrySet().stream()
-                .filter(e -> !disabled.contains(e.getKey()))
+                .filter(e -> !disabled.contains(e.getKey()) && !e.getValue().isSystem())
                 .map(e -> e.getValue().def())
                 .collect(Collectors.toList());
     }
@@ -103,6 +106,10 @@ public class ToolDefs {
             log.info("Tool result: {}", toolRes);
             return toolRes;
 
+        } catch (ToolException ex) {
+            // ToolException 已含明确错误信息，直接抛出避免二次包装丢失信息
+            log.error("Tool execution failed : {}", toolName, ex);
+            throw ex;
         } catch (Exception ex) {
             log.error("Tool execution failed : {}", toolName, ex);
             throw new ToolException(CommonsUtils.getRootMessage(ex), ex);
@@ -134,7 +141,8 @@ public class ToolDefs {
         Set<String> disabled = getDisabledTools();
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
-            if (!includeDisabled && disabled.contains(toolName)) continue;
+            Tool toolImpl = TOOL_MAP.get(toolName);
+            if (disabled.contains(toolName) || toolImpl.isSystem()) continue;
 
             String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
             if (d == null) continue;

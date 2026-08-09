@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global autosize */
 
 // eslint-disable-next-line no-undef, react/display-name
 useEditComp = function (name) {
@@ -32,17 +33,222 @@ $(document).ready(() => {
     _renderStats(res.data.aibot, $el)
   })
 
+  _renderMcpConfig()
+
   _loadSkills()
+  _loadKnowledge()
   _loadTools()
   $('.J_addSkill').on('click', (e) => {
     $stopEvent(e, true)
     _editSkill()
+  })
+  $('.J_addKb').on('click', (e) => {
+    $stopEvent(e, true)
+    renderRbcomp(<DlgKbEdit title={$L('添加知识库')} />)
   })
   $('.J_importSkill').on('click', (e) => {
     $stopEvent(e, true)
     renderRbcomp(<DlgSkillImport title={$L('导入技能')} />)
   })
 })
+
+// ~~ Knowledge
+
+const _loadKnowledge = function () {
+  $.get('./aibot/kb-list', (res) => {
+    const data = res.data || []
+    const $tbody = $('#kbList').empty()
+    $('.J_kbEmpty').toggle(data.length === 0)
+
+    data.forEach((item) => {
+      // -1 构建中，0 构建失败，>0 分片数
+      let chunkBadge
+      if (item.chunkCount > 0) chunkBadge = `<span class="badge badge-light ml-1">${item.chunkCount}</span>`
+      else if (item.chunkCount === -1) chunkBadge = `<span class="badge badge-warning ml-1">${$L('构建中')}</span>`
+      else chunkBadge = `<span class="badge badge-danger ml-1">${$L('构建失败')}</span>`
+
+      const $tr = $(
+        `<tr>
+          <td>${item.name} ${chunkBadge}</td>
+          <td>${item.description || $L('无')}</td>
+          <td class="actions">
+            <a title="${$L('修改')}" class="icon"><i class="zmdi zmdi-edit"></i></a>
+            <a title="${$L('删除')}" class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a>
+          </td>
+        </tr>`,
+      ).appendTo($tbody)
+
+      $tr.find('a:eq(0)').on('click', () => _editKb(item))
+      $tr.find('a:eq(1)').on('click', () => _deleteKb(item))
+    })
+  })
+}
+
+const _editKb = function (item) {
+  renderRbcomp(<DlgKbEdit item={item} title={item ? $L('修改知识库') : $L('添加知识库')} />)
+}
+
+const _deleteKb = function (item) {
+  RbAlert.create($L('确认删除此知识库？'), {
+    type: 'danger',
+    confirmText: $L('删除'),
+    confirm: function () {
+      this.disabled(true)
+      $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+        if (res.error_code === 0) {
+          this.hide()
+          _loadKnowledge()
+        } else {
+          RbHighbar.error(res.error_msg)
+          this.disabled()
+        }
+      })
+    },
+  })
+}
+
+class DlgKbEdit extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, fileKey: null, fileName: null }
+  }
+
+  render() {
+    const item = this.props.item || {}
+    const isFile = item.sourceType === 'FILE'
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
+        <div>
+          <form>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('知识库名称')}</label>
+              <div className="col-sm-7">
+                <input className="form-control form-control-sm" type="text" maxLength="200" ref={(c) => (this._$name = c)} defaultValue={item.name || ''} autoFocus />
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
+              <div className="col-sm-7">
+                <input className="form-control form-control-sm" type="text" maxLength="500" ref={(c) => (this._$desc = c)} defaultValue={item.description || ''} />
+              </div>
+            </div>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('内容')}</label>
+              <div className="col-sm-7">
+                <div className="mb-1 file-select">
+                  <input type="file" className="inputfile" id="DlgKbEdit__file" data-local="temp" ref={(c) => (this._$file = c)} />
+                  <label htmlFor="DlgKbEdit__file" className="btn-secondary">
+                    <span className="zmdi zmdi-upload" />
+                    <span className="ml-1">{$L('上传文件')}</span>
+                  </label>
+                  {this.state.fileName ? <b className="text-underline ml-2">{this.state.fileName}</b> : null}
+                </div>
+                <textarea className="form-control form-control-sm" ref={(c) => (this._$text = c)} defaultValue={!isFile ? this._getSourceConfig('text', item.sourceConfig) : ''} />
+                <p className="form-text">{WrapHtml($L('输入内容，或上传文件自动解析'))}</p>
+              </div>
+            </div>
+            <div className="form-group row footer">
+              <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+                <button className="btn btn-primary" type="button" onClick={() => this._onSave()}>
+                  {$L('确定')}
+                </button>
+                <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                  {$L('取消')}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount()
+    setTimeout(() => autosize(this._$text), 400)
+    $multipleUploader(this._$file, (res) => {
+      this.setState({ fileKey: res.key, fileName: res.file.name })
+      // 名称为空时用文件名（去后缀）回填
+      if (!$(this._$name).val()) $(this._$name).val(res.file.name.replace(/\.[^.]+$/, ''))
+    })
+  }
+
+  _getSourceConfig(key, sourceConfig) {
+    if (!sourceConfig) return ''
+    try {
+      const cfg = JSON.parse(sourceConfig)
+      return cfg[key] || ''
+    } catch (e) {
+      return ''
+    }
+  }
+
+  _onSave() {
+    const name = $(this._$name).val()
+    if (!name) {
+      RbHighbar.create($L('请输入名称'))
+      return
+    }
+
+    const item = this.props.item || {}
+    const text = $(this._$text).val()
+    const fileKey = this.state.fileKey
+
+    let sourceType, sourceConfig, needBuild = false
+    if (fileKey) {
+      sourceType = 'FILE'
+      sourceConfig = JSON.stringify({ file: fileKey })
+      needBuild = true
+    } else if (text) {
+      sourceType = 'TEXT'
+      sourceConfig = JSON.stringify({ text: text })
+      // 仅当文本内容变化时才需要重新构建
+      const oldText = item.id ? this._getSourceConfig('text', item.sourceConfig) : null
+      needBuild = text !== oldText
+    } else if (item.id && item.sourceConfig) {
+      // 仅修改名称/描述，沿用原内容
+      sourceType = item.sourceType
+      sourceConfig = item.sourceConfig
+      needBuild = false
+    } else {
+      RbHighbar.create($L('请输入内容或上传文件'))
+      return
+    }
+
+    const itemId = item.id || null
+    const data = {
+      name: name,
+      description: $(this._$desc).val(),
+      sourceType: sourceType,
+      sourceConfig: sourceConfig,
+      metadata: {
+        entity: 'AibotKnowledge',
+        id: itemId,
+      },
+    }
+
+    const $btn = $(this._$btn).find('.btn').button('loading')
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        const newId = itemId || res.data.id
+        const next = () => {
+          $btn.button('reset')
+          this.hide()
+          _loadKnowledge()
+        }
+        // 内容未变化（如仅修改名称/描述）无需重新构建
+        if (needBuild) {
+          $.post(`./aibot/kb-build?id=${newId}`, next)
+        } else {
+          next()
+        }
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      }
+    })
+  }
+}
 
 // ~~ Skills
 
@@ -75,6 +281,25 @@ const _editSkill = function (item) {
   renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('修改技能') : $L('添加技能')} />)
 }
 
+const _deleteSkill = function (item) {
+  RbAlert.create($L('确认删除此技能？'), {
+    type: 'danger',
+    confirmText: $L('删除'),
+    confirm: function () {
+      this.disabled(true)
+      $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+        if (res.error_code === 0) {
+          this.hide()
+          _loadSkills()
+        } else {
+          RbHighbar.error(res.error_msg)
+          this.disabled()
+        }
+      })
+    },
+  })
+}
+
 class DlgSkillEdit extends RbModalHandler {
   constructor(props) {
     super(props)
@@ -102,7 +327,7 @@ class DlgSkillEdit extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('提示词')}</label>
               <div className="col-sm-7">
-                <textarea className="form-control prompt" maxLength="6000" rows="3" ref={(c) => (this._$prompt = c)} defaultValue={conf.prompt || ''} />
+                <textarea className="form-control form-control-sm" ref={(c) => (this._$prompt = c)} defaultValue={conf.prompt || ''} />
               </div>
             </div>
 
@@ -124,9 +349,7 @@ class DlgSkillEdit extends RbModalHandler {
 
   componentDidMount() {
     super.componentDidMount && super.componentDidMount()
-
-    // eslint-disable-next-line no-undef
-    autosize(this._$prompt)
+    setTimeout(() => autosize(this._$prompt), 400)
   }
 
   _onSave() {
@@ -166,53 +389,6 @@ class DlgSkillEdit extends RbModalHandler {
     })
   }
 }
-
-// ~~ Tools
-
-let _toolsData = []
-
-const _loadTools = function () {
-  $.get('./aibot/tools', (res) => {
-    _toolsData = res.data || []
-    const $tbody = $('#toolsList').empty()
-
-    _toolsData.forEach((item) => {
-      if (['SuggestCustom', 'SuggestQuestions'].includes(item.name)) return
-
-      const htmlid = `tool-enable-${item.name}`
-      $(
-        `<tr>
-          <td>${item.name}</td>
-          <td>${item.description || $L('无')}</td>
-          <td>
-            <div class="switch-button switch-button-xs switch-button-success">
-              <input type="checkbox" id="${htmlid}" ${item.disabled ? '' : 'checked'} />
-              <span><label for="${htmlid}"></label></span>
-            </div>
-          </td>
-        </tr>`,
-      ).appendTo($tbody)
-
-      $(`#${htmlid}`).on('change', function () {
-        _saveToolsDisabled()
-      })
-    })
-  })
-}
-
-const _saveToolsDisabled = function () {
-  const disabled = []
-  _toolsData.forEach((item) => {
-    const $input = $(`#tool-enable-${item.name}`)
-    if ($input[0] && !$input[0].checked) disabled.push(item.name)
-  })
-
-  $.post(location.href, JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
-    if (res.error_code !== 0) RbHighbar.error(res.error_msg)
-  })
-}
-
-// ~~ Import Skills
 
 class DlgSkillImport extends RbModalHandler {
   constructor(props) {
@@ -332,22 +508,48 @@ class DlgSkillImport extends RbModalHandler {
   }
 }
 
-const _deleteSkill = function (item) {
-  RbAlert.create($L('确认删除此技能？'), {
-    type: 'danger',
-    confirmText: $L('删除'),
-    confirm: function () {
-      this.disabled(true)
-      $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
-        if (res.error_code === 0) {
-          this.hide()
-          _loadSkills()
-        } else {
-          RbHighbar.error(res.error_msg)
-          this.disabled()
-        }
+// ~~ Tools
+
+let _toolsData = []
+
+const _loadTools = function () {
+  $.get('./aibot/tools', (res) => {
+    _toolsData = res.data || []
+    const $tbody = $('#toolsList').empty()
+
+    _toolsData.forEach((item) => {
+      if (['SuggestCustom', 'SuggestQuestions'].includes(item.name)) return
+
+      const htmlid = `tool-enable-${item.name}`
+      $(
+        `<tr>
+          <td>${item.name}</td>
+          <td>${item.description || $L('无')}</td>
+          <td>
+            <div class="switch-button switch-button-xs switch-button-success">
+              <input type="checkbox" id="${htmlid}" ${item.disabled ? '' : 'checked'} />
+              <span><label for="${htmlid}"></label></span>
+            </div>
+          </td>
+        </tr>`,
+      ).appendTo($tbody)
+
+      $(`#${htmlid}`).on('change', function () {
+        _saveToolsDisabled()
       })
-    },
+    })
+  })
+}
+
+const _saveToolsDisabled = function () {
+  const disabled = []
+  _toolsData.forEach((item) => {
+    const $input = $(`#tool-enable-${item.name}`)
+    if ($input[0] && !$input[0].checked) disabled.push(item.name)
+  })
+
+  $.post(location.href, JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
+    if (res.error_code !== 0) RbHighbar.error(res.error_msg)
   })
 }
 
@@ -361,6 +563,8 @@ postBefore = function (data) {
 
   return data
 }
+
+// ~~
 
 const _renderStats = function (data, $el) {
   const xAxis = []
@@ -422,4 +626,25 @@ const _renderStats = function (data, $el) {
 
   const c = echarts.init($el.find('span')[0])
   c.setOption(option)
+}
+
+const _renderMcpConfig = function () {
+  const $mcp = $('.J_mcpConfig')
+  const homeUrl = $mcp.data('home-url') || ''
+  const code = {
+    mcpServers: {
+      rebuild: {
+        url: homeUrl + 'gw/mcp/sse',
+        headers: {
+          Authorization: 'Bearer',
+        },
+        disabled: false,
+      },
+    },
+  }
+  renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0], function () {
+    const $pre = $mcp.find('pre')
+    const $a = $('<a>', { href: '../../settings/user#secure', target: '_blank', text: `<${$L('你的个人秘钥')}>` })
+    $pre.html($pre.html().replace('Bearer', 'Bearer ' + $a[0].outerHTML))
+  })
 }

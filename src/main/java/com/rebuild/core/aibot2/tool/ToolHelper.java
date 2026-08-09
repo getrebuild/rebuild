@@ -9,6 +9,7 @@ package com.rebuild.core.aibot2.tool;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -18,11 +19,14 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * AI 工具通用帮助类
@@ -251,5 +255,112 @@ public class ToolHelper {
         return candidates.size() == 1
                 ? "，你是否想用 " + candidates.get(0) + "？"
                 : "，相似实体: " + StringUtils.join(candidates, ", ");
+    }
+
+    /**
+     * 构建查询字段列表（不含主键和名称字段，它们会被单独添加）
+     *
+     * @param entity
+     * @param fields
+     * @param invalidFields 无效字段收集
+     * @return
+     */
+    public static List<String> buildQueryFields(Entity entity, String fields, JSONArray invalidFields) {
+        Set<String> result = new LinkedHashSet<>();
+        Field primaryField = entity.getPrimaryField();
+        Field nameField = entity.getNameField();
+
+        if (StringUtils.isBlank(fields)) {
+            for (Field f : entity.getFields()) {
+                if (MetadataHelper.isSystemField(f)) continue;
+                if (f.getType() == FieldType.PRIMARY) continue;
+                if (!EasyMetaFactory.valueOf(f).isQueryable()) continue;
+                String fn = f.getName();
+                if (fn.equals(primaryField.getName())) continue;
+                if (nameField != null && fn.equals(nameField.getName())) continue;
+                result.add(fn);
+            }
+        } else {
+            for (String f : fields.split("[,;]")) {
+                f = f.trim();
+                if (StringUtils.isBlank(f)) continue;
+                if (!entity.containsField(f)) {
+                    if (invalidFields != null) {
+                        JSONObject invalid = new JSONObject();
+                        invalid.put("name", f);
+                        String suggestion = ToolHelper.suggestField(entity, f);
+                        if (StringUtils.isNotBlank(suggestion)) invalid.put("suggestion", suggestion);
+                        invalidFields.add(invalid);
+                    }
+                    continue;
+                }
+                if (f.equals(primaryField.getName())) continue;
+                if (nameField != null && f.equals(nameField.getName())) continue;
+                result.add(f);
+            }
+        }
+
+        return new ArrayList<>(result);
+    }
+
+    /**
+     * 构建 SQL 字段列表（主键 + 名称字段 + 查询字段）
+     *
+     * @param primaryField
+     * @param nameField
+     * @param queryFields
+     * @return
+     */
+    public static String buildFieldsSql(Field primaryField, Field nameField, List<String> queryFields) {
+        List<String> fields = new ArrayList<>();
+        fields.add(primaryField.getName());
+        if (nameField != null && !nameField.getName().equals(primaryField.getName())) {
+            fields.add(nameField.getName());
+        }
+        fields.addAll(queryFields);
+        return StringUtils.join(fields, ",");
+    }
+
+    /**
+     * 将查询结果行构建为 JSON 对象
+     *
+     * @param entity
+     * @param primaryField
+     * @param nameField
+     * @param queryFields
+     * @param row
+     * @return
+     */
+    public static JSONObject buildRecordJson(Entity entity, Field primaryField, Field nameField,
+                                             List<String> queryFields, Object[] row) {
+        JSONObject record = new JSONObject();
+        int idx = 0;
+
+        record.put("id", wrapFieldValue(row[idx], primaryField));
+        idx++;
+
+        if (nameField != null && !nameField.getName().equals(primaryField.getName())) {
+            record.put("name", wrapFieldValue(row[idx], nameField));
+            idx++;
+        }
+
+        for (String fieldName : queryFields) {
+            Field field = entity.getField(fieldName);
+            record.put(fieldName, wrapFieldValue(row[idx], field));
+            idx++;
+        }
+
+        return record;
+    }
+
+    /**
+     * 包装字段值为可读格式
+     *
+     * @param value
+     * @param field
+     * @return
+     */
+    public static Object wrapFieldValue(Object value, Field field) {
+        return FieldValueHelper.wrapFieldValue(value, field, true);
     }
 }

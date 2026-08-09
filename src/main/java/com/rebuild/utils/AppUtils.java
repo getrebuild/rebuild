@@ -136,6 +136,10 @@ public class AppUtils {
     public static ID getRequestUserViaAk(HttpServletRequest request, boolean fromMcp) {
         String auth = request.getHeader(HF_AK);
         String ak = auth != null && auth.startsWith("Bearer ") ? auth.substring(7).trim() : null;
+        // 兼容 <AK> 格式（去除首尾尖括号）
+        if (ak != null && ak.startsWith("<") && ak.endsWith(">")) {
+            ak = ak.substring(1, ak.length() - 1).trim();
+        }
         if (fromMcp && ak != null) {
             return AuthTokenManager.verifyAccessKey(ak);
         }

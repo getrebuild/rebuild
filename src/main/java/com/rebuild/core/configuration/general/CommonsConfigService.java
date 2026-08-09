@@ -15,8 +15,11 @@ import com.rebuild.core.privileges.AdminGuard;
 import org.springframework.stereotype.Service;
 
 /**
+ * 通用配置服务，仅管理员可操作
+ *
  * @author ZHAO
  * @since 4/15/2026
+ * @see com.rebuild.core.aibot2.AiBotScheduleConfigService
  */
 @Service
 public class CommonsConfigService  extends BaseConfigurationService implements AdminGuard {

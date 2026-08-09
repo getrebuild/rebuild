@@ -55,9 +55,7 @@ public class CreateFeed implements Tool {
             throw new ToolException("无效的动态类型 (type)，可选值: 1=动态, 2=跟进, 4=日程");
         }
 
-        final ID user = UserContextHolder.getUser();
-
-        Record record = EntityHelper.forNew(EntityHelper.Feeds, user);
+        Record record = EntityHelper.forNew(EntityHelper.Feeds, UserContextHolder.getUser());
         record.setInt("type", type);
         record.setString("content", content);
 

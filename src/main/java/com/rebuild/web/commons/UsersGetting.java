@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.rebuild.core.service.feeds.BaseFeedsService.USER_AIBOT;
+import static com.rebuild.core.privileges.UserService.AIBOT_USER;
 import static com.rebuild.core.service.feeds.BaseFeedsService.USER_ALLS;
 
 /**
@@ -82,11 +82,10 @@ public class UsersGetting extends BaseController {
                         new String[]{"id", "text"}, new Object[]{USER_ALLS, Language.L("所有人")}));
             }
 
-            // TODO At AiBot
             if (getBoolParameter(request, "aibot")
                     && Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowUseAiBot)) {
                 found.add(JSONUtils.toJSONObject(
-                        new String[]{"id", "text"}, new Object[]{USER_AIBOT, Language.L("AI 助手")}));
+                        new String[]{"id", "text"}, new Object[]{AIBOT_USER, Language.L("AI助手")}));
             }
         }
 

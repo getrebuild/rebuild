@@ -15,9 +15,8 @@
         font-weight: bold;
         cursor: pointer;
       }
-      textarea.form-control.prompt {
-        font-size: 1rem;
-        padding: 4px 10px;
+      .modal-body textarea.form-control {
+        min-height: 72px;
       }
       .init-models fieldset {
         margin: 6px;
@@ -112,28 +111,8 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="col-lg-3 col-12 col-right-compact">
-              <div class="card">
-                <div class="card-header card-header-divider">[[${bundle.L('用量统计')}]] <small class="fs-13">([[${bundle.L('90天')}]])</small></div>
-                <div class="card-body">
-                  <div class="row stats J_stats-aibot">
-                    <div class="col-8">
-                      <span></span>
-                    </div>
-                    <div class="col-4">
-                      <strong class="fs-18">0</strong>
-                      <p class="text-muted m-0">[[${bundle.L('万')}]]/Token</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div class="row mt-4">
-            <div class="col-lg-9 col-12">
-              <div class="card">
+              <div class="card mt-4">
                 <div class="card-header pb-1">[[${bundle.L('能力扩展')}]]</div>
                 <div class="card-body">
                   <h5>
@@ -153,6 +132,21 @@
                   </table>
                   <div class="J_skillsEmpty text-muted text-center mt-6 mb-6" style="display: none">[[${bundle.L('暂无技能')}]]</div>
                   <h5>
+                    [[${bundle.L('知识库 /Knowledge')}]]
+                    <a href="###" class="float-right J_addKb"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+                  </h5>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="kbList"></tbody>
+                  </table>
+                  <div class="J_kbEmpty text-muted text-center mt-6 mb-6" style="display: none">[[${bundle.L('暂无知识库')}]]</div>
+                  <h5 class="mt-5">
                     [[${bundle.L('工具 /Tools')}]]
                     <a href="https://getrebuild.com/market/go/aitool" target="_blank" class="float-right"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
                   </h5>
@@ -166,29 +160,33 @@
                     </thead>
                     <tbody id="toolsList"></tbody>
                   </table>
-                  <h5 class="mt-5">[[${bundle.L('MCP 接入')}]]</h5>
-                  <div class="mt-3">
-                    <p>[[${bundle.L('请复制以下 MCP 配置使用。通过 MCP 接入，你可以在 WorkBuddy、QoderWork 等支持 MCP 协议的 AI 工具中直接操作系统数据。')}]]</p>
-                    <div class="code-viewport">
-                      <pre class="J_mcpConfig">
-{
-  "mcpServers": {
-    "rebuild": {
-      "url": "[[${HomeUrl}]]gw/mcp/sse",
-      "headers": {
-        "Authorization": "Bearer &lt;<a href="../../settings/user#secure" target="_blank">你的个人秘钥</a>&gt;"
-      },
-      "disabled": false
-    }
-  }
-}
-</pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-12 col-right-compact">
+              <div class="card">
+                <div class="card-header card-header-divider">[[${bundle.L('用量统计')}]] <small class="fs-13">([[${bundle.L('90天')}]])</small></div>
+                <div class="card-body">
+                  <div class="row stats J_stats-aibot">
+                    <div class="col-8">
+                      <span></span>
+                    </div>
+                    <div class="col-4">
+                      <strong class="fs-18">0</strong>
+                      <p class="text-muted m-0">[[${bundle.L('万')}]]/Token</p>
                     </div>
                   </div>
                 </div>
               </div>
+              <div class="card mt-4">
+                <div class="card-header pb-1">[[${bundle.L('MCP 接入')}]]</div>
+                <div class="card-body">
+                  <p>[[${bundle.L('请复制以下 MCP 配置使用。通过 MCP 接入，你可以在 WorkBuddy、QoderWork 等支持 MCP 协议的 AI 工具中直接操作系统数据。')}]]</p>
+                  <div class="J_mcpConfig" th:data-home-url="${HomeUrl}"></div>
+                </div>
+              </div>
             </div>
-            <div class="col-lg-3 col-12 col-right-compact"></div>
           </div>
         </div>
       </div>
@@ -197,5 +195,6 @@
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
     <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
     <script th:src="@{/assets/js/admin/aibot.js}" type="text/babel"></script>
+    <script th:src="@{/assets/lib/clipboard.min.js}"></script>
   </body>
 </html>

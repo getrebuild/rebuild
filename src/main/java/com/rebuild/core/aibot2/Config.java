@@ -12,7 +12,8 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.Tika;
 import org.springframework.util.Assert;
 
 /**
@@ -22,6 +23,14 @@ import org.springframework.util.Assert;
 public class Config {
 
     private static OpenAIClient CLIENT;
+
+    /**
+     * 共享的 Tika 实例（文件内容解析与 MIME 检测）
+     */
+    public static final Tika TIKA = new Tika();
+    static {
+        TIKA.setMaxStringLength(1024 * 1024 * 50);  // 50M
+    }
 
     /**
      * @return

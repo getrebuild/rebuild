@@ -10,12 +10,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class AiBot extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { hide: true }
+    this._isShown = false
   }
 
   render() {
     return (
-      <div className={`aibot modal ${this.state.hide ? '' : 'show'}`} ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
+      <div className="aibot modal" ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -50,6 +50,12 @@ class AiBot extends React.Component {
   }
 
   componentDidMount() {
+    const $modal = $(this._$modal)
+    $modal
+      .modal({ show: false, backdrop: false, keyboard: false })
+      .on('shown.bs.modal', () => { this._isShown = true })
+      .on('hidden.bs.modal', () => { this._isShown = false })
+
     setTimeout(() => this.show(), 50)
 
     if (this.props.draggable) {
@@ -57,7 +63,10 @@ class AiBot extends React.Component {
         containment: false,
         keepPositionKey: '__LastChatModalPos',
       })
-      $(document).on('keydown.aibot-hide', null, 'esc', () => this.hide())
+      $(document).on('keydown.aibot-hide', null, 'esc', (e) => {
+        if (e.isDefaultPrevented()) return
+        if ($('.modal.show').length <= 1) this.hide()
+      })
     }
   }
 
@@ -70,11 +79,11 @@ class AiBot extends React.Component {
   }
 
   hide() {
-    this.setState({ hide: true })
+    $(this._$modal).modal('hide')
   }
 
   show() {
-    this.setState({ hide: false })
+    $(this._$modal).modal('show')
   }
 
   // --
@@ -84,7 +93,7 @@ class AiBot extends React.Component {
     var autoSend = props && props.autoSend
     if (window._AiBot) {
       if (toggleShow) {
-        if (window._AiBot.state.hide) window._AiBot.show()
+        if (!window._AiBot._isShown) window._AiBot.show()
         else window._AiBot.hide()
       } else {
         window._AiBot.show()

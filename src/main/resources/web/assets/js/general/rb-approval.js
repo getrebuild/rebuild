@@ -866,7 +866,7 @@ class ApprovalStepViewer extends React.Component {
     let stateLast = 0
 
     return (
-      <div className="modal" ref={(c) => (this._dlg = c)} style={{ zIndex: 1051 }} tabIndex="-1" aria-modal="true">
+      <div className="modal" ref={(c) => (this._dlg = c)} tabIndex="-1" aria-modal="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">

@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 
-import static com.rebuild.core.service.feeds.BaseFeedsService.USER_AIBOT;
+import static com.rebuild.core.privileges.UserService.AIBOT_USER;
 import static com.rebuild.core.service.feeds.BaseFeedsService.USER_ALLS;
 
 /**
@@ -75,7 +75,7 @@ public class UserAvatar extends BaseController {
         if (user.equals(USER_ALLS.toString())) {
             response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar-users.png"));
             return;
-        } else if (user.equals(USER_AIBOT.toString())) {
+        } else if (user.equals(AIBOT_USER.toString())) {
             response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar-aibot.png"));
             return;
         }

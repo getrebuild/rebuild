@@ -29,6 +29,8 @@ public class CommonsConfigManager implements ConfigManager {
     public static final String TYPE_DATA_SUBSCRIBE45 = "DATA_SUBSCRIBE";
     // AI 技能
     public static final String TYPE_AIBOT_SKILL = "AIBOT_SKILL";
+    // AI 定时任务
+    public static final String TYPE_AIBOT_SCHEDULE = "AIBOT_SCHEDULE";
 
     public static final CommonsConfigManager instance = new CommonsConfigManager();
 

@@ -236,7 +236,7 @@ class ChatInput extends React.Component {
               <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : this.state.postState === 2 ? 'mdi mdi-spin mdi-loading' : 'mdi mdi-stop'} />
             </button>
           </div>
-          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" data-maxsize="20971520" multiple />
+          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" data-maxsize="52428800" multiple />
         </div>
       </div>
     )
@@ -301,10 +301,6 @@ class ChatInput extends React.Component {
   }
 
   attachFile() {
-    if (rb.commercial < 1) {
-      RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
-      return false
-    }
     this._$file.click()
   }
 
@@ -325,7 +321,7 @@ class ChatInput extends React.Component {
       allowEntities: window.__LAB_AIALLOWENTITIES435 || null,
       allowBizz: false,
     }
-    renderRbcomp(<RecordSelectorModal2 {...ps} zIndex="1050" />)
+    renderRbcomp(<RecordSelectorModal2 {...ps} />)
   }
 
   attachPageData() {

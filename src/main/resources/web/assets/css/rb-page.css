@@ -4161,6 +4161,17 @@ a.icon-link > .zmdi {
   display: table-row;
 }
 
+.syscfg .col-right-compact {
+  padding-left: 0;
+}
+
+@media (max-width: 992px) {
+  .syscfg .col-right-compact {
+    padding-left: 15px;
+    margin-top: 20px;
+  }
+}
+
 .announcement-wrapper > div {
   margin: 0;
   border-radius: 0;
@@ -5306,16 +5317,6 @@ pre.unstyle {
 
 .dialog-footer .btn-space {
   margin-bottom: 0;
-}
-
-.col-right-compact {
-  padding-left: 0;
-}
-
-@media (max-width: 768px) {
-  .col-right-compact {
-    padding-left: 15px;
-  }
 }
 
 /* LiteForm */

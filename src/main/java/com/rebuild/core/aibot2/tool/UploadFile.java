@@ -30,6 +30,11 @@ import java.io.File;
 @Slf4j
 public class UploadFile implements Tool {
 
+    /**
+     * AI 文件处理大小限制：50MB
+     */
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
+
     @Override
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
@@ -84,6 +89,9 @@ public class UploadFile implements Tool {
             }
 
             long fileSize = FileUtils.sizeOf(tmpFile);
+            if (fileSize > MAX_FILE_SIZE) {
+                throw new ToolException("文件大小超过限制（50MB），当前文件大小：" + (fileSize / 1024 / 1024) + "MB");
+            }
             String fileKey = QiniuCloud.uploadFile(tmpFile, finalFileName);
             if (fileKey == null) {
                 throw new ToolException("文件上传失败，请稍后重试");
