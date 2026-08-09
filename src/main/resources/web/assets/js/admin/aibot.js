@@ -194,17 +194,22 @@ class DlgKbEdit extends RbModalHandler {
     const text = $(this._$text).val()
     const fileKey = this.state.fileKey
 
-    let sourceType, sourceConfig
+    let sourceType, sourceConfig, needBuild = false
     if (fileKey) {
       sourceType = 'FILE'
       sourceConfig = JSON.stringify({ file: fileKey })
+      needBuild = true
     } else if (text) {
       sourceType = 'TEXT'
       sourceConfig = JSON.stringify({ text: text })
+      // 仅当文本内容变化时才需要重新构建
+      const oldText = item.id ? this._getSourceConfig('text', item.sourceConfig) : null
+      needBuild = text !== oldText
     } else if (item.id && item.sourceConfig) {
       // 仅修改名称/描述，沿用原内容
       sourceType = item.sourceType
       sourceConfig = item.sourceConfig
+      needBuild = false
     } else {
       RbHighbar.create($L('请输入内容或上传文件'))
       return
@@ -226,11 +231,17 @@ class DlgKbEdit extends RbModalHandler {
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         const newId = itemId || res.data.id
-        $.post(`./aibot/kb-build?id=${newId}`, () => {
+        const next = () => {
           $btn.button('reset')
           this.hide()
           _loadKnowledge()
-        })
+        }
+        // 内容未变化（如仅修改名称/描述）无需重新构建
+        if (needBuild) {
+          $.post(`./aibot/kb-build?id=${newId}`, next)
+        } else {
+          next()
+        }
       } else {
         RbHighbar.error(res.error_msg)
         $btn.button('reset')
