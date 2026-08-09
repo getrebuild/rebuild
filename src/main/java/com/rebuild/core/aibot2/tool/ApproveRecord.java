@@ -36,7 +36,7 @@ import java.util.List;
  * @since 2026/7/25
  */
 @Slf4j
-public class Approval implements Tool {
+public class ApproveRecord implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {

@@ -1,7 +1,7 @@
 {
   "type": "function",
   "function": {
-    "name": "DataStatistics",
+    "name": "StatisticsData"
     "description": "数据统计分析，支持 COUNT/SUM/AVG/MAX/MIN 聚合、分组统计和条件过滤",
     "parameters": {
       "type": "object",

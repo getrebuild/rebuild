@@ -43,12 +43,12 @@ public class ToolDefs {
         register(new UploadFile());
         register(new QueryRecords());
         register(new GetRecord());
-        register(new DataStatistics());
+        register(new StatisticsData());
         register(new UpsertRecord());
         register(new CreateFeed());
         register(new CreateProjectTask());
         register(new ExportReport());
-        register(new Approval());
+        register(new ApproveRecord());
         register(new SearchKnowledge());
     }
 

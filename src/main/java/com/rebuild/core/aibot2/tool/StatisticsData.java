@@ -28,7 +28,7 @@ import java.util.List;
  * @since 2026/7/23
  */
 @Slf4j
-public class DataStatistics implements Tool {
+public class StatisticsData implements Tool {
 
     private static final int DEFAULT_LIMIT = 20;
     private static final int MAX_LIMIT = 100;
