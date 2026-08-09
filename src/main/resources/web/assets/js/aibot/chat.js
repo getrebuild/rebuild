@@ -321,7 +321,7 @@ class ChatInput extends React.Component {
       allowEntities: window.__LAB_AIALLOWENTITIES435 || null,
       allowBizz: false,
     }
-    renderRbcomp(<RecordSelectorModal2 {...ps} zIndex="1050" />)
+    renderRbcomp(<RecordSelectorModal2 {...ps} />)
   }
 
   attachPageData() {

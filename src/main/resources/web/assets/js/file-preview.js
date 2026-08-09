@@ -464,8 +464,6 @@ class FileShare extends RbModalHandler {
   }
 
   componentDidMount() {
-    $(this._dlg._rbmodal).css({ zIndex: 1099 })
-
     this._filePath = this.props.file
     if ($regex.isId(this.props.file)) {
       $.get(`/files/check-readable?id=${this.props.file}`, (res) => {
