@@ -34,7 +34,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Objects;
@@ -79,7 +78,6 @@ public class OkHttpUtils {
                     .retryOnConnectionFailure(true)
                     .hostnameVerifier((s, sslSession) -> true)  // NOT SAFE!!!
                     .build();
-            if (RB_CI == null) RB_CI = ComputerIdentifier.generateIdentifierKey();
         }
         return okHttpClient;
     }
@@ -120,8 +118,6 @@ public class OkHttpUtils {
                     .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
                     .hostnameVerifier((s, sslSession) -> true)  // NOT SAFE!!!
                     .build();
-            if (RB_CI == null) RB_CI = ComputerIdentifier.generateIdentifierKey();
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -351,7 +347,9 @@ public class OkHttpUtils {
     public static Request.Builder useHeaders(Request.Builder builder, Map<String, String> headers) {
         builder.addHeader(HttpHeaders.USER_AGENT, RB_UA);
         builder.addHeader(HttpHeaders.ACCEPT_LANGUAGE, RB_LANG);
-        if (RB_CI != null) builder.addHeader("X-RB-CI", RB_CI);
+
+        if (RB_CI == null) RB_CI = ComputerIdentifier.generateIdentifierKey();
+        builder.addHeader("X-RB-CI", RB_CI);
 
         if (headers != null && !headers.isEmpty()) {
             for (Map.Entry<String, String> e : headers.entrySet()) {
