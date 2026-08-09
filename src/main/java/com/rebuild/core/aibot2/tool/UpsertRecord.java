@@ -25,7 +25,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
@@ -108,8 +107,7 @@ public class UpsertRecord implements Tool {
     }
 
     private JSONObject saveRecord(JSONObject recordJson, Entity entity, String recordId) {
-        ID userId = UserContextHolder.getUser(true);
-        if (userId == null) userId = UserService.SYSTEM_USER;
+        ID userId = UserContextHolder.getUser();
 
         // 校验创建/更新权限
         boolean isUpdate = StringUtils.isNotBlank(recordId) && ID.isId(recordId);

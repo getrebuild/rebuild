@@ -75,8 +75,6 @@ public class ApproveRecord implements Tool {
      * 提交审批
      */
     private Object doSubmit(ID recordId, JSONObject args) throws Exception {
-        final ID user = UserContextHolder.getUser();
-
         // 验证实体支持审批
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         if (!MetadataHelper.hasApprovalField(entity)) {
@@ -84,7 +82,7 @@ public class ApproveRecord implements Tool {
         }
 
         // 获取可用审批流程
-        FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, user);
+        FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, UserContextHolder.getUser());
         if (defs.length == 0) {
             throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 未配置审批流程，无法提交审批。"
                     + "请管理员在「配置中心 - 审批流程」中为该实体配置审批流程");
@@ -129,8 +127,6 @@ public class ApproveRecord implements Tool {
      * 同意/驳回
      */
     private Object doApprove(ID recordId, JSONObject args, boolean approve) throws Exception {
-        final ID user = UserContextHolder.getUser();
-
         ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);
         if (status.getCurrentState() != ApprovalState.PROCESSING) {
             throw new ToolException("记录当前审批状态为 [" + status.getCurrentState().getName() + "]，无法审批");
@@ -144,7 +140,7 @@ public class ApproveRecord implements Tool {
 
         try {
             processor.approve(
-                    user, state,
+                    UserContextHolder.getUser(), state,
                     new Object[]{remark, null},
                     null, null, null, rejectNode, false, false);
 
