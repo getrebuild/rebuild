@@ -89,6 +89,8 @@ public class FieldValueHelper {
      */
     public static final String CURRENT = "{CURRENT}";
     public static final String CURRENT2 = "{@CURRENT}";
+    // v4.4.6 随机数
+    public static final String _RAND = "{RAND}";
 
     /**
      * @param value
@@ -504,7 +506,7 @@ public class FieldValueHelper {
 
         // DECIMAL 去除精度比较
         if (field.getType() == FieldType.DECIMAL) {
-            BigDecimal decimalValue = EasyDecimal.fixedDecimalScale(newValue, field);
+            BigDecimal decimalValue = newValue == null ? null : EasyDecimal.fixedDecimalScale(newValue, field);
             return CommonsUtils.isSame(decimalValue, oldValue);
         }
 

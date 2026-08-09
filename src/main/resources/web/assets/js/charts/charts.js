@@ -372,7 +372,9 @@ class ChartTable extends BaseChart {
       // a _blank
       $tb.find('tbody td>a').each(function () {
         const $a = $(this)
-        $a.attr({ href: `${rb.baseUrl}${$a.attr('href')}`, target: '_blank' })
+        let url = $a.attr('href') || ''
+        let id = $urlp('id', `?${url.split('?')[1]}`)
+        id && $a.on('click', (e) => $openView(id, e))
       })
 
       this._$tb = $tb
@@ -2202,7 +2204,14 @@ class MyNotification extends BaseChart {
             </div>
           </div>
           {append && (
-            <a href="#!/View/" onClick={(e) => $openView(item[5], e)} title={$L('查看记录')} className="badge link">
+            <a
+              href="#!/View/"
+              onClick={(e) => {
+                e && e.preventDefault()
+                $openView(item[5])
+              }}
+              title={$L('查看记录')}
+              className="badge link">
               {$L('查看')}
             </a>
           )}

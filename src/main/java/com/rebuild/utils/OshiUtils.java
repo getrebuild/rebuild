@@ -19,6 +19,8 @@ import oshi.hardware.NetworkIF;
 import oshi.software.os.OSFileStore;
 
 import java.io.File;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -93,28 +95,36 @@ public class OshiUtils {
      * @return
      */
     public static String getLocalIp() {
+        try (DatagramSocket socket = new DatagramSocket()) {
+            socket.connect(InetAddress.getByName("114.114.114.114"), 53);
+            InetAddress local = socket.getLocalAddress();
+            if (!local.isLoopbackAddress() && local.getHostAddress().indexOf(':') < 0) {
+                return local.getHostAddress();
+            }
+        } catch (Exception ignored) {}
+
         List<NetworkIF> nets = getSI().getHardware().getNetworkIFs();
         if (nets == null || nets.isEmpty()) return "localhost";
 
-        String bestipv4 = null;
         for (NetworkIF net : nets) {
             net.updateAttributes();
-            if (net.isKnownVmMacAddr()) continue;
-            if (net.getIfOperStatus() != NetworkIF.IfOperStatus.UP) continue;
+            if (net.isKnownVmMacAddr() || net.getIfOperStatus() != NetworkIF.IfOperStatus.UP) continue;
 
             String name = net.getName().toLowerCase();
             if (name.contains("docker") || name.contains("vbox") || name.contains("vmnet")
-                    || name.contains("loopback") || name.contains("veth")) {
+                    || name.contains("veth") || name.contains("vpn") || name.contains("virtual")
+                    || name.startsWith("br")) {
                 continue;
             }
 
             for (String ip : net.getIPv4addr()) {
-                if (StringUtils.isBlank(ip) || ip.equals("127.0.0.1") || ip.equals("0.0.0.0")) continue;
-                if (bestipv4 == null) bestipv4 = ip;
-                break;
+                if (ip.startsWith("192.168.") || ip.startsWith("10.")
+                        || ip.matches("172\\.(1[6-9]|2\\d|3[01])\\..*")) {
+                    return ip;
+                }
             }
         }
-        return StringUtils.defaultIfBlank(bestipv4, "127.0.0.1");
+        return "127.0.0.1";
     }
 
     /**

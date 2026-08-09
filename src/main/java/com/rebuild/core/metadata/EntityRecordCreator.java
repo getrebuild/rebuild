@@ -282,6 +282,9 @@ public class EntityRecordCreator extends JsonRecordCreator {
                 if (v instanceof ID[]) v = ((ID[]) v)[0];
                 value = v.toString();
             }
+
+        } else if (FieldValueHelper._RAND.equals(value)) {
+            value = CommonsUtils.randomInt(10000000, 99999999) + "";
         }
 
         if (StringUtils.isNotBlank(value)) {
