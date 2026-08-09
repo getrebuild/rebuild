@@ -50,6 +50,7 @@ public class ToolDefs {
         register(new ExportReport());
         register(new ApproveRecord());
         register(new SearchKnowledge());
+        register(new ScheduleTask());
     }
 
     /**

@@ -5,26 +5,26 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.configuration.general;
+package com.rebuild.core.aibot2;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.configuration.BaseConfigurationService;
+import com.rebuild.core.configuration.general.CommonsConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.AdminGuard;
 import org.springframework.stereotype.Service;
 
 /**
- * 通用配置服务，仅管理员可操作
+ * AI 定时任务专用配置服务。不实现 AdminGuard，普通用户可操作自己的定时任务
  *
- * @author ZHAO
- * @since 4/15/2026
- * @see com.rebuild.core.aibot2.AiBotScheduleConfigService
+ * @author devezhao
+ * @since 2026/8/9
+ * @see com.rebuild.core.configuration.general.CommonsConfigService
  */
 @Service
-public class CommonsConfigService  extends BaseConfigurationService implements AdminGuard {
+public class AiBotScheduleConfigService extends BaseConfigurationService {
 
-    protected CommonsConfigService(PersistManagerFactory aPMFactory) {
+    protected AiBotScheduleConfigService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
     }
 
