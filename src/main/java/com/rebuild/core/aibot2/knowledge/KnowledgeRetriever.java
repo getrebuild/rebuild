@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.vector.VectorData;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -107,15 +108,13 @@ public class KnowledgeRetriever {
                     .array();
         } else {
             StringBuilder where = new StringBuilder("(");
-            List<Object> params = new ArrayList<>();
             boolean first = true;
             for (String kw : validKeywords) {
-                String likePattern = "%" + kw + "%";
+                String likeValue = "'%" + CommonsUtils.escapeSql(kw) + "%'";
                 if (!first) where.append(" or ");
                 first = false;
-                where.append("(content like ? or keywords like ?)");
-                params.add(likePattern);
-                params.add(likePattern);
+                where.append("(content like ").append(likeValue)
+                        .append(" or keywords like ").append(likeValue).append(")");
             }
             where.append(")");
 
@@ -123,11 +122,7 @@ public class KnowledgeRetriever {
                     "from AibotKnowledgeChunk where knowledgeId in " +
                     "(select knowledgeId from AibotKnowledge where isDisabled = 'F') and " + where;
 
-            cn.devezhao.persist4j.Query query = Application.createQueryNoFilter(sql);
-            for (int i = 0; i < params.size(); i++) {
-                query.setParameter(i + 1, params.get(i));
-            }
-            results = query.array();
+            results = Application.createQueryNoFilter(sql).array();
         }
 
         Map<ID, KnowledgeChunk> matched = new LinkedHashMap<>();
