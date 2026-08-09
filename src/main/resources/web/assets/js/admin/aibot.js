@@ -33,16 +33,18 @@ $(document).ready(() => {
     _renderStats(res.data.aibot, $el)
   })
 
-  _loadKnowledge()
+  _renderMcpConfig()
+
   _loadSkills()
+  _loadKnowledge()
   _loadTools()
-  $('.J_addKb').on('click', (e) => {
-    $stopEvent(e, true)
-    renderRbcomp(<DlgKbEdit title={$L('添加知识库')} />)
-  })
   $('.J_addSkill').on('click', (e) => {
     $stopEvent(e, true)
     _editSkill()
+  })
+  $('.J_addKb').on('click', (e) => {
+    $stopEvent(e, true)
+    renderRbcomp(<DlgKbEdit title={$L('添加知识库')} />)
   })
   $('.J_importSkill').on('click', (e) => {
     $stopEvent(e, true)
@@ -268,6 +270,25 @@ const _editSkill = function (item) {
   renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('修改技能') : $L('添加技能')} />)
 }
 
+const _deleteSkill = function (item) {
+  RbAlert.create($L('确认删除此技能？'), {
+    type: 'danger',
+    confirmText: $L('删除'),
+    confirm: function () {
+      this.disabled(true)
+      $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+        if (res.error_code === 0) {
+          this.hide()
+          _loadSkills()
+        } else {
+          RbHighbar.error(res.error_msg)
+          this.disabled()
+        }
+      })
+    },
+  })
+}
+
 class DlgSkillEdit extends RbModalHandler {
   constructor(props) {
     super(props)
@@ -357,53 +378,6 @@ class DlgSkillEdit extends RbModalHandler {
     })
   }
 }
-
-// ~~ Tools
-
-let _toolsData = []
-
-const _loadTools = function () {
-  $.get('./aibot/tools', (res) => {
-    _toolsData = res.data || []
-    const $tbody = $('#toolsList').empty()
-
-    _toolsData.forEach((item) => {
-      if (['SuggestCustom', 'SuggestQuestions'].includes(item.name)) return
-
-      const htmlid = `tool-enable-${item.name}`
-      $(
-        `<tr>
-          <td>${item.name}</td>
-          <td>${item.description || $L('无')}</td>
-          <td>
-            <div class="switch-button switch-button-xs switch-button-success">
-              <input type="checkbox" id="${htmlid}" ${item.disabled ? '' : 'checked'} />
-              <span><label for="${htmlid}"></label></span>
-            </div>
-          </td>
-        </tr>`,
-      ).appendTo($tbody)
-
-      $(`#${htmlid}`).on('change', function () {
-        _saveToolsDisabled()
-      })
-    })
-  })
-}
-
-const _saveToolsDisabled = function () {
-  const disabled = []
-  _toolsData.forEach((item) => {
-    const $input = $(`#tool-enable-${item.name}`)
-    if ($input[0] && !$input[0].checked) disabled.push(item.name)
-  })
-
-  $.post(location.href, JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
-    if (res.error_code !== 0) RbHighbar.error(res.error_msg)
-  })
-}
-
-// ~~ Import Skills
 
 class DlgSkillImport extends RbModalHandler {
   constructor(props) {
@@ -523,22 +497,48 @@ class DlgSkillImport extends RbModalHandler {
   }
 }
 
-const _deleteSkill = function (item) {
-  RbAlert.create($L('确认删除此技能？'), {
-    type: 'danger',
-    confirmText: $L('删除'),
-    confirm: function () {
-      this.disabled(true)
-      $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
-        if (res.error_code === 0) {
-          this.hide()
-          _loadSkills()
-        } else {
-          RbHighbar.error(res.error_msg)
-          this.disabled()
-        }
+// ~~ Tools
+
+let _toolsData = []
+
+const _loadTools = function () {
+  $.get('./aibot/tools', (res) => {
+    _toolsData = res.data || []
+    const $tbody = $('#toolsList').empty()
+
+    _toolsData.forEach((item) => {
+      if (['SuggestCustom', 'SuggestQuestions'].includes(item.name)) return
+
+      const htmlid = `tool-enable-${item.name}`
+      $(
+        `<tr>
+          <td>${item.name}</td>
+          <td>${item.description || $L('无')}</td>
+          <td>
+            <div class="switch-button switch-button-xs switch-button-success">
+              <input type="checkbox" id="${htmlid}" ${item.disabled ? '' : 'checked'} />
+              <span><label for="${htmlid}"></label></span>
+            </div>
+          </td>
+        </tr>`,
+      ).appendTo($tbody)
+
+      $(`#${htmlid}`).on('change', function () {
+        _saveToolsDisabled()
       })
-    },
+    })
+  })
+}
+
+const _saveToolsDisabled = function () {
+  const disabled = []
+  _toolsData.forEach((item) => {
+    const $input = $(`#tool-enable-${item.name}`)
+    if ($input[0] && !$input[0].checked) disabled.push(item.name)
+  })
+
+  $.post(location.href, JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
+    if (res.error_code !== 0) RbHighbar.error(res.error_msg)
   })
 }
 
@@ -552,6 +552,8 @@ postBefore = function (data) {
 
   return data
 }
+
+// ~~
 
 const _renderStats = function (data, $el) {
   const xAxis = []
@@ -613,4 +615,25 @@ const _renderStats = function (data, $el) {
 
   const c = echarts.init($el.find('span')[0])
   c.setOption(option)
+}
+
+const _renderMcpConfig = function () {
+  const $mcp = $('.J_mcpConfig')
+  const homeUrl = $mcp.data('home-url') || ''
+  const code = {
+    mcpServers: {
+      rebuild: {
+        url: homeUrl + 'gw/mcp/sse',
+        headers: {
+          Authorization: 'Bearer',
+        },
+        disabled: false,
+      },
+    },
+  }
+  renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0], function () {
+    const $pre = $mcp.find('pre')
+    const $a = $('<a>', { href: '../../settings/user#secure', target: '_blank', text: `<${$L('你的个人秘钥')}>` })
+    $pre.html($pre.html().replace('Bearer', 'Bearer ' + $a[0].outerHTML))
+  })
 }
