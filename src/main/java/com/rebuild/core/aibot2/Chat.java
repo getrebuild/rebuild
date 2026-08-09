@@ -20,7 +20,10 @@ import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
 import com.openai.models.chat.completions.ChatCompletionToolMessageParam;
 import com.openai.services.blocking.chat.ChatCompletionService;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.aibot2.tool.ToolDefs;
+import com.rebuild.core.aibot2.tool.ToolException;
+import com.rebuild.core.service.approval.ApprovalException;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.CommonsUtils;
 import lombok.Getter;
@@ -285,6 +288,12 @@ public class Chat implements Serializable {
     /**
      * 安全执行工具调用，异常时返回错误信息而非中断会话
      *
+     * 区分两类异常：
+     * 1. DefinedException（含子类）及 ApprovalException —— 系统已知的业务/校验异常
+     *    （如数据校验失败、重复记录等），AI 必须如实反馈给用户，禁止自行修正数据绕过校验
+     * 2. ToolException 及其他异常 —— 工具调用层面的错误（如参数缺失、实体不存在等），
+     *    AI 可以调整参数后重试
+     *
      * @param toolName
      * @param arguments
      * @return
@@ -294,8 +303,35 @@ public class Chat implements Serializable {
             return ToolDefs.execute(toolName, arguments);
         } catch (Exception ex) {
             log.error("Tool execution failed in chat : {}", toolName, ex);
-            return CommonsUtils.getRootMessage(ex);
+
+            // 优先使用 ToolException 自身消息（含上下文），否则取根因消息
+            String message = ex instanceof ToolException && StringUtils.isNotBlank(ex.getMessage())
+                    ? ex.getMessage() : CommonsUtils.getRootMessage(ex);
+
+            // 系统已知业务异常（如数据校验失败），禁止 AI 自行修正数据绕过校验
+            if (isKnownBusinessException(ex)) {
+                return "[业务校验错误] 此为系统已知的业务异常，请将以下错误信息如实反馈给用户，"
+                        + "不要尝试修改数据或参数以绕过校验。\n错误信息: " + message;
+            }
+            return message;
         }
+    }
+
+    /**
+     * 判断异常链中是否包含系统已知业务异常（DefinedException 及其子类，或 ApprovalException）
+     *
+     * @param ex
+     * @return
+     */
+    private boolean isKnownBusinessException(Throwable ex) {
+        Throwable cause = ex;
+        while (cause != null) {
+            if (cause instanceof DefinedException || cause instanceof ApprovalException) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     private ChatCompletionService completions() {

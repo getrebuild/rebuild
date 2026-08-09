@@ -105,6 +105,10 @@ public class ToolDefs {
             log.info("Tool result: {}", toolRes);
             return toolRes;
 
+        } catch (ToolException ex) {
+            // ToolException 已含明确错误信息，直接抛出避免二次包装丢失信息
+            log.error("Tool execution failed : {}", toolName, ex);
+            throw ex;
         } catch (Exception ex) {
             log.error("Tool execution failed : {}", toolName, ex);
             throw new ToolException(CommonsUtils.getRootMessage(ex), ex);
