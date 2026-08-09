@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import static com.rebuild.core.privileges.UserService.AIBOT_USER;
+
 /**
  * 从动态/评论中提取 at 用户，以及将文件放置在福建表
  *
@@ -48,8 +50,6 @@ public abstract class BaseFeedsService extends ObservableService {
 
     // 全部用户（注意这是一个虚拟用户 ID，并不真实存在）
     public static final ID USER_ALLS = ID.valueOf("001-9999999999999999");
-    // v4.4 AI 助手用户（注意这是一个虚拟用户 ID，并不真实存在）
-    public static final ID USER_AIBOT = ID.valueOf("001-9999999999999998");
 
     protected BaseFeedsService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
@@ -113,7 +113,7 @@ public abstract class BaseFeedsService extends ObservableService {
             }
         }
 
-        if (atUsers.contains(USER_AIBOT) && !existsAtUsers.contains(USER_AIBOT)) {
+        if (atUsers.contains(AIBOT_USER) && !existsAtUsers.contains(AIBOT_USER)) {
             TransactionManual.registerAfterCommit(() -> {
                 String aiReply;
                 if (Config.availableAiBot()) {
@@ -133,9 +133,9 @@ public abstract class BaseFeedsService extends ObservableService {
                 Record r = RecordBuilder.builder(EntityHelper.FeedsComment)
                         .add("feedsId", record.getID("feedsId"))
                         .add("content", aiReply)
-                        .build(UserService.SYSTEM_USER);
+                        .build(AIBOT_USER);
 
-                UserContextHolder.setUser(UserService.SYSTEM_USER);
+                UserContextHolder.setUser(AIBOT_USER);
                 try {
                     Application.getBean(FeedsCommentService.class).createOrUpdate(r);
                 } finally {
@@ -148,7 +148,7 @@ public abstract class BaseFeedsService extends ObservableService {
         for (ID to : atUsers) {
             if (existsAtUsers.contains(to)) continue;
             if (existsAtUsers.contains(USER_ALLS)) continue;
-            if (existsAtUsers.contains(USER_AIBOT)) continue;
+            if (existsAtUsers.contains(AIBOT_USER)) continue;
 
             Application.getNotifications().send(
                     MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related, record.getEditor()));
@@ -185,7 +185,7 @@ public abstract class BaseFeedsService extends ObservableService {
             for (String locale : locales) {
                 String keyText = Application.getLanguage().getBundle(locale).L("AI 助手");
                 if (fakeContent.contains(keyText)) {
-                    fakeContent = fakeContent.replace(keyText, "@" + USER_AIBOT);
+                    fakeContent = fakeContent.replace(keyText, "@" + AIBOT_USER);
                 }
             }
         }
