@@ -34,8 +34,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * AI 定时任务调度。每分钟检查到期任务并执行，执行时调用 AI 处理内容并将结果通过站内信通知用户。
- * 任务存储于 CommonsConfig（type=AIBOT_SCHEDULE）
+ * AI 定时任务调度。每分钟检查到期任务并执行，执行时调用 AI 处理内容并将结果通过站内信通知用户
  *
  * @author devezhao
  * @since 2026/8/9

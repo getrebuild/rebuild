@@ -29,9 +29,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * AI定时任务管理工具。支持创建、查询、取消操作。
- * 任务存储于 CommonsConfig（type=AIBOT_SCHEDULE），config JSON 格式为
- * {"userId":"用户ID","content":"内容","scheduleType":"类型","time":"HH:mm",...,"nextExecTime":"时间","status":"active"}
+ * AI定时任务管理工具。支持创建、查询、取消操作
  *
  * @author devezhao
  * @since 2026/8/9
