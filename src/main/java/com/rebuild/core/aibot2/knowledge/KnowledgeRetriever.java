@@ -10,7 +10,7 @@ package com.rebuild.core.aibot2.knowledge;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.vector.VectorData;
-import com.rebuild.utils.CommonsUtils;
+import com.rebuild.core.support.CommandArgs;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -87,36 +87,57 @@ public class KnowledgeRetriever {
      * 单次查询所有关键词匹配的片段，使用 Map 去重并累加分数
      */
     private static Map<ID, KnowledgeChunk> queryChunks(List<String> keywords) {
-        StringBuilder where = new StringBuilder(
-                "select chunkId, knowledgeId, content, chunkIndex, keywords " +
-                "from AibotKnowledgeChunk where knowledgeId in " +
-                "(select knowledgeId from AibotKnowledge where isDisabled = 'F') and (");
-
-        boolean first = true;
+        List<String> validKeywords = new ArrayList<>();
         for (String kw : keywords) {
-            if (kw.length() < MIN_QUERY_LENGTH) continue;
-
-            String likePattern = String.format("'%%%s%%'", escapeLike(CommonsUtils.escapeSql(kw)));
-            if (!first) where.append(" or ");
-            first = false;
-            where.append("(content like ").append(likePattern)
-                    .append(" or keywords like ").append(likePattern).append(")");
+            if (kw.length() >= MIN_QUERY_LENGTH) validKeywords.add(kw);
         }
+        if (validKeywords.isEmpty()) return new LinkedHashMap<>();
 
-        if (first) return new LinkedHashMap<>();
+        Object[][] results;
 
-        where.append(")");
+        if (CommandArgs.getBoolean(CommandArgs._UseDbFullText)) {
+            String sql = "select CHUNK_ID, KNOWLEDGE_ID, CONTENT, CHUNK_INDEX, KEYWORDS " +
+                    "from aibot_knowledge_chunk where KNOWLEDGE_ID in " +
+                    "(select KNOWLEDGE_ID from aibot_knowledge where IS_DISABLED = 'F') " +
+                    "and match(CONTENT) against (? in boolean mode)";
+            String searchText = StringUtils.join(validKeywords, " ");
+            results = Application.getQueryFactory()
+                    .createNativeQuery(sql)
+                    .setParameter(1, searchText)
+                    .array();
+        } else {
+            StringBuilder where = new StringBuilder("(");
+            List<Object> params = new ArrayList<>();
+            boolean first = true;
+            for (String kw : validKeywords) {
+                String likePattern = "%" + kw + "%";
+                if (!first) where.append(" or ");
+                first = false;
+                where.append("(content like ? or keywords like ?)");
+                params.add(likePattern);
+                params.add(likePattern);
+            }
+            where.append(")");
 
-        Object[][] results = Application.createQueryNoFilter(where.toString()).array();
+            String sql = "select chunkId, knowledgeId, content, chunkIndex, keywords " +
+                    "from AibotKnowledgeChunk where knowledgeId in " +
+                    "(select knowledgeId from AibotKnowledge where isDisabled = 'F') and " + where;
+
+            cn.devezhao.persist4j.Query query = Application.createQueryNoFilter(sql);
+            for (int i = 0; i < params.size(); i++) {
+                query.setParameter(i + 1, params.get(i));
+            }
+            results = query.array();
+        }
 
         Map<ID, KnowledgeChunk> matched = new LinkedHashMap<>();
         for (Object[] row : results) {
-            ID chunkId = (ID) row[0];
+            ID chunkId = toId(row[0]);
             KnowledgeChunk chunk = matched.get(chunkId);
             if (chunk == null) {
                 chunk = new KnowledgeChunk();
                 chunk.setChunkId(chunkId);
-                chunk.setKnowledgeId((ID) row[1]);
+                chunk.setKnowledgeId(toId(row[1]));
                 chunk.setContent((String) row[2]);
                 chunk.setChunkIndex(row[3] != null ? ((Number) row[3]).intValue() : 0);
                 chunk.setKeywords((String) row[4]);
@@ -127,6 +148,16 @@ public class KnowledgeRetriever {
         }
 
         return matched;
+    }
+
+    /**
+     * 将查询结果中的 ID 值统一转为 ID 对象
+     * （AJQL 查询返回 ID 对象，原生 SQL 查询返回 String）
+     */
+    private static ID toId(Object value) {
+        if (value == null) return null;
+        if (value instanceof ID) return (ID) value;
+        return ID.valueOf(value.toString());
     }
 
     /**
@@ -217,12 +248,5 @@ public class KnowledgeRetriever {
             idx += keyword.length();
         }
         return count;
-    }
-
-    /**
-     * SQL LIKE 转义（仅转义 SQL 通配符，参数化查询中无需转义引号）
-     */
-    private static String escapeLike(String value) {
-        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 }

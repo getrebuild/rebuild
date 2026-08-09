@@ -702,6 +702,7 @@
         <field name="chunkIndex" type="int" description="分片序号"/>
         <field name="keywords" type="string" max-length="1000" description="关键词 (逗号分隔)"/>
         <index field-list="knowledgeId,chunkIndex"/>
+        <index field-list="content" type="fulltext"/>
     </entity>
 
 </metadata-config>

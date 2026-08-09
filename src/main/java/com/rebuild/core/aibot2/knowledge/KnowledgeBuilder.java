@@ -15,12 +15,14 @@ import com.rebuild.core.aibot2.vector.ListData;
 import com.rebuild.core.aibot2.vector.RecordData;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
+import org.springframework.transaction.TransactionStatus;
 
 import java.util.List;
 
@@ -55,24 +57,32 @@ public class KnowledgeBuilder {
         ChunkStrategy strategy = chooseStrategy(sourceType, content);
         List<ChunkStrategy.Chunk> chunks = strategy.chunk(content, MAX_CHUNK_SIZE);
 
-        Object[][] oldChunks = Application.createQueryNoFilter(
-                "select chunkId from AibotKnowledgeChunk where knowledgeId = ?")
-                .setParameter(1, knowledgeId)
-                .array();
-        for (Object[] row : oldChunks) {
-            Application.getCommonsService().delete((ID) row[0]);
-        }
+        // 使用事务保证删除旧分片 + 插入新分片的原子性
+        TransactionStatus tx = TransactionManual.newTransaction();
+        try {
+            Object[][] oldChunks = Application.createQueryNoFilter(
+                    "select chunkId from AibotKnowledgeChunk where knowledgeId = ?")
+                    .setParameter(1, knowledgeId)
+                    .array();
+            for (Object[] row : oldChunks) {
+                Application.getCommonsService().delete((ID) row[0]);
+            }
 
-        for (ChunkStrategy.Chunk chunk : chunks) {
-            RecordBuilder.builder(EntityHelper.AibotKnowledgeChunk)
-                    .add("knowledgeId", knowledgeId)
-                    .add("content", chunk.getContent())
-                    .add("chunkIndex", chunk.getIndex())
-                    .add("keywords", StringUtils.join(chunk.getKeywords(), ","))
-                    .save(UserService.SYSTEM_USER);
-        }
+            for (ChunkStrategy.Chunk chunk : chunks) {
+                RecordBuilder.builder(EntityHelper.AibotKnowledgeChunk)
+                        .add("knowledgeId", knowledgeId)
+                        .add("content", chunk.getContent())
+                        .add("chunkIndex", chunk.getIndex())
+                        .add("keywords", StringUtils.join(chunk.getKeywords(), ","))
+                        .save(UserService.SYSTEM_USER);
+            }
 
-        updateChunkCount(knowledgeId, chunks.size());
+            updateChunkCount(knowledgeId, chunks.size());
+            TransactionManual.commit(tx);
+        } catch (Exception ex) {
+            TransactionManual.rollback(tx);
+            throw ex;
+        }
         log.info("Knowledge built: name={}, chunks={}", knowledgeName, chunks.size());
         return chunks.size();
     }
@@ -178,8 +188,7 @@ public class KnowledgeBuilder {
      * @param count
      */
     public static void updateChunkCount(ID knowledgeId, int count) {
-        RecordBuilder.builder(EntityHelper.AibotKnowledge)
-                .add("knowledgeId", knowledgeId)
+        RecordBuilder.builder(knowledgeId)
                 .add("chunkCount", count)
                 .save(UserService.SYSTEM_USER);
     }

@@ -932,7 +932,8 @@ create table if not exists `aibot_knowledge_chunk` (
   `CHUNK_INDEX`        int(11) comment '分片序号',
   `KEYWORDS`           varchar(1000) comment '关键词 (逗号分隔)',
   primary key  (`CHUNK_ID`),
-  index IX0_aibot_knowledge_chunk (`KNOWLEDGE_ID`, `CHUNK_INDEX`)
+  index IX0_aibot_knowledge_chunk (`KNOWLEDGE_ID`, `CHUNK_INDEX`),
+  fulltext index FIX1_aibot_knowledge_chunk (`CONTENT`)
 )Engine=InnoDB;
 
 -- ************ Entity [AibotKnowledge] DDL ************
