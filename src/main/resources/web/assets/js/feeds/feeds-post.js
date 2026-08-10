@@ -156,8 +156,19 @@ class FeedsScope extends React.Component {
         if (this.__SelectGroup) {
           this.__SelectGroup.show()
         } else {
-          renderRbcomp(<SelectGroup call={this._renderGroupScope} />, function () {
-            that.__SelectGroup = this
+          $.get(`/feeds/group/group-list?self=${!rb.isAdminUser}`, (res) => {
+            const groups = res.data || []
+            const comp =
+              groups.length === 0 ? (
+                <SelectList title={$L('选择团队')}>
+                  <p className="text-muted">{$L('未加入任何团队')}</p>
+                </SelectList>
+              ) : (
+                <SelectList title={$L('选择团队')} data={groups} call={this._renderGroupScope} />
+              )
+            renderRbcomp(comp, function () {
+              that.__SelectGroup = this
+            })
           })
         }
       }
@@ -430,58 +441,6 @@ class FeedsEditor extends React.Component {
     if (this._announcementOptions) this._announcementOptions.reset()
     if (this._scheduleOptions) this._scheduleOptions.reset()
     this.setState({ files: null, images: null })
-  }
-}
-
-// ~ 选择团队
-class SelectGroup extends React.Component {
-  state = { ...this.props }
-
-  render() {
-    return (
-      <div className="modal select-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
-                <i className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <h5 className="mt-0 text-bold">{$L('选择团队')}</h5>
-              {this.state.groups && this.state.groups.length === 0 && <p className="text-muted">{$L('未加入任何团队')}</p>}
-              <div>
-                <ul className="list-unstyled">
-                  {(this.state.groups || []).map((item) => {
-                    return (
-                      <li key={`team-${item.id}`}>
-                        <a className="text-truncate" onClick={() => this._handleClick(item)}>
-                          {item.name}
-                          <i className="zmdi zmdi-check" />
-                        </a>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    $.get(`/feeds/group/group-list?self=${!rb.isAdminUser}`, (res) => this.setState({ groups: res.data }))
-    $(this._dlg).modal({ show: true, keyboard: true })
-  }
-
-  hide = () => $(this._dlg).modal('hide')
-  show = () => $(this._dlg).modal('show')
-
-  _handleClick = (item) => {
-    this.hide()
-    this.props.call && this.props.call(item)
   }
 }
 

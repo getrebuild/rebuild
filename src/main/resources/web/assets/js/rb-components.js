@@ -249,6 +249,68 @@ class RbFormHandler extends RbModalHandler {
   }
 }
 
+// ~~ 列表选择弹窗
+// @see SelectReport
+class SelectList extends React.Component {
+  render() {
+    const props = this.props
+    return (
+      <div className={`modal select-list ${props.modalClazz || ''}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
+                <i className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body">
+              {props.title && <h5 className="mt-0 text-bold">{props.title}</h5>}
+              {props.children || this.renderList()}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  renderList() {
+    return (
+      <div>
+        <ul className="list-unstyled">{(this.props.data || []).map((item, idx) => this.renderItem(item, idx))}</ul>
+      </div>
+    )
+  }
+
+  renderItem(item, idx) {
+    return (
+      <li key={item.id || idx}>
+        <a className="text-truncate" onClick={() => this._handleClick(item)}>
+          {item.text || item.name}
+          <i className="zmdi zmdi-check" />
+        </a>
+      </li>
+    )
+  }
+
+  _handleClick = (item) => {
+    this.hide()
+    typeof this.props.call === 'function' && this.props.call(item)
+  }
+
+  componentDidMount() {
+    const $root = $(this._dlg).modal({ show: true, keyboard: true })
+    if (this.props.disposeOnHide === true) {
+      $root.on('hidden.bs.modal', () => {
+        $root.modal('dispose')
+        $unmount($root.parent())
+      })
+    }
+  }
+
+  hide = () => $(this._dlg).modal('hide')
+  show = () => $(this._dlg).modal('show')
+}
+
 // ~~ 提示框
 class RbAlert extends React.Component {
   constructor(props) {

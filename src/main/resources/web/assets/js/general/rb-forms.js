@@ -672,6 +672,13 @@ class RbForm extends React.Component {
   }
 
   componentDidMount() {
+    // 粘贴板上传文件/图片。绑定在弹窗上以兼容焦点不在表单内的情况
+    if (!this.props.readonly) {
+      $(this._$form)
+        .off('paste.file')
+        .on('paste.file', (e) => this._onPasteUpload(e))
+    }
+
     // 新记录初始值
     if (this.isNew || this.props.forceInitFieldValue) {
       this.props.children.map((child) => {
@@ -715,6 +722,59 @@ class RbForm extends React.Component {
         if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
       }
     }, 20)
+  }
+
+  // 粘贴板上传文件/图片
+  _onPasteUpload(e) {
+    const data = (e.originalEvent && e.originalEvent.clipboardData) || e.clipboardData
+    if (!data || !data.files || data.files.length === 0) return
+
+    // 可用的图片/文件字段
+    const $fields = $(this._$form)
+      .find('.form-group.type-IMAGE, .form-group.type-FILE')
+      .filter(function () {
+        if ($(this).hasClass('hide')) return false
+        return $(this).find('.img-field-btn:not(.hide), .file-select:not(.hide)').length > 0
+      })
+    if ($fields.length === 0) return
+
+    $stopEvent(e, true)
+
+    const files = []
+    for (let i = 0; i < data.files.length; i++) files.push(data.files[i])
+
+    // 将粘贴文件提交到指定字段的上传组件
+    function _routePasteFiles($field, files) {
+      const $input = $field.find('input.inputfile').first()
+      if ($input.length === 0) return
+
+      // 图片字段仅接受图片
+      if ($input.attr('accept') === 'image/*') {
+        files = files.filter((f) => (f.type || '').startsWith('image/'))
+        if (files.length === 0) {
+          RbHighbar.create($L('请上传图片'))
+          return
+        }
+      }
+
+      const dt = new DataTransfer()
+      files.forEach((f) => dt.items.add(f))
+      $input[0].files = dt.files
+      $input.trigger('change')
+    }
+
+    if ($fields.length === 1) {
+      _routePasteFiles($fields.eq(0), files)
+    } else {
+      const fields = []
+      $fields.each(function () {
+        fields.push({
+          text: $(this).find('.col-form-label').text(),
+          $el: $(this),
+        })
+      })
+      renderRbcomp(<SelectList title={$L('上传到哪个字段')} data={fields} disposeOnHide call={(item) => _routePasteFiles(item.$el, files)} />)
+    }
   }
 
   // 表单回填
