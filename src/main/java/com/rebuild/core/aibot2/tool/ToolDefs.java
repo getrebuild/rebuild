@@ -142,7 +142,9 @@ public class ToolDefs {
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
             Tool toolImpl = TOOL_MAP.get(toolName);
-            if (disabled.contains(toolName) || toolImpl.isSystem()) continue;
+            if (toolImpl.isSystem()) continue;
+            // 禁用工具仅在 includeDisabled 时返回（供管理页展示/重新启用）
+            if (disabled.contains(toolName) && !includeDisabled) continue;
 
             String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
             if (d == null) continue;

@@ -81,4 +81,13 @@ public class StreamEcho {
     public static boolean setInterrupt(ID chatid) {
         return INTERRUPTED_CHATS.add(chatid);
     }
+
+    /**
+     * 清除残留中断标志（流开始时调用，防止上一条消息的中断误伤下一条）
+     *
+     * @param chatid
+     */
+    public static void clearInterrupt(ID chatid) {
+        INTERRUPTED_CHATS.remove(chatid);
+    }
 }

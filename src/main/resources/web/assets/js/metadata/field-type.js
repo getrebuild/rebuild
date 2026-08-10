@@ -33,5 +33,5 @@ const FIELD_TYPES = {
   'LOCATION': [$L('位置'), 'mdi-map-marker'],
   'SIGN': [$L('签名'), 'mdi-file-sign'],
   'BOOL': [$L('布尔'), 'mdi-toggle-switch-off-outline'],
-  'STATE': [$L('状态'), 'mdi-language-java', !true],
+  'STATE': [$L('状态'), 'mdi-language-java', true],
 }

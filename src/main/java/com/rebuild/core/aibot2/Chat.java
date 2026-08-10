@@ -96,6 +96,9 @@ public class Chat implements Serializable {
      * @param httpResp
      */
     public void stream(ChatRequest chatRequest, HttpServletResponse httpResp) {
+        // 清除残留中断标志，防止上一条消息的中断误伤本条
+        StreamEcho.clearInterrupt(chatRequest.getChatid());
+
         PrintWriter writer;
         try {
             writer = httpResp.getWriter();
