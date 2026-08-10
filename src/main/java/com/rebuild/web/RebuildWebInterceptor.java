@@ -113,10 +113,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 String wt = AppUtils.getWatermarkText(requestEntry.getRequestUser(), null);
                 if (wt != null) request.setAttribute("markWatermarkText", wt);
             }
-            // v4.3.4
-            if (requestEntry.getRequestUser() != null
-                    && Application.getPrivilegesManager().allow(requestEntry.getRequestUser(), ZeroEntry.AllowUseAiBot)) {
-                request.setAttribute("_AllowUseAiBot", true);
+            // v4.3.4, v4.5
+            if (requestEntry.getRequestUser() != null) {
+                boolean b = Application.getPrivilegesManager().allow(requestEntry.getRequestUser(), ZeroEntry.AllowUseAiBot)
+                        || !License.isCommercial();
+                request.setAttribute("_AllowUseAiBot", b);
             }
         }
 
