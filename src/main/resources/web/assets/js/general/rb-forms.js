@@ -671,10 +671,20 @@ class RbForm extends React.Component {
     )
   }
 
+  componentWillUnmount() {
+    // 解绑粘贴板上传事件（绑定在弹窗上）
+    if (this._$pasteBindTo) {
+      $(this._$pasteBindTo).off('paste.file')
+      this._$pasteBindTo = null
+    }
+  }
+
   componentDidMount() {
     // 粘贴板上传文件/图片。绑定在弹窗上以兼容焦点不在表单内的情况
     if (!this.props.readonly) {
-      $(this._$form)
+      const $modal = $(this._$form).closest('.modal')
+      this._$pasteBindTo = ($modal.length > 0 ? $modal : $(this._$form))[0]
+      $(this._$pasteBindTo)
         .off('paste.file')
         .on('paste.file', (e) => this._onPasteUpload(e))
     }
