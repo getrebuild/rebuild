@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "CreateField",
-    "description": "新建字段（需管理员权限）。不同类型的字段需要提供不同的信息，引用字段需说明引用哪个实体，下拉列表/多选字段需提供选项，分类字段需说明使用哪个分类数据",
+    "description": "新建字段（需管理员权限）。不同类型的字段需要提供不同的信息，引用字段需说明引用哪个实体，下拉列表/多选字段需提供选项，分类字段需说明使用哪个分类数据。未确认（confirmed 不为 true）时仅返回改动清单不会创建，需经用户确认后以 confirmed=true 再次调用才会执行创建",
     "parameters": {
       "type": "object",
       "properties": {
@@ -39,6 +39,10 @@
         "comments": {
           "type": "string",
           "description": "字段描述"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "用户是否已确认改动清单。不传时仅返回改动清单供确认，用户明确同意后再以 true 重新调用执行创建"
         }
       },
       "required": ["entity", "fieldLabel", "type"]

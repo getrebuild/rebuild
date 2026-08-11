@@ -80,6 +80,7 @@ public class CreateField implements Tool {
         String refEntity = null;
         JSON extConfig = null;
         JSONArray options = null;
+        String classificationName = null;
 
         if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
             // 引用字段必须指定引用实体
@@ -104,6 +105,7 @@ public class CreateField implements Tool {
             // 分类字段必须指定分类数据
             ID dataId = resolveClassification(args.getString("classification"));
             extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.CLASSIFICATION_USE, dataId);
+            classificationName = getClassificationName(dataId);
 
         } else if (dt == DisplayType.SERIES) {
             // 自动编号规则（可选）
@@ -111,6 +113,18 @@ public class CreateField implements Tool {
             if (StringUtils.isNotBlank(seriesFormat)) {
                 extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.SERIES_FORMAT, seriesFormat);
             }
+        }
+
+        // 实体结构是系统核心，未确认时仅返回改动清单，须用户二次确认后才创建
+        if (!args.getBooleanValue("confirmed")) {
+            JSONObject changes = buildChanges(entity, fieldLabel, dt, refEntity,
+                    options, classificationName, args.getString("seriesFormat"), args.getString("comments"));
+            return JSONUtils.toJSONObject(
+                    new String[]{"status", "needConfirm", "changes", "message"},
+                    new Object[]{"ok", true, changes,
+                            "本次操作尚未执行。新建字段会变更实体结构，请先将改动清单完整转述给用户并征求确认，"
+                                    + "用户明确同意后再以相同参数并设置 confirmed=true 重新调用本工具执行创建。"
+                                    + "用户未确认或要求调整时不得执行创建"});
         }
 
         String fieldName = new Field2Schema(user).createField(
@@ -166,6 +180,63 @@ public class CreateField implements Tool {
             list.add(dt.name() + "(" + dt.getDisplayName() + ")");
         }
         return StringUtils.join(list, ", ");
+    }
+
+    /**
+     * 构建改动清单（供用户确认）
+     *
+     * @param entity
+     * @param fieldLabel
+     * @param dt
+     * @param refEntity
+     * @param options
+     * @param classificationName
+     * @param seriesFormat
+     * @param comments
+     * @return
+     */
+    private JSONObject buildChanges(Entity entity, String fieldLabel, DisplayType dt, String refEntity,
+                                    JSONArray options, String classificationName, String seriesFormat, String comments) {
+        JSONObject changes = new JSONObject(true);
+        changes.put("操作", "新建字段");
+        changes.put("所属实体", EasyMetaFactory.getLabel(entity));
+        changes.put("字段名称", fieldLabel);
+        changes.put("字段类型", dt.getDisplayName());
+        if (refEntity != null) {
+            changes.put("引用实体", EasyMetaFactory.getLabel(MetadataHelper.getEntity(refEntity)));
+        } else if (options != null) {
+            List<String> texts = new ArrayList<>();
+            for (Object o : options) {
+                String text = o instanceof JSONObject ? ((JSONObject) o).getString("text") : String.valueOf(o);
+                if (StringUtils.isNotBlank(text)) texts.add(text.trim());
+            }
+            changes.put("选项", StringUtils.join(texts, "、") + "（第一个为默认值）");
+        } else if (classificationName != null) {
+            changes.put("分类数据", classificationName);
+        }
+        if (StringUtils.isNotBlank(seriesFormat)) changes.put("编号规则", seriesFormat);
+        if (StringUtils.isNotBlank(comments)) changes.put("描述", comments);
+
+        // 提示同名字段，避免用户误操作
+        for (Field f : entity.getFields()) {
+            if (fieldLabel.equalsIgnoreCase(EasyMetaFactory.getLabel(f))) {
+                changes.put("注意", "该实体已存在同名字段「" + EasyMetaFactory.getLabel(f) + "」，请确认是否需要新建");
+                break;
+            }
+        }
+        return changes;
+    }
+
+    /**
+     * 获取分类数据名称
+     *
+     * @param dataId
+     * @return
+     */
+    private String getClassificationName(ID dataId) {
+        Object[] row = Application.createQueryNoFilter(
+                "select name from Classification where dataId = ?").setParameter(1, dataId).unique();
+        return row != null && row[0] != null ? (String) row[0] : dataId.toLiteral();
     }
 
     /**
