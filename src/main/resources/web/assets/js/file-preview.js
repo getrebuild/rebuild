@@ -486,9 +486,9 @@ class FileShare extends RbModalHandler {
       $.get(`/filex/make-share?url=${$encode(this._filePath)}&time=${t}&shareUrl=${$encode(this.__shareUrl)}`, (res) => {
         this.__shareUrl = (res.data || {}).shareUrl
         this.setState({ shareUrl: this.__shareUrl })
-
         // copy
-        $useClipboard(() => $clipboard($(this._$copy), this.__shareUrl))
+        $(this._$copy).data('clipboard-text', this.__shareUrl)
+        $clipboard(this._$copy)
       })
     })
   }

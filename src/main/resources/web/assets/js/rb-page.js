@@ -1450,50 +1450,64 @@ var $formatCode = function (c, type) {
 }
 
 // 复制
-var $clipboard = function ($el, text) {
-  if (!window.ClipboardJS) {
-    console.log('No `ClipboardJS` defined')
+var $clipboard = function (target, tips) {
+  // 直接复制
+  var _directCopy = function (text) {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(function () {
+          tips && RbHighbar.success($L('已复制'))
+        })
+        .catch(function (err) {
+          console.log('Cannot copy text :', err)
+        })
+    } else {
+      var textarea = document.createElement('textarea')
+      textarea.value = text
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+      tips && RbHighbar.success($L('已复制'))
+    }
+  }
+
+  if (typeof target === 'string') {
+    _directCopy(target)
     return
   }
 
-  var oTitle = $el.attr('title') || $L('点击复制')
-  var $b = $el.attr('title', oTitle).on('mouseleave', function () {
-    $b.attr('data-original-title', oTitle)
+  var $el = $(target)
+  var text = $el.data('clipboard-text') || ''
+  if (!window.ClipboardJS) {
+    $useClipboard(function () {
+      $clipboard(target, tips)
+    })
+    return
+  }
+
+  var title = $el.attr('title') || $L('点击复制')
+  var $b = $el.attr('title', title).on('mouseleave', function () {
+    $b.attr('data-original-title', title)
   })
-  $b.tooltip()
+  $b.tooltip({})
+
   new window.ClipboardJS($b[0], {
     text: function () {
-      return text || $el.data('clipboard-text')
+      return text
     },
-  }).on('success', function () {
-    $b.attr('data-original-title', $L('已复制'))
-    $b.tooltip('hide')
-    setTimeout(function () {
-      $b.tooltip('show')
-    }, 20)
   })
-}
-
-// 复制
-var $clipboard2 = function (text, tips) {
-  if (navigator.clipboard) {
-    navigator.clipboard
-      .writeText(text)
-      .then(function () {
-        tips && RbHighbar.success($L('已复制'))
-      })
-      .catch(function (err) {
-        console.log('Cannot copy text :', err)
-      })
-  } else {
-    var textarea = document.createElement('textarea')
-    textarea.value = text
-    document.body.appendChild(textarea)
-    textarea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textarea)
-    tips && RbHighbar.success($L('已复制'))
-  }
+    .on('success', function () {
+      $b.attr('data-original-title', $L('已复制'))
+      $b.tooltip('hide')
+      setTimeout(function () {
+        $b.tooltip('show')
+      }, 20)
+    })
+    .on('error', function () {
+      _directCopy(text)
+    })
 }
 
 // select2
