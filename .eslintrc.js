@@ -42,6 +42,8 @@ module.exports = {
     PropTypes: true,
     RBCOLORS: true,
     RBEMOJIS: true,
+    ECHART_BASE: true,
+    ECHART_AXIS_COLOR: true,
     rb: true,
     $setTimeout: true,
     $random: true,

@@ -1655,10 +1655,49 @@ var $enableScrollTop = function () {
   })
 }
 
-// 颜色
-var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#ff6b35', '#ea4335', '#7500ea', '#eb2f96']
 // 不支持排序的字段
 var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']
+
+// 颜色
+var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#ff6b35', '#ea4335', '#7500ea', '#eb2f96']
+
+// for ECharts
+var ECHART_AXIS_COLOR = '#ddd'
+var ECHART_BASE = {
+  grid: { left: 60, right: 30, top: 30, bottom: 30 },
+  animation: window.__LAB_CHARTANIMATION || false,
+  tooltip: {
+    trigger: 'item',
+    textStyle: {
+      fontSize: 12,
+      lineHeight: 1.2,
+      color: '#333',
+    },
+    axisPointer: {
+      type: 'line', // line, cross, shadow
+      lineStyle: { color: ECHART_AXIS_COLOR },
+      crossStyle: { color: ECHART_AXIS_COLOR },
+      label: {
+        color: '#222',
+        backgroundColor: ECHART_AXIS_COLOR,
+        padding: [7, 7, 5, 7],
+      },
+    },
+    backgroundColor: '#fff',
+    extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
+    confine: true,
+    position: 'top',
+    borderWidth: 0,
+    padding: [5, 10],
+  },
+  toolbox: {
+    show: false,
+  },
+  textStyle: {
+    fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+  },
+  color: RBCOLORS,
+}
 
 /**
  * Modal 可拖动

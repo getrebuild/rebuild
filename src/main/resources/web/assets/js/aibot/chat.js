@@ -562,7 +562,7 @@ class ChatMessage extends React.Component {
     let md = content || this.state.content
     if (!md) return null
 
-    md = fixMd(md)
+    if (window.__LAB45_FIXAIMD) md = fixMd(md)
     return (
       <div className="msg-text">
         <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
@@ -591,7 +591,14 @@ function $renderEcharts($container) {
       $node.addClass('echarts-rendered').empty()
       try {
         const chart = echarts.init($node[0])
-        chart.setOption(option)
+        const base = { ...ECHART_BASE }
+        delete base.grid
+        const opt = { ...base, ...option }
+        opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
+        opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
+        if (opt.title) opt.title = { ...opt.title, top: 15 }
+        opt.grid = { ...(opt.grid || {}), top: opt.title || opt.legend ? 80 : 50, bottom: 50 }
+        chart.setOption(opt)
         $node.data('echarts-instance', chart)
       } catch (err) {
         console.error('ECharts render error :', err)

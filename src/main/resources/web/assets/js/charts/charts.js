@@ -384,8 +384,7 @@ class ChartTable extends BaseChart {
   }
 }
 
-// for ECharts
-const COLOR_AXIS = '#ddd'
+// for ECharts（ECHART_AXIS_COLOR/ECHART_BASE 在 rb-page.js，与 AI 对话共用）
 const COLOR_LABEL = '#555'
 // 可用调色板
 const COLOR_PALETTES = {
@@ -399,42 +398,6 @@ const COLOR_PALETTES = {
   westeros: ['#516b91', '#59c4e6', '#edafda', '#93b7e3', '#a5e7f0', '#cbb0e3'],
   infographic: ['#c1232b', '#27727b', '#fcce10', '#e87c25', '#b5c334', '#fe8463', '#9bca63', '#fad860', '#f3a43b', '#60c0dd', '#d7504b', '#c6e579', '#f4e001', '#f0805a', '#26c0c0'],
   macarons: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa', '#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050', '#59678c', '#c9ab00'],
-}
-
-const ECHART_BASE = {
-  grid: { left: 60, right: 30, top: 30, bottom: 30 },
-  animation: window.__LAB_CHARTANIMATION || false,
-  tooltip: {
-    trigger: 'item',
-    textStyle: {
-      fontSize: 12,
-      lineHeight: 1.2,
-      color: '#333',
-    },
-    axisPointer: {
-      type: 'line', // line, cross, shadow
-      lineStyle: { color: COLOR_AXIS },
-      crossStyle: { color: COLOR_AXIS },
-      label: {
-        color: '#222',
-        backgroundColor: COLOR_AXIS,
-        padding: [7, 7, 5, 7],
-      },
-    },
-    backgroundColor: '#fff',
-    extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
-    confine: true,
-    position: 'top',
-    borderWidth: 0,
-    padding: [5, 10],
-  },
-  toolbox: {
-    show: false,
-  },
-  textStyle: {
-    fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-  },
-  color: RBCOLORS,
 }
 
 const ECHART_AXIS_LABEL = {
@@ -571,8 +534,8 @@ const reOptionMutliYAxis = function (option) {
       c.position = 'right'
       c.offset = i * 45 - 45
     }
-    c.axisLabel.textStyle.color = option.color[i] || COLOR_AXIS
-    // c.axisLine = { show: true, lineStyle: { color: option.color[i] || COLOR_AXIS } }
+    c.axisLabel.textStyle.color = option.color[i] || ECHART_AXIS_COLOR
+    // c.axisLine = { show: true, lineStyle: { color: option.color[i] || ECHART_AXIS_COLOR } }
     option.series[i].yAxisIndex = i
     yAxisMutli.push(c)
   }
@@ -637,18 +600,18 @@ class ChartLine extends BaseChart {
           data: data.xAxis,
           axisLabel: { ...ECHART_AXIS_LABEL },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS },
+            lineStyle: { color: ECHART_AXIS_COLOR },
           },
         },
         yAxis: {
           type: 'value',
-          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
+          splitLine: { show: showGrid, lineStyle: { color: ECHART_AXIS_COLOR } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber,
           },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 },
+            lineStyle: { color: ECHART_AXIS_COLOR, width: showGrid ? 1 : 0 },
           },
         },
         series: data.yyyAxis,
@@ -719,19 +682,19 @@ class ChartBar extends BaseChart {
           data: showHorizontal ? null : data.xAxis,
           axisLabel: { ...ECHART_AXIS_LABEL },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS },
+            lineStyle: { color: ECHART_AXIS_COLOR },
           },
         },
         yAxis: {
           type: showHorizontal ? 'category' : 'value',
           data: showHorizontal ? data.xAxis : null,
-          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
+          splitLine: { show: showGrid, lineStyle: { color: ECHART_AXIS_COLOR } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber,
           },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 },
+            lineStyle: { color: ECHART_AXIS_COLOR, width: showGrid ? 1 : 0 },
           },
         },
         series: data.yyyAxis,
@@ -1450,12 +1413,12 @@ class ChartRadar extends BaseChart {
           },
           splitLine: {
             lineStyle: {
-              color: COLOR_AXIS,
+              color: ECHART_AXIS_COLOR,
             },
           },
           axisLine: {
             lineStyle: {
-              color: COLOR_AXIS,
+              color: ECHART_AXIS_COLOR,
             },
           },
         },
@@ -1516,14 +1479,14 @@ class ChartScatter extends BaseChart {
 
       const axisOption = {
         splitLine: {
-          lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0, type: 'solid' },
+          lineStyle: { color: ECHART_AXIS_COLOR, width: showGrid ? 1 : 0, type: 'solid' },
         },
         axisLabel: {
           ...ECHART_AXIS_LABEL,
           formatter: shortNumber,
         },
         axisLine: {
-          lineStyle: { color: COLOR_AXIS },
+          lineStyle: { color: ECHART_AXIS_COLOR },
         },
         scale: false,
       }
