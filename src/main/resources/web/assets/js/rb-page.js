@@ -1709,7 +1709,10 @@ function $openView(id, e) {
   e && $stopEvent(e, true)
   if (typeof id === 'string') id = { id: id }
 
+  // 任务/动态
+  var _spec = id.id.startsWith('052-') || id.id.startsWith('054-') || id.id.startsWith('040-') || id.id.startsWith('041-')
   var _blank = location.href.indexOf('/chart-design') > -1
-  if (window.RbViewModal && !_blank) window.RbViewModal.create(id)
+
+  if (window.RbViewModal && !_blank && !_spec) window.RbViewModal.create(id)
   else window.open(rb.baseUrl + '/app/redirect?id=' + id.id + '&type=newtab')
 }
