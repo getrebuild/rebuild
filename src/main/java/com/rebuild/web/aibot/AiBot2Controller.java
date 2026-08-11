@@ -22,7 +22,7 @@ import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.Message;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.StreamEcho;
-import com.rebuild.core.aibot2.tool.ToolDefs;
+import com.rebuild.core.aibot2.SuggestQuestions;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -114,13 +114,9 @@ public class AiBot2Controller extends BaseController {
             messages.add(welcome);
 
             try {
-                String result = ToolDefs.execute("SuggestQuestions", "{}");
-                JSONObject resObj = JSON.parseObject(result);
-                if (resObj != null && "ok".equals(resObj.getString("status"))) {
-                    suggestQuestions = resObj.getJSONArray("questions");
-                }
+                suggestQuestions = SuggestQuestions.generate();
             } catch (Exception ex) {
-                log.warn("SuggestQuestions tool failed", ex);
+                log.warn("SuggestQuestions failed", ex);
             }
         }
 
