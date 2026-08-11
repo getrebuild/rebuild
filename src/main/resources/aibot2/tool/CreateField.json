@@ -2,17 +2,17 @@
   "type": "function",
   "function": {
     "name": "CreateField",
-    "description": "新建字段（需管理员权限）。不同类型的字段需要提供不同的信息，引用字段需说明引用哪个实体，下拉列表/多选字段需提供选项，分类字段需说明使用哪个分类数据。未确认（confirmed 不为 true）时仅返回改动清单不会创建，需经用户确认后以 confirmed=true 再次调用才会执行创建",
+    "description": "新建字段（需管理员权限）。不同字段类型需要提供不同的配置信息",
     "parameters": {
       "type": "object",
       "properties": {
         "entity": {
           "type": "string",
-          "description": "要添加字段的实体，如 客户"
+          "description": "要添加字段的实体名称或标签（可通过 ListEntities 工具查询）"
         },
         "fieldLabel": {
           "type": "string",
-          "description": "字段名称，如 联系电话、订单金额"
+          "description": "字段显示名称（即标签），需简明描述字段含义"
         },
         "type": {
           "type": "string",
@@ -21,12 +21,12 @@
         },
         "refEntity": {
           "type": "string",
-          "description": "要引用的实体（引用字段必填），如 客户"
+          "description": "要引用的实体名称或标签（引用字段必填，可通过 ListEntities 工具查询）"
         },
         "options": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "下拉选项，第一个为默认值（下拉列表/多选字段必填），如 [\"选项1\", \"选项2\"]"
+          "description": "下拉选项，第一个为默认值（下拉列表/多选字段必填）"
         },
         "classification": {
           "type": "string",
@@ -34,11 +34,11 @@
         },
         "seriesFormat": {
           "type": "string",
-          "description": "编号规则（自动编号字段可选），如 {YYYYMMDD}-{0000}"
+          "description": "编号规则（自动编号字段可选），支持 {YYYY}、{MM}、{DD}、{0000} 等占位符"
         },
         "comments": {
           "type": "string",
-          "description": "字段描述"
+          "description": "字段的用途说明或备注（可选）"
         },
         "confirmed": {
           "type": "boolean",

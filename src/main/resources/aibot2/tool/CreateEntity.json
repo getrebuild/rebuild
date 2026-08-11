@@ -2,29 +2,29 @@
   "type": "function",
   "function": {
     "name": "CreateEntity",
-    "description": "新建实体（需管理员权限），系统会自动创建对应的数据模型。可选择是否同时创建名称字段、自动编号字段，指定主实体时创建其明细实体。未确认（confirmed 不为 true）时仅返回改动清单不会创建，需经用户确认后以 confirmed=true 再次调用才会执行创建",
+    "description": "新建实体（需管理员权限）。可同时创建名称字段和自动编号字段，指定主实体时创建为该实体的明细实体",
     "parameters": {
       "type": "object",
       "properties": {
         "entityLabel": {
           "type": "string",
-          "description": "实体名称，如 客户、合同"
+          "description": "实体名称（即显示标签），需简明描述业务对象，创建后不可修改"
         },
         "nameField": {
           "type": "boolean",
-          "description": "是否创建名称字段（默认创建）"
+          "description": "是否创建名称字段，用于标识和显示记录（默认创建）"
         },
         "seriesField": {
           "type": "boolean",
-          "description": "是否创建自动编号字段"
+          "description": "是否创建自动编号字段，用于自动生成唯一编号（默认不创建）"
         },
         "mainEntity": {
           "type": "string",
-          "description": "所属主实体（可选），指定后创建为该实体的明细实体，如 订单"
+          "description": "所属主实体（可选），指定后创建为该实体的明细实体"
         },
         "comments": {
           "type": "string",
-          "description": "实体描述"
+          "description": "实体的用途说明或备注（可选）"
         },
         "confirmed": {
           "type": "boolean",

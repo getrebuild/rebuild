@@ -32,7 +32,7 @@ import java.util.Set;
 @Slf4j
 public class FetchUrl implements Tool {
 
-    private final static int MAX_LEN = 20000;
+    private static final int MAX_LEN = 20000;
 
     private static final Set<String> BLOCKED_HEADERS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "host", "connection", "content-length", "transfer-encoding",
@@ -45,7 +45,7 @@ public class FetchUrl implements Tool {
 
         String url = args.getString("url");
         if (StringUtils.isBlank(url)) {
-            throw new ToolException("URL cannot be blank");
+            throw new ToolException("URL 不能为空");
         }
         CommonsUtils.checkUrlSafe(url);
 

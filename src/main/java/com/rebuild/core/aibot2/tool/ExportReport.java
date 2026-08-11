@@ -54,7 +54,7 @@ public class ExportReport implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
-         final JSONObject args = JSON.parseObject(arguments);
+        final JSONObject args = JSON.parseObject(arguments);
 
         String entityName = args.getString("entity");
         if (StringUtils.isBlank(entityName)) {
