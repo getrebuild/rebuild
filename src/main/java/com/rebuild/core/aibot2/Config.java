@@ -25,7 +25,7 @@ public class Config {
 
     private static OpenAIClient CLIENT;
 
-    private static String SYSTEM_PROMPT_CACHE;
+    private static volatile String SYSTEM_PROMPT_CACHE;
 
     /**
      * 共享的 Tika 实例（文件内容解析与 MIME 检测）

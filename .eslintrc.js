@@ -177,5 +177,8 @@ module.exports = {
     $useXlsx: true,
     $useClipboard: true,
     $usePinyin: true,
+    $useAutocomplete: true,
+    $useMermaid: true,
+    $useSignPad: true,
   },
 }
