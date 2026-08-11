@@ -59,13 +59,13 @@
 docker run -d --name rebuild -p 18080:18080 getrebuild/rebuild:latest
 ```
 
-启动后访问 [http://localhost:18080/](http://localhost:18080/) 即可开始体验。生产环境建议配合 MySQL 使用，更多详情请参见详见 [Docker 安装指南](https://getrebuild.com/learn/install-use-docker)。
+启动后访问 [http://localhost:18080/](http://localhost:18080/) 开始体验。生产环境建议配合 MySQL 使用，更多详情请参见 [Docker 安装指南](https://getrebuild.com/learn/install-use-docker)。
 
 ### 2. 使用已发布版本
 
-首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包（推荐），`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
+首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包，`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别，根据你所使用的平台选择合适的安装包。
 
-下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，启动后访问 [http://localhost:18080/](http://localhost:18080/) 即可开始体验。更多详情请参见 [安装文档](https://getrebuild.com/learn/install)。
+下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，启动后访问 [http://localhost:18080/](http://localhost:18080/) 开始体验。更多详情请参见 [安装文档](https://getrebuild.com/learn/install)。
 
 ### 3. 通过源码编译
 
