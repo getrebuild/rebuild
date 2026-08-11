@@ -1128,7 +1128,7 @@ class RbFormElement extends React.Component {
           .on('click', (e) => {
             if (e.target.tagName === 'A' || $(e.target).closest('a').length) return // fix:4.2.3 链接不复制
             $stopEvent(e, true)
-            $clipboard2($text.text(), true)
+            $clipboard($text.text(), true)
           })
       }
     } else {
@@ -1660,7 +1660,7 @@ class RbFormNText extends RbFormElement {
         <a title={$L('展开/收起')} onClick={() => $(this._fieldText).toggleClass('ntext-expand')}>
           <i className="mdi mdi-arrow-expand" />
         </a>
-        <a title={$L('复制')} onClick={() => $clipboard2(this.state.value)}>
+        <a title={$L('复制')} onClick={() => $clipboard(this.state.value)}>
           <i className="mdi mdi-content-copy" />
         </a>
       </div>

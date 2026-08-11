@@ -1,3 +1,11 @@
+<div align="center">
+
+<img src="https://getrebuild.com/img/logo256.png" alt="REBUILD" width="128" />
+
+# REBUILD
+
+**高度可配置化的企业管理系统**
+
 [![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
 [![Build Status](https://travis-ci.com/getrebuild/rebuild.svg?branch=master)](https://travis-ci.com/getrebuild/rebuild)
@@ -5,50 +13,41 @@
 [![License 商业授权](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
 [![Docker Image Version](https://img.shields.io/docker/v/getrebuild/rebuild?label=Docker%20Image)](https://www.getrebuild.com/learn/install-use-docker)
 
+[在线体验](https://nightly.getrebuild.com/) · [下载](https://getrebuild.com/download) · [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.4) · [开发文档](https://getrebuild.com/docs/dev/) · [更多介绍](https://getrebuild.com/learn/declaration)
+
+</div>
+
 ## 项目简介
 
-**_相较于同类产品，REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。_**
+相较于同类产品，REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。
 
-「开放式设计」是 REBUILD 的重要设计理念！得益于团队成熟的企业管理系统经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
+「开放式设计」是 REBUILD 的重要设计理念。得益于团队成熟的企业管理系统经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
 
-> **福利：加入 REBUILD VIP 用户 QQ 交流群 744487038 1013051587 GET 使用技能**
+**核心能力：**
 
-### 为什么需要 REBUILD
+| 能力       | 说明                                                |
+| ---------- | --------------------------------------------------- |
+| 零代码建模 | 全图形化设计业务实体、字段、布局，所见即所得        |
+| 流程自动化 | 触发器、审批流程、任务计划，业务规则随需配置        |
+| 精细化权限 | 团队、角色、部门多维度权限控制                      |
+| AI 助手    | 内置 AI 助手，支持文件上传分析、Token 用量统计      |
+| 多端体验   | Web 端 + 手机版，随时随地处理业务                   |
+| 开放集成   | OpenAPI 对接外部系统，支持 Java/SpringBoot 二次开发 |
+| 极简部署   | 一个安装包即开即用，支持 Docker / 私有云 / 本地部署 |
+
+## 为什么需要 REBUILD
 
 相较于传统软件系统，REBUILD 提供了绝佳的灵活性与可控性，可以完全按照企业需求进行量身打造。同时，当系统投入使用一段时间后会遇到业务变化或需求变更，通过 REBUILD 提供的高度可配置化能力，可快速完成需求变更而无需额外投入。
 
-### REBUILD 适合哪类用户
+## REBUILD 适合哪类用户
 
-REBUILD 适合需要灵活搭建业务系统的企业 IT 团队、缺乏专职开发资源的中小企业、特定业务领域的管理者、从传统系统迁移或升级的企业，或是开发者或技术合作伙伴。
-
-#### 企业 IT 团队
-
-- 场景：快速搭建 CRM/MES/WMS 等业务系统
-- 优势：零代码配置业务实体、权限、流程
-- 用户：IT 管理员、实施顾问
-
-#### 中小企业
-
-- 场景：缺乏开发资源与预算
-- 优势：开源免费版满足基础需求，商业版提供更多高阶功能
-
-#### 业务管理者（典型应用）
-
-- 销售（客户/商机管理）
-- 供应链（库存/出入库）
-- 生产（工单/进度监控）
-
-#### 系统升级企业
-
-- 场景：替换老旧 OA/Excel 管理
-- 能力：数据迁移、多实体关联、审计追踪
-
-#### 开发者
-
-- 扩展：Java/SpringBoot 二次开发，提供 OpenAPI 集成外部系统
-- 部署：支持 Docker 私有云或本地部署
-
-更多详情介绍 [https://getrebuild.com/learn/declaration](https://getrebuild.com/learn/declaration)
+| 用户类型     | 典型场景                                                    | 优势                                           |
+| ------------ | ----------------------------------------------------------- | ---------------------------------------------- |
+| 企业 IT 团队 | 快速搭建 CRM / MES / WMS 等业务系统                         | 零代码配置业务实体、权限、流程                 |
+| 中小企业     | 缺乏开发资源与预算                                          | 开源免费版满足基础需求，商业版提供更多高阶功能 |
+| 业务管理者   | 销售（客户/商机）、供应链（库存/出入库）、生产（工单/进度） | 灵活搭建、随需调整                             |
+| 系统升级企业 | 替换老旧 OA / Excel 管理                                    | 数据迁移、多实体关联、审计追踪                 |
+| 开发者       | 二次开发与系统集成                                          | OpenAPI + Java 扩展，支持 Docker 或本地部署    |
 
 ## V4.4 新特性
 
@@ -76,21 +75,27 @@ REBUILD 适合需要灵活搭建业务系统的企业 IT 团队、缺乏专职�
 
 开始使用 REBUILD 非常简单，无需配置复杂的运行环境，零依赖快速部署！
 
-### 1. 使用已发布版本
+### 1. 使用 Docker（推荐）
+
+```bash
+docker run -d --name rebuild -p 18080:18080 getrebuild/rebuild:latest
+```
+
+启动后访问 [http://localhost:18080/](http://localhost:18080/) 即可开始体验。生产环境建议配合 MySQL 使用，详见 [Docker 安装指南](https://getrebuild.com/learn/install-use-docker)。
+
+### 2. 使用已发布版本
 
 _生产环境强烈推荐使用此方式 !!!_
 
 首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包（推荐），`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
 
-下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，然后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
+下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，然后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。更多详情请参见 [安装文档](https://getrebuild.com/learn/install)。
 
-或者您也可以 [使用 Docker 安装](https://getrebuild.com/learn/install-use-docker)。更多详情请参见 [安装文档](https://getrebuild.com/learn/install)
-
-### 2. 通过源码编译
+### 3. 通过源码编译
 
 _注意 !!! 生产环境请使用 `master` 分支（默认分支），其他分支为开发分支，功能存在不确定性！_
 
-```
+```bash
 # 拉取
 git clone --depth=1 https://github.com/getrebuild/rebuild.git
 
@@ -107,20 +112,28 @@ java -jar target/rebuild.jar
 
 REBUILD 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上没有区别。默认情况下使用 SpringBoot `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
 
-如你希望使用外部 Tomcat（或其他 Java Web 容器） 即 `war` 方式，请将 `pom.xml` 文件中注释为 `UNCOMMENT USE TOMCAT` 的下一行取消注释。
+如你希望使用外部 Tomcat（或其他 Java Web 容器）即 `war` 方式，请将 `pom.xml` 文件中注释为 `UNCOMMENT USE TOMCAT` 的下一行取消注释。
 
 ### 开发环境
 
 REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因此可以运行在几乎所有操作系统上。请按如下清单准备：
 
-- JDK 1.8+（兼容 OpenJDK）
-- MySQL 5.6+
-- Apache Maven 3.6+（非必须，IDE 自带）
-- Redis 3.2+（非必须，默认使用内置 Ehcache 缓存）
-- Tomcat 8.0+（非必须，默认使用内置 Tomcat）
-- IDEA 或 Eclipse (for JEE)
+| 依赖                      | 说明                              |
+| ------------------------- | --------------------------------- |
+| JDK 1.8+                  | 必须，兼容 OpenJDK                |
+| MySQL 5.6+                | 必须                              |
+| Apache Maven 3.6+         | 非必须，IDE 自带                  |
+| Redis 3.2+                | 非必须，默认使用内置 Ehcache 缓存 |
+| Tomcat 8.0+               | 非必须，默认使用内置 Tomcat       |
+| IDEA 或 Eclipse (for JEE) | 推荐                              |
 
 更多详情请参见 [开发人员文档](https://getrebuild.com/docs/dev/)
+
+## 社区交流
+
+> **福利：加入 REBUILD VIP 用户 QQ 交流群 744487038 1013051587 GET 使用技能**
+
+使用中遇到问题或有建议，欢迎提交 [Issue](https://github.com/getrebuild/rebuild/issues) 与我们交流。如果项目对你有帮助，欢迎点个 Star 支持。
 
 ## 授权 License
 

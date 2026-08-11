@@ -78,8 +78,8 @@ $(document).ready(() => {
         })
       },
       onRendered: function () {
-        const $b = $(this._element).find('.modal-body b').addClass('newpwd')
-        $clipboard($b, newpwd)
+        const $b = $(this._element).find('.modal-body b').addClass('newpwd').data('clipboard-text', newpwd)
+        $clipboard($b)
       },
     })
   })

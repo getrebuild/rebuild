@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rebuild AdvFilter 过滤条件数据体",
+  "description": "AdvFilterParser 可解析的高级过滤表达式，解析后转换为 SQL where 子句",
+  "type": "object",
+  "required": ["entity", "items"],
+  "properties": {
+    "entity": {
+      "type": "string",
+      "description": "实体名称（元数据中的实体名，如 Account、SalesOrder）"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["QUICK"],
+      "description": "可选。QUICK 表示快速查询模式，由解析器自动确定查询项"
+    },
+    "equation": {
+      "type": "string",
+      "default": "OR",
+      "description": "条件组合方式：OR（符合任一，默认）/ AND（符合全部）/ 高级表达式，如 \"(1 AND 2) OR 3\"，其中数字为条件序号（1~10），对应 items 的 index"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "description": "过滤条件列表，不能为空",
+      "items": { "$ref": "#/$defs/filterItem" }
+    },
+    "values": {
+      "type": "object",
+      "description": "快速搜索占位符值映射。当 item.value 为 \"{1}\" 形式的占位符时，从此对象对应键取实际值",
+      "additionalProperties": { "type": ["string", "number"] }
+    }
+  },
+  "$defs": {
+    "filterItem": {
+      "type": "object",
+      "required": ["field", "op"],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "条件序号，供 equation 高级表达式引用；省略时按数组顺序从 1 递增"
+        },
+        "field": {
+          "type": "string",
+          "pattern": "^(\\$CURRENTUSER\\$|\\$APPROVALCURRENTUSER\\$|&(?:amp;)?[A-Za-z][\\w.]*|[A-Za-z][\\w.]*)$",
+          "description": "字段名。& 前缀表示按引用实体的名称字段查询（如 &owningUser）；支持点号跨实体引用（如 owningUser.deptId）；虚拟字段：$CURRENTUSER$（当前用户）、$APPROVALCURRENTUSER$（当前审批人，已废弃）"
+        },
+        "op": {
+          "type": "string",
+          "description": "操作符。比较：EQ/NEQ/GT/LT/GE/LE；空值：NL(为空)/NT(不为空)；模糊：LK(包含)/NLK(不包含)/LK1(后缀匹配)/LK2(前缀匹配)/FT(全文索引)；多值：IN/NIN（值以 | 分隔）；区间：BW；日期相对：BFD/BFM/BFY(之前N天/月/年)、AFD/AFM/AFY(之后)、RED/REM/REY(最近)、FUD/FUM/FUY(未来)；日期固定：TDA(今天)/YTA(昨天)/TTA(明天)；周期：PUW/CUW/NUW(本周-/本周/本周+)，PUM/CUM/NUM(月)、PUQ/CUQ/NUQ(季度)、PUY/CUY/NUY(年)；偏移：YYY/MMM/DDD/HHH(相对今 年/月/天/时 偏移，值为整数)；指定：EVW(本周几,1-7)/EVM(本月几,1-31)/EVY(本年几月,1-12)/EVW2(每周几)/EVM2(每月几)/EVY2(每年几月)；组织：SFU(当前用户)/SFB(当前用户所在部门)/SFD(指定部门)/SFT(所在团队)；REP(重复出现次数，值为数字)；位运算：BAND/NBAND",
+          "enum": [
+            "EQ", "NEQ", "GT", "LT", "GE", "LE",
+            "NL", "NT",
+            "LK", "NLK", "LK1", "LK2", "FT",
+            "IN", "NIN", "BW",
+            "BFD", "BFM", "BFY", "AFD", "AFM", "AFY",
+            "RED", "REM", "REY", "FUD", "FUM", "FUY",
+            "TDA", "YTA", "TTA",
+            "PUW", "CUW", "NUW", "PUM", "CUM", "NUM",
+            "PUQ", "CUQ", "NUQ", "PUY", "CUY", "NUY",
+            "YYY", "MMM", "DDD", "HHH",
+            "EVW", "EVM", "EVY", "EVW2", "EVM2", "EVY2",
+            "SFU", "SFB", "SFD", "SFT",
+            "REP", "BAND", "NBAND"
+          ]
+        },
+        "value": {
+          "type": ["string", "number"],
+          "description": "条件值。多值用 | 分隔（IN/NIN/SFD/SFT）；日期格式 yyyy-MM-dd、日期时间 yyyy-MM-dd HH:mm:ss；支持变量字段 {@字段名}（从运行时记录取值）；支持占位符 {1} 配合顶层 values 使用；相对日期类操作符的值为数字（天数/月数/年数）"
+        },
+        "value2": {
+          "type": ["string", "number"],
+          "description": "区间结束值，仅 BW 使用；value 与 value2 均提供为闭区间，仅提供其一时 BW 退化为 GE/LE"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "enum": [
+                  "NL", "NT", "TDA", "YTA", "TTA", "SFU", "SFB",
+                  "PUW", "CUW", "NUW", "PUM", "CUM", "NUM",
+                  "PUQ", "CUQ", "NUQ", "PUY", "CUY", "NUY"
+                ]
+              }
+            }
+          },
+          "then": {
+            "not": { "required": ["value"] },
+            "description": "该组操作符无需提供 value"
+          }
+        },
+        {
+          "if": { "properties": { "op": { "const": "BW" } } },
+          "then": {
+            "anyOf": [{ "required": ["value"] }, { "required": ["value2"] }],
+            "description": "BW 至少需要 value 或 value2 之一"
+          }
+        }
+      ]
+    }
+  }
+}

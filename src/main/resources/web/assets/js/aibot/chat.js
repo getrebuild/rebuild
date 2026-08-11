@@ -8,6 +8,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const _chatMarked = new marked.Marked({
   renderer: {
+    code({ text, lang }) {
+      // ```echarts
+      if (lang === 'echarts' || lang === 'echart') {
+        const safe = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        return `<div class="echarts-to-render">${safe}</div>`
+      }
+      return false
+    },
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens)
       let safeHref = href
@@ -452,12 +460,31 @@ class ChatMessage extends React.Component {
           }
         }
       })
+
+    this._tryRenderCharts()
   }
 
   componentDidUpdate(props, prevState) {
     if (prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning) {
       scrollToBottom()
+      this._tryRenderCharts()
     }
+  }
+
+  componentWillUnmount() {
+    $(this._$message)
+      .find('.echarts-rendered')
+      .each(function () {
+        const chart = $(this).data('echarts-instance')
+        if (chart && typeof chart.dispose === 'function') chart.dispose()
+      })
+  }
+
+  _tryRenderCharts() {
+    const $el = this._$message && $(this._$message)
+    if (!$el || $el.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
+    if (!this._echartsSeq) this._echartsSeq = $random('echarts-', true)
+    $setTimeout(() => $renderEcharts($el), 200, 'render-echarts-' + this._echartsSeq)
   }
 
   render() {
@@ -468,10 +495,10 @@ class ChatMessage extends React.Component {
     else c = this.renderError()
 
     return (
-      <div className="chat-message">
+      <div className="chat-message" ref={(c) => (this._$message = c)}>
         {c}
         <div className="msg-action">
-          <a title={$L('复制')} onClick={() => $clipboard2(this.state.content || '')}>
+          <a title={$L('复制')} onClick={() => $clipboard(this.state.content || '')}>
             <i className="mdi mdi-content-copy icon" />
           </a>
         </div>
@@ -535,13 +562,51 @@ class ChatMessage extends React.Component {
     let md = content || this.state.content
     if (!md) return null
 
-    md = fixMd(md)
+    if (window.__LAB45_FIXAIMD) md = fixMd(md)
     return (
       <div className="msg-text">
         <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
       </div>
     )
   }
+}
+
+// 懒加载 ECharts 并渲染
+function $renderEcharts($container) {
+  if (!$container || !$container.length) return
+  if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
+
+  $useEchart(() => {
+    $container.find('.echarts-to-render:not(.echarts-rendered)').each(function () {
+      const $node = $(this)
+      let option
+      try {
+        option = JSON.parse($node.text())
+      } catch (err) {
+        // 流式输出中 JSON 可能尚不完整，等待下次渲染
+        console.warn('ECharts option parse failed :', err)
+        return
+      }
+
+      $node.addClass('echarts-rendered').empty()
+      try {
+        const chart = echarts.init($node[0])
+        const base = { ...ECHART_BASE }
+        delete base.grid
+        const opt = { ...base, ...option }
+        opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
+        opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
+        if (opt.title) opt.title = { ...opt.title, top: 10 }
+        if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
+        opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
+        chart.setOption(opt)
+        $node.data('echarts-instance', chart)
+      } catch (err) {
+        console.error('ECharts render error :', err)
+        $node.removeClass('echarts-rendered')
+      }
+    })
+  })
 }
 
 function scrollToBottom(forceScroll) {

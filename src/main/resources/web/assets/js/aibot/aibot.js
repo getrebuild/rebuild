@@ -53,8 +53,12 @@ class AiBot extends React.Component {
     const $modal = $(this._$modal)
     $modal
       .modal({ show: false, backdrop: false, keyboard: false })
-      .on('shown.bs.modal', () => { this._isShown = true })
-      .on('hidden.bs.modal', () => { this._isShown = false })
+      .on('shown.bs.modal', () => {
+        this._isShown = true
+      })
+      .on('hidden.bs.modal', () => {
+        this._isShown = false
+      })
 
     setTimeout(() => this.show(), 50)
 

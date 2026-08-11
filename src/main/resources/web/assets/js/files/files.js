@@ -212,14 +212,7 @@ class SharedFiles extends RbModalHandler {
     $.get('/filex/all-make-share', (res) => {
       this.setState({ data: res.data || [] }, () => {
         const $tbody = $(this._$tbody)
-        const initCopy = function () {
-          $tbody.find('.J_copy').each((idx, item) => $clipboard($(item)))
-        }
-        if (window.ClipboardJS) {
-          initCopy()
-        } else {
-          $getScript('/assets/lib/clipboard.min.js', initCopy)
-        }
+        $tbody.find('.J_copy').each((idx, item) => $clipboard(item))
       })
     })
   }

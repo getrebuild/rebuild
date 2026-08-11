@@ -12,6 +12,7 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.springframework.util.Assert;
@@ -23,6 +24,8 @@ import org.springframework.util.Assert;
 public class Config {
 
     private static OpenAIClient CLIENT;
+
+    private static volatile String SYSTEM_PROMPT_CACHE;
 
     /**
      * 共享的 Tika 实例（文件内容解析与 MIME 检测）
@@ -109,6 +112,19 @@ public class Config {
      */
     public static String getBasePrompt() {
         return RebuildConfiguration.get(ConfigurationItem.AibotBasePrompt);
+    }
+
+    /**
+     * 系统级提示词（前端能力说明等，来自资源文件）
+     *
+     * @return
+     */
+    public static String getSystemCapabilityPrompt() {
+        if (SYSTEM_PROMPT_CACHE == null) {
+            String res = CommonsUtils.getStringOfRes("aibot2/system-prompt.md");
+            SYSTEM_PROMPT_CACHE = res == null ? null : StringUtils.trimToEmpty(res);
+        }
+        return SYSTEM_PROMPT_CACHE == null ? "" : SYSTEM_PROMPT_CACHE;
     }
 
     /**

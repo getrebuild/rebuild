@@ -217,7 +217,7 @@ class BaseChart extends React.Component {
     }
 
     const name = `${this.state.title}.xls`
-    const _export = function () {
+    $useXlsx(() => {
       // RM
       _rmLinks(table, '__href', 'href')
       // export
@@ -229,15 +229,7 @@ class BaseChart extends React.Component {
       })
       // RE
       setTimeout(() => _rmLinks(table, 'href', '__href'), 201)
-    }
-
-    if (window.XLSX && window.XLSX.utils) {
-      _export()
-    } else {
-      $getScript('/assets/lib/charts/xlsx.full.min.js', () => {
-        setTimeout(_export, 1000)
-      })
-    }
+    })
   }
 
   renderError(error, cb) {
@@ -392,9 +384,6 @@ class ChartTable extends BaseChart {
   }
 }
 
-// for ECharts
-const COLOR_AXIS = '#ddd'
-const COLOR_LABEL = '#555'
 // 可用调色板
 const COLOR_PALETTES = {
   shine: ['#c12e34', '#e6b600', '#0098d9', '#2b821d', '#005eaa', '#339ca8', '#cda819', '#32a487'],
@@ -409,45 +398,9 @@ const COLOR_PALETTES = {
   macarons: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa', '#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050', '#59678c', '#c9ab00'],
 }
 
-const ECHART_BASE = {
-  grid: { left: 60, right: 30, top: 30, bottom: 30 },
-  animation: window.__LAB_CHARTANIMATION || false,
-  tooltip: {
-    trigger: 'item',
-    textStyle: {
-      fontSize: 12,
-      lineHeight: 1.2,
-      color: '#333',
-    },
-    axisPointer: {
-      type: 'line', // line, cross, shadow
-      lineStyle: { color: COLOR_AXIS },
-      crossStyle: { color: COLOR_AXIS },
-      label: {
-        color: '#222',
-        backgroundColor: COLOR_AXIS,
-        padding: [7, 7, 5, 7],
-      },
-    },
-    backgroundColor: '#fff',
-    extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
-    confine: true,
-    position: 'top',
-    borderWidth: 0,
-    padding: [5, 10],
-  },
-  toolbox: {
-    show: false,
-  },
-  textStyle: {
-    fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-  },
-  color: RBCOLORS,
-}
-
 const ECHART_AXIS_LABEL = {
   textStyle: {
-    color: COLOR_LABEL,
+    color: '#555',
     fontSize: 12,
     fontWeight: '400',
   },
@@ -579,8 +532,8 @@ const reOptionMutliYAxis = function (option) {
       c.position = 'right'
       c.offset = i * 45 - 45
     }
-    c.axisLabel.textStyle.color = option.color[i] || COLOR_AXIS
-    // c.axisLine = { show: true, lineStyle: { color: option.color[i] || COLOR_AXIS } }
+    c.axisLabel.textStyle.color = option.color[i] || ECHART_AXIS_COLOR
+    // c.axisLine = { show: true, lineStyle: { color: option.color[i] || ECHART_AXIS_COLOR } }
     option.series[i].yAxisIndex = i
     yAxisMutli.push(c)
   }
@@ -645,18 +598,18 @@ class ChartLine extends BaseChart {
           data: data.xAxis,
           axisLabel: { ...ECHART_AXIS_LABEL },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS },
+            lineStyle: { color: ECHART_AXIS_COLOR },
           },
         },
         yAxis: {
           type: 'value',
-          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
+          splitLine: { show: showGrid, lineStyle: { color: ECHART_AXIS_COLOR } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber,
           },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 },
+            lineStyle: { color: ECHART_AXIS_COLOR, width: showGrid ? 1 : 0 },
           },
         },
         series: data.yyyAxis,
@@ -727,19 +680,19 @@ class ChartBar extends BaseChart {
           data: showHorizontal ? null : data.xAxis,
           axisLabel: { ...ECHART_AXIS_LABEL },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS },
+            lineStyle: { color: ECHART_AXIS_COLOR },
           },
         },
         yAxis: {
           type: showHorizontal ? 'category' : 'value',
           data: showHorizontal ? data.xAxis : null,
-          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
+          splitLine: { show: showGrid, lineStyle: { color: ECHART_AXIS_COLOR } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber,
           },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 },
+            lineStyle: { color: ECHART_AXIS_COLOR, width: showGrid ? 1 : 0 },
           },
         },
         series: data.yyyAxis,
@@ -991,7 +944,7 @@ class ChartDolor extends BaseChart {
 
     const showNumerical = data._renderOption && data._renderOption.showNumerical
     const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
-    const colors = (themeStyle && COLOR_PALETTES[themeStyle]) ? COLOR_PALETTES[themeStyle] : RBCOLORS
+    const colors = themeStyle && COLOR_PALETTES[themeStyle] ? COLOR_PALETTES[themeStyle] : RBCOLORS
 
     let maxVal = 0
     let minVal = Infinity
@@ -1070,7 +1023,9 @@ class ChartDolor extends BaseChart {
 
     // 平均词高决定螺旋间距
     let totalH = 0
-    $words.each((idx, el) => { totalH += $(el).outerHeight() })
+    $words.each((idx, el) => {
+      totalH += $(el).outerHeight()
+    })
     const avgH = $words.length > 0 ? totalH / $words.length : 20
     const spiralA = Math.max(avgH * 0.8, 8) // r = a * theta
     const dtheta = 0.1
@@ -1095,8 +1050,7 @@ class ChartDolor extends BaseChart {
           let hit = false
           for (let j = 0; j < placed.length; j++) {
             const p = placed[j]
-            if (x < p.x + p.w + gap && x + w + gap > p.x &&
-                y < p.y + p.h + gap && y + h + gap > p.y) {
+            if (x < p.x + p.w + gap && x + w + gap > p.x && y < p.y + p.h + gap && y + h + gap > p.y) {
               hit = true
               break
             }
@@ -1117,15 +1071,19 @@ class ChartDolor extends BaseChart {
   }
 
   resize() {
-    $setTimeout(() => {
-      if (!this._$chart) return
-      // 全屏后利用 zoom 放大，参考 IndexChart
-      const ch = $(this._$chart).height()
-      const zoom = ch > 330 ? 1.5 : (ch > 200 ? 1.2 : 1)
-      this._dolorZoom = zoom
-      $(this._$chart).find('.dolor-inner').css('zoom', zoom)
-      this._layoutSpiral()
-    }, 400, `resize-chart-${this.state.id}`)
+    $setTimeout(
+      () => {
+        if (!this._$chart) return
+        // 全屏后利用 zoom 放大，参考 IndexChart
+        const ch = $(this._$chart).height()
+        const zoom = ch > 330 ? 1.5 : ch > 200 ? 1.2 : 1
+        this._dolorZoom = zoom
+        $(this._$chart).find('.dolor-inner').css('zoom', zoom)
+        this._layoutSpiral()
+      },
+      400,
+      `resize-chart-${this.state.id}`,
+    )
   }
 }
 
@@ -1441,7 +1399,7 @@ class ChartRadar extends BaseChart {
           indicator: data.indicator,
           name: {
             textStyle: {
-              color: COLOR_LABEL,
+              color: '#555',
               fontSize: 12,
             },
           },
@@ -1453,12 +1411,12 @@ class ChartRadar extends BaseChart {
           },
           splitLine: {
             lineStyle: {
-              color: COLOR_AXIS,
+              color: ECHART_AXIS_COLOR,
             },
           },
           axisLine: {
             lineStyle: {
-              color: COLOR_AXIS,
+              color: ECHART_AXIS_COLOR,
             },
           },
         },
@@ -1519,14 +1477,14 @@ class ChartScatter extends BaseChart {
 
       const axisOption = {
         splitLine: {
-          lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0, type: 'solid' },
+          lineStyle: { color: ECHART_AXIS_COLOR, width: showGrid ? 1 : 0, type: 'solid' },
         },
         axisLabel: {
           ...ECHART_AXIS_LABEL,
           formatter: shortNumber,
         },
         axisLine: {
-          lineStyle: { color: COLOR_AXIS },
+          lineStyle: { color: ECHART_AXIS_COLOR },
         },
         scale: false,
       }
@@ -1894,7 +1852,9 @@ class ChartCNMap extends BaseChart {
 
         // #2 Cluster
         // https://lbs.baidu.com/index.php?title=jspopularGL/guide/cluster#service-page-anchor1
-        $getScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => this._renderCluster(data, this._map))
+        $useScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => {
+          this._renderCluster(data, this._map)
+        })
       }, false)
     })
   }
