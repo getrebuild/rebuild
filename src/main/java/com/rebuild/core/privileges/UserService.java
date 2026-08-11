@@ -61,6 +61,8 @@ public class UserService extends BaseService {
     public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");
     // 管理员
     public static final ID ADMIN_USER = ID.valueOf("001-0000000000000001");
+    // AI助手
+    public static final ID AIBOT_USER = ID.valueOf("001-0000000000000002");
 
     protected UserService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
@@ -119,7 +121,7 @@ public class UserService extends BaseService {
 
     @Override
     public int delete(ID recordId) {
-        if (ADMIN_USER.equals(recordId) || SYSTEM_USER.equals(recordId)) {
+        if (ADMIN_USER.equals(recordId) || SYSTEM_USER.equals(recordId) || AIBOT_USER.equals(recordId)) {
             throw new OperationDeniedException(Language.L("内置用户禁止删除"));
         }
 
@@ -174,7 +176,7 @@ public class UserService extends BaseService {
             UserHelper.generateAvatar(record.getString("fullName"), true);
         }
 
-        if (ADMIN_USER.equals(record.getPrimary()) || SYSTEM_USER.equals(record.getPrimary())) {
+        if (ADMIN_USER.equals(record.getPrimary()) || SYSTEM_USER.equals(record.getPrimary()) || AIBOT_USER.equals(record.getPrimary())) {
             Boolean b = record.getBoolean("isDisabled");
             if (b != null && b) throw new OperationDeniedException("内置用户不能禁用");
 
@@ -539,7 +541,7 @@ public class UserService extends BaseService {
             String key = PasswordExpiredDays.name() + user;
             String lastChanged = RebuildConfiguration.getCustomValue(key);
             if (StringUtils.isBlank(lastChanged)) {
-                java.lang.Object d = QueryHelper.queryFieldValue(user, EntityHelper.CreatedOn);
+                Object d = QueryHelper.queryFieldValue(user, EntityHelper.CreatedOn);
                 lastChanged = CalendarUtils.getUTCDateFormat().format(d);
             }
 

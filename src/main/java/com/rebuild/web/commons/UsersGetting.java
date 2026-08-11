@@ -20,8 +20,8 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -37,7 +37,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.rebuild.core.service.feeds.BaseFeedsService.USER_AIBOT;
+import static com.rebuild.core.privileges.UserService.AIBOT_USER;
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowAtAllUsers;
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
 import static com.rebuild.core.service.feeds.BaseFeedsService.USER_ALLS;
 
 /**
@@ -74,19 +76,21 @@ public class UsersGetting extends BaseController {
 
         JSONArray found = new JSONArray();
 
-        // 全部用户
-        if (getBoolParameter(request, "atall") && "User".equals(type) && StringUtils.isBlank(query)) {
-
-            if (Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowAtAllUsers)) {
-                found.add(JSONUtils.toJSONObject(
-                        new String[]{"id", "text"}, new Object[]{USER_ALLS, Language.L("所有人")}));
+        if ("User".equals(type) && StringUtils.isBlank(query)) {
+            final ID user = getRequestUser(request);
+            // @所有人
+            if (getBoolParameter(request, "atall")) {
+                if (Application.getPrivilegesManager().allow(user, AllowAtAllUsers)) {
+                    found.add(JSONUtils.toJSONObject(
+                            new String[]{"id", "text"}, new Object[]{USER_ALLS, Language.L("所有人")}));
+                }
             }
-
-            // TODO At AiBot
-            if (getBoolParameter(request, "aibot")
-                    && Application.getPrivilegesManager().allow(getRequestUser(request), ZeroEntry.AllowUseAiBot)) {
-                found.add(JSONUtils.toJSONObject(
-                        new String[]{"id", "text"}, new Object[]{USER_AIBOT, Language.L("AI 助手")}));
+            // @AI助手
+            if (getBoolParameter(request, "aibot")) {
+                if (Application.getPrivilegesManager().allow(user, AllowUseAiBot) || !License.isCommercial()) {
+                    found.add(JSONUtils.toJSONObject(
+                            new String[]{"id", "text"}, new Object[]{AIBOT_USER, Language.L("AI助手")}));
+                }
             }
         }
 

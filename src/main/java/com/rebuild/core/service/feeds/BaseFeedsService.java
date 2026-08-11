@@ -17,7 +17,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.aibot2.ChatManager;
 import com.rebuild.core.service.aibot2.Config;
@@ -25,6 +24,7 @@ import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -37,6 +37,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import static com.rebuild.core.privileges.UserService.AIBOT_USER;
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowAtAllUsers;
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
+
 /**
  * 从动态/评论中提取 at 用户，以及将文件放置在福建表
  *
@@ -48,8 +52,6 @@ public abstract class BaseFeedsService extends ObservableService {
 
     // 全部用户（注意这是一个虚拟用户 ID，并不真实存在）
     public static final ID USER_ALLS = ID.valueOf("001-9999999999999999");
-    // v4.4 AI 助手用户（注意这是一个虚拟用户 ID，并不真实存在）
-    public static final ID USER_AIBOT = ID.valueOf("001-9999999999999998");
 
     protected BaseFeedsService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
@@ -113,7 +115,7 @@ public abstract class BaseFeedsService extends ObservableService {
             }
         }
 
-        if (atUsers.contains(USER_AIBOT) && !existsAtUsers.contains(USER_AIBOT)) {
+        if (atUsers.contains(AIBOT_USER) && !existsAtUsers.contains(AIBOT_USER)) {
             TransactionManual.registerAfterCommit(() -> {
                 String aiReply;
                 if (Config.availableAiBot()) {
@@ -124,7 +126,7 @@ public abstract class BaseFeedsService extends ObservableService {
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
                     }
                 } else {
-                    aiReply = Language.L("请配置 AI 助手参数后使用");
+                    aiReply = Language.L("请联系管理员配置 AI 助手后使用");
                 }
 
                 aiReply = StringUtils.trim(aiReply);
@@ -133,9 +135,9 @@ public abstract class BaseFeedsService extends ObservableService {
                 Record r = RecordBuilder.builder(EntityHelper.FeedsComment)
                         .add("feedsId", record.getID("feedsId"))
                         .add("content", aiReply)
-                        .build(UserService.SYSTEM_USER);
+                        .build(AIBOT_USER);
 
-                UserContextHolder.setUser(UserService.SYSTEM_USER);
+                UserContextHolder.setUser(AIBOT_USER);
                 try {
                     Application.getBean(FeedsCommentService.class).createOrUpdate(r);
                 } finally {
@@ -148,7 +150,7 @@ public abstract class BaseFeedsService extends ObservableService {
         for (ID to : atUsers) {
             if (existsAtUsers.contains(to)) continue;
             if (existsAtUsers.contains(USER_ALLS)) continue;
-            if (existsAtUsers.contains(USER_AIBOT)) continue;
+            if (existsAtUsers.contains(AIBOT_USER)) continue;
 
             Application.getNotifications().send(
                     MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related, record.getEditor()));
@@ -168,9 +170,11 @@ public abstract class BaseFeedsService extends ObservableService {
         }
 
         String fakeContent = record.getString("content");
-
+        ID user = getCurrentUser();
         Set<String> locales = Application.getLanguage().getAvailableLocales().keySet();
-        if (Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowAtAllUsers)) {
+
+        // @所有人
+        if (Application.getPrivilegesManager().allow(user, AllowAtAllUsers)) {
             for (String locale : locales) {
                 String keyText = "@" + Application.getLanguage().getBundle(locale).L("所有人");
                 if (fakeContent.contains(keyText)) {
@@ -178,14 +182,12 @@ public abstract class BaseFeedsService extends ObservableService {
                 }
             }
         }
-        if (Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowUseAiBot)) {
-            // 字符兼容
-            fakeContent = fakeContent.replace("@AI助手", "@AI 助手");
-
+        // @AI助手
+        if (Application.getPrivilegesManager().allow(user, AllowUseAiBot) || !License.isCommercial()) {
             for (String locale : locales) {
-                String keyText = Application.getLanguage().getBundle(locale).L("AI 助手");
+                String keyText = "@" + Application.getLanguage().getBundle(locale).L("AI助手");
                 if (fakeContent.contains(keyText)) {
-                    fakeContent = fakeContent.replace(keyText, "@" + USER_AIBOT);
+                    fakeContent = fakeContent.replace(keyText, "@" + AIBOT_USER);
                 }
             }
         }
