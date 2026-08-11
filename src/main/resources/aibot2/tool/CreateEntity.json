@@ -1,0 +1,33 @@
+{
+  "type": "function",
+  "function": {
+    "name": "CreateEntity",
+    "description": "新建实体（需管理员权限），系统会自动创建对应的数据模型。可选择是否同时创建名称字段、自动编号字段，指定主实体时创建其明细实体",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entityLabel": {
+          "type": "string",
+          "description": "实体名称，如 客户、合同"
+        },
+        "nameField": {
+          "type": "boolean",
+          "description": "是否创建名称字段（默认创建）"
+        },
+        "seriesField": {
+          "type": "boolean",
+          "description": "是否创建自动编号字段"
+        },
+        "mainEntity": {
+          "type": "string",
+          "description": "所属主实体（可选），指定后创建为该实体的明细实体，如 订单"
+        },
+        "comments": {
+          "type": "string",
+          "description": "实体描述"
+        }
+      },
+      "required": ["entityLabel"]
+    }
+  }
+}
