@@ -596,8 +596,9 @@ function $renderEcharts($container) {
         const opt = { ...base, ...option }
         opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
         opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
-        if (opt.title) opt.title = { ...opt.title, top: 15 }
-        opt.grid = { ...(opt.grid || {}), top: opt.title || opt.legend ? 80 : 50, bottom: 50 }
+        if (opt.title) opt.title = { ...opt.title, top: 10 }
+        if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
+        opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
         chart.setOption(opt)
         $node.data('echarts-instance', chart)
       } catch (err) {
