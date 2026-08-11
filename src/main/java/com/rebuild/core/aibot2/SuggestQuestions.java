@@ -8,10 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 根据系统当前状态生成推荐问题，帮助用户快速开始对话
+ * 根据系统当前状态生成推荐问题，帮助用户快速开始对话。
+ * 针对管理员与普通用户生成不同的推荐问题
  *
  * @author devezhao
  * @since 2026/8/4
@@ -37,9 +40,12 @@ public class SuggestQuestions {
     /**
      * 生成推荐问题
      *
+     * @param user 当前用户（管理员与普通用户展示不同的推荐问题）
      * @return
      */
-    public static JSONArray generate() {
+    public static JSONArray generate(ID user) {
+        boolean admin = user != null && UserHelper.isAdmin(user);
+
         JSONArray questions = new JSONArray();
 
         // 优先配置的
@@ -53,29 +59,51 @@ public class SuggestQuestions {
         }
 
         if (questions.size() < MAX_QUESTIONS) {
-            List<EntityData> withData = collectEntityData();
-            if (!withData.isEmpty()) {
-                EntityData top = withData.get(0);
-                questions.add(String.format("查询%s列表", top.label));
+            // 通用引导，管理员与普通用户均展示
+            addQuestion(questions, "你可以做什么");
 
-                if (questions.size() < MAX_QUESTIONS - 1) {
+            List<EntityData> withData = collectEntityData();
+
+            if (admin) {
+                // 管理员侧重系统配置与管理类问题
+                addQuestion(questions, "帮我创建一个新的业务实体");
+                if (!withData.isEmpty()) {
+                    addQuestion(questions, String.format("给%s实体添加一个新字段", withData.get(0).label));
+                } else {
+                    addQuestion(questions, "给实体添加一个新字段");
+                }
+                addQuestion(questions, "如何配置审批流程");
+                addQuestion(questions, "如何设置用户角色权限");
+            } else {
+                // 普通用户侧重日常业务操作类问题
+                if (!withData.isEmpty()) {
+                    EntityData top = withData.get(0);
+                    addQuestion(questions, String.format("查询%s列表", top.label));
+
                     EntityData customer = findCustomerEntity(withData);
                     if (customer != null) {
-                        questions.add(String.format("创建%s跟进", customer.label));
+                        addQuestion(questions, String.format("创建%s跟进", customer.label));
+                    }
+
+                    if (withData.size() > 1) {
+                        addQuestion(questions, String.format("统计分析%s数据", withData.get(1).label));
                     }
                 }
-
-                if (questions.size() < MAX_QUESTIONS - 1 && withData.size() > 1) {
-                    questions.add(String.format("统计分析%s", withData.get(1).label));
-                }
-
-                if (questions.size() < MAX_QUESTIONS - 1) {
-                    questions.add("查询待审批记录");
-                }
+                addQuestion(questions, "查询待审批记录");
             }
         }
 
         return questions;
+    }
+
+    /**
+     * @param questions
+     * @param question
+     */
+    private static void addQuestion(JSONArray questions, String question) {
+        if (questions.size() < MAX_QUESTIONS && !questions.contains(question)) {
+            questions.add(question);
+        }
     }
 
     /**
