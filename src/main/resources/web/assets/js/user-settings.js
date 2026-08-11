@@ -356,15 +356,7 @@ class DlgTempAuth extends RbModalHandler {
       this.setState({ tempUrl: res.data || 'ERROR' })
 
       // copy
-      const that = this
-      const initCopy = function () {
-        $clipboard($(that._$copy), that.state.tempUrl)
-      }
-      if (window.ClipboardJS) {
-        initCopy()
-      } else {
-        $getScript('/assets/lib/clipboard.min.js', initCopy)
-      }
+      $useClipboard(() => $clipboard($(this._$copy), this.state.tempUrl))
     })
   }
 }
@@ -511,14 +503,6 @@ class DlgAccessKey extends RbModalHandler {
   }
 
   componentDidMount() {
-    const that = this
-    const initCopy = function () {
-      $clipboard($(that._$copy), that.props.token)
-    }
-    if (window.ClipboardJS) {
-      initCopy()
-    } else {
-      $getScript('/assets/lib/clipboard.min.js', initCopy)
-    }
+    $useClipboard(() => $clipboard($(this._$copy), this.props.token))
   }
 }

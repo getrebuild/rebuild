@@ -217,7 +217,7 @@ function ShowEnable(enable, cfgid) {
 }
 
 $(document).ready(() => {
-  $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', () => {
+  $usePinyin(() => {
     console.log('pinyin-pro.min.js loaded')
   })
 

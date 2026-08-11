@@ -383,11 +383,7 @@ class BaiduMapModal extends RbModal {
           }
         })
     }
-    if (jQuery.prototype.autoComplete) {
-      _autoComplete()
-    } else {
-      $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', () => _autoComplete())
-    }
+    $useAutocomplete(() => _autoComplete())
   }
 
   _search() {
@@ -502,16 +498,7 @@ class SignPad extends React.Component {
       that.show()
     }
 
-    if (!window.SignaturePad) {
-      $.ajax({
-        url: '/assets/lib/widget/signature_pad.umd.min.js',
-        dataType: 'script',
-        cache: true,
-        success: initSign,
-      })
-    } else {
-      initSign()
-    }
+    $useSignPad(initSign)
   }
 
   componentWillUnmount() {
@@ -1036,13 +1023,7 @@ class ExcelClipboardData extends React.Component {
   }
 
   componentDidMount() {
-    if (window.XLSX) this._componentDidMount()
-    else {
-      $getScript(
-        '/assets/lib/charts/xlsx.full.min.js',
-        setTimeout(() => this._componentDidMount(), 200),
-      )
-    }
+    $useXlsx(() => setTimeout(() => this._componentDidMount(), 200))
   }
 
   _componentDidMount() {

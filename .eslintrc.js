@@ -172,5 +172,10 @@ module.exports = {
     $autoComplete: true,
     $openView: true,
     $renderMermaid: true,
+    $useScript: true,
+    $useEchart: true,
+    $useXlsx: true,
+    $useClipboard: true,
+    $usePinyin: true,
   },
 }

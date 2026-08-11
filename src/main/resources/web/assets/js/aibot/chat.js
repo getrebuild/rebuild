@@ -471,6 +471,15 @@ class ChatMessage extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    $(this._$message)
+      .find('.echarts-rendered')
+      .each(function () {
+        const chart = $(this).data('echarts-instance')
+        if (chart && typeof chart.dispose === 'function') chart.dispose()
+      })
+  }
+
   _tryRenderCharts() {
     const $el = this._$message && $(this._$message)
     if (!$el || $el.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
@@ -562,14 +571,12 @@ class ChatMessage extends React.Component {
   }
 }
 
-let _echartsLoaded = false
-let _echartsLoading = false
-let _echartsQueue = []
 // 懒加载 ECharts 并渲染
 function $renderEcharts($container) {
   if (!$container || !$container.length) return
+  if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
 
-  function doRender() {
+  $useEchart(() => {
     $container.find('.echarts-to-render:not(.echarts-rendered)').each(function () {
       const $node = $(this)
       let option
@@ -583,31 +590,15 @@ function $renderEcharts($container) {
 
       $node.addClass('echarts-rendered').empty()
       try {
-        // eslint-disable-next-line no-undef
         const chart = echarts.init($node[0])
         chart.setOption(option)
+        $node.data('echarts-instance', chart)
       } catch (err) {
         console.error('ECharts render error :', err)
         $node.removeClass('echarts-rendered')
       }
     })
-  }
-
-  if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
-
-  if (_echartsLoaded) {
-    doRender()
-  } else {
-    _echartsQueue.push(doRender)
-    if (!_echartsLoading) {
-      _echartsLoading = true
-      $getScript('/assets/lib/charts/echarts.min.js?v=5.5.0', function () {
-        _echartsLoaded = true
-        _echartsLoading = false
-        while (_echartsQueue.length) _echartsQueue.shift()()
-      })
-    }
-  }
+  })
 }
 
 function scrollToBottom(forceScroll) {

@@ -1057,12 +1057,9 @@ var $initReferenceSelect2 = function (el, option) {
 // 搜索 text/id
 // https://select2.org/searching#customizing-how-results-are-matched
 var $select2MatcherAll = function (params, data) {
-  if (!window.__pinyinLoaded && !window.pinyinPro) {
-    window.__pinyinLoaded = 1
-    $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', function () {
-      console.log('pinyin-pro.min.js loaded')
-    })
-  }
+  $usePinyin(function () {
+    console.log('pinyin-pro.min.js loaded')
+  })
 
   if ($trim(params.term) === '') return data
   if (typeof data.text === 'undefined') return null
@@ -1287,45 +1284,84 @@ var _getLang = function (key) {
 
 // 加载地图脚本
 // https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
-var $useMap__Loaded
-var $useMap__Callbacks = []
 var $useMap = function (cb, v3) {
-  // fix: v3.9 并发
-  var _cbs = function () {
-    $($useMap__Callbacks).each(function () {
-      this()
-    })
-    $useMap__Callbacks = []
-  }
-
   var _BMap = v3 ? window.BMap : window.BMapGL
-  if ($useMap__Loaded === 2 && _BMap) {
-    typeof cb === 'function' && cb()
-  } else if ($useMap__Loaded === 1) {
-    typeof cb === 'function' && $useMap__Callbacks.push(cb)
-    var _timer = setInterval(function () {
-      if ($useMap__Loaded === 2 && _BMap) {
-        _cbs()
-        clearInterval(_timer)
-      }
-    }, 500)
-  } else {
-    $useMap__Loaded = 1
-    typeof cb === 'function' && $useMap__Callbacks.push(cb)
-    window['$useMap__callback'] = function () {
-      _cbs()
-      $useMap__Loaded = 2
-    }
-
-    // JSAPI WebGL v1.0
-    var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'Z8YJOqCIysCGK0MsNJChsxPCWeWbqYXS') + '&callback=$useMap__callback'
-    if (window._BMapSecurityConfig && window._BMapSecurityConfig.serviceHost) {
-      apiUrl = window._BMapSecurityConfig.serviceHost + 'api?v=1.0&type=webgl&callback=$useMap__callback'
-    }
-    // JSAPI v3.0
-    if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
-    $getScript(apiUrl)
+  // JSAPI WebGL v1.0
+  var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'Z8YJOqCIysCGK0MsNJChsxPCWeWbqYXS') + '&callback=$useMap__callback'
+  if (window._BMapSecurityConfig && window._BMapSecurityConfig.serviceHost) {
+    apiUrl = window._BMapSecurityConfig.serviceHost + 'api?v=1.0&type=webgl&callback=$useMap__callback'
   }
+  // JSAPI v3.0
+  if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
+  $useScript(apiUrl, cb, {
+    jsonp: '$useMap__callback',
+    check: function () {
+      return _BMap
+    },
+  })
+}
+
+// ECharts 图表库
+var $useEchart = function (cb) {
+  $useScript('/assets/lib/charts/echarts.min.js?v=5.5.0', cb, {
+    check: function () {
+      return typeof echarts !== 'undefined'
+    },
+  })
+}
+
+// Mermaid 流程图
+var $useMermaid = function (cb) {
+  $useScript('/assets/lib/charts/mermaid.min.js?v=10.4.0', cb, {
+    check: function () {
+      return typeof mermaid !== 'undefined'
+    },
+  })
+}
+
+// 剪切板
+var $useClipboard = function (cb) {
+  $useScript('/assets/lib/clipboard.min.js', cb, {
+    check: function () {
+      return typeof ClipboardJS !== 'undefined'
+    },
+  })
+}
+
+// 拼音
+var $usePinyin = function (cb) {
+  $useScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', cb, {
+    check: function () {
+      return typeof pinyinPro !== 'undefined'
+    },
+  })
+}
+
+// 自动补全
+var $useAutocomplete = function (cb) {
+  $useScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', cb, {
+    check: function () {
+      return !!jQuery.prototype.autoComplete
+    },
+  })
+}
+
+// Excel 导出
+var $useXlsx = function (cb) {
+  $useScript('/assets/lib/charts/xlsx.full.min.js', cb, {
+    check: function () {
+      return typeof XLSX !== 'undefined'
+    },
+  })
+}
+
+// 签名板
+var $useSignPad = function (cb) {
+  $useScript('/assets/lib/widget/signature_pad.umd.min.js', cb, {
+    check: function () {
+      return typeof SignaturePad !== 'undefined'
+    },
+  })
 }
 
 // 自动定位（有误差）
@@ -1707,11 +1743,7 @@ function $autoComplete($el, fieldKey, option) {
     typeof option.onRender === 'function' && option.onRender(c)
   }
 
-  if (jQuery.prototype.autoComplete) {
-    _FN()
-  } else {
-    $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', _FN)
-  }
+  $useAutocomplete(_FN)
 }
 
 // 打开记录详情页
@@ -1743,9 +1775,6 @@ if (typeof marked !== 'undefined') {
   marked.use({ renderer: { code: _mermaidCodeRenderer } })
 }
 
-var _mermaidLoaded = false
-var _mermaidLoading = false
-var _mermaidQueue = []
 // 懒加载 mermaid 并渲染
 function $renderMermaid($container) {
   if (!$container || !$container.length) $container = $(document)
@@ -1779,17 +1808,5 @@ function $renderMermaid($container) {
     })
   }
 
-  if (_mermaidLoaded) {
-    doRender()
-  } else {
-    _mermaidQueue.push(doRender)
-    if (!_mermaidLoading) {
-      _mermaidLoading = true
-      $getScript('/assets/lib/charts/mermaid.min.js?v=10.4.0', function () {
-        _mermaidLoaded = true
-        _mermaidLoading = false
-        while (_mermaidQueue.length) _mermaidQueue.shift()()
-      })
-    }
-  }
+  $useMermaid(doRender)
 }

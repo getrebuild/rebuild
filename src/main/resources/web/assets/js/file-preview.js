@@ -488,15 +488,7 @@ class FileShare extends RbModalHandler {
         this.setState({ shareUrl: this.__shareUrl })
 
         // copy
-        const that = this
-        const initCopy = function () {
-          $clipboard($(that._$copy), that.__shareUrl)
-        }
-        if (window.ClipboardJS) {
-          initCopy()
-        } else {
-          $getScript('/assets/lib/clipboard.min.js', initCopy)
-        }
+        $useClipboard(() => $clipboard($(this._$copy), this.__shareUrl))
       })
     })
   }

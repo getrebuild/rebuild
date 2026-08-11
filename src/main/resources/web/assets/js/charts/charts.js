@@ -217,27 +217,21 @@ class BaseChart extends React.Component {
     }
 
     const name = `${this.state.title}.xls`
-    const _export = function () {
-      // RM
-      _rmLinks(table, '__href', 'href')
-      // export
-      // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
-      // https://docs.sheetjs.com/docs/api/write-options
-      const wb = window.XLSX.utils.table_to_book(table, { raw: true, wrapText: true })
-      window.XLSX.writeFile(wb, name, {
-        cellStyles: true, // Pro 支持?
-      })
-      // RE
-      setTimeout(() => _rmLinks(table, 'href', '__href'), 201)
-    }
-
-    if (window.XLSX && window.XLSX.utils) {
-      _export()
-    } else {
-      $getScript('/assets/lib/charts/xlsx.full.min.js', () => {
-        setTimeout(_export, 1000)
-      })
-    }
+    $useXlsx(() => {
+      setTimeout(() => {
+        // RM
+        _rmLinks(table, '__href', 'href')
+        // export
+        // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
+        // https://docs.sheetjs.com/docs/api/write-options
+        const wb = window.XLSX.utils.table_to_book(table, { raw: true, wrapText: true })
+        window.XLSX.writeFile(wb, name, {
+          cellStyles: true, // Pro 支持?
+        })
+        // RE
+        setTimeout(() => _rmLinks(table, 'href', '__href'), 201)
+      }, 1000)
+    })
   }
 
   renderError(error, cb) {
@@ -991,7 +985,7 @@ class ChartDolor extends BaseChart {
 
     const showNumerical = data._renderOption && data._renderOption.showNumerical
     const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
-    const colors = (themeStyle && COLOR_PALETTES[themeStyle]) ? COLOR_PALETTES[themeStyle] : RBCOLORS
+    const colors = themeStyle && COLOR_PALETTES[themeStyle] ? COLOR_PALETTES[themeStyle] : RBCOLORS
 
     let maxVal = 0
     let minVal = Infinity
@@ -1070,7 +1064,9 @@ class ChartDolor extends BaseChart {
 
     // 平均词高决定螺旋间距
     let totalH = 0
-    $words.each((idx, el) => { totalH += $(el).outerHeight() })
+    $words.each((idx, el) => {
+      totalH += $(el).outerHeight()
+    })
     const avgH = $words.length > 0 ? totalH / $words.length : 20
     const spiralA = Math.max(avgH * 0.8, 8) // r = a * theta
     const dtheta = 0.1
@@ -1095,8 +1091,7 @@ class ChartDolor extends BaseChart {
           let hit = false
           for (let j = 0; j < placed.length; j++) {
             const p = placed[j]
-            if (x < p.x + p.w + gap && x + w + gap > p.x &&
-                y < p.y + p.h + gap && y + h + gap > p.y) {
+            if (x < p.x + p.w + gap && x + w + gap > p.x && y < p.y + p.h + gap && y + h + gap > p.y) {
               hit = true
               break
             }
@@ -1117,15 +1112,19 @@ class ChartDolor extends BaseChart {
   }
 
   resize() {
-    $setTimeout(() => {
-      if (!this._$chart) return
-      // 全屏后利用 zoom 放大，参考 IndexChart
-      const ch = $(this._$chart).height()
-      const zoom = ch > 330 ? 1.5 : (ch > 200 ? 1.2 : 1)
-      this._dolorZoom = zoom
-      $(this._$chart).find('.dolor-inner').css('zoom', zoom)
-      this._layoutSpiral()
-    }, 400, `resize-chart-${this.state.id}`)
+    $setTimeout(
+      () => {
+        if (!this._$chart) return
+        // 全屏后利用 zoom 放大，参考 IndexChart
+        const ch = $(this._$chart).height()
+        const zoom = ch > 330 ? 1.5 : ch > 200 ? 1.2 : 1
+        this._dolorZoom = zoom
+        $(this._$chart).find('.dolor-inner').css('zoom', zoom)
+        this._layoutSpiral()
+      },
+      400,
+      `resize-chart-${this.state.id}`,
+    )
   }
 }
 
@@ -1894,7 +1893,9 @@ class ChartCNMap extends BaseChart {
 
         // #2 Cluster
         // https://lbs.baidu.com/index.php?title=jspopularGL/guide/cluster#service-page-anchor1
-        $getScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => this._renderCluster(data, this._map))
+        $useScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => {
+          this._renderCluster(data, this._map)
+        })
       }, false)
     })
   }
