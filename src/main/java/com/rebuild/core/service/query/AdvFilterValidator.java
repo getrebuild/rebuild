@@ -21,26 +21,24 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Set;
 
 /**
- * 过滤条件数据体（AdvFilter）校验器。基于标准 JSON Schema（draft 2020-12）校验
- *
+ * 过滤条件数据体校验器 `adv-filter-schema.json`
+ * 
+ * @author devezhao
+ * @since 08/11/2026
  * @see AdvFilterParser
- * @see com/rebuild/core/service/query/adv-filter-schema.json
  */
 @Slf4j
 public class AdvFilterValidator {
 
-    // Schema 资源文件（与 AdvFilterParser 同类路径）
     private static final String SCHEMA_RES = "com/rebuild/core/service/query/adv-filter-schema.json";
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private static volatile JsonSchema SCHEMA = null;
 
     /**
-     * 校验过滤条件数据体是否符合 Schema，不符合时输出日志
+     * 校验过滤条件数据体是否符合 Schema
      *
-     * @param filterExpr 过滤表达式
-     * @return 是否符合
+     * @param filterExpr
+     * @return
      */
     public static boolean validate(JSONObject filterExpr) {
         if (filterExpr == null || filterExpr.isEmpty()) {
@@ -49,7 +47,7 @@ public class AdvFilterValidator {
         }
 
         JsonSchema schema = getSchema();
-        if (schema == null) return true;  // Schema 加载失败不校验
+        if (schema == null) return true;
 
         try {
             JsonNode node = MAPPER.readTree(filterExpr.toJSONString());
