@@ -19,12 +19,12 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -38,6 +38,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 
 import static com.rebuild.core.privileges.UserService.AIBOT_USER;
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowAtAllUsers;
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
 
 /**
  * 从动态/评论中提取 at 用户，以及将文件放置在福建表
@@ -168,9 +170,11 @@ public abstract class BaseFeedsService extends ObservableService {
         }
 
         String fakeContent = record.getString("content");
-
+        ID user = getCurrentUser();
         Set<String> locales = Application.getLanguage().getAvailableLocales().keySet();
-        if (Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowAtAllUsers)) {
+
+        // @所有人
+        if (Application.getPrivilegesManager().allow(user, AllowAtAllUsers)) {
             for (String locale : locales) {
                 String keyText = "@" + Application.getLanguage().getBundle(locale).L("所有人");
                 if (fakeContent.contains(keyText)) {
@@ -178,12 +182,10 @@ public abstract class BaseFeedsService extends ObservableService {
                 }
             }
         }
-        if (Application.getPrivilegesManager().allow(getCurrentUser(), ZeroEntry.AllowUseAiBot)) {
-            // 字符兼容
-            fakeContent = fakeContent.replace("@AI助手", "@AI 助手");
-
+        // @AI助手
+        if (Application.getPrivilegesManager().allow(user, AllowUseAiBot) || !License.isCommercial()) {
             for (String locale : locales) {
-                String keyText = Application.getLanguage().getBundle(locale).L("AI 助手");
+                String keyText = "@" + Application.getLanguage().getBundle(locale).L("AI助手");
                 if (fakeContent.contains(keyText)) {
                     fakeContent = fakeContent.replace(keyText, "@" + AIBOT_USER);
                 }

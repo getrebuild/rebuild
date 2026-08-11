@@ -13,7 +13,7 @@
         },
         "content": {
           "type": "string",
-          "description": "任务内容，到时间后 系统会自动创建对应的数AI 会自动处理（create 必填）"
+          "description": "任务内容/提示词（create 必填）。到执行时间后 AI 会自动处理此内容，例如'查询今天的客户跟进记录并汇总'"
         },
         "scheduleType": {
           "type": "string",
