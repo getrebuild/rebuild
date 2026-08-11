@@ -14,7 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.CombinedRole;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.integration.SMSender;
@@ -106,7 +106,7 @@ public class BizzPageView extends EntityController {
 
         if (groupId.getEntityCode() == EntityHelper.Role) {
             for (User user : Application.getUserStore().getAllUsers()) {
-                if (user.getId().equals(UserService.SYSTEM_USER)) continue;
+                if (UserHelper.isSystemUser(user.getId())) continue;
                 Role role = user.getOwningRole();
                 if (role == null) continue;
 
@@ -144,7 +144,7 @@ public class BizzPageView extends EntityController {
 
         for (Principal p : group.getMembers()) {
             User user = (User) p;
-            if (user.getId().equals(UserService.SYSTEM_USER)) continue;
+            if (UserHelper.isSystemUser(user.getId())) continue;
 
             res.add(new Object[]{
                     user.getId(),

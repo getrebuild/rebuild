@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -53,7 +52,7 @@ public class UserInfoController {
 
         Map<String, Object> ret = new HashMap<>();
         ret.put("active", checkedUser.isActive());
-        ret.put("system", uid.equals(UserService.ADMIN_USER) || uid.equals(UserService.SYSTEM_USER));
+        ret.put("system", UserHelper.isSuperAdmin(uid));
         ret.put("disabled", checkedUser.isDisabled());
 
         if (checkedUser.getOwningRole() != null) {

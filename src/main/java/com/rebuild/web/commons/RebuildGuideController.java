@@ -17,6 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -50,7 +51,11 @@ public class RebuildGuideController extends BaseController {
     @GetMapping("usermrg")
     public RespBody featUsermrg() {
         List<JSON> items = new ArrayList<>();
-        items.add(buildItem(Language.L("管理用户"), "admin/bizuser/users", Application.getUserStore().getAllUsers().length - 1));
+        int usersCount = 0;
+        for (com.rebuild.core.privileges.bizz.User u : Application.getUserStore().getAllUsers()) {
+            if (!UserHelper.isSuperAdmin(u.getId())) usersCount++;
+        }
+        items.add(buildItem(Language.L("管理用户"), "admin/bizuser/users", usersCount));
         items.add(buildItem(Language.L("管理部门"), "admin/bizuser/departments", Application.getUserStore().getAllDepartments().length));
         items.add(buildItem(Language.L("角色权限"), "admin/bizuser/role-privileges", Application.getUserStore().getAllRoles().length));
         return RespBody.ok(items);

@@ -44,6 +44,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static com.rebuild.core.privileges.UserService.ADMIN_USER;
+import static com.rebuild.core.privileges.UserService.AIBOT_USER;
+import static com.rebuild.core.privileges.UserService.SYSTEM_USER;
+
 /**
  * 用户帮助类
  *
@@ -74,11 +78,21 @@ public class UserHelper {
     /**
      * 是否超级管理员
      *
-     * @param userId
+     * @param user
      * @return
      */
-    public static boolean isSuperAdmin(ID userId) {
-        return UserService.ADMIN_USER.equals(userId) || UserService.SYSTEM_USER.equals(userId);
+    public static boolean isSuperAdmin(ID user) {
+        return ADMIN_USER.equals(user) || isSystemUser(user);
+    }
+
+    /**
+     * 是否系统用户
+     *
+     * @param user
+     * @return
+     */
+    public static boolean isSystemUser(ID user) {
+        return SYSTEM_USER.equals(user) || AIBOT_USER.equals(user);
     }
 
     /**
@@ -284,7 +298,7 @@ public class UserHelper {
             } else {
                 Member[] ms = getMembers(bizz);
                 for (Member m : ms) {
-                    if (m.getIdentity().equals(UserService.SYSTEM_USER)) continue;
+                    if (isSystemUser((ID) m.getIdentity())) continue;
                     users.add((ID) m.getIdentity());
                 }
             }

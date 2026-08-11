@@ -121,7 +121,7 @@ public class UserService extends BaseService {
 
     @Override
     public int delete(ID recordId) {
-        if (ADMIN_USER.equals(recordId) || SYSTEM_USER.equals(recordId) || AIBOT_USER.equals(recordId)) {
+        if (UserHelper.isSuperAdmin(recordId)) {
             throw new OperationDeniedException(Language.L("内置用户禁止删除"));
         }
 
@@ -176,7 +176,7 @@ public class UserService extends BaseService {
             UserHelper.generateAvatar(record.getString("fullName"), true);
         }
 
-        if (ADMIN_USER.equals(record.getPrimary()) || SYSTEM_USER.equals(record.getPrimary()) || AIBOT_USER.equals(record.getPrimary())) {
+        if (UserHelper.isSuperAdmin(record.getPrimary())) {
             Boolean b = record.getBoolean("isDisabled");
             if (b != null && b) throw new OperationDeniedException("内置用户不能禁用");
 
