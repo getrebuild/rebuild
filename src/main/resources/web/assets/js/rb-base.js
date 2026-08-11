@@ -610,10 +610,18 @@ var $useScript = function (url, cb, option) {
     })
   }
   var _fail = function () {
-    // 加载失败，重置状态以便下次可重试
+    // 加载失败，重置状态以便下次可重试，并通知等待中的回调
     $__useScript_loaded[url] = 0
+    var cbs = $__useScript_cbs[url] || []
     $__useScript_cbs[url] = []
     console.error('Script load failed:', url)
+    $(cbs).each(function () {
+      try {
+        this()
+      } catch (e) {
+        console.error(e)
+      }
+    })
   }
 
   var _ajax = $.ajax({ type: 'GET', url: url, dataType: 'script', cache: true })
@@ -628,10 +636,16 @@ var $useScript = function (url, cb, option) {
           _done()
         } else {
           // 脚本已加载但目标对象未就绪（如部分脚本异步初始化），轮询等待
+          var _retry = 0
           var _timer = setInterval(function () {
             if (check()) {
               _done()
               clearInterval(_timer)
+            } else if (++_retry > 60) {
+              // 30s 超时后放弃
+              clearInterval(_timer)
+              _fail()
+              console.error('Script ready-check timeout:', url)
             }
           }, 500)
         }

@@ -218,19 +218,17 @@ class BaseChart extends React.Component {
 
     const name = `${this.state.title}.xls`
     $useXlsx(() => {
-      setTimeout(() => {
-        // RM
-        _rmLinks(table, '__href', 'href')
-        // export
-        // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
-        // https://docs.sheetjs.com/docs/api/write-options
-        const wb = window.XLSX.utils.table_to_book(table, { raw: true, wrapText: true })
-        window.XLSX.writeFile(wb, name, {
-          cellStyles: true, // Pro 支持?
-        })
-        // RE
-        setTimeout(() => _rmLinks(table, 'href', '__href'), 201)
-      }, 1000)
+      // RM
+      _rmLinks(table, '__href', 'href')
+      // export
+      // https://docs.sheetjs.com/docs/api/utilities/html#html-table-input
+      // https://docs.sheetjs.com/docs/api/write-options
+      const wb = window.XLSX.utils.table_to_book(table, { raw: true, wrapText: true })
+      window.XLSX.writeFile(wb, name, {
+        cellStyles: true, // Pro 支持?
+      })
+      // RE
+      setTimeout(() => _rmLinks(table, 'href', '__href'), 201)
     })
   }
 
