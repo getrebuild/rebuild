@@ -384,8 +384,6 @@ class ChartTable extends BaseChart {
   }
 }
 
-// for ECharts（ECHART_AXIS_COLOR/ECHART_BASE 在 rb-page.js，与 AI 对话共用）
-const COLOR_LABEL = '#555'
 // 可用调色板
 const COLOR_PALETTES = {
   shine: ['#c12e34', '#e6b600', '#0098d9', '#2b821d', '#005eaa', '#339ca8', '#cda819', '#32a487'],
@@ -402,7 +400,7 @@ const COLOR_PALETTES = {
 
 const ECHART_AXIS_LABEL = {
   textStyle: {
-    color: COLOR_LABEL,
+    color: '#555',
     fontSize: 12,
     fontWeight: '400',
   },
@@ -1401,7 +1399,7 @@ class ChartRadar extends BaseChart {
           indicator: data.indicator,
           name: {
             textStyle: {
-              color: COLOR_LABEL,
+              color: '#555',
               fontSize: 12,
             },
           },
