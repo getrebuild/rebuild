@@ -120,7 +120,7 @@ public abstract class BaseFeedsService extends ObservableService {
                 String aiReply;
                 if (Config.availableAiBot()) {
                     try {
-                        aiReply = ChatManager.ask("请尽量简短回答以下问题（不要MD格式）：\n" + content);
+                        aiReply = ChatManager.ask("请直接、简洁的回答问题（不要MD格式）：\n" + content);
                     } catch (Exception ex) {
                         log.error("AiBot error on ask", ex);
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
@@ -182,10 +182,11 @@ public abstract class BaseFeedsService extends ObservableService {
                 }
             }
         }
-        // @AI助手
+        // @AI 助手
         if (Application.getPrivilegesManager().allow(user, AllowUseAiBot) || !License.isCommercial()) {
+            fakeContent = fakeContent.replace("AI助手", "AI 助手");
             for (String locale : locales) {
-                String keyText = "@" + Application.getLanguage().getBundle(locale).L("AI助手");
+                String keyText = "@" + Application.getLanguage().getBundle(locale).L("AI 助手");
                 if (fakeContent.contains(keyText)) {
                     fakeContent = fakeContent.replace(keyText, "@" + AIBOT_USER);
                 }
