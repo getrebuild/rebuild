@@ -38,7 +38,6 @@ public class ToolDefs {
         register(new ListEntities());
         register(new FetchUrl());
         register(new SuggestCustom());
-        register(new SuggestQuestions());
         register(new SearchHelp());
         register(new UploadFile());
         register(new QueryRecords());
@@ -51,6 +50,8 @@ public class ToolDefs {
         register(new ApproveRecord());
         register(new SearchKnowledge());
         register(new ScheduleTask());
+        register(new CreateEntity());
+        register(new CreateField());
     }
 
     /**

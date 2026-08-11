@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "ApproveRecord",
-    "description": "对业务记录进行审批操作，支持提交审批、同意、驳回、撤回、撤销和查询审批状态。提交审批前可通过 QueryRecords 工具查询记录ID",
+    "description": "对业务记录进行审批操作，支持提交、同意、驳回、撤回、撤销和查询审批状态",
     "parameters": {
       "type": "object",
       "properties": {

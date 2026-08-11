@@ -154,12 +154,10 @@ public class ScheduleTask implements Tool {
      * 查询当前用户的所有定时任务
      */
     private Object doList() {
-        final ID user = UserContextHolder.getUser();
-
         Object[][] array = Application.createQueryNoFilter(
                 "select configId,config,name,isDisabled from CommonsConfig where belongEntity = 'N' and type = ? and createdBy = ? order by createdOn desc")
                 .setParameter(1, CommonsConfigManager.TYPE_AIBOT_SCHEDULE)
-                .setParameter(2, user)
+                .setParameter(2, UserContextHolder.getUser())
                 .array();
 
         List<JSONObject> tasks = new ArrayList<>();

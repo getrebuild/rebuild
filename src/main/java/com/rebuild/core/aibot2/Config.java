@@ -77,7 +77,7 @@ public class Config {
     // --
 
     /**
-     * 是否可用
+     * 是否可用（即配置了AI参数）
      *
      * @return
      */

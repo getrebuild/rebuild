@@ -1,0 +1,51 @@
+{
+  "type": "function",
+  "function": {
+    "name": "CreateField",
+    "description": "新建字段（需管理员权限）。不同字段类型需要提供不同的配置信息",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "要添加字段的实体名称或标签（可通过 ListEntities 工具查询）"
+        },
+        "fieldLabel": {
+          "type": "string",
+          "description": "字段显示名称（即标签），需简明描述字段含义"
+        },
+        "type": {
+          "type": "string",
+          "description": "字段类型，可选值包括 文本(TEXT), 多行文本(NTEXT), 整数(NUMBER), 小数(DECIMAL), 日期(DATE), 日期时间(DATETIME), 时间(TIME), 布尔(BOOL), 邮箱(EMAIL), 链接(URL), 电话(PHONE), 位置(LOCATION), 标签(TAG), 自动编号(SERIES), 图片(IMAGE), 附件(FILE), 下拉列表(PICKLIST), 多选(MULTISELECT), 分类(CLASSIFICATION), 引用(REFERENCE), 多引用(N2NREFERENCE)",
+          "enum": ["TEXT", "NTEXT", "NUMBER", "DECIMAL", "DATE", "DATETIME", "TIME", "BOOL", "EMAIL", "URL", "PHONE", "LOCATION", "TAG", "SERIES", "IMAGE", "FILE", "PICKLIST", "MULTISELECT", "CLASSIFICATION", "REFERENCE", "N2NREFERENCE"]
+        },
+        "refEntity": {
+          "type": "string",
+          "description": "要引用的实体名称或标签（引用字段必填，可通过 ListEntities 工具查询）"
+        },
+        "options": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "下拉选项，第一个为默认值（下拉列表/多选字段必填）"
+        },
+        "classification": {
+          "type": "string",
+          "description": "要使用的分类数据（分类字段必填）"
+        },
+        "seriesFormat": {
+          "type": "string",
+          "description": "编号规则（自动编号字段可选），支持 {YYYY}、{MM}、{DD}、{0000} 等占位符"
+        },
+        "comments": {
+          "type": "string",
+          "description": "字段的用途说明或备注（可选）"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "用户是否已确认改动清单。不传时仅返回改动清单供确认，用户明确同意后再以 true 重新调用执行创建"
+        }
+      },
+      "required": ["entity", "fieldLabel", "type"]
+    }
+  }
+}
