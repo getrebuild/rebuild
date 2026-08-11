@@ -8,6 +8,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const _chatMarked = new marked.Marked({
   renderer: {
+    code({ text, lang }) {
+      // ```echarts
+      if (lang === 'echarts' || lang === 'echart') {
+        const safe = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        return `<div class="echarts-to-render">${safe}</div>`
+      }
+      return false
+    },
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens)
       let safeHref = href
@@ -452,12 +460,22 @@ class ChatMessage extends React.Component {
           }
         }
       })
+
+    this._tryRenderCharts()
   }
 
   componentDidUpdate(props, prevState) {
     if (prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning) {
       scrollToBottom()
+      this._tryRenderCharts()
     }
+  }
+
+  _tryRenderCharts() {
+    const $el = this._$message && $(this._$message)
+    if (!$el || $el.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
+    if (!this._echartsSeq) this._echartsSeq = $random('echarts-', true)
+    $setTimeout(() => $renderEcharts($el), 200, 'render-echarts-' + this._echartsSeq)
   }
 
   render() {
@@ -468,7 +486,7 @@ class ChatMessage extends React.Component {
     else c = this.renderError()
 
     return (
-      <div className="chat-message">
+      <div className="chat-message" ref={(c) => (this._$message = c)}>
         {c}
         <div className="msg-action">
           <a title={$L('复制')} onClick={() => $clipboard2(this.state.content || '')}>
@@ -541,6 +559,54 @@ class ChatMessage extends React.Component {
         <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
       </div>
     )
+  }
+}
+
+let _echartsLoaded = false
+let _echartsLoading = false
+let _echartsQueue = []
+// 懒加载 ECharts 并渲染
+function $renderEcharts($container) {
+  if (!$container || !$container.length) return
+
+  function doRender() {
+    $container.find('.echarts-to-render:not(.echarts-rendered)').each(function () {
+      const $node = $(this)
+      let option
+      try {
+        option = JSON.parse($node.text())
+      } catch (err) {
+        // 流式输出中 JSON 可能尚不完整，等待下次渲染
+        console.warn('ECharts option parse failed :', err)
+        return
+      }
+
+      $node.addClass('echarts-rendered').empty()
+      try {
+        // eslint-disable-next-line no-undef
+        const chart = echarts.init($node[0])
+        chart.setOption(option)
+      } catch (err) {
+        console.error('ECharts render error :', err)
+        $node.removeClass('echarts-rendered')
+      }
+    })
+  }
+
+  if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
+
+  if (_echartsLoaded) {
+    doRender()
+  } else {
+    _echartsQueue.push(doRender)
+    if (!_echartsLoading) {
+      _echartsLoading = true
+      $getScript('/assets/lib/charts/echarts.min.js?v=5.5.0', function () {
+        _echartsLoaded = true
+        _echartsLoading = false
+        while (_echartsQueue.length) _echartsQueue.shift()()
+      })
+    }
   }
 }
 

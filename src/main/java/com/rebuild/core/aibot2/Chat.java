@@ -281,12 +281,6 @@ public class Chat implements Serializable {
     /**
      * 安全执行工具调用，异常时返回错误信息而非中断会话
      *
-     * 区分两类异常：
-     * 1. DefinedException（含子类）及 ApprovalException —— 系统已知的业务/校验异常
-     *    （如数据校验失败、重复记录等），AI 必须如实反馈给用户，禁止自行修正数据绕过校验
-     * 2. ToolException 及其他异常 —— 工具调用层面的错误（如参数缺失、实体不存在等），
-     *    AI 可以调整参数后重试
-     *
      * @param toolName
      * @param arguments
      * @return
@@ -344,8 +338,16 @@ public class Chat implements Serializable {
             messages.add(message);
         }
 
-        // 合并 Skills 提示词
+        // 提示词
         String systemPrompt = prompt;
+
+        // 合并系统级提示词
+        String systemCapabilityPrompt = Config.getSystemCapabilityPrompt();
+        if (StringUtils.isNotBlank(systemCapabilityPrompt)) {
+            systemPrompt = StringUtils.isBlank(systemPrompt) ? systemCapabilityPrompt : systemPrompt + "\n\n" + systemCapabilityPrompt;
+        }
+
+        // 合并 Skills 提示词
         if (chatRequest != null) {
             String skillPrompt = SkillDefs.getSystemPrompt(chatRequest.getSkill());
             if (skillPrompt != null) {
