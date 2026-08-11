@@ -3957,7 +3957,7 @@ a.user-show:not([href]) {
   background-color: rgba(0, 0, 0, 0.06);
   padding: 9px 10px;
   position: relative;
-  color: #555;
+  color: #404040;
   border-radius: 2px;
   overflow: hidden;
   white-space: nowrap;

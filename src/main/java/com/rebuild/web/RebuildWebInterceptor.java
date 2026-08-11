@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
 import static com.rebuild.web.commons.UseThemeController.THEMES_COLORS;
 
 /**
@@ -79,30 +80,30 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         final String locale = detectLocale(request, response);
         UserContextHolder.setLocale(locale);
 
-        final RequestEntry requestEntry = new RequestEntry(request, locale, ipAddr);
+        final RequestEntry re = new RequestEntry(request, locale, ipAddr);
         String rr;
         if ((rr = request.getHeader("X-ReqRandom")) != null) {
-            final String key = "REQ_REENTER:" + requestEntry.getRequestUriWithQuery() + rr;
+            final String key = "REQ_REENTER:" + re.getRequestUriWithQuery() + rr;
             Object e = Application.getCommonsCache().getx(key);
             if (e != null) {
-                log.warn("Re-entry detected {}:{}", e, requestEntry);
+                log.warn("Re-entry detected {}:{}", e, re);
                 return false;
             } else {
                 Application.getCommonsCache().putx(key, System.currentTimeMillis(), 301);
             }
         }
 
-        REQUEST_ENTRY.set(requestEntry);
+        REQUEST_ENTRY.set(re);
 
         // Lang
-        request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
-        request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
+        request.setAttribute(WebConstants.LOCALE, re.getLocale());
+        request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(re.getLocale()));
 
-        if (requestEntry.isHtmlRequest()) {
+        if (re.isHtmlRequest()) {
             // v4.1 theme
             String theme = (String) ServletUtils.getSessionAttribute(request, LoginController.SK_USER_THEME);
             if (theme != null) {
-                if (requestEntry.getRequestUri().contains("/admin/") || requestEntry.getRequestUri().contains("/admin-")) {
+                if (re.getRequestUri().contains("/admin/") || re.getRequestUri().contains("/admin-")) {
                     theme = "default";
                 }
                 theme = THEMES_COLORS.get(theme);
@@ -110,17 +111,18 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             }
             // v4.2 watermark
             if (RebuildConfiguration.getBool(ConfigurationItem.MarkWatermark)) {
-                String wt = AppUtils.getWatermarkText(requestEntry.getRequestUser(), null);
+                String wt = AppUtils.getWatermarkText(re.getRequestUser(), null);
                 if (wt != null) request.setAttribute("markWatermarkText", wt);
             }
-            // v4.3.4
-            if (requestEntry.getRequestUser() != null
-                    && Application.getPrivilegesManager().allow(requestEntry.getRequestUser(), ZeroEntry.AllowUseAiBot)) {
-                request.setAttribute("_AllowUseAiBot", true);
+            // v4.3.4, v4.5
+            if (re.getRequestUser() != null) {
+                boolean b = Application.getPrivilegesManager().allow(re.getRequestUser(), AllowUseAiBot)
+                        || !License.isCommercial();
+                request.setAttribute("_AllowUseAiBot", b);
             }
         }
 
-        final String requestUri = requestEntry.getRequestUri();
+        final String requestUri = re.getRequestUri();
 
         // 服务暂不可用
         if (!Application.isStateReady()) {
@@ -128,7 +130,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             // 已安装
             if (checkInstalled()) {
-                log.error("Server Unavailable : {}", requestEntry);
+                log.error("Server Unavailable : {}", re);
 
                 if (isError) {
                     return true;
@@ -146,7 +148,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             }
         }
 
-        final ID requestUser = requestEntry.getRequestUser();
+        final ID requestUser = re.getRequestUser();
 
         boolean skipCheckSafeUse;
 
@@ -156,7 +158,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             // 管理中心二次验证
             if (requestUri.contains("/admin/")) {
                 if (AppUtils.isAdminVerified(request)) {
-                    if (requestEntry.isHtmlRequest() && !ProtectedAdmin.allow(requestUri, requestUser)) {
+                    if (re.isHtmlRequest() && !ProtectedAdmin.allow(requestUri, requestUser)) {
                         // v4.2 特殊处理[通用配置]
                         if (!requestUri.contains("/admin/systems")) {
                             response.sendError(HttpStatus.FORBIDDEN.value());
@@ -164,8 +166,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                         }
                     }
                 } else {
-                    if (requestEntry.isHtmlRequest()) {
-                        sendRedirect(response, "/user/admin-verify", requestEntry.getRequestUriWithQuery());
+                    if (re.isHtmlRequest()) {
+                        sendRedirect(response, "/user/admin-verify", re.getRequestUriWithQuery());
                     } else {
                         response.sendError(HttpStatus.FORBIDDEN.value());
                     }
@@ -183,7 +185,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             boolean isSecurityEnhanced = RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced);
 
-            if (requestEntry.isHtmlRequest()) {
+            if (re.isHtmlRequest()) {
                 // Last active
                 Application.getSessionStore().storeLastActive(requestUser, request, null);
 
@@ -225,8 +227,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
             log.warn("Unauthorized access {}", RebuildWebConfigurer.getRequestUrls(request));
 
-            if (requestEntry.isHtmlRequest()) {
-                sendRedirect(response, "/user/login", requestEntry.getRequestUriWithQuery());
+            if (re.isHtmlRequest()) {
+                sendRedirect(response, "/user/login", re.getRequestUriWithQuery());
             } else {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
             }
@@ -236,7 +238,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             skipCheckSafeUse = true;
         }
 
-        if (!skipCheckSafeUse) checkSafeUse(ipAddr, requestEntry.getRequestUri());
+        if (!skipCheckSafeUse) checkSafeUse(ipAddr, re.getRequestUri());
 
         return true;
     }
@@ -247,11 +249,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-        RequestEntry requestEntry = REQUEST_ENTRY.get();
+        RequestEntry re = REQUEST_ENTRY.get();
         REQUEST_ENTRY.remove();
 
         // 打印处理时间
-        long time = requestEntry == null ? 0 : (System.currentTimeMillis() - requestEntry.getRequestTime());
+        long time = re == null ? 0 : (System.currentTimeMillis() - re.getRequestTime());
         if (time > 1500) {
             log.warn("Method handle time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
         }
@@ -335,8 +337,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     }
 
     private void checkSafeUse(String ipAddr, String requestUri) throws DefinedException {
-        if (!License.isRbvAttached()) return;
-
         if ("localhost".equals(ipAddr) || "127.0.0.1".equals(ipAddr)) {
             log.debug("Allow localhost/127.0.0.1 use : {}", requestUri);
             return;

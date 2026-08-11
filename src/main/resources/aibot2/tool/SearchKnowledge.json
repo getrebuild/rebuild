@@ -2,13 +2,13 @@
   "type": "function",
   "function": {
     "name": "SearchKnowledge",
-    "description": "搜索系统知识库，获取与查询相关的知识片段。当需要查阅文档、流程规范、制度、FAQ 等知识时使用",
+    "description": "搜索系统知识库，获取与查询相关的知识片段",
     "parameters": {
       "type": "object",
       "properties": {
         "query": {
           "type": "string",
-          "description": "搜索查询语句，如「报销流程」「请假制度」「产品规格」等"
+          "description": "搜索查询语句，支持自然语言提问，系统会从知识库中匹配最相关的知识片段"
         },
         "topK": {
           "type": "integer",

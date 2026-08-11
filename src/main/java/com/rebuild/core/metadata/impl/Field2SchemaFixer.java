@@ -148,7 +148,7 @@ public class Field2SchemaFixer extends Field2Schema {
     public boolean fixDatetime40(Field field) {
         if (field.getType() != FieldType.TIMESTAMP) return false;
 
-        changeColumn2Text(field);
+        changeColumnType(field);
         return true;
     }
 
@@ -161,7 +161,7 @@ public class Field2SchemaFixer extends Field2Schema {
         if (em.getMetaId() == null) return false;
         if (!(em.getDisplayType() == DisplayType.FILE || em.getDisplayType() == DisplayType.IMAGE)) return false;
 
-        changeColumn2Text(field);
+        changeColumnType(field);
 
         JSONObject attrs = em.getExtraAttrs();
         attrs.put("uploadNumber", "0,99");
@@ -214,7 +214,7 @@ public class Field2SchemaFixer extends Field2Schema {
      * @param field
      * @return
      */
-    public boolean changeColumn2Text(Field field) {
+    protected boolean changeColumnType(Field field) {
         Dialect dialect = Application.getPersistManagerFactory().getDialect();
         final Table table = new Table40(field.getOwnEntity(), dialect);
         StringBuilder ddl = new StringBuilder();

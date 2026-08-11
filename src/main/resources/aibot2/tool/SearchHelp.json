@@ -2,13 +2,13 @@
   "type": "function",
   "function": {
     "name": "SearchHelp",
-    "description": "搜索 REBUILD 帮助文档，返回相关文档标题、链接和摘要。适用于查询系统用法、功能说明和配置指南",
+    "description": "搜索 REBUILD 帮助文档，返回相关文档标题、链接和摘要",
     "parameters": {
       "type": "object",
       "properties": {
         "keyword": {
           "type": "string",
-          "description": "搜索关键词，如「业务实体」「审批流程」「数据导入」「触发器」等"
+          "description": "搜索关键词，用于匹配帮助文档的标题和内容"
         }
       },
       "required": ["keyword"]

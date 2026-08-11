@@ -17,12 +17,12 @@
         },
         "headers": {
           "type": "object",
-          "description": "HTTP 请求头，键值对形式",
+          "description": "HTTP 请求头，键值对形式。系统会自动过滤 host、connection、authorization 等不安全请求头",
           "properties": {}
         },
         "body": {
           "type": "string",
-          "description": "POST 请求体内容（仅 POST 方法时使用）"
+          "description": "POST 请求体内容，支持 JSON 字符串或纯文本（仅 POST 方法时使用）"
         }
       },
       "required": ["url"]

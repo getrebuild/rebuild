@@ -59,15 +59,6 @@ public interface Tool {
     }
 
     /**
-     * 执行
-     *
-     * @param arguments
-     * @return
-     * @throws Exception
-     */
-    Object tool(String arguments) throws Exception;
-
-    /**
      * 是否为系统内部工具（不暴露给 AI 模型，仅后端调用）
      *
      * @return
@@ -75,5 +66,14 @@ public interface Tool {
     default boolean isSystem() {
         return false;
     }
+
+    /**
+     * 执行
+     *
+     * @param arguments
+     * @return
+     * @throws Exception
+     */
+    Object tool(String arguments) throws Exception;
 
 }

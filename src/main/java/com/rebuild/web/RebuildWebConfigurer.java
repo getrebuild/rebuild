@@ -104,13 +104,18 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         setStaticVariable(ConfigurationItem.AppBuild);
         setStaticVariable(ConfigurationItem.PageMourningMode);
 
-        // v4.1 配置才显示
-        String aibot = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
-        if (StringUtils.isBlank(aibot)) {
-            thymeleafViewResolver.addStaticVariable("_AiBot", null);
+        if (License.isCommercial()) {
+            // v4.1 配置才显示
+            String aibot = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
+            if (StringUtils.isBlank(aibot)) {
+                thymeleafViewResolver.addStaticVariable("_AiBot", null);
+            } else {
+                aibot = RebuildConfiguration.get(ConfigurationItem.AibotName);
+                thymeleafViewResolver.addStaticVariable("_AiBot", aibot);
+            }
         } else {
-            aibot = RebuildConfiguration.get(ConfigurationItem.AibotName);
-            thymeleafViewResolver.addStaticVariable("_AiBot", aibot);
+            // v4.5
+            thymeleafViewResolver.addStaticVariable("_AiBot", ConfigurationItem.AibotName.getDefaultValue());
         }
 
         // 清理缓存

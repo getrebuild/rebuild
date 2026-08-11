@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.aibot2.tool;
+package com.rebuild.core.aibot2;
 
 import cn.devezhao.persist4j.Entity;
 import com.alibaba.fastjson.JSONArray;
@@ -14,7 +14,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,18 +27,19 @@ import java.util.List;
  * @since 2026/8/4
  */
 @Slf4j
-public class SuggestQuestions implements Tool {
+public class SuggestQuestions {
 
     private static final int MAX_QUESTIONS = 4;
     private static final int MAX_ENTITIES_TO_CHECK = 8;
 
-    @Override
-    public boolean isSystem() {
-        return true;
-    }
+    private SuggestQuestions() {}
 
-    @Override
-    public Object tool(String arguments) throws Exception {
+    /**
+     * 生成推荐问题
+     *
+     * @return
+     */
+    public static JSONArray generate() {
         JSONArray questions = new JSONArray();
 
         // 优先配置的
@@ -75,9 +75,7 @@ public class SuggestQuestions implements Tool {
             }
         }
 
-        return JSONUtils.toJSONObject(
-                new String[]{"status", "questions"},
-                new Object[]{"ok", questions});
+        return questions;
     }
 
     /**
@@ -85,7 +83,7 @@ public class SuggestQuestions implements Tool {
      *
      * @return
      */
-    private List<EntityData> collectEntityData() {
+    private static List<EntityData> collectEntityData() {
         List<EntityData> list = new ArrayList<>();
         int checked = 0;
 
@@ -109,7 +107,7 @@ public class SuggestQuestions implements Tool {
      * @param list
      * @return
      */
-    private EntityData findCustomerEntity(List<EntityData> list) {
+    private static EntityData findCustomerEntity(List<EntityData> list) {
         for (EntityData ed : list) {
             String label = ed.label.toLowerCase();
             if (label.contains("客户") || label.contains("customer")
@@ -127,7 +125,7 @@ public class SuggestQuestions implements Tool {
      * @param entity
      * @return
      */
-    private boolean hasRecords(Entity entity) {
+    private static boolean hasRecords(Entity entity) {
         try {
             String sql = String.format("select %s from %s",
                     entity.getPrimaryField().getName(), entity.getName());

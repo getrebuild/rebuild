@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "UpsertRecord",
-    "description": "智能解析文件或文本为业务记录并保存，支持 PDF、Word、Excel 等格式。数据校验错误由系统统一处理并反馈。",
+    "description": "解析文件或文本为业务记录并保存，支持 PDF、Word、Excel 等格式",
     "parameters": {
       "type": "object",
       "properties": {
