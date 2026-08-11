@@ -32,7 +32,7 @@ $(document).ready(() => {
     })
   })
 
-  $('a[data-clipboard-text]').each((idx, item) => $clipboard($(item)))
+  $('a[data-clipboard-text]').each((idx, item) => $clipboard(item))
 })
 
 const __data = {}

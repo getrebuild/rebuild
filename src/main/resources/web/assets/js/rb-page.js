@@ -1479,7 +1479,7 @@ var $clipboard = function (target, tips) {
   }
 
   var $el = $(target)
-  var text = $el.data('clipboard-text') || ''
+  var text = $el.data('clipboard-text') || $el.text() || ''
   if (!window.ClipboardJS) {
     $useClipboard(function () {
       $clipboard(target, tips)
