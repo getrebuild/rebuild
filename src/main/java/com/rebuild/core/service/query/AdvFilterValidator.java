@@ -34,7 +34,7 @@ public class AdvFilterValidator {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static JsonSchema SCHEMA = null;
+    private static volatile JsonSchema SCHEMA = null;
 
     /**
      * 校验过滤条件数据体是否符合 Schema，不符合时输出日志
@@ -67,9 +67,9 @@ public class AdvFilterValidator {
     }
 
     /**
-     * 加载 Schema（惰性、仅一次）
+     * 加载 Schema（惰性、仅一次）。双重检查锁定避免高频查询路径上的锁竞争
      */
-    private static synchronized JsonSchema getSchema() {
+    private static JsonSchema getSchema() {
         if (SCHEMA != null) return SCHEMA;
 
         String schemaStr = CommonsUtils.getStringOfRes(SCHEMA_RES);
@@ -78,13 +78,17 @@ public class AdvFilterValidator {
             return null;
         }
 
-        try {
-            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-            SCHEMA = factory.getSchema(schemaStr);
-        } catch (Exception ex) {
-            log.error("Cannot parse adv-filter schema : {}", SCHEMA_RES, ex);
-            return null;
+        synchronized (AdvFilterValidator.class) {
+            if (SCHEMA != null) return SCHEMA;
+
+            try {
+                JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+                SCHEMA = factory.getSchema(schemaStr);
+            } catch (Exception ex) {
+                log.error("Cannot parse adv-filter schema : {}", SCHEMA_RES, ex);
+                return null;
+            }
+            return SCHEMA;
         }
-        return SCHEMA;
     }
 }

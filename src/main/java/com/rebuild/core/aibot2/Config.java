@@ -122,9 +122,9 @@ public class Config {
     public static String getSystemCapabilityPrompt() {
         if (SYSTEM_PROMPT_CACHE == null) {
             String res = CommonsUtils.getStringOfRes("aibot2/system-prompt.md");
-            SYSTEM_PROMPT_CACHE = StringUtils.trimToEmpty(res);
+            SYSTEM_PROMPT_CACHE = res == null ? null : StringUtils.trimToEmpty(res);
         }
-        return SYSTEM_PROMPT_CACHE;
+        return SYSTEM_PROMPT_CACHE == null ? "" : SYSTEM_PROMPT_CACHE;
     }
 
     /**

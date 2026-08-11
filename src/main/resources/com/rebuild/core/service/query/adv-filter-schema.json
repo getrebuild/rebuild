@@ -44,7 +44,7 @@
         },
         "field": {
           "type": "string",
-          "pattern": "^(\\$CURRENTUSER\\$|\\$APPROVALCURRENTUSER\\$|&?[A-Za-z][\\w.]*)$",
+          "pattern": "^(\\$CURRENTUSER\\$|\\$APPROVALCURRENTUSER\\$|&(?:amp;)?[A-Za-z][\\w.]*)$",
           "description": "字段名。& 前缀表示按引用实体的名称字段查询（如 &owningUser）；支持点号跨实体引用（如 owningUser.deptId）；虚拟字段：$CURRENTUSER$（当前用户）、$APPROVALCURRENTUSER$（当前审批人，已废弃）"
         },
         "op": {
