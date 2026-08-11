@@ -89,14 +89,17 @@
             }
           },
           "then": {
-            "not": { "required": ["value"] },
+            "properties": { "value": false },
             "description": "该组操作符无需提供 value"
           }
         },
         {
           "if": { "properties": { "op": { "const": "BW" } } },
           "then": {
-            "anyOf": [{ "required": ["value"] }, { "required": ["value2"] }],
+            "anyOf": [
+              { "required": ["value"], "properties": { "value": {} } },
+              { "required": ["value2"], "properties": { "value2": {} } }
+            ],
             "description": "BW 至少需要 value 或 value2 之一"
           }
         }
