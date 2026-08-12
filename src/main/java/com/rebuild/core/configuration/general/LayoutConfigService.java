@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,9 +39,18 @@ public class LayoutConfigService extends BaseConfigurationService {
 
     @Override
     protected void cleanCache(ID cfgid) {
+        Object applyType = QueryHelper.queryFieldValue(cfgid, "applyType");
+        String schemaName = null;
+        if (BaseLayoutManager.TYPE_FORM.equals(applyType)) schemaName = "form-layout";
+        else if (BaseLayoutManager.TYPE_DATALIST.equals(applyType)) schemaName = "list-layout";
+        else if (BaseLayoutManager.TYPE_NAV.equals(applyType)) schemaName = "nav-menu";
+        if (schemaName != null) {
+            Object c = QueryHelper.queryFieldValue(cfgid, "config");
+            RbvFunction.call().validateJsonSchema(schemaName, c);
+        }
+
         BaseLayoutManager.instance.clean(cfgid);
 
-        Object applyType = QueryHelper.queryFieldValue(cfgid, "applyType");
         if (BaseLayoutManager.TYPE_EASYACTION.equals(applyType)) {
             // NOTE 异步执行
             ThreadPool.exec(() -> {
