@@ -13,6 +13,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import com.rebuild.core.support.License;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +69,7 @@ public class JsonSchemaValidator {
      * @return
      */
     public static boolean validate(String schemaName, Object data) {
+        if (!License.isRbvAttached()) return false;
         if (data == null) return false;
 
         String schemaRes = SCHEMA_RES_MAP.get(schemaName);
