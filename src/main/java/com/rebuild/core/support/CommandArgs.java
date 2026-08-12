@@ -37,6 +37,7 @@ public class CommandArgs {
     public static final String _HeavyStopWatcher = "_HeavyStopWatcher";
     public static final String _UniPush = "_UniPush";
     public static final String _UseDbFullText = "_UseDbFullText";
+    public static final String _TriggerLessLog = "_TriggerLessLog";
 
     // v4.1
     public static final String _StartEntityTypeCode = "_StartEntityTypeCode";
@@ -66,8 +67,6 @@ public class CommandArgs {
     public static final String _DistributedAllowJobs = "_DistributedAllowJobs";
     public static final String _DistributedDisallowJobs = "_DistributedDisallowJobs";
     public static final String _DistributedAk = "_DistributedAk";
-
-    public static final String _TriggerLessLog = "_TriggerLessLog";
 
     /**
      * 内部消息同步发送短信
