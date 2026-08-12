@@ -66,13 +66,14 @@ public class Chat implements Serializable {
     private List<Message> messages = new ArrayList<>();
 
     public Chat(ID chatid) {
-        this(chatid, Config.getBasePrompt(), null);
+        this(chatid, Config.getBasePrompt(), Config.getDefModel());
     }
 
-    public Chat(ID chatid, String prompt, String model) {
+    protected Chat(ID chatid, String prompt, String model) {
         this.chatid = chatid;
         this.model = model;
         this.prompt = prompt;
+
         this.restoreIfNeed();
     }
 
@@ -338,22 +339,8 @@ public class Chat implements Serializable {
             messages.add(message);
         }
 
-        // 提示词
-        String systemPrompt = prompt;
-
-        // 合并系统级提示词
-        String systemCapabilityPrompt = Config.getSystemCapabilityPrompt();
-        if (StringUtils.isNotBlank(systemCapabilityPrompt)) {
-            systemPrompt = StringUtils.isBlank(systemPrompt) ? systemCapabilityPrompt : systemPrompt + "\n\n" + systemCapabilityPrompt;
-        }
-
-        // 合并 Skills 提示词
-        if (chatRequest != null) {
-            String skillPrompt = SkillDefs.getSystemPrompt(chatRequest.getSkill());
-            if (skillPrompt != null) {
-                systemPrompt = StringUtils.isBlank(systemPrompt) ? skillPrompt : systemPrompt + "\n\n" + skillPrompt;
-            }
-        }
+        String systemPrompt = SystemPromptBuilder.build(prompt,
+                chatRequest == null ? null : chatRequest.getSkill());
 
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model);
         for (Message m : messages) {
