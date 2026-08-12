@@ -184,7 +184,7 @@ public class UserController extends EntityController {
         int del = 0;
         for (Object o : users) {
             ID user = ID.valueOf(o.toString());
-            if (UserService.ADMIN_USER.equals(user)) continue;
+            if (UserHelper.isSuperAdmin(user)) continue;
 
             if (!UserService.checkHasUsed(user)) {
                 Application.getBean(UserService.class).delete(user);
@@ -214,7 +214,7 @@ public class UserController extends EntityController {
         int op = 0;
         for (Object o : users) {
             ID user = ID.valueOf(o.toString());
-            if (UserService.ADMIN_USER.equals(user)) continue;
+            if (UserHelper.isSuperAdmin(user)) continue;
 
             Application.getBean(UserService.class).updateEnableUser(
                     user, deptNew2, roleNew2, roleAppendNew2.isEmpty() ? null : roleAppendNew2.toArray(new ID[0]), null, password);

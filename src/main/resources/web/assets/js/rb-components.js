@@ -381,7 +381,7 @@ class RbAlert extends React.Component {
 class RbAlertFree43 extends RbAlert {
   renderContent() {
     return (
-      <div className="text-center">
+      <div className="text-center p-2">
         <div>
           <h4 className="m-0 mb-2 text-bold" style={{ fontSize: '1.538rem', marginTop: -5 }}>
             {$L('升级后使用')}
@@ -742,7 +742,10 @@ class UserSelector extends React.Component {
 
     this.setState({ tabType: type, items: this._cached[ckey] }, () => {
       if (!this._cached[ckey]) {
-        $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}&atall=${!!this.props.requestAtAll}`, (res) => {
+        let url = `/commons/search/users?type=${type}&q=${$encode(this.state.query)}`
+        if (this.props.requestAtAll) url += '&atall=true'
+        if (this.props.requestAtAibot) url += '&aibot=true'
+        $.get(url, (res) => {
           this._cached[ckey] = res.data
           this.switchTab(type)
         })

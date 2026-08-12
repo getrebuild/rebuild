@@ -51,7 +51,7 @@ class RbViewForm extends React.Component {
       let hadApproval = res.data.hadApproval
       if (hadApproval === 2 || hadApproval === 10) this.onViewEditable = false // be:4.2
       let hadAlert = null
-      let hadSop = res.data.hadSop && rb.commercial > 1
+      let hadSop = res.data.hadSop && rb.commercial > 0
       if (wpc.type === 'DetailView') {
         if (hadApproval === 2 || hadApproval === 10) {
           if (window.RbViewPage) {

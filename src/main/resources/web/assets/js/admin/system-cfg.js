@@ -319,7 +319,7 @@ class DlgMM extends RbAlert {
 // ~~ App
 
 $(document).ready(() => {
-  if (rb.commercial < 10) {
+  if (rb.commercial < 1) {
     $('.td-MobileAppPath button').remove()
     return
   }

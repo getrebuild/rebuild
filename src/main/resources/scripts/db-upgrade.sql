@@ -1,6 +1,11 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #76 (v4.4.7)
+insert into `user` (`USER_ID`, `LOGIN_NAME`, `PASSWORD`, `FULL_NAME`, `DEPT_ID`, `ROLE_ID`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
+  values
+  ('001-0000000000000002', 'aibot', 'aibot', 'AI 助手', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'AIZS');
+
 -- #75 (v4.4)
 alter table `meta_field`
   change column `MAX_LENGTH` `MAX_LENGTH` int(11) default '701';
