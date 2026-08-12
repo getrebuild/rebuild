@@ -114,7 +114,7 @@ public class AiBot2Controller extends BaseController {
             messages.add(welcome);
 
             try {
-                suggestQuestions = SuggestQuestions.generate();
+                suggestQuestions = SuggestQuestions.generate(getRequestUser(req));
             } catch (Exception ex) {
                 log.warn("SuggestQuestions failed", ex);
             }

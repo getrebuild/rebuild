@@ -18,7 +18,6 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.CommandArgs;
@@ -51,7 +50,6 @@ public class LoginAction extends BaseController {
     protected static final String SK_NEED_VCODE = "needLoginVCode";
 
     private static final String SK_SHOW_TOUR = "showStartTour";
-    private static final String SK_SHOW_GUIDE = "showStartGuide";
 
     public static final String SK_TEMP_AUTH = "rbTempAuth";
 
@@ -120,15 +118,6 @@ public class LoginAction extends BaseController {
             // 头像缓存
             ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
-            // v3.2 GUIDE 显示规则
-            if (UserHelper.isSuperAdmin(user)) {
-                Object GuideShowNaver = KVStorage.getCustomValue("GuideShowNaver");
-                if (!ObjectUtils.toBool(GuideShowNaver) || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
-                    ServletUtils.setSessionAttribute(request, SK_SHOW_GUIDE, Boolean.TRUE);
-                    // v3.8 禁用
-                    ServletUtils.setSessionAttribute(request, SK_SHOW_GUIDE, Boolean.FALSE);
-                }
-            }
             // TOUR 显示规则
             Object[] initLoginTimes = Application.createQueryNoFilter(
                     "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")

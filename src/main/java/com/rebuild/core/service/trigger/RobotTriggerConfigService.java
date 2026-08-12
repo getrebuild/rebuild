@@ -14,6 +14,8 @@ import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.AdminGuard;
+import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.RbvFunction;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,12 +37,10 @@ public class RobotTriggerConfigService extends BaseConfigurationService implemen
     }
 
     @Override
-    protected boolean hasLock() {
-        return true;
-    }
-
-    @Override
     protected void cleanCache(ID cfgid) {
+        Object c = QueryHelper.queryFieldValue(cfgid, "actionContent");
+        RbvFunction.call().validateJsonSchema("trigger-config", c);
+
         String be = RobotTriggerManager.instance.getBelongEntity(cfgid, false);
         if (be != null) {
             Entity entity = MetadataHelper.getEntity(be);

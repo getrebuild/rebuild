@@ -28,6 +28,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -168,12 +169,7 @@ public class AdvFilterParser extends SetUser {
             rebuildQuickFilter38();
         }
 
-        // 校验过滤条件数据体（仅日志不阻断，用于观察 Schema 覆盖度）。置于 QUICK 重建之后以免误报
-        try {
-            AdvFilterValidator.validate(filterExpr);
-        } catch (Exception ex) {
-            log.warn("AdvFilter validate error : {}", filterExpr, ex);
-        }
+        RbvFunction.call().validateJsonSchema("adv-filter", filterExpr);
 
         JSONArray items = filterExpr.getJSONArray("items");
         items = items == null ? JSONUtils.EMPTY_ARRAY : items;

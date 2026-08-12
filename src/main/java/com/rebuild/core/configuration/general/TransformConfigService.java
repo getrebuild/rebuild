@@ -12,6 +12,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.AdminGuard;
+import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.RbvFunction;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,6 +34,9 @@ public class TransformConfigService extends BaseConfigurationService implements 
 
     @Override
     protected void cleanCache(ID cfgid) {
+        Object c = QueryHelper.queryFieldValue(cfgid, "config");
+        RbvFunction.call().validateJsonSchema("transform-config", c);
+
         TransformManager.instance.clean(cfgid);
     }
 }

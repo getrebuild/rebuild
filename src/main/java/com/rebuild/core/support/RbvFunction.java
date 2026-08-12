@@ -158,4 +158,10 @@ public class RbvFunction {
     public void refreshAllNodes() {
         log.debug("No RbvFunction : refreshAllNodes");
     }
+
+    // -- JSON SCHEMA
+
+    public void validateJsonSchema(String schemaName, Object data) {
+        log.debug("No RbvFunction : validateJsonSchema");
+    }
 }

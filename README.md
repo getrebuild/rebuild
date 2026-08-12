@@ -13,7 +13,7 @@
 [![License 商业授权](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
 [![Docker Image Version](https://img.shields.io/docker/v/getrebuild/rebuild?label=Docker%20Image)](https://www.getrebuild.com/learn/install-use-docker)
 
-[在线体验](https://nightly.getrebuild.com/) · [下载](https://getrebuild.com/download) · [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.4) · [开发文档](https://getrebuild.com/docs/dev/) · [更多介绍](https://getrebuild.com/learn/declaration)
+[在线体验](https://nightly.getrebuild.com/) · [下载安装](https://getrebuild.com/download) · [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.4) · [更多介绍](https://getrebuild.com/learn/declaration)
 
 </div>
 
@@ -23,7 +23,7 @@
 
 「开放式设计」是 REBUILD 的重要设计理念。得益于团队成熟的企业管理系统经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
 
-**核心能力：**
+**核心能力**
 
 | 能力       | 说明                                                |
 | ---------- | --------------------------------------------------- |
@@ -49,47 +49,23 @@
 | 系统升级企业 | 替换老旧 OA / Excel 管理                                    | 数据迁移、多实体关联、审计追踪                 |
 | 开发者       | 二次开发与系统集成                                          | OpenAPI + Java 扩展，支持 Docker 或本地部署    |
 
-## V4.4 新特性
+## 开始使用
 
-本次更新为你带来众多功能增强与优化。
+开始使用 REBUILD 非常简单，无需配置复杂的运行环境，零依赖快速部署！如只想快速了解，也可直接 [在线体验](https://nightly.getrebuild.com/)（默认超级管理员用户名密码为 `admin` `admin`）。
 
-1. [新增] 记录锁定与提示功能
-2. [新增] 手机版支持自定义操作
-3. [新增] AI 助手支持文件上传分析、Token 用量统计等
-4. [新增] 审批中心功能
-5. [新增] 多个触发器计算公式函数
-6. [新增] 多个 FrontJS 函数
-7. [优化] 新版登录页
-8. [优化] 30+ 细节/BUG/安全性更新
-9. ...
-
-更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.4)
-
-## 在线体验
-
-[https://nightly.getrebuild.com/](https://nightly.getrebuild.com/)
-
-> 默认超级管理员用户名密码为 `admin` `admin`
-
-## 使用
-
-开始使用 REBUILD 非常简单，无需配置复杂的运行环境，零依赖快速部署！
-
-### 1. 使用 Docker（推荐）
+### 1. 使用 Docker
 
 ```bash
 docker run -d --name rebuild -p 18080:18080 getrebuild/rebuild:latest
 ```
 
-启动后访问 [http://localhost:18080/](http://localhost:18080/) 即可开始体验。生产环境建议配合 MySQL 使用，详见 [Docker 安装指南](https://getrebuild.com/learn/install-use-docker)。
+启动后访问 [http://localhost:18080/](http://localhost:18080/) 开始体验。生产环境建议配合 MySQL 使用，更多详情请参见 [Docker 安装指南](https://getrebuild.com/learn/install-use-docker)。
 
 ### 2. 使用已发布版本
 
-_生产环境强烈推荐使用此方式 !!!_
+首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包，`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别，根据你所使用的平台选择合适的安装包。
 
-首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包（推荐），`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
-
-下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，然后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。更多详情请参见 [安装文档](https://getrebuild.com/learn/install)。
+下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，启动后访问 [http://localhost:18080/](http://localhost:18080/) 开始体验。更多详情请参见 [安装文档](https://getrebuild.com/learn/install)。
 
 ### 3. 通过源码编译
 
@@ -121,7 +97,7 @@ REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因
 | 依赖                      | 说明                              |
 | ------------------------- | --------------------------------- |
 | JDK 1.8+                  | 必须，兼容 OpenJDK                |
-| MySQL 5.6+                | 必须                              |
+| MySQL 5.6+                | 非必须，自带 H2 数据库            |
 | Apache Maven 3.6+         | 非必须，IDE 自带                  |
 | Redis 3.2+                | 非必须，默认使用内置 Ehcache 缓存 |
 | Tomcat 8.0+               | 非必须，默认使用内置 Tomcat       |
@@ -131,9 +107,9 @@ REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因
 
 ## 社区交流
 
-> **福利：加入 REBUILD VIP 用户 QQ 交流群 744487038 1013051587 GET 使用技能**
-
 使用中遇到问题或有建议，欢迎提交 [Issue](https://github.com/getrebuild/rebuild/issues) 与我们交流。如果项目对你有帮助，欢迎点个 Star 支持。
+
+> 加入 REBUILD 官方 QQ 交流群 744487038 1013051587 GET 使用技能
 
 ## 授权 License
 
@@ -144,3 +120,19 @@ REBUILD uses the GPL-3.0 open source license and commercial license dual license
 ## 购买商业授权
 
 从 2.0 版本开始，REBUILD 将推出 [增值功能](https://getrebuild.com/docs/rbv-features) 计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 REBUILD 可持续发展。除了可享有全部功能以外，还可以得到更专业的技术支持服务。非常感谢！
+
+## V4.4 新特性
+
+本次更新为你带来众多功能增强与优化。
+
+1. [新增] 记录锁定与提示功能
+2. [新增] 手机版支持自定义操作
+3. [新增] AI 助手支持文件上传分析、Token 用量统计等
+4. [新增] 审批中心功能
+5. [新增] 多个触发器计算公式函数
+6. [新增] 多个 FrontJS 函数
+7. [优化] 新版登录页
+8. [优化] 30+ 细节/BUG/安全性更新
+9. ...
+
+更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.4)

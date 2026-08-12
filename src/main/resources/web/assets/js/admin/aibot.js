@@ -46,10 +46,6 @@ $(document).ready(() => {
     $stopEvent(e, true)
     renderRbcomp(<DlgKbEdit title={$L('添加知识库')} />)
   })
-  $('.J_importSkill').on('click', (e) => {
-    $stopEvent(e, true)
-    renderRbcomp(<DlgSkillImport title={$L('导入技能')} />)
-  })
 })
 
 // ~~ Knowledge
@@ -165,12 +161,13 @@ class DlgKbEdit extends RbModalHandler {
 
   componentDidMount() {
     super.componentDidMount && super.componentDidMount()
-    setTimeout(() => autosize(this._$text), 400)
+
     $multipleUploader(this._$file, (res) => {
       this.setState({ fileKey: res.key, fileName: res.file.name })
-      // 名称为空时用文件名（去后缀）回填
       if (!$(this._$name).val()) $(this._$name).val(res.file.name.replace(/\.[^.]+$/, ''))
     })
+
+    setTimeout(() => autosize(this._$text), 100)
   }
 
   _getSourceConfig(key, sourceConfig) {
@@ -194,7 +191,9 @@ class DlgKbEdit extends RbModalHandler {
     const text = $(this._$text).val()
     const fileKey = this.state.fileKey
 
-    let sourceType, sourceConfig, needBuild = false
+    let sourceType,
+      sourceConfig,
+      needBuild = false
     if (fileKey) {
       sourceType = 'FILE'
       sourceConfig = JSON.stringify({ file: fileKey })
@@ -304,52 +303,186 @@ class DlgSkillEdit extends RbModalHandler {
   constructor(props) {
     super(props)
     this.state = { ...props }
+    this._$refs = {}
   }
 
   render() {
     const conf = (this.props.item || {}).config || {}
+
+    // 修改
+    if (this.props.item) {
+      return (
+        <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
+          {this._renderFormContent(conf)}
+        </RbModal>
+      )
+    }
+
+    if (this.state.hasError) {
+      return (
+        <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
+          <div className="mb-7">
+            <RbAlertBox message={this.state.hasError} />
+          </div>
+        </RbModal>
+      )
+    }
+
+    const skills = this.state.skills || []
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
-        <div>
-          <form>
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('技能名称')}</label>
-              <div className="col-sm-7">
-                <input className="form-control form-control-sm" type="text" maxLength="40" ref={(c) => (this._$name = c)} defaultValue={conf.name || ''} autoFocus />
+        <div className="tab-container" style={{ marginTop: -10 }} ref={(c) => (this._$container = c)}>
+          <ul className="nav nav-tabs">
+            <li className="nav-item">
+              <a className="nav-link active" href="#SKILL_MANUAL" data-toggle="tab">
+                {$L('手动')}
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#SKILL_IMPORT" data-toggle="tab">
+                {$L('从 RB 仓库导入')}
+              </a>
+            </li>
+          </ul>
+          <div className="tab-content m-0 pb-0">
+            <div className="tab-pane active" id="SKILL_MANUAL">
+              {this._renderFormContent(conf)}
+            </div>
+            <div className="tab-pane" id="SKILL_IMPORT">
+              <div className="init-models" ref={(c) => (this._$skills = c)}>
+                <fieldset>
+                  <legend>
+                    <div className="row">
+                      <div className="col">
+                        <strong>{$L('共 %d 个可用技能', skills.length)}</strong>
+                      </div>
+                      <div className="col text-right">
+                        <label className="custom-control custom-checkbox custom-control-inline custom-control-sm" title={$L('全选')}>
+                          <input className="custom-control-input" type="checkbox" onClick={(e) => this._handleSelectAll(e)} />
+                          <span className="custom-control-label" />
+                        </label>
+                      </div>
+                    </div>
+                  </legend>
+                  <form>
+                    {skills.map((item, idx) => {
+                      return (
+                        <div key={idx}>
+                          <label className="custom-control custom-checkbox m-0" title={item.description} ref={(c) => (this._$refs[item.name] = c)}>
+                            <input className="custom-control-input" type="checkbox" value={item.name} />
+                            <span className="custom-control-label text-bold">{item.name}</span>
+                            <p>{item.description}</p>
+                          </label>
+                        </div>
+                      )
+                    })}
+                  </form>
+                  <div className="clearfix" />
+                </fieldset>
+                <div className="dialog-footer">
+                  <div className="float-right">
+                    <button type="button" className="btn btn-primary" ref={(c) => (this._$importBtn = c)} onClick={() => this._onImport()}>
+                      {$L('开始导入')}
+                    </button>
+                  </div>
+                  <div className="float-right">
+                    <p className="protips mt-2 pr-2">{$L('可在导入后根据自身需求做适当调整/修改')}</p>
+                  </div>
+                  <div className="clearfix" />
+                </div>
               </div>
             </div>
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
-              <div className="col-sm-7">
-                <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} />
-              </div>
-            </div>
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('提示词')}</label>
-              <div className="col-sm-7">
-                <textarea className="form-control form-control-sm" ref={(c) => (this._$prompt = c)} defaultValue={conf.prompt || ''} />
-              </div>
-            </div>
-
-            <div className="form-group row footer">
-              <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
-                <button className="btn btn-primary" type="button" onClick={() => this._onSave()}>
-                  {$L('确定')}
-                </button>
-                <button className="btn btn-link" type="button" onClick={() => this.hide()}>
-                  {$L('取消')}
-                </button>
-              </div>
-            </div>
-          </form>
+          </div>
         </div>
       </RbModal>
     )
   }
 
+  // 表单内容（新建/修改共用）
+  _renderFormContent(conf) {
+    return (
+      <div className="form">
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('技能名称')}</label>
+          <div className="col-sm-7">
+            <input className="form-control form-control-sm" type="text" maxLength="40" ref={(c) => (this._$name = c)} defaultValue={conf.name || ''} autoFocus />
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
+          <div className="col-sm-7">
+            <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} />
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('提示词')}</label>
+          <div className="col-sm-7">
+            <textarea className="form-control form-control-sm" ref={(c) => (this._$prompt = c)} defaultValue={conf.prompt || ''} />
+          </div>
+        </div>
+        <div className="form-group row footer">
+          <div className="col-sm-7 offset-sm-3" ref={(c) => (this._$btn = c)}>
+            <button className="btn btn-primary" type="button" onClick={() => this._onSave()}>
+              {$L('确定')}
+            </button>
+            <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+              {$L('取消')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   componentDidMount() {
     super.componentDidMount && super.componentDidMount()
-    setTimeout(() => autosize(this._$prompt), 400)
+
+    setTimeout(() => autosize(this._$prompt), 100)
+
+    if (!this.props.item) this._loadSkills()
+  }
+
+  _loadSkills() {
+    $.get('/admin/rbstore/load-index?type=skills', (res) => {
+      let hasError = res.error_code > 0 ? res.error_msg || $L('暂无可用技能') : null
+      this.setState({ skills: res.data || [], hasError })
+    })
+  }
+
+  _handleSelectAll(e) {
+    const chk = $(e.currentTarget).prop('checked')
+    $(this._$skills)
+      .find('form input')
+      .each(function () {
+        $(this).prop('checked', chk)
+      })
+  }
+
+  _onImport() {
+    const selected = []
+    $(this._$skills)
+      .find('form input')
+      .each(function () {
+        const $chk = $(this)
+        if ($chk.prop('checked')) selected.push($chk.val())
+      })
+
+    if (selected.length === 0) {
+      RbHighbar.create($L('请选择要导入的技能'))
+      return
+    }
+
+    const $btn = $(this._$importBtn).button('loading')
+    $.post(`/admin/rbstore/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        RbHighbar.success($L('成功导入 %d 个技能', selected.length))
+        _loadSkills()
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btn.button('reset')
+      }
+    })
   }
 
   _onSave() {
@@ -390,124 +523,6 @@ class DlgSkillEdit extends RbModalHandler {
   }
 }
 
-class DlgSkillImport extends RbModalHandler {
-  constructor(props) {
-    super(props)
-    this.state = { ...props, data: null }
-    this._$refs = {}
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
-          <div className="mb-7">
-            <RbAlertBox message={this.state.hasError} />
-          </div>
-        </RbModal>
-      )
-    }
-
-    const skills = this.state.skills || []
-
-    return (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
-        <div className="init-models" ref={(c) => (this._$skills = c)}>
-          <fieldset>
-            <legend>
-              <div className="row">
-                <div className="col">
-                  <strong>{$L('共 %d 个可用技能', skills.length)}</strong>
-                </div>
-                <div className="col text-right">
-                  <label className="custom-control custom-checkbox custom-control-inline custom-control-sm" title={$L('全选')}>
-                    <input className="custom-control-input" type="checkbox" onClick={(e) => this._handleSelectAll(e)} />
-                    <span className="custom-control-label" />
-                  </label>
-                </div>
-              </div>
-            </legend>
-            <form>
-              {skills.map((item, idx) => {
-                return (
-                  <div key={idx}>
-                    <label className="custom-control custom-checkbox m-0" title={item.description} ref={(c) => (this._$refs[item.name] = c)}>
-                      <input className="custom-control-input" type="checkbox" value={item.name} />
-                      <span className="custom-control-label text-bold">{item.name}</span>
-                      <p>{item.description}</p>
-                    </label>
-                  </div>
-                )
-              })}
-            </form>
-            <div className="clearfix" />
-          </fieldset>
-
-          <div className="dialog-footer">
-            <div className="float-right">
-              <button type="button" className="btn btn-primary" onClick={() => this._onImport()}>
-                {$L('开始导入')}
-              </button>
-            </div>
-            <div className="float-right">
-              <p className="protips mt-2 pr-2">{$L('可在导入后根据自身需求做适当调整/修改')}</p>
-            </div>
-            <div className="clearfix" />
-          </div>
-        </div>
-      </RbModal>
-    )
-  }
-
-  componentDidMount() {
-    super.componentDidMount && super.componentDidMount()
-    this._loadSkills()
-  }
-
-  _loadSkills() {
-    $.get('/admin/rbstore/load-index?type=skills', (res) => {
-      let hasError = res.error_code > 0 ? res.error_msg || $L('暂无可用技能') : null
-      this.setState({ skills: res.data || [], hasError })
-    })
-  }
-
-  _handleSelectAll(e) {
-    const chk = $(e.currentTarget).prop('checked')
-    $(this._$skills)
-      .find('form input')
-      .each(function () {
-        $(this).prop('checked', chk)
-      })
-  }
-
-  _onImport() {
-    const selected = []
-    $(this._$skills)
-      .find('form input')
-      .each(function () {
-        const $chk = $(this)
-        if ($chk.prop('checked')) selected.push($chk.val())
-      })
-
-    if (selected.length === 0) {
-      RbHighbar.create($L('请选择要导入的技能'))
-      return
-    }
-
-    const $btn = $(this._$btn).find('.btn').button('loading')
-    $.post(`/admin/rbstore/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
-      if (res.error_code === 0) {
-        this.hide()
-        RbHighbar.success($L('成功导入 %d 个技能', selected.length))
-        _loadSkills()
-      } else {
-        RbHighbar.error(res.error_msg)
-        $btn.button('reset')
-      }
-    })
-  }
-}
-
 // ~~ Tools
 
 let _toolsData = []
@@ -525,7 +540,7 @@ const _loadTools = function () {
         `<tr>
           <td>${item.name}</td>
           <td>${item.description || $L('无')}</td>
-          <td>
+          <td class="actions">
             <div class="switch-button switch-button-xs switch-button-success">
               <input type="checkbox" id="${htmlid}" ${item.disabled ? '' : 'checked'} />
               <span><label for="${htmlid}"></label></span>

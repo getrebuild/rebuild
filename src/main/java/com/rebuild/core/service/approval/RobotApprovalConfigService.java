@@ -18,6 +18,8 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.i18n.Language;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Service;
@@ -80,6 +82,9 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
 
     @Override
     protected void cleanCache(ID cfgid) {
+        Object c = QueryHelper.queryFieldValue(cfgid, "flowDefinition");
+        RbvFunction.call().validateJsonSchema("approval-flow", c);
+
         String be = RobotApprovalManager.instance.getBelongEntity(cfgid, false);
         if (be != null) {
             Entity entity = MetadataHelper.getEntity(be);
