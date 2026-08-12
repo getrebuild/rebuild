@@ -40,9 +40,9 @@ public class LayoutConfigService extends BaseConfigurationService {
     protected void cleanCache(ID cfgid) {
         Object applyType = QueryHelper.queryFieldValue(cfgid, "applyType");
         String schemaName = null;
-        if (BaseLayoutManager.TYPE_FORM.equals(applyType)) schemaName = "form-layout";
-        else if (BaseLayoutManager.TYPE_DATALIST.equals(applyType)) schemaName = "list-layout";
-        else if (BaseLayoutManager.TYPE_NAV.equals(applyType)) schemaName = "nav-menu";
+        if (BaseLayoutManager.TYPE_FORM.equals(applyType)) schemaName = JsonSchemaValidator.FORM_LAYOUT;
+        else if (BaseLayoutManager.TYPE_DATALIST.equals(applyType)) schemaName = JsonSchemaValidator.LIST_LAYOUT;
+        else if (BaseLayoutManager.TYPE_NAV.equals(applyType)) schemaName = JsonSchemaValidator.NAV_MENU;
         if (schemaName != null) {
             Object c = QueryHelper.queryFieldValue(cfgid, "config");
             JsonSchemaValidator.validate(schemaName, c);

@@ -16,7 +16,7 @@ create table if not exists `aibot_knowledge_chunk` (
 -- ************ Entity [AibotConfig] DDL ************
 create table if not exists `aibot_config` (
   `CONFIG_ID`          char(20) not null,
-  `TYPE`               varchar(100) not null comment '配置类型 (KNOWLEDGE/SKILL)',
+  `TYPE`               varchar(100) not null comment '配置类型',
   `NAME`               varchar(200) comment '名称',
   `CONFIG`             longtext comment '配置内容 (JSON)',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',

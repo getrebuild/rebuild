@@ -687,7 +687,7 @@
 
     <entity name="AibotConfig" type-code="094" name-field="name" description="AI 通用配置" queryable="false">
         <field name="configId" type="primary"/>
-        <field name="type" type="string" max-length="100" nullable="false" description="配置类型 (KNOWLEDGE/SKILL)"/>
+        <field name="type" type="string" max-length="100" nullable="false" description="配置类型"/>
         <field name="name" type="string" max-length="200" description="名称"/>
         <field name="config" type="ntext" description="配置内容 (JSON)"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>

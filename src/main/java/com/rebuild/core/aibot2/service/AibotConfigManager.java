@@ -8,11 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2.service;
 
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class AibotConfigManager implements ConfigManager {
         for (Object[] o : array) {
             ConfigBean cb = new ConfigBean()
                     .set("id", o[0])
-                    .set("config", JSON.parse((String) o[1]))
+                    .set("config", o[1] != null ? JSONUtils.parseObjectSafe((String) o[1]) : new JSONObject())
                     .set("name", o[3])
                     .set("isDisabled", o[2] != null && (Boolean) o[2]);
             list.add(cb);
