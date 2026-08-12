@@ -199,7 +199,7 @@ public class KnowledgeBuilder {
      */
     public static void updateChunkCount(ID knowledgeId, int count) {
         Object[] o = Application.createQueryNoFilter(
-                "select config from AibotCommonsConfig where configId = ?")
+                "select config from AibotConfig where configId = ?")
                 .setParameter(1, knowledgeId)
                 .unique();
 

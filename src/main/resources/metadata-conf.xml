@@ -685,7 +685,7 @@
         <index field-list="chatId,createdOn,createdBy"/>
     </entity>
 
-    <entity name="AibotCommonsConfig" type-code="094" name-field="name" description="AI 通用配置">
+    <entity name="AibotConfig" type-code="094" name-field="name" description="AI 通用配置" queryable="false">
         <field name="configId" type="primary"/>
         <field name="type" type="string" max-length="100" nullable="false" description="配置类型 (KNOWLEDGE/SKILL)"/>
         <field name="name" type="string" max-length="200" description="名称"/>
@@ -695,7 +695,7 @@
 
     <entity name="AibotKnowledgeChunk" type-code="093" description="AI 知识库分片" queryable="false" parent="false">
         <field name="chunkId" type="primary"/>
-        <field name="knowledgeId" type="reference" ref-entity="AibotCommonsConfig" nullable="false" updatable="false" cascade="delete"/>
+        <field name="knowledgeId" type="reference" ref-entity="AibotConfig" nullable="false" updatable="false" cascade="delete"/>
         <field name="content" type="ntext" description="片段内容"/>
         <field name="chunkIndex" type="int" description="分片序号"/>
         <field name="keywords" type="string" max-length="1000" description="关键词 (逗号分隔)"/>

@@ -23,16 +23,16 @@ import java.util.List;
  * @since 2026/8/12
  */
 @Slf4j
-public class AibotCommonsConfigManager implements ConfigManager {
+public class AibotConfigManager implements ConfigManager {
 
     // 知识库
     public static final String TYPE_KNOWLEDGE = "KNOWLEDGE";
     // 技能
     public static final String TYPE_SKILL = "SKILL";
 
-    public static final AibotCommonsConfigManager instance = new AibotCommonsConfigManager();
+    public static final AibotConfigManager instance = new AibotConfigManager();
 
-    private AibotCommonsConfigManager() {
+    private AibotConfigManager() {
     }
 
     /**
@@ -58,12 +58,12 @@ public class AibotCommonsConfigManager implements ConfigManager {
      * @return
      */
     protected ConfigBean[] getConfig(String type) {
-        String cKey = "AibotCommonsConfigManager-" + type;
+        String cKey = "AibotConfigManager-" + type;
         ConfigBean[] cache = (ConfigBean[]) Application.getCommonsCache().getx(cKey);
         if (cache != null) return cache;
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,config,isDisabled,name from AibotCommonsConfig where type = ?")
+                "select configId,config,isDisabled,name from AibotConfig where type = ?")
                 .setParameter(1, type)
                 .array();
 
@@ -87,12 +87,12 @@ public class AibotCommonsConfigManager implements ConfigManager {
         Object type = QueryHelper.queryFieldValue((ID) cfgid, "type");
         if (type == null) return;
 
-        String cKey = "AibotCommonsConfigManager-" + type;
+        String cKey = "AibotConfigManager-" + type;
         Application.getCommonsCache().evict(cKey);
     }
 
     @Override
     public String getBelongEntity(ID cfgid, boolean throwIfMiss) {
-        return "AibotCommonsConfig";
+        return "AibotConfig";
     }
 }

@@ -30,7 +30,7 @@ public class SkillDefs {
      * @return
      */
     public static List<JSONObject> listSkills() {
-        ConfigBean[] cbs = AibotCommonsConfigManager.instance.getSkillConfigs();
+        ConfigBean[] cbs = AibotConfigManager.instance.getSkillConfigs();
         List<JSONObject> skills = new ArrayList<>();
         for (ConfigBean cb : cbs) {
             if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
@@ -59,7 +59,7 @@ public class SkillDefs {
         String[] names = skillName.split(",");
         StringBuilder prompts = new StringBuilder();
 
-        ConfigBean[] cbs = AibotCommonsConfigManager.instance.getSkillConfigs();
+        ConfigBean[] cbs = AibotConfigManager.instance.getSkillConfigs();
         for (ConfigBean cb : cbs) {
             if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
 

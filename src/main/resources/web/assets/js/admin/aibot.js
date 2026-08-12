@@ -226,7 +226,7 @@ class DlgKbEdit extends RbModalHandler {
       type: 'KNOWLEDGE',
       config: JSON.stringify(config),
       metadata: {
-        entity: 'AibotCommonsConfig',
+        entity: 'AibotConfig',
         id: itemId,
       },
     }
@@ -508,7 +508,7 @@ class DlgSkillEdit extends RbModalHandler {
         prompt: prompt,
       }),
       metadata: {
-        entity: 'AibotCommonsConfig',
+        entity: 'AibotConfig',
         id: item.id || null,
       },
     }

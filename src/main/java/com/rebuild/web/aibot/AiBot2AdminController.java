@@ -110,7 +110,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/skill-list")
     public RespBody skillList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled,modifiedOn,createdBy from AibotCommonsConfig where type = 'SKILL' order by modifiedOn desc")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'SKILL' order by modifiedOn desc")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -121,8 +121,6 @@ public class AiBot2AdminController extends BaseController {
             JSONObject conf = JSONUtils.parseObjectSafe((String) o[2]);
             item.put("config", conf != null ? conf : new JSONObject());
             item.put("isDisabled", o[3]);
-            item.put("modifiedOn", o[4]);
-            item.put("createdBy", o[5]);
             list.add(item);
         }
         return RespBody.ok(list);
@@ -131,7 +129,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/kb-list")
     public RespBody kbList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled,modifiedOn,createdBy from AibotCommonsConfig where type = 'KNOWLEDGE' order by modifiedOn desc")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by modifiedOn desc")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -147,8 +145,6 @@ public class AiBot2AdminController extends BaseController {
                 item.put("chunkCount", conf.getIntValue("chunkCount"));
             }
             item.put("isDisabled", o[3]);
-            item.put("modifiedOn", o[4]);
-            item.put("createdBy", o[5]);
             list.add(item);
         }
         return RespBody.ok(list);
@@ -158,7 +154,7 @@ public class AiBot2AdminController extends BaseController {
     public RespBody build(HttpServletRequest req) {
         ID knowledgeId = getIdParameterNotNull(req, "id");
         Object[] knowledge = Application.createQueryNoFilter(
-                "select name,config from AibotCommonsConfig where configId = ? and type = 'KNOWLEDGE'")
+                "select name,config from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
                 .setParameter(1, knowledgeId)
                 .unique();
         if (knowledge == null) return RespBody.error();

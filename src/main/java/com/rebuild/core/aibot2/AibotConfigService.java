@@ -18,19 +18,19 @@ import org.springframework.stereotype.Service;
  * @since 2026/8/12
  */
 @Service
-public class AibotCommonsConfigService extends BaseConfigurationService {
+public class AibotConfigService extends BaseConfigurationService {
 
-    protected AibotCommonsConfigService(PersistManagerFactory aPMFactory) {
+    protected AibotConfigService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
     }
 
     @Override
     public int getEntityCode() {
-        return EntityHelper.AibotCommonsConfig;
+        return EntityHelper.AibotConfig;
     }
 
     @Override
     protected void cleanCache(ID cfgid) {
-        AibotCommonsConfigManager.instance.clean(cfgid);
+        AibotConfigManager.instance.clean(cfgid);
     }
 }

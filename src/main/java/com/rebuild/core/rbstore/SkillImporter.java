@@ -11,8 +11,8 @@ import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.aibot2.AibotCommonsConfigManager;
-import com.rebuild.core.aibot2.AibotCommonsConfigService;
+import com.rebuild.core.aibot2.AibotConfigManager;
+import com.rebuild.core.aibot2.AibotConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
@@ -55,8 +55,8 @@ public class SkillImporter extends HeavyTask<Integer> {
 
                 JSONObject skill = (JSONObject) RBStore.fetchSkills(skillIndex.getString("file"));
 
-                Record record = EntityHelper.forNew(EntityHelper.AibotCommonsConfig);
-                record.setString("type", AibotCommonsConfigManager.TYPE_SKILL);
+                Record record = EntityHelper.forNew(EntityHelper.AibotConfig);
+                record.setString("type", AibotConfigManager.TYPE_SKILL);
                 record.setString("name", skillName);
 
                 JSONObject config = new JSONObject();
@@ -65,7 +65,7 @@ public class SkillImporter extends HeavyTask<Integer> {
                 config.put("prompt", skill.getString("prompt"));
                 record.setString("config", config.toJSONString());
 
-                Application.getBean(AibotCommonsConfigService.class).create(record);
+                Application.getBean(AibotConfigService.class).create(record);
                 log.info("Skill imported : {}", skillName);
                 this.addSucceeded();
 

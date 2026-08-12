@@ -127,7 +127,7 @@ public class KnowledgeRetriever {
 
             String sql = "select chunkId,knowledgeId,content,chunkIndex,keywords" +
                     " from AibotKnowledgeChunk where knowledgeId in" +
-                    " (select configId from AibotCommonsConfig where isDisabled = 'F' and type = 'KNOWLEDGE') and " + where;
+                    " (select configId from AibotConfig where isDisabled = 'F' and type = 'KNOWLEDGE') and " + where;
 
             res = Application.createQueryNoFilter(sql).array();
         }
@@ -190,7 +190,7 @@ public class KnowledgeRetriever {
         if (knowledgeIds.isEmpty()) return;
 
         StringBuilder sql = new StringBuilder(
-                "select configId,name from AibotCommonsConfig where type = 'KNOWLEDGE' and configId in (");
+                "select configId,name from AibotConfig where type = 'KNOWLEDGE' and configId in (");
         for (int i = 0; i < knowledgeIds.size(); i++) {
             if (i > 0) sql.append(",");
             sql.append("'").append(knowledgeIds.get(i)).append("'");

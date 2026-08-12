@@ -440,7 +440,7 @@ public class EntityHelper {
 
     public static final int AibotChat = 96;
     public static final int AibotChatAttach = 95;
-    public static final int AibotCommonsConfig = 94;
+    public static final int AibotConfig = 94;
     public static final int AibotKnowledgeChunk = 93;
 
 }
