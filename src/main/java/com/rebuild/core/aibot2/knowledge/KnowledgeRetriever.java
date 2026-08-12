@@ -98,39 +98,27 @@ public class KnowledgeRetriever {
     private static Map<ID, KnowledgeChunk> queryChunks(List<String> keywords) {
         List<String> validKeywords = new ArrayList<>();
         for (String kw : keywords) {
-            if (kw.length() >= MIN_QUERY_LENGTH) validKeywords.add(kw);
+            if (kw.length() >= MIN_QUERY_LENGTH) validKeywords.add(CommonsUtils.escapeSql(kw));
         }
         if (validKeywords.isEmpty()) return new LinkedHashMap<>();
 
-        Object[][] res;
+        String where;
         if (CommandArgs.getBoolean(CommandArgs._UseDbFullText)) {
-            String sql = "select CHUNK_ID, KNOWLEDGE_ID, CONTENT, CHUNK_INDEX, KEYWORDS " +
-                    "from aibot_knowledge_chunk where KNOWLEDGE_ID in " +
-                    "(select CONFIG_ID from aibot_commons_config where IS_DISABLED = 'F' and TYPE = 'KNOWLEDGE') " +
-                    "and match(CONTENT) against (? in boolean mode)";
-            String searchText = StringUtils.join(validKeywords, " ");
-            res = Application.getQueryFactory()
-                    .createNativeQuery(sql)
-                    .setParameter(1, searchText)
-                    .array();
+            where = String.format("(content match '%s')", StringUtils.join(validKeywords, " "));
         } else {
-            StringBuilder where = new StringBuilder("(");
-            boolean first = true;
+            StringBuilder likes = new StringBuilder("(");
             for (String kw : validKeywords) {
-                String likeValue = "'%" + CommonsUtils.escapeSql(kw) + "%'";
-                if (!first) where.append(" or ");
-                first = false;
-                where.append("(content like ").append(likeValue)
-                        .append(" or keywords like ").append(likeValue).append(")");
+                String likeValue = "'%" + kw + "%'";
+                likes.append("(content like ").append(likeValue)
+                        .append(" or keywords like ").append(likeValue).append(") or ");
             }
-            where.append(")");
-
-            String sql = "select chunkId,knowledgeId,content,chunkIndex,keywords" +
-                    " from AibotKnowledgeChunk where knowledgeId in" +
-                    " (select configId from AibotConfig where isDisabled = 'F' and type = 'KNOWLEDGE') and " + where;
-
-            res = Application.createQueryNoFilter(sql).array();
+            where = likes.substring(0, likes.length() - 4) + ")";
         }
+
+        String sql = "select chunkId,knowledgeId,content,chunkIndex,keywords" +
+                " from AibotKnowledgeChunk where knowledgeId in" +
+                " (select configId from AibotConfig where isDisabled = 'F' and type = 'KNOWLEDGE') and " + where;
+        Object[][] res = Application.createQueryNoFilter(sql).array();
 
         Map<ID, KnowledgeChunk> matched = new LinkedHashMap<>();
         for (Object[] row : res) {
