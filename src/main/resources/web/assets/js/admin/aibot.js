@@ -309,7 +309,7 @@ class DlgSkillEdit extends RbModalHandler {
   render() {
     const conf = (this.props.item || {}).config || {}
 
-    // 修改模式：仅表单
+    // 修改
     if (this.props.item) {
       return (
         <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
@@ -318,7 +318,6 @@ class DlgSkillEdit extends RbModalHandler {
       )
     }
 
-    // 新建模式 - 错误提示
     if (this.state.hasError) {
       return (
         <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
@@ -329,7 +328,6 @@ class DlgSkillEdit extends RbModalHandler {
       )
     }
 
-    // 新建模式 - Tab 结构（手动 + 导入）
     const skills = this.state.skills || []
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
@@ -440,7 +438,7 @@ class DlgSkillEdit extends RbModalHandler {
     super.componentDidMount && super.componentDidMount()
 
     setTimeout(() => autosize(this._$prompt), 100)
-    // 新建模式加载可用技能列表
+
     if (!this.props.item) this._loadSkills()
   }
 
