@@ -165,12 +165,13 @@ class DlgKbEdit extends RbModalHandler {
 
   componentDidMount() {
     super.componentDidMount && super.componentDidMount()
-    setTimeout(() => autosize(this._$text), 400)
+
     $multipleUploader(this._$file, (res) => {
       this.setState({ fileKey: res.key, fileName: res.file.name })
-      // 名称为空时用文件名（去后缀）回填
       if (!$(this._$name).val()) $(this._$name).val(res.file.name.replace(/\.[^.]+$/, ''))
     })
+
+    setTimeout(() => autosize(this._$text), 100)
   }
 
   _getSourceConfig(key, sourceConfig) {
@@ -194,7 +195,9 @@ class DlgKbEdit extends RbModalHandler {
     const text = $(this._$text).val()
     const fileKey = this.state.fileKey
 
-    let sourceType, sourceConfig, needBuild = false
+    let sourceType,
+      sourceConfig,
+      needBuild = false
     if (fileKey) {
       sourceType = 'FILE'
       sourceConfig = JSON.stringify({ file: fileKey })
@@ -349,7 +352,8 @@ class DlgSkillEdit extends RbModalHandler {
 
   componentDidMount() {
     super.componentDidMount && super.componentDidMount()
-    setTimeout(() => autosize(this._$prompt), 400)
+
+    setTimeout(() => autosize(this._$prompt), 100)
   }
 
   _onSave() {
@@ -525,7 +529,7 @@ const _loadTools = function () {
         `<tr>
           <td>${item.name}</td>
           <td>${item.description || $L('无')}</td>
-          <td>
+          <td class="actions">
             <div class="switch-button switch-button-xs switch-button-success">
               <input type="checkbox" id="${htmlid}" ${item.disabled ? '' : 'checked'} />
               <span><label for="${htmlid}"></label></span>
