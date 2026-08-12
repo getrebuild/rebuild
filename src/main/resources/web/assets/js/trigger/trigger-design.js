@@ -215,7 +215,7 @@ $(document).ready(() => {
     })
   })
 
-  if (LastLogsViewer.renderLog && rb.commercial > 1) {
+  if (LastLogsViewer.renderLog && rb.commercial > 0) {
     $.get(`/admin/robot/trigger/last-logs?id=${wpc.configId}`, (res) => {
       const _data = res.data || {}
       if (_data.logs && _data.logs.length > 0) {

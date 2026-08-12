@@ -90,8 +90,8 @@ $(function () {
   $.fn.modal.Constructor.prototype._enforceFocus = function () {}
 
   // navless/frame
-  if (rb.commercial > 1 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
-  if (rb.commercial > 1 && window.__BOSSKEY === true) $('.bosskey-show').removeClass('bosskey-show')
+  if (rb.commercial > 0 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
+  if (rb.commercial > 0 && window.__BOSSKEY === true) $('.bosskey-show').removeClass('bosskey-show')
 
   // scroller
   var $t = $('.rb-scroller')
