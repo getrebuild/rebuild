@@ -18,6 +18,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -188,8 +189,16 @@ public class KnowledgeBuilder {
      * @param count
      */
     public static void updateChunkCount(ID knowledgeId, int count) {
+        Object[] o = Application.createQueryNoFilter(
+                "select config from AibotCommonsConfig where configId = ?")
+                .setParameter(1, knowledgeId)
+                .unique();
+        JSONObject config = (o != null && o[0] != null)
+                ? JSONUtils.parseObjectSafe((String) o[0]) : new JSONObject();
+        if (config == null) config = new JSONObject();
+        config.put("chunkCount", count);
         RecordBuilder.builder(knowledgeId)
-                .add("chunkCount", count)
+                .add("config", config.toJSONString())
                 .save(UserService.SYSTEM_USER);
     }
 }

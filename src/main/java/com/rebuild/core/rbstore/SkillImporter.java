@@ -12,8 +12,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.general.CommonsConfigManager;
-import com.rebuild.core.configuration.general.CommonsConfigService;
+import com.rebuild.core.aibot2.AibotCommonsConfigManager;
+import com.rebuild.core.aibot2.AibotCommonsConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 /**
- * 技能导入器。从 RBStore 获取技能列表并导入到 CommonsConfig
+ * 技能导入器。从 RBStore 获取技能列表并导入到 AibotCommonsConfig
  *
  * @author devezhao
  * @since 2026/7/26
@@ -61,10 +61,9 @@ public class SkillImporter extends HeavyTask<Integer> {
                 // load full skill data (with prompt) from individual file
                 JSONObject skill = (JSONObject) RBStore.fetchSkills(skillIndex.getString("file"));
 
-                // create CommonsConfig record
-                Record record = EntityHelper.forNew(EntityHelper.CommonsConfig);
-                record.setString("type", CommonsConfigManager.TYPE_AIBOT_SKILL);
-                record.setString("belongEntity", "N");
+                // create AibotCommonsConfig record
+                Record record = EntityHelper.forNew(EntityHelper.AibotCommonsConfig);
+                record.setString("type", AibotCommonsConfigManager.TYPE_SKILL);
                 record.setString("name", skillName);
 
                 JSONObject config = new JSONObject();
@@ -73,7 +72,7 @@ public class SkillImporter extends HeavyTask<Integer> {
                 config.put("prompt", skill.getString("prompt"));
                 record.setString("config", config.toJSONString());
 
-                Application.getBean(CommonsConfigService.class).create(record);
+                Application.getBean(AibotCommonsConfigService.class).create(record);
                 log.info("Skill imported : {}", skillName);
                 this.addSucceeded();
 

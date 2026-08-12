@@ -215,13 +215,18 @@ class DlgKbEdit extends RbModalHandler {
     }
 
     const itemId = item.id || null
-    const data = {
-      name: name,
+    const config = {
       description: $(this._$desc).val(),
       sourceType: sourceType,
       sourceConfig: sourceConfig,
+      chunkCount: item.chunkCount || 0,
+    }
+    const data = {
+      name: name,
+      type: 'KNOWLEDGE',
+      config: JSON.stringify(config),
       metadata: {
-        entity: 'AibotKnowledge',
+        entity: 'AibotCommonsConfig',
         id: itemId,
       },
     }
@@ -252,7 +257,7 @@ class DlgKbEdit extends RbModalHandler {
 // ~~ Skills
 
 const _loadSkills = function () {
-  $.get('/admin/commons-config/list?type=AIBOT_SKILL', (res) => {
+  $.get('./aibot/skill-list', (res) => {
     const data = res.data || []
     const $tbody = $('#skillsList').empty()
     $('.J_skillsEmpty').toggle(data.length === 0)
@@ -496,16 +501,14 @@ class DlgSkillEdit extends RbModalHandler {
 
     const data = {
       name: name,
-      type: 'AIBOT_SKILL',
-      belongEntity: 'N',
-      shareTo: 'ALL',
-      config: {
+      type: 'SKILL',
+      config: JSON.stringify({
         name: name,
         description: $(this._$desc).val(),
         prompt: prompt,
-      },
+      }),
       metadata: {
-        entity: 'CommonsConfig',
+        entity: 'AibotCommonsConfig',
         id: item.id || null,
       },
     }

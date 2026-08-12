@@ -9,7 +9,6 @@ package com.rebuild.core.aibot2;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.configuration.general.CommonsConfigManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * AI 技能管理。技能数据存储于 CommonsConfig（type=AIBOT_SKILL），
+ * AI 技能管理。技能数据存储于 AibotCommonsConfig（type=SKILL），
  * 每个 skill 的 config JSON 格式为 {"name":"技能名","prompt":"提示词","description":"描述"}
  *
  * @author Zixin
@@ -32,7 +31,7 @@ public class SkillDefs {
      * @return
      */
     public static List<JSONObject> listSkills() {
-        ConfigBean[] cbs = CommonsConfigManager.instance.getAibotSkills();
+        ConfigBean[] cbs = AibotCommonsConfigManager.instance.getSkillConfigs();
         List<JSONObject> skills = new ArrayList<>();
         for (ConfigBean cb : cbs) {
             if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
@@ -61,7 +60,7 @@ public class SkillDefs {
         String[] names = skillName.split(",");
         StringBuilder prompts = new StringBuilder();
 
-        ConfigBean[] cbs = CommonsConfigManager.instance.getAibotSkills();
+        ConfigBean[] cbs = AibotCommonsConfigManager.instance.getSkillConfigs();
         for (ConfigBean cb : cbs) {
             if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
 

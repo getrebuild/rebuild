@@ -99,7 +99,7 @@ public class KnowledgeRetriever {
         if (CommandArgs.getBoolean(CommandArgs._UseDbFullText)) {
             String sql = "select CHUNK_ID, KNOWLEDGE_ID, CONTENT, CHUNK_INDEX, KEYWORDS " +
                     "from aibot_knowledge_chunk where KNOWLEDGE_ID in " +
-                    "(select KNOWLEDGE_ID from aibot_knowledge where IS_DISABLED = 'F') " +
+                    "(select CONFIG_ID from aibot_commons_config where IS_DISABLED = 'F' and TYPE = 'KNOWLEDGE') " +
                     "and match(CONTENT) against (? in boolean mode)";
             String searchText = StringUtils.join(validKeywords, " ");
             results = Application.getQueryFactory()
@@ -120,7 +120,7 @@ public class KnowledgeRetriever {
 
             String sql = "select chunkId, knowledgeId, content, chunkIndex, keywords " +
                     "from AibotKnowledgeChunk where knowledgeId in " +
-                    "(select knowledgeId from AibotKnowledge where isDisabled = 'F') and " + where;
+                    "(select configId from AibotCommonsConfig where isDisabled = 'F' and type = 'KNOWLEDGE') and " + where;
 
             results = Application.createQueryNoFilter(sql).array();
         }
@@ -191,7 +191,7 @@ public class KnowledgeRetriever {
         if (knowledgeIds.isEmpty()) return;
 
         // in 列表直接拼接 ID 字面量（ID 来自自身查询结果，无注入风险）
-        StringBuilder sql = new StringBuilder("select knowledgeId, name from AibotKnowledge where knowledgeId in (");
+        StringBuilder sql = new StringBuilder("select configId, name from AibotCommonsConfig where type = 'KNOWLEDGE' and configId in (");
         for (int i = 0; i < knowledgeIds.size(); i++) {
             if (i > 0) sql.append(",");
             sql.append("'").append(knowledgeIds.get(i)).append("'");

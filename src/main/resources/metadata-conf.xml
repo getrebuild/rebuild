@@ -685,19 +685,18 @@
         <index field-list="chatId,createdOn,createdBy"/>
     </entity>
 
-    <entity name="AibotKnowledge" type-code="094" name-field="name" description="AI 知识库" queryable="false">
-        <field name="knowledgeId" type="primary"/>
+    <entity name="AibotCommonsConfig" type-code="094" name-field="name" description="AI 通用配置" queryable="false">
+        <field name="configId" type="primary"/>
+        <field name="type" type="string" max-length="100" nullable="false" description="配置类型 (KNOWLEDGE/SKILL)"/>
         <field name="name" type="string" max-length="200" description="名称"/>
-        <field name="description" type="string" max-length="500" description="描述"/>
-        <field name="sourceType" type="string" max-length="20" description="来源类型 (FILE/RECORD/LIST/URL/TEXT)"/>
-        <field name="sourceConfig" type="ntext" description="来源配置 (JSON)"/>
-        <field name="chunkCount" type="int" description="分片数量"/>
+        <field name="config" type="ntext" description="配置内容 (JSON)"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
+        <index field-list="belongEntity,type,modifiedOn,createdOn"/>
     </entity>
 
     <entity name="AibotKnowledgeChunk" type-code="093" description="AI 知识库分片" queryable="false" parent="false">
         <field name="chunkId" type="primary"/>
-        <field name="knowledgeId" type="reference" ref-entity="AibotKnowledge" nullable="false" updatable="false" cascade="delete"/>
+        <field name="knowledgeId" type="reference" ref-entity="AibotCommonsConfig" nullable="false" updatable="false" cascade="delete"/>
         <field name="content" type="ntext" description="片段内容"/>
         <field name="chunkIndex" type="int" description="分片序号"/>
         <field name="keywords" type="string" max-length="1000" description="关键词 (逗号分隔)"/>
