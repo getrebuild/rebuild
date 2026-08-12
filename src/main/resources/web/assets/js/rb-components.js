@@ -381,7 +381,7 @@ class RbAlert extends React.Component {
 class RbAlertFree43 extends RbAlert {
   renderContent() {
     return (
-      <div className="text-center">
+      <div className="text-center p-2">
         <div>
           <h4 className="m-0 mb-2 text-bold" style={{ fontSize: '1.538rem', marginTop: -5 }}>
             {$L('升级后使用')}
