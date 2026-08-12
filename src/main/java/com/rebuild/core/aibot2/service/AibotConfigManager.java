@@ -29,6 +29,8 @@ public class AibotConfigManager implements ConfigManager {
     public static final String TYPE_KNOWLEDGE = "KNOWLEDGE";
     // 技能
     public static final String TYPE_SKILL = "SKILL";
+    // 定时任务
+    public static final String TYPE_AIBOT_SCHEDULE = "AIBOT_SCHEDULE";
 
     public static final AibotConfigManager instance = new AibotConfigManager();
 

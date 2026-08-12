@@ -14,8 +14,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.aibot2.service.AiBotScheduleConfigService;
-import com.rebuild.core.configuration.general.CommonsConfigManager;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
+import com.rebuild.core.aibot2.service.AibotConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.CommonsUtils;
@@ -130,14 +130,13 @@ public class ScheduleTask implements Tool {
         config.put("nextExecTime", CalendarUtils.getUTCDateTimeFormat().format(nextExecTime));
         config.put("lastExecTime", null);
 
-        // 创建 CommonsConfig 记录
-        Record record = EntityHelper.forNew(EntityHelper.CommonsConfig, user);
-        record.setString("type", CommonsConfigManager.TYPE_AIBOT_SCHEDULE);
-        record.setString("belongEntity", "N");
+        // 创建 AibotConfig 记录
+        Record record = EntityHelper.forNew(EntityHelper.AibotConfig, user);
+        record.setString("type", AibotConfigManager.TYPE_AIBOT_SCHEDULE);
         record.setString("name", subject);
         record.setString("config", config.toJSONString());
 
-        record = Application.getBean(AiBotScheduleConfigService.class).create(record);
+        record = Application.getBean(AibotConfigService.class).create(record);
 
         String taskId = record.getPrimary().toLiteral();
         String nextExecStr = CalendarUtils.getUTCDateTimeFormat().format(nextExecTime);
@@ -155,8 +154,8 @@ public class ScheduleTask implements Tool {
      */
     private Object doList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,config,name,isDisabled from CommonsConfig where belongEntity = 'N' and type = ? and createdBy = ? order by createdOn desc")
-                .setParameter(1, CommonsConfigManager.TYPE_AIBOT_SCHEDULE)
+                "select configId,config,name,isDisabled from AibotConfig where type = ? and createdBy = ? order by createdOn desc")
+                .setParameter(1, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
                 .setParameter(2, UserContextHolder.getUser())
                 .array();
 
@@ -212,9 +211,9 @@ public class ScheduleTask implements Tool {
 
         // 验证任务存在
         Object[] task = Application.createQueryNoFilter(
-                "select config,name,createdBy from CommonsConfig where configId = ? and type = ?")
+                "select config,name,createdBy from AibotConfig where configId = ? and type = ?")
                 .setParameter(1, taskId)
-                .setParameter(2, CommonsConfigManager.TYPE_AIBOT_SCHEDULE)
+                .setParameter(2, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
                 .unique();
 
         if (task == null) {
@@ -230,7 +229,7 @@ public class ScheduleTask implements Tool {
         String name = (String) task[1];
 
         // 删除任务
-        Application.getBean(AiBotScheduleConfigService.class).delete(taskId);
+        Application.getBean(AibotConfigService.class).delete(taskId);
 
         return JSONUtils.toJSONObject(
                 new String[]{"status", "message"},

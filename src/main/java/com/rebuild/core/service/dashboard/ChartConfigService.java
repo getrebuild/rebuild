@@ -13,7 +13,6 @@ import com.rebuild.core.aibot2.JsonSchemaValidator;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.core.support.RbvFunction;
 import org.springframework.stereotype.Service;
 
 /**
@@ -37,7 +36,7 @@ public class ChartConfigService extends BaseConfigurationService {
     @Override
     protected void cleanCache(ID cfgid) {
         Object c = QueryHelper.queryFieldValue(cfgid, "config");
-        RbvFunction.call().validateJsonSchema(JsonSchemaValidator.CHART_CONFIG, c);
+        JsonSchemaValidator.validate(JsonSchemaValidator.CHART_CONFIG, c);
 
         ChartManager.instance.clean(cfgid);
     }

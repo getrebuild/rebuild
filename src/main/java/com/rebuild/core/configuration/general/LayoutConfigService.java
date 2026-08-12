@@ -10,11 +10,10 @@ package com.rebuild.core.configuration.general;
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.aibot2.JsonSchemaValidator;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.query.QueryHelper;
-import com.rebuild.core.support.RbvFunction;
-import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +45,7 @@ public class LayoutConfigService extends BaseConfigurationService {
         else if (BaseLayoutManager.TYPE_NAV.equals(applyType)) schemaName = "nav-menu";
         if (schemaName != null) {
             Object c = QueryHelper.queryFieldValue(cfgid, "config");
-            RbvFunction.call().validateJsonSchema(schemaName, c);
+            JsonSchemaValidator.validate(schemaName, c);
         }
 
         BaseLayoutManager.instance.clean(cfgid);

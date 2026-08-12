@@ -9,7 +9,6 @@ package com.rebuild.core.configuration.general;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.aibot2.service.AiBotScheduleConfigService;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.AdminGuard;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
  *
  * @author ZHAO
  * @since 4/15/2026
- * @see AiBotScheduleConfigService
  */
 @Service
 public class CommonsConfigService  extends BaseConfigurationService implements AdminGuard {
