@@ -28,6 +28,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -167,6 +168,8 @@ public class AdvFilterParser extends SetUser {
         if (MODE_QUICK.equalsIgnoreCase(filterExpr.getString("type"))) {
             rebuildQuickFilter38();
         }
+
+        RbvFunction.call().validateJsonSchema("adv-filter", filterExpr);
 
         JSONArray items = filterExpr.getJSONArray("items");
         items = items == null ? JSONUtils.EMPTY_ARRAY : items;

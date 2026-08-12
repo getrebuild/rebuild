@@ -9,7 +9,6 @@ package com.rebuild.core.support;
 
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.service.datareport.EasyExcelGenerator33;
 import com.rebuild.core.service.general.OperatingContext;
@@ -162,7 +161,7 @@ public class RbvFunction {
 
     // -- JSON SCHEMA
 
-    public void validateJsonSchema(String schemaName, JSONObject data) {
+    public void validateJsonSchema(String schemaName, Object data) {
         log.debug("No RbvFunction : validateJsonSchema");
     }
 }
