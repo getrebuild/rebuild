@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.exception.jdbc.SqlSyntaxException;
+import com.rebuild.core.aibot2.JsonSchemaValidator;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -83,7 +84,7 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
     @Override
     protected void cleanCache(ID cfgid) {
         Object c = QueryHelper.queryFieldValue(cfgid, "flowDefinition");
-        RbvFunction.call().validateJsonSchema("approval-flow", c);
+        RbvFunction.call().validateJsonSchema(JsonSchemaValidator.APPROVAL_FLOW, c);
 
         String be = RobotApprovalManager.instance.getBelongEntity(cfgid, false);
         if (be != null) {

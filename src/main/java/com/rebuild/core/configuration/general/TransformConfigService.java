@@ -9,6 +9,7 @@ package com.rebuild.core.configuration.general;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.aibot2.JsonSchemaValidator;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.AdminGuard;
@@ -35,7 +36,7 @@ public class TransformConfigService extends BaseConfigurationService implements 
     @Override
     protected void cleanCache(ID cfgid) {
         Object c = QueryHelper.queryFieldValue(cfgid, "config");
-        RbvFunction.call().validateJsonSchema("transform-config", c);
+        RbvFunction.call().validateJsonSchema(JsonSchemaValidator.TRANSFORM_CONFIG, c);
 
         TransformManager.instance.clean(cfgid);
     }
