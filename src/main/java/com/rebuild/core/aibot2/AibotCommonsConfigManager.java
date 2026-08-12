@@ -12,23 +12,22 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
+import com.rebuild.core.service.query.QueryHelper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * AI 通用配置管理器。统一管理知识库配置、技能配置等，数据存储于 AibotCommonsConfig 实体，通过 type 字段区分配置类型。
- *
  * @author devezhao
  * @since 2026/8/12
  */
 @Slf4j
 public class AibotCommonsConfigManager implements ConfigManager {
 
-    // 知识库配置
+    // 知识库
     public static final String TYPE_KNOWLEDGE = "KNOWLEDGE";
-    // AI 技能配置
+    // 技能
     public static final String TYPE_SKILL = "SKILL";
 
     public static final AibotCommonsConfigManager instance = new AibotCommonsConfigManager();
@@ -55,8 +54,6 @@ public class AibotCommonsConfigManager implements ConfigManager {
     }
 
     /**
-     * 通用配置查询（带缓存，按 type 维度）
-     *
      * @param type
      * @return
      */
@@ -66,8 +63,7 @@ public class AibotCommonsConfigManager implements ConfigManager {
         if (cache != null) return cache;
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId, config, isDisabled, name from AibotCommonsConfig "
-                        + "where type = ? order by modifiedOn desc")
+                "select configId,config,isDisabled,name from AibotCommonsConfig where type = ?")
                 .setParameter(1, type)
                 .array();
 
@@ -88,13 +84,10 @@ public class AibotCommonsConfigManager implements ConfigManager {
 
     @Override
     public void clean(Object cfgid) {
-        Object[] o = Application.createQueryNoFilter(
-                "select type from AibotCommonsConfig where configId = ?")
-                .setParameter(1, cfgid)
-                .unique();
-        if (o == null) return;
+        Object type = QueryHelper.queryFieldValue((ID) cfgid, "type");
+        if (type == null) return;
 
-        String cKey = "AibotCommonsConfigManager-" + o[0];
+        String cKey = "AibotCommonsConfigManager-" + type;
         Application.getCommonsCache().evict(cKey);
     }
 

@@ -14,8 +14,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import org.springframework.stereotype.Service;
 
 /**
- * AI 通用配置服务。处理 AibotCommonsConfig 实体的增删改，自动清理配置缓存。
- *
  * @author devezhao
  * @since 2026/8/12
  */

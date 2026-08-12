@@ -110,7 +110,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/skill-list")
     public RespBody skillList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId, name, config, isDisabled, modifiedOn, createdBy from AibotCommonsConfig where type = 'SKILL' order by modifiedOn desc")
+                "select configId,name,config,isDisabled,modifiedOn,createdBy from AibotCommonsConfig where type = 'SKILL' order by modifiedOn desc")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -118,9 +118,8 @@ public class AiBot2AdminController extends BaseController {
             JSONObject item = new JSONObject(true);
             item.put("id", o[0]);
             item.put("name", o[1]);
-
-            JSONObject cfg = JSONUtils.parseObjectSafe((String) o[2]);
-            item.put("config", cfg != null ? cfg : new JSONObject());
+            JSONObject conf = JSONUtils.parseObjectSafe((String) o[2]);
+            item.put("config", conf != null ? conf : new JSONObject());
             item.put("isDisabled", o[3]);
             item.put("modifiedOn", o[4]);
             item.put("createdBy", o[5]);
@@ -132,7 +131,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/kb-list")
     public RespBody kbList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId, name, config, isDisabled, modifiedOn, createdBy from AibotCommonsConfig where type = 'KNOWLEDGE' order by modifiedOn desc")
+                "select configId,name,config,isDisabled,modifiedOn,createdBy from AibotCommonsConfig where type = 'KNOWLEDGE' order by modifiedOn desc")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -140,13 +139,12 @@ public class AiBot2AdminController extends BaseController {
             JSONObject item = new JSONObject(true);
             item.put("id", o[0]);
             item.put("name", o[1]);
-
-            JSONObject cfg = JSONUtils.parseObjectSafe((String) o[2]);
-            if (cfg != null) {
-                item.put("description", cfg.getString("description"));
-                item.put("sourceType", cfg.getString("sourceType"));
-                item.put("sourceConfig", cfg.getString("sourceConfig"));
-                item.put("chunkCount", cfg.getIntValue("chunkCount"));
+            JSONObject conf = JSONUtils.parseObjectSafe((String) o[2]);
+            if (conf != null) {
+                item.put("description", conf.getString("description"));
+                item.put("sourceType", conf.getString("sourceType"));
+                item.put("sourceConfig", conf.getString("sourceConfig"));
+                item.put("chunkCount", conf.getIntValue("chunkCount"));
             }
             item.put("isDisabled", o[3]);
             item.put("modifiedOn", o[4]);
@@ -160,20 +158,17 @@ public class AiBot2AdminController extends BaseController {
     public RespBody build(HttpServletRequest req) {
         ID knowledgeId = getIdParameterNotNull(req, "id");
         Object[] knowledge = Application.createQueryNoFilter(
-                "select name, config from AibotCommonsConfig where configId = ? and type = 'KNOWLEDGE'")
+                "select name,config from AibotCommonsConfig where configId = ? and type = 'KNOWLEDGE'")
                 .setParameter(1, knowledgeId)
                 .unique();
-
-        if (knowledge == null) {
-            return RespBody.error("知识库不存在");
-        }
+        if (knowledge == null) return RespBody.error();
 
         String name = (String) knowledge[0];
-        JSONObject cfg = JSONUtils.parseObjectSafe((String) knowledge[1]);
-        String sourceType = cfg != null ? cfg.getString("sourceType") : null;
-        String sourceConfig = cfg != null ? cfg.getString("sourceConfig") : null;
+        JSONObject conf = JSONUtils.parseObjectSafe((String) knowledge[1]);
+        String sourceType = conf != null ? conf.getString("sourceType") : null;
+        String sourceConfig = conf != null ? conf.getString("sourceConfig") : null;
 
-        // 后台异步构建（-1 构建中，0 构建失败）
+        // -1=构建中 0=构建失败
         KnowledgeBuilder.updateChunkCount(knowledgeId, -1);
         TaskExecutors.queue(() -> {
             try {
@@ -185,5 +180,4 @@ public class AiBot2AdminController extends BaseController {
         });
         return RespBody.ok();
     }
-
 }

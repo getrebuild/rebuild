@@ -23,10 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 知识检索器：从知识库中检索与用户查询最相关的片段
- *
- * <p>轻量级实现：基于关键词匹配 + 简单 TF-IDF 打分，不依赖 Embedding API。
- * 未来可扩展为向量检索。</p>
+ * 从知识库中检索与用户查询最相关的片段
+ * 基于关键词匹配 + 简单 TF-IDF 打分，不依赖 Embedding API
  *
  * @author devezhao
  * @since 2026/8/5
@@ -41,6 +39,10 @@ public class KnowledgeRetriever {
 
     /**
      * 检索与查询最相关的知识片段
+     *
+     * @param query
+     * @param topK
+     * @return
      */
     public static List<KnowledgeChunk> retrieve(String query, int topK) {
         if (StringUtils.isBlank(query) || query.trim().length() < MIN_QUERY_LENGTH) {
@@ -76,7 +78,10 @@ public class KnowledgeRetriever {
     }
 
     /**
-     * 检索并拼装为 VectorData（供 ChatRequest 自动注入）
+     * 检索并拼装为 VectorData
+     *
+     * @param query
+     * @return
      */
     public static VectorData retrieveAsVectorData(String query) {
         List<KnowledgeChunk> chunks = retrieve(query, DEFAULT_TOP_K);
@@ -86,6 +91,9 @@ public class KnowledgeRetriever {
 
     /**
      * 单次查询所有关键词匹配的片段，使用 Map 去重并累加分数
+     *
+     * @param keywords
+     * @return
      */
     private static Map<ID, KnowledgeChunk> queryChunks(List<String> keywords) {
         List<String> validKeywords = new ArrayList<>();
@@ -94,15 +102,14 @@ public class KnowledgeRetriever {
         }
         if (validKeywords.isEmpty()) return new LinkedHashMap<>();
 
-        Object[][] results;
-
+        Object[][] res;
         if (CommandArgs.getBoolean(CommandArgs._UseDbFullText)) {
             String sql = "select CHUNK_ID, KNOWLEDGE_ID, CONTENT, CHUNK_INDEX, KEYWORDS " +
                     "from aibot_knowledge_chunk where KNOWLEDGE_ID in " +
                     "(select CONFIG_ID from aibot_commons_config where IS_DISABLED = 'F' and TYPE = 'KNOWLEDGE') " +
                     "and match(CONTENT) against (? in boolean mode)";
             String searchText = StringUtils.join(validKeywords, " ");
-            results = Application.getQueryFactory()
+            res = Application.getQueryFactory()
                     .createNativeQuery(sql)
                     .setParameter(1, searchText)
                     .array();
@@ -118,15 +125,15 @@ public class KnowledgeRetriever {
             }
             where.append(")");
 
-            String sql = "select chunkId, knowledgeId, content, chunkIndex, keywords " +
-                    "from AibotKnowledgeChunk where knowledgeId in " +
-                    "(select configId from AibotCommonsConfig where isDisabled = 'F' and type = 'KNOWLEDGE') and " + where;
+            String sql = "select chunkId,knowledgeId,content,chunkIndex,keywords" +
+                    " from AibotKnowledgeChunk where knowledgeId in" +
+                    " (select configId from AibotCommonsConfig where isDisabled = 'F' and type = 'KNOWLEDGE') and " + where;
 
-            results = Application.createQueryNoFilter(sql).array();
+            res = Application.createQueryNoFilter(sql).array();
         }
 
         Map<ID, KnowledgeChunk> matched = new LinkedHashMap<>();
-        for (Object[] row : results) {
+        for (Object[] row : res) {
             ID chunkId = toId(row[0]);
             KnowledgeChunk chunk = matched.get(chunkId);
             if (chunk == null) {
@@ -145,19 +152,13 @@ public class KnowledgeRetriever {
         return matched;
     }
 
-    /**
-     * 将查询结果中的 ID 值统一转为 ID 对象
-     * （AJQL 查询返回 ID 对象，原生 SQL 查询返回 String）
-     */
     private static ID toId(Object value) {
         if (value == null) return null;
         if (value instanceof ID) return (ID) value;
         return ID.valueOf(value.toString());
     }
 
-    /**
-     * 对片段打分：检查所有关键词的命中情况
-     */
+    // 对片段打分：检查所有关键词的命中情况
     private static double scoreChunk(KnowledgeChunk chunk, List<String> keywords) {
         double score = 0;
         String content = chunk.getContent() != null ? chunk.getContent().toLowerCase() : "";
@@ -176,9 +177,7 @@ public class KnowledgeRetriever {
         return score;
     }
 
-    /**
-     * 批量查询知识库名称（避免 N+1 查询）
-     */
+    // 批量查询知识库名称（避免 N+1 查询）
     private static void attachKnowledgeName(Map<ID, KnowledgeChunk> chunks) {
         if (chunks.isEmpty()) return;
 
@@ -190,8 +189,8 @@ public class KnowledgeRetriever {
         }
         if (knowledgeIds.isEmpty()) return;
 
-        // in 列表直接拼接 ID 字面量（ID 来自自身查询结果，无注入风险）
-        StringBuilder sql = new StringBuilder("select configId, name from AibotCommonsConfig where type = 'KNOWLEDGE' and configId in (");
+        StringBuilder sql = new StringBuilder(
+                "select configId,name from AibotCommonsConfig where type = 'KNOWLEDGE' and configId in (");
         for (int i = 0; i < knowledgeIds.size(); i++) {
             if (i > 0) sql.append(",");
             sql.append("'").append(knowledgeIds.get(i)).append("'");
@@ -210,9 +209,7 @@ public class KnowledgeRetriever {
         }
     }
 
-    /**
-     * 限制返回内容的总长度
-     */
+    // 限制返回内容的总长度
     private static List<KnowledgeChunk> trimByContentLength(List<KnowledgeChunk> chunks) {
         List<KnowledgeChunk> result = new ArrayList<>();
         int totalLen = 0;
@@ -231,9 +228,7 @@ public class KnowledgeRetriever {
         return result;
     }
 
-    /**
-     * 统计关键词在文本中出现次数
-     */
+    // 统计关键词在文本中出现次数
     private static int countOccurrences(String text, String keyword) {
         if (StringUtils.isBlank(text) || StringUtils.isBlank(keyword)) return 0;
         int count = 0;

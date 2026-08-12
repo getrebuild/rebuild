@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.rbstore;
 
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -17,23 +16,19 @@ import com.rebuild.core.aibot2.AibotCommonsConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 /**
- * 技能导入器。从 RBStore 获取技能列表并导入到 AibotCommonsConfig
- *
  * @author devezhao
  * @since 2026/7/26
  */
 @Slf4j
 public class SkillImporter extends HeavyTask<Integer> {
 
+    @Setter
     private String[] skillNames;
-
-    public void setSkillNames(String[] skillNames) {
-        this.skillNames = skillNames;
-    }
 
     @Override
     protected Integer exec() throws Exception {
@@ -58,10 +53,8 @@ public class SkillImporter extends HeavyTask<Integer> {
 
                 String skillName = skillIndex.getString("name");
 
-                // load full skill data (with prompt) from individual file
                 JSONObject skill = (JSONObject) RBStore.fetchSkills(skillIndex.getString("file"));
 
-                // create AibotCommonsConfig record
                 Record record = EntityHelper.forNew(EntityHelper.AibotCommonsConfig);
                 record.setString("type", AibotCommonsConfigManager.TYPE_SKILL);
                 record.setString("name", skillName);
@@ -86,11 +79,6 @@ public class SkillImporter extends HeavyTask<Integer> {
         return getSucceeded();
     }
 
-    /**
-     * @param schemas
-     * @param name
-     * @return
-     */
     private JSONObject findSkill(JSONArray schemas, String name) {
         for (Object o : schemas) {
             JSONObject item = (JSONObject) o;

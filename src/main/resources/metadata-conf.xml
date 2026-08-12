@@ -685,13 +685,12 @@
         <index field-list="chatId,createdOn,createdBy"/>
     </entity>
 
-    <entity name="AibotCommonsConfig" type-code="094" name-field="name" description="AI 通用配置" queryable="false">
+    <entity name="AibotCommonsConfig" type-code="094" name-field="name" description="AI 通用配置">
         <field name="configId" type="primary"/>
         <field name="type" type="string" max-length="100" nullable="false" description="配置类型 (KNOWLEDGE/SKILL)"/>
         <field name="name" type="string" max-length="200" description="名称"/>
         <field name="config" type="ntext" description="配置内容 (JSON)"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
-        <index field-list="belongEntity,type,modifiedOn,createdOn"/>
     </entity>
 
     <entity name="AibotKnowledgeChunk" type-code="093" description="AI 知识库分片" queryable="false" parent="false">

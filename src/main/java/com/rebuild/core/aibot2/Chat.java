@@ -349,7 +349,7 @@ public class Chat implements Serializable {
 
         // 合并 Skills 提示词
         if (chatRequest != null) {
-            String skillPrompt = SkillDefs.getSystemPrompt(chatRequest.getSkill());
+            String skillPrompt = SkillDefs.getSkillPrompt(chatRequest.getSkill());
             if (skillPrompt != null) {
                 systemPrompt = StringUtils.isBlank(systemPrompt) ? skillPrompt : systemPrompt + "\n\n" + skillPrompt;
             }

@@ -16,8 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * AI 技能管理。技能数据存储于 AibotCommonsConfig（type=SKILL），
- * 每个 skill 的 config JSON 格式为 {"name":"技能名","prompt":"提示词","description":"描述"}
+ * AI 技能管理
  *
  * @author Zixin
  * @since 2026/7/15
@@ -49,12 +48,12 @@ public class SkillDefs {
     }
 
     /**
-     * 获取技能的系统提示词。支持逗号分隔的多个技能名称
+     * 获取技能的系统提示词
      *
-     * @param skillName 单个或逗号分隔的多个技能名称
-     * @return 合并后的提示词，无匹配则返回 null
+     * @param skillName
+     * @return
      */
-    public static String getSystemPrompt(String skillName) {
+    public static String getSkillPrompt(String skillName) {
         if (StringUtils.isBlank(skillName)) return null;
 
         String[] names = skillName.split(",");
