@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.aibot2;
+package com.rebuild.core.aibot2.service;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
@@ -14,6 +14,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.ChatManager;
+import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.tool.ScheduleTask;
 import com.rebuild.core.configuration.general.CommonsConfigManager;
 import com.rebuild.core.metadata.EntityHelper;

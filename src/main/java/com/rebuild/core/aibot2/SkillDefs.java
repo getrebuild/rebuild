@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2;
 
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.configuration.ConfigBean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
