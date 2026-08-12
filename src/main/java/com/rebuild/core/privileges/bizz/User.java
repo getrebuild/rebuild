@@ -10,7 +10,7 @@ package com.rebuild.core.privileges.bizz;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.privileges.RoleService;
-import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.UserHelper;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -89,8 +89,7 @@ public class User extends cn.devezhao.bizz.security.member.User implements Compa
      * @return
      */
     public boolean isAdmin() {
-        if (getIdentity().equals(UserService.ADMIN_USER)
-                || getIdentity().equals(UserService.SYSTEM_USER)) return true;
+        if (UserHelper.isSuperAdmin((ID) getIdentity())) return true;
 
         Role role = getOwningRole();
         if (role == null) return false;

@@ -51,6 +51,19 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
+import static com.rebuild.core.support.ConfigurationItem.AibotDSSecret;
+import static com.rebuild.core.support.ConfigurationItem.AibotName;
+import static com.rebuild.core.support.ConfigurationItem.AppBuild;
+import static com.rebuild.core.support.ConfigurationItem.AppName;
+import static com.rebuild.core.support.ConfigurationItem.FileSharable;
+import static com.rebuild.core.support.ConfigurationItem.MarkWatermark;
+import static com.rebuild.core.support.ConfigurationItem.PageFooter;
+import static com.rebuild.core.support.ConfigurationItem.PageMourningMode;
+import static com.rebuild.core.support.ConfigurationItem.PortalBaiduMapAk;
+import static com.rebuild.core.support.ConfigurationItem.PortalOfficePreviewUrl;
+import static com.rebuild.core.support.ConfigurationItem.PortalUploadMaxSize;
+import static com.rebuild.core.support.ConfigurationItem.StorageURL;
+
 /**
  * MVC 配置
  *
@@ -81,16 +94,16 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         thymeleafViewResolver.addStaticVariable(WebConstants.ENV, Application.devMode() ? "dev" : "production");
         thymeleafViewResolver.addStaticVariable(WebConstants.COMMERCIAL, License.getCommercialType());
         thymeleafViewResolver.addStaticVariable(WebConstants.BASE_URL, AppUtils.getContextPath());
-        thymeleafViewResolver.addStaticVariable(WebConstants.APP_NAME, RebuildConfiguration.get(ConfigurationItem.AppName));
+        thymeleafViewResolver.addStaticVariable(WebConstants.APP_NAME, RebuildConfiguration.get(AppName));
         if (QiniuCloud.instance().available()) {
-            thymeleafViewResolver.addStaticVariable(WebConstants.STORAGE_URL, RebuildConfiguration.get(ConfigurationItem.StorageURL));
+            thymeleafViewResolver.addStaticVariable(WebConstants.STORAGE_URL, RebuildConfiguration.get(StorageURL));
         } else {
             thymeleafViewResolver.addStaticVariable(WebConstants.STORAGE_URL, StringUtils.EMPTY);
         }
-        thymeleafViewResolver.addStaticVariable(WebConstants.FILE_SHARABLE, RebuildConfiguration.get(ConfigurationItem.FileSharable));
-        thymeleafViewResolver.addStaticVariable(WebConstants.MARK_WATERMARK, RebuildConfiguration.get(ConfigurationItem.MarkWatermark));
+        thymeleafViewResolver.addStaticVariable(WebConstants.FILE_SHARABLE, RebuildConfiguration.get(FileSharable));
+        thymeleafViewResolver.addStaticVariable(WebConstants.MARK_WATERMARK, RebuildConfiguration.get(MarkWatermark));
 
-        String pageFooter = RebuildConfiguration.get(ConfigurationItem.PageFooter);
+        String pageFooter = RebuildConfiguration.get(PageFooter);
         if (StringUtils.isBlank(pageFooter)) {
             pageFooterHtml = null;
         } else {
@@ -98,24 +111,21 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         }
         thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, pageFooterHtml);
 
-        setStaticVariable(ConfigurationItem.PortalOfficePreviewUrl);
-        setStaticVariable(ConfigurationItem.PortalBaiduMapAk);
-        setStaticVariable(ConfigurationItem.PortalUploadMaxSize);
-        setStaticVariable(ConfigurationItem.AppBuild);
-        setStaticVariable(ConfigurationItem.PageMourningMode);
+        setStaticVariable(PortalOfficePreviewUrl);
+        setStaticVariable(PortalBaiduMapAk);
+        setStaticVariable(PortalUploadMaxSize);
+        setStaticVariable(AppBuild);
+        setStaticVariable(PageMourningMode);
 
         if (License.isCommercial()) {
-            // v4.1 配置才显示
-            String aibot = RebuildConfiguration.get(ConfigurationItem.AibotDSSecret);
+            String aibot = RebuildConfiguration.get(AibotDSSecret);
             if (StringUtils.isBlank(aibot)) {
                 thymeleafViewResolver.addStaticVariable("_AiBot", null);
             } else {
-                aibot = RebuildConfiguration.get(ConfigurationItem.AibotName);
-                thymeleafViewResolver.addStaticVariable("_AiBot", aibot);
+                thymeleafViewResolver.addStaticVariable("_AiBot", RebuildConfiguration.get(AibotName));
             }
         } else {
-            // v4.5
-            thymeleafViewResolver.addStaticVariable("_AiBot", ConfigurationItem.AibotName.getDefaultValue());
+            thymeleafViewResolver.addStaticVariable("_AiBot", RebuildConfiguration.get(AibotName));
         }
 
         // 清理缓存
@@ -126,11 +136,11 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
     private void setStaticVariable(ConfigurationItem item) {
         String value;
-        if (item == ConfigurationItem.AppBuild) value = Application.VER;
+        if (item == AppBuild) value = Application.VER;
         else value = RebuildConfiguration.get(item);
 
         // v4.1 当使用 OnlyOffice 后的默认预览地址
-        if (item == ConfigurationItem.PortalOfficePreviewUrl && OnlyOffice.isUseOoPreview()) {
+        if (item == PortalOfficePreviewUrl && OnlyOffice.isUseOoPreview()) {
             value = OnlyOffice.OO_PREVIEW_URL;
         }
 

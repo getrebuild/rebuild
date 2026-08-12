@@ -157,12 +157,12 @@ $(document).ready(() => {
 
   const $btn = $('.J_save').on('click', function () {
     const one2nMode = $('#one2nMode').prop('checked')
-    if (one2nMode && rb.commercial < 10) {
+    if (one2nMode && rb.commercial < 1) {
       RbAlertFree43.create($L('免费版不支持启用多记录转换 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
     const importsMode = $('#importsMode').prop('checked')
-    if (importsMode && rb.commercial < 10) {
+    if (importsMode && rb.commercial < 1) {
       RbAlertFree43.create($L('免费版不支持启用明细记录导入 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }

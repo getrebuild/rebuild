@@ -309,6 +309,7 @@ public class EntityHelper {
     public static boolean isUnsavedId(Object id) {
         boolean s = ID.isId(id) && (UNSAVED_ID.equals(id) || id.toString().endsWith(UNSAVED_ID_SUFFIX));
         if (!s) return false;
+        // SYSTEM_USER 有特殊后缀
         return !UserService.SYSTEM_USER.equals(id);
     }
 

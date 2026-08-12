@@ -40,7 +40,7 @@ const loadDeptTree = function () {
 $(document).ready(() => loadDeptTree())
 
 RbList.renderAfter = function () {
-  if (rb.commercial < 10) return
+  if (rb.commercial < 1) return
 
   const FLAGS = {
     'WW': $L('企业微信'),

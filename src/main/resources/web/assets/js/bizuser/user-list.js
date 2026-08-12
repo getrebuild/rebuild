@@ -264,7 +264,7 @@ class UserResigntion extends RbModalHandler {
   }
 
   start() {
-    if (rb.commercial < 10) {
+    if (rb.commercial < 1) {
       RbAlertFree43.create($L('免费版不支持离职继任功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }

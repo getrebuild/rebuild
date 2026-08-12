@@ -116,8 +116,8 @@ $(function () {
   $.fn.modal.Constructor.prototype._enforceFocus = function () {}
 
   // navless/frame
-  if (rb.commercial > 1 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
-  if (rb.commercial > 1 && window.__BOSSKEY === true) $('.bosskey-show').removeClass('bosskey-show')
+  if (rb.commercial > 0 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
+  if (rb.commercial > 0 && window.__BOSSKEY === true) $('.bosskey-show').removeClass('bosskey-show')
 
   // scroller
   var $t = $('.rb-scroller')
@@ -413,7 +413,7 @@ var _initNav = function () {
     RbModal.create('/p/settings/nav-settings', $L('设置导航菜单'))
   })
   $('.nav-settings-admin').on('click', function () {
-    if (rb.commercial < 10) {
+    if (rb.commercial < 1) {
       RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
     } else {
       RbModal.create('/p/settings/nav-settings-admin', $L('配置管理中心功能'))
@@ -1805,8 +1805,11 @@ function $openView(id, e) {
   e && $stopEvent(e, true)
   if (typeof id === 'string') id = { id: id }
 
+  // 任务/动态
+  var _spec = id.id.startsWith('052-') || id.id.startsWith('054-') || id.id.startsWith('040-') || id.id.startsWith('041-')
   var _blank = location.href.indexOf('/chart-design') > -1
-  if (window.RbViewModal && !_blank) window.RbViewModal.create(id)
+
+  if (window.RbViewModal && !_blank && !_spec) window.RbViewModal.create(id)
   else window.open(rb.baseUrl + '/app/redirect?id=' + id.id + '&type=newtab')
 }
 

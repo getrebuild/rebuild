@@ -3197,6 +3197,7 @@ form {
   display: block;
   font-size: 0.8462rem;
   color: #999;
+  color: rgba(0, 0, 0, 0.6);
   font-style: normal;
   margin-top: 2px;
 }

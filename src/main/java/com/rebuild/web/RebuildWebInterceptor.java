@@ -19,6 +19,7 @@ import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
@@ -116,8 +117,10 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             }
             // v4.3.4, v4.5
             if (re.getRequestUser() != null) {
-                boolean b = Application.getPrivilegesManager().allow(re.getRequestUser(), AllowUseAiBot)
-                        || !License.isCommercial();
+                boolean b = true;
+                if (License.isCommercial()) {
+                    b = Config.availableAiBot() && Application.getPrivilegesManager().allow(re.getRequestUser(), AllowUseAiBot);
+                }
                 request.setAttribute("_AllowUseAiBot", b);
             }
         }

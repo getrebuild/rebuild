@@ -10,7 +10,7 @@ $(document).ready(function () {
   $('.J_add').on('click', () => renderRbcomp(<TriggerEdit />))
   renderRbcomp(<TriggerList />, 'dataList')
 
-  if (rb.commercial >= 10) {
+  if (rb.commercial > 0) {
     $.get('../robot/trigger/trigger-incomplete', (res) => {
       if (res && res.data) console.log('Timer incomplete :', res.data)
     })
@@ -180,7 +180,7 @@ class TriggerList extends ConfigList {
   }
 
   handleShowChain(id) {
-    if (rb.commercial < 10) {
+    if (rb.commercial < 1) {
       return RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
     }
     RbModal.create(`trigger/trigger-chain?id=${id}`, $L('触发过程'), { urlOpenInNew: true })
@@ -320,7 +320,7 @@ class TriggerEdit extends ConfigFormDlg {
       id: this.props.id || null,
     }
 
-    if (rb.commercial < 10 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
+    if (rb.commercial < 1 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
       RbAlertFree43.create($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', RBV_TRIGGERS[data.actionType]))
       return
     }

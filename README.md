@@ -7,8 +7,6 @@
 **高度可配置化的企业管理系统**
 
 [![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
-[![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
-[![Build Status](https://travis-ci.com/getrebuild/rebuild.svg?branch=master)](https://travis-ci.com/getrebuild/rebuild)
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://getrebuild.com/legal/service-terms)
 [![License 商业授权](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
 [![Docker Image Version](https://img.shields.io/docker/v/getrebuild/rebuild?label=Docker%20Image)](https://www.getrebuild.com/learn/install-use-docker)
@@ -109,7 +107,7 @@ REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因
 
 使用中遇到问题或有建议，欢迎提交 [Issue](https://github.com/getrebuild/rebuild/issues) 与我们交流。如果项目对你有帮助，欢迎点个 Star 支持。
 
-> 加入 REBUILD 官方 QQ 交流群 744487038 1013051587 GET 使用技能
+> 加入 REBUILD 官方 QQ 交流群 744487038 1013051587 GET 更多使用技能
 
 ## 授权 License
 

@@ -364,7 +364,7 @@ class ReportEditor extends ConfigFormDlg {
   }
 
   _useFilter() {
-    if (rb.commercial < 10) {
+    if (rb.commercial < 1) {
       RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }
@@ -405,7 +405,7 @@ class ReportEditor extends ConfigFormDlg {
       if (!file || !entity) return false
     }
 
-    if ((type === 4 || type === 3) && rb.commercial < 10) {
+    if ((type === 4 || type === 3) && rb.commercial < 1) {
       RbAlertFree43.create($L('免费版不支持 WORD 和网页模板功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       this._clearParams()
       return false
@@ -454,7 +454,7 @@ class ReportEditor extends ConfigFormDlg {
       }
       post.extraDefinition.templateVersion = 3
 
-      if ((post.templateType === 4 || post.templateType === 3) && rb.commercial < 10) {
+      if ((post.templateType === 4 || post.templateType === 3) && rb.commercial < 1) {
         RbAlertFree43.create($L('免费版不支持 WORD 和网页模板功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
         return
       }

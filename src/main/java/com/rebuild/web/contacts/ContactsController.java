@@ -17,7 +17,6 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserFilters;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.query.QueryHelper;
@@ -129,7 +128,7 @@ public class ContactsController extends BaseController {
         JSONArray array = new JSONArray();
         for (Member m : usersMembers) {
             User u = (User) m;
-            if (UserService.SYSTEM_USER.equals(u.getId())) continue;
+            if (UserHelper.isSystemUser(u.getId())) continue;
             if (!isall42) {
                 if (!u.isActive()) continue;
             }

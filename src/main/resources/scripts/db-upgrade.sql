@@ -2,11 +2,6 @@
 -- Each upgraded starts with `-- #VERSION`
 
 -- #78 (v4.5)
-insert into `user` (`USER_ID`, `LOGIN_NAME`, `PASSWORD`, `FULL_NAME`, `DEPT_ID`, `ROLE_ID`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
-  values
-  ('001-0000000000000002', 'aibot', 'aibot', 'AI助手', '002-0000000000000001', '003-0000000000000001', 'F', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'AIZS');
-
--- #77 (v4.5)
 -- ************ Entity [AibotKnowledgeChunk] DDL ************
 create table if not exists `aibot_knowledge_chunk` (
   `CHUNK_ID`           char(20) not null,
@@ -34,9 +29,14 @@ create table if not exists `aibot_knowledge` (
   primary key  (`KNOWLEDGE_ID`)
 )Engine=InnoDB;
 
--- #76 (v4.5)
+-- #77 (v4.5)
 alter table `commons_config`
   add column `IS_DISABLED` char(1) default 'F' comment '是否禁用';
+
+-- #76 (v4.4.7)
+insert into `user` (`USER_ID`, `LOGIN_NAME`, `PASSWORD`, `FULL_NAME`, `DEPT_ID`, `ROLE_ID`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
+  values
+  ('001-0000000000000002', 'aibot', 'aibot', 'AI 助手', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'AIZS');
 
 -- #75 (v4.4)
 alter table `meta_field`
