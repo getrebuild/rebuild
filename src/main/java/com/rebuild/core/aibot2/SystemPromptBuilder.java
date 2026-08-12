@@ -40,7 +40,7 @@ public class SystemPromptBuilder {
         }
 
         // 技能（用户指定，冲突时优先）
-        String skillPrompt = SkillDefs.getSystemPrompt(skillName);
+        String skillPrompt = SkillDefs.getSkillPrompt(skillName);
         if (skillPrompt != null) {
             if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
             systemPrompt.append("<current_skill>\n")
