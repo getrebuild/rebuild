@@ -9,9 +9,13 @@ package com.rebuild.core.configuration.general;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.core.Application;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.AdminGuard;
+import com.rebuild.core.support.RbvFunction;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,6 +36,13 @@ public class TransformConfigService extends BaseConfigurationService implements 
 
     @Override
     protected void cleanCache(ID cfgid) {
+        Object[] config = Application.createQueryNoFilter(
+                "select config from TransformConfig where configId = ?")
+                .setParameter(1, cfgid)
+                .unique();
+        if (config != null && StringUtils.isNotBlank((String) config[0])) {
+            RbvFunction.call().validateJsonSchema("transform-config", JSON.parseObject((String) config[0]));
+        }
         TransformManager.instance.clean(cfgid);
     }
 }

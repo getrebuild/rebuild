@@ -168,13 +168,6 @@ public class AdvFilterParser extends SetUser {
             rebuildQuickFilter38();
         }
 
-        // 校验过滤条件数据体（仅日志不阻断，用于观察 Schema 覆盖度）。置于 QUICK 重建之后以免误报
-        try {
-            AdvFilterValidator.validate(filterExpr);
-        } catch (Exception ex) {
-            log.warn("AdvFilter validate error : {}", filterExpr, ex);
-        }
-
         JSONArray items = filterExpr.getJSONArray("items");
         items = items == null ? JSONUtils.EMPTY_ARRAY : items;
 
