@@ -72,7 +72,7 @@ $(document).ready(() => {
 
 // 列表模式
 function _listmodeAction() {
-  if (rb.commercial < 10) {
+  if (rb.commercial < 1) {
     $('.mode-select .btn').on('click', () => RbAlertFree43.create($L('免费版不支持列表模式功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
     return
   }

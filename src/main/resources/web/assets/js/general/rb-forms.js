@@ -564,7 +564,7 @@ class RbForm extends React.Component {
                   <a
                     className="dropdown-item"
                     onClick={() => {
-                      if (rb.commercial < 10) {
+                      if (rb.commercial < 1) {
                         return RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
                       }
 

@@ -546,7 +546,7 @@ class MyBookmarkSettings extends RbModalHandler {
                         className="btn btn-link btn-sm pl-0"
                         onClick={(e) => {
                           $stopEvent(e, true)
-                          if (rb.commercial < 10) {
+                          if (rb.commercial < 1) {
                             RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
                             return false
                           }

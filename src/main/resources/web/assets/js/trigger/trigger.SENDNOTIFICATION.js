@@ -276,15 +276,15 @@ class ContentSendNotification extends ActionContentSpec {
   }
 
   buildContent() {
-    if (rb.commercial < 10 && this.state.type === 4) {
+    if (rb.commercial < 1 && this.state.type === 4) {
       RbAlertFree43.create($L('免费版不支持企业微信群功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return false
     }
-    if (rb.commercial < 10 && this.state.type === 5) {
+    if (rb.commercial < 1 && this.state.type === 5) {
       RbAlertFree43.create($L('免费版不支持钉钉群功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return false
     }
-    if (rb.commercial < 10 && this.state.type === 6) {
+    if (rb.commercial < 1 && this.state.type === 6) {
       RbAlertFree43.create($L('免费版不支持飞书群功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return false
     }
