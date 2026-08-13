@@ -7,10 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.tool;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.privileges.AdminGuard;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
@@ -71,8 +74,11 @@ public class ToolDefs {
      */
     public static List<ChatCompletionTool> tools() {
         Set<String> disabled = getDisabledTools();
+        // 管理员专属工具不提供给非管理员
+        boolean isAdmin = UserHelper.isAdmin(UserContextHolder.getUser());
         return TOOL_MAP.entrySet().stream()
                 .filter(e -> !disabled.contains(e.getKey()) && !e.getValue().isSystem())
+                .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
                 .map(e -> e.getValue().def())
                 .collect(Collectors.toList());
     }
@@ -85,7 +91,7 @@ public class ToolDefs {
      * @return
      */
     public static String execute(String toolName, String arguments) {
-        UserContextHolder.getUser();
+        ID user = UserContextHolder.getUser();
 
         Tool tool = TOOL_MAP.get(toolName);
         if (tool == null) {
@@ -96,6 +102,12 @@ public class ToolDefs {
         if (isToolDisabled(toolName)) {
             log.warn("Tool disabled : {}", toolName);
             throw new ToolException("Tool disabled: " + toolName);
+        }
+
+        // 管理员专属工具验证权限
+        if (tool instanceof AdminGuard && !UserHelper.isAdmin(user)) {
+            log.warn("Tool requires admin : {} by {}", toolName, user);
+            throw new ToolException("此操作仅限管理员使用");
         }
 
         // 统一空值保护
