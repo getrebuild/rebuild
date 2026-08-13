@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "ListEntities",
-    "description": "查看实体及其字段结构。不传名称返回所有可用实体列表，传入名称返回该实体的完整字段定义",
+    "description": "查看实体及其字段结构。不传名称返回所有可用实体列表，传入名称返回该实体的完整字段定义。在进行记录查询、统计、导出等操作前建议先调用此工具获取实体名称和字段信息",
     "parameters": {
       "type": "object",
       "properties": {

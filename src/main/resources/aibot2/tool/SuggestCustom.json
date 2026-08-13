@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "SuggestCustom",
-    "description": "当用户需求超出当前工具能力时，引导用户联系定制开发",
+    "description": "引导用户联系定制开发。当用户需求明确超出当前可用工具的能力范围（如复杂业务流程定制、系统集成对接、特殊报表模板等），且无法通过现有工具组合实现时使用",
     "parameters": {
       "type": "object",
       "properties": {

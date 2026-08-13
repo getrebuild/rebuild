@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "UploadFile",
-    "description": "上传文件或图片，支持 BASE64 和 URL 两种方式，返回 fileKey 供其他工具引用",
+    "description": "上传文件或图片，支持 BASE64 和 URL 两种方式，文件大小限制 50MB，返回 fileKey 供其他工具引用。fileKey 可用于 CreateFeed 的图片附件参数和 CreateProjectTask 的附件参数",
     "parameters": {
       "type": "object",
       "properties": {
@@ -12,7 +12,7 @@
         },
         "url": {
           "type": "string",
-          "description": "文件的 HTTP/HTTPS 下载地址（与 base64 二选一）"
+          "description": "文件的 HTTP/HTTPS 下载地址（与 base64 二选一）。会对 URL 进行安全检查"
         },
         "fileName": {
           "type": "string",

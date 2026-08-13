@@ -8,7 +8,7 @@
       "properties": {
         "action": {
           "type": "string",
-          "description": "操作类型: create=创建, list=查询列表, cancel=取消",
+          "description": "操作类型 create=创建, list=查询列表, cancel=取消。不传时默认 create",
           "enum": ["create", "list", "cancel"]
         },
         "content": {
