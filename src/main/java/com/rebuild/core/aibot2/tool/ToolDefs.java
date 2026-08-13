@@ -52,6 +52,7 @@ public class ToolDefs {
         register(new ScheduleTask());
         register(new CreateEntity());
         register(new CreateField());
+        register(new UserMemory());
     }
 
     /**
@@ -80,8 +81,8 @@ public class ToolDefs {
      * 根据名称执行工具
      *
      * @param toolName
-     * @param arguments JSON 字符串
-     * @return 执行结果（JSON 字符串）
+     * @param arguments
+     * @return
      */
     public static String execute(String toolName, String arguments) {
         UserContextHolder.getUser();
@@ -92,7 +93,7 @@ public class ToolDefs {
             throw new ToolException("Tool not found: " + toolName);
         }
 
-        if (getDisabledTools().contains(toolName)) {
+        if (isToolDisabled(toolName)) {
             log.warn("Tool disabled : {}", toolName);
             throw new ToolException("Tool disabled: " + toolName);
         }
@@ -118,7 +119,17 @@ public class ToolDefs {
     }
 
     /**
-     * 获取已禁用的工具名称集合（AibotToolsDisabled 配置，多个逗号分隔）
+     * 工具是否被禁用
+     *
+     * @param toolName
+     * @return
+     */
+    public static boolean isToolDisabled(String toolName) {
+        return getDisabledTools().contains(toolName);
+    }
+
+    /**
+     * 获取已禁用的工具名称集合
      *
      * @return
      */
@@ -135,7 +146,7 @@ public class ToolDefs {
      * 列出工具定义
      *
      * @param includeDisabled
-     * @param includeSchema MCP 需要
+     * @param includeSchema
      * @return
      */
     public static List<JSONObject> listTools(boolean includeDisabled, boolean includeSchema) {
@@ -161,5 +172,4 @@ public class ToolDefs {
         }
         return tools;
     }
-
 }

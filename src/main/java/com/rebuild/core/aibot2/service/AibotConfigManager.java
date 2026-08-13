@@ -30,8 +30,11 @@ public class AibotConfigManager implements ConfigManager {
     public static final String TYPE_KNOWLEDGE = "KNOWLEDGE";
     // 技能
     public static final String TYPE_SKILL = "SKILL";
+
     // 定时任务
     public static final String TYPE_AIBOT_SCHEDULE = "AIBOT_SCHEDULE";
+    // 用户记忆
+    public static final String TYPE_AIBOT_USERMEMORY = "AIBOT_USERMEMORY";
 
     public static final AibotConfigManager instance = new AibotConfigManager();
 
@@ -54,6 +57,41 @@ public class AibotConfigManager implements ConfigManager {
      */
     public ConfigBean[] getSkillConfigs() {
         return getConfig(TYPE_SKILL);
+    }
+
+    /**
+     * 获取指定用户的记忆列表
+     *
+     * @param user
+     * @return
+     */
+    public ConfigBean[] getUserMemoryConfigs(ID user) {
+        String cKey = "AibotConfigManager-" + TYPE_AIBOT_USERMEMORY + "-" + user;
+        ConfigBean[] cache = (ConfigBean[]) Application.getCommonsCache().getx(cKey);
+        if (cache != null) return cache;
+
+        Object[][] array = Application.createQueryNoFilter(
+                "select configId,config,createdOn from AibotConfig where type = ? and createdBy = ? order by createdOn desc")
+                .setParameter(1, TYPE_AIBOT_USERMEMORY)
+                .setParameter(2, user)
+                .array();
+
+        List<ConfigBean> list = new ArrayList<>();
+        for (Object[] o : array) {
+            JSONObject config = JSONUtils.parseObjectSafe((String) o[1]);
+            if (config == null) continue;
+
+            ConfigBean cb = new ConfigBean()
+                    .set("id", o[0])
+                    .set("content", config.getString("content"))
+                    .set("level", config.getIntValue("level"))
+                    .set("createdOn", o[2]);
+            list.add(cb);
+        }
+
+        cache = list.toArray(new ConfigBean[0]);
+        Application.getCommonsCache().putx(cKey, cache, 300);
+        return cache;
     }
 
     /**
@@ -92,6 +130,12 @@ public class AibotConfigManager implements ConfigManager {
 
         String cKey = "AibotConfigManager-" + type;
         Application.getCommonsCache().evict(cKey);
+
+        // 用户记忆按行归属用户清理
+        if (TYPE_AIBOT_USERMEMORY.equals(type)) {
+            Object user = QueryHelper.queryFieldValue((ID) cfgid, "createdBy");
+            if (user != null) Application.getCommonsCache().evict(cKey + "-" + user);
+        }
     }
 
     @Override
