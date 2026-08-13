@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
  *
  * @author ZHAO
  * @since 4/15/2026
- * @see com.rebuild.core.aibot2.AiBotScheduleConfigService
  */
 @Service
 public class CommonsConfigService  extends BaseConfigurationService implements AdminGuard {

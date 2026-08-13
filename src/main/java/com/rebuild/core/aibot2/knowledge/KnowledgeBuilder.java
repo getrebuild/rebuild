@@ -18,6 +18,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +28,7 @@ import org.springframework.transaction.TransactionStatus;
 import java.util.List;
 
 /**
- * 知识库构建服务：根据来源类型提取内容 → 分片 → 持久化
+ * 知识库构建服务
  *
  * @author devezhao
  * @since 2026/8/5
@@ -45,19 +46,22 @@ public class KnowledgeBuilder {
 
     /**
      * 构建（或重建）知识库的分片
+     *
+     * @param knowledgeId
+     * @param sourceType
+     * @param sourceConfig
+     * @param knowledgeName
+     * @return
      */
     public static int build(ID knowledgeId, String sourceType, String sourceConfig, String knowledgeName) {
-        // 先提取内容（最可能失败的步骤，失败时保留旧分片）
         String content = extractContent(sourceType, sourceConfig, knowledgeName);
         if (StringUtils.isBlank(content)) {
             throw new IllegalStateException("未提取到内容");
         }
 
-        // 分片（内容提取成功后再操作数据库）
         ChunkStrategy strategy = chooseStrategy(sourceType, content);
         List<ChunkStrategy.Chunk> chunks = strategy.chunk(content, MAX_CHUNK_SIZE);
 
-        // 使用事务保证删除旧分片 + 插入新分片的原子性
         TransactionStatus tx = TransactionManual.newTransaction();
         try {
             Object[][] oldChunks = Application.createQueryNoFilter(
@@ -83,12 +87,18 @@ public class KnowledgeBuilder {
             TransactionManual.rollback(tx);
             throw ex;
         }
+
         log.info("Knowledge built: name={}, chunks={}", knowledgeName, chunks.size());
         return chunks.size();
     }
 
     /**
      * 根据来源类型提取原始内容
+     *
+     * @param sourceType
+     * @param sourceConfig
+     * @param knowledgeName
+     * @return
      */
     private static String extractContent(String sourceType, String sourceConfig, String knowledgeName) {
         if (StringUtils.isBlank(sourceConfig)) {
@@ -188,8 +198,19 @@ public class KnowledgeBuilder {
      * @param count
      */
     public static void updateChunkCount(ID knowledgeId, int count) {
+        Object[] o = Application.createQueryNoFilter(
+                "select config from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
+                .setParameter(1, knowledgeId)
+                .unique();
+        if (o == null) return;
+
+        JSONObject config = (o[0] != null)
+                ? JSONUtils.parseObjectSafe((String) o[0]) : new JSONObject();
+        if (config == null) config = new JSONObject();
+
+        config.put("chunkCount", count);
         RecordBuilder.builder(knowledgeId)
-                .add("chunkCount", count)
+                .add("config", config.toJSONString())
                 .save(UserService.SYSTEM_USER);
     }
 }

@@ -936,20 +936,18 @@ create table if not exists `aibot_knowledge_chunk` (
   fulltext index FIX1_aibot_knowledge_chunk (`CONTENT`)
 )Engine=InnoDB;
 
--- ************ Entity [AibotKnowledge] DDL ************
-create table if not exists `aibot_knowledge` (
-  `KNOWLEDGE_ID`       char(20) not null,
+-- ************ Entity [AibotConfig] DDL ************
+create table if not exists `aibot_config` (
+  `CONFIG_ID`          char(20) not null,
+  `TYPE`               varchar(100) not null comment '配置类型',
   `NAME`               varchar(200) comment '名称',
-  `DESCRIPTION`        varchar(500) comment '描述',
-  `SOURCE_TYPE`        varchar(20) comment '来源类型 (FILE/RECORD/LIST/URL/TEXT)',
-  `SOURCE_CONFIG`      longtext comment '来源配置 (JSON)',
-  `CHUNK_COUNT`        int(11) comment '分片数量',
+  `CONFIG`             longtext comment '配置内容 (JSON)',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
-  primary key  (`KNOWLEDGE_ID`)
+  primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [ShortUrl] DDL ************

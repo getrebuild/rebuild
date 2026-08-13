@@ -34,9 +34,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author devezhao
@@ -105,34 +107,64 @@ public class AiBot2AdminController extends BaseController {
         return RespBody.ok(ToolDefs.listTools(true, false));
     }
 
+    @GetMapping("aibot/skill-list")
+    public RespBody skillList() {
+        Object[][] array = Application.createQueryNoFilter(
+                "select configId,name,config,isDisabled from AibotConfig where type = 'SKILL' order by modifiedOn desc")
+                .array();
+
+        List<JSONObject> list = new ArrayList<>();
+        for (Object[] o : array) {
+            JSONObject item = new JSONObject(true);
+            item.put("id", o[0]);
+            item.put("name", o[1]);
+            JSONObject conf = JSONUtils.parseObjectSafe((String) o[2]);
+            item.put("config", conf != null ? conf : new JSONObject());
+            item.put("isDisabled", o[3]);
+            list.add(item);
+        }
+        return RespBody.ok(list);
+    }
+
     @GetMapping("aibot/kb-list")
     public RespBody kbList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select knowledgeId, name, description, sourceType, sourceConfig, chunkCount, isDisabled, modifiedOn, createdBy from AibotKnowledge order by modifiedOn desc")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by modifiedOn desc")
                 .array();
 
-        return RespBody.ok(JSONUtils.toJSONObjectArray(
-                new String[]{"id", "name", "description", "sourceType", "sourceConfig", "chunkCount", "isDisabled", "modifiedOn", "createdBy"},
-                array));
+        List<JSONObject> list = new ArrayList<>();
+        for (Object[] o : array) {
+            JSONObject item = new JSONObject(true);
+            item.put("id", o[0]);
+            item.put("name", o[1]);
+            JSONObject conf = JSONUtils.parseObjectSafe((String) o[2]);
+            if (conf != null) {
+                item.put("description", conf.getString("description"));
+                item.put("sourceType", conf.getString("sourceType"));
+                item.put("sourceConfig", conf.getString("sourceConfig"));
+                item.put("chunkCount", conf.getIntValue("chunkCount"));
+            }
+            item.put("isDisabled", o[3]);
+            list.add(item);
+        }
+        return RespBody.ok(list);
     }
 
     @PostMapping("aibot/kb-build")
     public RespBody build(HttpServletRequest req) {
         ID knowledgeId = getIdParameterNotNull(req, "id");
         Object[] knowledge = Application.createQueryNoFilter(
-                "select name, sourceType, sourceConfig from AibotKnowledge where knowledgeId = ?")
+                "select name,config from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
                 .setParameter(1, knowledgeId)
                 .unique();
-
-        if (knowledge == null) {
-            return RespBody.error("知识库不存在");
-        }
+        if (knowledge == null) return RespBody.error();
 
         String name = (String) knowledge[0];
-        String sourceType = (String) knowledge[1];
-        String sourceConfig = (String) knowledge[2];
+        JSONObject conf = JSONUtils.parseObjectSafe((String) knowledge[1]);
+        String sourceType = conf != null ? conf.getString("sourceType") : null;
+        String sourceConfig = conf != null ? conf.getString("sourceConfig") : null;
 
-        // 后台异步构建（-1 构建中，0 构建失败）
+        // -1=构建中 0=构建失败
         KnowledgeBuilder.updateChunkCount(knowledgeId, -1);
         TaskExecutors.queue(() -> {
             try {

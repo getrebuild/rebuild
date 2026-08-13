@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.metadata.impl.Field2Schema;
+import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ import java.util.Set;
  * @since 2026/8/10
  */
 @Slf4j
-public class CreateField implements Tool {
+public class CreateField implements Tool, AdminGuard {
 
     // 允许通过 AI 创建的字段类型
     private static final Set<DisplayType> ALLOWED_TYPES = EnumSet.of(

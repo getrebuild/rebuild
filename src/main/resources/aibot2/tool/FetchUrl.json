@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "FetchUrl",
-    "description": "请求外部 HTTP 接口，支持 GET/POST 方法及自定义请求头",
+    "description": "请求外部 HTTP 接口，支持 GET/POST 方法及自定义请求头。用于调用第三方 API 获取数据或触发操作，会对请求 URL 进行安全检查，自动过滤 host、connection、authorization 等不安全请求头，响应内容超过 20000 字符会自动截断",
     "parameters": {
       "type": "object",
       "properties": {

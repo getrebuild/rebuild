@@ -2,11 +2,11 @@
   "type": "function",
   "function": {
     "name": "ApproveRecord",
-    "description": "对业务记录进行审批操作，支持提交、同意、驳回、撤回、撤销和查询审批状态",
+    "description": "对业务记录进行审批操作，支持提交、同意、驳回、撤回、撤销和查询审批状态。recordId 可通过 QueryRecords 查询获取",
     "parameters": {
       "type": "object",
       "properties": {
-        "record": {
+        "recordId": {
           "type": "string",
           "description": "业务记录ID（必填，可通过 QueryRecords 工具查询获取）"
         },
@@ -24,10 +24,10 @@
         },
         "rejectNode": {
           "type": "string",
-          "description": "驳回到的目标节点ID（可选，action=reject 时使用，不传则直接驳回给提交人）"
+          "description": "驳回到的目标节点编号（可选，action=reject 时使用，不传则直接驳回给提交人）"
         }
       },
-      "required": ["record", "action"]
+      "required": ["recordId", "action"]
     }
   }
 }

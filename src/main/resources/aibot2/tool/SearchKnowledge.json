@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "SearchKnowledge",
-    "description": "搜索系统知识库，获取与查询相关的知识片段",
+    "description": "搜索系统知识库（企业内部导入的文档资料），获取与查询最相关的知识片段。与 SearchHelp 不同，本工具搜索企业内部知识库，SearchHelp 搜索 REBUILD 官方帮助文档",
     "parameters": {
       "type": "object",
       "properties": {

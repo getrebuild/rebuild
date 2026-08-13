@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "ExportReport",
-    "description": "导出报表文件。指定报表和记录后生成下载链接",
+    "description": "导出报表文件并生成下载链接。报表分两种类型，LIST 报表按条件批量导出多条记录，RECORD 报表基于单条记录生成。不传 reportId 参数时返回该实体下可用报表列表供选择",
     "parameters": {
       "type": "object",
       "properties": {
@@ -10,7 +10,7 @@
           "type": "string",
           "description": "实体名称或标签（用于查询可用报表模板）"
         },
-        "report": {
+        "reportId": {
           "type": "string",
           "description": "报表模板ID（可选，不传则返回该实体下可用报表列表）"
         },

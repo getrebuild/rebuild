@@ -42,12 +42,7 @@ public class ApproveRecord implements Tool {
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
 
-        String recordId = args.getString("record");
-        if (StringUtils.isBlank(recordId) || !ID.isId(recordId)) {
-            throw new ToolException("记录ID (record) 不能为空且需为有效ID");
-        }
-
-        ID record = ID.valueOf(recordId);
+        ID record = ToolHelper.resolveId(args.getString("recordId"), "recordId");
         String action = args.getString("action");
         if (StringUtils.isBlank(action)) {
             throw new ToolException("操作类型 (action) 不能为空，可选: submit, approve, reject, cancel, revoke, state");
@@ -88,11 +83,9 @@ public class ApproveRecord implements Tool {
                     + "请管理员在「配置中心 - 审批流程」中为该实体配置审批流程");
         }
 
-        ID approvalId;
         FlowDefinition useDef = defs[0];
-        String approvalIdArg = args.getString("approvalId");
-        if (StringUtils.isNotBlank(approvalIdArg) && ID.isId(approvalIdArg)) {
-            approvalId = ID.valueOf(approvalIdArg);
+        ID approvalId = ToolHelper.resolveId(args.getString("approvalId"));
+        if (approvalId != null) {
             // 验证是否可用
             useDef = null;
             for (FlowDefinition d : defs) {
@@ -102,7 +95,7 @@ public class ApproveRecord implements Tool {
                 }
             }
             if (useDef == null) {
-                throw new ToolException("指定的审批流程不可用或无权限: " + approvalIdArg);
+                throw new ToolException("指定的审批流程不可用或无权限: " + approvalId);
             }
         } else {
             // 默认使用第一个可用流程

@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "QueryRecords",
-    "description": "查询业务记录，支持按名称模糊搜索、按字段条件过滤和分页排序",
+    "description": "查询业务记录列表，支持按名称模糊搜索、按字段条件过滤、分页和排序。需要查询多条记录或按条件筛选时使用此工具。仅需获取单条已知ID记录的详情请用 GetRecord，需要统计聚合计算请用 StatisticsData",
     "parameters": {
       "type": "object",
       "properties": {

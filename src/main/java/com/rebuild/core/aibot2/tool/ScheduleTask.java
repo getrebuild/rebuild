@@ -14,8 +14,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.aibot2.AiBotScheduleConfigService;
-import com.rebuild.core.configuration.general.CommonsConfigManager;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
+import com.rebuild.core.aibot2.service.AibotConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.CommonsUtils;
@@ -61,7 +61,7 @@ public class ScheduleTask implements Tool {
     /**
      * 创建定时任务
      */
-    private Object doCreate(JSONObject args) throws Exception {
+    private Object doCreate(JSONObject args) {
         String content = args.getString("content");
         if (StringUtils.isBlank(content)) {
             throw new ToolException("任务内容 (content) 不能为空");
@@ -130,14 +130,13 @@ public class ScheduleTask implements Tool {
         config.put("nextExecTime", CalendarUtils.getUTCDateTimeFormat().format(nextExecTime));
         config.put("lastExecTime", null);
 
-        // 创建 CommonsConfig 记录
-        Record record = EntityHelper.forNew(EntityHelper.CommonsConfig, user);
-        record.setString("type", CommonsConfigManager.TYPE_AIBOT_SCHEDULE);
-        record.setString("belongEntity", "N");
+        // 创建 AibotConfig 记录
+        Record record = EntityHelper.forNew(EntityHelper.AibotConfig, user);
+        record.setString("type", AibotConfigManager.TYPE_AIBOT_SCHEDULE);
         record.setString("name", subject);
         record.setString("config", config.toJSONString());
 
-        record = Application.getBean(AiBotScheduleConfigService.class).create(record);
+        record = Application.getBean(AibotConfigService.class).create(record);
 
         String taskId = record.getPrimary().toLiteral();
         String nextExecStr = CalendarUtils.getUTCDateTimeFormat().format(nextExecTime);
@@ -155,8 +154,8 @@ public class ScheduleTask implements Tool {
      */
     private Object doList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,config,name,isDisabled from CommonsConfig where belongEntity = 'N' and type = ? and createdBy = ? order by createdOn desc")
-                .setParameter(1, CommonsConfigManager.TYPE_AIBOT_SCHEDULE)
+                "select configId,config,name,isDisabled from AibotConfig where type = ? and createdBy = ? order by createdOn desc")
+                .setParameter(1, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
                 .setParameter(2, UserContextHolder.getUser())
                 .array();
 
@@ -201,24 +200,19 @@ public class ScheduleTask implements Tool {
     /**
      * 取消定时任务
      */
-    private Object doCancel(JSONObject args) throws Exception {
-        String taskIdStr = args.getString("taskId");
-        if (StringUtils.isBlank(taskIdStr)) {
-            throw new ToolException("任务ID (taskId) 不能为空");
-        }
-
-        ID taskId = ID.valueOf(taskIdStr);
+    private Object doCancel(JSONObject args) {
+        ID taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
         final ID user = UserContextHolder.getUser();
 
         // 验证任务存在
         Object[] task = Application.createQueryNoFilter(
-                "select config,name,createdBy from CommonsConfig where configId = ? and type = ?")
+                "select config,name,createdBy from AibotConfig where configId = ? and type = ?")
                 .setParameter(1, taskId)
-                .setParameter(2, CommonsConfigManager.TYPE_AIBOT_SCHEDULE)
+                .setParameter(2, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
                 .unique();
 
         if (task == null) {
-            throw new ToolException("定时任务不存在或已删除: " + taskIdStr);
+            throw new ToolException("定时任务不存在或已删除: " + taskId);
         }
 
         // 权限校验：仅创建者或管理员可取消
@@ -230,7 +224,7 @@ public class ScheduleTask implements Tool {
         String name = (String) task[1];
 
         // 删除任务
-        Application.getBean(AiBotScheduleConfigService.class).delete(taskId);
+        Application.getBean(AibotConfigService.class).delete(taskId);
 
         return JSONUtils.toJSONObject(
                 new String[]{"status", "message"},
@@ -273,9 +267,8 @@ public class ScheduleTask implements Tool {
                 if (cal.before(now)) {
                     cal.add(Calendar.DAY_OF_MONTH, 1);
                 }
-                while (cal.get(Calendar.DAY_OF_WEEK) != targetDay) {
-                    cal.add(Calendar.DAY_OF_MONTH, 1);
-                }
+                int delta = (targetDay - cal.get(Calendar.DAY_OF_WEEK) + 7) % 7;
+                cal.add(Calendar.DAY_OF_MONTH, delta);
                 break;
 
             case "monthly":

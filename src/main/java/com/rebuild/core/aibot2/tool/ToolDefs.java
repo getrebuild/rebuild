@@ -7,10 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.tool;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.privileges.AdminGuard;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
@@ -52,6 +55,7 @@ public class ToolDefs {
         register(new ScheduleTask());
         register(new CreateEntity());
         register(new CreateField());
+        register(new UserMemory());
     }
 
     /**
@@ -70,8 +74,11 @@ public class ToolDefs {
      */
     public static List<ChatCompletionTool> tools() {
         Set<String> disabled = getDisabledTools();
+        // 管理员专属工具不提供给非管理员
+        boolean isAdmin = UserHelper.isAdmin(UserContextHolder.getUser());
         return TOOL_MAP.entrySet().stream()
                 .filter(e -> !disabled.contains(e.getKey()) && !e.getValue().isSystem())
+                .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
                 .map(e -> e.getValue().def())
                 .collect(Collectors.toList());
     }
@@ -80,11 +87,11 @@ public class ToolDefs {
      * 根据名称执行工具
      *
      * @param toolName
-     * @param arguments JSON 字符串
-     * @return 执行结果（JSON 字符串）
+     * @param arguments
+     * @return
      */
     public static String execute(String toolName, String arguments) {
-        UserContextHolder.getUser();
+        ID user = UserContextHolder.getUser();
 
         Tool tool = TOOL_MAP.get(toolName);
         if (tool == null) {
@@ -92,9 +99,15 @@ public class ToolDefs {
             throw new ToolException("Tool not found: " + toolName);
         }
 
-        if (getDisabledTools().contains(toolName)) {
+        if (isToolDisabled(toolName)) {
             log.warn("Tool disabled : {}", toolName);
             throw new ToolException("Tool disabled: " + toolName);
+        }
+
+        // 管理员专属工具验证权限
+        if (tool instanceof AdminGuard && !UserHelper.isAdmin(user)) {
+            log.warn("Tool requires admin : {} by {}", toolName, user);
+            throw new ToolException("此操作仅限管理员使用");
         }
 
         // 统一空值保护
@@ -118,7 +131,17 @@ public class ToolDefs {
     }
 
     /**
-     * 获取已禁用的工具名称集合（AibotToolsDisabled 配置，多个逗号分隔）
+     * 工具是否被禁用
+     *
+     * @param toolName
+     * @return
+     */
+    public static boolean isToolDisabled(String toolName) {
+        return getDisabledTools().contains(toolName);
+    }
+
+    /**
+     * 获取已禁用的工具名称集合
      *
      * @return
      */
@@ -135,7 +158,7 @@ public class ToolDefs {
      * 列出工具定义
      *
      * @param includeDisabled
-     * @param includeSchema MCP 需要
+     * @param includeSchema
      * @return
      */
     public static List<JSONObject> listTools(boolean includeDisabled, boolean includeSchema) {
@@ -161,5 +184,4 @@ public class ToolDefs {
         }
         return tools;
     }
-
 }

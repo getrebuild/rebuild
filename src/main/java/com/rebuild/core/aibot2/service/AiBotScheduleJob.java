@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.aibot2;
+package com.rebuild.core.aibot2.service;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
@@ -14,8 +14,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.ChatManager;
+import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.tool.ScheduleTask;
-import com.rebuild.core.configuration.general.CommonsConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
@@ -52,8 +53,8 @@ public class AiBotScheduleJob extends DistributedJobLock {
 
         // 查询所有AI定时任务（未禁用的）
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,config,name from CommonsConfig where belongEntity = 'N' and type = ? and isDisabled = 'F'")
-                .setParameter(1, CommonsConfigManager.TYPE_AIBOT_SCHEDULE)
+                "select configId,config,name from AibotConfig where type = ? and isDisabled = 'F'")
+                .setParameter(1, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
                 .array();
 
         if (array.length == 0) return;
@@ -174,7 +175,7 @@ public class AiBotScheduleJob extends DistributedJobLock {
     }
 
     /**
-     * 更新任务状态到 CommonsConfig。执行失败时不标记完成，避免任务未执行即丢失
+     * 更新任务状态到 AibotConfig。执行失败时不标记完成，避免任务未执行即丢失
      *
      * @param success 本次是否执行成功
      */
@@ -214,7 +215,7 @@ public class AiBotScheduleJob extends DistributedJobLock {
                 if (disable) {
                     record.setBoolean("isDisabled", true);
                 }
-                Application.getBean(AiBotScheduleConfigService.class).update(record);
+                Application.getBean(AibotConfigService.class).update(record);
             } finally {
                 if (oldUser != null) {
                     UserContextHolder.setUser(oldUser);

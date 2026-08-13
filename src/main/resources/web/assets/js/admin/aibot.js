@@ -59,7 +59,7 @@ const _loadKnowledge = function () {
     data.forEach((item) => {
       // -1 构建中，0 构建失败，>0 分片数
       let chunkBadge
-      if (item.chunkCount > 0) chunkBadge = `<span class="badge badge-light ml-1">${item.chunkCount}</span>`
+      if (item.chunkCount > 0) chunkBadge = `<span class="badge badge-light ml-1 up-1">${item.chunkCount}</span>`
       else if (item.chunkCount === -1) chunkBadge = `<span class="badge badge-warning ml-1">${$L('构建中')}</span>`
       else chunkBadge = `<span class="badge badge-danger ml-1">${$L('构建失败')}</span>`
 
@@ -215,13 +215,18 @@ class DlgKbEdit extends RbModalHandler {
     }
 
     const itemId = item.id || null
-    const data = {
-      name: name,
+    const config = {
       description: $(this._$desc).val(),
       sourceType: sourceType,
       sourceConfig: sourceConfig,
+      chunkCount: item.chunkCount || 0,
+    }
+    const data = {
+      name: name,
+      type: 'KNOWLEDGE',
+      config: JSON.stringify(config),
       metadata: {
-        entity: 'AibotKnowledge',
+        entity: 'AibotConfig',
         id: itemId,
       },
     }
@@ -252,7 +257,7 @@ class DlgKbEdit extends RbModalHandler {
 // ~~ Skills
 
 const _loadSkills = function () {
-  $.get('/admin/commons-config/list?type=AIBOT_SKILL', (res) => {
+  $.get('./aibot/skill-list', (res) => {
     const data = res.data || []
     const $tbody = $('#skillsList').empty()
     $('.J_skillsEmpty').toggle(data.length === 0)
@@ -377,19 +382,18 @@ class DlgSkillEdit extends RbModalHandler {
                       )
                     })}
                   </form>
-                  <div className="clearfix" />
                 </fieldset>
-                <div className="dialog-footer">
-                  <div className="float-right">
-                    <button type="button" className="btn btn-primary" ref={(c) => (this._$importBtn = c)} onClick={() => this._onImport()}>
-                      {$L('开始导入')}
-                    </button>
-                  </div>
-                  <div className="float-right">
-                    <p className="protips mt-2 pr-2">{$L('可在导入后根据自身需求做适当调整/修改')}</p>
-                  </div>
-                  <div className="clearfix" />
+              </div>
+              <div className="dialog-footer">
+                <div className="float-right">
+                  <button type="button" className="btn btn-primary" ref={(c) => (this._$importBtn = c)} onClick={() => this._onImport()}>
+                    {$L('开始导入')}
+                  </button>
                 </div>
+                <div className="float-right">
+                  <p className="protips mt-2 pr-2">{$L('可在导入后根据自身需求做适当调整/修改')}</p>
+                </div>
+                <div className="clearfix" />
               </div>
             </div>
           </div>
@@ -496,16 +500,14 @@ class DlgSkillEdit extends RbModalHandler {
 
     const data = {
       name: name,
-      type: 'AIBOT_SKILL',
-      belongEntity: 'N',
-      shareTo: 'ALL',
-      config: {
+      type: 'SKILL',
+      config: JSON.stringify({
         name: name,
         description: $(this._$desc).val(),
         prompt: prompt,
-      },
+      }),
       metadata: {
-        entity: 'CommonsConfig',
+        entity: 'AibotConfig',
         id: item.id || null,
       },
     }

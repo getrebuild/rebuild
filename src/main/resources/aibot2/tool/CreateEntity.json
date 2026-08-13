@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "CreateEntity",
-    "description": "新建实体（需管理员权限）。可同时创建名称字段和自动编号字段，指定主实体时创建为该实体的明细实体",
+    "description": "新建实体（需管理员权限）。可同时创建名称字段和自动编号字段，指定主实体时创建为该实体的明细实体。创建后可用 CreateField 添加更多字段，用 ListEntities 查看实体结构",
     "parameters": {
       "type": "object",
       "properties": {

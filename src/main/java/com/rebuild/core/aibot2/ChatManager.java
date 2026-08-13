@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -124,27 +125,15 @@ public abstract class ChatManager {
      * @param userContent
      * @param prompt
      * @param imageFiles
-     * @return AI 回答内容
-     */
-    public static String ask(String userContent, String prompt, List<File> imageFiles) {
-        if (imageFiles != null && !imageFiles.isEmpty()) {
-            return askWithImage(userContent, prompt, imageFiles);
-        }
-        return new Chat(EntityHelper.newUnsavedId(AibotChat), prompt, null)
-                .ask(userContent);
-    }
-
-    /**
-     * 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
-     *
-     * @param userContent
-     * @param prompt
-     * @param imageFiles
      * @return
      */
-    private static String askWithImage(String userContent, String prompt, List<File> imageFiles) {
-        List<ChatCompletionContentPart> parts = new ArrayList<>();
+    public static String ask(String userContent, String prompt, List<File> imageFiles) {
+        if (CollectionUtils.isEmpty(imageFiles)) {
+            return new Chat(EntityHelper.newUnsavedId(AibotChat), prompt, null).ask(userContent);
+        }
 
+        // 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
+        List<ChatCompletionContentPart> parts = new ArrayList<>();
         parts.add(ChatCompletionContentPart.ofText(
                 ChatCompletionContentPartText.builder().text(userContent).build()));
 
@@ -159,7 +148,6 @@ public abstract class ChatManager {
             }
 
             String dataUrl = String.format("data:%s;base64,%s", mimeType, base64);
-
             parts.add(ChatCompletionContentPart.ofImageUrl(
                     ChatCompletionContentPartImage.builder()
                             .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder().url(dataUrl).build())

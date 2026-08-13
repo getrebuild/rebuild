@@ -39,10 +39,32 @@ public class ToolHelper {
     private ToolHelper() {}
 
     /**
+     * 解析 ID 参数（可选）。字符串为空或非合法 ID 时返回 null
+     *
+     * @param idStr
+     * @return
+     */
+    public static ID resolveId(String idStr) {
+        return ID.isId(idStr) ? ID.valueOf(idStr) : null;
+    }
+
+    /**
+     * 解析 ID 参数（必填）。字符串为空或非合法 ID 时抛出异常
+     *
+     * @param idStr
+     * @param notNullParam
+     * @return
+     */
+    public static ID resolveId(String idStr, String notNullParam) {
+        if (ID.isId(idStr)) return ID.valueOf(idStr);
+        throw new ToolException(notNullParam + " 不是有效的 ID: " + idStr);
+    }
+
+    /**
      * 解析文件 key 参数（支持单个字符串或数组）
      *
-     * @param value 字符串或 JSONArray
-     * @return JSON 数组字符串，如 ["rb/xxx.jpg"]；无效时返回 null
+     * @param value
+     * @return
      */
     public static String resolveFileKeys(Object value) {
         if (value == null) return null;
@@ -63,8 +85,8 @@ public class ToolHelper {
      * 解析实体（支持名称、code、标签匹配）
      * 精确匹配优先，多个模糊匹配时抛出异常供用户选择
      *
-     * @param name 实体名称、code 或标签
-     * @return 匹配的实体，未找到返回 null
+     * @param name
+     * @return
      */
     public static Entity resolveEntity(String name) {
         if (StringUtils.isBlank(name)) return null;
@@ -117,8 +139,8 @@ public class ToolHelper {
     /**
      * 解析用户（支持 ID、全名、用户名）
      *
-     * @param userIdent 用户 ID、全名或用户名
-     * @return 用户 ID，未找到返回 null
+     * @param userIdent
+     * @return
      */
     public static ID resolveUser(String userIdent) {
         if (StringUtils.isBlank(userIdent)) return null;
@@ -139,9 +161,9 @@ public class ToolHelper {
      * 构建过滤表达式（AdvFilterParser 所需格式）
      * 将工具传入的 filter 条件数组包装为 { entity, items } 格式
      *
-     * @param entity 实体
-     * @param filter 过滤条件数组（每个元素含 field/op/value），可为 null
-     * @return 过滤表达式 JSONObject
+     * @param entity
+     * @param filter
+     * @return
      */
     public static JSONObject buildFilterExpr(Entity entity, JSONArray filter) {
         return buildFilterExpr(entity, filter, null);
@@ -151,10 +173,10 @@ public class ToolHelper {
      * 构建过滤表达式（AdvFilterParser 所需格式）
      * 将工具传入的 filter 条件数组包装为 { entity, items, equation } 格式
      *
-     * @param entity 实体
-     * @param filter 过滤条件数组（每个元素含 field/op/value），可为 null
-     * @param equation 条件间关系：AND/OR，或高级表达式如 "1 and (2 or 3)"，为空默认 OR
-     * @return 过滤表达式 JSONObject
+     * @param entity
+     * @param filter
+     * @param equation
+     * @return
      */
     public static JSONObject buildFilterExpr(Entity entity, JSONArray filter, String equation) {
         JSONObject filterExpr = new JSONObject();
@@ -166,17 +188,13 @@ public class ToolHelper {
         return filterExpr;
     }
 
-    public static String parseFilterToWhere(Entity entity, JSONArray filter) {
-        return parseFilterToWhere(entity, filter, null);
-    }
-
     /**
      * 解析过滤条件为 SQL where 子句
      *
-     * @param entity 实体
-     * @param filter 过滤条件数组（每个元素含 field/op/value）
-     * @param equation 条件间关系：AND/OR，或高级表达式如 "1 and (2 or 3)"，为空默认 OR
-     * @return SQL where 子句，无有效条件时返回 null
+     * @param entity
+     * @param filter
+     * @param equation
+     * @return
      */
     public static String parseFilterToWhere(Entity entity, JSONArray filter, String equation) {
         if (filter == null || filter.isEmpty()) return null;
@@ -187,9 +205,9 @@ public class ToolHelper {
     /**
      * 模糊匹配相似字段名
      *
-     * @param entity 实体
-     * @param fieldName 用户输入的字段名
-     * @return 建议字符串，无匹配返回空字符串
+     * @param entity
+     * @param fieldName
+     * @return
      */
     public static String suggestField(Entity entity, String fieldName) {
         if (StringUtils.isBlank(fieldName)) return "";
@@ -214,8 +232,8 @@ public class ToolHelper {
     /**
      * 列出实体中可用的字段名
      *
-     * @param entity 实体
-     * @return 逗号分隔的字段名列表，无可用字段返回"（无）"
+     * @param entity
+     * @return
      */
     public static String listFields(Entity entity) {
         List<String> fields = new ArrayList<>();
@@ -229,8 +247,8 @@ public class ToolHelper {
     /**
      * 模糊匹配相似实体名
      *
-     * @param name 用户输入的实体名
-     * @return 建议字符串，无匹配返回空字符串
+     * @param name
+     * @return
      */
     public static String suggestEntity(String name) {
         if (StringUtils.isBlank(name)) return "";
@@ -262,7 +280,7 @@ public class ToolHelper {
      *
      * @param entity
      * @param fields
-     * @param invalidFields 无效字段收集
+     * @param invalidFields
      * @return
      */
     public static List<String> buildQueryFields(Entity entity, String fields, JSONArray invalidFields) {
@@ -331,8 +349,7 @@ public class ToolHelper {
      * @param row
      * @return
      */
-    public static JSONObject buildRecordJson(Entity entity, Field primaryField, Field nameField,
-                                             List<String> queryFields, Object[] row) {
+    public static JSONObject buildRecordJson(Entity entity, Field primaryField, Field nameField, List<String> queryFields, Object[] row) {
         JSONObject record = new JSONObject();
         int idx = 0;
 

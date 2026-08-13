@@ -79,9 +79,9 @@ public class CreateFeed implements Tool {
 
         // 跟进：关联记录
         if (type == FeedsType.FOLLOWUP.getMask()) {
-            String relatedRecord = args.getString("relatedRecord");
-            if (StringUtils.isNotBlank(relatedRecord) && ID.isId(relatedRecord)) {
-                record.setID("relatedRecord", ID.valueOf(relatedRecord));
+            ID relatedRecordId = ToolHelper.resolveId(args.getString("relatedRecordId"));
+            if (relatedRecordId != null) {
+                record.setID("relatedRecord", relatedRecordId);
             }
         }
 
