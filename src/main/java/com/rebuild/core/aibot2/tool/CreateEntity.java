@@ -15,6 +15,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.Entity2Schema;
+import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
  * @since 2026/8/10
  */
 @Slf4j
-public class CreateEntity implements Tool {
+public class CreateEntity implements Tool, AdminGuard {
 
     @Override
     public Object tool(String arguments) throws Exception {

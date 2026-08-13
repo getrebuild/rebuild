@@ -61,7 +61,7 @@ public class ScheduleTask implements Tool {
     /**
      * 创建定时任务
      */
-    private Object doCreate(JSONObject args) throws Exception {
+    private Object doCreate(JSONObject args) {
         String content = args.getString("content");
         if (StringUtils.isBlank(content)) {
             throw new ToolException("任务内容 (content) 不能为空");
@@ -200,7 +200,7 @@ public class ScheduleTask implements Tool {
     /**
      * 取消定时任务
      */
-    private Object doCancel(JSONObject args) throws Exception {
+    private Object doCancel(JSONObject args) {
         ID taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
         final ID user = UserContextHolder.getUser();
 
@@ -212,7 +212,7 @@ public class ScheduleTask implements Tool {
                 .unique();
 
         if (task == null) {
-            throw new ToolException("定时任务不存在或已删除: " + taskIdStr);
+            throw new ToolException("定时任务不存在或已删除: " + taskId);
         }
 
         // 权限校验：仅创建者或管理员可取消
@@ -267,9 +267,8 @@ public class ScheduleTask implements Tool {
                 if (cal.before(now)) {
                     cal.add(Calendar.DAY_OF_MONTH, 1);
                 }
-                while (cal.get(Calendar.DAY_OF_WEEK) != targetDay) {
-                    cal.add(Calendar.DAY_OF_MONTH, 1);
-                }
+                int delta = (targetDay - cal.get(Calendar.DAY_OF_WEEK) + 7) % 7;
+                cal.add(Calendar.DAY_OF_MONTH, delta);
                 break;
 
             case "monthly":

@@ -37,9 +37,9 @@ public class UserMemory implements Tool {
 
     // 用户记忆使用指引
     public static final String MEMORY_GUIDANCE =
-            "通过 UserMemory 工具为用户维护长期个性化记忆：\n" +
+            "通过 UserMemory 工具为用户维护长期个性化记忆。\n" +
                     "- 当用户告知长期有效的身份/偏好信息，或明确要求\"记住/忘记\"时，主动调用 UserMemory 记录或删除，并根据信息重要程度选择档位（1/2/3）\n" +
-                    "- 一次性、仅本次会话特有的信息不要记录；次要信息记为第 3 档，记忆满额时会最先被自动移除\n" +
+                    "- 一次性、仅本次会话特有的信息不要记录，次要信息记为第 3 档，记忆满额时会最先被自动移除\n" +
                     "- update/delete 前先通过 list 查看现有记忆，通过编号或记忆内容定位目标条目并向用户确认后再操作\n" +
                     "- 注入的记忆仅供参考，不要主动向用户复述";
 
@@ -156,7 +156,7 @@ public class UserMemory implements Tool {
      */
     private String update(ID user, String memoryId, String oldContent, String content, Integer level) {
         if (StringUtils.isBlank(content)) {
-            return "更新失败：请提供新内容 (content)";
+            return "更新失败：请提供新内容（content）";
         }
 
         ID targetId = ToolHelper.resolveId(memoryId);
