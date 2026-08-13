@@ -199,11 +199,12 @@ public class KnowledgeBuilder {
      */
     public static void updateChunkCount(ID knowledgeId, int count) {
         Object[] o = Application.createQueryNoFilter(
-                "select config from AibotConfig where configId = ?")
+                "select config from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
                 .setParameter(1, knowledgeId)
                 .unique();
+        if (o == null) return;
 
-        JSONObject config = (o != null && o[0] != null)
+        JSONObject config = (o[0] != null)
                 ? JSONUtils.parseObjectSafe((String) o[0]) : new JSONObject();
         if (config == null) config = new JSONObject();
 

@@ -76,7 +76,7 @@ public class JsonSchemaValidator {
         if (schemaRes == null) return false;
 
         JsonSchema schema = getSchema(schemaRes);
-        if (schema == null) return true;
+        if (schema == null) return false;
 
         try {
             JsonNode node;
@@ -100,7 +100,7 @@ public class JsonSchemaValidator {
 
         } catch (Exception ex) {
             log.warn("JsonSchema validate error : {} [{}]", data, schemaRes, ex);
-            return true;
+            return false;
         }
     }
 
