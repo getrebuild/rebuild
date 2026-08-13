@@ -10,7 +10,7 @@
           "type": "string",
           "description": "实体名称、数字code或标签名称（可通过 ListEntities 工具查询可用实体）"
         },
-        "record": {
+        "recordId": {
           "type": "string",
           "description": "记录ID（可通过 QueryRecords 工具查询获取）"
         },
@@ -19,7 +19,7 @@
           "description": "返回的字段名称列表（逗号分隔），不传则返回所有可查询字段"
         }
       },
-      "required": ["entity", "record"]
+      "required": ["entity", "recordId"]
     }
   }
 }

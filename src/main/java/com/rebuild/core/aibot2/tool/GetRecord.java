@@ -44,16 +44,11 @@ public class GetRecord implements Tool {
             throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
-        String recordId = args.getString("record");
-        if (StringUtils.isBlank(recordId) || !ID.isId(recordId)) {
-            throw new ToolException("记录ID (record) 不能为空且需为有效ID");
-        }
-
-        ID record = ID.valueOf(recordId);
+        ID recordId = ToolHelper.resolveId(args.getString("recordId"), "recordId");
         // 校验实体匹配
-        if (record.getEntityCode() != entity.getEntityCode()) {
+        if (recordId.getEntityCode() != entity.getEntityCode()) {
             throw new ToolException("记录ID与实体不匹配，记录ID对应的实体为 : "
-                    + EasyMetaFactory.getLabel(MetadataHelper.getEntity(record.getEntityCode())));
+                    + EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode())));
         }
 
         String fields = args.getString("fields");
@@ -65,7 +60,7 @@ public class GetRecord implements Tool {
 
         String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
         String sql = String.format("select %s from %s where %s = '%s'",
-                fieldsSql, entity.getName(), primaryField.getName(), record.toLiteral());
+                fieldsSql, entity.getName(), primaryField.getName(), recordId.toLiteral());
 
         Object[] row = Application.createQuery(sql).unique();
         if (row == null || row.length == 0) {

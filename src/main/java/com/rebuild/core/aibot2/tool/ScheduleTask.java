@@ -201,12 +201,7 @@ public class ScheduleTask implements Tool {
      * 取消定时任务
      */
     private Object doCancel(JSONObject args) throws Exception {
-        String taskIdStr = args.getString("taskId");
-        if (StringUtils.isBlank(taskIdStr)) {
-            throw new ToolException("任务ID (taskId) 不能为空");
-        }
-
-        ID taskId = ID.valueOf(taskIdStr);
+        ID taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
         final ID user = UserContextHolder.getUser();
 
         // 验证任务存在

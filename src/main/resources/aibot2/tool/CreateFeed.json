@@ -14,7 +14,7 @@
           "type": "integer",
           "description": "动态类型: 1=动态(默认), 2=跟进(需关联业务记录), 4=日程(可设置提醒时间)"
         },
-        "relatedRecord": {
+        "relatedRecordId": {
           "type": "string",
           "description": "关联的业务记录ID（type=2 跟进时使用，可通过 QueryRecords 工具查询获取）"
         },

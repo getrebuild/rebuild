@@ -66,7 +66,7 @@ public class ExportReport implements Tool {
             throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
-        String report = args.getString("report");
+        String report = args.getString("reportId");
         String record = args.getString("record");
 
         if (StringUtils.isBlank(report)) {
