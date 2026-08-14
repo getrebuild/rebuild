@@ -347,7 +347,7 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
 .aibot .modal-dialog {
   box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
   border-radius: 6px;
-  width: 900px;
+  width: 800px;
   max-width: calc(100vw - 40px);
   height: 88vh;
   min-height: 500px;
