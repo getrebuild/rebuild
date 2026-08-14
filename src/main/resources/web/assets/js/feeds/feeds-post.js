@@ -578,14 +578,14 @@ class ScheduleOptions extends React.Component {
               <input className="custom-control-input" name="remindOn" type="checkbox" value={2} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('邮件')}
-                {!$isTrue(wpc.serviceMail) && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
+                {!$isTrue(wpc.serviceMail) && <span className="text-danger fs-12"> ({$L('未配置')})</span>}
               </span>
             </label>
             <label className="custom-control custom-checkbox custom-control-inline">
               <input className="custom-control-input" name="remindOn" type="checkbox" value={4} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('短信')}
-                {!$isTrue(wpc.serviceSms) && <span className="text-danger fs-12"> ({$L('不可用')})</span>}
+                {!$isTrue(wpc.serviceSms) && <span className="text-danger fs-12"> ({$L('未配置')})</span>}
               </span>
             </label>
           </dd>
