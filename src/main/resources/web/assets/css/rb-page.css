@@ -2441,6 +2441,7 @@ th.column-fixed::before,
 .aside-tree li.active > a {
   background-color: rgba(0, 0, 0, 0.09) !important;
   background-color: #4285f4 !important;
+  background-color: var(--rb-theme-color) !important;
   color: #fff !important;
 }
 
