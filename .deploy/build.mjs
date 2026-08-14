@@ -6,6 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 import { build, transformSync } from 'esbuild'
+import * as acorn from 'acorn'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -17,10 +18,27 @@ const RBV_ROOT = path.resolve(__dirname, '../@rbv/main/resources/web')
 const OUT_ROOT = path.resolve(__dirname, '../target/classes/web')
 
 const ESBUILD_JS_OPTIONS = {
-  // classic runtime -> React.createElement, same as @babel/preset-react
   jsx: 'transform',
-  minify: true,
-  target: 'es2017',
+  minifySyntax: true,
+  minifyWhitespace: true,
+  minifyIdentifiers: false,
+  target: 'es2015',
+}
+
+// Rewrite top-level let/const -> var
+function rewriteTopLevelLetConst(code) {
+  const ast = acorn.parse(code, { ecmaVersion: 'latest', sourceType: 'script' })
+  const edits = []
+  for (const node of ast.body) {
+    if (node.type === 'VariableDeclaration' && node.kind !== 'var') {
+      edits.push([node.start, node.start + node.kind.length])
+    }
+  }
+  for (let i = edits.length - 1; i >= 0; i--) {
+    const [s, e] = edits[i]
+    code = code.slice(0, s) + 'var' + code.slice(e)
+  }
+  return code
 }
 
 // collect unique lib references across all html (for summary, no per-file spam)
@@ -46,16 +64,20 @@ async function compileJs(m) {
   const srcDir = path.join(m, 'assets/js')
   const files = walkSync(srcDir, '.js')
   if (!files.length) return
-  await build({
+  const result = await build({
     entryPoints: files,
     outdir: path.join(OUT_ROOT, 'assets/js'),
     outbase: srcDir,
     loader: { '.js': 'jsx' },
     ...ESBUILD_JS_OPTIONS,
     bundle: false,
-    write: true,
+    write: false,
     logLevel: 'warning',
   })
+  for (const f of result.outputFiles) {
+    fs.mkdirSync(path.dirname(f.path), { recursive: true })
+    fs.writeFileSync(f.path, rewriteTopLevelLetConst(f.text))
+  }
   return files.length
 }
 
@@ -108,7 +130,7 @@ function compileHtml(m) {
     content = content.replace(/<script type="text\/babel">([\s\S]*?)<\/script>/gim, (match, code) => {
       if (code.trim().length === 0) return '<!-- No script -->'
       const r = transformSync(code, { loader: 'jsx', ...ESBUILD_JS_OPTIONS })
-      return '<script>\n' + r.code + '\n</script>'
+      return '<script>\n' + rewriteTopLevelLetConst(r.code) + '\n</script>'
     })
 
     // 2. remove `type="text/babel"` attr (external refs)
