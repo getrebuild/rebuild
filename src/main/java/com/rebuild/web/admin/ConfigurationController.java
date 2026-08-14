@@ -281,6 +281,12 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/submail")
     public RespBody postIntegrationSubmail(@RequestBody JSONObject data) {
+        if (data.getBooleanValue("__clear__")) {
+            ConfigurationController.clearConfigurationByPrefix("Mail");
+            ConfigurationController.clearConfigurationByPrefix("Sms");
+            return RespBody.ok();
+        }
+
         String dMailAddr = defaultIfBlank(data, ConfigurationItem.MailAddr);
         if (dMailAddr != null && !RegexUtils.isEMail(dMailAddr)) {
             return RespBody.errorl("无效发件人地址");
@@ -407,6 +413,11 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/dingtalk")
     public RespBody postIntegrationDingtalk(@RequestBody JSONObject data) {
+        if (data.getBooleanValue("__clear__")) {
+            ConfigurationController.clearConfigurationByPrefix("Dingtalk");
+            return RespBody.ok();
+        }
+
         setValues(data);
         return RespBody.ok();
     }
@@ -444,6 +455,11 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/wxwork")
     public RespBody postIntegrationWxwork(@RequestBody JSONObject data) {
+        if (data.getBooleanValue("__clear__")) {
+            ConfigurationController.clearConfigurationByPrefix("Wxwork");
+            return RespBody.ok();
+        }
+
         setValues(data);
         return RespBody.ok();
     }
@@ -481,6 +497,11 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/feishu")
     public RespBody postIntegrationFeishu(@RequestBody JSONObject data) {
+        if (data.getBooleanValue("__clear__")) {
+            ConfigurationController.clearConfigurationByPrefix("Feishu");
+            return RespBody.ok();
+        }
+
         setValues(data);
         return RespBody.ok();
     }
