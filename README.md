@@ -6,9 +6,9 @@
 
 **高度可配置化的企业管理系统**
 
-[![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://getrebuild.com/legal/service-terms)
 [![License 商业授权](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
+[![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![Docker Image Version](https://img.shields.io/docker/v/getrebuild/rebuild?label=Docker%20Image)](https://www.getrebuild.com/learn/install-use-docker)
 
 [在线体验](https://nightly.getrebuild.com/) · [下载安装](https://getrebuild.com/download) · [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.4) · [更多介绍](https://getrebuild.com/learn/declaration)
@@ -28,8 +28,8 @@
 | 零代码建模 | 全图形化设计业务实体、字段、布局，所见即所得        |
 | 流程自动化 | 触发器、审批流程、任务计划，业务规则随需配置        |
 | 精细化权限 | 团队、角色、部门多维度权限控制                      |
-| AI 助手    | 内置 AI 助手，支持文件上传分析、Token 用量统计      |
-| 多端体验   | Web 端 + 手机版，随时随地处理业务                   |
+| AI 助手    | 内置 AI 助手，轻松构建企业专属智能体                |
+| 多端体验   | WEB 端 + 手机版，随时随地处理业务                   |
 | 开放集成   | OpenAPI 对接外部系统，支持 Java/SpringBoot 二次开发 |
 | 极简部署   | 一个安装包即开即用，支持 Docker / 私有云 / 本地部署 |
 
@@ -45,7 +45,7 @@
 | 中小企业     | 缺乏开发资源与预算                                          | 开源免费版满足基础需求，商业版提供更多高阶功能 |
 | 业务管理者   | 销售（客户/商机）、供应链（库存/出入库）、生产（工单/进度） | 灵活搭建、随需调整                             |
 | 系统升级企业 | 替换老旧 OA / Excel 管理                                    | 数据迁移、多实体关联、审计追踪                 |
-| 开发者       | 二次开发与系统集成                                          | OpenAPI + Java 扩展，支持 Docker 或本地部署    |
+| 开发者       | 二次开发与系统集成                                          | OpenAPI + Java/SpringBoot 扩展，灵活自主       |
 
 ## 开始使用
 
@@ -67,7 +67,7 @@ docker run -d --name rebuild -p 18080:18080 getrebuild/rebuild:latest
 
 ### 3. 通过源码编译
 
-_注意 !!! 生产环境请使用 `master` 分支（默认分支），其他分支为开发分支，功能存在不确定性！_
+_注意 !!! 生产环境请使用 `master` 分支，其他分支为开发分支，功能存在不确定性！_
 
 ```bash
 # 拉取
@@ -84,7 +84,7 @@ java -jar target/rebuild.jar
 
 ## 开发
 
-REBUILD 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上没有区别。默认情况下使用 SpringBoot `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
+REBUILD 支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上没有区别。默认情况下使用 SpringBoot `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
 
 如你希望使用外部 Tomcat（或其他 Java Web 容器）即 `war` 方式，请将 `pom.xml` 文件中注释为 `UNCOMMENT USE TOMCAT` 的下一行取消注释。
 
@@ -117,7 +117,7 @@ REBUILD uses the GPL-3.0 open source license and commercial license dual license
 
 ## 购买商业授权
 
-从 2.0 版本开始，REBUILD 将推出 [增值功能](https://getrebuild.com/docs/rbv-features) 计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 REBUILD 可持续发展。除了可享有全部功能以外，还可以得到更专业的技术支持服务。非常感谢！
+如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 REBUILD 可持续发展。除了可享有全部功能以外，还可以得到更高级别的技术支持服务。非常感谢！
 
 ## V4.4 新特性
 
