@@ -120,11 +120,11 @@ public class LoginController extends LoginAction {
         mv.getModel().put("mobileUrl", mobileUrl);
         // App
         if (RebuildConfiguration.get(ConfigurationItem.MobileAppPath) != null) {
-            mv.getModel().put("mobileUrl", RebuildConfiguration.getHomeUrl("app-download?type=mobile"));
+            mv.getModel().put("mobileUrl", RebuildConfiguration.getHomeUrl("apps-download?type=mobile"));
         }
         // Desktop App
         if (RebuildConfiguration.get(ConfigurationItem.DesktopAppPath) != null) {
-            mv.getModel().put("desktopAppUrl", RebuildConfiguration.getHomeUrl("app-download?type=desktop"));
+            mv.getModel().put("desktopAppUrl", RebuildConfiguration.getHomeUrl("apps-download?type=desktop"));
         }
 
         if (License.isRbvAttached()) {

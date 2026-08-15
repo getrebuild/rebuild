@@ -309,7 +309,7 @@ class DlgMM extends RbAlert {
   }
 }
 
-const initAppPath = function (configKey, type, delTip) {
+const initAppPath = function (configKey, delTip) {
   if (rb.commercial < 1) {
     $(`.td-${configKey} button`).remove()
     return
@@ -319,7 +319,7 @@ const initAppPath = function (configKey, type, delTip) {
     $(`.td-${configKey}>a`)
       .text($fileCutName(key))
       .attr({
-        href: `../app-download?type=${type}`,
+        href: `../apps-download?type=${configKey.includes('Desktop') ? 'desktop' : 'mobile'}`,
         target: '_blank',
       })
     $(`button.J_${configKey}-del`).removeClass('hide')
@@ -362,8 +362,8 @@ const initAppPath = function (configKey, type, delTip) {
 }
 
 $(document).ready(() => {
-  initAppPath('MobileAppPath', 'mobile', '确认删除 APP 安装包？')
-  initAppPath('DesktopAppPath', 'desktop', '确认删除桌面端安装包？')
+  initAppPath('MobileAppPath', $L('确认删除 APP 安装包？'))
+  initAppPath('DesktopAppPath', $L('确认删除桌面端安装包？'))
 })
 
 class DlgBackup extends RbAlert {

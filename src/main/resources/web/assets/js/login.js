@@ -21,20 +21,27 @@ $(document).ready(() => {
     }
   }
 
+  $('.h5-mobile.pwa>a').on('click', function () {
+    if (!this.getAttribute('href')) return false
+  })
   if (navigator.userAgent.toUpperCase().includes('ELECTRON') || window.__TAURI__ || window.__TAURI_INTERNALS__) {
     $('.h5-mobile.pwa').addClass('hide')
   }
 
-  $('.h5-mobile.pwa>a').on('click', function () {
-    if (!this.getAttribute('href')) return false
-  })
-
   setTimeout(function () {
+    const $a = $('.h5-mobile>a:eq(0)')
+    const h = $a.attr('href') || ''
+    $a.on('click', () => {
+      debugger
+      if (h.includes('/apps-download')) {
+        window.open(h, '_blank')
+      }
+    })
+
     if ($.browser.mobile) {
-      const $a = $('.h5-mobile>a:eq(0)')
       $a.parent().html('<a href="' + $a.attr('href') + '">' + $a.html() + '</a>')
     } else {
-      $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?w=296&t=${$encode($('.h5-mobile a').attr('href'))}`)
+      $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?w=296&t=${$encode(h)}`)
     }
   }, 200)
 
@@ -119,7 +126,7 @@ $(document).ready(() => {
       RbAlert.create($L('是否需要切换到手机版访问？'), {
         onConfirm: function () {
           this.hide()
-          location.href = $('.h5-mobile>a:eq(0)').attr('href').replace('/app-download', '/h5app')
+          location.href = $('.h5-mobile>a:eq(0)').attr('href').replace('/apps-download', '/h5app')
         },
       })
     }, 500)
