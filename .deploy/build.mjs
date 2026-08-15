@@ -25,18 +25,24 @@ const ESBUILD_JS_OPTIONS = {
   target: 'es2015',
 }
 
-// Rewrite top-level let/const -> var
+// Rewrite top-level let/const -> var, class X -> var X = class
+// so that global bindings are accessible via window.X
 function rewriteTopLevelLetConst(code) {
   const ast = acorn.parse(code, { ecmaVersion: 'latest', sourceType: 'script' })
   const edits = []
   for (const node of ast.body) {
     if (node.type === 'VariableDeclaration' && node.kind !== 'var') {
-      edits.push([node.start, node.start + node.kind.length])
+      edits.push([node.start, node.start + node.kind.length, 'var'])
+    } else if (node.type === 'ClassDeclaration') {
+      // class X extends Y { ... } -> var X = class extends Y { ... }
+      edits.push([node.start, node.start + 5, 'var'])
+      edits.push([node.id.end, node.id.end, ' = class'])
     }
   }
-  for (let i = edits.length - 1; i >= 0; i--) {
-    const [s, e] = edits[i]
-    code = code.slice(0, s) + 'var' + code.slice(e)
+  // Apply from end to start to preserve positions
+  edits.sort((a, b) => b[0] - a[0])
+  for (const [s, e, text] of edits) {
+    code = code.slice(0, s) + text + code.slice(e)
   }
   return code
 }
