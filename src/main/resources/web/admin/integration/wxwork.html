@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -25,15 +25,15 @@
                     <tbody>
                       <tr>
                         <td width="40%">AgentId</td>
-                        <td data-id="WxworkAgentid" th:data-value="${WxworkAgentid ?:''}">[[${WxworkAgentid ?:bundle.L('未设置')}]]</td>
+                        <td data-id="WxworkAgentid" th:data-value="${WxworkAgentid ?:''}">[[${WxworkAgentid ?:bundle.L('未配置')}]]</td>
                       </tr>
                       <tr>
                         <td>Secret</td>
-                        <td data-id="WxworkSecret" th:data-value="${WxworkSecret ?:''}">[[${WxworkSecret ?:bundle.L('未设置')}]]</td>
+                        <td data-id="WxworkSecret" th:data-value="${WxworkSecret ?:''}">[[${WxworkSecret ?:bundle.L('未配置')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('企业 ID')}]]</td>
-                        <td data-id="WxworkCorpid" th:data-value="${WxworkCorpid ?:''}">[[${WxworkCorpid ?:bundle.L('未设置')}]]</td>
+                        <td data-id="WxworkCorpid" th:data-value="${WxworkCorpid ?:''}">[[${WxworkCorpid ?:bundle.L('未配置')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -93,7 +93,13 @@
                   </table>
                   <div class="edit-footer">
                     <button type="button" class="btn btn-link">[[${bundle.L('取消')}]]</button>
-                    <button type="button" class="btn btn-primary">[[${bundle.L('保存')}]]</button>
+                    <div class="btn-group">
+                      <button class="btn btn-primary" type="button">[[${bundle.L('保存')}]]</button>
+                      <button class="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-chevron-down"></i></button>
+                      <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                        <a class="dropdown-item J_clear">[[${bundle.L('清空配置')}]]</a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -530,7 +530,7 @@ class ChatMessage extends React.Component {
     return (
       <div className="msg-ai">
         <div className="avatar">
-          <img src={`${rb.baseUrl}/assets/img/icon-192x192.png`} alt="AI" />
+          <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
         </div>
         <div className="msg-content">
           {this.state.waitResp === 1 && (

@@ -1594,7 +1594,7 @@ function $showNotification(title, _onClick, _onShow) {
     if (_Notification.permission === 'granted') {
       var n = new _Notification(title, {
         body: window.rb.appName,
-        icon: rb.baseUrl + '/assets/img/icon-192x192.png',
+        icon: rb.baseUrl + '/assets/img/icon-256x256.png',
         tag: 'rbNotification44',
         renotify: true,
         silent: false,

@@ -54,10 +54,6 @@
       #passwd {
         padding-right: 40px;
       }
-      #passwd::-ms-reveal,
-      #passwd::-ms-clear {
-        display: none;
-      }
       .h5-mobile .icon {
         background-color: #fc9a00;
         color: #fff;
@@ -252,7 +248,7 @@
                       </div>
                     </div>
                     <div class="btn-group dropup h5-mobile pwa fs-0 ml-2">
-                      <a>
+                      <a th:href="${desktopAppUrl}">
                         <i class="icon mdi mdi-monitor-arrow-down fs-14"></i>
                         <span class="up-1">[[${bundle.L('放在桌面')}]]</span>
                       </a>

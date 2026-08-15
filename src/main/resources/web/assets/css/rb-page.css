@@ -403,10 +403,10 @@ a.btn {
 }
 
 .logo-img {
-  height: 30px;
-  width: 150px;
+  height: 32px;
+  width: 155px;
   background: url(../img/logo.png) center center no-repeat;
-  background-size: auto 30px;
+  background-size: 155px auto;
   display: block;
   margin: 0 auto;
   cursor: default;
@@ -2441,6 +2441,7 @@ th.column-fixed::before,
 .aside-tree li.active > a {
   background-color: rgba(0, 0, 0, 0.09) !important;
   background-color: #4285f4 !important;
+  background-color: var(--rb-theme-color) !important;
   color: #fff !important;
 }
 
@@ -5250,7 +5251,7 @@ pre.unstyle {
 }
 
 .rb-top-header .rb-navbar-header .navbar-brand {
-  background-size: auto 30px;
+  background-size: 155px auto;
   padding-right: 0;
 }
 
@@ -6799,4 +6800,9 @@ div.formula-code {
 .mermaid .edgeLabel {
   font-family: inherit;
   font-size: 13px;
+}
+
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
 }

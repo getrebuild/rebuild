@@ -66,12 +66,15 @@
       }
       .J_backDb,
       button.J_MobileAppPath,
-      button.J_MobileAppPath-del {
+      button.J_MobileAppPath-del,
+      button.J_DesktopAppPath,
+      button.J_DesktopAppPath-del {
         position: absolute;
         margin-top: -6px;
         margin-left: 6px;
       }
-      button.J_MobileAppPath + button.J_MobileAppPath-del {
+      button.J_MobileAppPath + button.J_MobileAppPath-del,
+      button.J_DesktopAppPath + button.J_DesktopAppPath-del {
         margin-left: 70px;
       }
       .backup-box {
@@ -117,7 +120,7 @@
                             <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
                           </a>
                           <p class="mt-2 text-muted hide">
-                            [[${bundle.L('请分别上传深色与浅色 LOGO，透明背景，建议尺寸 300 × 60')}]]
+                            [[${bundle.L('请分别上传深色与浅色 LOGO，透明背景，建议尺寸 310 × 64')}]]
                             <a class="ml-2 J_logo-gen hide" href="###genlogo"><i class="icon mdi mdi-pencil-ruler"></i> 制作 LOGO</a>
                           </p>
                         </td>
@@ -159,6 +162,7 @@
                             <b th:title="${bundle.L('还原')}"><span class="zmdi zmdi-replay"></span></b>
                           </a>
                           <p class="mt-2 text-muted hide">[[${bundle.L('建议尺寸 1920 × 1080')}]]</p>
+                          <input type="file" class="hide J_CustomWallpaper" accept="image/*" data-maxsize="104857600" data-local="true" data-noname="true" />
                         </td>
                       </tr>
                       <tr>
@@ -319,6 +323,29 @@
                       </tr>
                     </tbody>
                   </table>
+                  <h5>[[${bundle.L('应用下载')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.L('APP 安装包')}]] <sup class="rbv"></sup></td>
+                        <td class="td-MobileAppPath">
+                          <a>[[${MobileAppPath ?:bundle.L('无')}]]</a>
+                          <button class="btn btn-light btn-sm J_MobileAppPath" type="button"><i class="icon mdi mdi-upload"></i> [[${bundle.L('上传')}]]<span></span></button>
+                          <button class="btn btn-light btn-sm J_MobileAppPath-del w-auto hide" type="button" th:title="${bundle.L('删除')}"><i class="icon mdi mdi-delete"></i></button>
+                          <input type="file" class="hide J_MobileAppPath" accept=".apk" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('桌面端安装包')}]] <sup class="rbv"></sup></td>
+                        <td class="td-DesktopAppPath">
+                          <a>[[${DesktopAppPath ?:bundle.L('无')}]]</a>
+                          <button class="btn btn-light btn-sm J_DesktopAppPath" type="button"><i class="icon mdi mdi-upload"></i> [[${bundle.L('上传')}]]<span></span></button>
+                          <button class="btn btn-light btn-sm J_DesktopAppPath-del w-auto hide" type="button" th:title="${bundle.L('删除')}"><i class="icon mdi mdi-delete"></i></button>
+                          <input type="file" class="hide J_DesktopAppPath" accept=".exe,.dmg" />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                   <h5>[[${bundle.L('其他')}]]</h5>
                   <table class="table">
                     <tbody>
@@ -342,21 +369,8 @@
                         <td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true" id="_MobileNavStyle">[[${MobileNavStyle}]]</td>
                       </tr>
-                      <tr>
-                        <td>[[${bundle.L('APP 安装包')}]] <sup class="rbv"></sup></td>
-                        <td class="td-MobileAppPath">
-                          <a>[[${MobileAppPath ?:bundle.L('无')}]]</a>
-                          <button class="btn btn-light btn-sm J_MobileAppPath" type="button"><i class="icon mdi mdi-upload"></i> [[${bundle.L('上传')}]]<span></span></button>
-                          <button class="btn btn-light btn-sm J_MobileAppPath-del w-auto hide" type="button" th:title="${bundle.L('删除')}"><i class="icon mdi mdi-delete"></i></button>
-                          <div class="hide">
-                            <input type="file" class="hide J_MobileAppPath" accept=".apk" />
-                          </div>
-                        </td>
-                      </tr>
                     </tbody>
                   </table>
-                  <input type="file" class="hide file_4image" accept="image/*" data-maxsize="104857600" data-local="true" data-noname="true" />
-                  <input type="file" class="hide file_MobileAppPath" accept=".apk,.ipa" />
                   <div class="edit-footer">
                     <button class="btn btn-link" type="button">[[${bundle.L('取消')}]]</button>
                     <button class="btn btn-primary" type="button">[[${bundle.L('保存')}]]</button>

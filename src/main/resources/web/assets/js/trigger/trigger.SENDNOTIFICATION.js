@@ -33,31 +33,31 @@ class ContentSendNotification extends ActionContentSpec {
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 2 && 'active'}`} onClick={() => this.setMsgType(2)}>
                       {$L('邮件')}
-                      {state.serviceMail === false && <span className="text-danger">({$L('不可用')})</span>}
+                      {state.serviceMail === false && <span className="text-danger">({$L('未配置')})</span>}
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 3 && 'active'}`} onClick={() => this.setMsgType(3)}>
                       {$L('短信')}
-                      {state.serviceSms === false && <span className="text-danger">({$L('不可用')})</span>}
+                      {state.serviceSms === false && <span className="text-danger">({$L('未配置')})</span>}
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 4 && 'active'}`} onClick={() => this.setMsgType(4)}>
                       {$L('企业微信群')}
-                      {state.serviceWxwork === false && <span className="text-danger">({$L('不可用')})</span>} <sup className="rbv" />
+                      {state.serviceWxwork === false && <span className="text-danger">({$L('未配置')})</span>} <sup className="rbv" />
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 5 && 'active'}`} onClick={() => this.setMsgType(5)}>
                       {$L('钉钉群')}
-                      {state.serviceDingtalk === false && <span className="text-danger">({$L('不可用')})</span>} <sup className="rbv" />
+                      {state.serviceDingtalk === false && <span className="text-danger">({$L('未配置')})</span>} <sup className="rbv" />
                     </a>
                   </li>
                   <li className="nav-item">
                     <a className={`nav-link ${state.type === 6 && 'active'}`} onClick={() => this.setMsgType(6)}>
                       {$L('飞书群')}
-                      {state.serviceFeishu === false && <span className="text-danger">({$L('不可用')})</span>} <sup className="rbv" />
+                      {state.serviceFeishu === false && <span className="text-danger">({$L('未配置')})</span>} <sup className="rbv" />
                     </a>
                   </li>
                 </ul>
