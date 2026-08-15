@@ -1,7 +1,7 @@
 {
   "name": "rebuild-compiler",
-  "version": "0.3.0",
-  "description": "rebuild js/css/html compiler (esbuild)",
+  "version": "0.4.0",
+  "description": "rebuild js/css/html compiler (babel)",
   "author": "rebuild",
   "license": "GPL-3.0",
   "repository": {
@@ -9,8 +9,11 @@
     "url": "https://github.com/getrebuild/rebuild.git"
   },
   "dependencies": {
-    "acorn": "^8.12.0",
-    "esbuild": "^0.23.0"
+    "@babel/core": "^7.16.0",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/preset-env": "^7.16.0",
+    "@babel/preset-react": "^7.16.0",
+    "clean-css": "^5.3.3"
   },
   "scripts": {
     "build": "node build.mjs"

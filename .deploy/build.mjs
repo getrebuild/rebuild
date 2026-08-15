@@ -5,49 +5,32 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-import { build, transformSync } from 'esbuild'
-import * as acorn from 'acorn'
+import { createRequire } from 'module'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import crypto from 'crypto'
+
+const require = createRequire(import.meta.url)
+const { transformSync } = require('@babel/core')
+const CleanCSS = require('clean-css')
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const WEB_ROOT = path.resolve(__dirname, '../src/main/resources/web')
 const RBV_ROOT = path.resolve(__dirname, '../@rbv/main/resources/web')
 const OUT_ROOT = path.resolve(__dirname, '../target/classes/web')
 
-const ESBUILD_JS_OPTIONS = {
-  jsx: 'transform',
-  minifySyntax: true,
-  minifyWhitespace: true,
-  minifyIdentifiers: false,
-  target: 'es2015',
+// https://babeljs.io/docs/en/options#primary-options
+const BABEL_OPTIONS = {
+  presets: ['@babel/preset-env', '@babel/preset-react'],
+  plugins: ['@babel/plugin-proposal-class-properties'],
+  minified: true,
+  generatorOpts: {
+    comments: false,
+  },
 }
 
-// Rewrite top-level let/const -> var, class X -> var X = class
-// so that global bindings are accessible via window.X
-function rewriteTopLevelLetConst(code) {
-  const ast = acorn.parse(code, { ecmaVersion: 'latest', sourceType: 'script' })
-  const edits = []
-  for (const node of ast.body) {
-    if (node.type === 'VariableDeclaration' && node.kind !== 'var') {
-      edits.push([node.start, node.start + node.kind.length, 'var'])
-    } else if (node.type === 'ClassDeclaration') {
-      // class X extends Y { ... } -> var X = class extends Y { ... }
-      edits.push([node.start, node.start + 5, 'var'])
-      edits.push([node.id.end, node.id.end, ' = class'])
-    }
-  }
-  // Apply from end to start to preserve positions
-  edits.sort((a, b) => b[0] - a[0])
-  for (const [s, e, text] of edits) {
-    code = code.slice(0, s) + text + code.slice(e)
-  }
-  return code
-}
-
-// collect unique lib references across all html (for summary, no per-file spam)
+// collect unique lib references across all html (for summary)
 const _libsUsed = new Set()
 
 function walkSync(dir, ext, out = []) {
@@ -66,40 +49,35 @@ function revHash(buf) {
   return crypto.createHash('sha1').update(buf).digest('hex').slice(0, 8)
 }
 
-async function compileJs(m) {
+function compileJs(m) {
   const srcDir = path.join(m, 'assets/js')
   const files = walkSync(srcDir, '.js')
-  if (!files.length) return
-  const result = await build({
-    entryPoints: files,
-    outdir: path.join(OUT_ROOT, 'assets/js'),
-    outbase: srcDir,
-    loader: { '.js': 'jsx' },
-    ...ESBUILD_JS_OPTIONS,
-    bundle: false,
-    write: false,
-    logLevel: 'warning',
-  })
-  for (const f of result.outputFiles) {
-    fs.mkdirSync(path.dirname(f.path), { recursive: true })
-    fs.writeFileSync(f.path, rewriteTopLevelLetConst(f.text))
+  if (!files.length) return 0
+  for (const f of files) {
+    const code = fs.readFileSync(f, 'utf8')
+    const r = transformSync(code, { ...BABEL_OPTIONS, filename: f })
+    const rel = path.relative(srcDir, f)
+    const dest = path.join(OUT_ROOT, 'assets/js', rel)
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+    fs.writeFileSync(dest, r.code)
   }
   return files.length
 }
 
-async function compileCss(m) {
+function compileCss(m) {
   const srcDir = path.join(m, 'assets/css')
   const files = walkSync(srcDir, '.css')
-  if (!files.length) return
-  await build({
-    entryPoints: files,
-    outdir: path.join(OUT_ROOT, 'assets/css'),
-    outbase: srcDir,
-    minify: true,
-    bundle: false,
-    write: true,
-    logLevel: 'warning',
-  })
+  if (!files.length) return 0
+  for (const f of files) {
+    const code = fs.readFileSync(f, 'utf8')
+    const r = new CleanCSS({
+      level: { 1: { specialComments: 0 } },
+    }).minify(code)
+    const rel = path.relative(srcDir, f)
+    const dest = path.join(OUT_ROOT, 'assets/css', rel)
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+    fs.writeFileSync(dest, r.styles)
+  }
   return files.length
 }
 
@@ -133,11 +111,14 @@ function compileHtml(m) {
     let content = fs.readFileSync(f, 'utf8')
 
     // 1. inline `<script type="text/babel">...</script>` -> compiled
-    content = content.replace(/<script type="text\/babel">([\s\S]*?)<\/script>/gim, (match, code) => {
-      if (code.trim().length === 0) return '<!-- No script -->'
-      const r = transformSync(code, { loader: 'jsx', ...ESBUILD_JS_OPTIONS })
-      return '<script>\n' + rewriteTopLevelLetConst(r.code) + '\n</script>'
-    })
+    content = content.replace(
+      /<script type="text\/babel">([\s\S]*?)<\/script>/gim,
+      (match, code) => {
+        if (code.trim().length === 0) return '<!-- No script -->'
+        const r = transformSync(code, BABEL_OPTIONS)
+        return '<script>\n' + r.code + '\n</script>'
+      },
+    )
 
     // 2. remove `type="text/babel"` attr (external refs)
     content = content.replace(/ type="text\/babel"/gi, '')
@@ -159,8 +140,8 @@ function compileHtml(m) {
     // 4. inline `<style>...</style>` -> minified
     content = content.replace(/<style>([\s\S]*?)<\/style>/gim, (match, p) => {
       if (p.trim().length === 0) return '<!-- No style -->'
-      const r = transformSync(p, { loader: 'css', minify: true })
-      return '<style>\n' + r.code + '\n</style>'
+      const r = new CleanCSS({}).minify(p)
+      return '<style>\n' + r.styles + '\n</style>'
     })
 
     // 5. `<link ... th:href="@{...}" />` -> version hash (lib kept as-is)
@@ -184,17 +165,15 @@ function compileHtml(m) {
   return count
 }
 
-async function main() {
+function main() {
   const t0 = Date.now()
   console.log('[rebuild-compiler] starting')
 
   const s = {}
-  await Promise.all([
-    compileJs(WEB_ROOT).then((n) => (s.jsWeb = n || 0)),
-    compileCss(WEB_ROOT).then((n) => (s.cssWeb = n || 0)),
-    compileJs(RBV_ROOT).then((n) => (s.jsRbv = n || 0)),
-    compileCss(RBV_ROOT).then((n) => (s.cssRbv = n || 0)),
-  ])
+  s.jsWeb = compileJs(WEB_ROOT)
+  s.cssWeb = compileCss(WEB_ROOT)
+  s.jsRbv = compileJs(RBV_ROOT)
+  s.cssRbv = compileCss(RBV_ROOT)
   s.htmlWeb = compileHtml(WEB_ROOT)
   s.htmlRbv = compileHtml(RBV_ROOT)
 
@@ -206,7 +185,9 @@ async function main() {
   console.log(`done in ${((Date.now() - t0) / 1000).toFixed(2)}s\n`)
 }
 
-main().catch((err) => {
+try {
+  main()
+} catch (err) {
   console.error(err)
   process.exit(1)
-})
+}
