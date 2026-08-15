@@ -21,6 +21,14 @@ $(document).ready(() => {
     }
   }
 
+  if (navigator.userAgent.toUpperCase().includes('ELECTRON') || window.__TAURI__ || window.__TAURI_INTERNALS__) {
+    $('.h5-mobile.pwa').addClass('hide')
+  }
+
+  $('.h5-mobile.pwa>a').on('click', function () {
+    if (!this.getAttribute('href')) return false
+  })
+
   setTimeout(function () {
     if ($.browser.mobile) {
       const $a = $('.h5-mobile>a:eq(0)')
@@ -52,7 +60,9 @@ $(document).ready(() => {
     const $input = $('#passwd')
     const isHidden = $input.attr('type') === 'password'
     $input.attr('type', isHidden ? 'text' : 'password')
-    $(this).find('i').attr('class', isHidden ? 'zmdi zmdi-eye' : 'zmdi zmdi-eye-off')
+    $(this)
+      .find('i')
+      .attr('class', isHidden ? 'zmdi zmdi-eye' : 'zmdi zmdi-eye-off')
     $(this).attr('title', isHidden ? $L('隐藏密码') : $L('显示密码'))
     $input.focus()
   })
@@ -109,7 +119,7 @@ $(document).ready(() => {
       RbAlert.create($L('是否需要切换到手机版访问？'), {
         onConfirm: function () {
           this.hide()
-          location.href = $('.h5-mobile>a:eq(0)').attr('href').replace('/h5app-download', '/h5app')
+          location.href = $('.h5-mobile>a:eq(0)').attr('href').replace('/app-download', '/h5app')
         },
       })
     }, 500)
@@ -118,18 +128,16 @@ $(document).ready(() => {
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault()
+  const $pwa = $('.h5-mobile.pwa')
+  if ($pwa.hasClass('hide') || $pwa.find('>a').attr('href')) return
   let deferredPrompt = e
-
-  $('.h5-mobile.pwa')
-    // .removeClass('hide')  // disabled on 4.2.4
-    .find('>a')
-    .on('click', () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt()
-        deferredPrompt.userChoice.then((choiceRes) => {
-          console.log('', choiceRes.outcome)
-          deferredPrompt = null
-        })
-      }
-    })
+  $pwa.find('>a').on('click', () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      deferredPrompt.userChoice.then((choiceRes) => {
+        console.log('', choiceRes.outcome)
+        deferredPrompt = null
+      })
+    }
+  })
 })

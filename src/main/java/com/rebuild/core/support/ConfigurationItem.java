@@ -96,6 +96,7 @@ public enum ConfigurationItem {
 
     // App
     MobileAppPath,
+    DesktopAppPath,
 
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
