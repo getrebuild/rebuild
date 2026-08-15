@@ -1,8 +1,9 @@
 ﻿# REBUILD one-click build
 # Usage:
 #   .\build.ps1
-#   .\build.ps1 -Mob
-#   .\build.ps1 -Mob -MobDir D:\path\rebuild-mob
+#   .\build.ps1 -mob
+#   .\build.ps1 -mob -mobdir D:\path\rebuild-mob
+#   Linux/Unix: ./build.sh  (same options)
 
 param(
     [switch]$Mob,
@@ -58,7 +59,7 @@ if ($Mob) {
         Pop-Location
     }
     else {
-        Write-Warning "rebuild-mob not found at '$MobDir', skip building h5app. Use -MobDir to specify the path."
+        Write-Warning "rebuild-mob not found at '$MobDir', skip building h5app. Use -mobdir to specify the path."
     }
 }
 
