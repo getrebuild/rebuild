@@ -22,7 +22,29 @@
         <argLine>-Dfile.encoding=UTF-8</argLine>
         <java.version>1.8</java.version>
         <skipTests>true</skipTests>
+        <npm.exec>npm</npm.exec>
     </properties>
+    <profiles>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <npm.exec>npm.cmd</npm.exec>
+            </properties>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/getrebuild/rebuild</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <finalName>rebuild</finalName>
@@ -57,41 +79,42 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.12.1</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
-                        <id>install node and npm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                    </execution>
-                    <execution>
                         <id>npm install</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
                         <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${npm.exec}</executable>
+                            <arguments>
+                                <argument>install</argument>
+                                <argument>--no-audit</argument>
+                                <argument>--no-fund</argument>
+                            </arguments>
+                            <workingDirectory>.deploy</workingDirectory>
+                        </configuration>
                     </execution>
                     <execution>
-                        <id>gulp build</id>
-                        <goals>
-                            <goal>gulp</goal>
-                        </goals>
+                        <id>npm run build</id>
                         <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${npm.exec}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build</argument>
+                            </arguments>
+                            <workingDirectory>.deploy</workingDirectory>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <nodeVersion>v10.22.0</nodeVersion>
-                    <workingDirectory>.deploy</workingDirectory>
-                    <!-- UNCOMMENT USE NODE MIRROR -->
-                    <!--
-                    <nodeDownloadRoot>https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/</nodeDownloadRoot>
-                    <npmRegistryURL>https://registry.npmmirror.com</npmRegistryURL>
-                    -->
-                </configuration>
             </plugin>
             <!-- USE COMMERCIAL MODULES IF EXISTS -->
             <plugin>
@@ -168,7 +191,7 @@
                         <format>html</format>
                         <format>xml</format>
                     </formats>
-                    <check />
+                    <check/>
                 </configuration>
             </plugin>
         </plugins>
@@ -181,14 +204,6 @@
             </resource>
         </resources>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub OWNER Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/getrebuild/rebuild</url>
-        </repository>
-    </distributionManagement>
 
     <repositories>
         <repository>
