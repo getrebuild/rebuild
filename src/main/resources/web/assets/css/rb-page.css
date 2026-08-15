@@ -6801,3 +6801,8 @@ div.formula-code {
   font-family: inherit;
   font-size: 13px;
 }
+
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
