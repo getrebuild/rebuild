@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.rebuild.core.privileges.UserService.AIBOT_USER;
+import static com.rebuild.core.privileges.UserService.SYSTEM_USER;
+
 /**
  * 用户过滤类
  *
@@ -177,7 +180,7 @@ public class UserFilters {
     public static String getBizzFilter(int bizzEntityCode, ID user) {
         // 隐藏系统用户
         if (bizzEntityCode == EntityHelper.User) {
-            return String.format("userId <> '%s'", UserService.SYSTEM_USER);
+            return String.format("(userId not in ('%s', '%s'))", SYSTEM_USER, AIBOT_USER);
         }
         // 普通用户对角色不可见
         if (bizzEntityCode == EntityHelper.Role && !UserHelper.isAdmin(user)) {
