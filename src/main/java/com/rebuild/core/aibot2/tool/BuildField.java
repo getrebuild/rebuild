@@ -23,6 +23,8 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +41,7 @@ import java.util.Set;
  * @since 2026/8/10
  */
 @Slf4j
-public class CreateField implements Tool, AdminGuard {
+public class BuildField implements Tool, AdminGuard {
 
     // 允许通过 AI 创建的字段类型
     private static final Set<DisplayType> ALLOWED_TYPES = EnumSet.of(
@@ -137,11 +139,17 @@ public class CreateField implements Tool, AdminGuard {
             createPickListItems(newField, options);
         }
 
+        // 归属 AI 助手（Field2Schema 创建的元数据默认归属操作人）
+        String ubSql = String.format("update `meta_field` set `CREATED_BY` = '%s' where `BELONG_ENTITY` = '%s' and `FIELD_NAME` = '%s'",
+                UserService.AIBOT_USER, entity.getName(), fieldName);
+        Application.getSqlExecutor().execute(ubSql);
+
         log.info("Field created via AI : {}.{}", entity.getName(), fieldName);
 
         return JSONUtils.toJSONObject(
-                new String[]{"status", "entity", "field", "label", "type", "message"},
+                new String[]{"status", "entity", "field", "label", "type", "url", "message"},
                 new Object[]{"ok", entity.getName(), fieldName, fieldLabel, dt.name(),
+                        AppUtils.getContextPath("/app/redirect?entity=" + entity.getName()),
                         String.format("已成功在实体 [%s] 中创建字段 [%s](%s)，可前往管理中心-实体管理配置表单布局",
                                 EasyMetaFactory.getLabel(entity), fieldLabel, fieldName)});
     }

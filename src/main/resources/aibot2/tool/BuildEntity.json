@@ -1,0 +1,38 @@
+{
+  "type": "function",
+  "function": {
+    "name": "BuildEntity",
+    "description": "新建实体。可同时创建名称字段和自动编号字段，指定主实体时创建为该实体的明细实体。新建前先用 ListEntities 查看已有实体，能复用的不重复新建。创建后可用 BuildField 继续添加字段",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entityLabel": {
+          "type": "string",
+          "description": "实体名称，如「客户」「订单」"
+        },
+        "mainEntity": {
+          "type": "string",
+          "description": "主实体名称（可选）。指定后创建为该主实体的明细实体，如订单明细。未指定则创建独立实体"
+        },
+        "nameField": {
+          "type": "boolean",
+          "description": "是否同时创建名称字段（默认 true）。名称字段用于记录标题/主键显示，业务实体通常需要，建议保留"
+        },
+        "seriesField": {
+          "type": "boolean",
+          "description": "是否同时创建自动编号字段（默认 false）"
+        },
+        "comments": {
+          "type": "string",
+          "description": "实体描述（可选），说明该实体用于什么业务场景"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["entityLabel"],
+      "additionalProperties": false
+    }
+  }
+}

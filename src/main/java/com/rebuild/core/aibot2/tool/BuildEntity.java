@@ -11,12 +11,15 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
  * @since 2026/8/10
  */
 @Slf4j
-public class CreateEntity implements Tool, AdminGuard {
+public class BuildEntity implements Tool, AdminGuard {
 
     @Override
     public Object tool(String arguments) throws Exception {
@@ -76,11 +79,20 @@ public class CreateEntity implements Tool, AdminGuard {
         String entityName = new Entity2Schema(user).createEntity(
                 null, entityLabel, args.getString("comments"), mainEntity, haveNameField, haveSeriesField);
 
+        // 归属 AI 助手（Entity2Schema 创建的元数据默认归属操作人）
+        String ubSql = String.format("update `meta_entity` set `CREATED_BY` = '%s' where `ENTITY_NAME` = '%s'",
+                UserService.AIBOT_USER, entityName);
+        Application.getSqlExecutor().execute(ubSql);
+        String ubSql2 = String.format("update `meta_field` set `CREATED_BY` = '%s' where `BELONG_ENTITY` = '%s'",
+                UserService.AIBOT_USER, entityName);
+        Application.getSqlExecutor().execute(ubSql2);
+
         log.info("Entity created via AI : {} ({})", entityName, entityLabel);
 
         return JSONUtils.toJSONObject(
-                new String[]{"status", "entity", "label", "message"},
+                new String[]{"status", "entity", "label", "url", "message"},
                 new Object[]{"ok", entityName, entityLabel,
+                        AppUtils.getContextPath("/app/redirect?entity=" + entityName),
                         String.format("已成功创建%s [%s](%s)，可前往管理中心-实体管理配置表单和布局",
                                 mainEntity != null ? "明细实体" : "实体", entityLabel, entityName)});
     }

@@ -40,18 +40,24 @@ import java.text.MessageFormat;
 @Controller
 public class ListAndViewRedirection extends BaseController {
 
-    // compatible: v3.1 "/app/list-and-view"
-    @GetMapping({"/app/list-and-view", "/app/redirect"})
+    @GetMapping("/app/redirect")
     public void redirect(@IdParam(required = false) ID anyId, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String url = request.getParameter("url");
+        String gotoUrl = request.getParameter("url");
 
         // v4.3 任意跳转
-        if (StringUtils.isNotBlank(url)) {
-            url = CodecUtils.urlDecode(url);
+        if (StringUtils.isNotBlank(gotoUrl)) {
+            gotoUrl = CodecUtils.urlDecode(gotoUrl);
             // 兼容 RBTOKEN
-            if (url.contains("RBTOKEN")) {
-                url = PageTokenVerify.replacePageToken(url, getRequestUser(request));
+            if (gotoUrl.contains("RBTOKEN")) {
+                gotoUrl = PageTokenVerify.replacePageToken(gotoUrl, getRequestUser(request));
             }
+            anyId = null;
+        }
+
+        // v4.5 实体管理
+        String entity45 = request.getParameter("entity");
+        if (entity45 != null && MetadataHelper.containsEntity(entity45)) {
+            gotoUrl = "../admin/entity/" + entity45 + "/base";
             anyId = null;
         }
 
@@ -60,47 +66,47 @@ public class ListAndViewRedirection extends BaseController {
             Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());
 
             if (entity.getEntityCode() == EntityHelper.Feeds) {
-                url = "../feeds/home#s=" + anyId;
+                gotoUrl = "../feeds/home#s=" + anyId;
 
             } else if (entity.getEntityCode() == EntityHelper.FeedsComment) {
                 ID found = findFeedsId(anyId);
-                if (found != null) url = "../feeds/home#s=" + found;
+                if (found != null) gotoUrl = "../feeds/home#s=" + found;
 
             } else if (entity.getEntityCode() == EntityHelper.ProjectTask
                     || entity.getEntityCode() == EntityHelper.ProjectTaskComment) {
                 Object[] found = findProjectAndTaskId(anyId);
                 if (found != null) {
-                    url = MessageFormat.format("../project/{0}/tasks#!/View/ProjectTask/{1}", found[1], found[0]);
+                    gotoUrl = MessageFormat.format("../project/{0}/tasks#!/View/ProjectTask/{1}", found[1], found[0]);
                 }
 
             } else if (entity.getEntityCode() == EntityHelper.User) {
-                url = "newtab".equalsIgnoreCase(type)
+                gotoUrl = "newtab".equalsIgnoreCase(type)
                         ? String.format("User/view/%s", anyId)
                         : String.format("../admin/bizuser/users#!/View/User/%s", anyId);
 
             } else if (entity.getEntityCode() == EntityHelper.Department) {
-                url = "newtab".equalsIgnoreCase(type)
+                gotoUrl = "newtab".equalsIgnoreCase(type)
                         ? String.format("Department/view/%s", anyId)
                         : String.format("../admin/bizuser/departments#!/View/Department/%s", anyId);
 
             } else if (entity.getEntityCode() == EntityHelper.Team) {
-                url = String.format("../admin/bizuser/teams#!/View/Team/%s", anyId);
+                gotoUrl = String.format("../admin/bizuser/teams#!/View/Team/%s", anyId);
 
             } else if (entity.getEntityCode() == EntityHelper.Role) {
-                url = String.format("../admin/bizuser/role/%s", anyId);
+                gotoUrl = String.format("../admin/bizuser/role/%s", anyId);
 
             } else if (MetadataHelper.isBusinessEntity(entity)) {
                 if ("dock".equalsIgnoreCase(type)) {
-                    url = String.format("entity/view?id=%s", anyId);
+                    gotoUrl = String.format("entity/view?id=%s", anyId);
                 } else if ("newtab".equalsIgnoreCase(type)) {
-                    url = String.format("%s/view/%s", entity.getName(), anyId);
+                    gotoUrl = String.format("%s/view/%s", entity.getName(), anyId);
                 } else {
-                    url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), anyId);
+                    gotoUrl = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), anyId);
                 }
             }
         }
 
-        if (url != null) response.sendRedirect(url);
+        if (gotoUrl != null) response.sendRedirect(gotoUrl);
         else response.sendError(HttpStatus.NOT_FOUND.value());
     }
 
