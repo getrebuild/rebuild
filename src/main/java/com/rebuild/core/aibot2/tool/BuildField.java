@@ -22,8 +22,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.AdminGuard;
-import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -57,11 +55,6 @@ public class BuildField implements Tool, AdminGuard {
     @Override
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
-
-        final ID user = UserContextHolder.getUser();
-        if (!UserHelper.isAdmin(user)) {
-            throw new ToolException("仅管理员可新建字段");
-        }
 
         String entityIdent = args.getString("entity");
         if (StringUtils.isBlank(entityIdent)) {
@@ -130,7 +123,7 @@ public class BuildField implements Tool, AdminGuard {
                                     + "用户未确认或要求调整时不得执行创建"});
         }
 
-        String fieldName = new Field2Schema(user).createField(
+        String fieldName = new Field2Schema(UserContextHolder.getUser()).createField(
                 entity, fieldLabel, null, dt, args.getString("comments"), refEntity, extConfig);
 
         // 下拉列表/多选：字段创建后补充选项
@@ -138,13 +131,6 @@ public class BuildField implements Tool, AdminGuard {
             Field newField = MetadataHelper.getEntity(entity.getEntityCode()).getField(fieldName);
             createPickListItems(newField, options);
         }
-
-        // 归属 AI 助手（Field2Schema 创建的元数据默认归属操作人）
-        String ubSql = String.format("update `meta_field` set `CREATED_BY` = '%s' where `BELONG_ENTITY` = '%s' and `FIELD_NAME` = '%s'",
-                UserService.AIBOT_USER, entity.getName(), fieldName);
-        Application.getSqlExecutor().execute(ubSql);
-
-        log.info("Field created via AI : {}.{}", entity.getName(), fieldName);
 
         return JSONUtils.toJSONObject(
                 new String[]{"status", "entity", "field", "label", "type", "url", "message"},
