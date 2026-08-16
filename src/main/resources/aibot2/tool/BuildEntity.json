@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "BuildEntity",
-    "description": "新建实体（需管理员权限）。可同时创建名称字段和自动编号字段，指定主实体时创建为该实体的明细实体。创建后可用 BuildField 添加更多字段，用 ListEntities 查看实体结构。新建前先用 ListEntities 调研已有实体，能复用的不重复新建",
+    "description": "新建实体。可同时创建名称字段和自动编号字段，指定主实体时创建为该实体的明细实体。新建前先用 ListEntities 查看已有实体，能复用的不重复新建。创建后可用 BuildField 继续添加字段",
     "parameters": {
       "type": "object",
       "properties": {

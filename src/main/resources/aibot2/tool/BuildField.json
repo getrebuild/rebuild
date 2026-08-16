@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "BuildField",
-    "description": "在已有实体中新建字段（需管理员权限）。先用 ListEntities 查看实体已有字段，避免重复创建。字段类型可用: TEXT(文本)、NTEXT(多行文本)、NUMBER(整数)、DECIMAL(小数)、DATE(日期)、DATETIME(日期时间)、TIME(时间)、BOOL(复选框)、EMAIL(邮箱)、URL(链接)、PHONE(电话)、LOCATION(位置)、TAG(标签)、SERIES(自动编号)、IMAGE(图片)、FILE(附件)、PICKLIST(下拉列表)、MULTISELECT(多选)、CLASSIFICATION(分类)、REFERENCE(引用)、N2NREFERENCE(多引用)。REFERENCE/N2NREFERENCE 必须提供引用实体，PICKLIST/MULTISELECT 必须提供选项",
+    "description": "在已有实体中新建字段。先用 ListEntities 查看已有字段，避免重复创建。可选类型见 type 参数说明，部分类型需配合引用实体、下拉选项、分类、编号规则等额外参数",
     "parameters": {
       "type": "object",
       "properties": {
