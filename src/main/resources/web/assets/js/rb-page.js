@@ -293,7 +293,7 @@ $(function () {
   var $ai = $('.aibot-show a')
   if ($ai[0]) {
     var _FN = function () {
-      window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId'), draggable: true }, true)
+      window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId'), draggable: true }, true)
     }
     $ai.on('click', _FN)
     $(document).on('keydown.aibot', null, 'shift+/', function (e) {

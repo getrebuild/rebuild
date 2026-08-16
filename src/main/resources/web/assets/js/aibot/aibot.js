@@ -11,11 +11,14 @@ class AiBot extends React.Component {
   constructor(props) {
     super(props)
     this._isShown = false
+    const savedDock = props.draggable ? $storage.get('__AiBotDockMode') : 'false'
+    this.state = { dockMode: !savedDock ? true : savedDock === 'true' }
   }
 
   render() {
+    const dockMode = this.state.dockMode
     return (
-      <div className="aibot modal" ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
+      <div className={`aibot modal${dockMode ? ' aibot-dock' : ''}`} ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -26,6 +29,9 @@ class AiBot extends React.Component {
               </button>
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('会话列表')}>
                 <span className="mdi mdi-segment" />
+              </button>
+              <button className="close dock-toggle" type="button" onClick={() => this.toggleDockMode()} title={dockMode ? $L('浮动模式') : $L('侧栏模式')}>
+                <span className={`mdi ${dockMode ? 'mdi-dock-window' : 'mdi-dock-right'}`} />
               </button>
               <button className="close hide2" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="mdi mdi-close" />
@@ -65,17 +71,42 @@ class AiBot extends React.Component {
     if (this.props.draggable) {
       $modalDraggable(this._$modal, {
         containment: false,
-        keepPositionKey: '__LastChatModalPos',
+        keepPositionKey: '__AiBotLastChatModalPos',
       })
       $(document).on('keydown.aibot-hide', null, 'esc', (e) => {
         if (e.isDefaultPrevented()) return
         if ($('.modal.show').length <= 1) this.hide()
       })
+
+      if (this.state.dockMode) {
+        const $dialog = $modal.find('.modal-dialog')
+        $dialog.draggable('disable')
+        $dialog.css({ left: '', top: '', right: '', bottom: '' })
+      }
     }
   }
 
   openChatSidebar() {
     this._Chat.toggleSidebar()
+  }
+
+  toggleDockMode() {
+    const dockMode = !this.state.dockMode
+    this.setState({ dockMode }, () => {
+      $storage.set('__AiBotDockMode', dockMode ? 'true' : 'false')
+      const $dialog = $(this._$modal).find('.modal-dialog')
+      if (dockMode) {
+        if (this.props.draggable) $dialog.draggable('disable')
+        $dialog.css({ left: '', top: '', right: '', bottom: '' })
+      } else if (this.props.draggable) {
+        $dialog.draggable('enable')
+        const last = $storage.get('__AiBotLastChatModalPos')
+        if (last) {
+          const [l, t] = last.split(',').map((v) => parseInt(v))
+          $dialog.css({ left: l, top: Math.max(-22, t), right: 'unset', bottom: 'unset' })
+        }
+      }
+    })
   }
 
   newChat() {
