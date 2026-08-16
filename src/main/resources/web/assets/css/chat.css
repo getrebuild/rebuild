@@ -27,7 +27,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 16px;
+  padding: 20px;
 }
 
 .chat-input {
@@ -125,7 +125,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-messages {
-  padding: 16px 16px 100px;
+  padding: 20px;
   height: 600px;
   overflow: auto;
 }
@@ -203,6 +203,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   height: 30px;
   display: inline-block;
   border-radius: 50%;
+}
+
+.chat-message .msg-ai > .avatar.avatar-busy img {
+  animation: avatar-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes avatar-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(66, 133, 244, 0);
+  }
 }
 
 .chat-message .msg-ai > .msg-content {
@@ -354,6 +368,27 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   overflow: hidden;
 }
 
+.aibot.aibot-dock {
+  z-index: 1029 !important;
+}
+
+.aibot.aibot-dock .modal-dialog {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  width: 600px;
+  max-width: 100vw;
+  height: auto;
+  min-height: 0;
+  box-shadow: -0.5rem 0 2rem rgba(0, 0, 0, 0.175) !important;
+}
+
+.aibot.aibot-dock .modal-header.ui-draggable-handle {
+  cursor: default;
+}
+
 .aibot .modal-content {
   margin: 0 auto;
   box-shadow: none !important;
@@ -405,7 +440,6 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   flex: 1;
   overflow-y: auto;
   position: relative;
-  padding-bottom: 16px;
 }
 
 .aibot .chat-input-container {

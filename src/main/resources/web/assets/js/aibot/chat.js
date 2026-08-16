@@ -131,10 +131,11 @@ class Chat extends React.Component {
     setTimeout(() => {
       this._ChatMessages.appendMessage({
         role: 'assistant',
-        sendResp: (cb) => {
+        sendResp: (onChunk) => {
           $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload`, JSON.stringify(data), (res) => {
             if (res._chatid) this.setState({ chatid: res._chatid })
-            typeof cb === 'function' && cb({ ...res })
+            typeof onChunk === 'function' && onChunk({ ...res })
+            typeof onChunk === 'function' && onChunk({ type: '_done' })
           })
         },
       })
@@ -149,7 +150,10 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
-          fetchStream(`${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`, data, onChunk, onDone)
+          fetchStream(`${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`, data, onChunk, () => {
+            typeof onChunk === 'function' && onChunk({ type: '_done' })
+            typeof onDone === 'function' && onDone()
+          })
         },
       })
     }, 20)
@@ -438,6 +442,10 @@ class ChatMessage extends React.Component {
     sendResp &&
       sendResp((data) => {
         data = data || {}
+        if (data.type === '_done') {
+          this.setState({ waitResp: -1 })
+          return
+        }
         if (data.error) {
           data.content = `<span class="text-danger">${data.error}</span>`
         }
@@ -527,9 +535,10 @@ class ChatMessage extends React.Component {
   }
 
   renderAi() {
+    const busy = this.props.sendResp && this.state.waitResp !== -1
     return (
       <div className="msg-ai">
-        <div className="avatar">
+        <div className={`avatar${busy ? ' avatar-busy' : ''}`}>
           <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
         </div>
         <div className="msg-content">
@@ -701,7 +710,7 @@ class ChatSidebar extends React.Component {
 
   componentDidUpdate(props, prevState) {
     if (prevState.current !== this.state.current) {
-      $storage.set('__LastChatId', this.state.current)
+      $storage.set('__AiBotLastChatId', this.state.current)
     }
   }
 
