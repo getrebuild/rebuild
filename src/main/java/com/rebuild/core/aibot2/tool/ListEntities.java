@@ -51,7 +51,7 @@ public class ListEntities implements Tool {
     private JSONObject getEntityMeta(String entityIdent) {
         Entity entity = ToolHelper.resolveEntity(entityIdent);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityIdent + ToolHelper.suggestEntity(entityIdent));
+            throw new KnownToolException("未知实体 : " + entityIdent + ToolHelper.suggestEntity(entityIdent));
         }
 
         JSONObject entityJson = EasyMetaFactory.toJSON(entity);

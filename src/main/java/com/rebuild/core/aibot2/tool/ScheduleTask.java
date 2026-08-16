@@ -54,7 +54,7 @@ public class ScheduleTask implements Tool {
             case "cancel":
                 return doCancel(args);
             default:
-                throw new ToolException("无效的操作类型: " + action + "，可选: create, list, cancel");
+                throw new KnownToolException("无效的操作类型: " + action + "，可选: create, list, cancel");
         }
     }
 
@@ -64,17 +64,17 @@ public class ScheduleTask implements Tool {
     private Object doCreate(JSONObject args) {
         String content = args.getString("content");
         if (StringUtils.isBlank(content)) {
-            throw new ToolException("任务内容 (content) 不能为空");
+            throw new KnownToolException("任务内容 (content) 不能为空");
         }
 
         String scheduleType = args.getString("scheduleType");
         if (StringUtils.isBlank(scheduleType)) {
-            throw new ToolException("调度类型 (scheduleType) 不能为空，可选: once, daily, weekly, monthly");
+            throw new KnownToolException("调度类型 (scheduleType) 不能为空，可选: once, daily, weekly, monthly");
         }
 
         if (!"once".equals(scheduleType) && !"daily".equals(scheduleType)
                 && !"weekly".equals(scheduleType) && !"monthly".equals(scheduleType)) {
-            throw new ToolException("无效的调度类型: " + scheduleType + "，可选: once, daily, weekly, monthly");
+            throw new KnownToolException("无效的调度类型: " + scheduleType + "，可选: once, daily, weekly, monthly");
         }
 
         final ID user = UserContextHolder.getUser();
@@ -87,17 +87,17 @@ public class ScheduleTask implements Tool {
         // 参数校验
         if ("once".equals(scheduleType)) {
             if (StringUtils.isBlank(executeTime)) {
-                throw new ToolException("一次性任务必须指定执行时间 (executeTime)");
+                throw new KnownToolException("一次性任务必须指定执行时间 (executeTime)");
             }
         } else {
             if (StringUtils.isBlank(time)) {
-                throw new ToolException("周期任务必须指定执行时间 (time)，格式 HH:mm，如 09:00");
+                throw new KnownToolException("周期任务必须指定执行时间 (time)，格式 HH:mm，如 09:00");
             }
             if ("weekly".equals(scheduleType) && (dayOfWeek == null || dayOfWeek < 1 || dayOfWeek > 7)) {
-                throw new ToolException("每周任务必须指定 dayOfWeek (1-7，1=周一，7=周日)");
+                throw new KnownToolException("每周任务必须指定 dayOfWeek (1-7，1=周一，7=周日)");
             }
             if ("monthly".equals(scheduleType) && (dayOfMonth == null || dayOfMonth < 1 || dayOfMonth > 31)) {
-                throw new ToolException("每月任务必须指定 dayOfMonth (1-31)");
+                throw new KnownToolException("每月任务必须指定 dayOfMonth (1-31)");
             }
         }
 
@@ -106,7 +106,7 @@ public class ScheduleTask implements Tool {
         if ("once".equals(scheduleType)) {
             nextExecTime = CommonsUtils.parseDate(executeTime);
             if (nextExecTime == null) {
-                throw new ToolException("无法解析执行时间: " + executeTime + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
+                throw new KnownToolException("无法解析执行时间: " + executeTime + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
             }
         } else {
             nextExecTime = calculateNextExecTime(scheduleType, time, dayOfWeek, dayOfMonth);
@@ -212,13 +212,13 @@ public class ScheduleTask implements Tool {
                 .unique();
 
         if (task == null) {
-            throw new ToolException("定时任务不存在或已删除: " + taskId);
+            throw new KnownToolException("定时任务不存在或已删除: " + taskId);
         }
 
         // 权限校验：仅创建者或管理员可取消
         ID createdBy = (ID) task[2];
         if (!user.equals(createdBy) && !UserHelper.isAdmin(user)) {
-            throw new ToolException("无权取消他人的定时任务");
+            throw new KnownToolException("无权取消他人的定时任务");
         }
 
         String name = (String) task[1];

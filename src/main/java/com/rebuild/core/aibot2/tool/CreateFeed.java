@@ -39,20 +39,20 @@ public class CreateFeed implements Tool {
 
         String content = args.getString("content");
         if (StringUtils.isBlank(content)) {
-            throw new ToolException("动态内容 (content) 不能为空");
+            throw new KnownToolException("动态内容 (content) 不能为空");
         }
 
         int type = args.getIntValue("type");
         if (type < 1) type = FeedsType.ACTIVITY.getMask();
         // 不允许通过 AI 创建公告
         if (type == FeedsType.ANNOUNCEMENT.getMask()) {
-            throw new ToolException("公告仅管理员可在前端发布，不支持通过 AI 创建。可选类型: 1=动态, 2=跟进, 4=日程");
+            throw new KnownToolException("公告仅管理员可在前端发布，不支持通过 AI 创建。可选类型: 1=动态, 2=跟进, 4=日程");
         }
         // 校验类型有效性
         if (type != FeedsType.ACTIVITY.getMask()
                 && type != FeedsType.FOLLOWUP.getMask()
                 && type != FeedsType.SCHEDULE.getMask()) {
-            throw new ToolException("无效的动态类型 (type)，可选值: 1=动态, 2=跟进, 4=日程");
+            throw new KnownToolException("无效的动态类型 (type)，可选值: 1=动态, 2=跟进, 4=日程");
         }
 
         Record record = EntityHelper.forNew(EntityHelper.Feeds, UserContextHolder.getUser());
@@ -92,7 +92,7 @@ public class CreateFeed implements Tool {
             if (StringUtils.isNotBlank(scheduleTime)) {
                 scheduleDate = CommonsUtils.parseDate(scheduleTime);
                 if (scheduleDate == null) {
-                    throw new ToolException("无法解析日程时间: " + scheduleTime + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
+                    throw new KnownToolException("无法解析日程时间: " + scheduleTime + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
                 }
             } else {
                 // 默认: 当前时间+1D

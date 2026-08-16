@@ -39,7 +39,7 @@ public class SearchHelp implements Tool {
 
         String keyword = args.getString("keyword");
         if (StringUtils.isBlank(keyword)) {
-            throw new ToolException("搜索关键词不能为空");
+            throw new KnownToolException("搜索关键词不能为空");
         }
 
         String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8.name());
@@ -50,7 +50,7 @@ public class SearchHelp implements Tool {
             html = OkHttpUtils.get(url);
         } catch (Exception ex) {
             log.error("Failed to fetch help docs : {}", keyword, ex);
-            throw new ToolException("无法访问帮助文档，请稍后重试");
+            throw new KnownToolException("无法访问帮助文档，请稍后重试");
         }
 
         Document doc = Jsoup.parse(html, DOCS_HOME);
@@ -62,7 +62,7 @@ public class SearchHelp implements Tool {
             // 搜索服务不可用
             if (errorText.contains("暂不可用") || errorText.contains("不可用")) {
                 log.warn("Help search service unavailable : {}", keyword);
-                throw new ToolException("帮助文档搜索服务暂不可用，请稍后重试或直接访问 " + DOCS_HOME);
+                throw new KnownToolException("帮助文档搜索服务暂不可用，请稍后重试或直接访问 " + DOCS_HOME);
             }
             // 无搜索结果
             if (errorText.contains("没有找到") || errorText.contains("未找到")) {

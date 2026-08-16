@@ -36,7 +36,7 @@ public class SearchKnowledge implements Tool {
 
         String query = args.getString("query");
         if (StringUtils.isBlank(query)) {
-            throw new ToolException("搜索查询语句不能为空");
+            throw new KnownToolException("搜索查询语句不能为空");
         }
 
         int topK = args.getIntValue("topK");

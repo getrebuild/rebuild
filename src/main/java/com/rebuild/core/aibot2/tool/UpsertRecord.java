@@ -65,10 +65,10 @@ public class UpsertRecord implements Tool {
         boolean outputJson = args.getBooleanValue("outputJson");
 
         if (StringUtils.isBlank(file) && StringUtils.isBlank(content)) {
-            throw new ToolException("文件或内容不能为空（需指定 file 或 content 参数之一）");
+            throw new KnownToolException("文件或内容不能为空（需指定 file 或 content 参数之一）");
         }
         if (StringUtils.isBlank(entityName)) {
-            throw new ToolException("实体名称不能为空");
+            throw new KnownToolException("实体名称不能为空");
         }
 
         String fileContent = StringUtils.isNotBlank(content)
@@ -77,12 +77,12 @@ public class UpsertRecord implements Tool {
 
         Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
+            throw new KnownToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
         // 校验实体权限
         if (!entity.isQueryable() || !MetadataHelper.isBusinessEntity(entity)) {
-            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持此操作");
+            throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持此操作");
         }
 
         String entityMetaDesc = buildEntityMetaDesc(entity);
@@ -92,7 +92,7 @@ public class UpsertRecord implements Tool {
 
         JSONObject recordJson = extractJson(aiResult);
         if (recordJson == null) {
-            throw new ToolException("AI 解析失败，无法提取有效 JSON : " + CommonsUtils.maxstr(aiResult, 500));
+            throw new KnownToolException("AI 解析失败，无法提取有效 JSON : " + CommonsUtils.maxstr(aiResult, 500));
         }
 
         ensureMetadata(recordJson, entity);
@@ -112,10 +112,10 @@ public class UpsertRecord implements Tool {
         // 校验创建/更新权限
         boolean isUpdate = StringUtils.isNotBlank(recordId) && ID.isId(recordId);
         if (!isUpdate && !entity.isCreatable()) {
-            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许新建记录");
+            throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许新建记录");
         }
         if (isUpdate && !entity.isUpdatable()) {
-            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许更新记录");
+            throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许更新记录");
         }
 
         Object detailsObj = recordJson.remove(GeneralEntityService.HAS_DETAILS);
@@ -173,7 +173,7 @@ public class UpsertRecord implements Tool {
         try {
             record = es.createOrUpdate(record);
         } catch (Exception ex) {
-            throw new ToolException("保存记录失败 : " + CommonsUtils.getRootMessage(ex), ex);
+            throw new KnownToolException("保存记录失败 : " + CommonsUtils.getRootMessage(ex), ex);
         } finally {
             GeneralEntityServiceContextHolder.getRepeatedCheckModeOnce();
             GeneralEntityServiceContextHolder.isSkipSeriesValue(true);

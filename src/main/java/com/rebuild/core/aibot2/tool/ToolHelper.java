@@ -57,7 +57,7 @@ public class ToolHelper {
      */
     public static ID resolveId(String idStr, String notNullParam) {
         if (ID.isId(idStr)) return ID.valueOf(idStr);
-        throw new ToolException(notNullParam + " 不是有效的 ID: " + idStr);
+        throw new KnownToolException(notNullParam + " 不是有效的 ID: " + idStr);
     }
 
     /**
@@ -133,7 +133,7 @@ public class ToolHelper {
                     new String[]{"name", "label"},
                     new Object[]{e.getName(), EasyMetaFactory.getLabel(e)}));
         }
-        throw new ToolException("匹配到多个实体，请指定更精确的名称: " + list.toJSONString());
+        throw new KnownToolException("匹配到多个实体，请指定更精确的名称: " + list.toJSONString());
     }
 
     /**

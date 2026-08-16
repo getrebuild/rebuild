@@ -259,7 +259,9 @@ class ChatInput extends React.Component {
   }
 
   hanldeSend() {
+    if (this.state.postState !== 0) return
     if ($empty(this.state.content)) return
+
     const data = {
       role: 'user',
       content: this.state.content,

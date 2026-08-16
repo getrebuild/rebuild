@@ -96,18 +96,18 @@ public class ToolDefs {
         Tool tool = TOOL_MAP.get(toolName);
         if (tool == null) {
             log.warn("Tool not found : {}", toolName);
-            throw new ToolException("Tool not found: " + toolName);
+            throw new KnownToolException("Tool not found: " + toolName);
         }
 
         if (isToolDisabled(toolName)) {
             log.warn("Tool disabled : {}", toolName);
-            throw new ToolException("Tool disabled: " + toolName);
+            throw new KnownToolException("Tool disabled: " + toolName);
         }
 
         // 管理员专属工具验证权限
         if (tool instanceof AdminGuard && !UserHelper.isAdmin(user)) {
             log.warn("Tool requires admin : {} by {}", toolName, user);
-            throw new ToolException("此操作仅限管理员使用");
+            throw new KnownToolException("此操作仅限管理员使用");
         }
 
         // 统一空值保护
@@ -120,8 +120,11 @@ public class ToolDefs {
             log.info("Tool result: {}", toolRes);
             return toolRes;
 
+        } catch (KnownToolException ex) {
+            // 已知业务异常（如参数校验失败、实体不存在），仅记录消息不输出堆栈
+            log.warn("Tool execution blocked : {} - {}", toolName, ex.getMessage());
+            throw ex;
         } catch (ToolException ex) {
-            // ToolException 已含明确错误信息，直接抛出避免二次包装丢失信息
             log.error("Tool execution failed : {}", toolName, ex);
             throw ex;
         } catch (Exception ex) {

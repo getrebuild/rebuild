@@ -44,12 +44,12 @@ public class CreateProjectTask implements Tool {
 
         String taskName = args.getString("taskName");
         if (StringUtils.isBlank(taskName)) {
-            throw new ToolException("任务标题 (taskName) 不能为空");
+            throw new KnownToolException("任务标题 (taskName) 不能为空");
         }
 
         String project = args.getString("project");
         if (StringUtils.isBlank(project)) {
-            throw new ToolException("项目 (project) 不能为空，请提供项目名称或ID");
+            throw new KnownToolException("项目 (project) 不能为空，请提供项目名称或ID");
         }
 
         final ID user = UserContextHolder.getUser();
@@ -61,7 +61,7 @@ public class CreateProjectTask implements Tool {
         // 验证成员权限
         Set<ID> members = projectConfig.get("members", Set.class);
         if (!members.contains(user)) {
-            throw new ToolException("你不是项目 [" + projectConfig.getString("projectName") + "] 的成员，无法创建任务");
+            throw new KnownToolException("你不是项目 [" + projectConfig.getString("projectName") + "] 的成员，无法创建任务");
         }
 
         // 解析任务面板
@@ -84,7 +84,7 @@ public class CreateProjectTask implements Tool {
         if (StringUtils.isNotBlank(deadline)) {
             Date deadlineDate = CommonsUtils.parseDate(deadline);
             if (deadlineDate == null) {
-                throw new ToolException("无法解析截止时间: " + deadline + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
+                throw new KnownToolException("无法解析截止时间: " + deadline + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
             }
             record.setDate("deadline", deadlineDate);
         }
@@ -142,7 +142,7 @@ public class CreateProjectTask implements Tool {
         }
 
         if (matched.isEmpty()) {
-            throw new ToolException("未找到匹配的项目: " + projectIdent);
+            throw new KnownToolException("未找到匹配的项目: " + projectIdent);
         }
         if (matched.size() == 1) {
             return matched.get(0);
@@ -154,7 +154,7 @@ public class CreateProjectTask implements Tool {
                     new String[]{"id", "name"},
                     new Object[]{p.getID("id").toLiteral(), p.getString("projectName")}));
         }
-        throw new ToolException("匹配到多个项目，请指定更精确的名称或ID: " + list.toJSONString());
+        throw new KnownToolException("匹配到多个项目，请指定更精确的名称或ID: " + list.toJSONString());
     }
 
     /**
@@ -169,7 +169,7 @@ public class CreateProjectTask implements Tool {
                     return plan.getID("id");
                 }
             }
-            throw new ToolException("该项目下没有可新建任务的面板");
+            throw new KnownToolException("该项目下没有可新建任务的面板");
         }
 
         if (ID.isId(planIdent)) {
@@ -183,6 +183,6 @@ public class CreateProjectTask implements Tool {
             }
         }
 
-        throw new ToolException("未找到匹配的任务面板: " + planIdent);
+        throw new KnownToolException("未找到匹配的任务面板: " + planIdent);
     }
 }

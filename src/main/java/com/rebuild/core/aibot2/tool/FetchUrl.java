@@ -45,7 +45,7 @@ public class FetchUrl implements Tool {
 
         String url = args.getString("url");
         if (StringUtils.isBlank(url)) {
-            throw new ToolException("URL 不能为空");
+            throw new KnownToolException("URL 不能为空");
         }
         CommonsUtils.checkUrlSafe(url);
 

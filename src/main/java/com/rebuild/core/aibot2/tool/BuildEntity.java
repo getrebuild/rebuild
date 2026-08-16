@@ -35,7 +35,7 @@ public class BuildEntity implements Tool, AdminGuard {
 
         String entityLabel = args.getString("entityLabel");
         if (StringUtils.isBlank(entityLabel)) {
-            throw new ToolException("实体名称 (entityLabel) 不能为空");
+            throw new KnownToolException("实体名称 (entityLabel) 不能为空");
         }
 
         // 主实体（可选，指定后创建为明细实体）
@@ -43,10 +43,10 @@ public class BuildEntity implements Tool, AdminGuard {
         if (StringUtils.isNotBlank(mainEntity)) {
             Entity useMain = ToolHelper.resolveEntity(mainEntity);
             if (useMain == null) {
-                throw new ToolException("无效主实体 : " + mainEntity + ToolHelper.suggestEntity(mainEntity));
+                throw new KnownToolException("无效主实体 : " + mainEntity + ToolHelper.suggestEntity(mainEntity));
             }
             if (useMain.getMainEntity() != null) {
-                throw new ToolException("明细实体不能作为主实体");
+                throw new KnownToolException("明细实体不能作为主实体");
             }
             mainEntity = useMain.getName();
         }

@@ -44,7 +44,7 @@ public class UploadFile implements Tool {
         String fileName = args.getString("fileName");
 
         if (StringUtils.isBlank(base64) && StringUtils.isBlank(url)) {
-            throw new ToolException("请提供 base64 或 url 参数");
+            throw new KnownToolException("请提供 base64 或 url 参数");
         }
 
         File tmpFile = null;
@@ -71,7 +71,7 @@ public class UploadFile implements Tool {
 
                 tmpFile = OkHttpUtils.readBinary(url);
                 if (tmpFile == null || !tmpFile.exists()) {
-                    throw new ToolException("无法从 URL 下载文件: " + url);
+                    throw new KnownToolException("无法从 URL 下载文件: " + url);
                 }
 
                 if (StringUtils.isBlank(fileName)) {
@@ -85,16 +85,16 @@ public class UploadFile implements Tool {
             }
 
             if (!tmpFile.exists() || FileUtils.sizeOf(tmpFile) == 0) {
-                throw new ToolException("文件内容为空");
+                throw new KnownToolException("文件内容为空");
             }
 
             long fileSize = FileUtils.sizeOf(tmpFile);
             if (fileSize > MAX_FILE_SIZE) {
-                throw new ToolException("文件大小超过限制（50MB），当前文件大小：" + (fileSize / 1024 / 1024) + "MB");
+                throw new KnownToolException("文件大小超过限制（50MB），当前文件大小：" + (fileSize / 1024 / 1024) + "MB");
             }
             String fileKey = QiniuCloud.uploadFile(tmpFile, finalFileName);
             if (fileKey == null) {
-                throw new ToolException("文件上传失败，请稍后重试");
+                throw new KnownToolException("文件上传失败，请稍后重试");
             }
 
             // 缓存文件大小

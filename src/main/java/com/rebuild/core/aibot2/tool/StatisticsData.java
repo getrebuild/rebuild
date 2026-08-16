@@ -39,21 +39,21 @@ public class StatisticsData implements Tool {
 
         String entityName = args.getString("entity");
         if (StringUtils.isBlank(entityName)) {
-            throw new ToolException("实体名称不能为空");
+            throw new KnownToolException("实体名称不能为空");
         }
 
         Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
+            throw new KnownToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
         String aggFunc = args.getString("aggFunc");
         if (StringUtils.isBlank(aggFunc)) {
-            throw new ToolException("聚合函数 (aggFunc) 不能为空");
+            throw new KnownToolException("聚合函数 (aggFunc) 不能为空");
         }
         aggFunc = aggFunc.toUpperCase();
         if (!isValidAggFunc(aggFunc)) {
-            throw new ToolException("不支持的聚合函数 : " + aggFunc + "（支持 COUNT/SUM/AVG/MAX/MIN）");
+            throw new KnownToolException("不支持的聚合函数 : " + aggFunc + "（支持 COUNT/SUM/AVG/MAX/MIN）");
         }
 
         String aggField = args.getString("aggField");
@@ -72,7 +72,7 @@ public class StatisticsData implements Tool {
         try {
             whereClause = ToolHelper.parseFilterToWhere(entity, filter, equation);
         } catch (Exception ex) {
-            throw new ToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
         }
 
         // 有分组
@@ -118,14 +118,14 @@ public class StatisticsData implements Tool {
             gf = gf.trim();
             if (StringUtils.isBlank(gf)) continue;
             if (!entity.containsField(gf)) {
-                throw new ToolException("分组字段不存在 : " + gf + ToolHelper.suggestField(entity, gf));
+                throw new KnownToolException("分组字段不存在 : " + gf + ToolHelper.suggestField(entity, gf));
             }
             groupFields.add(entity.getField(gf));
             groupFieldNames.add(gf);
         }
 
         if (groupFields.isEmpty()) {
-            throw new ToolException("分组字段无效");
+            throw new KnownToolException("分组字段无效");
         }
 
         String groupFieldsSql = StringUtils.join(groupFieldNames, ",");
@@ -175,12 +175,12 @@ public class StatisticsData implements Tool {
         }
 
         if (StringUtils.isBlank(aggField) || "*".equals(aggField.trim())) {
-            throw new ToolException(aggFunc + " 聚合必须指定 aggField（数值或日期字段）。"
+            throw new KnownToolException(aggFunc + " 聚合必须指定 aggField（数值或日期字段）。"
                     + "实体 [" + EasyMetaFactory.getLabel(entity) + "] 可用字段: " + ToolHelper.listFields(entity));
         }
 
         if (!entity.containsField(aggField)) {
-            throw new ToolException("聚合字段不存在 : " + aggField + ToolHelper.suggestField(entity, aggField));
+            throw new KnownToolException("聚合字段不存在 : " + aggField + ToolHelper.suggestField(entity, aggField));
         }
 
         return aggField;

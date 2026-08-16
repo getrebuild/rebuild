@@ -41,12 +41,12 @@ public class QueryRecords implements Tool {
 
         String entityName = args.getString("entity");
         if (StringUtils.isBlank(entityName)) {
-            throw new ToolException("实体名称不能为空");
+            throw new KnownToolException("实体名称不能为空");
         }
 
         Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
+            throw new KnownToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
         String name = args.getString("name");
@@ -111,7 +111,7 @@ public class QueryRecords implements Tool {
         }
 
         if (searchFields.isEmpty()) {
-            throw new ToolException("该实体没有可搜索的名称或编号字段");
+            throw new KnownToolException("该实体没有可搜索的名称或编号字段");
         }
 
         String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
@@ -147,11 +147,11 @@ public class QueryRecords implements Tool {
         try {
             whereClause = ToolHelper.parseFilterToWhere(entity, filter, equation);
         } catch (Exception ex) {
-            throw new ToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
         }
 
         if (StringUtils.isBlank(whereClause)) {
-            throw new ToolException("过滤条件无效，请检查字段名和操作符是否正确");
+            throw new KnownToolException("过滤条件无效，请检查字段名和操作符是否正确");
         }
 
         String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
@@ -200,7 +200,7 @@ public class QueryRecords implements Tool {
         String direction = parts.length > 1 && "asc".equalsIgnoreCase(parts[1].trim()) ? "asc" : "desc";
 
         if (!entity.containsField(sortField)) {
-            throw new ToolException("排序字段不存在 : " + sortField + ToolHelper.suggestField(entity, sortField));
+            throw new KnownToolException("排序字段不存在 : " + sortField + ToolHelper.suggestField(entity, sortField));
         }
 
         return " order by " + sortField + " " + direction;

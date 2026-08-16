@@ -58,12 +58,12 @@ public class ExportReport implements Tool {
 
         String entityName = args.getString("entity");
         if (StringUtils.isBlank(entityName)) {
-            throw new ToolException("实体名称不能为空");
+            throw new KnownToolException("实体名称不能为空");
         }
 
         Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
+            throw new KnownToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
         String report = args.getString("reportId");
@@ -85,7 +85,7 @@ public class ExportReport implements Tool {
         }
 
         if (StringUtils.isBlank(record)) {
-            throw new ToolException("请提供要导出报表的记录名称或编号 (record)");
+            throw new KnownToolException("请提供要导出报表的记录名称或编号 (record)");
         }
 
         if (ID.isId(record)) {
@@ -117,7 +117,7 @@ public class ExportReport implements Tool {
     private JSONObject searchAndExport(Entity entity, ID reportId, TemplateFile tt, String keyword) {
         Set<String> searchFields = ParseHelper.buildQuickFields(entity, null);
         if (searchFields.isEmpty()) {
-            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 无可搜索字段");
+            throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 无可搜索字段");
         }
 
         String like = " like '%" + CommonsUtils.escapeSql(keyword) + "%'";
@@ -173,7 +173,7 @@ public class ExportReport implements Tool {
             }
 
             if (reportGenerator == null) {
-                throw new ToolException("当前环境不支持此类型报表的导出");
+                throw new KnownToolException("当前环境不支持此类型报表的导出");
             }
             reportGenerator.setReportId(reportId);
             output = reportGenerator.generate();
@@ -181,11 +181,11 @@ public class ExportReport implements Tool {
             throw ex;
         } catch (Exception ex) {
             log.error("Report export failed : {} / {}", reportId, recordId, ex);
-            throw new ToolException("报表生成失败 : " + CommonsUtils.getRootMessage(ex));
+            throw new KnownToolException("报表生成失败 : " + CommonsUtils.getRootMessage(ex));
         }
 
         if (output == null) {
-            throw new ToolException("无法输出报表，请检查报表模板是否有误");
+            throw new KnownToolException("无法输出报表，请检查报表模板是否有误");
         }
 
         String fileName = DataReportManager.getPrettyReportName(reportId, recordId, output.getName());
@@ -252,11 +252,11 @@ public class ExportReport implements Tool {
             exportCount = exporter.getExportCount();
         } catch (Exception ex) {
             log.error("List report export failed : {} / {}", reportId, keyword, ex);
-            throw new ToolException("列表报表生成失败 : " + CommonsUtils.getRootMessage(ex));
+            throw new KnownToolException("列表报表生成失败 : " + CommonsUtils.getRootMessage(ex));
         }
 
         if (output == null) {
-            throw new ToolException("无法输出报表，请检查报表模板是否有误");
+            throw new KnownToolException("无法输出报表，请检查报表模板是否有误");
         }
 
         String fileName = DataReportManager.getPrettyReportName(reportId, entity.getName(), output.getName());
@@ -275,7 +275,7 @@ public class ExportReport implements Tool {
             try {
                 output = ((ReportsFile) output).toZip(false);
             } catch (IOException e) {
-                throw new ToolException("报表打包失败 : " + e.getMessage());
+                throw new KnownToolException("报表打包失败 : " + e.getMessage());
             }
         }
 

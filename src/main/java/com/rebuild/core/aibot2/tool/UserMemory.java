@@ -52,7 +52,7 @@ public class UserMemory implements Tool {
 
         String action = args.getString("action");
         if (StringUtils.isBlank(action)) {
-            throw new ToolException("action 参数不能为空，可选值: add/update/delete/list");
+            throw new KnownToolException("action 参数不能为空，可选值: add/update/delete/list");
         }
 
         ID user = UserContextHolder.getUser();
@@ -61,7 +61,7 @@ public class UserMemory implements Tool {
             case "add": {
                 String content = args.getString("content");
                 if (StringUtils.isBlank(content)) {
-                    throw new ToolException("add 操作必须提供 content 参数（记忆内容）");
+                    throw new KnownToolException("add 操作必须提供 content 参数（记忆内容）");
                 }
                 Integer level = args.getInteger("level");
                 message = add(user, content, level == null ? 2 : level);
@@ -72,10 +72,10 @@ public class UserMemory implements Tool {
                 String oldContent = args.getString("oldContent");
                 String content = args.getString("content");
                 if (StringUtils.isBlank(content)) {
-                    throw new ToolException("update 操作必须提供 content 参数（新内容）");
+                    throw new KnownToolException("update 操作必须提供 content 参数（新内容）");
                 }
                 if (StringUtils.isBlank(memoryId) && StringUtils.isBlank(oldContent)) {
-                    throw new ToolException("update 操作必须提供 memoryId 或 oldContent 参数（可先通过 list 查看）");
+                    throw new KnownToolException("update 操作必须提供 memoryId 或 oldContent 参数（可先通过 list 查看）");
                 }
                 message = update(user, memoryId, oldContent, content, args.getInteger("level"));
                 break;
@@ -84,7 +84,7 @@ public class UserMemory implements Tool {
                 String memoryId = args.getString("memoryId");
                 String content = args.getString("content");
                 if (StringUtils.isBlank(memoryId) && StringUtils.isBlank(content)) {
-                    throw new ToolException("delete 操作必须提供 memoryId 或 content 参数（可先通过 list 查看）");
+                    throw new KnownToolException("delete 操作必须提供 memoryId 或 content 参数（可先通过 list 查看）");
                 }
                 message = delete(user, memoryId, content);
                 break;
@@ -94,7 +94,7 @@ public class UserMemory implements Tool {
                 break;
             }
             default:
-                throw new ToolException("无效的 action: " + action + "，可选值: add/update/delete/list");
+                throw new KnownToolException("无效的 action: " + action + "，可选值: add/update/delete/list");
         }
 
         return JSONUtils.toJSONObject(

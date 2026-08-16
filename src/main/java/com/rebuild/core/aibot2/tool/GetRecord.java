@@ -36,18 +36,18 @@ public class GetRecord implements Tool {
 
         String entityName = args.getString("entity");
         if (StringUtils.isBlank(entityName)) {
-            throw new ToolException("实体名称不能为空");
+            throw new KnownToolException("实体名称不能为空");
         }
 
         Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
+            throw new KnownToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
         ID recordId = ToolHelper.resolveId(args.getString("recordId"), "recordId");
         // 校验实体匹配
         if (recordId.getEntityCode() != entity.getEntityCode()) {
-            throw new ToolException("记录ID与实体不匹配，记录ID对应的实体为 : "
+            throw new KnownToolException("记录ID与实体不匹配，记录ID对应的实体为 : "
                     + EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode())));
         }
 
@@ -64,7 +64,7 @@ public class GetRecord implements Tool {
 
         Object[] row = Application.createQuery(sql).unique();
         if (row == null || row.length == 0) {
-            throw new ToolException("未找到记录或无权限访问 : " + recordId);
+            throw new KnownToolException("未找到记录或无权限访问 : " + recordId);
         }
 
         JSONObject recordJson = ToolHelper.buildRecordJson(entity, primaryField, nameField, queryFields, row);

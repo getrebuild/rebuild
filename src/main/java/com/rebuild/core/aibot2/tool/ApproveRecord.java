@@ -45,7 +45,7 @@ public class ApproveRecord implements Tool {
         ID record = ToolHelper.resolveId(args.getString("recordId"), "recordId");
         String action = args.getString("action");
         if (StringUtils.isBlank(action)) {
-            throw new ToolException("操作类型 (action) 不能为空，可选: submit, approve, reject, cancel, revoke, state");
+            throw new KnownToolException("操作类型 (action) 不能为空，可选: submit, approve, reject, cancel, revoke, state");
         }
 
         switch (action.toLowerCase()) {
@@ -62,7 +62,7 @@ public class ApproveRecord implements Tool {
             case "state":
                 return doGetState(record);
             default:
-                throw new ToolException("不支持的操作类型 (action): " + action + "，可选: submit, approve, reject, cancel, revoke, state");
+                throw new KnownToolException("不支持的操作类型 (action): " + action + "，可选: submit, approve, reject, cancel, revoke, state");
         }
     }
 
@@ -73,13 +73,13 @@ public class ApproveRecord implements Tool {
         // 验证实体支持审批
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         if (!MetadataHelper.hasApprovalField(entity)) {
-            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持审批");
+            throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持审批");
         }
 
         // 获取可用审批流程
         FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, UserContextHolder.getUser());
         if (defs.length == 0) {
-            throw new ToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 未配置审批流程，无法提交审批。"
+            throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 未配置审批流程，无法提交审批。"
                     + "请管理员在「配置中心 - 审批流程」中为该实体配置审批流程");
         }
 
@@ -95,7 +95,7 @@ public class ApproveRecord implements Tool {
                 }
             }
             if (useDef == null) {
-                throw new ToolException("指定的审批流程不可用或无权限: " + approvalId);
+                throw new KnownToolException("指定的审批流程不可用或无权限: " + approvalId);
             }
         } else {
             // 默认使用第一个可用流程
@@ -111,7 +111,7 @@ public class ApproveRecord implements Tool {
                     new Object[]{"ok", approvalId.toLiteral(), useDef.getString("name"),
                             "已成功提交审批"});
         } else {
-            throw new ToolException("提交审批失败，审批流程 [" + useDef.getString("name")
+            throw new KnownToolException("提交审批失败，审批流程 [" + useDef.getString("name")
                     + "] 的首个审批节点未配置审批人，请管理员检查流程配置");
         }
     }
@@ -122,7 +122,7 @@ public class ApproveRecord implements Tool {
     private Object doApprove(ID recordId, JSONObject args, boolean approve) throws Exception {
         ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);
         if (status.getCurrentState() != ApprovalState.PROCESSING) {
-            throw new ToolException("记录当前审批状态为 [" + status.getCurrentState().getName() + "]，无法审批");
+            throw new KnownToolException("记录当前审批状态为 [" + status.getCurrentState().getName() + "]，无法审批");
         }
 
         String remark = args.getString("remark");
@@ -143,7 +143,7 @@ public class ApproveRecord implements Tool {
                     new Object[]{"ok", "审批已" + actionName});
 
         } catch (ApprovalException ex) {
-            throw new ToolException(ex.getMessage(), ex);
+            throw new KnownToolException(ex.getMessage(), ex);
         }
     }
 
@@ -158,7 +158,7 @@ public class ApproveRecord implements Tool {
                     new String[]{"status", "message"},
                     new Object[]{"ok", "审批已撤回"});
         } catch (ApprovalException ex) {
-            throw new ToolException(ex.getMessage(), ex);
+            throw new KnownToolException(ex.getMessage(), ex);
         }
     }
 
@@ -173,7 +173,7 @@ public class ApproveRecord implements Tool {
                     new String[]{"status", "message"},
                     new Object[]{"ok", "审批已撤销"});
         } catch (ApprovalException ex) {
-            throw new ToolException(ex.getMessage(), ex);
+            throw new KnownToolException(ex.getMessage(), ex);
         }
     }
 

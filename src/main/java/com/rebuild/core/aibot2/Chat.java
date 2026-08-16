@@ -21,8 +21,8 @@ import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
 import com.openai.models.chat.completions.ChatCompletionToolMessageParam;
 import com.openai.services.blocking.chat.ChatCompletionService;
 import com.rebuild.core.DefinedException;
+import com.rebuild.core.aibot2.tool.KnownToolException;
 import com.rebuild.core.aibot2.tool.ToolDefs;
-import com.rebuild.core.aibot2.tool.ToolException;
 import com.rebuild.core.service.approval.ApprovalException;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.CommonsUtils;
@@ -308,18 +308,22 @@ public class Chat implements Serializable {
         try {
             return ToolDefs.execute(toolName, arguments);
         } catch (Exception ex) {
-            log.error("Tool execution failed in chat : {}", toolName, ex);
-
-            // 优先使用 ToolException 自身消息（含上下文），否则取根因消息
-            String message = ex instanceof ToolException && StringUtils.isNotBlank(ex.getMessage())
-                    ? ex.getMessage() : CommonsUtils.getRootMessage(ex);
-
-            // 系统已知业务异常（如数据校验失败），禁止 AI 自行修正数据绕过校验
+            // 系统已知业务异常（如数据校验失败）
             if (isKnownBusinessException(ex)) {
+                String message = CommonsUtils.getRootMessage(ex);
+                log.warn("Tool execution blocked in chat : {} - {}", toolName, message);
                 return "[业务校验错误] 此为系统已知的业务异常，请将以下错误信息如实反馈给用户，"
                         + "不要尝试修改数据或参数以绕过校验。\n错误信息: " + message;
             }
-            return message;
+
+            // 工具层已知业务异常（如参数校验失败、实体不存在），可修正后重试
+            if (ex instanceof KnownToolException) {
+                log.warn("Tool execution blocked in chat : {} - {}", toolName, ex.getMessage());
+                return ex.getMessage();
+            }
+
+            log.error("Tool execution failed in chat : {}", toolName, ex);
+            return CommonsUtils.getRootMessage(ex);
         }
     }
 

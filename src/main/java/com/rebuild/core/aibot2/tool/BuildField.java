@@ -58,16 +58,16 @@ public class BuildField implements Tool, AdminGuard {
 
         String entityIdent = args.getString("entity");
         if (StringUtils.isBlank(entityIdent)) {
-            throw new ToolException("实体 (entity) 不能为空");
+            throw new KnownToolException("实体 (entity) 不能为空");
         }
         Entity entity = ToolHelper.resolveEntity(entityIdent);
         if (entity == null) {
-            throw new ToolException("未知实体 : " + entityIdent + ToolHelper.suggestEntity(entityIdent));
+            throw new KnownToolException("未知实体 : " + entityIdent + ToolHelper.suggestEntity(entityIdent));
         }
 
         String fieldLabel = args.getString("fieldLabel");
         if (StringUtils.isBlank(fieldLabel)) {
-            throw new ToolException("字段名称 (fieldLabel) 不能为空");
+            throw new KnownToolException("字段名称 (fieldLabel) 不能为空");
         }
 
         DisplayType dt = parseDisplayType(args.getString("type"));
@@ -82,11 +82,11 @@ public class BuildField implements Tool, AdminGuard {
             // 引用字段必须指定引用实体
             String refIdent = args.getString("refEntity");
             if (StringUtils.isBlank(refIdent)) {
-                throw new ToolException("引用字段必须指定引用实体 (refEntity)");
+                throw new KnownToolException("引用字段必须指定引用实体 (refEntity)");
             }
             Entity ref = ToolHelper.resolveEntity(refIdent);
             if (ref == null) {
-                throw new ToolException("无效引用实体 : " + refIdent + ToolHelper.suggestEntity(refIdent));
+                throw new KnownToolException("无效引用实体 : " + refIdent + ToolHelper.suggestEntity(refIdent));
             }
             refEntity = ref.getName();
 
@@ -94,7 +94,7 @@ public class BuildField implements Tool, AdminGuard {
             // 下拉列表/多选必须指定选项
             options = args.getJSONArray("options");
             if (options == null || options.isEmpty()) {
-                throw new ToolException("下拉列表/多选字段必须指定选项 (options)，如 [\"选项1\", \"选项2\"]");
+                throw new KnownToolException("下拉列表/多选字段必须指定选项 (options)，如 [\"选项1\", \"选项2\"]");
             }
 
         } else if (dt == DisplayType.CLASSIFICATION) {
@@ -148,18 +148,18 @@ public class BuildField implements Tool, AdminGuard {
      */
     private DisplayType parseDisplayType(String typeStr) {
         if (StringUtils.isBlank(typeStr)) {
-            throw new ToolException("字段类型 (type) 不能为空，可用类型: " + buildAllowedTypesDesc());
+            throw new KnownToolException("字段类型 (type) 不能为空，可用类型: " + buildAllowedTypesDesc());
         }
 
         DisplayType dt;
         try {
             dt = DisplayType.valueOf(typeStr.toUpperCase());
         } catch (IllegalArgumentException ex) {
-            throw new ToolException("无效字段类型 : " + typeStr + "，可用类型: " + buildAllowedTypesDesc());
+            throw new KnownToolException("无效字段类型 : " + typeStr + "，可用类型: " + buildAllowedTypesDesc());
         }
 
         if (!ALLOWED_TYPES.contains(dt)) {
-            throw new ToolException("不支持创建该字段类型 : " + typeStr + "，可用类型: " + buildAllowedTypesDesc());
+            throw new KnownToolException("不支持创建该字段类型 : " + typeStr + "，可用类型: " + buildAllowedTypesDesc());
         }
         return dt;
     }
@@ -242,7 +242,7 @@ public class BuildField implements Tool, AdminGuard {
      */
     private ID resolveClassification(String ident) {
         if (StringUtils.isBlank(ident)) {
-            throw new ToolException("分类字段必须指定分类数据 (classification)");
+            throw new KnownToolException("分类字段必须指定分类数据 (classification)");
         }
 
         Object[][] array = Application.createQueryNoFilter(
@@ -265,7 +265,7 @@ public class BuildField implements Tool, AdminGuard {
         List<String> names = new ArrayList<>();
         for (Object[] row : fuzzy) names.add((String) row[1]);
         String suggest = names.isEmpty() ? "" : "，可用分类: " + StringUtils.join(names, ", ");
-        throw new ToolException("未找到匹配的分类数据 : " + ident + suggest);
+        throw new KnownToolException("未找到匹配的分类数据 : " + ident + suggest);
     }
 
     /**
@@ -288,7 +288,7 @@ public class BuildField implements Tool, AdminGuard {
         }
 
         if (showItems.isEmpty()) {
-            throw new ToolException("下拉列表/多选字段必须指定有效选项 (options)");
+            throw new KnownToolException("下拉列表/多选字段必须指定有效选项 (options)");
         }
 
         JSONObject config = new JSONObject(true);
