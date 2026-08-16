@@ -504,8 +504,6 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   word-break: break-all;
 }
 
-/* 引导问题 */
-
 .chat-suggest {
   padding: 0;
   padding-left: 42px;
@@ -513,10 +511,14 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
 
 .chat-suggest .badge {
   font-size: 1rem;
-  padding: 6px 14px;
+  padding: 5px 11px;
+  margin: 0;
+  margin-bottom: 5px;
+  margin-right: 5px;
 }
 
 .chat-suggest .badge:hover {
   background-color: var(--rb-theme-color);
+  border-color: var(--rb-theme-color);
   color: #fff !important;
 }

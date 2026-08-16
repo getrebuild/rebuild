@@ -136,6 +136,10 @@ class Chat extends React.Component {
             if (res._chatid) this.setState({ chatid: res._chatid })
             typeof onChunk === 'function' && onChunk({ ...res })
             typeof onChunk === 'function' && onChunk({ type: '_done' })
+          }).fail((xhr) => {
+            const err = (xhr.responseJSON && xhr.responseJSON.error_msg) || $L('请求失败，请重试')
+            typeof onChunk === 'function' && onChunk({ error: err })
+            typeof onChunk === 'function' && onChunk({ type: '_done' })
           })
         },
       })
@@ -369,8 +373,8 @@ class ChatMessages extends React.Component {
             <div className="text-muted mb-1 fs-13">{$L('你可以问我')}</div>
             <div className="d-flex flex-wrap">
               {this.state.suggestQuestions.map((q, idx) => (
-                <a key={idx} className="badge badge-pill mr-1 mb-1" onClick={() => this._handleSuggestClick(q)}>
-                  <i className="mdi mdi-chat-processing-outline mr-1" />
+                <a key={idx} className="badge badge-pill" onClick={() => this._handleSuggestClick(q)}>
+                  <i className="mdi mdi-chat-plus-outline mr-1" />
                   {q}
                 </a>
               ))}
