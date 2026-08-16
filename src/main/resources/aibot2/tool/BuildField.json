@@ -1,0 +1,53 @@
+{
+  "type": "function",
+  "function": {
+    "name": "BuildField",
+    "description": "在已有实体中新建字段（需管理员权限）。先用 ListEntities 查看实体已有字段，避免重复创建。字段类型可用: TEXT(文本)、NTEXT(多行文本)、NUMBER(整数)、DECIMAL(小数)、DATE(日期)、DATETIME(日期时间)、TIME(时间)、BOOL(复选框)、EMAIL(邮箱)、URL(链接)、PHONE(电话)、LOCATION(位置)、TAG(标签)、SERIES(自动编号)、IMAGE(图片)、FILE(附件)、PICKLIST(下拉列表)、MULTISELECT(多选)、CLASSIFICATION(分类)、REFERENCE(引用)、N2NREFERENCE(多引用)。REFERENCE/N2NREFERENCE 必须提供引用实体，PICKLIST/MULTISELECT 必须提供选项",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "所属实体名称"
+        },
+        "fieldLabel": {
+          "type": "string",
+          "description": "字段名称，如「联系电话」「合同金额」"
+        },
+        "type": {
+          "type": "string",
+          "description": "字段类型，可选值: TEXT(文本)、NTEXT(多行文本)、NUMBER(整数)、DECIMAL(小数)、DATE(日期)、DATETIME(日期时间)、TIME(时间)、BOOL(复选框)、EMAIL(邮箱)、URL(链接)、PHONE(电话)、LOCATION(位置)、TAG(标签)、SERIES(自动编号)、IMAGE(图片)、FILE(附件)、PICKLIST(下拉列表)、MULTISELECT(多选)、CLASSIFICATION(分类)、REFERENCE(引用)、N2NREFERENCE(多引用)"
+        },
+        "refEntity": {
+          "type": "string",
+          "description": "引用实体名称。type 为 REFERENCE 或 N2NREFERENCE 时必填"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "选项列表。type 为 PICKLIST 或 MULTISELECT 时必填，如 [\"进行中\", \"已完成\"]。支持对象格式 {text, color} 指定选项颜色"
+        },
+        "classification": {
+          "type": "string",
+          "description": "分类数据名称或 ID。type 为 CLASSIFICATION 时必填，如「省市县」"
+        },
+        "seriesFormat": {
+          "type": "string",
+          "description": "自动编号规则（type 为 SERIES 时可选）。占位符: {YYYY}=年、{MM}=月、{DD}=日、{AUTO}=自动编号，如 \"{YYYY}{MM}{DD}-{AUTO}\""
+        },
+        "comments": {
+          "type": "string",
+          "description": "字段描述（可选），说明该字段用于记录什么信息"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["entity", "fieldLabel", "type"],
+      "additionalProperties": false
+    }
+  }
+}

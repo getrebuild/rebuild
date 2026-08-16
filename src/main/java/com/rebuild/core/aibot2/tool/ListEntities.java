@@ -13,10 +13,12 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -101,14 +103,16 @@ public class ListEntities implements Tool {
     }
 
     /**
-     * 列出所有业务实体
+     * 列出所有业务实体（管理员额外返回用户/部门/角色/团队等组织实体）
      *
      * @return
      */
     private JSONObject listEntities() {
+        boolean isAdmin = UserHelper.isAdmin(UserContextHolder.getUser());
+
         JSONArray list = new JSONArray();
         for (Entity e : MetadataHelper.getEntities()) {
-            if (!MetadataHelper.isBusinessEntity(e)) continue;
+            if (!MetadataHelper.isBusinessEntity(e) && !(isAdmin && MetadataHelper.isBizzEntity(e))) continue;
             if (e.getMainEntity() != null) continue;
 
             JSONObject item = new JSONObject();

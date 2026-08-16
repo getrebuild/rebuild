@@ -53,7 +53,8 @@ import static com.rebuild.core.aibot2.Message.ROLE_USER;
 public class Chat implements Serializable {
     private static final long serialVersionUID = 471922851634230399L;
 
-    private static final int MAX_TOOL_ROUNDS = 5;
+    private static final int MAX_TOOL_ROUNDS = 20;
+    private static final String ROUNDS_LIMIT_NOTICE = "\n\n（本次对话的工具调用轮次已达上限，任务可能未完成。请发送\"继续\"以完成剩余步骤。）";
 
     @Getter
     private ID chatid;
@@ -89,6 +90,10 @@ public class Chat implements Serializable {
         ai = executeToolCalls(ai, builder);
 
         String content = ai.content().orElse("");
+        // 轮次耗尽仍有未完成工具调用时给出提示
+        if (ai.toolCalls().isPresent() && !ai.toolCalls().get().isEmpty()) {
+            content += ROUNDS_LIMIT_NOTICE;
+        }
         return completionAfter(content, chatRequest);
     }
 
@@ -184,7 +189,15 @@ public class Chat implements Serializable {
             }
 
             if (interrupted[0] || toolCallAccumulator.isEmpty() || maxRounds <= 0) {
-                completionAfter(fullContent.toString(), chatRequest);
+                String content = fullContent.toString();
+
+                // 达到轮次上限且仍有待执行的工具调用，提示用户继续而非静默截断
+                if (!interrupted[0] && maxRounds <= 0 && !toolCallAccumulator.isEmpty()) {
+                    if (!clientGone[0]) StreamEcho.text(ROUNDS_LIMIT_NOTICE, writer);
+                    content += ROUNDS_LIMIT_NOTICE;
+                }
+
+                completionAfter(content, chatRequest);
                 return;
             }
 
