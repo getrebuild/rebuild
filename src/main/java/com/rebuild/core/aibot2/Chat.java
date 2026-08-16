@@ -255,7 +255,12 @@ public class Chat implements Serializable {
 
         ai = executeToolCalls(ai, builder);
 
-        return ai.content().orElse("");
+        String content = ai.content().orElse("");
+        // 轮次耗尽仍有未完成工具调用时给出提示
+        if (ai.toolCalls().isPresent() && !ai.toolCalls().get().isEmpty()) {
+            content += ROUNDS_LIMIT_NOTICE;
+        }
+        return content;
     }
 
     /**
