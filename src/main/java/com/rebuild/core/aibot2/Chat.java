@@ -27,7 +27,6 @@ import com.rebuild.core.service.approval.ApprovalException;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.CommonsUtils;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,7 +48,6 @@ import static com.rebuild.core.aibot2.Message.ROLE_USER;
  * @author Zixin
  * @since 2025/11/1
  */
-@Slf4j
 public class Chat implements Serializable {
     private static final long serialVersionUID = 471922851634230399L;
 
@@ -66,6 +64,9 @@ public class Chat implements Serializable {
     @Getter
     private List<Message> messages = new ArrayList<>();
 
+    // transient: Chat 会被缓存序列化，反序列化后惰性重建
+    private transient ChatLogger chatLogger;
+
     public Chat(ID chatid) {
         this(chatid, Config.getBasePrompt(), Config.getDefModel());
     }
@@ -76,6 +77,14 @@ public class Chat implements Serializable {
         this.prompt = prompt;
 
         this.restoreIfNeed();
+    }
+
+    /**
+     * @return
+     */
+    public synchronized ChatLogger chatLogger() {
+        if (chatLogger == null) chatLogger = new ChatLogger(chatid);
+        return chatLogger;
     }
 
     /**
@@ -154,7 +163,7 @@ public class Chat implements Serializable {
                                     clientGone[0] = true;
                                 }
                                 if (clientGone[0]) {
-                                    log.info("Client disconnected, continuing stream : {}", chatRequest.getChatid());
+                                    chatLogger().logEvent("Client disconnected, continuing stream");
                                 }
                             }
                             fullContent.append(content);
@@ -177,7 +186,7 @@ public class Chat implements Serializable {
 
                     // 中断检查
                     if (StreamEcho.isInterrupted(chatRequest.getChatid())) {
-                        log.warn("Chat interrupted : {}", chatRequest.getChatid());
+                        chatLogger().logEvent("Chat interrupted");
                         interrupted[0] = true;
                         resp.stream().close();
                     }
@@ -185,7 +194,7 @@ public class Chat implements Serializable {
 
             } catch (Exception e) {
                 if (!interrupted[0] && !clientGone[0]) throw e;
-                log.debug("Stream closed (interrupt or client disconnect)");
+                chatLogger().logEvent("Stream closed (interrupt or client disconnect)");
             }
 
             if (interrupted[0] || toolCallAccumulator.isEmpty() || maxRounds <= 0) {
@@ -201,9 +210,10 @@ public class Chat implements Serializable {
                 return;
             }
 
-            log.info("Tool calls round {} : {}", MAX_TOOL_ROUNDS - maxRounds + 1, toolCallAccumulator.size());
+            chatLogger().logEvent(String.format("Tool calls round %d : %d",
+                    MAX_TOOL_ROUNDS - maxRounds + 1, toolCallAccumulator.size()));
             if (fullContent.length() > 0) {
-                ChatLogger.log(chatRequest.getChatid(), "ASSISTANT", fullContent.toString());
+                chatLogger().log("ASSISTANT", fullContent.toString());
             }
 
             List<ChatCompletionMessageToolCall> assembledToolCalls = new ArrayList<>();
@@ -278,9 +288,10 @@ public class Chat implements Serializable {
         List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
         int maxRounds = MAX_TOOL_ROUNDS;
         while (CollectionUtils.isNotEmpty(toolCalls) && maxRounds-- > 0) {
-            log.info("Tool calls round {} : {}", MAX_TOOL_ROUNDS - maxRounds, toolCalls.size());
+            chatLogger().logEvent(String.format("Tool calls round %d : %d",
+                    MAX_TOOL_ROUNDS - maxRounds, toolCalls.size()));
             ai.content().ifPresent(c -> {
-                if (StringUtils.isNotBlank(c)) ChatLogger.log(chatid, "ASSISTANT", c);
+                if (StringUtils.isNotBlank(c)) chatLogger().log("ASSISTANT", c);
             });
             builder.addMessage(ai);
 
@@ -312,7 +323,7 @@ public class Chat implements Serializable {
      * @return
      */
     private String safeExecute(String toolName, String arguments) {
-        ChatLogger.log(chatid, "TOOL_CALL " + toolName, arguments);
+        chatLogger().log("TOOL_CALL " + toolName, arguments);
 
         String toolResult;
         try {
@@ -335,7 +346,7 @@ public class Chat implements Serializable {
             }
         }
 
-        ChatLogger.log(chatid, "TOOL_RESULT " + toolName, toolResult);
+        chatLogger().log("TOOL_RESULT " + toolName, toolResult);
         return toolResult;
     }
 
@@ -372,12 +383,12 @@ public class Chat implements Serializable {
             Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
             messages.add(message);
 
-            ChatLogger.log(chatid, "USER", userMessage);
+            chatLogger().log("USER", userMessage);
         }
 
         String systemPrompt = SystemPromptBuilder.build(prompt,
                 chatRequest == null ? null : chatRequest.getSkill());
-        ChatLogger.logSession(chatid, model, systemPrompt);
+        chatLogger().logSession(model, systemPrompt);
 
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model);
         for (Message m : messages) {
@@ -403,7 +414,7 @@ public class Chat implements Serializable {
         Message message = new Message(ROLE_AI, aiMessage, null, null, chatRequest);
         messages.add(message);
 
-        ChatLogger.log(chatid, "ASSISTANT", aiMessage);
+        chatLogger().log("ASSISTANT", aiMessage);
 
         this.store();
         return message;
