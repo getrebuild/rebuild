@@ -91,10 +91,10 @@ public class ChatLogger {
         if (!enabled()) return;
 
         String content = StringUtils.defaultIfBlank(detail, "(empty)");
-        // 工具入参/结果多为 JSON，格式化后便于阅读
+        // 工具入参/结果多为 JSON，压缩为单行紧凑格式，避免占用过多日志空间
         if (type.startsWith("TOOL_") && JSONUtils.wellFormat(content)) {
             try {
-                content = JSONUtils.prettyPrint(JSON.parse(content));
+                content = JSON.toJSONString(JSON.parse(content));
             } catch (Exception ignored) {
             }
         }

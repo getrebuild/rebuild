@@ -117,11 +117,11 @@ public class ToolDefs {
         // 统一空值保护
         if (StringUtils.isBlank(arguments)) arguments = "{}";
 
-        log.info("TOOL_CALL {}{}{}", toolName, System.lineSeparator(), prettyJson(arguments));
+        log.info("TOOL_CALL {}{}{}", toolName, System.lineSeparator(), compactJson(arguments));
         try {
             Object res = tool.tool(arguments);
             String toolRes = res instanceof String ? (String) res : JSON.toJSONString(res);
-            log.info("TOOL_RESULT {}{}{}", toolName, System.lineSeparator(), prettyJson(toolRes));
+            log.info("TOOL_RESULT {}{}{}", toolName, System.lineSeparator(), compactJson(toolRes));
             return toolRes;
 
         } catch (KnownToolException ex) {
@@ -138,15 +138,15 @@ public class ToolDefs {
     }
 
     /**
-     * JSON 格式化，与 ChatLogger 会话日志格式保持一致
+     * JSON 压缩为单行紧凑格式，与 ChatLogger 会话日志格式保持一致
      *
      * @param text
      * @return
      */
-    private static String prettyJson(String text) {
+    private static String compactJson(String text) {
         if (JSONUtils.wellFormat(text)) {
             try {
-                return JSONUtils.prettyPrint(JSON.parse(text));
+                return JSON.toJSONString(JSON.parse(text));
             } catch (Exception ignored) {
             }
         }
