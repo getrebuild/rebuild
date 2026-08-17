@@ -108,6 +108,9 @@ public class ScheduleTask implements Tool {
             if (nextExecTime == null) {
                 throw new KnownToolException("无法解析执行时间: " + executeTime + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
             }
+            if (!nextExecTime.after(CalendarUtils.getInstance().getTime())) {
+                throw new KnownToolException("一次性任务的执行时间必须是未来时间 : " + executeTime);
+            }
         } else {
             nextExecTime = calculateNextExecTime(scheduleType, time, dayOfWeek, dayOfMonth);
         }

@@ -63,7 +63,8 @@
       },
       "required": [
         "entity"
-      ]
+      ],
+      "additionalProperties": false
     }
   }
 }

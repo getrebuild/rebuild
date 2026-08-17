@@ -28,7 +28,8 @@
           "description": "重要性档位。1=用户明确要求记住或长期关键信息，2=一般偏好，3=次要参考信息。add 时可选默认 2，update 时不传表示不修改档位。超出 1-3 范围会自动钳制"
         }
       },
-      "required": ["action"]
+      "required": ["action"],
+      "additionalProperties": false
     }
   }
 }

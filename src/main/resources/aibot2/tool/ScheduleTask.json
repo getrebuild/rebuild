@@ -22,7 +22,7 @@
         },
         "executeTime": {
           "type": "string",
-          "description": "一次性任务的执行时间，格式 yyyy-MM-dd HH:mm:ss（scheduleType=once 必填）"
+          "description": "一次性任务的执行时间，必须是未来时间，格式 yyyy-MM-dd HH:mm:ss（scheduleType=once 必填）"
         },
         "time": {
           "type": "string",
@@ -45,7 +45,7 @@
           "description": "任务ID（cancel 必填，可通过 list 查询）"
         }
       },
-      "required": ["action"]
+      "additionalProperties": false
     }
   }
 }

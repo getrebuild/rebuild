@@ -27,7 +27,8 @@
           "description": "驳回到的目标节点编号（可选，action=reject 时使用，不传则直接驳回给提交人）"
         }
       },
-      "required": ["recordId", "action"]
+      "required": ["recordId", "action"],
+      "additionalProperties": false
     }
   }
 }

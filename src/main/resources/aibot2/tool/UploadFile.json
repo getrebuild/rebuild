@@ -19,7 +19,7 @@
           "description": "文件名（需含扩展名，扩展名决定文件类型识别）。不传则自动生成"
         }
       },
-      "required": []
+      "additionalProperties": false
     }
   }
 }

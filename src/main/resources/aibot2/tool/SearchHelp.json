@@ -11,7 +11,8 @@
           "description": "搜索关键词，用于匹配帮助文档的标题和内容"
         }
       },
-      "required": ["keyword"]
+      "required": ["keyword"],
+      "additionalProperties": false
     }
   }
 }

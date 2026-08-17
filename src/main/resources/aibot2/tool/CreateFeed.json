@@ -16,7 +16,7 @@
         },
         "relatedRecordId": {
           "type": "string",
-          "description": "关联的业务记录ID（type=2 跟进时使用，可通过 QueryRecords 工具查询获取）"
+          "description": "关联的业务记录ID（type=2 跟进时必填，可通过 QueryRecords 工具查询获取）"
         },
         "scheduleTime": {
           "type": "string",
@@ -37,7 +37,8 @@
           "description": "附件文件key（已通过 UploadFile 工具上传的文件标识）。支持单个字符串或数组"
         }
       },
-      "required": ["content"]
+      "required": ["content"],
+      "additionalProperties": false
     }
   }
 }

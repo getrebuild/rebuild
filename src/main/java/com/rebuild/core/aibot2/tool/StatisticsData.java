@@ -111,17 +111,15 @@ public class StatisticsData implements Tool {
      */
     private JSONObject queryWithGroupBy(Entity entity, String aggFunc, String aggFieldSql,
                                         String groupBy, String whereClause, int limit) {
-        // 解析分组字段
+        // 解析分组字段（支持字段名或中文标签）
         List<Field> groupFields = new ArrayList<>();
         List<String> groupFieldNames = new ArrayList<>();
         for (String gf : groupBy.split("[,;]")) {
             gf = gf.trim();
             if (StringUtils.isBlank(gf)) continue;
-            if (!entity.containsField(gf)) {
-                throw new KnownToolException("分组字段不存在 : " + gf + ToolHelper.suggestField(entity, gf));
-            }
-            groupFields.add(entity.getField(gf));
-            groupFieldNames.add(gf);
+            Field field = ToolHelper.resolveField(entity, gf);
+            groupFields.add(field);
+            groupFieldNames.add(field.getName());
         }
 
         if (groupFields.isEmpty()) {
@@ -179,11 +177,8 @@ public class StatisticsData implements Tool {
                     + "实体 [" + EasyMetaFactory.getLabel(entity) + "] 可用字段: " + ToolHelper.listFields(entity));
         }
 
-        if (!entity.containsField(aggField)) {
-            throw new KnownToolException("聚合字段不存在 : " + aggField + ToolHelper.suggestField(entity, aggField));
-        }
-
-        return aggField;
+        // 支持字段名或中文标签
+        return ToolHelper.resolveField(entity, aggField).getName();
     }
 
     private boolean isValidAggFunc(String func) {

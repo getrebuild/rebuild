@@ -11,7 +11,8 @@
           "description": "用户的具体需求描述"
         }
       },
-      "required": ["requirement"]
+      "required": ["requirement"],
+      "additionalProperties": false
     }
   }
 }

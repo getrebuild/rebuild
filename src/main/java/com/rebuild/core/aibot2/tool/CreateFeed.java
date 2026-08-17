@@ -77,12 +77,13 @@ public class CreateFeed implements Tool {
             record.setString("attachments", attachmentsStr);
         }
 
-        // 跟进：关联记录
+        // 跟进：必须关联记录
         if (type == FeedsType.FOLLOWUP.getMask()) {
-            ID relatedRecordId = ToolHelper.resolveId(args.getString("relatedRecordId"));
-            if (relatedRecordId != null) {
-                record.setID("relatedRecord", relatedRecordId);
+            if (StringUtils.isBlank(args.getString("relatedRecordId"))) {
+                throw new KnownToolException("跟进动态必须关联业务记录 (relatedRecordId)，可通过 QueryRecords 查询获取");
             }
+            ID relatedRecordId = ToolHelper.resolveId(args.getString("relatedRecordId"), "relatedRecordId");
+            record.setID("relatedRecord", relatedRecordId);
         }
 
         // 日程：设置时间和提醒

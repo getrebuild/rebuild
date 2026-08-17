@@ -284,6 +284,10 @@ public class BuildField implements Tool, AdminGuard {
             JSONObject item = new JSONObject(true);
             item.put("text", text.trim());
             item.put("default", showItems.isEmpty());
+            // 对象格式可指定颜色，透传给 PickListService
+            if (o instanceof JSONObject && StringUtils.isNotBlank(((JSONObject) o).getString("color"))) {
+                item.put("color", ((JSONObject) o).getString("color"));
+            }
             showItems.add(item);
         }
 

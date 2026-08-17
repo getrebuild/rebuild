@@ -15,7 +15,8 @@
           "description": "返回结果数量，默认5，最大20"
         }
       },
-      "required": ["query"]
+      "required": ["query"],
+      "additionalProperties": false
     }
   }
 }

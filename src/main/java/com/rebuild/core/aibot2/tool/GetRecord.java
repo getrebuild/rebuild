@@ -59,10 +59,12 @@ public class GetRecord implements Tool {
         Field nameField = entity.getNameField();
 
         String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
-        String sql = String.format("select %s from %s where %s = '%s'",
-                fieldsSql, entity.getName(), primaryField.getName(), recordId.toLiteral());
+        String sql = String.format("select %s from %s where %s = ?",
+                fieldsSql, entity.getName(), primaryField.getName());
 
-        Object[] row = Application.createQuery(sql).unique();
+        Object[] row = Application.createQuery(sql)
+                .setParameter(1, recordId)
+                .unique();
         if (row == null || row.length == 0) {
             throw new KnownToolException("未找到记录或无权限访问 : " + recordId);
         }

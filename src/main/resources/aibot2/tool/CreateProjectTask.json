@@ -40,7 +40,8 @@
           "description": "附件文件key（已通过 UploadFile 工具上传的文件标识）。支持单个字符串或数组"
         }
       },
-      "required": ["taskName", "project"]
+      "required": ["taskName", "project"],
+      "additionalProperties": false
     }
   }
 }

@@ -16,7 +16,14 @@
         },
         "type": {
           "type": "string",
-          "description": "字段类型，可选值: TEXT(文本)、NTEXT(多行文本)、NUMBER(整数)、DECIMAL(小数)、DATE(日期)、DATETIME(日期时间)、TIME(时间)、BOOL(复选框)、EMAIL(邮箱)、URL(链接)、PHONE(电话)、LOCATION(位置)、TAG(标签)、SERIES(自动编号)、IMAGE(图片)、FILE(附件)、PICKLIST(下拉列表)、MULTISELECT(多选)、CLASSIFICATION(分类)、REFERENCE(引用)、N2NREFERENCE(多引用)"
+          "enum": [
+            "TEXT", "NTEXT", "NUMBER", "DECIMAL",
+            "DATE", "DATETIME", "TIME", "BOOL",
+            "EMAIL", "URL", "PHONE", "LOCATION", "TAG", "SERIES",
+            "IMAGE", "FILE", "PICKLIST", "MULTISELECT", "CLASSIFICATION",
+            "REFERENCE", "N2NREFERENCE"
+          ],
+          "description": "字段类型。TEXT(文本)、NTEXT(多行文本)、NUMBER(整数)、DECIMAL(小数)、BOOL(复选框)、LOCATION(位置)、TAG(标签)、SERIES(自动编号)、IMAGE(图片)、FILE(附件)、PICKLIST(下拉列表)、MULTISELECT(多选)、CLASSIFICATION(分类)、REFERENCE(引用)、N2NREFERENCE(多引用)，其余见名知义"
         },
         "refEntity": {
           "type": "string",
@@ -25,9 +32,20 @@
         "options": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": ["string", "object"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "description": "选项文本"
+              },
+              "color": {
+                "type": "string",
+                "description": "选项颜色（可选），CSS 颜色值，如 #FF0000"
+              }
+            },
+            "required": ["text"]
           },
-          "description": "选项列表。type 为 PICKLIST 或 MULTISELECT 时必填，如 [\"进行中\", \"已完成\"]。支持对象格式 {text, color} 指定选项颜色"
+          "description": "选项列表。type 为 PICKLIST 或 MULTISELECT 时必填，如 [\"进行中\", \"已完成\"]；需指定颜色时用对象格式 [{\"text\": \"进行中\", \"color\": \"#FF0000\"}]"
         },
         "classification": {
           "type": "string",

@@ -19,7 +19,8 @@
           "description": "返回的字段名称列表（逗号分隔），不传则返回所有可查询字段"
         }
       },
-      "required": ["entity", "recordId"]
+      "required": ["entity", "recordId"],
+      "additionalProperties": false
     }
   }
 }

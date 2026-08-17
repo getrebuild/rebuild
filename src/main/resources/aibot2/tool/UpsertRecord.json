@@ -27,7 +27,8 @@
           "description": "是否仅输出解析后的记录JSON而不保存，默认false。设为true则只返回解析的JSON数据，不保存记录"
         }
       },
-      "required": ["entity"]
+      "required": ["entity"],
+      "additionalProperties": false
     }
   }
 }

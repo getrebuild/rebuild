@@ -10,7 +10,8 @@
           "type": "string",
           "description": "实体名称、数字code或标签名称，支持模糊匹配（可选，不传则返回所有实体列表）"
         }
-      }
+      },
+      "additionalProperties": false
     }
   }
 }
