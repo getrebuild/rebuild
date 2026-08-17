@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "UpsertRecord",
-    "description": "解析文件或文本内容为业务记录并保存，支持 PDF、Word、Excel 等格式。传入 recordId 时更新已有记录，不传时新建记录。支持同时保存明细实体数据（主从结构）。设置 outputJson=true 可仅解析预览不保存",
+    "description": "解析文件或文本内容为业务记录并保存，支持 PDF、Word、Excel 等格式。当用户提供文件（如发票、合同）或文本要录入/导入为新记录，或要据此更新已有记录时使用。传入 recordId 时更新已有记录，不传时新建记录。支持同时保存明细实体数据（主从结构）。设置 outputJson=true 可仅解析预览不保存",
     "parameters": {
       "type": "object",
       "properties": {

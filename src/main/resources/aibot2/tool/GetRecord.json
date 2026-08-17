@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "GetRecord",
-    "description": "获取单条记录的完整字段详情，通过记录ID查询，返回所有可查询字段的值。已知记录ID且需查看其完整信息时使用此工具。需要查询多条记录或按条件筛选请用 QueryRecords",
+    "description": "获取单条记录的完整字段详情，通过记录ID查询，返回所有可查询字段的值。当用户想查看某条记录的完整信息（如「看下这条记录的详情」）时使用。需要查询多条记录或按条件筛选请用 QueryRecords",
     "parameters": {
       "type": "object",
       "properties": {

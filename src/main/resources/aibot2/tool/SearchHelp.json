@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "SearchHelp",
-    "description": "搜索 REBUILD 官方帮助文档，返回相关文档标题、链接和摘要。当用户询问系统功能用法或操作指引时使用此工具。若需搜索企业内部知识库请用 SearchKnowledge",
+    "description": "搜索 REBUILD 官方帮助文档，返回相关文档标题、链接和摘要。当用户询问系统功能用法或操作指引（如「触发器怎么配置」「怎么导入数据」）时使用此工具。若需搜索企业内部知识库请用 SearchKnowledge",
     "parameters": {
       "type": "object",
       "properties": {

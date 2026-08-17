@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "StatisticsData",
-    "description": "数据统计分析，支持 COUNT/SUM/AVG/MAX/MIN 聚合、分组统计和条件过滤。当用户需要汇总、计数、求和、平均值等统计计算时使用此工具。获取记录列表请用 QueryRecords",
+    "description": "数据统计分析，支持 COUNT/SUM/AVG/MAX/MIN 聚合、分组统计和条件过滤。当用户需要一次性查询汇总、计数、求和、平均值等统计结果时使用此工具。若用户希望记录变化时自动把数据汇总/回写到其他记录的字段上（持久化自动规则而非一次性查询），应使用 BuildTrigger。获取记录列表请用 QueryRecords",
     "parameters": {
       "type": "object",
       "properties": {

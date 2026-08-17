@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "BuildField",
-    "description": "在已有实体中新建字段。先用 ListEntities 查看已有字段，避免重复创建。可选类型见 type 参数说明，部分类型需配合引用实体、下拉选项、分类、编号规则等额外参数",
+    "description": "在已有实体中新建字段。当用户想在某个实体上增加记录信息（如「客户表加个生日字段」「订单加个状态」）时使用，用户通常不会说「字段」一词。先用 ListEntities 查看已有字段，避免重复创建。可选类型见 type 参数说明，部分类型需配合引用实体、下拉选项、分类、编号规则等额外参数",
     "parameters": {
       "type": "object",
       "properties": {

@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "CreateFeed",
-    "description": "发布动态，支持普通动态、跟进、日程三种类型，可附带图片附件、关联业务记录和设置可见范围。附带图片附件需先通过 UploadFile 上传获取 fileKey",
+    "description": "发布动态，支持普通动态、跟进、日程三种类型，可附带图片附件、关联业务记录和设置可见范围。当用户想发布工作动态、记录客户跟进或安排日程（如「帮我记一条跟进」「安排明天拜访客户的日程」）时使用。附带图片附件需先通过 UploadFile 上传获取 fileKey",
     "parameters": {
       "type": "object",
       "properties": {
