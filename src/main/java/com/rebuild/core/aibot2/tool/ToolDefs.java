@@ -17,6 +17,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -116,24 +117,40 @@ public class ToolDefs {
         // 统一空值保护
         if (StringUtils.isBlank(arguments)) arguments = "{}";
 
-        log.info("Tool call: {} args={}", toolName, arguments);
+        log.info("TOOL_CALL {}{}{}", toolName, System.lineSeparator(), prettyJson(arguments));
         try {
             Object res = tool.tool(arguments);
             String toolRes = res instanceof String ? (String) res : JSON.toJSONString(res);
-            log.info("Tool result: {}", toolRes);
+            log.info("TOOL_RESULT {}{}{}", toolName, System.lineSeparator(), prettyJson(toolRes));
             return toolRes;
 
         } catch (KnownToolException ex) {
             // 已知业务异常（如参数校验失败、实体不存在），仅记录消息不输出堆栈
-            log.warn("Tool execution blocked : {} - {}", toolName, ex.getMessage());
+            log.warn("TOOL_ERROR {} - {}", toolName, ex.getMessage());
             throw ex;
         } catch (ToolException ex) {
-            log.error("Tool execution failed : {}", toolName, ex);
+            log.error("TOOL_ERROR {} - {}", toolName, ex.getMessage(), ex);
             throw ex;
         } catch (Exception ex) {
-            log.error("Tool execution failed : {}", toolName, ex);
+            log.error("TOOL_ERROR {} - {}", toolName, CommonsUtils.getRootMessage(ex), ex);
             throw new ToolException(CommonsUtils.getRootMessage(ex), ex);
         }
+    }
+
+    /**
+     * JSON 格式化，与 ChatLogger 会话日志格式保持一致
+     *
+     * @param text
+     * @return
+     */
+    private static String prettyJson(String text) {
+        if (JSONUtils.wellFormat(text)) {
+            try {
+                return JSONUtils.prettyPrint(JSON.parse(text));
+            } catch (Exception ignored) {
+            }
+        }
+        return text;
     }
 
     /**
