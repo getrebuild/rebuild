@@ -136,7 +136,7 @@ public class BuildField implements Tool, AdminGuard {
         return JSONUtils.toJSONObject(
                 new String[]{"status", "entity", "field", "label", "type", "url", "message"},
                 new Object[]{"ok", entity.getName(), fieldName, fieldLabel, dt.name(), fieldsUrl,
-                        String.format("已成功在实体 [%s] 中创建字段 [%s](%s)，[点击查看实体字段列表](%s)",
+                        String.format("已成功在实体 [%s] 中创建字段 [%s](%s)，[点击查看实体字段列表](%s)，请核对字段类型与配置是否符合预期",
                                 EasyMetaFactory.getLabel(entity), fieldLabel, fieldName, fieldsUrl)});
     }
 

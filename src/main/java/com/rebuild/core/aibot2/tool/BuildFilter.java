@@ -114,7 +114,7 @@ public class BuildFilter implements Tool {
         return JSONUtils.toJSONObject(
                 new String[]{"status", "id", "entity", "filterName", "message"},
                 new Object[]{"ok", configId.toLiteral(), entity.getName(), filterName,
-                        String.format("已成功创建过滤器 [%s]（%s），用户打开该实体列表页后可在常用筛选中选择使用",
+                        String.format("已成功创建过滤器 [%s]（%s），用户打开该实体列表页后可在常用筛选中选择使用，请提醒用户核对筛选条件是否符合预期",
                                 filterName, EasyMetaFactory.getLabel(entity))});
     }
 

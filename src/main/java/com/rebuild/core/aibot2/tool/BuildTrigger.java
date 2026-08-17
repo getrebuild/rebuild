@@ -144,9 +144,20 @@ public class BuildTrigger implements Tool, AdminGuard {
         // 7. 语义解析：字段标签/用户名等转真实标识
         resolveActionContent(sourceEntity, actionType, actionContent);
 
+        // 同名检测：同实体已存在启用的同名触发器时，提醒用户新建后删除或禁用旧的
+        Object[][] sameNameTriggers = Application.createQueryNoFilter(
+                        "select configId from RobotTriggerConfig where belongEntity = ? and name = ? and isDisabled = 'F'")
+                .setParameter(1, sourceEntity.getName())
+                .setParameter(2, triggerName)
+                .array();
+
         // 8. 触发器属重大配置，未确认时仅返回改动清单
         if (!args.getBooleanValue("confirmed")) {
             JSONObject changes = buildChanges(sourceEntity, triggerName, whenMask, actionType, whenFilter, actionContent);
+            if (sameNameTriggers.length > 0) {
+                changes.put("注意", String.format("该实体已存在 %d 个启用的同名触发器，新建后请将旧触发器删除或禁用，避免重复执行",
+                        sameNameTriggers.length));
+            }
             return JSONUtils.toJSONObject(
                     new String[]{"status", "needConfirm", "changes", "message"},
                     new Object[]{"ok", true, changes,
@@ -173,11 +184,22 @@ public class BuildTrigger implements Tool, AdminGuard {
         log.info("Trigger created via AI : {} on {}", configId, sourceEntity.getName());
 
         String configUrl = AppUtils.getContextPath("/admin/robot/trigger/" + configId);
+        String message = String.format("已成功创建触发器 [%s]（%s - %s），[点击查看触发器配置](%s)，请核对实际配置是否符合预期",
+                triggerName, EasyMetaFactory.getLabel(sourceEntity), Language.L(actionType), configUrl);
+
+        // 存在同名旧触发器时附删除/禁用提醒（附配置链接）
+        if (sameNameTriggers.length > 0) {
+            StringBuilder dupLinks = new StringBuilder();
+            for (Object[] row : sameNameTriggers) {
+                ID oldId = (ID) row[0];
+                dupLinks.append(String.format("[同名触发器](%s)、", AppUtils.getContextPath("/admin/robot/trigger/" + oldId)));
+            }
+            message += String.format("。注意：该实体已存在启用的同名触发器 %s，请将旧触发器删除或禁用，避免重复执行", dupLinks);
+        }
+
         return JSONUtils.toJSONObject(
                 new String[]{"status", "configId", "entity", "actionType", "name", "url", "message"},
-                new Object[]{"ok", configId.toLiteral(), sourceEntity.getName(), actionType.name(), triggerName, configUrl,
-                        String.format("已成功创建触发器 [%s]（%s - %s），[点击查看触发器配置](%s)，可在此页面查看或调整",
-                                triggerName, EasyMetaFactory.getLabel(sourceEntity), Language.L(actionType), configUrl)});
+                new Object[]{"ok", configId.toLiteral(), sourceEntity.getName(), actionType.name(), triggerName, configUrl, message});
     }
 
     /**
