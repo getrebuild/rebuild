@@ -64,7 +64,6 @@ public class Chat implements Serializable {
     @Getter
     private List<Message> messages = new ArrayList<>();
 
-    // transient: Chat 会被缓存序列化，反序列化后惰性重建
     private transient ChatLogger chatLogger;
 
     public Chat(ID chatid) {
@@ -210,8 +209,8 @@ public class Chat implements Serializable {
                 return;
             }
 
-            chatLogger().logEvent(String.format("Tool calls round %d : %d",
-                    MAX_TOOL_ROUNDS - maxRounds + 1, toolCallAccumulator.size()));
+            chatLogger().logEvent(String.format("TOOL_CALL round %d/%d : %s",
+                    MAX_TOOL_ROUNDS - maxRounds + 1, MAX_TOOL_ROUNDS, toolCallAccumulator));
             if (fullContent.length() > 0) {
                 chatLogger().log("ASSISTANT", fullContent.toString());
             }
@@ -288,8 +287,9 @@ public class Chat implements Serializable {
         List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
         int maxRounds = MAX_TOOL_ROUNDS;
         while (CollectionUtils.isNotEmpty(toolCalls) && maxRounds-- > 0) {
-            chatLogger().logEvent(String.format("Tool calls round %d : %d",
-                    MAX_TOOL_ROUNDS - maxRounds, toolCalls.size()));
+            chatLogger().logEvent(String.format("TOOL_CALL round %d/%d : %s",
+                    MAX_TOOL_ROUNDS - maxRounds + 1, MAX_TOOL_ROUNDS, toolCalls));
+
             ai.content().ifPresent(c -> {
                 if (StringUtils.isNotBlank(c)) chatLogger().log("ASSISTANT", c);
             });

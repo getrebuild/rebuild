@@ -308,7 +308,12 @@ public class BuildTrigger implements Tool, AdminGuard {
             JSONArray matchFields = content.getJSONArray("targetEntityMatchFields");
             if (matchFields != null) {
                 for (int i = 0; i < matchFields.size(); i++) {
-                    matchFields.set(i, ToolHelper.resolveFieldPath(sourceEntity, matchFields.getString(i)));
+                    JSONObject mf = matchFields.get(i) instanceof JSONObject ? matchFields.getJSONObject(i) : null;
+                    if (mf == null || StringUtils.isBlank(mf.getString("sourceField")) || StringUtils.isBlank(mf.getString("targetField"))) {
+                        throw new KnownToolException("targetEntityMatchFields 每项必须为 {\"sourceField\":\"源实体字段\", \"targetField\":\"目标实体字段\"} 对象");
+                    }
+                    mf.put("sourceField", ToolHelper.resolveFieldPath(sourceEntity, mf.getString("sourceField")));
+                    mf.put("targetField", ToolHelper.resolveField(target4Fields, mf.getString("targetField")).getName());
                 }
             }
 
@@ -387,16 +392,24 @@ public class BuildTrigger implements Tool, AdminGuard {
             return sourceEntity;
         }
 
-        // $.字段名（任意实体，按字段匹配）
+        // $.实体名（任意实体，通过 targetEntityMatchFields 字段匹配）
         if (targetEntity.startsWith(TriggerAction.TARGET_ANY + ".")) {
-            String fieldIdent = targetEntity.substring(2);
-            Field f = ToolHelper.resolveField(sourceEntity, fieldIdent);
-            content.put("targetEntity", TriggerAction.TARGET_ANY + "." + f.getName());
-            // 匹配字段为引用字段时，目标实体即其引用实体
-            if (f.getType() == FieldType.REFERENCE && f.getReferenceEntity() != null) {
-                return f.getReferenceEntity();
+            String entityIdent = targetEntity.substring(2);
+            Entity target = ToolHelper.resolveEntity(entityIdent);
+            if (target == null) {
+                throw new KnownToolException("无效目标实体 (targetEntity) : " + targetEntity
+                        + "。$. 后必须是目标实体名（如 $.SalesOrder）" + ToolHelper.suggestEntity(entityIdent)
+                        + "；通过引用字段定位目标记录请使用「引用字段名.实体名」格式（如 SalesOrderId.SalesOrder）");
             }
-            return sourceEntity;
+
+            JSONArray matchFields = content.getJSONArray("targetEntityMatchFields");
+            if (matchFields == null) matchFields = content.getJSONArray("groupFields");  // GROUPAGGREGATION
+            if (matchFields == null || matchFields.isEmpty()) {
+                throw new KnownToolException("字段匹配模式 ($.实体名) 必须提供 targetEntityMatchFields（每项为 {sourceField, targetField} 对象）");
+            }
+
+            content.put("targetEntity", TriggerAction.TARGET_ANY + "." + target.getName());
+            return target;
         }
 
         // 引用字段名.实体名
@@ -415,7 +428,7 @@ public class BuildTrigger implements Tool, AdminGuard {
         }
 
         throw new KnownToolException("无效目标实体 (targetEntity) : " + targetEntity
-                + "。格式应为「引用字段名.实体名」「$.匹配字段名」或 \"$PRIMARY$\"（源记录自己）");
+                + "。格式应为「引用字段名.实体名」「$.实体名」（字段匹配模式）或 \"$PRIMARY$\"（源记录自己）");
     }
 
     /**

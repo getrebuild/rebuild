@@ -79,7 +79,7 @@ public class SysbaseSupport {
      * @return
      * @throws IOException
      */
-    protected String upload(File file, String uploadUrl) throws IOException {
+    public String upload(File file, String uploadUrl) throws IOException {
         OkHttpClient client = OkHttpUtils.getHttpClient();
 
         RequestBody fileBody = RequestBody.create(

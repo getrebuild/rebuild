@@ -116,9 +116,7 @@ public class ToolHelper {
             // 精确标签匹配（可能有同名实体，不能直接返回）
             if (label.equalsIgnoreCase(name)) {
                 exactMatches.add(e);
-            } else if (label.toLowerCase().contains(nameLower)
-                    || nameLower.contains(label.toLowerCase())) {
-                // 模糊匹配
+            } else if (label.toLowerCase().contains(nameLower)) {
                 fuzzyMatches.add(e);
             }
         }
@@ -185,7 +183,7 @@ public class ToolHelper {
      *
      * @param entity
      * @param path
-     * @return 真实字段路径
+     * @return
      */
     public static String resolveFieldPath(Entity entity, String path) {
         if (!path.contains(".")) {
@@ -245,8 +243,7 @@ public class ToolHelper {
     }
 
     /**
-     * 构建过滤表达式（AdvFilterParser 所需格式）
-     * 将工具传入的 filter 条件数组包装为 { entity, items, equation } 格式
+     * 构建过滤表达式 AdvFilterParser
      *
      * @param entity
      * @param filter
@@ -264,7 +261,7 @@ public class ToolHelper {
     }
 
     /**
-     * 解析过滤条件为 SQL where 子句
+     * 解析过滤条件为 SQL 子句
      *
      * @param entity
      * @param filter
@@ -322,13 +319,13 @@ public class ToolHelper {
     /**
      * 模糊匹配相似实体名
      *
-     * @param name
+     * @param entityName
      * @return
      */
-    public static String suggestEntity(String name) {
-        if (StringUtils.isBlank(name)) return "";
+    public static String suggestEntity(String entityName) {
+        if (StringUtils.isBlank(entityName)) return "";
 
-        String lower = name.toLowerCase();
+        String lower = entityName.toLowerCase();
         List<String> candidates = new ArrayList<>();
 
         for (Entity e : MetadataHelper.getEntities()) {
@@ -397,7 +394,7 @@ public class ToolHelper {
     }
 
     /**
-     * 构建 SQL 字段列表（主键 + 名称字段 + 查询字段）
+     * 构建 SQL 字段列表
      *
      * @param primaryField
      * @param nameField
