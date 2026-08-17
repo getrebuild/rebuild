@@ -502,6 +502,19 @@ class ChatMessage extends React.Component {
     $setTimeout(() => $renderEcharts($el), 200, 'render-echarts-' + this._echartsSeq)
   }
 
+  _feedbackable() {
+    const chatid = this.props._ChatMessages.props._Chat.state.chatid
+    return chatid && (!this.props.sendResp || this.state.waitResp === -1)
+  }
+
+  _feedback(type) {
+    if (this.state.feedback) return
+    const chatid = this.props._ChatMessages.props._Chat.state.chatid
+    $.post(`/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}`, () => {
+      this.setState({ feedback: type })
+    })
+  }
+
   render() {
     let c = null
     if (this.props.role === 'user') c = this.renderUser()
@@ -518,6 +531,7 @@ class ChatMessage extends React.Component {
               <DateShow date={moment(Number(this.state.sendTime)).format('YYYY-MM-DD HH:mm:ss')} showOrigin />
             </span>
           )}
+
           <a
             title={$L('复制')}
             onClick={(e) => {
@@ -526,8 +540,18 @@ class ChatMessage extends React.Component {
               $a.addClass('copied-check')
               setTimeout(() => $a.removeClass('copied-check'), 1500)
             }}>
-            <i className="icon zmdi zmdi-copy" />
+            <i className="icon mdi mdi-content-copy" />
           </a>
+          {(this.props.role === 'assistant' || this.props.role === 'ai') && this._feedbackable() && (
+            <RF>
+              <a title={$L('有帮助')} onClick={() => this._feedback('like')} className={this.state.feedback === 'like' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
+                <i className="icon mdi mdi-thumb-up-outline fs-15" />
+              </a>
+              <a title={$L('没帮助')} onClick={() => this._feedback('dislike')} className={this.state.feedback === 'dislike' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
+                <i className="icon mdi mdi-thumb-down-outline fs-15" />
+              </a>
+            </RF>
+          )}
         </div>
       </div>
     )

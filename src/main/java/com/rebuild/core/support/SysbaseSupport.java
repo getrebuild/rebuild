@@ -36,7 +36,7 @@ import java.util.Objects;
 public class SysbaseSupport {
 
     /**
-     * 提交支持
+     * 提交支持日志
      *
      * @return
      */
@@ -69,7 +69,25 @@ public class SysbaseSupport {
             log.error("Upload file of support fails", e);
             return null;
         }
+        return resJson.getString("TSID");
+    }
 
+    /**
+     * 提交支持 AI 反馈日志
+     *
+     * @param logFile
+     * @return
+     */
+    public String uploadAibotFeedback(File logFile) {
+        JSONObject resJson;
+        try {
+            String res = upload(logFile, "https://getrebuild.com/api/misc/request-support?type=aibot");
+            log.info("Upload file of aibot-chat : {}", res);
+            resJson = (JSONObject) JSON.parse(res);
+        } catch (IOException e) {
+            log.error("Upload file of aibot-chat fails", e);
+            return null;
+        }
         return resJson.getString("TSID");
     }
 
@@ -79,7 +97,7 @@ public class SysbaseSupport {
      * @return
      * @throws IOException
      */
-    public String upload(File file, String uploadUrl) throws IOException {
+    String upload(File file, String uploadUrl) throws IOException {
         OkHttpClient client = OkHttpUtils.getHttpClient();
 
         RequestBody fileBody = RequestBody.create(

@@ -4739,8 +4739,8 @@ html.external-auth .auth-body.must-center .login {
   content: '\F01F0';
 }
 
-.copied-check > .zmdi-copy::before {
-  content: '\f26b' !important;
+.copied-check > .mdi-content-copy::before {
+  content: '\F012C' !important;
   color: #34a853;
   font-weight: bold;
 }

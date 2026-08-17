@@ -163,9 +163,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #404040;
   opacity: 0.8;
   min-width: 20px;
+  font-size: 14px;
 }
 
-.chat-message .msg-action > a:hover {
+.chat-message .msg-action > a + a {
+  margin-left: 3px;
+}
+
+.chat-message .msg-action > a:hover,
+.chat-message .msg-action > a.text-primary {
   opacity: 1;
 }
 

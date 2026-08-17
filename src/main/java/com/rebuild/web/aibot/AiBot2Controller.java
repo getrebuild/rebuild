@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.Chat;
+import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.ChatRequest;
 import com.rebuild.core.aibot2.Config;
@@ -26,7 +27,9 @@ import com.rebuild.core.aibot2.SuggestQuestions;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.SysbaseSupport;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -38,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -91,6 +95,20 @@ public class AiBot2Controller extends BaseController {
     public RespBody chatStreamStop(HttpServletRequest req) {
         ID chatid = getIdParameterNotNull(req, "chatid");
         StreamEcho.setInterrupt(chatid);
+        return RespBody.ok();
+    }
+
+    @PostMapping("post/chat-feedback")
+    public RespBody chatFeedback(HttpServletRequest req) {
+        ID chatid = getIdParameterNotNull(req, "chatid");
+        String type = getParameterNotNull(req, "type");
+
+        ChatLogger chatLogger = ChatManager.getChat(chatid).chatLogger();
+        File logFile = chatLogger.logFile();
+        if (!logFile.exists()) return RespBody.error();
+
+        chatLogger.log("FEEDBACK", type);
+        TaskExecutors.queue(() -> new SysbaseSupport().uploadAibotFeedback(logFile));
         return RespBody.ok();
     }
 

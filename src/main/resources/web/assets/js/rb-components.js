@@ -1527,7 +1527,7 @@ class CodeViewport extends React.Component {
             $(this._$copy).addClass('copied-check')
             setTimeout(() => $(this._$copy).removeClass('copied-check'), 1500)
           }}>
-          <i className="icon zmdi zmdi-copy" />
+          <i className="icon mdi mdi-content-copy" />
         </a>
       </div>
     )
