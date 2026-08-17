@@ -10,7 +10,6 @@ package com.rebuild.core.aibot2;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.rebuild.core.Application;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +28,9 @@ import java.nio.file.StandardOpenOption;
  */
 @Slf4j
 public class ChatLogger {
+
+    // 日志文件名前缀
+    public static final String LOG_FILE_PREFIX = "aibot-chat-";
 
     // 日志首行分析提示词，日志文件可直接发给 AI 分析
     private static final String ANALYZE_PROMPT =
@@ -70,7 +72,7 @@ public class ChatLogger {
     public void logSession(String model, String systemPrompt) {
         if (!enabled()) return;
 
-        File file = logFile();
+        File file = getLogFile();
         synchronized (writeLock) {
             if (file.exists() && file.length() > 0) return;
 
@@ -91,7 +93,6 @@ public class ChatLogger {
         if (!enabled()) return;
 
         String content = StringUtils.defaultIfBlank(detail, "(empty)");
-        // 工具入参/结果多为 JSON，压缩为单行紧凑格式，避免占用过多日志空间
         if (type.startsWith("TOOL_") && JSONUtils.wellFormat(content)) {
             try {
                 content = JSON.toJSONString(JSON.parse(content));
@@ -100,7 +101,7 @@ public class ChatLogger {
         }
 
         String entry = String.format("%n---%n%n## %s | %s%n%n%s%n", type, formatTime(), content);
-        write(logFile(), entry);
+        write(getLogFile(), entry);
     }
 
     /**
@@ -115,22 +116,15 @@ public class ChatLogger {
     /**
      * @return
      */
-    public File logFile() {
-        File logd = RebuildConfiguration.getFileOfData("_log");
-        return new File(logd, "aibot-chat-" + chatid + ".log");
+    public File getLogFile() {
+        File logd = RebuildConfiguration.getFileOfTemp(null);
+        return new File(logd, LOG_FILE_PREFIX + chatid + ".log");
     }
 
-    /**
-     * @return
-     */
     private String formatTime() {
         return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
     }
 
-    /**
-     * @param file
-     * @param content
-     */
     private void write(File file, String content) {
         synchronized (writeLock) {
             try {

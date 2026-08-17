@@ -11,6 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
+import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
@@ -34,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -85,9 +85,13 @@ public class AdminAssistController extends BaseController {
         if ("log".equalsIgnoreCase(type) || "error".equalsIgnoreCase(type)) {
             File logFile;
             if (StringUtils.isNotBlank(file)) {
-                logFile = new File(RebuildConfiguration.getFileOfData("_log"), file);
+                logFile = checkLogFile(file);
             } else {
                 logFile = SysbaseHeartbeat.getLastLogbackFile("error".equalsIgnoreCase(type));
+            }
+            if (!logFile.exists()) {
+                response.sendError(404);
+                return;
             }
 
             FileDownloader.setDownloadHeaders(response, logFile.getName(), false);
@@ -131,23 +135,32 @@ public class AdminAssistController extends BaseController {
 
     @GetMapping("admin-logview/files")
     public RespBody files() {
-        File logd = RebuildConfiguration.getFileOfData("_log");
+        List<File> logFiles = new ArrayList<>();
+        collectLogFiles(RebuildConfiguration.getFileOfData("_log"), null, logFiles);
+        // AI 会话日志在临时目录
+        collectLogFiles(RebuildConfiguration.getFileOfTemp(null), ChatLogger.LOG_FILE_PREFIX, logFiles);
+        logFiles.sort((a, b) -> Long.compare(b.lastModified(), a.lastModified()));
 
         JSONArray res = new JSONArray();
-        File[] files = logd.listFiles();
-        if (files != null) {
-            Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
-            for (File f : files) {
-                if (!f.isFile() || !f.getName().endsWith(".log")) continue;
-
-                JSONObject item = new JSONObject();
-                item.put("name", f.getName());
-                item.put("size", f.length());
-                item.put("modifiedOn", f.lastModified());
-                res.add(item);
-            }
+        for (File f : logFiles) {
+            JSONObject item = new JSONObject();
+            item.put("name", f.getName());
+            item.put("size", f.length());
+            item.put("modifiedOn", f.lastModified());
+            res.add(item);
         }
         return RespBody.ok(res);
+    }
+
+    private void collectLogFiles(File dir, String namePrefix, List<File> out) {
+        File[] files = dir.listFiles();
+        if (files == null) return;
+
+        for (File f : files) {
+            if (!f.isFile() || !f.getName().endsWith(".log")) continue;
+            if (namePrefix != null && !f.getName().startsWith(namePrefix)) continue;
+            out.add(f);
+        }
     }
 
     @GetMapping("admin-logview/content")
@@ -159,7 +172,7 @@ public class AdminAssistController extends BaseController {
         String level = getParameter(request, "level");
 
         File logFile = checkLogFile(fileName);
-        if (logFile == null || !logFile.exists()) {
+        if (!logFile.exists()) {
             return RespBody.error("Log file not found");
         }
 
@@ -175,7 +188,7 @@ public class AdminAssistController extends BaseController {
         String posParam = getParameter(request, "pos");
 
         File logFile = checkLogFile(fileName);
-        if (logFile == null || !logFile.exists()) {
+        if (!logFile.exists()) {
             return RespBody.error("Log file not found");
         }
 
@@ -239,17 +252,13 @@ public class AdminAssistController extends BaseController {
         return RespBody.ok(res);
     }
 
-    private File checkLogFile(String fileName) throws IOException {
-        if (!fileName.matches("[a-zA-Z0-9_.\\-]+\\.log")) {
-            return null;
+    private File checkLogFile(String fileName) {
+        // AI 会话日志在临时目录
+        if (fileName.startsWith(ChatLogger.LOG_FILE_PREFIX)) {
+            return RebuildConfiguration.getFileOfTemp(fileName);
         }
 
-        File logDir = RebuildConfiguration.getFileOfData("_log");
-        File logFile = new File(logDir, fileName);
-        if (!logFile.getCanonicalPath().startsWith(logDir.getCanonicalPath() + File.separator)) {
-            return null;
-        }
-        return logFile;
+        return new File(RebuildConfiguration.getFileOfData("_log"), fileName);
     }
 
     private List<String> readTailEntries(File file, int maxEntries, String keyword, String minLevel) throws IOException {

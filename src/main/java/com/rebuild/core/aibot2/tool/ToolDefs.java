@@ -17,7 +17,6 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.rebuild.core.aibot2.tool.ToolHelper.compactJson;
 
 /**
  * @author Zixin
@@ -116,40 +117,25 @@ public class ToolDefs {
 
         if (StringUtils.isBlank(arguments)) arguments = "{}";
 
-        log.info("TOOL_CALL {}{}{}", toolName, System.lineSeparator(), compactJson(arguments));
+        log.info("TOOL_CALL {}\n{}", toolName, compactJson(arguments));
         try {
             Object res = tool.tool(arguments);
             String toolRes = res instanceof String ? (String) res : JSON.toJSONString(res);
-            log.info("TOOL_RESULT {}{}{}", toolName, System.lineSeparator(), compactJson(toolRes));
+            log.info("TOOL_RESULT {}\n{}", toolName, compactJson(toolRes));
             return toolRes;
 
         } catch (KnownToolException ex) {
             // 已知业务异常（如参数校验失败、实体不存在），仅记录消息不输出堆栈
-            log.warn("TOOL_ERROR {} - {}", toolName, ex.getMessage());
+            log.warn("TOOL_WARN {}\n{}", toolName, ex.getMessage());
             throw ex;
         } catch (ToolException ex) {
-            log.error("TOOL_ERROR {} - {}", toolName, ex.getMessage(), ex);
+            log.error("TOOL_ERROR {}\n{}", toolName, ex.getMessage(), ex);
             throw ex;
         } catch (Exception ex) {
-            log.error("TOOL_ERROR {} - {}", toolName, CommonsUtils.getRootMessage(ex), ex);
-            throw new ToolException(CommonsUtils.getRootMessage(ex), ex);
+            String error = CommonsUtils.getRootMessage(ex);
+            log.error("TOOL_ERROR {}\n{}", toolName, error, ex);
+            throw new ToolException(error, ex);
         }
-    }
-
-    /**
-     * JSON 压缩为单行紧凑格式，与 ChatLogger 会话日志格式保持一致
-     *
-     * @param text
-     * @return
-     */
-    private static String compactJson(String text) {
-        if (JSONUtils.wellFormat(text)) {
-            try {
-                return JSON.toJSONString(JSON.parse(text));
-            } catch (Exception ignored) {
-            }
-        }
-        return text;
     }
 
     /**

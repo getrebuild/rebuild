@@ -9,7 +9,6 @@ package com.rebuild.core.aibot2.knowledge;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.aibot2.vector.VectorData;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -75,18 +74,6 @@ public class KnowledgeRetriever {
                 StringUtils.abbreviate(query, 50), keywords.size(), matched.size(), result.size());
 
         return result;
-    }
-
-    /**
-     * 检索并拼装为 VectorData
-     *
-     * @param query
-     * @return
-     */
-    public static VectorData retrieveAsVectorData(String query) {
-        List<KnowledgeChunk> chunks = retrieve(query, DEFAULT_TOP_K);
-        if (chunks.isEmpty()) return null;
-        return new KnowledgeData(chunks);
     }
 
     /**

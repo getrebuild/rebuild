@@ -104,7 +104,7 @@ public class AiBot2Controller extends BaseController {
         String type = getParameterNotNull(req, "type");
 
         ChatLogger chatLogger = ChatManager.getChat(chatid).chatLogger();
-        File logFile = chatLogger.logFile();
+        File logFile = chatLogger.getLogFile();
         if (!logFile.exists()) return RespBody.error();
 
         chatLogger.log("FEEDBACK", type);

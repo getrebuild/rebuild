@@ -497,6 +497,11 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   padding: 1px;
 }
 
+.chat-message .msg-text .mermaid,
+.chat-message .msg-text .mermaid-to-render {
+  padding: 10px;
+}
+
 .chat-message .msg-text .echarts-to-render:not(.echarts-rendered) {
   height: auto;
   max-height: 160px;

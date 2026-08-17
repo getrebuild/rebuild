@@ -11574,7 +11574,7 @@ canvas {
 }
 
 .rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar {
-  padding-left: 25px;
+  /* padding-left: 25px; */
 }
 
 @media (max-width: 767.98px) {

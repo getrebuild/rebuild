@@ -21,6 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <argLine>-Dfile.encoding=UTF-8</argLine>
         <java.version>1.8</java.version>
+        <kotlin.version>1.9.25</kotlin.version>
         <skipTests>true</skipTests>
         <npm.exec>npm</npm.exec>
     </properties>

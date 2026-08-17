@@ -41,6 +41,7 @@ import java.util.Map;
 
 import static com.rebuild.core.aibot2.Message.ROLE_AI;
 import static com.rebuild.core.aibot2.Message.ROLE_USER;
+import static com.rebuild.core.aibot2.tool.ToolHelper.toolCallsText;
 
 /**
  * 会话
@@ -208,8 +209,8 @@ public class Chat implements Serializable {
                 return;
             }
 
-            chatLogger().logEvent(String.format("TOOL_CALL round %d/%d : %s",
-                    MAX_TOOL_ROUNDS - maxRounds + 1, MAX_TOOL_ROUNDS, toolCallAccumulator));
+            chatLogger().logEvent(String.format("TOOL_CALL rounds %d/%d : %s",
+                    MAX_TOOL_ROUNDS - maxRounds + 1, MAX_TOOL_ROUNDS, toolCallsText(toolCallAccumulator)));
             if (fullContent.length() > 0) {
                 chatLogger().log("ASSISTANT", fullContent.toString());
             }
@@ -286,8 +287,8 @@ public class Chat implements Serializable {
         List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
         int maxRounds = MAX_TOOL_ROUNDS;
         while (CollectionUtils.isNotEmpty(toolCalls) && maxRounds-- > 0) {
-            chatLogger().logEvent(String.format("TOOL_CALL round %d/%d : %s",
-                    MAX_TOOL_ROUNDS - maxRounds + 1, MAX_TOOL_ROUNDS, toolCalls));
+            chatLogger().logEvent(String.format("TOOL_CALL rounds %d/%d : %s",
+                    MAX_TOOL_ROUNDS - maxRounds + 1, MAX_TOOL_ROUNDS, toolCallsText(toolCalls)));
 
             ai.content().ifPresent(c -> {
                 if (StringUtils.isNotBlank(c)) chatLogger().log("ASSISTANT", c);

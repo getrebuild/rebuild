@@ -14,6 +14,11 @@ const _chatMarked = new marked.Marked({
         const safe = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         return `<div class="echarts-to-render">${safe}</div>`
       }
+      // ```mermaid
+      if (lang === 'mermaid') {
+        const safe = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        return `<div class="mermaid-to-render">${safe}</div>`
+      }
       return false
     },
     link({ href, title, tokens }) {
@@ -477,12 +482,15 @@ class ChatMessage extends React.Component {
       })
 
     this._tryRenderCharts()
+    this._tryRenderMermaid()
   }
 
   componentDidUpdate(props, prevState) {
-    if (prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning) {
-      scrollToBottom()
+    const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning
+    if (contentChanged) scrollToBottom()
+    if (contentChanged || prevState.waitResp !== this.state.waitResp) {
       this._tryRenderCharts()
+      this._tryRenderMermaid()
     }
   }
 
@@ -499,7 +507,15 @@ class ChatMessage extends React.Component {
     const $el = this._$message && $(this._$message)
     if (!$el || $el.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
     if (!this._echartsSeq) this._echartsSeq = $random('echarts-', true)
-    $setTimeout(() => $renderEcharts($el), 200, 'render-echarts-' + this._echartsSeq)
+    $setTimeout(() => renderEcharts($el), 200, 'render-echarts-' + this._echartsSeq)
+  }
+
+  _tryRenderMermaid() {
+    const $el = this._$message && $(this._$message)
+    if (!$el || $el.find('.mermaid-to-render').length === 0) return
+    // 渲染失败不可重试，需等待消息输出完成
+    if (this.props.sendResp && this.state.waitResp !== -1) return
+    $renderMermaid($el)
   }
 
   _feedbackable() {
@@ -621,44 +637,6 @@ class ChatMessage extends React.Component {
       </div>
     )
   }
-}
-
-// 懒加载 ECharts 并渲染
-function $renderEcharts($container) {
-  if (!$container || !$container.length) return
-  if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
-
-  $useEchart(() => {
-    $container.find('.echarts-to-render:not(.echarts-rendered)').each(function () {
-      const $node = $(this)
-      let option
-      try {
-        option = JSON.parse($node.text())
-      } catch (err) {
-        // 流式输出中 JSON 可能尚不完整，等待下次渲染
-        console.warn('ECharts option parse failed :', err)
-        return
-      }
-
-      $node.addClass('echarts-rendered').empty()
-      try {
-        const chart = echarts.init($node[0])
-        const base = { ...ECHART_BASE }
-        delete base.grid
-        const opt = { ...base, ...option }
-        opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
-        opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
-        if (opt.title) opt.title = { ...opt.title, top: 10 }
-        if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
-        opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
-        chart.setOption(opt)
-        $node.data('echarts-instance', chart)
-      } catch (err) {
-        console.error('ECharts render error :', err)
-        $node.removeClass('echarts-rendered')
-      }
-    })
-  })
 }
 
 function scrollToBottom(forceScroll) {
@@ -1059,4 +1037,41 @@ function fixMd(md) {
   md = md.replace(/^(#{1,6})(?=[^\s#])/gm, '$1 ')
 
   return md
+}
+
+function renderEcharts($container) {
+  if (!$container || !$container.length) return
+  if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
+
+  $useEchart(() => {
+    $container.find('.echarts-to-render:not(.echarts-rendered)').each(function () {
+      const $node = $(this)
+      let option
+      try {
+        option = JSON.parse($node.text())
+      } catch (err) {
+        // 流式输出中 JSON 可能尚不完整，等待下次渲染
+        console.warn('ECharts option parse failed :', err)
+        return
+      }
+
+      $node.addClass('echarts-rendered').empty()
+      try {
+        const chart = echarts.init($node[0])
+        const base = { ...ECHART_BASE }
+        delete base.grid
+        const opt = { ...base, ...option }
+        opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
+        opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
+        if (opt.title) opt.title = { ...opt.title, top: 10 }
+        if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
+        opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
+        chart.setOption(opt)
+        $node.data('echarts-instance', chart)
+      } catch (err) {
+        console.error('ECharts render error :', err)
+        $node.removeClass('echarts-rendered')
+      }
+    })
+  })
 }

@@ -43,7 +43,11 @@
         },
         "taskId": {
           "type": "string",
-          "description": "任务ID（cancel 必填，可通过 list 查询）"
+          "description": "任务ID（create 返回的 taskId）。cancel 时与 no 二选一，优先使用 no；不要向用户展示"
+        },
+        "no": {
+          "type": "integer",
+          "description": "任务序号，即 action=list 结果中每个任务的编号（1、2、3…）。cancel 时与 taskId 二选一，优先使用 no"
         }
       },
       "additionalProperties": false

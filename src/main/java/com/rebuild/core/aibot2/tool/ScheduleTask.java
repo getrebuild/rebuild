@@ -152,21 +152,18 @@ public class ScheduleTask implements Tool {
      * 查询当前用户的所有定时任务
      */
     private Object doList() {
-        Object[][] array = Application.createQueryNoFilter(
-                "select configId,config,name,isDisabled from AibotConfig where type = ? and createdBy = ? order by createdOn desc")
-                .setParameter(1, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
-                .setParameter(2, UserContextHolder.getUser())
-                .array();
+        Object[][] array = queryUserTasks(UserContextHolder.getUser());
 
         List<JSONObject> tasks = new ArrayList<>();
-        for (Object[] row : array) {
+        for (int i = 0; i < array.length; i++) {
+            Object[] row = array[i];
             String taskId = ((ID) row[0]).toLiteral();
             String configStr = (String) row[1];
             String name = (String) row[2];
             boolean disabled = row[3] != null && (Boolean) row[3];
 
             JSONObject taskInfo = new JSONObject(true);
-            taskInfo.put("taskId", taskId);
+            taskInfo.put("no", i + 1);
             taskInfo.put("subject", name);
             taskInfo.put("disabled", disabled);
 
@@ -197,11 +194,23 @@ public class ScheduleTask implements Tool {
     }
 
     /**
-     * 取消定时任务
+     * 取消定时任务（按序号或任务 ID 定位）
      */
     private Object doCancel(JSONObject args) {
-        ID taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
         final ID user = UserContextHolder.getUser();
+
+        Integer no = args.getInteger("no");
+        ID taskId;
+        if (no != null) {
+            Object[][] array = queryUserTasks(user);
+            if (no < 1 || no > array.length) {
+                throw new KnownToolException(String.format(
+                        "序号 %d 无效（当前共 %d 个定时任务），请先通过 action=list 查看序号", no, array.length));
+            }
+            taskId = (ID) array[no - 1][0];
+        } else {
+            taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
+        }
 
         Object[] task = Application.createQueryNoFilter(
                 "select config,name,createdBy from AibotConfig where configId = ? and type = ?")
@@ -226,6 +235,20 @@ public class ScheduleTask implements Tool {
         return JSONUtils.toJSONObject(
                 new String[]{"status", "message"},
                 new Object[]{"ok", String.format("已成功取消定时任务 [%s]", name)});
+    }
+
+    /**
+     * 查询当前用户的定时任务（按创建时间由新到旧，序号与 list 结果一致）
+     *
+     * @param user
+     * @return
+     */
+    private Object[][] queryUserTasks(ID user) {
+        return Application.createQueryNoFilter(
+                "select configId,config,name,isDisabled from AibotConfig where type = ? and createdBy = ? order by createdOn desc")
+                .setParameter(1, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
+                .setParameter(2, user)
+                .array();
     }
 
     /**
