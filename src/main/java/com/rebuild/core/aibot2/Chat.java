@@ -202,6 +202,10 @@ public class Chat implements Serializable {
             }
 
             log.info("Tool calls round {} : {}", MAX_TOOL_ROUNDS - maxRounds + 1, toolCallAccumulator.size());
+            if (fullContent.length() > 0) {
+                ChatLogger.log(chatRequest.getChatid(), "ASSISTANT", fullContent.toString());
+            }
+
             List<ChatCompletionMessageToolCall> assembledToolCalls = new ArrayList<>();
             for (String[] entry : toolCallAccumulator.values()) {
                 String tcId = entry[0];
@@ -275,6 +279,9 @@ public class Chat implements Serializable {
         int maxRounds = MAX_TOOL_ROUNDS;
         while (CollectionUtils.isNotEmpty(toolCalls) && maxRounds-- > 0) {
             log.info("Tool calls round {} : {}", MAX_TOOL_ROUNDS - maxRounds, toolCalls.size());
+            ai.content().ifPresent(c -> {
+                if (StringUtils.isNotBlank(c)) ChatLogger.log(chatid, "ASSISTANT", c);
+            });
             builder.addMessage(ai);
 
             for (ChatCompletionMessageToolCall tc : toolCalls) {
@@ -305,25 +312,31 @@ public class Chat implements Serializable {
      * @return
      */
     private String safeExecute(String toolName, String arguments) {
+        ChatLogger.log(chatid, "TOOL_CALL " + toolName, arguments);
+
+        String toolResult;
         try {
-            return ToolDefs.execute(toolName, arguments);
+            toolResult = ToolDefs.execute(toolName, arguments);
         } catch (Exception ex) {
             // 异常日志已由 ToolDefs.execute 输出，此处不再重复记录
 
             // 系统已知业务异常（如数据校验失败）
             if (isKnownBusinessException(ex)) {
                 String message = CommonsUtils.getRootMessage(ex);
-                return "[业务校验错误] 此为系统已知的业务异常，请将以下错误信息如实反馈给用户，"
+                toolResult = "[业务校验错误] 此为系统已知的业务异常，请将以下错误信息如实反馈给用户，"
                         + "不要尝试修改数据或参数以绕过校验。\n错误信息: " + message;
             }
-
             // 工具层已知业务异常（如参数校验失败、实体不存在），可修正后重试
-            if (ex instanceof KnownToolException) {
-                return ex.getMessage();
+            else if (ex instanceof KnownToolException) {
+                toolResult = ex.getMessage();
             }
-
-            return CommonsUtils.getRootMessage(ex);
+            else {
+                toolResult = CommonsUtils.getRootMessage(ex);
+            }
         }
+
+        ChatLogger.log(chatid, "TOOL_RESULT " + toolName, toolResult);
+        return toolResult;
     }
 
     /**
@@ -358,10 +371,13 @@ public class Chat implements Serializable {
         if (userMessage != null) {
             Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
             messages.add(message);
+
+            ChatLogger.log(chatid, "USER", userMessage);
         }
 
         String systemPrompt = SystemPromptBuilder.build(prompt,
                 chatRequest == null ? null : chatRequest.getSkill());
+        ChatLogger.logSession(chatid, model, systemPrompt);
 
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model);
         for (Message m : messages) {
@@ -386,6 +402,8 @@ public class Chat implements Serializable {
     private Message completionAfter(String aiMessage, ChatRequest chatRequest) {
         Message message = new Message(ROLE_AI, aiMessage, null, null, chatRequest);
         messages.add(message);
+
+        ChatLogger.log(chatid, "ASSISTANT", aiMessage);
 
         this.store();
         return message;
