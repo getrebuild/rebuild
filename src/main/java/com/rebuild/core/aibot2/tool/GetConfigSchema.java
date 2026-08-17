@@ -9,7 +9,6 @@ package com.rebuild.core.aibot2.tool;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.JsonSchemaValidator;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,6 +40,6 @@ public class GetConfigSchema implements Tool {
 
     @Override
     public boolean isSystem() {
-        return !Application.devMode();
+        return HIDDEN_SYSTEM;
     }
 }

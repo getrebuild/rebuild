@@ -24,6 +24,8 @@ import org.springframework.util.Assert;
 @Lab
 public interface Tool {
 
+    boolean HIDDEN_SYSTEM = true;
+
     /**
      * 定义
      *

@@ -10,7 +10,6 @@ package com.rebuild.core.aibot2.tool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.knowledge.KnowledgeChunk;
 import com.rebuild.core.aibot2.knowledge.KnowledgeRetriever;
 import com.rebuild.utils.JSONUtils;
@@ -62,6 +61,6 @@ public class SearchKnowledge implements Tool {
 
     @Override
     public boolean isSystem() {
-        return !Application.devMode();
+        return HIDDEN_SYSTEM;
     }
 }

@@ -14631,6 +14631,7 @@ a.avatar.x48 img {
   position: relative;
   overflow: hidden;
   vertical-align: middle;
+  text-align: left;
 }
 
 .switch-button input[type='checkbox'] {

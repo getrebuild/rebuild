@@ -36,4 +36,9 @@ public class SuggestCustom implements Tool {
                 new String[]{"status", "message"},
                 new Object[]{"ok", message});
     }
+
+    @Override
+    public boolean isSystem() {
+        return HIDDEN_SYSTEM;
+    }
 }

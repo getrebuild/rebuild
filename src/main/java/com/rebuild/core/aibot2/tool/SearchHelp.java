@@ -143,4 +143,9 @@ public class SearchHelp implements Tool {
         ret.put("docsHome", DOCS_HOME);
         return ret;
     }
+
+    @Override
+    public boolean isSystem() {
+        return HIDDEN_SYSTEM;
+    }
 }

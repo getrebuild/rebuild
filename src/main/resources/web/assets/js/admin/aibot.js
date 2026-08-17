@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global autosize */
+/* global autosize, ShowEnable */
 
 // eslint-disable-next-line no-undef, react/display-name
 useEditComp = function (name) {
@@ -35,9 +35,9 @@ $(document).ready(() => {
 
   _renderMcpConfig()
 
-  _loadSkills()
-  _loadKnowledge()
-  _loadTools()
+  SkillList.load()
+  KbList.load()
+  ToolList.load()
   $('.J_addSkill').on('click', (e) => {
     $stopEvent(e, true)
     _editSkill()
@@ -50,34 +50,41 @@ $(document).ready(() => {
 
 // ~~ Knowledge
 
-const _loadKnowledge = function () {
-  $.get('./aibot/kb-list', (res) => {
-    const data = res.data || []
-    const $tbody = $('#kbList').empty()
-    $('.J_kbEmpty').toggle(data.length === 0)
+class KbList extends React.Component {
+  static load() {
+    $.get('./aibot/kb-list', (res) => {
+      const data = res.data || []
+      $('.J_kbEmpty').toggle(data.length === 0)
+      renderRbcomp(<KbList data={data} />, 'kbList')
+    })
+  }
 
-    data.forEach((item) => {
+  render() {
+    return this.props.data.map((item) => {
       // -1 构建中，0 构建失败，>0 分片数
       let chunkBadge
-      if (item.chunkCount > 0) chunkBadge = `<span class="badge badge-light ml-1 up-1">${item.chunkCount}</span>`
-      else if (item.chunkCount === -1) chunkBadge = `<span class="badge badge-warning ml-1">${$L('构建中')}</span>`
-      else chunkBadge = `<span class="badge badge-danger ml-1">${$L('构建失败')}</span>`
+      if (item.chunkCount > 0) chunkBadge = <span className="badge badge-light ml-1 up-1">{item.chunkCount}</span>
+      else if (item.chunkCount === -1) chunkBadge = <span className="badge badge-warning ml-1">{$L('构建中')}</span>
+      else chunkBadge = <span className="badge badge-danger ml-1">{$L('构建失败')}</span>
 
-      const $tr = $(
-        `<tr>
-          <td>${item.name} ${chunkBadge}</td>
-          <td>${item.description || $L('无')}</td>
-          <td class="actions">
-            <a title="${$L('修改')}" class="icon"><i class="zmdi zmdi-edit"></i></a>
-            <a title="${$L('删除')}" class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a>
+      return (
+        <tr key={item.id}>
+          <td>
+            {item.name} {chunkBadge}
           </td>
-        </tr>`,
-      ).appendTo($tbody)
-
-      $tr.find('a:eq(0)').on('click', () => _editKb(item))
-      $tr.find('a:eq(1)').on('click', () => _deleteKb(item))
+          <td>{item.description || $L('无')}</td>
+          <td className="actions">
+            <a title={$L('修改')} className="icon" onClick={() => _editKb(item)}>
+              <i className="zmdi zmdi-edit" />
+            </a>
+            <a title={$L('删除')} className="icon danger-hover" onClick={() => _deleteKb(item)}>
+              <i className="zmdi zmdi-delete" />
+            </a>
+          </td>
+        </tr>
+      )
     })
-  })
+  }
 }
 
 const _editKb = function (item) {
@@ -93,7 +100,7 @@ const _deleteKb = function (item) {
       $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
         if (res.error_code === 0) {
           this.hide()
-          _loadKnowledge()
+          KbList.load()
         } else {
           RbHighbar.error(res.error_msg)
           this.disabled()
@@ -238,7 +245,7 @@ class DlgKbEdit extends RbModalHandler {
         const next = () => {
           $btn.button('reset')
           this.hide()
-          _loadKnowledge()
+          KbList.load()
         }
         // 内容未变化（如仅修改名称/描述）无需重新构建
         if (needBuild) {
@@ -256,29 +263,34 @@ class DlgKbEdit extends RbModalHandler {
 
 // ~~ Skills
 
-const _loadSkills = function () {
-  $.get('./aibot/skill-list', (res) => {
-    const data = res.data || []
-    const $tbody = $('#skillsList').empty()
-    $('.J_skillsEmpty').toggle(data.length === 0)
-
-    data.forEach((item) => {
-      const cfg = item.config || {}
-      const $tr = $(
-        `<tr>
-          <td>${item.name}</td>
-          <td>${cfg.description || $L('无')}</td>
-          <td class="actions">
-            <a title="${$L('修改')}" class="icon"><i class="zmdi zmdi-edit"></i></a>
-            <a title="${$L('删除')}" class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a>
-          </td>
-        </tr>`,
-      ).appendTo($tbody)
-
-      $tr.find('a:eq(0)').on('click', () => _editSkill(item))
-      $tr.find('a:eq(1)').on('click', () => _deleteSkill(item))
+class SkillList extends React.Component {
+  static load() {
+    $.get('./aibot/skill-list', (res) => {
+      const data = res.data || []
+      $('.J_skillsEmpty').toggle(data.length === 0)
+      renderRbcomp(<SkillList data={data} />, 'skillsList')
     })
-  })
+  }
+
+  render() {
+    return this.props.data.map((item) => {
+      const cfg = item.config || {}
+      return (
+        <tr key={item.id}>
+          <td>{item.name}</td>
+          <td>{cfg.description || $L('无')}</td>
+          <td className="actions">
+            <a title={$L('修改')} className="icon" onClick={() => _editSkill(item)}>
+              <i className="zmdi zmdi-edit" />
+            </a>
+            <a title={$L('删除')} className="icon danger-hover" onClick={() => _deleteSkill(item)}>
+              <i className="zmdi zmdi-delete" />
+            </a>
+          </td>
+        </tr>
+      )
+    })
+  }
 }
 
 const _editSkill = function (item) {
@@ -294,7 +306,7 @@ const _deleteSkill = function (item) {
       $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
         if (res.error_code === 0) {
           this.hide()
-          _loadSkills()
+          SkillList.load()
         } else {
           RbHighbar.error(res.error_msg)
           this.disabled()
@@ -481,7 +493,7 @@ class DlgSkillEdit extends RbModalHandler {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('成功导入 %d 个技能', selected.length))
-        _loadSkills()
+        SkillList.load()
       } else {
         RbHighbar.error(res.error_msg)
         $btn.button('reset')
@@ -516,7 +528,7 @@ class DlgSkillEdit extends RbModalHandler {
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        _loadSkills()
+        SkillList.load()
       } else {
         RbHighbar.error(res.error_msg)
         $btn.button('reset')
@@ -528,46 +540,35 @@ class DlgSkillEdit extends RbModalHandler {
 // ~~ Tools
 
 let _toolsData = []
-
-const _loadTools = function () {
-  $.get('./aibot/tools', (res) => {
-    _toolsData = res.data || []
-    const $tbody = $('#toolsList').empty()
-
-    _toolsData.forEach((item) => {
-      if (item.name === 'SuggestCustom') return
-
-      const htmlid = `tool-enable-${item.name}`
-      $(
-        `<tr>
-          <td>${item.name}</td>
-          <td>${item.userDescription || item.description || $L('无')}</td>
-          <td class="actions">
-            <div class="switch-button switch-button-xs switch-button-success">
-              <input type="checkbox" id="${htmlid}" ${item.disabled ? '' : 'checked'} />
-              <span><label for="${htmlid}"></label></span>
-            </div>
-          </td>
-        </tr>`,
-      ).appendTo($tbody)
-
-      $(`#${htmlid}`).on('change', function () {
-        _saveToolsDisabled()
-      })
+class ToolList extends React.Component {
+  static load() {
+    $.get('./aibot/tools', (res) => {
+      _toolsData = res.data || []
+      renderRbcomp(<ToolList data={_toolsData} />, 'toolsList')
     })
-  })
-}
+  }
 
-const _saveToolsDisabled = function () {
-  const disabled = []
-  _toolsData.forEach((item) => {
-    const $input = $(`#tool-enable-${item.name}`)
-    if ($input[0] && !$input[0].checked) disabled.push(item.name)
-  })
+  render() {
+    return this.props.data.map((item) => {
+      return (
+        <tr key={item.name}>
+          <td>{item.name}</td>
+          <td>{item.userDescription || item.description || $L('无')}</td>
+          <td className="actions">{ShowEnable(item.disabled, item.name, (checked) => this._saveToolsDisabled(item.name, checked))}</td>
+        </tr>
+      )
+    })
+  }
 
-  $.post(location.href, JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
-    if (res.error_code !== 0) RbHighbar.error(res.error_msg)
-  })
+  _saveToolsDisabled(name, checked) {
+    const item = _toolsData.find((x) => x.name === name)
+    if (item) item.disabled = !checked
+
+    const disabled = _toolsData.filter((x) => x.disabled).map((x) => x.name)
+    $.post(location.href, JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
+      if (res.error_code !== 0) RbHighbar.error(res.error_msg)
+    })
+  }
 }
 
 // eslint-disable-next-line no-undef
@@ -580,8 +581,6 @@ postBefore = function (data) {
 
   return data
 }
-
-// ~~
 
 const _renderStats = function (data, $el) {
   const xAxis = []
