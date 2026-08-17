@@ -1,5 +1,6 @@
 {
   "type": "function",
+  "userDescription": "查询业务记录列表，支持按名称模糊搜索、按字段条件筛选、分页和排序",
   "function": {
     "name": "QueryRecords",
     "description": "查询业务记录列表，支持按名称模糊搜索、按字段条件过滤、分页和排序。当用户想查找、列出、筛选记录（如「帮我查一下客户张三的记录」「列出本月新增的订单」）时使用。仅需获取单条已知ID记录的详情请用 GetRecord，需要统计聚合计算请用 StatisticsData",

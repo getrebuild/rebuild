@@ -10,6 +10,7 @@ package com.rebuild.core.aibot2.tool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.knowledge.KnowledgeChunk;
 import com.rebuild.core.aibot2.knowledge.KnowledgeRetriever;
 import com.rebuild.utils.JSONUtils;
@@ -57,5 +58,10 @@ public class SearchKnowledge implements Tool {
         return JSONUtils.toJSONObject(
                 new String[]{"status", "results", "total"},
                 new Object[]{"ok", results, results.size()});
+    }
+
+    @Override
+    public boolean isSystem() {
+        return !Application.devMode();
     }
 }

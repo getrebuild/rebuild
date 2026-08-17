@@ -1,5 +1,6 @@
 {
   "type": "function",
+  "userDescription": "对业务记录进行审批操作，支持提交、同意、驳回、撤回、撤销和查询审批状态",
   "function": {
     "name": "ApproveRecord",
     "description": "对业务记录进行审批操作，支持提交、同意、驳回、撤回、撤销和查询审批状态。当用户想提交审批、审批通过/驳回某条记录或查询审批进度（如「这个请假单帮我提交审批」）时使用。recordId 可通过 QueryRecords 查询获取",

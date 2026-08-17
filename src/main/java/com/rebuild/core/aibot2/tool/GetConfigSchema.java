@@ -9,6 +9,7 @@ package com.rebuild.core.aibot2.tool;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.JsonSchemaValidator;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,7 +36,11 @@ public class GetConfigSchema implements Tool {
             throw new KnownToolException("未知的 Schema : " + schema + "，可用值见本工具 schema 参数说明");
         }
 
-        // 直接返回 Schema 原文，避免二次转义
         return content;
+    }
+
+    @Override
+    public boolean isSystem() {
+        return !Application.devMode();
     }
 }

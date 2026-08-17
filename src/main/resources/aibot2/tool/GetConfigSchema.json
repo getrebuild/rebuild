@@ -1,5 +1,6 @@
 {
   "type": "function",
+  "userDescription": "获取系统配置数据体的 JSON Schema（结构定义与字段说明），供配置类工具生成合规配置",
   "function": {
     "name": "GetConfigSchema",
     "description": "获取系统配置数据体的 JSON Schema（结构定义与字段说明）。调用 BuildTrigger 等配置类工具前，必须先获取对应 Schema 并严格按其结构生成配置内容",

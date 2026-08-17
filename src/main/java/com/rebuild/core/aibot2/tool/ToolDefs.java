@@ -81,7 +81,7 @@ public class ToolDefs {
         // 管理员专属工具不提供给非管理员
         boolean isAdmin = UserHelper.isAdmin(UserContextHolder.getUser());
         return TOOL_MAP.entrySet().stream()
-                .filter(e -> !disabled.contains(e.getKey()) && !e.getValue().isSystem())
+                .filter(e -> !disabled.contains(e.getKey()))
                 .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
                 .map(e -> e.getValue().def())
                 .collect(Collectors.toList());
@@ -188,6 +188,7 @@ public class ToolDefs {
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
             Tool toolImpl = TOOL_MAP.get(toolName);
+            // 系统工具仅供 AI 使用，不对用户展示
             if (toolImpl.isSystem()) continue;
             // 禁用工具仅在 includeDisabled 时返回（供管理页展示/重新启用）
             if (disabled.contains(toolName) && !includeDisabled) continue;
@@ -195,11 +196,15 @@ public class ToolDefs {
             String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
             if (d == null) continue;
 
-            JSONObject funcJson = JSONObject.parseObject(d).getJSONObject("function");
+            JSONObject json = JSONObject.parseObject(d);
+            JSONObject funcJson = json.getJSONObject("function");
 
             JSONObject tool = new JSONObject(true);
             tool.put("name", funcJson.getString("name"));
             tool.put("description", funcJson.getString("description"));
+            // 用户描述独立于模型描述，未配置时回退到模型描述
+            String userDescription = json.getString("userDescription");
+            if (StringUtils.isNotBlank(userDescription)) tool.put("userDescription", userDescription);
             if (includeDisabled) tool.put("disabled", disabled.contains(toolName));
             if (includeSchema) tool.put("inputSchema", funcJson.getJSONObject("parameters"));
             tools.add(tool);

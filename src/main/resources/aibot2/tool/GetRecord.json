@@ -1,5 +1,6 @@
 {
   "type": "function",
+  "userDescription": "根据记录 ID 获取单条记录的完整字段详情",
   "function": {
     "name": "GetRecord",
     "description": "获取单条记录的完整字段详情，通过记录ID查询，返回所有可查询字段的值。当用户想查看某条记录的完整信息（如「看下这条记录的详情」）时使用。需要查询多条记录或按条件筛选请用 QueryRecords",

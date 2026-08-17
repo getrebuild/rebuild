@@ -1,5 +1,6 @@
 {
   "type": "function",
+  "userDescription": "导出报表文件并生成下载链接，支持按条件批量导出多条记录或基于单条记录生成报表",
   "function": {
     "name": "ExportReport",
     "description": "导出报表文件并生成下载链接。当用户想把记录/报表导出为文件下载（如「把这个月的订单导出来」）时使用。报表分两种类型，LIST 报表按条件批量导出多条记录，RECORD 报表基于单条记录生成。不传 reportId 参数时返回该实体下可用报表列表供选择",

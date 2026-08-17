@@ -1,5 +1,6 @@
 {
   "type": "function",
+  "userDescription": "新建业务实体，可同时创建名称字段和自动编号字段",
   "function": {
     "name": "BuildEntity",
     "description": "新建实体。当用户想创建新的业务管理对象（如「我要管理合同/设备/供应商」「帮我建一个XX表」）时使用，用户通常不会说「实体」一词。可同时创建名称字段和自动编号字段，指定主实体时创建为该实体的明细实体。新建前先用 ListEntities 查看已有实体，能复用的不重复新建。创建后可用 BuildField 继续添加字段",

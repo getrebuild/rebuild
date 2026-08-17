@@ -1,5 +1,6 @@
 {
   "type": "function",
+  "userDescription": "高级查询，保存常用查询条件供列表页直接选用",
   "function": {
     "name": "BuildFilter",
     "description": "新建高级过滤器（查询方案），用户在实体列表页的常用筛选中可直接选用。当用户想把常用的筛选条件保存下来以便日后快速使用（如「帮我存一个本月未回款的筛选」）时使用。调用前必须先用 GetConfigSchema(schema=adv-filter) 获取 config 的结构定义，并用 ListEntities 查询实体真实字段名。条件字段也可使用中文标签（支持点号跨引用实体），工具会自动转换为真实字段名",

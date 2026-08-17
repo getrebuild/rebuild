@@ -541,7 +541,7 @@ const _loadTools = function () {
       $(
         `<tr>
           <td>${item.name}</td>
-          <td>${item.description || $L('无')}</td>
+          <td>${item.userDescription || item.description || $L('无')}</td>
           <td class="actions">
             <div class="switch-button switch-button-xs switch-button-success">
               <input type="checkbox" id="${htmlid}" ${item.disabled ? '' : 'checked'} />

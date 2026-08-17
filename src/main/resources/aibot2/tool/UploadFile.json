@@ -1,5 +1,6 @@
 {
   "type": "function",
+  "userDescription": "上传文件或图片到系统，支持 BASE64 和 URL 两种方式，上传结果可供动态、任务等作为附件使用",
   "function": {
     "name": "UploadFile",
     "description": "上传文件或图片到系统，支持 BASE64 和 URL 两种方式，文件大小限制 50MB，返回 fileKey 供其他工具引用。当用户想上传文件/图片（如「把这张图传上去」）或需为发布动态、创建任务准备附件时使用。fileKey 可用于 CreateFeed 的图片附件参数和 CreateProjectTask 的附件参数",

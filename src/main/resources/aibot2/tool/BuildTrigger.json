@@ -1,5 +1,6 @@
 {
   "type": "function",
+  "userDescription": "新建触发器（自动化规则），在记录变化时自动执行字段更新、汇总回写、发送通知、自动审批等动作",
   "function": {
     "name": "BuildTrigger",
     "description": "新建触发器（自动化规则）。当用户希望实现自动化需求时使用——用户可能不会提到「触发器」一词，典型表述如：把明细/子记录数据汇总（求和、计数等）回写到主记录、记录创建/更新/删除/审批时自动更新字段、自动发送通知、自动审批、自动分配、自动共享等。仅一次性查询统计请用 StatisticsData。调用前必须先用 GetConfigSchema(schema=trigger-config) 获取 actionContent 的结构定义，并用 ListEntities 查询实体真实字段名。字段引用也可使用中文标签，工具会自动转换为真实字段名，解析失败会返回错误提示",
