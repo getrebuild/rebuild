@@ -172,12 +172,12 @@ public class BuildTrigger implements Tool, AdminGuard {
 
         log.info("Trigger created via AI : {} on {}", configId, sourceEntity.getName());
 
+        String configUrl = AppUtils.getContextPath("/admin/robot/trigger/" + configId);
         return JSONUtils.toJSONObject(
                 new String[]{"status", "configId", "entity", "actionType", "name", "url", "message"},
-                new Object[]{"ok", configId.toLiteral(), sourceEntity.getName(), actionType.name(), triggerName,
-                        AppUtils.getContextPath("/admin/robot/trigger/" + configId),
-                        String.format("已成功创建触发器 [%s]（%s - %s），可前往管理中心-机器人-触发器查看或调整",
-                                triggerName, EasyMetaFactory.getLabel(sourceEntity), Language.L(actionType))});
+                new Object[]{"ok", configId.toLiteral(), sourceEntity.getName(), actionType.name(), triggerName, configUrl,
+                        String.format("已成功创建触发器 [%s]（%s - %s），[点击查看触发器配置](%s)，可在此页面查看或调整",
+                                triggerName, EasyMetaFactory.getLabel(sourceEntity), Language.L(actionType), configUrl)});
     }
 
     /**
@@ -397,7 +397,8 @@ public class BuildTrigger implements Tool, AdminGuard {
     }
 
     /**
-     * 解析用户选择器数组（元素可为 ID、用户全名/用户名、FIELD:字段名）
+     * 解析用户选择器数组（UserSelector 标准格式，见 user-selector Schema）
+     * 元素可为用户/部门/团队 ID、记录上的用户字段名/路径（无前缀）、OWNS、用户全名/用户名（自动转为 ID）
      *
      * @param sourceEntity
      * @param value
@@ -416,19 +417,30 @@ public class BuildTrigger implements Tool, AdminGuard {
         for (Object o : arr) {
             String v = String.valueOf(o).trim();
 
-            if (ID.isId(v)) {
+            if (ID.isId(v) || "OWNS".equals(v)) {
                 resolved.add(v);
-            } else if (v.startsWith("FIELD:")) {
-                Field f = ToolHelper.resolveField(sourceEntity, v.substring(6));
-                resolved.add("FIELD:" + f.getName());
+                continue;
+            }
+
+            // 字段名/路径（跨引用实体），运行时由 UserHelper.parseUsers 取值
+            String fieldPath = null;
+            try {
+                fieldPath = ToolHelper.resolveFieldPath(sourceEntity, v);
+            } catch (KnownToolException ignored) {
+                // 非字段，继续尝试按用户名解析
+            }
+            if (fieldPath != null && MetadataHelper.getLastJoinField(sourceEntity, fieldPath, true) != null) {
+                resolved.add(fieldPath);
+                continue;
+            }
+
+            ID uid = ToolHelper.resolveUser(v);
+            if (uid != null) {
+                resolved.add(uid.toLiteral());
             } else {
-                ID uid = ToolHelper.resolveUser(v);
-                if (uid != null) {
-                    resolved.add(uid.toLiteral());
-                } else {
-                    throw new KnownToolException(paramPath + " 无法解析 : " + v
-                            + "。请使用用户ID、用户全名，或 FIELD:字段名（如 FIELD:创建人）引用记录上的用户字段");
-                }
+                throw new KnownToolException(paramPath + " 无法解析 : " + v
+                        + "。请使用用户 ID、用户全名，或记录上的用户字段名/路径（如 owningUser、相关客户.负责人），"
+                        + "详见 GetConfigSchema(schema=user-selector)");
             }
         }
         return resolved;

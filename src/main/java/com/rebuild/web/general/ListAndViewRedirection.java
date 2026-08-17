@@ -54,13 +54,6 @@ public class ListAndViewRedirection extends BaseController {
             anyId = null;
         }
 
-        // v4.5 实体管理
-        String entity45 = request.getParameter("entity");
-        if (entity45 != null && MetadataHelper.containsEntity(entity45)) {
-            gotoUrl = "../admin/entity/" + entity45 + "/base";
-            anyId = null;
-        }
-
         if (anyId != null && MetadataHelper.containsEntity(anyId.getEntityCode())) {
             String type = getParameter(request, "type");
             Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());

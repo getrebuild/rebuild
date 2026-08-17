@@ -70,12 +70,12 @@ public class BuildEntity implements Tool, AdminGuard {
         String entityName = new Entity2Schema(UserContextHolder.getUser()).createEntity(
                 null, entityLabel, args.getString("comments"), mainEntity, haveNameField, haveSeriesField);
 
+        String entityUrl = AppUtils.getContextPath("/admin/entity/" + entityName + "/base");
         return JSONUtils.toJSONObject(
                 new String[]{"status", "entity", "label", "url", "message"},
-                new Object[]{"ok", entityName, entityLabel,
-                        AppUtils.getContextPath("/app/redirect?entity=" + entityName),
-                        String.format("已成功创建%s [%s](%s)，可前往管理中心-实体管理配置表单和布局",
-                                mainEntity != null ? "明细实体" : "实体", entityLabel, entityName)});
+                new Object[]{"ok", entityName, entityLabel, entityUrl,
+                        String.format("已成功创建%s [%s](%s)，[点击前往实体管理](%s)配置表单和布局",
+                                mainEntity != null ? "明细实体" : "实体", entityLabel, entityName, entityUrl)});
     }
 
     /**

@@ -132,12 +132,12 @@ public class BuildField implements Tool, AdminGuard {
             createPickListItems(newField, options);
         }
 
+        String fieldsUrl = AppUtils.getContextPath("/admin/entity/" + entity.getName() + "/fields");
         return JSONUtils.toJSONObject(
                 new String[]{"status", "entity", "field", "label", "type", "url", "message"},
-                new Object[]{"ok", entity.getName(), fieldName, fieldLabel, dt.name(),
-                        AppUtils.getContextPath("/app/redirect?entity=" + entity.getName()),
-                        String.format("已成功在实体 [%s] 中创建字段 [%s](%s)，可前往管理中心-实体管理配置表单布局",
-                                EasyMetaFactory.getLabel(entity), fieldLabel, fieldName)});
+                new Object[]{"ok", entity.getName(), fieldName, fieldLabel, dt.name(), fieldsUrl,
+                        String.format("已成功在实体 [%s] 中创建字段 [%s](%s)，[点击查看实体字段列表](%s)",
+                                EasyMetaFactory.getLabel(entity), fieldLabel, fieldName, fieldsUrl)});
     }
 
     /**

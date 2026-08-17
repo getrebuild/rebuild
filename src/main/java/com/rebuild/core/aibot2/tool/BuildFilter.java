@@ -22,7 +22,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
-import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -113,9 +112,8 @@ public class BuildFilter implements Tool {
         log.info("AdvFilter created via AI : {} on {}", configId, entity.getName());
 
         return JSONUtils.toJSONObject(
-                new String[]{"status", "id", "entity", "filterName", "url", "message"},
+                new String[]{"status", "id", "entity", "filterName", "message"},
                 new Object[]{"ok", configId.toLiteral(), entity.getName(), filterName,
-                        AppUtils.getContextPath("/app/redirect?entity=" + entity.getName()),
                         String.format("已成功创建过滤器 [%s]（%s），用户打开该实体列表页后可在常用筛选中选择使用",
                                 filterName, EasyMetaFactory.getLabel(entity))});
     }

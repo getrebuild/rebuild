@@ -45,6 +45,7 @@ public class JsonSchemaValidator {
     public static final String NAV_MENU = "nav-menu";
     public static final String CHART_CONFIG = "chart-config";
     public static final String DASHBOARD_CONFIG = "dashboard-config";
+    public static final String USER_SELECTOR = "user-selector";
 
     private static final Map<String, String> SCHEMA_RES_MAP = new HashMap<>();
     static {
@@ -57,6 +58,7 @@ public class JsonSchemaValidator {
         SCHEMA_RES_MAP.put(NAV_MENU, "json-schema/nav-menu-schema.json");
         SCHEMA_RES_MAP.put(CHART_CONFIG, "json-schema/chart-config-schema.json");
         SCHEMA_RES_MAP.put(DASHBOARD_CONFIG, "json-schema/dashboard-config-schema.json");
+        SCHEMA_RES_MAP.put(USER_SELECTOR, "json-schema/user-selector-schema.json");
     }
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

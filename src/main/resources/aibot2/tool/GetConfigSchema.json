@@ -17,9 +17,10 @@
             "chart-config",
             "dashboard-config",
             "transform-config",
-            "adv-filter"
+            "adv-filter",
+            "user-selector"
           ],
-          "description": "Schema 名称。trigger-config=触发器、approval-flow=审批流程、form-layout=表单布局、list-layout=列表布局、nav-menu=导航菜单、chart-config=图表、dashboard-config=仪表盘、transform-config=记录转换、adv-filter=高级过滤条件"
+          "description": "Schema 名称。trigger-config=触发器、approval-flow=审批流程、form-layout=表单布局、list-layout=列表布局、nav-menu=导航菜单、chart-config=图表、dashboard-config=仪表盘、transform-config=记录转换、adv-filter=高级过滤条件、user-selector=用户选择器（接收人/分配人等通用组件）"
         }
       },
       "required": ["schema"],
