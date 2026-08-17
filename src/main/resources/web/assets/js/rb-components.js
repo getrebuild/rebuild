@@ -1518,28 +1518,23 @@ class CodeViewport extends React.Component {
     return (
       <div className="code-viewport">
         <pre ref={(c) => (this._$code = c)}>LOADING</pre>
-        {window.ClipboardJS && (
-          <a className="copy" title={$L('复制')} ref={(c) => (this._$copy = c)}>
-            <i className="icon zmdi zmdi-copy" />
-          </a>
-        )}
+        <a
+          className="copy"
+          title={$L('复制')}
+          ref={(c) => (this._$copy = c)}
+          onClick={() => {
+            $clipboard($(this._$code).text())
+            $(this._$copy).addClass('copied-check')
+            setTimeout(() => $(this._$copy).removeClass('copied-check'), 1500)
+          }}>
+          <i className="icon zmdi zmdi-copy" />
+        </a>
       </div>
     )
   }
 
   componentDidMount() {
     this._$code.innerHTML = $formatCode(this.props.code || '', this.props.type)
-
-    if (this._$copy) {
-      const that = this
-      const $copy = $(this._$copy).on('mouseenter', () => $(this._$copy).removeClass('copied-check'))
-      // eslint-disable-next-line no-undef
-      new ClipboardJS($copy[0], {
-        text: function () {
-          return $(that._$code).text()
-        },
-      }).on('success', () => $copy.addClass('copied-check'))
-    }
   }
 
   UNSAFE_componentWillReceiveProps(newProps) {

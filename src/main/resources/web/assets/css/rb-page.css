@@ -5386,6 +5386,7 @@ pre.unstyle {
   top: 15px;
   right: 15px;
   display: none;
+  font-size: 14px;
 }
 
 .code-viewport:hover > a.copy {
@@ -6787,8 +6788,6 @@ div.formula-code {
   max-width: 100%;
   height: auto;
 }
-
-/* Mermaid */
 
 .mermaid rect {
   rx: 6px;

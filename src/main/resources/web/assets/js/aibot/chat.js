@@ -267,6 +267,7 @@ class ChatInput extends React.Component {
       content: this.state.content,
       attach: this.state.attach,
       skill: this.state.activeSkill,
+      sendTime: Date.now(),
     }
     this.props._Chat &&
       this.props._Chat.sendStream(data, () => {
@@ -512,8 +513,20 @@ class ChatMessage extends React.Component {
       <div className="chat-message" ref={(c) => (this._$message = c)}>
         {c}
         <div className="msg-action">
-          <a title={$L('复制')} onClick={() => $clipboard(this.state.content || '')}>
-            <i className="mdi mdi-content-copy icon" />
+          {this.props.role === 'user' && this.state.sendTime && (
+            <span className="fs-12 text-muted mr-1">
+              <DateShow date={moment(Number(this.state.sendTime)).format('YYYY-MM-DD HH:mm:ss')} showOrigin />
+            </span>
+          )}
+          <a
+            title={$L('复制')}
+            onClick={(e) => {
+              $clipboard(this.state.content || '')
+              const $a = $(e.currentTarget)
+              $a.addClass('copied-check')
+              setTimeout(() => $a.removeClass('copied-check'), 1500)
+            }}>
+            <i className="icon zmdi zmdi-copy" />
           </a>
         </div>
       </div>
