@@ -87,8 +87,6 @@ public class Config {
         return b;
     }
 
-    // --
-
     /**
      * 是否可用（即配置了AI参数）
      *

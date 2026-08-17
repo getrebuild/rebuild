@@ -31,7 +31,7 @@ public class Message implements Serializable {
 
     private final String role;
     private final String content;
-    private final String reasoning;  // 思考
+    private final String reasoning;
     private final String error;
 
     private ID userReqChatid;

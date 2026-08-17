@@ -66,20 +66,15 @@ public class QueryRecords implements Tool {
         Field primaryField = entity.getPrimaryField();
         Field nameField = entity.getNameField();
 
-        // 构建排序子句
         String orderBy = buildOrderBy(entity, sort);
-        // 分页偏移量
         int offset = (pageNo - 1) * limit;
 
         JSONObject result;
-        // 按名称/编号模糊匹配
         if (StringUtils.isNotBlank(name)) {
             result = queryByName(entity, primaryField, nameField, queryFields, name, limit, offset, orderBy);
         } else if (filter != null && !filter.isEmpty()) {
-            // 按字段条件过滤
             result = queryByFilter(entity, primaryField, nameField, queryFields, filter, equation, limit, offset, orderBy);
         } else {
-            // 返回记录列表
             result = queryList(entity, primaryField, nameField, queryFields, limit, offset, orderBy);
         }
 
@@ -94,7 +89,6 @@ public class QueryRecords implements Tool {
      */
     private JSONObject queryByName(Entity entity, Field primaryField, Field nameField,
                                    List<String> queryFields, String name, int limit, int offset, String orderBy) {
-        // 优先使用系统配置的快速查询字段
         Set<String> searchFields = ParseHelper.buildQuickFields(entity, null);
 
         // 未配置快速查询字段时，使用名称字段 + SERIES 字段作为 fallback

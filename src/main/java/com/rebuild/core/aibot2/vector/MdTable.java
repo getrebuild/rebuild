@@ -68,7 +68,6 @@ public class MdTable {
             md.append("### ").append(heading).append(NN);
         }
 
-        // HEAD
         for (String head : headList) {
             md.append(String.format("| %s", head));
         }
@@ -78,7 +77,6 @@ public class MdTable {
         }
         md.append("|\n");
 
-        // DATA
         for (String[] row : rowDatas) {
             for (String cell : row) {
                 md.append(String.format("| %s", escapeValue(cell)));
@@ -89,7 +87,6 @@ public class MdTable {
         return md.toString();
     }
 
-    // 替换 `|` 和换行符
     private String escapeValue(String md) {
         if (StringUtils.isBlank(md)) return StringUtils.EMPTY;
         return md.replace("|", "\\|").replace("\n", " ");

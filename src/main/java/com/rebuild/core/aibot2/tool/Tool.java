@@ -38,20 +38,17 @@ public interface Tool {
         JSONObject funcJson = json.getJSONObject("function");
         JSONObject paramsJson = funcJson.getJSONObject("parameters");
 
-        // 构建 FunctionParameters
         FunctionParameters.Builder paramsBuilder = FunctionParameters.builder();
         for (String key : paramsJson.keySet()) {
             paramsBuilder.putAdditionalProperty(key, JsonValue.from(paramsJson.get(key)));
         }
 
-        // 构建 FunctionDefinition
         FunctionDefinition fnDef = FunctionDefinition.builder()
                 .name(funcJson.getString("name"))
                 .description(funcJson.getString("description"))
                 .parameters(paramsBuilder.build())
                 .build();
 
-        // 构建 ChatCompletionTool
         return ChatCompletionTool.ofFunction(
                 ChatCompletionFunctionTool.builder()
                         .function(fnDef)

@@ -92,7 +92,6 @@ public class BuildTrigger implements Tool, AdminGuard {
             throw new KnownToolException("仅管理员可配置触发器");
         }
 
-        // 1. 触发源实体
         String entityIdent = args.getString("entity");
         if (StringUtils.isBlank(entityIdent)) {
             throw new KnownToolException("触发源实体 (entity) 不能为空");
@@ -107,13 +106,11 @@ public class BuildTrigger implements Tool, AdminGuard {
             throw new KnownToolException("触发器名称 (name) 不能为空");
         }
 
-        // 2. 动作类型
         ActionType actionType = parseActionType(args.getString("actionType"));
 
-        // 3. 触发时机（位掩码）
+        // 触发时机（位掩码）
         int whenMask = parseWhen(args.get("when"));
 
-        // 4. 动作内容
         JSONObject actionContent = args.getJSONObject("actionContent");
         if (actionContent == null || actionContent.isEmpty()) {
             throw new KnownToolException("动作内容 (actionContent) 不能为空，请先用 GetConfigSchema(schema=trigger-config) 获取其结构定义");
@@ -412,7 +409,6 @@ public class BuildTrigger implements Tool, AdminGuard {
             return target;
         }
 
-        // 引用字段名.实体名
         if (targetEntity.contains(".")) {
             String[] parts = targetEntity.split("\\.", 2);
             Field refField = ToolHelper.resolveField(sourceEntity, parts[0]);

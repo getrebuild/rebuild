@@ -77,7 +77,6 @@ public class ToolHelper {
         String str = value.toString().trim();
         if (str.isEmpty()) return null;
 
-        // 单个 fileKey 字符串，包装为数组
         return JSON.toJSONString(new String[]{str});
     }
 
@@ -96,7 +95,6 @@ public class ToolHelper {
             return MetadataHelper.getEntity(name);
         }
 
-        // 2. CODE
         if (StringUtils.isNumeric(name)) {
             int code = Integer.parseInt(name);
             if (MetadataHelper.containsEntity(code)) {
@@ -104,7 +102,6 @@ public class ToolHelper {
             }
         }
 
-        // 3. 标签匹配
         String nameLower = name.toLowerCase();
         List<Entity> exactMatches = new ArrayList<>();
         List<Entity> fuzzyMatches = new ArrayList<>();
@@ -127,7 +124,6 @@ public class ToolHelper {
         if (fuzzyMatches.isEmpty()) return null;
         if (fuzzyMatches.size() == 1) return fuzzyMatches.get(0);
 
-        // 多个模糊匹配，要求询问用户选择
         return throwAmbiguousEntities(name, fuzzyMatches);
     }
 
@@ -161,12 +157,10 @@ public class ToolHelper {
             throw new KnownToolException("字段名不能为空");
         }
 
-        // 1. 名称精确匹配
         if (entity.containsField(fieldIdent)) {
             return entity.getField(fieldIdent);
         }
 
-        // 2. 标签精确匹配
         for (Field f : entity.getFields()) {
             if (MetadataHelper.isSystemField(f)) continue;
             if (fieldIdent.equalsIgnoreCase(EasyMetaFactory.getLabel(f))) {
@@ -234,7 +228,6 @@ public class ToolHelper {
             return ID.valueOf(userIdent);
         }
 
-        // 按全名查找
         ID user = UserHelper.findUserByFullName(userIdent);
         if (user == null && Application.getUserStore().existsName(userIdent)) {
             user = Application.getUserStore().getUser(userIdent).getId();

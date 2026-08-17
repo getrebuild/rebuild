@@ -84,7 +84,6 @@ public class ScheduleTask implements Tool {
         Integer dayOfMonth = args.getInteger("dayOfMonth");
         String executeTime = args.getString("executeTime");
 
-        // 参数校验
         if ("once".equals(scheduleType)) {
             if (StringUtils.isBlank(executeTime)) {
                 throw new KnownToolException("一次性任务必须指定执行时间 (executeTime)");
@@ -101,7 +100,6 @@ public class ScheduleTask implements Tool {
             }
         }
 
-        // 计算下次执行时间
         Date nextExecTime;
         if ("once".equals(scheduleType)) {
             nextExecTime = CommonsUtils.parseDate(executeTime);
@@ -120,7 +118,6 @@ public class ScheduleTask implements Tool {
             subject = CommonsUtils.maxstr(content, 40);
         }
 
-        // 构建 config JSON
         JSONObject config = new JSONObject(true);
         config.put("userId", user.toLiteral());
         config.put("content", content);
@@ -133,7 +130,6 @@ public class ScheduleTask implements Tool {
         config.put("nextExecTime", CalendarUtils.getUTCDateTimeFormat().format(nextExecTime));
         config.put("lastExecTime", null);
 
-        // 创建 AibotConfig 记录
         Record record = EntityHelper.forNew(EntityHelper.AibotConfig, user);
         record.setString("type", AibotConfigManager.TYPE_AIBOT_SCHEDULE);
         record.setString("name", subject);
@@ -207,7 +203,6 @@ public class ScheduleTask implements Tool {
         ID taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
         final ID user = UserContextHolder.getUser();
 
-        // 验证任务存在
         Object[] task = Application.createQueryNoFilter(
                 "select config,name,createdBy from AibotConfig where configId = ? and type = ?")
                 .setParameter(1, taskId)
@@ -226,7 +221,6 @@ public class ScheduleTask implements Tool {
 
         String name = (String) task[1];
 
-        // 删除任务
         Application.getBean(AibotConfigService.class).delete(taskId);
 
         return JSONUtils.toJSONObject(

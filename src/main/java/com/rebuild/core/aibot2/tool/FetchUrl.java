@@ -53,7 +53,6 @@ public class FetchUrl implements Tool {
         if (StringUtils.isBlank(method)) method = "GET";
         method = method.toUpperCase();
 
-        // Headers
         Map<String, String> headers = null;
         JSONObject headersJson = args.getJSONObject("headers");
         if (MapUtils.isNotEmpty(headersJson)) {

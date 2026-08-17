@@ -129,7 +129,6 @@ public class ChatRequest {
 
         vectorDataContent = StringUtils.trim(vdc.toVector());
 
-        // 保存起来
         RecordBuilder.builder(EntityHelper.AibotChatAttach)
                 .add("chatId", chatid)
                 .add("content", attachKey)

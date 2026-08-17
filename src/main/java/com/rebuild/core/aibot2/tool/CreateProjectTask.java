@@ -54,32 +54,26 @@ public class CreateProjectTask implements Tool {
 
         final ID user = UserContextHolder.getUser();
 
-        // 解析项目
         ConfigBean projectConfig = resolveProject(project, user);
         ID projectId = projectConfig.getID("id");
 
-        // 验证成员权限
         Set<ID> members = projectConfig.get("members", Set.class);
         if (!members.contains(user)) {
             throw new KnownToolException("你不是项目 [" + projectConfig.getString("projectName") + "] 的成员，无法创建任务");
         }
 
-        // 解析任务面板
         ID projectPlanId = resolveProjectPlan(args.getString("projectPlan"), projectId);
 
-        // 创建任务记录
         Record record = EntityHelper.forNew(EntityHelper.ProjectTask, user);
         record.setID("projectId", projectId);
         record.setID("projectPlanId", projectPlanId);
         record.setString("taskName", taskName);
 
-        // 优先级
         Integer priority = args.getInteger("priority");
         if (priority != null && priority >= 0 && priority <= 3) {
             record.setInt("priority", priority);
         }
 
-        // 截止时间
         String deadline = args.getString("deadline");
         if (StringUtils.isNotBlank(deadline)) {
             Date deadlineDate = CommonsUtils.parseDate(deadline);
@@ -89,13 +83,11 @@ public class CreateProjectTask implements Tool {
             record.setDate("deadline", deadlineDate);
         }
 
-        // 描述
         String description = args.getString("description");
         if (StringUtils.isNotBlank(description)) {
             record.setString("description", description);
         }
 
-        // 执行人
         String executor = args.getString("executor");
         if (StringUtils.isNotBlank(executor)) {
             ID executorId = ToolHelper.resolveUser(executor);
@@ -112,7 +104,6 @@ public class CreateProjectTask implements Tool {
 
         record = Application.getBean(ProjectTaskService.class).create(record);
 
-        // 获取任务编号
         Object[] taskNumber = Application.getQueryFactory().uniqueNoFilter(record.getPrimary(), "taskNumber");
         String projectCode = projectConfig.getString("projectCode");
         String taskNo = String.format("%s-%s", projectCode, taskNumber != null ? taskNumber[0] : "?");

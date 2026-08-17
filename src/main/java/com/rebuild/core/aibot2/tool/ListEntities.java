@@ -58,7 +58,6 @@ public class ListEntities implements Tool {
         entityJson.put("name", entity.getName());
         entityJson.put("label", EasyMetaFactory.getLabel(entity));
 
-        // 字段列表
         JSONArray fields = new JSONArray();
         for (Field field : entity.getFields()) {
             if (MetadataHelper.isSystemField(field)) continue;
@@ -69,7 +68,6 @@ public class ListEntities implements Tool {
             DisplayType dt = EasyMetaFactory.valueOf(field).getDisplayType();
             fieldJson.put("type", dt.name());
 
-            // 引用实体
             if (field.getType() == FieldType.REFERENCE || field.getType() == FieldType.REFERENCE_LIST) {
                 Entity refEntity = field.getReferenceEntity();
                 fieldJson.put("referenceEntity", refEntity.getName());
@@ -79,13 +77,11 @@ public class ListEntities implements Tool {
         }
         entityJson.put("fields", fields);
 
-        // 明细实体
         Entity mainEntity = entity.getMainEntity();
         if (mainEntity != null) {
             entityJson.put("mainEntity", mainEntity.getName());
         }
 
-        // 主实体
         if (entity.getDetailEntity() != null) {
             JSONArray details = new JSONArray();
             for (Entity de : MetadataSorter.sortDetailEntities(entity)) {
@@ -120,7 +116,6 @@ public class ListEntities implements Tool {
             item.put("label", EasyMetaFactory.getLabel(e));
             item.put("comments", StringUtils.defaultIfBlank(EasyMetaFactory.valueOf(e).getComments(), ""));
 
-            // 明细实体
             if (e.getDetailEntity() != null) {
                 JSONArray details = new JSONArray();
                 for (Entity de : MetadataSorter.sortDetailEntities(e)) {

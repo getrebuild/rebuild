@@ -53,7 +53,6 @@ public class TableChunkStrategy implements ChunkStrategy {
             int end = Math.min(pos + maxRows, lines.length);
             StringBuilder sb = new StringBuilder();
 
-            // 加入表头
             if (hasTableHeader && pos > dataStart) {
                 sb.append(header).append("\n");
             }

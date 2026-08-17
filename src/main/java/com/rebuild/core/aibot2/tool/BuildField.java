@@ -72,14 +72,12 @@ public class BuildField implements Tool, AdminGuard {
 
         DisplayType dt = parseDisplayType(args.getString("type"));
 
-        // 类型相关配置
         String refEntity = null;
         JSON extConfig = null;
         JSONArray options = null;
         String classificationName = null;
 
         if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
-            // 引用字段必须指定引用实体
             String refIdent = args.getString("refEntity");
             if (StringUtils.isBlank(refIdent)) {
                 throw new KnownToolException("引用字段必须指定引用实体 (refEntity)");
@@ -91,20 +89,17 @@ public class BuildField implements Tool, AdminGuard {
             refEntity = ref.getName();
 
         } else if (dt == DisplayType.PICKLIST || dt == DisplayType.MULTISELECT) {
-            // 下拉列表/多选必须指定选项
             options = args.getJSONArray("options");
             if (options == null || options.isEmpty()) {
                 throw new KnownToolException("下拉列表/多选字段必须指定选项 (options)，如 [\"选项1\", \"选项2\"]");
             }
 
         } else if (dt == DisplayType.CLASSIFICATION) {
-            // 分类字段必须指定分类数据
             ID dataId = resolveClassification(args.getString("classification"));
             extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.CLASSIFICATION_USE, dataId);
             classificationName = getClassificationName(dataId);
 
         } else if (dt == DisplayType.SERIES) {
-            // 自动编号规则（可选）
             String seriesFormat = args.getString("seriesFormat");
             if (StringUtils.isNotBlank(seriesFormat)) {
                 extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.SERIES_FORMAT, seriesFormat);

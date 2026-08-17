@@ -47,7 +47,6 @@ public class MarkdownChunkStrategy implements ChunkStrategy {
             String title = extractTitle(section);
 
             if (section.length() > maxChunkSize) {
-                // 超长 section 用文本策略二次分片
                 List<Chunk> subChunks = new TextChunkStrategy().chunk(section, maxChunkSize);
                 for (Chunk sc : subChunks) {
                     chunks.add(new Chunk(title != null ? title : sc.getTitle(),

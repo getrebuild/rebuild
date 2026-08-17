@@ -70,13 +70,11 @@ public class ApproveRecord implements Tool {
      * 提交审批
      */
     private Object doSubmit(ID recordId, JSONObject args) throws Exception {
-        // 验证实体支持审批
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
         if (!MetadataHelper.hasApprovalField(entity)) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持审批");
         }
 
-        // 获取可用审批流程
         FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, UserContextHolder.getUser());
         if (defs.length == 0) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 未配置审批流程，无法提交审批。"
@@ -86,7 +84,6 @@ public class ApproveRecord implements Tool {
         FlowDefinition useDef = defs[0];
         ID approvalId = ToolHelper.resolveId(args.getString("approvalId"));
         if (approvalId != null) {
-            // 验证是否可用
             useDef = null;
             for (FlowDefinition d : defs) {
                 if (d.getID("id").equals(approvalId)) {

@@ -183,7 +183,6 @@ public class Chat implements Serializable {
                         });
                     });
 
-                    // 中断检查
                     if (StreamEcho.isInterrupted(chatRequest.getChatid())) {
                         chatLogger().logEvent("Chat interrupted");
                         interrupted[0] = true;
@@ -442,7 +441,6 @@ public class Chat implements Serializable {
             String content = msgJson.getString("content");
 
             if (ROLE_USER.equals(role)) {
-                // 附件
                 ChatRequest chatRequest = new ChatRequest(msgJson, getChatid());
                 content = chatRequest.getUserContent(true);
 

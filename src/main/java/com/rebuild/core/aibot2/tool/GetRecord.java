@@ -45,7 +45,6 @@ public class GetRecord implements Tool {
         }
 
         ID recordId = ToolHelper.resolveId(args.getString("recordId"), "recordId");
-        // 校验实体匹配
         if (recordId.getEntityCode() != entity.getEntityCode()) {
             throw new KnownToolException("记录ID与实体不匹配，记录ID对应的实体为 : "
                     + EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode())));

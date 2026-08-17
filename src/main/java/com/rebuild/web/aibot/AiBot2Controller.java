@@ -99,7 +99,6 @@ public class AiBot2Controller extends BaseController {
         ID chatid = getIdParameter(req, "chatid");
 
         JSONArray messages = new JSONArray();
-        // 新会话时返回引导问题
         JSONArray suggestQuestions = null;
         if (chatid != null) {
             Chat chat = ChatManager.getChat(chatid);

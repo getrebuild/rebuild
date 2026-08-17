@@ -80,7 +80,6 @@ public class UpsertRecord implements Tool {
             throw new KnownToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
-        // 校验实体权限
         if (!entity.isQueryable() || !MetadataHelper.isBusinessEntity(entity)) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持此操作");
         }
@@ -109,7 +108,6 @@ public class UpsertRecord implements Tool {
     private JSONObject saveRecord(JSONObject recordJson, Entity entity, String recordId) {
         ID userId = UserContextHolder.getUser();
 
-        // 校验创建/更新权限
         boolean isUpdate = StringUtils.isNotBlank(recordId) && ID.isId(recordId);
         if (!isUpdate && !entity.isCreatable()) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许新建记录");

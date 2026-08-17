@@ -114,7 +114,6 @@ public class ToolDefs {
             throw new KnownToolException("此操作仅限管理员使用");
         }
 
-        // 统一空值保护
         if (StringUtils.isBlank(arguments)) arguments = "{}";
 
         log.info("TOOL_CALL {}{}{}", toolName, System.lineSeparator(), compactJson(arguments));

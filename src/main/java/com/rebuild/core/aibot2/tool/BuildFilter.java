@@ -41,7 +41,6 @@ public class BuildFilter implements Tool {
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
 
-        // 1. 实体
         String entityIdent = args.getString("entity");
         if (StringUtils.isBlank(entityIdent)) {
             throw new KnownToolException("实体 (entity) 不能为空");
@@ -84,7 +83,6 @@ public class BuildFilter implements Tool {
         String shareTo = shareSelf ? ShareToManager.SHARE_SELF : ShareToManager.SHARE_ALL;
         ID editor = shareSelf ? UserContextHolder.getUser() : UserService.AIBOT_USER;
 
-        // 5. 未确认时仅返回改动清单
         if (!args.getBooleanValue("confirmed")) {
             JSONObject changes = new JSONObject(true);
             changes.put("操作", "新建过滤器");
@@ -100,7 +98,6 @@ public class BuildFilter implements Tool {
                                     + "用户未确认或要求调整时不得执行创建"});
         }
 
-        // 6. 落库
         Record record = EntityHelper.forNew(EntityHelper.FilterConfig, editor);
         record.setString("belongEntity", entity.getName());
         record.setString("filterName", filterName);

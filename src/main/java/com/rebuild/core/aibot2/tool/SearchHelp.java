@@ -59,12 +59,10 @@ public class SearchHelp implements Tool {
         Element errorEl = doc.selectFirst("div.results h5");
         if (errorEl != null) {
             String errorText = errorEl.text().trim();
-            // 搜索服务不可用
             if (errorText.contains("暂不可用") || errorText.contains("不可用")) {
                 log.warn("Help search service unavailable : {}", keyword);
                 throw new KnownToolException("帮助文档搜索服务暂不可用，请稍后重试或直接访问 " + DOCS_HOME);
             }
-            // 无搜索结果
             if (errorText.contains("没有找到") || errorText.contains("未找到")) {
                 JSONObject ret = new JSONObject();
                 ret.put("status", "ok");

@@ -64,10 +64,8 @@ public class StatisticsData implements Tool {
         if (limit < 1) limit = DEFAULT_LIMIT;
         if (limit > MAX_LIMIT) limit = MAX_LIMIT;
 
-        // 校验聚合字段
         String aggFieldSql = buildAggFieldSql(entity, aggFunc, aggField);
 
-        // 构建 WHERE
         String whereClause;
         try {
             whereClause = ToolHelper.parseFilterToWhere(entity, filter, equation);
@@ -75,12 +73,10 @@ public class StatisticsData implements Tool {
             throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
         }
 
-        // 有分组
         if (StringUtils.isNotBlank(groupBy)) {
             return queryWithGroupBy(entity, aggFunc, aggFieldSql, groupBy, whereClause, limit);
         }
 
-        // 无分组，返回单一聚合值
         return querySingleAgg(entity, aggFunc, aggFieldSql, whereClause);
     }
 
@@ -146,7 +142,6 @@ public class StatisticsData implements Tool {
                 Object label = FieldValueHelper.wrapFieldValue(rawValue, gf, true);
                 item.put(gf.getName(), label != null ? label : "(空)");
             }
-            // 聚合值
             item.put("value", row[groupFields.size()]);
             rows.add(item);
         }

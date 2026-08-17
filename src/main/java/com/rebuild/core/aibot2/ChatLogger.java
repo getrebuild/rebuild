@@ -58,7 +58,7 @@ public class ChatLogger {
      * @return
      */
     public boolean enabled() {
-        return chatid != null && Application.devMode();
+        return chatid != null; // && Application.devMode();
     }
 
     /**

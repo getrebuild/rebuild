@@ -49,7 +49,6 @@ public class ExportReport implements Tool {
 
     private static final int MAX_SEARCH_RESULTS = 10;
 
-    // LIST 报表最大导出行数
     private static final int MAX_LIST_EXPORT_ROWS = 1000;
 
     @Override
@@ -201,7 +200,6 @@ public class ExportReport implements Tool {
      * @return
      */
     private JSONObject exportListReport(Entity entity, ID reportId, String keyword, JSONArray filter, String equation) {
-        // 构建查询数据
         JSONObject queryData = new JSONObject();
         queryData.put("entity", entity.getName());
         queryData.put("pageNo", 1);

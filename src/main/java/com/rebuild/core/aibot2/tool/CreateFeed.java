@@ -48,7 +48,6 @@ public class CreateFeed implements Tool {
         if (type == FeedsType.ANNOUNCEMENT.getMask()) {
             throw new KnownToolException("公告仅管理员可在前端发布，不支持通过 AI 创建。可选类型: 1=动态, 2=跟进, 4=日程");
         }
-        // 校验类型有效性
         if (type != FeedsType.ACTIVITY.getMask()
                 && type != FeedsType.FOLLOWUP.getMask()
                 && type != FeedsType.SCHEDULE.getMask()) {
@@ -59,7 +58,6 @@ public class CreateFeed implements Tool {
         record.setInt("type", type);
         record.setString("content", content);
 
-        // 可见范围
         String scope = args.getString("scope");
         if (StringUtils.isNotBlank(scope)) {
             record.setString("scope", scope);
@@ -86,7 +84,6 @@ public class CreateFeed implements Tool {
             record.setID("relatedRecord", relatedRecordId);
         }
 
-        // 日程：设置时间和提醒
         if (type == FeedsType.SCHEDULE.getMask()) {
             String scheduleTime = args.getString("scheduleTime");
             Date scheduleDate;

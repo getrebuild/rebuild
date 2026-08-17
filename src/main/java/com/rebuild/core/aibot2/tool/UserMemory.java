@@ -35,7 +35,6 @@ import static com.rebuild.core.aibot2.service.AibotConfigManager.TYPE_AIBOT_USER
 @Slf4j
 public class UserMemory implements Tool {
 
-    // 用户记忆使用指引
     public static final String MEMORY_GUIDANCE =
             "通过 UserMemory 工具为用户维护长期个性化记忆。\n" +
                     "- 当用户告知长期有效的身份/偏好信息，或明确要求\"记住/忘记\"时，主动调用 UserMemory 记录或删除，并根据信息重要程度选择档位（1/2/3）\n" +

@@ -52,7 +52,6 @@ public class UploadFile implements Tool {
 
         try {
             if (StringUtils.isNotBlank(base64)) {
-                // base64 方式
                 if (base64.contains(",")) {
                     base64 = base64.substring(base64.indexOf(",") + 1);
                 }
@@ -66,7 +65,6 @@ public class UploadFile implements Tool {
                 CommonsUtils.base64ToFile(base64, tmpFile);
 
             } else {
-                // URL 方式（SSRF 防护）
                 CommonsUtils.checkUrlSafe(url);
 
                 tmpFile = OkHttpUtils.readBinary(url);
@@ -97,7 +95,6 @@ public class UploadFile implements Tool {
                 throw new KnownToolException("文件上传失败，请稍后重试");
             }
 
-            // 缓存文件大小
             FilesHelper.storeFileSize(fileKey, fileSize);
 
             boolean isImage = CommonsUtils.isImageFile(finalFileName);
