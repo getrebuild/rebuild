@@ -1,0 +1,35 @@
+{
+  "type": "function",
+  "function": {
+    "name": "BuildFilter",
+    "description": "新建高级过滤器（查询方案），用户在实体列表页的常用筛选中可直接选用。调用前必须先用 GetConfigSchema(schema=adv-filter) 获取 config 的结构定义，并用 ListEntities 查询实体真实字段名。条件字段也可使用中文标签（支持点号跨引用实体），工具会自动转换为真实字段名",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "过滤器所属实体名称"
+        },
+        "filterName": {
+          "type": "string",
+          "description": "过滤器名称，应简洁描述筛选用途，如「我的待审批」「本月新增客户」"
+        },
+        "config": {
+          "type": "object",
+          "description": "过滤条件配置，必须严格符合 adv-filter Schema 定义（含 items 条件项数组，op 操作符见 Schema 枚举）"
+        },
+        "shareTo": {
+          "type": "string",
+          "enum": ["ALL", "SELF"],
+          "description": "共享范围（可选，默认 ALL）。ALL=全部用户可见可用、SELF=仅当前操作人可见"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["entity", "filterName", "config"],
+      "additionalProperties": false
+    }
+  }
+}

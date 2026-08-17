@@ -308,21 +308,20 @@ public class Chat implements Serializable {
         try {
             return ToolDefs.execute(toolName, arguments);
         } catch (Exception ex) {
+            // 异常日志已由 ToolDefs.execute 输出，此处不再重复记录
+
             // 系统已知业务异常（如数据校验失败）
             if (isKnownBusinessException(ex)) {
                 String message = CommonsUtils.getRootMessage(ex);
-                log.warn("Tool execution blocked in chat : {} - {}", toolName, message);
                 return "[业务校验错误] 此为系统已知的业务异常，请将以下错误信息如实反馈给用户，"
                         + "不要尝试修改数据或参数以绕过校验。\n错误信息: " + message;
             }
 
             // 工具层已知业务异常（如参数校验失败、实体不存在），可修正后重试
             if (ex instanceof KnownToolException) {
-                log.warn("Tool execution blocked in chat : {} - {}", toolName, ex.getMessage());
                 return ex.getMessage();
             }
 
-            log.error("Tool execution failed in chat : {}", toolName, ex);
             return CommonsUtils.getRootMessage(ex);
         }
     }

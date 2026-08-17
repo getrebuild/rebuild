@@ -1,0 +1,29 @@
+{
+  "type": "function",
+  "function": {
+    "name": "GetConfigSchema",
+    "description": "获取系统配置数据体的 JSON Schema（结构定义与字段说明）。调用 BuildTrigger 等配置类工具前，必须先获取对应 Schema 并严格按其结构生成配置内容",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "string",
+          "enum": [
+            "trigger-config",
+            "approval-flow",
+            "form-layout",
+            "list-layout",
+            "nav-menu",
+            "chart-config",
+            "dashboard-config",
+            "transform-config",
+            "adv-filter"
+          ],
+          "description": "Schema 名称。trigger-config=触发器、approval-flow=审批流程、form-layout=表单布局、list-layout=列表布局、nav-menu=导航菜单、chart-config=图表、dashboard-config=仪表盘、transform-config=记录转换、adv-filter=高级过滤条件"
+        }
+      },
+      "required": ["schema"],
+      "additionalProperties": false
+    }
+  }
+}

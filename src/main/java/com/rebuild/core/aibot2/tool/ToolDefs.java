@@ -56,6 +56,9 @@ public class ToolDefs {
         register(new UserMemory());
         register(new BuildEntity());
         register(new BuildField());
+        register(new GetConfigSchema());
+        register(new BuildTrigger());
+        register(new BuildFilter());
     }
 
     /**

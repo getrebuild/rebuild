@@ -1,0 +1,59 @@
+{
+  "type": "function",
+  "function": {
+    "name": "BuildTrigger",
+    "description": "新建触发器（自动化规则），如记录创建/更新时自动更新字段、发送通知、提交审批等。调用前必须先用 GetConfigSchema(schema=trigger-config) 获取 actionContent 的结构定义，并用 ListEntities 查询实体真实字段名。字段引用也可使用中文标签，工具会自动转换为真实字段名，解析失败会返回错误提示",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "触发源实体名称，触发器挂在该实体上"
+        },
+        "name": {
+          "type": "string",
+          "description": "触发器名称，应简洁描述其作用，如「请假申请提交审批」"
+        },
+        "when": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "CREATE", "UPDATE", "UPDATE_BEFORE", "DELETE",
+              "ASSIGN", "SHARE", "UNSHARE",
+              "APPROVED", "REVOKED", "SUBMIT", "REJECTED"
+            ]
+          },
+          "description": "触发时机（可组合）。CREATE=创建时、UPDATE=更新时、UPDATE_BEFORE=更新前、DELETE=删除时、ASSIGN=分配时、SHARE=共享时、UNSHARE=取消共享时、APPROVED=审批通过时、REVOKED=审批撤销时、SUBMIT=审批提交时、REJECTED=审批驳回/撤回时"
+        },
+        "whenFilter": {
+          "type": "object",
+          "description": "附加触发条件（可选），符合该条件的记录才触发动作。结构见 adv-filter Schema（可用 GetConfigSchema 获取）"
+        },
+        "actionType": {
+          "type": "string",
+          "enum": [
+            "FIELDWRITEBACK", "FIELDAGGREGATION", "GROUPAGGREGATION",
+            "DATAVALIDATE", "SENDNOTIFICATION", "AUTOAPPROVAL",
+            "AUTOASSIGN", "AUTOSHARE", "CREATEFEED"
+          ],
+          "description": "动作类型。FIELDWRITEBACK=字段更新、FIELDAGGREGATION=字段聚合、GROUPAGGREGATION=分组聚合、DATAVALIDATE=数据校验、SENDNOTIFICATION=发送通知、AUTOAPPROVAL=自动审批、AUTOASSIGN=自动分配、AUTOSHARE=自动共享、CREATEFEED=新建动态"
+        },
+        "actionContent": {
+          "type": "object",
+          "description": "动作配置内容，结构随 actionType 变化，必须严格符合 trigger-config Schema 中对应 $defs 的定义"
+        },
+        "priority": {
+          "type": "integer",
+          "description": "执行优先级（可选，默认 100），值越大越先执行"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["entity", "name", "when", "actionType", "actionContent"],
+      "additionalProperties": false
+    }
+  }
+}

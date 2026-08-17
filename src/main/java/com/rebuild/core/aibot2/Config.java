@@ -9,6 +9,7 @@ package com.rebuild.core.aibot2;
 
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
+import com.openai.core.Timeout;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -16,6 +17,8 @@ import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.springframework.util.Assert;
+
+import java.time.Duration;
 
 /**
  * @author Zixin
@@ -54,9 +57,19 @@ public class Config {
 
         if (CLIENT != null) return CLIENT;
 
+        // 连接超时 30s、读取超时 300s（流式响应分块间隔兜底）、写入超时 60s
+        // 注意不可设置 request 总超时，否则会截断长时间流式输出
+        Timeout timeout = Timeout.builder()
+                .connect(Duration.ofSeconds(30))
+                .read(Duration.ofSeconds(300))
+                .write(Duration.ofSeconds(60))
+                .build();
+
         CLIENT = OpenAIOkHttpClient.builder()
                 .baseUrl(getServerUrl(null))
                 .apiKey(getSecret())
+                .timeout(timeout)
+                .maxRetries(3)  // 缓解 TLS 握手被 RST 等偶发网络失败
                 .build();
         return CLIENT;
     }

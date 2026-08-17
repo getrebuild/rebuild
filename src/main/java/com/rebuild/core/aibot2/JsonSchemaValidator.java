@@ -19,9 +19,11 @@ import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -69,39 +71,66 @@ public class JsonSchemaValidator {
      * @return
      */
     public static boolean validate(String schemaName, Object data) {
-        if (!License.isRbvAttached()) return false;
-        if (data == null) return false;
+        List<String> errors = validateErrors(schemaName, data);
+        if (errors == null || errors.isEmpty()) return true;
+
+        for (String error : errors) {
+            log.warn("JsonSchema invalid : {} : {}", error, data);
+        }
+        return false;
+    }
+
+    /**
+     * 校验并返回错误明细（供 AI 工具反馈给模型自修复）
+     *
+     * @param schemaName
+     * @param data
+     * @return 错误列表。null 表示 schema 不可用（未挂载或数据为空），空列表表示校验通过
+     */
+    public static List<String> validateErrors(String schemaName, Object data) {
+        if (!License.isRbvAttached()) return null;
+        if (data == null) return null;
 
         String schemaRes = SCHEMA_RES_MAP.get(schemaName);
-        if (schemaRes == null) return false;
+        if (schemaRes == null) return null;
 
         JsonSchema schema = getSchema(schemaRes);
-        if (schema == null) return false;
+        if (schema == null) return null;
 
         try {
             JsonNode node;
             if (data instanceof CharSequence) {
                 String dataStr = data.toString();
-                if (!JSONUtils.wellFormat(dataStr)) return false;
+                if (!JSONUtils.wellFormat(dataStr)) return Collections.singletonList("数据不是合法的 JSON 格式");
                 node = MAPPER.readTree(dataStr);
             } else {
                 node = MAPPER.valueToTree(data);
             }
 
-            if (node.isObject() && node.isEmpty()) return false;
+            if (node.isObject() && node.isEmpty()) return Collections.singletonList("数据不能为空对象");
 
-            Set<ValidationMessage> errors = schema.validate(node);
-            if (errors.isEmpty()) return true;
-
-            for (ValidationMessage error : errors) {
-                log.warn("JsonSchema invalid : {} : {} [{}]", error.getMessage(), data, schemaRes);
+            List<String> errors = new ArrayList<>();
+            for (ValidationMessage error : schema.validate(node)) {
+                errors.add(error.getMessage());
             }
-            return false;
+            return errors;
 
         } catch (Exception ex) {
             log.warn("JsonSchema validate error : {} [{}]", data, schemaRes, ex);
-            return false;
+            return Collections.singletonList("数据解析失败 : " + ex.getLocalizedMessage());
         }
+    }
+
+    /**
+     * 获取 Schema 原文（供 AI 工具注入给模型作为生成约束）
+     *
+     * @param schemaName
+     * @return null 表示 schema 不存在或不可用
+     */
+    public static String getSchemaContent(String schemaName) {
+        String schemaRes = SCHEMA_RES_MAP.get(schemaName);
+        if (schemaRes == null) return null;
+        return CommonsUtils.getStringOfRes(schemaRes);
     }
 
     private static JsonSchema getSchema(String schemaRes) {
