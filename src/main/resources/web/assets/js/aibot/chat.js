@@ -446,7 +446,7 @@ class ChatMessages extends React.Component {
 class ChatMessage extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, waitResp: props.sendResp ? 1 : 0 }
+    this.state = { ...props, waitResp: props.sendResp ? 1 : 0, reasoningOpen: !!props.sendResp }
   }
 
   componentDidMount() {
@@ -455,7 +455,8 @@ class ChatMessage extends React.Component {
       sendResp((data) => {
         data = data || {}
         if (data.type === '_done') {
-          this.setState({ waitResp: -1 })
+          // 输出完成后自动收起思考过程
+          this.setState({ waitResp: -1, reasoningOpen: false })
           return
         }
         if (data.error) {
@@ -611,6 +612,7 @@ class ChatMessage extends React.Component {
 
   renderAi() {
     const busy = this.props.sendResp && this.state.waitResp !== -1
+    const thinking = this.state.waitResp === 2
     return (
       <div className="msg-ai">
         <div className={`avatar${busy ? ' avatar-busy' : ''}`}>
@@ -622,7 +624,16 @@ class ChatMessage extends React.Component {
               <i className="mdi-spin mdi mdi-loading fs-20" />
             </div>
           )}
-          {this.state.reasoning && <div className="reasoning">{this.renderContent(this.state.reasoning)}</div>}
+          {this.state.reasoning && (
+            <div className="reasoning">
+              <div className="reasoning-toggle" onClick={() => this.setState({ reasoningOpen: !this.state.reasoningOpen })}>
+                <i className={`mdi mdi-chevron-${this.state.reasoningOpen ? 'down' : 'right'}`} />
+                {thinking && <i className="mdi-spin mdi mdi-loading mr-1" />}
+                <span>{thinking ? $L('思考中...') : $L('思考过程')}</span>
+              </div>
+              {this.state.reasoningOpen && <div className="reasoning-body">{this.renderContent(this.state.reasoning)}</div>}
+            </div>
+          )}
           {this.renderContent(this.state.content)}
         </div>
       </div>
@@ -646,7 +657,7 @@ class ChatMessage extends React.Component {
     let md = content || this.state.content
     if (!md) return null
 
-    if (window.__LAB45_FIXAIMD) md = fixMd(md)
+    md = fixMd(md)
     return (
       <div className="msg-text">
         <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
@@ -1019,6 +1030,7 @@ class RecordSelectorModal2 extends RecordSelectorModal {
 // 修复 AI 回复中常见的 Markdown 语法问题，确保 marked 正确渲染
 function fixMd(md) {
   if (!md) return md
+  if (window.__LAB45_NOTFIXAIMD) return md
 
   // 1. 表格：GFM 要求表格前有空行，AI 有时忽略此规则
   if (md.indexOf('|') !== -1 && /\|[\s:]*-{2,}/.test(md)) {

@@ -14,8 +14,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.openai.models.chat.completions.ChatCompletionMessageFunctionToolCall;
-import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -28,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -461,34 +458,6 @@ public class ToolHelper {
      */
     public static Object wrapFieldValue(Object value, Field field) {
         return FieldValueHelper.wrapFieldValue(value, field, true);
-    }
-
-    /**
-     * 格式化工具调用为可读文本
-     *
-     * @param calls
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static String toolCallsText(Object calls) {
-        if (calls instanceof List) {
-            List<String> texts = new ArrayList<>();
-            for (ChatCompletionMessageToolCall tc : (List<ChatCompletionMessageToolCall>) calls) {
-                ChatCompletionMessageFunctionToolCall.Function fn = tc.asFunction().function();
-                texts.add(fn.name());
-            }
-            return String.join(", ", texts);
-        }
-
-        if (calls instanceof Map) {
-            List<String> texts = new ArrayList<>();
-            for (String[] entry : ((Map<Integer, String[]>) calls).values()) {
-                texts.add(StringUtils.defaultString(entry[1]));
-            }
-            return String.join(", ", texts);
-        }
-
-        return calls.toString();
     }
 
     /**
