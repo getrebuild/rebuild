@@ -261,7 +261,7 @@ public class ExportReport implements Tool {
 
         JSONObject result = buildDownloadResult(fileName, output);
         result.put("exportCount", exportCount);
-        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，请点击下载链接获取文件", fileName, exportCount));
+        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，[点击下载](%s)，请将此下载链接展示给用户", fileName, exportCount, result.getString("downloadUrl")));
         return result;
     }
 
@@ -287,7 +287,7 @@ public class ExportReport implements Tool {
         result.put("status", "ok");
         result.put("fileName", fileName);
         result.put("downloadUrl", fileUrl);
-        result.put("message", String.format("报表 [%s] 已生成，请点击下载链接获取文件", fileName));
+        result.put("message", String.format("报表 [%s] 已生成，[点击下载](%s)，请将此下载链接展示给用户", fileName, fileUrl));
         return result;
     }
 }

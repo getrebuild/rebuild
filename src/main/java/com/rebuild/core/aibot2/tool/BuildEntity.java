@@ -74,7 +74,7 @@ public class BuildEntity implements Tool, AdminGuard {
         return JSONUtils.toJSONObject(
                 new String[]{"status", "entity", "label", "url", "message"},
                 new Object[]{"ok", entityName, entityLabel, entityUrl,
-                        String.format("已成功创建%s [%s](%s)，[点击前往实体管理](%s)核对并配置表单和布局",
+                        String.format("已成功创建%s [%s](%s)，[点击前往实体管理](%s)，请将此链接展示给用户，以便其核对并配置表单和布局",
                                 mainEntity != null ? "明细实体" : "实体", entityLabel, entityName, entityUrl)});
     }
 

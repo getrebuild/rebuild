@@ -593,7 +593,7 @@ class ChatMessage extends React.Component {
   renderUser() {
     return (
       <div className="msg-user">
-        <div className="msg-content">{this.renderContent()}</div>
+        <div className="msg-content">{this.renderContent(null, false)}</div>
         {this.state.skill && (
           <div className="msg-attach">
             <Attach skill={this.state.skill} _chatid={this.props._chatid} />
@@ -626,9 +626,9 @@ class ChatMessage extends React.Component {
           )}
           {this.state.reasoning && (
             <div className="reasoning">
-              <div className="reasoning-toggle" onClick={() => this.setState({ reasoningOpen: !this.state.reasoningOpen })}>
-                <i className={`mdi mdi-chevron-${this.state.reasoningOpen ? 'down' : 'right'}`} />
-                {thinking && <i className="mdi-spin mdi mdi-loading mr-1" />}
+              <div className="reasoning-toggle hover-opacity" onClick={() => this.setState({ reasoningOpen: !this.state.reasoningOpen })}>
+                <i className={`fs-16 mdi mdi-chevron-${this.state.reasoningOpen ? 'down' : 'right'}`} />
+                {thinking && <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />}
                 <span>{thinking ? $L('思考中...') : $L('思考过程')}</span>
               </div>
               {this.state.reasoningOpen && <div className="reasoning-body">{this.renderContent(this.state.reasoning)}</div>}
@@ -653,16 +653,10 @@ class ChatMessage extends React.Component {
     )
   }
 
-  renderContent(content) {
-    let md = content || this.state.content
-    if (!md) return null
-
-    md = fixMd(md)
-    return (
-      <div className="msg-text">
-        <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
-      </div>
-    )
+  renderContent(content, md) {
+    let c = content || this.state.content
+    if (!c) return null
+    return <div className="msg-text">{md === false ? c : <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(fixMd(c)) }}></span>}</div>
   }
 }
 

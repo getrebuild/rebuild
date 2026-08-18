@@ -578,11 +578,11 @@ a.hover-color:hover {
   border-color: #0d5bdd !important;
 }
 
-a.hover-opacity {
+.hover-opacity {
   opacity: 1;
 }
 
-a.hover-opacity:hover {
+.hover-opacity:hover {
   opacity: 0.8;
 }
 

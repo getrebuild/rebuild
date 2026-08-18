@@ -178,7 +178,8 @@ public class UpsertRecord implements Tool {
         }
 
         String url = AppUtils.getContextPath("/app/redirect?id=" + record.getPrimary() + "&type=newtab");
-        String message = isNew ? "记录已创建" : "记录已更新";
+        String message = String.format("已%s记录，[点击查看记录](%s)，请将此链接展示给用户核对",
+                isNew ? "成功创建" : "成功更新", url);
         return JSONUtils.toJSONObject(
                 new String[]{"status", "id", "action", "url", "message"},
                 new Object[]{"ok", record.getPrimary(), isNew ? "created" : "updated", url, message});

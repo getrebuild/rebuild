@@ -176,7 +176,7 @@ public class BuildTrigger implements Tool, AdminGuard {
         log.info("Trigger created via AI : {} on {}", configId, sourceEntity.getName());
 
         String configUrl = AppUtils.getContextPath("/admin/robot/trigger/" + configId);
-        String message = String.format("已成功创建触发器 [%s]（%s - %s），[点击查看触发器配置](%s)，请核对实际配置是否符合预期",
+        String message = String.format("已成功创建触发器 [%s]（%s - %s），[点击查看触发器配置](%s)，请将此链接展示给用户，以便其核对实际配置是否符合预期",
                 triggerName, EasyMetaFactory.getLabel(sourceEntity), Language.L(actionType), configUrl);
 
         if (sameNameTriggers.length > 0) {
