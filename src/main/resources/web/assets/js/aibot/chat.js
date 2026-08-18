@@ -484,7 +484,8 @@ class ChatMessage extends React.Component {
 
   componentDidUpdate(props, prevState) {
     const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning
-    if (contentChanged) scrollToBottom()
+    const reasoningToggleChanged = prevState.reasoningOpen !== this.state.reasoningOpen
+    if (contentChanged || reasoningToggleChanged) scrollToBottom()
     if (contentChanged || prevState.waitResp !== this.state.waitResp) {
       this._tryRenderCharts()
       this._tryRenderMermaid()
