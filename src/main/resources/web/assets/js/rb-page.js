@@ -1450,7 +1450,7 @@ var $formatCode = function (c, type) {
 }
 
 // 复制
-var $clipboard = function (target, tips) {
+function $clipboard(target, tips) {
   // 直接复制
   var _directCopy = function (text) {
     if (navigator.clipboard) {

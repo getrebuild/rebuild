@@ -626,7 +626,6 @@ var $useScript = function (url, cb, option) {
 
   var _ajax = $.ajax({ type: 'GET', url: url, dataType: 'script', cache: true })
   if (option.jsonp) {
-    // JSONP：就绪靠全局回调（window[option.jsonp]），不依赖 ajax done
     window[option.jsonp] = _done
     _ajax.fail(_fail)
   } else {
@@ -635,7 +634,6 @@ var $useScript = function (url, cb, option) {
         if (check()) {
           _done()
         } else {
-          // 脚本已加载但目标对象未就绪（如部分脚本异步初始化），轮询等待
           var _retry = 0
           var _timer = setInterval(function () {
             if (check()) {
