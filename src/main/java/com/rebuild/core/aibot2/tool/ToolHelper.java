@@ -206,6 +206,20 @@ public class ToolHelper {
     }
 
     /**
+     * 校验过滤条件
+     *
+     * @param entity
+     * @param config 
+     */
+    public static void validateFilter(Entity entity, JSONObject config) {
+        try {
+            AdvFilterParser.validate(entity, config);
+        } catch (Exception ex) {
+            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    /**
      * 拼接错误明细（限制条数避免过长）
      *
      * @param errors

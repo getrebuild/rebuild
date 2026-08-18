@@ -17,6 +17,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -109,9 +110,7 @@ public class QueryRecords implements Tool {
         }
 
         String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
-        // 转义 LIKE 通配符防注入，同时处理单引号
-        String escapedName = name.replace("'", "''").replace("%", "\\%").replace("_", "\\_");
-        String likeValue = "'%" + escapedName + "%'";
+        String likeValue = "'%" + CommonsUtils.escapeSql(name) + "%'";
         StringBuilder whereClause = new StringBuilder();
         int i = 0;
         for (String fieldName : searchFields) {
@@ -193,11 +192,9 @@ public class QueryRecords implements Tool {
         String sortField = parts[0].trim();
         String direction = parts.length > 1 && "asc".equalsIgnoreCase(parts[1].trim()) ? "asc" : "desc";
 
-        if (!entity.containsField(sortField)) {
-            throw new KnownToolException("排序字段不存在 : " + sortField + ToolHelper.suggestField(entity, sortField));
-        }
-
-        return " order by " + sortField + " " + direction;
+        // 支持字段名或中文标签
+        Field sortFieldResolved = ToolHelper.resolveField(entity, sortField);
+        return " order by " + sortFieldResolved.getName() + " " + direction;
     }
 
     /**

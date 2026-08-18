@@ -261,9 +261,18 @@ public class ScheduleTask implements Tool {
      * @return 下次执行时间
      */
     public static Date calculateNextExecTime(String scheduleType, String time, Integer dayOfWeek, Integer dayOfMonth) {
-        String[] hm = time.split(":");
-        int hour = Integer.parseInt(hm[0]);
-        int minute = hm.length > 1 ? Integer.parseInt(hm[1]) : 0;
+        int hour;
+        int minute;
+        try {
+            String[] hm = time.split(":");
+            hour = Integer.parseInt(hm[0].trim());
+            minute = hm.length > 1 ? Integer.parseInt(hm[1].trim()) : 0;
+        } catch (NumberFormatException ex) {
+            throw new KnownToolException("无法解析执行时间: " + time + "，请使用 HH:mm 格式，如 09:00");
+        }
+        if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+            throw new KnownToolException("执行时间超出范围: " + time + "，请使用 HH:mm 格式，如 09:00");
+        }
 
         Calendar cal = CalendarUtils.getInstance();
         cal.set(Calendar.SECOND, 0);

@@ -116,7 +116,6 @@ public class BuildTrigger implements Tool, AdminGuard {
             throw new KnownToolException("动作内容 (actionContent) 不能为空，请先用 GetConfigSchema(schema=trigger-config) 获取其结构定义");
         }
 
-        // 5. 附加过滤条件（仅 Schema 校验）
         JSONObject whenFilter = args.getJSONObject("whenFilter");
         if (whenFilter != null && !whenFilter.isEmpty()) {
             List<String> filterErrors = JsonSchemaValidator.validateErrors(JsonSchemaValidator.ADV_FILTER, whenFilter);
@@ -124,9 +123,9 @@ public class BuildTrigger implements Tool, AdminGuard {
                 throw new KnownToolException("触发过滤条件 (whenFilter) 不符合规范 : " + ToolHelper.joinErrors(filterErrors)
                         + "。可用 GetConfigSchema(schema=adv-filter) 查看完整定义");
             }
+            ToolHelper.validateFilter(sourceEntity, whenFilter);
         }
 
-        // 6. Schema 校验（错误明细回传，供自修复重试）
         JSONObject schemaData = new JSONObject(true);
         schemaData.put("belongEntity", sourceEntity.getName());
         schemaData.put("when", whenMask);
@@ -138,17 +137,14 @@ public class BuildTrigger implements Tool, AdminGuard {
                     + "。请修正后重试，可用 GetConfigSchema(schema=trigger-config) 查看完整定义");
         }
 
-        // 7. 语义解析：字段标签/用户名等转真实标识
         resolveActionContent(sourceEntity, actionType, actionContent);
 
-        // 同名检测：同实体已存在启用的同名触发器时，提醒用户新建后删除或禁用旧的
         Object[][] sameNameTriggers = Application.createQueryNoFilter(
                         "select configId from RobotTriggerConfig where belongEntity = ? and name = ? and isDisabled = 'F'")
                 .setParameter(1, sourceEntity.getName())
                 .setParameter(2, triggerName)
                 .array();
 
-        // 8. 触发器属重大配置，未确认时仅返回改动清单
         if (!args.getBooleanValue("confirmed")) {
             JSONObject changes = buildChanges(sourceEntity, triggerName, whenMask, actionType, whenFilter, actionContent);
             if (sameNameTriggers.length > 0) {
@@ -163,7 +159,6 @@ public class BuildTrigger implements Tool, AdminGuard {
                                     + "用户未确认或要求调整时不得执行创建"});
         }
 
-        // 9. 落库（归属 AI 助手）
         Record record = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.AIBOT_USER);
         record.setString("belongEntity", sourceEntity.getName());
         record.setString("name", triggerName);
@@ -184,7 +179,6 @@ public class BuildTrigger implements Tool, AdminGuard {
         String message = String.format("已成功创建触发器 [%s]（%s - %s），[点击查看触发器配置](%s)，请核对实际配置是否符合预期",
                 triggerName, EasyMetaFactory.getLabel(sourceEntity), Language.L(actionType), configUrl);
 
-        // 存在同名旧触发器时附删除/禁用提醒（附配置链接）
         if (sameNameTriggers.length > 0) {
             StringBuilder dupLinks = new StringBuilder();
             for (Object[] row : sameNameTriggers) {
