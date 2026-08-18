@@ -7,12 +7,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2;
 
+import cn.devezhao.bizz.security.member.Team;
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.aibot2.tool.UserMemory;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,6 +48,10 @@ public class SystemPromptBuilder {
         if (StringUtils.isNotBlank(basePrompt)) {
             systemPrompt.append("<basic_requirements>\n").append(basePrompt.trim()).append("\n</basic_requirements>");
         }
+
+        // 会话上下文（系统信息 + 当前用户信息）
+        if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
+        systemPrompt.append("<session_context>\n").append(buildSessionContext(UserContextHolder.getUser())).append("\n</session_context>");
 
         // 系统能力（资源文件）
         String capabilityPrompt = Config.getSystemCapabilityPrompt();
@@ -74,6 +84,41 @@ public class SystemPromptBuilder {
         }
 
         return systemPrompt.toString();
+    }
+
+    /**
+     * 构建会话上下文（系统信息 + 当前用户信息）
+     *
+     * @param userId
+     * @return
+     */
+    private static String buildSessionContext(ID userId) {
+        StringBuilder sb = new StringBuilder();
+
+        // 系统信息
+        String appName = RebuildConfiguration.get(ConfigurationItem.AppName);
+        String homeUrl = RebuildConfiguration.get(ConfigurationItem.HomeURL);
+        sb.append("系统名称: ").append(appName);
+        sb.append("\n主页地址: ").append(homeUrl);
+        sb.append("\n当前时间: ").append(CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+
+        // 用户信息
+        User u = Application.getUserStore().getUser(userId);
+        sb.append("\n当前用户: ").append(u.getFullName());
+        if (StringUtils.isNotBlank(u.getEmail())) sb.append("\n邮箱: ").append(u.getEmail());
+        if (StringUtils.isNotBlank(u.getWorkphone())) sb.append("\n电话: ").append(u.getWorkphone());
+        if (u.getOwningDept() != null) sb.append("\n部门: ").append(u.getOwningDept().getName());
+        if (u.getOwningRole() != null) sb.append("\n角色: ").append(u.getOwningRole().getName());
+        if (!u.getOwningTeams().isEmpty()) {
+            StringBuilder teams = new StringBuilder();
+            for (Team t : u.getOwningTeams()) {
+                if (teams.length() > 0) teams.append("、");
+                teams.append(t.getName());
+            }
+            if (teams.length() > 0) sb.append("\n团队: ").append(teams);
+        }
+
+        return sb.toString();
     }
 
     /**

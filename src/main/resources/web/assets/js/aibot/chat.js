@@ -410,7 +410,7 @@ class ChatMessages extends React.Component {
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
     this.setState(state, () => {
-      $(this._$messages).perfectScrollbar('update')
+      $setTimeout(() => $(this._$messages).perfectScrollbar('update'), 150, 'scrollToBottom')
       scrollToBottom(forceScroll)
     })
   }
@@ -422,7 +422,7 @@ class ChatMessages extends React.Component {
     let _lastScroll = 0
     $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
-      if (_lastScroll - currentScroll > 60) {
+      if (_lastScroll - currentScroll > 20) {
         __evt_ScrollToBottomStop = true
       } else {
         if (__evt_ScrollToBottomStop) {
@@ -667,7 +667,7 @@ function scrollToBottom(forceScroll) {
       $el.scrollTop($el[0].scrollHeight)
       $el.perfectScrollbar('update')
     },
-    40,
+    100,
     'scrollToBottom',
   )
 }
