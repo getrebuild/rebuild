@@ -32,7 +32,7 @@ import java.util.List;
 @Slf4j
 public class SuggestQuestions {
 
-    private static final int MAX_QUESTIONS = 4;
+    private static final int MAX_QUESTIONS = 5;
     private static final int MAX_ENTITIES_TO_CHECK = 8;
 
     private SuggestQuestions() {}
@@ -65,31 +65,25 @@ public class SuggestQuestions {
             List<EntityData> withData = collectEntityData();
 
             if (admin) {
-                // 管理员侧重系统配置与管理类问题
                 addQuestion(questions, "帮我创建一个新的业务实体");
                 if (!withData.isEmpty()) {
                     addQuestion(questions, String.format("给%s实体添加一个新字段", withData.get(0).label));
+                    addQuestion(questions, String.format("给%s实体创建一个触发器", withData.get(0).label));
                 } else {
                     addQuestion(questions, "给实体添加一个新字段");
+                    addQuestion(questions, "给实体创建一个触发器");
                 }
-                addQuestion(questions, "如何配置审批流程");
-                addQuestion(questions, "如何设置用户角色权限");
+                addQuestion(questions, "帮我设置一个定时任务");
             } else {
                 // 普通用户侧重日常业务操作类问题
                 if (!withData.isEmpty()) {
                     EntityData top = withData.get(0);
                     addQuestion(questions, String.format("查询%s列表", top.label));
-
-                    EntityData customer = findCustomerEntity(withData);
-                    if (customer != null) {
-                        addQuestion(questions, String.format("创建%s跟进", customer.label));
-                    }
-
-                    if (withData.size() > 1) {
-                        addQuestion(questions, String.format("统计分析%s数据", withData.get(1).label));
-                    }
+                    EntityData stats = withData.size() > 1 ? withData.get(1) : top;
+                    addQuestion(questions, String.format("导出%s报表", stats.label));
                 }
-                addQuestion(questions, "查询待审批记录");
+                addQuestion(questions, "帮我设置一个定时任务");
+                addQuestion(questions, "记住我的工作偏好");
             }
         }
 
@@ -127,24 +121,6 @@ public class SuggestQuestions {
         }
 
         return list;
-    }
-
-    /**
-     * 查找客户类实体（标签含客户/供应商/联系等关键词）
-     *
-     * @param list
-     * @return
-     */
-    private static EntityData findCustomerEntity(List<EntityData> list) {
-        for (EntityData ed : list) {
-            String label = ed.label.toLowerCase();
-            if (label.contains("客户") || label.contains("customer")
-                    || label.contains("供应商") || label.contains("supplier")
-                    || label.contains("联系人") || label.contains("contact")) {
-                return ed;
-            }
-        }
-        return null;
     }
 
     /**
