@@ -119,10 +119,9 @@ public class Chat implements Serializable {
         Message message = new Message(ROLE_USER, userMessage, null, null, null);
         messages.add(message);
 
-        chatLogger().log("USER", userMessage);
-
         String systemPrompt = SystemPromptBuilder.build(prompt, null);
         chatLogger().logSession(model, systemPrompt);
+        chatLogger().log("USER", userMessage);
 
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model)
                 .addUserMessageOfArrayOfContentParts(parts);
@@ -137,16 +136,16 @@ public class Chat implements Serializable {
      * @return
      */
     private ChatCompletionCreateParams.Builder requestParams(String userMessage, ChatRequest chatRequest) {
+        String systemPrompt = SystemPromptBuilder.build(prompt,
+                chatRequest == null ? null : chatRequest.getSkill());
+        chatLogger().logSession(model, systemPrompt);
+
         if (userMessage != null) {
             Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
             messages.add(message);
 
             chatLogger().log("USER", userMessage);
         }
-
-        String systemPrompt = SystemPromptBuilder.build(prompt,
-                chatRequest == null ? null : chatRequest.getSkill());
-        chatLogger().logSession(model, systemPrompt);
 
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model);
         for (Message m : messages) {
