@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.aibot2.knowledge.KnowledgeRetriever;
 import com.rebuild.core.aibot2.vector.FileData;
 import com.rebuild.core.aibot2.vector.ListData;
 import com.rebuild.core.aibot2.vector.RecordData;
@@ -62,28 +61,17 @@ public class ChatRequest {
     }
 
     /**
-     * 获取用户消息内容（含知识检索 + 附加数据注入）
-     * 仅用于当前会话请求，不用于历史消息恢复
+     * 获取用户消息内容（含附加数据注入），仅用于当前会话请求，不用于历史消息恢复
      */
     public String getUserContent() {
-        String c = getUserContent(true);
-
-        try {
-            VectorData knowledgeData = KnowledgeRetriever.retrieveAsVectorData(reqJson.getString("content"));
-            if (knowledgeData != null) {
-                String kd = knowledgeData.toVector();
-                if (StringUtils.isNotBlank(kd)) c = kd + VectorData.NN + c;
-            }
-        } catch (Exception e) {
-            log.warn("Knowledge retrieve failed, skip injection", e);
-        }
-
-        if (Application.devMode()) System.out.println("[dev] \n" + c);
-        return c;
+        return getUserContent(true);
     }
 
     /**
      * 获取用户消息内容
+     *
+     * @param withVector
+     * @return
      */
     public String getUserContent(boolean withVector) {
         String c = reqJson.getString("content");
@@ -129,7 +117,6 @@ public class ChatRequest {
 
         vectorDataContent = StringUtils.trim(vdc.toVector());
 
-        // 保存起来
         RecordBuilder.builder(EntityHelper.AibotChatAttach)
                 .add("chatId", chatid)
                 .add("content", attachKey)

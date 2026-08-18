@@ -186,22 +186,26 @@ class ConfigList extends React.Component {
   }
 }
 
-function ShowEnable(enable, cfgid) {
+function ShowEnable(disabled, cfgid, switchFn) {
   if (cfgid) {
-    const htmlid = `enable-${$random()}`
+    const htmlid = `enable-${cfgid}`
     return (
       <div className="switch-button switch-button-xs switch-button-success">
         <input
           type="checkbox"
-          defaultChecked={!enable}
+          defaultChecked={!disabled}
           id={htmlid}
           onClick={(e) => {
-            const _data = {
+            if (typeof switchFn === 'function') {
+              switchFn(e.target.checked)
+              return
+            }
+
+            const d = {
               isDisabled: !e.target.checked,
               metadata: { id: cfgid },
             }
-
-            $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
+            $.post('/app/entity/common-save', JSON.stringify(d), (res) => {
               if (res.error_code !== 0) RbHighbar.error(res.error_msg)
             })
           }}
@@ -212,7 +216,7 @@ function ShowEnable(enable, cfgid) {
       </div>
     )
   } else {
-    return enable ? <span className="badge badge-grey">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
+    return disabled ? <span className="badge badge-grey">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
   }
 }
 

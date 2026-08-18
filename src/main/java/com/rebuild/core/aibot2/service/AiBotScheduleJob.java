@@ -51,7 +51,6 @@ public class AiBotScheduleJob extends DistributedJobLock {
     public void executeJob() {
         if (!tryLock()) return;
 
-        // 查询所有AI定时任务（未禁用的）
         Object[][] array = Application.createQueryNoFilter(
                 "select configId,config,name from AibotConfig where type = ? and isDisabled = 'F'")
                 .setParameter(1, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
@@ -130,7 +129,6 @@ public class AiBotScheduleJob extends DistributedJobLock {
 
             log.info("Executing AI scheduled task: {} ({})", subject, taskIdStr);
 
-            // 检查AI是否可用
             if (!Config.availableAiBot()) {
                 log.warn("AI bot not available, skip task: {}", taskIdStr);
                 Application.getNotifications().send(
@@ -140,10 +138,8 @@ public class AiBotScheduleJob extends DistributedJobLock {
                 return;
             }
 
-            // 调用AI处理内容
             String aiResponse = ChatManager.ask(content);
 
-            // 发送站内信通知
             String message = String.format("**[%s]**\n\n%s", subject, aiResponse);
             Application.getNotifications().send(
                     MessageBuilder.createMessage(user, message, Message.TYPE_DEFAULT));
@@ -188,11 +184,9 @@ public class AiBotScheduleJob extends DistributedJobLock {
 
             if (success) {
                 if ("once".equals(scheduleType)) {
-                    // 一次性任务标记为完成
                     task.put("status", "done");
                     disable = true;
                 } else {
-                    // 周期任务计算下次执行时间
                     task.put("nextExecTime", formatNextExecTime(task, scheduleType));
                 }
             } else if ("once".equals(scheduleType)) {

@@ -45,7 +45,6 @@ public class EntitiesData implements VectorData {
             }
 
             sb.append(buildEntity(e));
-            // 明细
             if (e.getDetailEntity() != null) {
                 for (Entity de : e.getDetialEntities()) {
                     sb.append(NN).append(buildEntity(de));

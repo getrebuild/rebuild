@@ -61,7 +61,6 @@ public class RecordData implements VectorData {
             v.append(label).append(": ").append(value).append(N);
         }
 
-        // 明细
         if (hasDetails && r.getEntity().getDetailEntity() != null) {
             v.append(N).append("## 明细记录").append(NN);
 
@@ -76,7 +75,6 @@ public class RecordData implements VectorData {
             }
         }
 
-        // v4.4 相关记录
         if (ArrayUtils.isNotEmpty(relateds)) {
             v.append(N).append("## 相关记录").append(NN);
 

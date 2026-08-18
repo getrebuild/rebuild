@@ -18,7 +18,7 @@ class AiBot extends React.Component {
   render() {
     const dockMode = this.state.dockMode
     return (
-      <div className={`aibot modal${dockMode ? ' aibot-dock' : ''}`} ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
+      <div className="aibot modal" ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -42,6 +42,7 @@ class AiBot extends React.Component {
                 chatid={this.props.chatid}
                 presetMessage={this.props.presetMessage}
                 autoSend={this.props.autoSend}
+                sendMode={this.props.sendMode}
                 onChatidChanged={(id) => {
                   this.setState({ chatid: id })
                   typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(id)
@@ -79,6 +80,7 @@ class AiBot extends React.Component {
       })
 
       if (this.state.dockMode) {
+        $modal.addClass('aibot-dock')
         const $dialog = $modal.find('.modal-dialog')
         $dialog.draggable('disable')
         $dialog.css({ left: '', top: '', right: '', bottom: '' })
@@ -94,6 +96,9 @@ class AiBot extends React.Component {
     const dockMode = !this.state.dockMode
     this.setState({ dockMode }, () => {
       $storage.set('__AiBotDockMode', dockMode ? 'true' : 'false')
+      if (dockMode) $(this._$modal).addClass('aibot-dock')
+      else $(this._$modal).removeClass('aibot-dock')
+
       const $dialog = $(this._$modal).find('.modal-dialog')
       if (dockMode) {
         if (this.props.draggable) $dialog.draggable('disable')

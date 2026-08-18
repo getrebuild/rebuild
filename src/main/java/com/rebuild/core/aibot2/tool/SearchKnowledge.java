@@ -58,4 +58,9 @@ public class SearchKnowledge implements Tool {
                 new String[]{"status", "results", "total"},
                 new Object[]{"ok", results, results.size()});
     }
+
+    @Override
+    public boolean isSystem() {
+        return HIDDEN_SYSTEM;
+    }
 }

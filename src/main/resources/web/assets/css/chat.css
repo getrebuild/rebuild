@@ -162,9 +162,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 4px;
   color: #404040;
   opacity: 0.8;
+  min-width: 20px;
+  font-size: 14px;
 }
 
-.chat-message .msg-action > a:hover {
+.chat-message .msg-action > a + a {
+  margin-left: 3px;
+}
+
+.chat-message .msg-action > a:hover,
+.chat-message .msg-action > a.text-primary {
   opacity: 1;
 }
 
@@ -179,6 +186,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   word-wrap: break-word;
   word-break: break-all;
   text-align: left;
+  white-space: pre-wrap;
 }
 
 .chat-message .msg-user > .msg-attach {
@@ -226,14 +234,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-message .msg-ai > .msg-content > .reasoning {
-  border-left: 2px solid #ccc;
-  padding-left: 10px;
   margin-bottom: 10px;
   font-size: 90%;
 }
 
-.chat-message .msg-ai > .msg-content > .reasoning,
-.chat-message .msg-ai > .msg-content > .reasoning > * {
+.chat-message .msg-ai > .msg-content > .reasoning > .reasoning-toggle {
+  display: inline-flex;
+  align-items: center;
+  color: #888;
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 0;
+  margin-left: -4px;
+}
+
+.chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body {
+  border-left: 2px solid #ccc;
+  padding-left: 10px;
+  margin-top: 4px;
+}
+
+.chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body,
+.chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body > * {
   color: #666;
 }
 
@@ -488,6 +510,11 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   background-color: #f5f5f5;
   border-radius: 6px;
   padding: 1px;
+}
+
+.chat-message .msg-text .mermaid,
+.chat-message .msg-text .mermaid-to-render {
+  padding: 10px;
 }
 
 .chat-message .msg-text .echarts-to-render:not(.echarts-rendered) {

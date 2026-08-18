@@ -84,7 +84,6 @@ public class ScheduleTask implements Tool {
         Integer dayOfMonth = args.getInteger("dayOfMonth");
         String executeTime = args.getString("executeTime");
 
-        // 参数校验
         if ("once".equals(scheduleType)) {
             if (StringUtils.isBlank(executeTime)) {
                 throw new KnownToolException("一次性任务必须指定执行时间 (executeTime)");
@@ -101,12 +100,14 @@ public class ScheduleTask implements Tool {
             }
         }
 
-        // 计算下次执行时间
         Date nextExecTime;
         if ("once".equals(scheduleType)) {
             nextExecTime = CommonsUtils.parseDate(executeTime);
             if (nextExecTime == null) {
                 throw new KnownToolException("无法解析执行时间: " + executeTime + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
+            }
+            if (!nextExecTime.after(CalendarUtils.getInstance().getTime())) {
+                throw new KnownToolException("一次性任务的执行时间必须是未来时间 : " + executeTime);
             }
         } else {
             nextExecTime = calculateNextExecTime(scheduleType, time, dayOfWeek, dayOfMonth);
@@ -117,7 +118,6 @@ public class ScheduleTask implements Tool {
             subject = CommonsUtils.maxstr(content, 40);
         }
 
-        // 构建 config JSON
         JSONObject config = new JSONObject(true);
         config.put("userId", user.toLiteral());
         config.put("content", content);
@@ -130,7 +130,6 @@ public class ScheduleTask implements Tool {
         config.put("nextExecTime", CalendarUtils.getUTCDateTimeFormat().format(nextExecTime));
         config.put("lastExecTime", null);
 
-        // 创建 AibotConfig 记录
         Record record = EntityHelper.forNew(EntityHelper.AibotConfig, user);
         record.setString("type", AibotConfigManager.TYPE_AIBOT_SCHEDULE);
         record.setString("name", subject);
@@ -153,21 +152,18 @@ public class ScheduleTask implements Tool {
      * 查询当前用户的所有定时任务
      */
     private Object doList() {
-        Object[][] array = Application.createQueryNoFilter(
-                "select configId,config,name,isDisabled from AibotConfig where type = ? and createdBy = ? order by createdOn desc")
-                .setParameter(1, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
-                .setParameter(2, UserContextHolder.getUser())
-                .array();
+        Object[][] array = queryUserTasks(UserContextHolder.getUser());
 
         List<JSONObject> tasks = new ArrayList<>();
-        for (Object[] row : array) {
+        for (int i = 0; i < array.length; i++) {
+            Object[] row = array[i];
             String taskId = ((ID) row[0]).toLiteral();
             String configStr = (String) row[1];
             String name = (String) row[2];
             boolean disabled = row[3] != null && (Boolean) row[3];
 
             JSONObject taskInfo = new JSONObject(true);
-            taskInfo.put("taskId", taskId);
+            taskInfo.put("no", i + 1);
             taskInfo.put("subject", name);
             taskInfo.put("disabled", disabled);
 
@@ -198,13 +194,24 @@ public class ScheduleTask implements Tool {
     }
 
     /**
-     * 取消定时任务
+     * 取消定时任务（按序号或任务 ID 定位）
      */
     private Object doCancel(JSONObject args) {
-        ID taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
         final ID user = UserContextHolder.getUser();
 
-        // 验证任务存在
+        Integer no = args.getInteger("no");
+        ID taskId;
+        if (no != null) {
+            Object[][] array = queryUserTasks(user);
+            if (no < 1 || no > array.length) {
+                throw new KnownToolException(String.format(
+                        "序号 %d 无效（当前共 %d 个定时任务），请先通过 action=list 查看序号", no, array.length));
+            }
+            taskId = (ID) array[no - 1][0];
+        } else {
+            taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
+        }
+
         Object[] task = Application.createQueryNoFilter(
                 "select config,name,createdBy from AibotConfig where configId = ? and type = ?")
                 .setParameter(1, taskId)
@@ -223,12 +230,25 @@ public class ScheduleTask implements Tool {
 
         String name = (String) task[1];
 
-        // 删除任务
         Application.getBean(AibotConfigService.class).delete(taskId);
 
         return JSONUtils.toJSONObject(
                 new String[]{"status", "message"},
                 new Object[]{"ok", String.format("已成功取消定时任务 [%s]", name)});
+    }
+
+    /**
+     * 查询当前用户的定时任务（按创建时间由新到旧，序号与 list 结果一致）
+     *
+     * @param user
+     * @return
+     */
+    private Object[][] queryUserTasks(ID user) {
+        return Application.createQueryNoFilter(
+                "select configId,config,name,isDisabled from AibotConfig where type = ? and createdBy = ? order by createdOn desc")
+                .setParameter(1, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
+                .setParameter(2, user)
+                .array();
     }
 
     /**
@@ -241,9 +261,18 @@ public class ScheduleTask implements Tool {
      * @return 下次执行时间
      */
     public static Date calculateNextExecTime(String scheduleType, String time, Integer dayOfWeek, Integer dayOfMonth) {
-        String[] hm = time.split(":");
-        int hour = Integer.parseInt(hm[0]);
-        int minute = hm.length > 1 ? Integer.parseInt(hm[1]) : 0;
+        int hour;
+        int minute;
+        try {
+            String[] hm = time.split(":");
+            hour = Integer.parseInt(hm[0].trim());
+            minute = hm.length > 1 ? Integer.parseInt(hm[1].trim()) : 0;
+        } catch (NumberFormatException ex) {
+            throw new KnownToolException("无法解析执行时间: " + time + "，请使用 HH:mm 格式，如 09:00");
+        }
+        if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+            throw new KnownToolException("执行时间超出范围: " + time + "，请使用 HH:mm 格式，如 09:00");
+        }
 
         Calendar cal = CalendarUtils.getInstance();
         cal.set(Calendar.SECOND, 0);

@@ -578,11 +578,11 @@ a.hover-color:hover {
   border-color: #0d5bdd !important;
 }
 
-a.hover-opacity {
+.hover-opacity {
   opacity: 1;
 }
 
-a.hover-opacity:hover {
+.hover-opacity:hover {
   opacity: 0.8;
 }
 
@@ -4739,8 +4739,8 @@ html.external-auth .auth-body.must-center .login {
   content: '\F01F0';
 }
 
-.copied-check > .zmdi-copy::before {
-  content: '\f26b' !important;
+.copied-check > .mdi-content-copy::before {
+  content: '\F012C' !important;
   color: #34a853;
   font-weight: bold;
 }
@@ -5386,6 +5386,7 @@ pre.unstyle {
   top: 15px;
   right: 15px;
   display: none;
+  font-size: 14px;
 }
 
 .code-viewport:hover > a.copy {
@@ -6787,8 +6788,6 @@ div.formula-code {
   max-width: 100%;
   height: auto;
 }
-
-/* Mermaid */
 
 .mermaid rect {
   rx: 6px;

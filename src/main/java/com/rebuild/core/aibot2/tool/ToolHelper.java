@@ -77,13 +77,12 @@ public class ToolHelper {
         String str = value.toString().trim();
         if (str.isEmpty()) return null;
 
-        // 单个 fileKey 字符串，包装为数组
         return JSON.toJSONString(new String[]{str});
     }
 
     /**
      * 解析实体（支持名称、code、标签匹配）
-     * 精确匹配优先，多个模糊匹配时抛出异常供用户选择
+     * 精确匹配优先，多个匹配时抛出异常要求询问用户选择（禁止自行决定）
      *
      * @param name
      * @return
@@ -91,12 +90,11 @@ public class ToolHelper {
     public static Entity resolveEntity(String name) {
         if (StringUtils.isBlank(name)) return null;
 
-        // 1. 精确匹配实体名称
+        // 1. 精确匹配实体名称（名称唯一，直接返回；同名歧义仅在标签匹配分支处理）
         if (MetadataHelper.containsEntity(name)) {
             return MetadataHelper.getEntity(name);
         }
 
-        // 2. CODE
         if (StringUtils.isNumeric(name)) {
             int code = Integer.parseInt(name);
             if (MetadataHelper.containsEntity(code)) {
@@ -104,36 +102,131 @@ public class ToolHelper {
             }
         }
 
-        // 3. 标签匹配
         String nameLower = name.toLowerCase();
+        List<Entity> exactMatches = new ArrayList<>();
         List<Entity> fuzzyMatches = new ArrayList<>();
 
         for (Entity e : MetadataHelper.getEntities()) {
             String label = EasyMetaFactory.getLabel(e);
             if (StringUtils.isBlank(label)) continue;
 
-            // 精确标签匹配，直接返回
+            // 精确标签匹配（可能有同名实体，不能直接返回）
             if (label.equalsIgnoreCase(name)) {
-                return e;
-            }
-            // 模糊匹配
-            if (label.toLowerCase().contains(nameLower)
-                    || nameLower.contains(label.toLowerCase())) {
+                exactMatches.add(e);
+            } else if (label.toLowerCase().contains(nameLower)) {
                 fuzzyMatches.add(e);
             }
         }
 
+        if (exactMatches.size() == 1) return exactMatches.get(0);
+        if (!exactMatches.isEmpty()) return throwAmbiguousEntities(name, exactMatches);
+
         if (fuzzyMatches.isEmpty()) return null;
         if (fuzzyMatches.size() == 1) return fuzzyMatches.get(0);
 
-        // 多个匹配，抛出异常让用户选择
+        return throwAmbiguousEntities(name, fuzzyMatches);
+    }
+
+    /**
+     * 多个实体匹配时抛出异常，明确要求模型询问用户而非自行选择
+     *
+     * @param name
+     * @param matches
+     * @return
+     */
+    private static Entity throwAmbiguousEntities(String name, List<Entity> matches) {
         JSONArray list = new JSONArray();
-        for (Entity e : fuzzyMatches) {
+        for (Entity e : matches) {
             list.add(JSONUtils.toJSONObject(
                     new String[]{"name", "label"},
                     new Object[]{e.getName(), EasyMetaFactory.getLabel(e)}));
         }
-        throw new KnownToolException("匹配到多个实体，请指定更精确的名称: " + list.toJSONString());
+        throw new KnownToolException("「" + name + "」匹配到多个实体 : " + list.toJSONString()
+                + "。请将候选列表转述给用户并询问具体是哪一个，由用户选择后再继续，禁止自行决定");
+    }
+
+    /**
+     * 解析字段（支持字段名、标签）。未匹配时抛出异常并附候选提示
+     *
+     * @param entity
+     * @param fieldIdent
+     * @return
+     */
+    public static Field resolveField(Entity entity, String fieldIdent) {
+        if (StringUtils.isBlank(fieldIdent)) {
+            throw new KnownToolException("字段名不能为空");
+        }
+
+        if (entity.containsField(fieldIdent)) {
+            return entity.getField(fieldIdent);
+        }
+
+        for (Field f : entity.getFields()) {
+            if (MetadataHelper.isSystemField(f)) continue;
+            if (fieldIdent.equalsIgnoreCase(EasyMetaFactory.getLabel(f))) {
+                return f;
+            }
+        }
+
+        throw new KnownToolException(String.format("字段不存在 : %s.%s %s",
+                entity.getName(), fieldIdent, suggestField(entity, fieldIdent)));
+    }
+
+    /**
+     * 解析字段路径（支持「字段.子字段」跨引用实体，名称或标签均可）
+     *
+     * @param entity
+     * @param path
+     * @return
+     */
+    public static String resolveFieldPath(Entity entity, String path) {
+        if (!path.contains(".")) {
+            return resolveField(entity, path).getName();
+        }
+
+        String[] segs = path.split("\\.");
+        Entity current = entity;
+        StringBuilder resolved = new StringBuilder();
+        for (int i = 0; i < segs.length; i++) {
+            Field f = resolveField(current, segs[i]);
+            if (resolved.length() > 0) resolved.append(".");
+            resolved.append(f.getName());
+
+            if (i < segs.length - 1) {
+                if (f.getType() != FieldType.REFERENCE || f.getReferenceEntity() == null) {
+                    throw new KnownToolException("字段路径中 " + segs[i] + " 不是引用字段，无法继续向下引用");
+                }
+                current = f.getReferenceEntity();
+            }
+        }
+        return resolved.toString();
+    }
+
+    /**
+     * 校验过滤条件
+     *
+     * @param entity
+     * @param filterExpr
+     */
+    public static void validateFilter(Entity entity, JSONObject filterExpr) {
+        try {
+            new AdvFilterParser(filterExpr, entity).toSqlWhere();
+        } catch (Exception ex) {
+            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    /**
+     * 拼接错误明细（限制条数避免过长）
+     *
+     * @param errors
+     * @return
+     */
+    public static String joinErrors(List<String> errors) {
+        if (errors == null || errors.isEmpty()) return "";
+        List<String> use = errors.size() > 5 ? errors.subList(0, 5) : errors;
+        String s = StringUtils.join(use, "；");
+        return errors.size() > 5 ? s + "（等共 " + errors.size() + " 条错误）" : s;
     }
 
     /**
@@ -149,7 +242,6 @@ public class ToolHelper {
             return ID.valueOf(userIdent);
         }
 
-        // 按全名查找
         ID user = UserHelper.findUserByFullName(userIdent);
         if (user == null && Application.getUserStore().existsName(userIdent)) {
             user = Application.getUserStore().getUser(userIdent).getId();
@@ -158,20 +250,7 @@ public class ToolHelper {
     }
 
     /**
-     * 构建过滤表达式（AdvFilterParser 所需格式）
-     * 将工具传入的 filter 条件数组包装为 { entity, items } 格式
-     *
-     * @param entity
-     * @param filter
-     * @return
-     */
-    public static JSONObject buildFilterExpr(Entity entity, JSONArray filter) {
-        return buildFilterExpr(entity, filter, null);
-    }
-
-    /**
-     * 构建过滤表达式（AdvFilterParser 所需格式）
-     * 将工具传入的 filter 条件数组包装为 { entity, items, equation } 格式
+     * 构建过滤表达式 AdvFilterParser
      *
      * @param entity
      * @param filter
@@ -189,7 +268,7 @@ public class ToolHelper {
     }
 
     /**
-     * 解析过滤条件为 SQL where 子句
+     * 解析过滤条件为 SQL 子句
      *
      * @param entity
      * @param filter
@@ -247,13 +326,13 @@ public class ToolHelper {
     /**
      * 模糊匹配相似实体名
      *
-     * @param name
+     * @param entityName
      * @return
      */
-    public static String suggestEntity(String name) {
-        if (StringUtils.isBlank(name)) return "";
+    public static String suggestEntity(String entityName) {
+        if (StringUtils.isBlank(entityName)) return "";
 
-        String lower = name.toLowerCase();
+        String lower = entityName.toLowerCase();
         List<String> candidates = new ArrayList<>();
 
         for (Entity e : MetadataHelper.getEntities()) {
@@ -322,7 +401,7 @@ public class ToolHelper {
     }
 
     /**
-     * 构建 SQL 字段列表（主键 + 名称字段 + 查询字段）
+     * 构建 SQL 字段列表
      *
      * @param primaryField
      * @param nameField
@@ -379,5 +458,21 @@ public class ToolHelper {
      */
     public static Object wrapFieldValue(Object value, Field field) {
         return FieldValueHelper.wrapFieldValue(value, field, true);
+    }
+
+    /**
+     * JSON 压缩为单行紧凑格式
+     *
+     * @param text
+     * @return
+     */
+    public static String compactJson(String text) {
+        if (JSONUtils.wellFormat(text)) {
+            try {
+                return JSON.toJSONString(JSON.parse(text));
+            } catch (Exception ignored) {
+            }
+        }
+        return text;
     }
 }

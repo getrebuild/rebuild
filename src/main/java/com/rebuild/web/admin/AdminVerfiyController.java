@@ -16,14 +16,9 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.support.CommandArgs;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.commons.FileDownloader;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,13 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * @author devezhao
@@ -95,65 +84,5 @@ public class AdminVerfiyController extends BaseController {
     @RequestMapping("/user/admin-dangers")
     public RespBody adminDangers() {
         return RespBody.ok(SysbaseHeartbeat.getAdminDanger());
-    }
-
-    // -- CLI
-
-    @GetMapping("/admin/admin-cli")
-    public ModelAndView adminCliConsole(HttpServletRequest request) {
-        RbAssert.isSuperAdmin(getRequestUser(request));
-        return createModelAndView("/admin/admin-cli");
-    }
-
-    @RequestMapping("/admin/admin-cli/exec")
-    public RespBody adminCliExec(HttpServletRequest request) {
-        RbAssert.isSuperAdmin(getRequestUser(request));
-
-        String command = ServletUtils.getRequestString(request);
-        if (StringUtils.isBlank(command)) return RespBody.error();
-
-        String res = new AdminCli4(command).exec();
-        return RespBody.ok(res);
-    }
-
-    // -- FILES
-
-    @RequestMapping("/admin/admin-download")
-    public void adminDownloadFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!CommandArgs.getBoolean(CommandArgs._AdminDownload)) {
-            response.sendError(404);
-            return;
-        }
-
-        String type = getParameter(request, "type", "error");
-
-        // 日志
-        if ("log".equalsIgnoreCase(type) || "error".equalsIgnoreCase(type)) {
-            File logFile = SysbaseHeartbeat.getLastLogbackFile("error".equalsIgnoreCase(type));
-
-            ServletUtils.setContentType(response, ServletUtils.CT_PLAIN);
-            FileDownloader.setDownloadHeaders(response, logFile.getName(), false);
-            FileDownloader.writeLocalFile(logFile, response);
-        }
-        // 数据库
-        else if ("database".equalsIgnoreCase(type) || "db".equalsIgnoreCase(type)) {
-            File path = RebuildConfiguration.getFileOfData("");
-            path = new File(path, "_backups");
-
-            String file = getParameter(request, "file");
-            File dbFile = null;
-            if (StringUtils.isBlank(file)) {
-                try (Stream<Path> s = Files.list(path.toPath())) {
-                    Optional<Path> max = s.filter(Files::isRegularFile)
-                            .max(Comparator.comparingLong(p -> p.toFile().lastModified()));
-                    if (max.isPresent()) dbFile = max.get().toFile();
-                }
-            } else {
-                dbFile = new File(path, file);
-            }
-
-            if (dbFile != null) FileDownloader.setDownloadHeaders(response, dbFile.getName(), false);
-            FileDownloader.writeLocalFile(dbFile, response);
-        }
     }
 }

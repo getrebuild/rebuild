@@ -64,10 +64,8 @@ public class StatisticsData implements Tool {
         if (limit < 1) limit = DEFAULT_LIMIT;
         if (limit > MAX_LIMIT) limit = MAX_LIMIT;
 
-        // 校验聚合字段
         String aggFieldSql = buildAggFieldSql(entity, aggFunc, aggField);
 
-        // 构建 WHERE
         String whereClause;
         try {
             whereClause = ToolHelper.parseFilterToWhere(entity, filter, equation);
@@ -75,12 +73,10 @@ public class StatisticsData implements Tool {
             throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
         }
 
-        // 有分组
         if (StringUtils.isNotBlank(groupBy)) {
             return queryWithGroupBy(entity, aggFunc, aggFieldSql, groupBy, whereClause, limit);
         }
 
-        // 无分组，返回单一聚合值
         return querySingleAgg(entity, aggFunc, aggFieldSql, whereClause);
     }
 
@@ -111,17 +107,15 @@ public class StatisticsData implements Tool {
      */
     private JSONObject queryWithGroupBy(Entity entity, String aggFunc, String aggFieldSql,
                                         String groupBy, String whereClause, int limit) {
-        // 解析分组字段
+        // 解析分组字段（支持字段名或中文标签）
         List<Field> groupFields = new ArrayList<>();
         List<String> groupFieldNames = new ArrayList<>();
         for (String gf : groupBy.split("[,;]")) {
             gf = gf.trim();
             if (StringUtils.isBlank(gf)) continue;
-            if (!entity.containsField(gf)) {
-                throw new KnownToolException("分组字段不存在 : " + gf + ToolHelper.suggestField(entity, gf));
-            }
-            groupFields.add(entity.getField(gf));
-            groupFieldNames.add(gf);
+            Field field = ToolHelper.resolveField(entity, gf);
+            groupFields.add(field);
+            groupFieldNames.add(field.getName());
         }
 
         if (groupFields.isEmpty()) {
@@ -148,7 +142,6 @@ public class StatisticsData implements Tool {
                 Object label = FieldValueHelper.wrapFieldValue(rawValue, gf, true);
                 item.put(gf.getName(), label != null ? label : "(空)");
             }
-            // 聚合值
             item.put("value", row[groupFields.size()]);
             rows.add(item);
         }
@@ -179,11 +172,8 @@ public class StatisticsData implements Tool {
                     + "实体 [" + EasyMetaFactory.getLabel(entity) + "] 可用字段: " + ToolHelper.listFields(entity));
         }
 
-        if (!entity.containsField(aggField)) {
-            throw new KnownToolException("聚合字段不存在 : " + aggField + ToolHelper.suggestField(entity, aggField));
-        }
-
-        return aggField;
+        // 支持字段名或中文标签
+        return ToolHelper.resolveField(entity, aggField).getName();
     }
 
     private boolean isValidAggFunc(String func) {

@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global Chat */
+/* global Chat, mermaid */
 
 const _chatMarked = new marked.Marked({
   renderer: {
@@ -13,6 +13,11 @@ const _chatMarked = new marked.Marked({
       if (lang === 'echarts' || lang === 'echart') {
         const safe = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         return `<div class="echarts-to-render">${safe}</div>`
+      }
+      // ```mermaid
+      if (lang === 'mermaid') {
+        const safe = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        return `<div class="mermaid-to-render">${safe}</div>`
       }
       return false
     },
@@ -124,7 +129,7 @@ class Chat extends React.Component {
     this._ChatSidebar.toggleShow(showOrHide)
   }
 
-  send(data) {
+  send(data, onDone) {
     scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
 
@@ -136,10 +141,7 @@ class Chat extends React.Component {
             if (res._chatid) this.setState({ chatid: res._chatid })
             typeof onChunk === 'function' && onChunk({ ...res })
             typeof onChunk === 'function' && onChunk({ type: '_done' })
-          }).fail((xhr) => {
-            const err = (xhr.responseJSON && xhr.responseJSON.error_msg) || $L('请求失败，请重试')
-            typeof onChunk === 'function' && onChunk({ error: err })
-            typeof onChunk === 'function' && onChunk({ type: '_done' })
+            typeof onDone === 'function' && onDone()
           })
         },
       })
@@ -267,11 +269,11 @@ class ChatInput extends React.Component {
       content: this.state.content,
       attach: this.state.attach,
       skill: this.state.activeSkill,
+      sendTime: Date.now(),
     }
-    this.props._Chat &&
-      this.props._Chat.sendStream(data, () => {
-        this.setState({ postState: 0 })
-      })
+    const onDone = () => this.setState({ postState: 0 })
+    const _Chat = this.props._Chat
+    _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
 
     this.reset()
     this.setState({ postState: 1 })
@@ -440,7 +442,7 @@ class ChatMessages extends React.Component {
 class ChatMessage extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, waitResp: props.sendResp ? 1 : 0 }
+    this.state = { ...props, waitResp: props.sendResp ? 1 : 0, reasoningOpen: !!props.sendResp }
   }
 
   componentDidMount() {
@@ -449,7 +451,8 @@ class ChatMessage extends React.Component {
       sendResp((data) => {
         data = data || {}
         if (data.type === '_done') {
-          this.setState({ waitResp: -1 })
+          // 输出完成后自动收起思考过程
+          this.setState({ waitResp: -1, reasoningOpen: false })
           return
         }
         if (data.error) {
@@ -476,12 +479,15 @@ class ChatMessage extends React.Component {
       })
 
     this._tryRenderCharts()
+    this._tryRenderMermaid()
   }
 
   componentDidUpdate(props, prevState) {
-    if (prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning) {
-      scrollToBottom()
+    const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning
+    if (contentChanged) scrollToBottom()
+    if (contentChanged || prevState.waitResp !== this.state.waitResp) {
       this._tryRenderCharts()
+      this._tryRenderMermaid()
     }
   }
 
@@ -498,7 +504,44 @@ class ChatMessage extends React.Component {
     const $el = this._$message && $(this._$message)
     if (!$el || $el.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
     if (!this._echartsSeq) this._echartsSeq = $random('echarts-', true)
-    $setTimeout(() => $renderEcharts($el), 200, 'render-echarts-' + this._echartsSeq)
+
+    const done = !this.props.sendResp || this.state.waitResp === -1
+    $setTimeout(() => renderEcharts($el, done), 200, 'render-echarts-' + this._echartsSeq)
+  }
+
+  _tryRenderMermaid() {
+    const $el = this._$message && $(this._$message)
+    if (!$el || $el.find('.mermaid-to-render').length === 0) return
+    if (this.props.sendResp && this.state.waitResp !== -1) return
+
+    $useMermaid(() => {
+      const checks = []
+      $el.find('.mermaid-to-render').each(function () {
+        const $node = $(this)
+        checks.push(
+          Promise.resolve()
+            .then(() => mermaid.parse($node.text(), { suppressErrors: true }))
+            .catch(() => false)
+            .then((ok) => {
+              if (!ok) _fallbackSource($node, 'mermaid')
+            }),
+        )
+      })
+      Promise.all(checks).then(() => $renderMermaid($el))
+    })
+  }
+
+  _feedbackable() {
+    const chatid = this.props._ChatMessages.props._Chat.state.chatid
+    return chatid && (!this.props.sendResp || this.state.waitResp === -1)
+  }
+
+  _feedback(type) {
+    if (this.state.feedback) return
+    const chatid = this.props._ChatMessages.props._Chat.state.chatid
+    $.post(`/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}`, () => {
+      this.setState({ feedback: type })
+    })
   }
 
   render() {
@@ -512,9 +555,32 @@ class ChatMessage extends React.Component {
       <div className="chat-message" ref={(c) => (this._$message = c)}>
         {c}
         <div className="msg-action">
-          <a title={$L('复制')} onClick={() => $clipboard(this.state.content || '')}>
-            <i className="mdi mdi-content-copy icon" />
+          {this.props.role === 'user' && this.state.sendTime && (
+            <span className="fs-12 text-muted mr-1">
+              <DateShow date={moment(Number(this.state.sendTime)).format('YYYY-MM-DD HH:mm:ss')} showOrigin />
+            </span>
+          )}
+
+          <a
+            title={$L('复制')}
+            onClick={(e) => {
+              $clipboard(this.state.content || '')
+              const $a = $(e.currentTarget)
+              $a.addClass('copied-check')
+              setTimeout(() => $a.removeClass('copied-check'), 1500)
+            }}>
+            <i className="icon mdi mdi-content-copy" />
           </a>
+          {(this.props.role === 'assistant' || this.props.role === 'ai') && this._feedbackable() && (
+            <RF>
+              <a title={$L('有帮助')} onClick={() => this._feedback('like')} className={this.state.feedback === 'like' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
+                <i className="icon mdi mdi-thumb-up-outline fs-15" />
+              </a>
+              <a title={$L('没帮助')} onClick={() => this._feedback('dislike')} className={this.state.feedback === 'dislike' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
+                <i className="icon mdi mdi-thumb-down-outline fs-15" />
+              </a>
+            </RF>
+          )}
         </div>
       </div>
     )
@@ -523,7 +589,7 @@ class ChatMessage extends React.Component {
   renderUser() {
     return (
       <div className="msg-user">
-        <div className="msg-content">{this.renderContent()}</div>
+        <div className="msg-content">{this.renderContent(null, false)}</div>
         {this.state.skill && (
           <div className="msg-attach">
             <Attach skill={this.state.skill} _chatid={this.props._chatid} />
@@ -542,6 +608,7 @@ class ChatMessage extends React.Component {
 
   renderAi() {
     const busy = this.props.sendResp && this.state.waitResp !== -1
+    const thinking = this.state.waitResp === 2
     return (
       <div className="msg-ai">
         <div className={`avatar${busy ? ' avatar-busy' : ''}`}>
@@ -553,7 +620,16 @@ class ChatMessage extends React.Component {
               <i className="mdi-spin mdi mdi-loading fs-20" />
             </div>
           )}
-          {this.state.reasoning && <div className="reasoning">{this.renderContent(this.state.reasoning)}</div>}
+          {this.state.reasoning && (
+            <div className="reasoning">
+              <div className="reasoning-toggle hover-opacity" onClick={() => this.setState({ reasoningOpen: !this.state.reasoningOpen })}>
+                <i className={`fs-17 mdi mdi-chevron-${this.state.reasoningOpen ? 'down' : 'right'}`} />
+                {thinking && <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />}
+                <span>{thinking ? $L('思考中...') : $L('思考过程')}</span>
+              </div>
+              {this.state.reasoningOpen && <div className="reasoning-body">{this.renderContent(this.state.reasoning)}</div>}
+            </div>
+          )}
           {this.renderContent(this.state.content)}
         </div>
       </div>
@@ -573,55 +649,11 @@ class ChatMessage extends React.Component {
     )
   }
 
-  renderContent(content) {
-    let md = content || this.state.content
-    if (!md) return null
-
-    if (window.__LAB45_FIXAIMD) md = fixMd(md)
-    return (
-      <div className="msg-text">
-        <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(md) }}></span>
-      </div>
-    )
+  renderContent(content, md) {
+    let c = content || this.state.content
+    if (!c) return null
+    return <div className="msg-text">{md === false ? c : <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(fixMd(c)) }}></span>}</div>
   }
-}
-
-// 懒加载 ECharts 并渲染
-function $renderEcharts($container) {
-  if (!$container || !$container.length) return
-  if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
-
-  $useEchart(() => {
-    $container.find('.echarts-to-render:not(.echarts-rendered)').each(function () {
-      const $node = $(this)
-      let option
-      try {
-        option = JSON.parse($node.text())
-      } catch (err) {
-        // 流式输出中 JSON 可能尚不完整，等待下次渲染
-        console.warn('ECharts option parse failed :', err)
-        return
-      }
-
-      $node.addClass('echarts-rendered').empty()
-      try {
-        const chart = echarts.init($node[0])
-        const base = { ...ECHART_BASE }
-        delete base.grid
-        const opt = { ...base, ...option }
-        opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
-        opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
-        if (opt.title) opt.title = { ...opt.title, top: 10 }
-        if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
-        opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
-        chart.setOption(opt)
-        $node.data('echarts-instance', chart)
-      } catch (err) {
-        console.error('ECharts render error :', err)
-        $node.removeClass('echarts-rendered')
-      }
-    })
-  })
 }
 
 function scrollToBottom(forceScroll) {
@@ -988,6 +1020,7 @@ class RecordSelectorModal2 extends RecordSelectorModal {
 // 修复 AI 回复中常见的 Markdown 语法问题，确保 marked 正确渲染
 function fixMd(md) {
   if (!md) return md
+  if (window.__LAB45_NOTFIXAIMD) return md
 
   // 1. 表格：GFM 要求表格前有空行，AI 有时忽略此规则
   if (md.indexOf('|') !== -1 && /\|[\s:]*-{2,}/.test(md)) {
@@ -1016,10 +1049,58 @@ function fixMd(md) {
 
   // 2. 粗体：去除开启/闭合 ** 内侧多余空格（仅同行，避免跨行吞表格结构）
   md = md.replace(/(\*\*)[ \t]+([^\n*]+?)[ \t]*(\*\*)/g, '$1$2$3')
-  md = md.replace(/(\*\*[^\n*]+\*\*)(?=[^\s\)\]}>.,;:!?，。；：！？、）】])/g, '$1 ')
+  md = md.replace(/(\*\*[^\n*]+\*\*)(?=[^\s)\]}>.,;:!?，。；：！？、）】])/g, '$1 ')
 
   // 3. 标题：CommonMark 要求 # 后必须有空格
   md = md.replace(/^(#{1,6})(?=[^\s#])/gm, '$1 ')
 
   return md
+}
+
+function _fallbackSource($node, lang) {
+  const source = $node.text()
+  $node.removeClass('echarts-to-render mermaid-to-render').empty()
+  $('<pre></pre>')
+    .append($('<code></code>').addClass(`language-${lang}`).text(source))
+    .appendTo($node)
+}
+
+function renderEcharts($container, done) {
+  if (!$container || !$container.length) return
+  if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
+
+  $useEchart(() => {
+    $container.find('.echarts-to-render:not(.echarts-rendered)').each(function () {
+      const $node = $(this)
+      let option
+      try {
+        option = JSON.parse($node.text())
+      } catch (err) {
+        if (done) {
+          _fallbackSource($node, 'echarts')
+        } else {
+          console.warn('ECharts option parse failed :', err)
+        }
+        return
+      }
+
+      $node.addClass('echarts-rendered').empty()
+      try {
+        const chart = echarts.init($node[0])
+        const base = { ...ECHART_BASE }
+        delete base.grid
+        const opt = { ...base, ...option }
+        opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
+        opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
+        if (opt.title) opt.title = { ...opt.title, top: 10 }
+        if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
+        opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
+        chart.setOption(opt)
+        $node.data('echarts-instance', chart)
+      } catch (err) {
+        console.error('ECharts render error :', err)
+        $node.removeClass('echarts-rendered')
+      }
+    })
+  })
 }

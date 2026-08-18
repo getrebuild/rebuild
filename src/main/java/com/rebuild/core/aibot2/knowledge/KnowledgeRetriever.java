@@ -9,7 +9,6 @@ package com.rebuild.core.aibot2.knowledge;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.aibot2.vector.VectorData;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -78,18 +77,6 @@ public class KnowledgeRetriever {
     }
 
     /**
-     * 检索并拼装为 VectorData
-     *
-     * @param query
-     * @return
-     */
-    public static VectorData retrieveAsVectorData(String query) {
-        List<KnowledgeChunk> chunks = retrieve(query, DEFAULT_TOP_K);
-        if (chunks.isEmpty()) return null;
-        return new KnowledgeData(chunks);
-    }
-
-    /**
      * 单次查询所有关键词匹配的片段，使用 Map 去重并累加分数
      *
      * @param keywords
@@ -146,7 +133,6 @@ public class KnowledgeRetriever {
         return ID.valueOf(value.toString());
     }
 
-    // 对片段打分：检查所有关键词的命中情况
     private static double scoreChunk(KnowledgeChunk chunk, List<String> keywords) {
         double score = 0;
         String content = chunk.getContent() != null ? chunk.getContent().toLowerCase() : "";
@@ -197,7 +183,6 @@ public class KnowledgeRetriever {
         }
     }
 
-    // 限制返回内容的总长度
     private static List<KnowledgeChunk> trimByContentLength(List<KnowledgeChunk> chunks) {
         List<KnowledgeChunk> result = new ArrayList<>();
         int totalLen = 0;
@@ -216,7 +201,6 @@ public class KnowledgeRetriever {
         return result;
     }
 
-    // 统计关键词在文本中出现次数
     private static int countOccurrences(String text, String keyword) {
         if (StringUtils.isBlank(text) || StringUtils.isBlank(keyword)) return 0;
         int count = 0;

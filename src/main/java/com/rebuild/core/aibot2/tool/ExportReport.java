@@ -49,7 +49,6 @@ public class ExportReport implements Tool {
 
     private static final int MAX_SEARCH_RESULTS = 10;
 
-    // LIST 报表最大导出行数
     private static final int MAX_LIST_EXPORT_ROWS = 1000;
 
     @Override
@@ -201,7 +200,6 @@ public class ExportReport implements Tool {
      * @return
      */
     private JSONObject exportListReport(Entity entity, ID reportId, String keyword, JSONArray filter, String equation) {
-        // 构建查询数据
         JSONObject queryData = new JSONObject();
         queryData.put("entity", entity.getName());
         queryData.put("pageNo", 1);
@@ -263,7 +261,7 @@ public class ExportReport implements Tool {
 
         JSONObject result = buildDownloadResult(fileName, output);
         result.put("exportCount", exportCount);
-        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，请点击下载链接获取文件", fileName, exportCount));
+        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，[点击下载](%s)，请将此下载链接展示给用户", fileName, exportCount, result.getString("downloadUrl")));
         return result;
     }
 
@@ -289,7 +287,7 @@ public class ExportReport implements Tool {
         result.put("status", "ok");
         result.put("fileName", fileName);
         result.put("downloadUrl", fileUrl);
-        result.put("message", String.format("报表 [%s] 已生成，请点击下载链接获取文件", fileName));
+        result.put("message", String.format("报表 [%s] 已生成，[点击下载](%s)，请将此下载链接展示给用户", fileName, fileUrl));
         return result;
     }
 }

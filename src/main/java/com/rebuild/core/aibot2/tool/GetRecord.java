@@ -45,7 +45,6 @@ public class GetRecord implements Tool {
         }
 
         ID recordId = ToolHelper.resolveId(args.getString("recordId"), "recordId");
-        // 校验实体匹配
         if (recordId.getEntityCode() != entity.getEntityCode()) {
             throw new KnownToolException("记录ID与实体不匹配，记录ID对应的实体为 : "
                     + EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode())));
@@ -59,10 +58,12 @@ public class GetRecord implements Tool {
         Field nameField = entity.getNameField();
 
         String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
-        String sql = String.format("select %s from %s where %s = '%s'",
-                fieldsSql, entity.getName(), primaryField.getName(), recordId.toLiteral());
+        String sql = String.format("select %s from %s where %s = ?",
+                fieldsSql, entity.getName(), primaryField.getName());
 
-        Object[] row = Application.createQuery(sql).unique();
+        Object[] row = Application.createQuery(sql)
+                .setParameter(1, recordId)
+                .unique();
         if (row == null || row.length == 0) {
             throw new KnownToolException("未找到记录或无权限访问 : " + recordId);
         }

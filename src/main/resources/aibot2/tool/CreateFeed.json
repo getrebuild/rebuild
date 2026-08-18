@@ -1,8 +1,9 @@
 {
   "type": "function",
+  "userDescription": "发布动态，支持普通动态、跟进、日程三种类型，可附带图片附件、关联业务记录并设置可见范围",
   "function": {
     "name": "CreateFeed",
-    "description": "发布动态，支持普通动态、跟进、日程三种类型，可附带图片附件、关联业务记录和设置可见范围。附带图片附件需先通过 UploadFile 上传获取 fileKey",
+    "description": "发布动态，支持普通动态、跟进、日程三种类型，可附带图片附件、关联业务记录和设置可见范围。当用户想发布工作动态、记录客户跟进或安排日程（如「帮我记一条跟进」「安排明天拜访客户的日程」）时使用。附带图片附件需先通过 UploadFile 上传获取 fileKey",
     "parameters": {
       "type": "object",
       "properties": {
@@ -16,7 +17,7 @@
         },
         "relatedRecordId": {
           "type": "string",
-          "description": "关联的业务记录ID（type=2 跟进时使用，可通过 QueryRecords 工具查询获取）"
+          "description": "关联的业务记录ID（type=2 跟进时必填，可通过 QueryRecords 工具查询获取）"
         },
         "scheduleTime": {
           "type": "string",
@@ -37,7 +38,8 @@
           "description": "附件文件key（已通过 UploadFile 工具上传的文件标识）。支持单个字符串或数组"
         }
       },
-      "required": ["content"]
+      "required": ["content"],
+      "additionalProperties": false
     }
   }
 }

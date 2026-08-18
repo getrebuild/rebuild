@@ -23,7 +23,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class StreamEcho {
 
-    // 流式输出中断
     private static final Set<ID> INTERRUPTED_CHATS = new CopyOnWriteArraySet<>();
 
     /**

@@ -80,7 +80,6 @@ public class UpsertRecord implements Tool {
             throw new KnownToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
 
-        // 校验实体权限
         if (!entity.isQueryable() || !MetadataHelper.isBusinessEntity(entity)) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持此操作");
         }
@@ -109,7 +108,6 @@ public class UpsertRecord implements Tool {
     private JSONObject saveRecord(JSONObject recordJson, Entity entity, String recordId) {
         ID userId = UserContextHolder.getUser();
 
-        // 校验创建/更新权限
         boolean isUpdate = StringUtils.isNotBlank(recordId) && ID.isId(recordId);
         if (!isUpdate && !entity.isCreatable()) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许新建记录");
@@ -180,7 +178,8 @@ public class UpsertRecord implements Tool {
         }
 
         String url = AppUtils.getContextPath("/app/redirect?id=" + record.getPrimary() + "&type=newtab");
-        String message = isNew ? "记录已创建" : "记录已更新";
+        String message = String.format("已%s记录，[点击查看记录](%s)，请将此链接展示给用户核对",
+                isNew ? "成功创建" : "成功更新", url);
         return JSONUtils.toJSONObject(
                 new String[]{"status", "id", "action", "url", "message"},
                 new Object[]{"ok", record.getPrimary(), isNew ? "created" : "updated", url, message});

@@ -33,6 +33,7 @@ import java.util.Set;
 public class FetchUrl implements Tool {
 
     private static final int MAX_LEN = 20000;
+    private static final int REQ_TIMEOUT = 15;
 
     private static final Set<String> BLOCKED_HEADERS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "host", "connection", "content-length", "transfer-encoding",
@@ -53,7 +54,6 @@ public class FetchUrl implements Tool {
         if (StringUtils.isBlank(method)) method = "GET";
         method = method.toUpperCase();
 
-        // Headers
         Map<String, String> headers = null;
         JSONObject headersJson = args.getJSONObject("headers");
         if (MapUtils.isNotEmpty(headersJson)) {
@@ -82,9 +82,9 @@ public class FetchUrl implements Tool {
                 postData = "";
             }
 
-            result = OkHttpUtils.post(url, postData, headers);
+            result = OkHttpUtils.post(url, postData, headers, REQ_TIMEOUT);
         } else {
-            result = OkHttpUtils.get(url, headers);
+            result = OkHttpUtils.get(url, headers, null, REQ_TIMEOUT);
         }
 
         if (result.length() > MAX_LEN) {
@@ -94,5 +94,10 @@ public class FetchUrl implements Tool {
         return JSONUtils.toJSONObject(
                 new String[]{"status", "response"},
                 new Object[]{"ok", result});
+    }
+
+    @Override
+    public boolean isSystem() {
+        return HIDDEN_SYSTEM;
     }
 }

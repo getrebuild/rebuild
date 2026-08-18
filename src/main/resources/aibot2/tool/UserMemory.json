@@ -1,8 +1,9 @@
 {
   "type": "function",
+  "userDescription": "管理用户的长期个性化记忆，支持新增、修改、删除、查看记忆",
   "function": {
     "name": "UserMemory",
-    "description": "管理用户的长期个性化记忆（如身份职责、称呼习惯、常用配置），支持新增、修改、删除、查看。只记长期有效的信息，一次性临时内容不记。最多 30 条，超限自动移除最低档位的旧记忆",
+    "description": "管理用户的长期个性化记忆（如身份职责、称呼习惯、常用配置），支持新增、修改、删除、查看。当用户表达记忆意图（如「记住我负责XX部门」「以后别问我XX」「别忘了XX」）时使用。只记长期有效的信息，一次性临时内容不记。最多 30 条，超限自动移除最低档位的旧记忆",
     "parameters": {
       "type": "object",
       "properties": {
@@ -11,24 +12,25 @@
           "enum": ["add", "update", "delete", "list"],
           "description": "操作类型。add=新增记忆（用户告知新信息时），update=修改记忆内容或档位（用户信息变化时），delete=删除记忆（用户要求忘记时），list=查看全部记忆（修改或删除前先用）"
         },
-        "memoryId": {
-          "type": "string",
-          "description": "记忆编号，可通过 action=list 查看。update/delete 时与 content/oldContent 二选一，优先使用 memoryId"
+        "no": {
+          "type": "integer",
+          "description": "记忆序号，即 action=list 结果中每条记忆的编号（1、2、3…）。update/delete 时与 oldContent/content 二选一，优先使用 no"
         },
         "content": {
           "type": "string",
-          "description": "add/update 时为记忆内容（update 时为修改后的新内容），delete 时为要删除的记忆内容（须与现有记忆完全一致，或改用 memoryId）。只记录长期有效的个性化信息（如身份、职责、偏好），不记录一次性临时信息。内容限制 150 字符，超出会自动截断"
+          "description": "add/update 时为记忆内容（update 时为修改后的新内容），delete 时为要删除的记忆内容（须与现有记忆完全一致，或改用 no）。只记录长期有效的个性化信息（如身份、职责、偏好），不记录一次性临时信息。内容限制 150 字符，超出会自动截断"
         },
         "oldContent": {
           "type": "string",
-          "description": "要修改的现有记忆内容，须与现有记忆完全一致。与 memoryId 二选一，优先使用 memoryId。多条匹配时更新最新一条"
+          "description": "要修改的现有记忆内容，须与现有记忆完全一致。与 no 二选一，优先使用 no。多条匹配时更新最新一条"
         },
         "level": {
           "type": "integer",
           "description": "重要性档位。1=用户明确要求记住或长期关键信息，2=一般偏好，3=次要参考信息。add 时可选默认 2，update 时不传表示不修改档位。超出 1-3 范围会自动钳制"
         }
       },
-      "required": ["action"]
+      "required": ["action"],
+      "additionalProperties": false
     }
   }
 }

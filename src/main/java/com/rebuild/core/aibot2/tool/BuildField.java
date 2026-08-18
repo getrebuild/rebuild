@@ -72,14 +72,12 @@ public class BuildField implements Tool, AdminGuard {
 
         DisplayType dt = parseDisplayType(args.getString("type"));
 
-        // 类型相关配置
         String refEntity = null;
         JSON extConfig = null;
         JSONArray options = null;
         String classificationName = null;
 
         if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
-            // 引用字段必须指定引用实体
             String refIdent = args.getString("refEntity");
             if (StringUtils.isBlank(refIdent)) {
                 throw new KnownToolException("引用字段必须指定引用实体 (refEntity)");
@@ -91,20 +89,17 @@ public class BuildField implements Tool, AdminGuard {
             refEntity = ref.getName();
 
         } else if (dt == DisplayType.PICKLIST || dt == DisplayType.MULTISELECT) {
-            // 下拉列表/多选必须指定选项
             options = args.getJSONArray("options");
             if (options == null || options.isEmpty()) {
                 throw new KnownToolException("下拉列表/多选字段必须指定选项 (options)，如 [\"选项1\", \"选项2\"]");
             }
 
         } else if (dt == DisplayType.CLASSIFICATION) {
-            // 分类字段必须指定分类数据
             ID dataId = resolveClassification(args.getString("classification"));
             extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.CLASSIFICATION_USE, dataId);
             classificationName = getClassificationName(dataId);
 
         } else if (dt == DisplayType.SERIES) {
-            // 自动编号规则（可选）
             String seriesFormat = args.getString("seriesFormat");
             if (StringUtils.isNotBlank(seriesFormat)) {
                 extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.SERIES_FORMAT, seriesFormat);
@@ -132,12 +127,12 @@ public class BuildField implements Tool, AdminGuard {
             createPickListItems(newField, options);
         }
 
+        String fieldsUrl = AppUtils.getContextPath("/admin/entity/" + entity.getName() + "/fields");
         return JSONUtils.toJSONObject(
                 new String[]{"status", "entity", "field", "label", "type", "url", "message"},
-                new Object[]{"ok", entity.getName(), fieldName, fieldLabel, dt.name(),
-                        AppUtils.getContextPath("/app/redirect?entity=" + entity.getName()),
-                        String.format("已成功在实体 [%s] 中创建字段 [%s](%s)，可前往管理中心-实体管理配置表单布局",
-                                EasyMetaFactory.getLabel(entity), fieldLabel, fieldName)});
+                new Object[]{"ok", entity.getName(), fieldName, fieldLabel, dt.name(), fieldsUrl,
+                        String.format("已成功在实体 [%s] 中创建字段 [%s](%s)，[点击查看实体字段列表](%s)，请将此链接展示给用户，以便其核对字段类型与配置是否符合预期",
+                                EasyMetaFactory.getLabel(entity), fieldLabel, fieldName, fieldsUrl)});
     }
 
     /**
@@ -284,6 +279,10 @@ public class BuildField implements Tool, AdminGuard {
             JSONObject item = new JSONObject(true);
             item.put("text", text.trim());
             item.put("default", showItems.isEmpty());
+            // 对象格式可指定颜色，透传给 PickListService
+            if (o instanceof JSONObject && StringUtils.isNotBlank(((JSONObject) o).getString("color"))) {
+                item.put("color", ((JSONObject) o).getString("color"));
+            }
             showItems.add(item);
         }
 

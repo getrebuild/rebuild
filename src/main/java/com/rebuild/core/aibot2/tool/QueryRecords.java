@@ -17,6 +17,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -66,20 +67,15 @@ public class QueryRecords implements Tool {
         Field primaryField = entity.getPrimaryField();
         Field nameField = entity.getNameField();
 
-        // 构建排序子句
         String orderBy = buildOrderBy(entity, sort);
-        // 分页偏移量
         int offset = (pageNo - 1) * limit;
 
         JSONObject result;
-        // 按名称/编号模糊匹配
         if (StringUtils.isNotBlank(name)) {
             result = queryByName(entity, primaryField, nameField, queryFields, name, limit, offset, orderBy);
         } else if (filter != null && !filter.isEmpty()) {
-            // 按字段条件过滤
             result = queryByFilter(entity, primaryField, nameField, queryFields, filter, equation, limit, offset, orderBy);
         } else {
-            // 返回记录列表
             result = queryList(entity, primaryField, nameField, queryFields, limit, offset, orderBy);
         }
 
@@ -94,7 +90,6 @@ public class QueryRecords implements Tool {
      */
     private JSONObject queryByName(Entity entity, Field primaryField, Field nameField,
                                    List<String> queryFields, String name, int limit, int offset, String orderBy) {
-        // 优先使用系统配置的快速查询字段
         Set<String> searchFields = ParseHelper.buildQuickFields(entity, null);
 
         // 未配置快速查询字段时，使用名称字段 + SERIES 字段作为 fallback
@@ -115,9 +110,7 @@ public class QueryRecords implements Tool {
         }
 
         String fieldsSql = ToolHelper.buildFieldsSql(primaryField, nameField, queryFields);
-        // 转义 LIKE 通配符防注入，同时处理单引号
-        String escapedName = name.replace("'", "''").replace("%", "\\%").replace("_", "\\_");
-        String likeValue = "'%" + escapedName + "%'";
+        String likeValue = "'%" + CommonsUtils.escapeSql(name) + "%'";
         StringBuilder whereClause = new StringBuilder();
         int i = 0;
         for (String fieldName : searchFields) {
@@ -199,11 +192,9 @@ public class QueryRecords implements Tool {
         String sortField = parts[0].trim();
         String direction = parts.length > 1 && "asc".equalsIgnoreCase(parts[1].trim()) ? "asc" : "desc";
 
-        if (!entity.containsField(sortField)) {
-            throw new KnownToolException("排序字段不存在 : " + sortField + ToolHelper.suggestField(entity, sortField));
-        }
-
-        return " order by " + sortField + " " + direction;
+        // 支持字段名或中文标签
+        Field sortFieldResolved = ToolHelper.resolveField(entity, sortField);
+        return " order by " + sortFieldResolved.getName() + " " + direction;
     }
 
     /**
