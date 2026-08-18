@@ -58,8 +58,14 @@ public class AiBot2Controller extends BaseController {
         ChatRequest chatRequest = buildChatRequest(req);
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
 
-        Message respMessage = chat.post(chatRequest);
-        ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
+        try {
+            Message respMessage = chat.post(chatRequest);
+            ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
+        } catch (Throwable ex) {
+            log.error("chat-post", ex);
+            JSONObject error = JSONUtils.toJSONObject("error", "请求错误:" + CommonsUtils.getRootMessage(ex));
+            ServletUtils.writeJson(resp, error.toJSONString());
+        }
     }
 
     @PostMapping("post/chat-stream")
@@ -74,7 +80,7 @@ public class AiBot2Controller extends BaseController {
 
         try {
             chat.stream(chatRequest, resp);
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             log.error("chat-stream", ex);
             StreamEcho.error("请求错误:" + CommonsUtils.getRootMessage(ex), resp.getWriter());
         }

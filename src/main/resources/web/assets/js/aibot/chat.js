@@ -129,7 +129,7 @@ class Chat extends React.Component {
     this._ChatSidebar.toggleShow(showOrHide)
   }
 
-  send(data) {
+  send(data, onDone) {
     scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
 
@@ -141,10 +141,7 @@ class Chat extends React.Component {
             if (res._chatid) this.setState({ chatid: res._chatid })
             typeof onChunk === 'function' && onChunk({ ...res })
             typeof onChunk === 'function' && onChunk({ type: '_done' })
-          }).fail((xhr) => {
-            const err = (xhr.responseJSON && xhr.responseJSON.error_msg) || $L('请求失败，请重试')
-            typeof onChunk === 'function' && onChunk({ error: err })
-            typeof onChunk === 'function' && onChunk({ type: '_done' })
+            typeof onDone === 'function' && onDone()
           })
         },
       })
@@ -274,10 +271,9 @@ class ChatInput extends React.Component {
       skill: this.state.activeSkill,
       sendTime: Date.now(),
     }
-    this.props._Chat &&
-      this.props._Chat.sendStream(data, () => {
-        this.setState({ postState: 0 })
-      })
+    const onDone = () => this.setState({ postState: 0 })
+    const _Chat = this.props._Chat
+    _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
 
     this.reset()
     this.setState({ postState: 1 })
@@ -627,7 +623,7 @@ class ChatMessage extends React.Component {
           {this.state.reasoning && (
             <div className="reasoning">
               <div className="reasoning-toggle hover-opacity" onClick={() => this.setState({ reasoningOpen: !this.state.reasoningOpen })}>
-                <i className={`fs-16 mdi mdi-chevron-${this.state.reasoningOpen ? 'down' : 'right'}`} />
+                <i className={`fs-17 mdi mdi-chevron-${this.state.reasoningOpen ? 'down' : 'right'}`} />
                 {thinking && <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />}
                 <span>{thinking ? $L('思考中...') : $L('思考过程')}</span>
               </div>

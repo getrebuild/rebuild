@@ -42,6 +42,7 @@ class AiBot extends React.Component {
                 chatid={this.props.chatid}
                 presetMessage={this.props.presetMessage}
                 autoSend={this.props.autoSend}
+                sendMode={this.props.sendMode}
                 onChatidChanged={(id) => {
                   this.setState({ chatid: id })
                   typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(id)
