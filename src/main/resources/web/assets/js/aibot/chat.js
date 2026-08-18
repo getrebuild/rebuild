@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global Chat */
+/* global Chat, mermaid */
 
 const _chatMarked = new marked.Marked({
   renderer: {
@@ -507,15 +507,31 @@ class ChatMessage extends React.Component {
     const $el = this._$message && $(this._$message)
     if (!$el || $el.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
     if (!this._echartsSeq) this._echartsSeq = $random('echarts-', true)
-    $setTimeout(() => renderEcharts($el), 200, 'render-echarts-' + this._echartsSeq)
+
+    const done = !this.props.sendResp || this.state.waitResp === -1
+    $setTimeout(() => renderEcharts($el, done), 200, 'render-echarts-' + this._echartsSeq)
   }
 
   _tryRenderMermaid() {
     const $el = this._$message && $(this._$message)
     if (!$el || $el.find('.mermaid-to-render').length === 0) return
-    // 渲染失败不可重试，需等待消息输出完成
     if (this.props.sendResp && this.state.waitResp !== -1) return
-    $renderMermaid($el)
+
+    $useMermaid(() => {
+      const checks = []
+      $el.find('.mermaid-to-render').each(function () {
+        const $node = $(this)
+        checks.push(
+          Promise.resolve()
+            .then(() => mermaid.parse($node.text(), { suppressErrors: true }))
+            .catch(() => false)
+            .then((ok) => {
+              if (!ok) _fallbackSource($node, 'mermaid')
+            }),
+        )
+      })
+      Promise.all(checks).then(() => $renderMermaid($el))
+    })
   }
 
   _feedbackable() {
@@ -1031,7 +1047,7 @@ function fixMd(md) {
 
   // 2. 粗体：去除开启/闭合 ** 内侧多余空格（仅同行，避免跨行吞表格结构）
   md = md.replace(/(\*\*)[ \t]+([^\n*]+?)[ \t]*(\*\*)/g, '$1$2$3')
-  md = md.replace(/(\*\*[^\n*]+\*\*)(?=[^\s\)\]}>.,;:!?，。；：！？、）】])/g, '$1 ')
+  md = md.replace(/(\*\*[^\n*]+\*\*)(?=[^\s)\]}>.,;:!?，。；：！？、）】])/g, '$1 ')
 
   // 3. 标题：CommonMark 要求 # 后必须有空格
   md = md.replace(/^(#{1,6})(?=[^\s#])/gm, '$1 ')
@@ -1039,7 +1055,15 @@ function fixMd(md) {
   return md
 }
 
-function renderEcharts($container) {
+function _fallbackSource($node, lang) {
+  const source = $node.text()
+  $node.removeClass('echarts-to-render mermaid-to-render').empty()
+  $('<pre></pre>')
+    .append($('<code></code>').addClass(`language-${lang}`).text(source))
+    .appendTo($node)
+}
+
+function renderEcharts($container, done) {
   if (!$container || !$container.length) return
   if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
 
@@ -1050,8 +1074,11 @@ function renderEcharts($container) {
       try {
         option = JSON.parse($node.text())
       } catch (err) {
-        // 流式输出中 JSON 可能尚不完整，等待下次渲染
-        console.warn('ECharts option parse failed :', err)
+        if (done) {
+          _fallbackSource($node, 'echarts')
+        } else {
+          console.warn('ECharts option parse failed :', err)
+        }
         return
       }
 
