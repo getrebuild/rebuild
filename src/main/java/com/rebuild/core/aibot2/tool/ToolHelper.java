@@ -209,11 +209,11 @@ public class ToolHelper {
      * 校验过滤条件
      *
      * @param entity
-     * @param config 
+     * @param filterExpr
      */
-    public static void validateFilter(Entity entity, JSONObject config) {
+    public static void validateFilter(Entity entity, JSONObject filterExpr) {
         try {
-            AdvFilterParser.validate(entity, config);
+            new AdvFilterParser(filterExpr, entity).toSqlWhere();
         } catch (Exception ex) {
             throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
         }
