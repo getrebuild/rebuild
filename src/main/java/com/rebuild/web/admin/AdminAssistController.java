@@ -15,6 +15,7 @@ import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
@@ -73,6 +74,7 @@ public class AdminAssistController extends BaseController {
 
     @RequestMapping("admin-download")
     public void adminDownloadFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        RbAssert.isSuperAdmin(getRequestUser(request));
         if (!CommandArgs.getBoolean(CommandArgs._AdminDownload)) {
             response.sendError(404);
             return;
@@ -104,6 +106,7 @@ public class AdminAssistController extends BaseController {
 
             File dbFile = null;
             if (StringUtils.isNotBlank(file)) {
+                CommonsUtils.checkSafeFilePath(file);
                 dbFile = new File(path, file);
             } else {
                 try (Stream<Path> s = Files.list(path.toPath())) {
@@ -134,7 +137,8 @@ public class AdminAssistController extends BaseController {
     }
 
     @GetMapping("admin-logview/files")
-    public RespBody files() {
+    public RespBody files(HttpServletRequest request) {
+        RbAssert.isSuperAdmin(getRequestUser(request));
         List<File> logFiles = new ArrayList<>();
         collectLogFiles(RebuildConfiguration.getFileOfData("_log"), null, logFiles);
         // AI 会话日志在临时目录
@@ -165,13 +169,14 @@ public class AdminAssistController extends BaseController {
 
     @GetMapping("admin-logview/content")
     public RespBody content(HttpServletRequest request) throws IOException {
-        String fileName = getParameterNotNull(request, "file");
+        RbAssert.isSuperAdmin(getRequestUser(request));
+        String file = getParameterNotNull(request, "file");
         int lines = getIntParameter(request, "lines", 500);
         lines = Math.min(Math.max(lines, 50), 5000);
         String keyword = getParameter(request, "q");
         String level = getParameter(request, "level");
 
-        File logFile = checkLogFile(fileName);
+        File logFile = checkLogFile(file);
         if (!logFile.exists()) {
             return RespBody.error("Log file not found");
         }
@@ -182,12 +187,13 @@ public class AdminAssistController extends BaseController {
 
     @GetMapping("admin-logview/tail")
     public RespBody tail(HttpServletRequest request) throws IOException {
-        String fileName = getParameterNotNull(request, "file");
+        RbAssert.isSuperAdmin(getRequestUser(request));
+        String file = getParameterNotNull(request, "file");
         String keyword = getParameter(request, "q");
         String level = getParameter(request, "level");
         String posParam = getParameter(request, "pos");
 
-        File logFile = checkLogFile(fileName);
+        File logFile = checkLogFile(file);
         if (!logFile.exists()) {
             return RespBody.error("Log file not found");
         }
@@ -253,6 +259,7 @@ public class AdminAssistController extends BaseController {
     }
 
     private File checkLogFile(String fileName) {
+        CommonsUtils.checkSafeFilePath(fileName);
         // AI 会话日志在临时目录
         if (fileName.startsWith(ChatLogger.LOG_FILE_PREFIX)) {
             return RebuildConfiguration.getFileOfTemp(fileName);
@@ -342,6 +349,4 @@ public class AdminAssistController extends BaseController {
             default: return 0;
         }
     }
-
-
 }
