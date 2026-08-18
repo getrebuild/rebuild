@@ -57,6 +57,7 @@ public class ChatExecutor {
      */
     public Message run() {
         ChatCompletion resp = completions().create(builder.build());
+        accumulateUsage(resp);
         ChatCompletionMessage ai = resp.choices().get(0).message();
 
         String[] reasoningAcc = {ReasoningExtractor.fromProps(ai._additionalProperties())};
@@ -82,6 +83,7 @@ public class ChatExecutor {
      */
     public String runContent() {
         ChatCompletion resp = completions().create(builder.build());
+        accumulateUsage(resp);
         ChatCompletionMessage ai = resp.choices().get(0).message();
 
         ai = executeToolCalls(ai, new String[1]);
@@ -122,6 +124,7 @@ public class ChatExecutor {
             executeAndAppend(builder, toolCalls, chat.chatLogger());
 
             ChatCompletion resp = completions().create(builder.build());
+            accumulateUsage(resp);
             ai = resp.choices().get(0).message();
 
             String r = ReasoningExtractor.fromProps(ai._additionalProperties());
@@ -182,6 +185,15 @@ public class ChatExecutor {
             fr = new FeedResult(r, fr.getContent());
         }
         return fr;
+    }
+
+    /**
+     * 采集响应中的 Token 用量（工具多轮每轮都计费，逐轮累加）
+     *
+     * @param resp
+     */
+    private void accumulateUsage(ChatCompletion resp) {
+        resp.usage().ifPresent(u -> chat.addTokenUsage(u.totalTokens()));
     }
 
     /**

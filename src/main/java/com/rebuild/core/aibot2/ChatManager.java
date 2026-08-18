@@ -10,11 +10,9 @@ package com.rebuild.core.aibot2;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
-import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionContentPart;
 import com.openai.models.chat.completions.ChatCompletionContentPartImage;
 import com.openai.models.chat.completions.ChatCompletionContentPartText;
-import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
@@ -84,7 +82,9 @@ public abstract class ChatManager {
 
         String contents2s = contents.toJSONString();
         r.setString("contents", contents2s);
-        r.setInt("token", contents2s.length());
+
+        long tokenUsage = chat.getTokenUsage();
+        r.setLong("token", tokenUsage > 0 ? tokenUsage : contents2s.length());
         Application.getCommonsService().createOrUpdate(r);
     }
 
@@ -120,7 +120,7 @@ public abstract class ChatManager {
     }
 
     /**
-     * 直接提问/回答（支持图片视觉识别）
+     * 直接提问/回答（支持图片视觉识别，内部调用，落库归属 AI 助手）
      *
      * @param userContent
      * @param prompt
@@ -128,37 +128,39 @@ public abstract class ChatManager {
      * @return
      */
     public static String ask(String userContent, String prompt, List<File> imageFiles) {
+        ID chatid = initChat(UserService.AIBOT_USER, "aiask");
+        Chat chat = new Chat(chatid, prompt, null);
+
+        String result;
         if (CollectionUtils.isEmpty(imageFiles)) {
-            return new Chat(EntityHelper.newUnsavedId(AibotChat), prompt, null).ask(userContent);
-        }
+            result = chat.ask(userContent);
+        } else {
+            // 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
+            List<ChatCompletionContentPart> parts = new ArrayList<>();
+            parts.add(ChatCompletionContentPart.ofText(
+                    ChatCompletionContentPartText.builder().text(userContent).build()));
 
-        // 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
-        List<ChatCompletionContentPart> parts = new ArrayList<>();
-        parts.add(ChatCompletionContentPart.ofText(
-                ChatCompletionContentPartText.builder().text(userContent).build()));
+            for (File imageFile : imageFiles) {
+                String base64 = CommonsUtils.fileToBase64(imageFile);
+                String mimeType;
+                try {
+                    mimeType = Config.TIKA.detect(imageFile);
+                } catch (IOException e) {
+                    mimeType = "image/png";
+                    log.warn("Failed to detect image mime type, fallback to png : {}", imageFile.getName(), e);
+                }
 
-        for (File imageFile : imageFiles) {
-            String base64 = CommonsUtils.fileToBase64(imageFile);
-            String mimeType;
-            try {
-                mimeType = Config.TIKA.detect(imageFile);
-            } catch (IOException e) {
-                mimeType = "image/png";
-                log.warn("Failed to detect image mime type, fallback to png : {}", imageFile.getName(), e);
+                String dataUrl = String.format("data:%s;base64,%s", mimeType, base64);
+                parts.add(ChatCompletionContentPart.ofImageUrl(
+                        ChatCompletionContentPartImage.builder()
+                                .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder().url(dataUrl).build())
+                                .build()));
             }
 
-            String dataUrl = String.format("data:%s;base64,%s", mimeType, base64);
-            parts.add(ChatCompletionContentPart.ofImageUrl(
-                    ChatCompletionContentPartImage.builder()
-                            .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder().url(dataUrl).build())
-                            .build()));
+            result = chat.ask(userContent, parts);
         }
 
-        ChatCompletionCreateParams.Builder builder = Config
-                .createBuilder(prompt, null)
-                .addUserMessageOfArrayOfContentParts(parts);
-
-        ChatCompletion resp = Config.getClient().chat().completions().create(builder.build());
-        return resp.choices().get(0).message().content().orElse("");
+        chat.store();
+        return result;
     }
 }

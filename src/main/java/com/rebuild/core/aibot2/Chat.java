@@ -10,6 +10,7 @@ package com.rebuild.core.aibot2;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.openai.models.chat.completions.ChatCompletionContentPart;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
 import com.rebuild.core.aibot2.tool.ToolDefs;
@@ -44,6 +45,9 @@ public class Chat implements Serializable {
     @Getter
     private List<Message> messages = new ArrayList<>();
 
+    @Getter
+    private long tokenUsage;
+
     private transient ChatLogger chatLogger;
 
     public Chat(ID chatid) {
@@ -56,6 +60,15 @@ public class Chat implements Serializable {
         this.prompt = prompt;
 
         this.restoreIfNeed();
+    }
+
+    /**
+     * 累计 Token 用量
+     *
+     * @param usage
+     */
+    public synchronized void addTokenUsage(long usage) {
+        this.tokenUsage += usage;
     }
 
     /**
@@ -92,6 +105,27 @@ public class Chat implements Serializable {
      */
     public String ask(String userMessage) {
         ChatCompletionCreateParams.Builder builder = requestParams(userMessage, null);
+        return new ChatExecutor(this, null, builder).runContent();
+    }
+
+    /**
+     * 直接返回内容（多模态，如图片视觉识别）
+     *
+     * @param userMessage
+     * @param parts
+     * @return
+     */
+    public String ask(String userMessage, List<ChatCompletionContentPart> parts) {
+        Message message = new Message(ROLE_USER, userMessage, null, null, null);
+        messages.add(message);
+
+        chatLogger().log("USER", userMessage);
+
+        String systemPrompt = SystemPromptBuilder.build(prompt, null);
+        chatLogger().logSession(model, systemPrompt);
+
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model)
+                .addUserMessageOfArrayOfContentParts(parts);
         return new ChatExecutor(this, null, builder).runContent();
     }
 
@@ -157,6 +191,9 @@ public class Chat implements Serializable {
      * 恢复会话内容
      */
     protected void restoreIfNeed() {
+        Object t = QueryHelper.queryFieldValue(getChatid(), "token");
+        if (t != null) this.tokenUsage = Long.parseLong(t.toString());
+
         Object o = QueryHelper.queryFieldValue(getChatid(), "contents");
         if (o == null) return;
         JSONArray data = JSONArray.parseArray((String) o);

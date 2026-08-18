@@ -13,6 +13,7 @@ import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
 import com.openai.models.chat.completions.ChatCompletionMessageFunctionToolCall;
 import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
+import com.openai.models.chat.completions.ChatCompletionStreamOptions;
 import com.rebuild.core.aibot2.ReasoningExtractor.FeedResult;
 import com.rebuild.core.aibot2.ReasoningExtractor.ThinkTagParser;
 import org.apache.commons.lang3.StringUtils;
@@ -91,6 +92,10 @@ public class ChatStreamExecutor {
         // 先回传 chatid 供前端使用（如中断）
         StreamEcho.echo(chat.getChatid().toLiteral(), writer, "_chatid");
 
+        builder.streamOptions(ChatCompletionStreamOptions.builder()
+                .includeUsage(true)
+                .build());
+
         runRound(MAX_TOOL_ROUNDS);
     }
 
@@ -135,6 +140,8 @@ public class ChatStreamExecutor {
                             }
                         });
                     });
+
+                    chunk.usage().ifPresent(u -> chat.addTokenUsage(u.totalTokens()));
 
                     if (StreamEcho.isInterrupted(chatRequest.getChatid())) {
                         chatLogger().logEvent("Chat interrupted");
