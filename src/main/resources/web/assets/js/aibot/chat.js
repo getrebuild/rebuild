@@ -677,13 +677,22 @@ class RichContent extends React.Component {
             }),
         )
       })
-      Promise.all(checks).then(() => $renderMermaid($el))
+      Promise.all(checks).then(() => {
+        $renderMermaid($el)
+        // mermaid.run 异步渲染，延迟添加全屏按钮
+        $setTimeout(() => {
+          $el.find('.mermaid:not(.has-fs-btn)').each(function () {
+            self._attachFullscreenBtn($(this))
+          })
+        }, 300, 'mermaid-fs-btn')
+      })
     })
   }
 
   _renderHtml($container) {
     const $nodes = $container.find('.html-to-render:not(.html-rendered)')
     if (!$nodes.length) return
+    const self = this
     $nodes.each(function () {
       const $node = $(this)
       $node.addClass('html-rendered')
@@ -691,6 +700,7 @@ class RichContent extends React.Component {
       const $iframe = $('<iframe></iframe>').attr({ sandbox: 'allow-scripts' })
       $node.empty().append($iframe)
       $iframe[0].srcdoc = html
+      self._attachFullscreenBtn($node)
     })
   }
 
@@ -727,11 +737,24 @@ class RichContent extends React.Component {
           opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
           chart.setOption(opt)
           $node.data('echarts-instance', chart)
+          self._attachFullscreenBtn($node)
         } catch (err) {
           console.error('ECharts render error :', err)
           $node.removeClass('echarts-rendered')
         }
       })
+    })
+  }
+
+  _attachFullscreenBtn($node) {
+    if (!$node || !$node.length || $node.hasClass('has-fs-btn')) return
+    $node.addClass('has-fs-btn')
+    const $btn = $('<a class="rich-fullscreen-btn"><i class="mdi mdi-fullscreen"></i></a>')
+    $btn.attr('title', $L('全屏'))
+    $node.append($btn)
+    $btn.on('click', (e) => {
+      $stopEvent(e, true)
+      RbPreview.create($node)
     })
   }
 

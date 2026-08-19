@@ -26,19 +26,30 @@ class RbPreview extends React.Component {
   }
 
   render() {
-    const currentUrl = this.props.urls[this.state.currentIndex]
-    const fileName = $fileCutName(currentUrl)
-    const downloadUrl = this._buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
-
+    let currentUrl = ''
+    let downloadUrl = ''
+    let fileName = ''
     let previewContent = null
-    if (this._isImage(fileName)) previewContent = this.renderImage()
-    else if (this._isDoc(fileName)) previewContent = this.renderDoc()
-    else if (this._isText(fileName)) previewContent = this.renderText(fileName)
-    else if (this._isAudio(fileName)) previewContent = this.renderAudio()
-    else if (this._isVideo(fileName)) previewContent = this.renderVideo()
+
+    if (this.props.richContent) {
+      const $node = this.props.richContent
+      if ($node.is('.echarts-rendered')) fileName = $L('图表')
+      else if ($node.is('.mermaid')) fileName = 'Mermaid'
+      else if ($node.is('.html-rendered')) fileName = $L('网页')
+      else fileName = $L('富内容')
+    } else {
+      currentUrl = this.props.urls[this.state.currentIndex]
+      fileName = $fileCutName(currentUrl)
+      downloadUrl = this._buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
+      if (this._isImage(fileName)) previewContent = this.renderImage()
+      else if (this._isDoc(fileName)) previewContent = this.renderDoc()
+      else if (this._isText(fileName)) previewContent = this.renderText(fileName)
+      else if (this._isAudio(fileName)) previewContent = this.renderAudio()
+      else if (this._isVideo(fileName)) previewContent = this.renderVideo()
+    }
 
     // Has error
-    if (this.state.errorMsg || !previewContent) {
+    if (!this.props.richContent && (this.state.errorMsg || !previewContent)) {
       previewContent = (
         <div className="unsupports shadow-lg rounded bg-light">
           <h4 className="mt-1">{this.state.errorMsg || $L('暂不支持此类型文件的预览')}</h4>
@@ -50,13 +61,14 @@ class RbPreview extends React.Component {
       )
     }
 
-    const xdoc433 = this._isDoc(fileName) || this._isText(fileName)
-    const md433 = fileName.toLowerCase().endsWith('.md')
-    const pdf433 = fileName.toLowerCase().endsWith('.pdf')
+    const isRich = !!this.props.richContent
+    const xdoc433 = !isRich && (this._isDoc(fileName) || this._isText(fileName))
+    const md433 = !isRich && fileName.toLowerCase().endsWith('.md')
+    const pdf433 = !isRich && fileName.toLowerCase().endsWith('.pdf')
 
     return (
       <RF>
-        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''} file-${$fileExtName(fileName)}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
+        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''} ${isRich ? 'rich-preview' : ''} file-${$fileExtName(fileName)}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
           <div className="preview-header">
             <div className="float-left">
               <h5 className="text-bold">{fileName}</h5>
@@ -73,7 +85,7 @@ class RbPreview extends React.Component {
                 </a>
               )}
               {rb.fileSharable && rb.currentUser && (
-                <a onClick={this.share} title={$L('分享')}>
+                <a onClick={this.share} className="J_shareFile" title={$L('分享')}>
                   <i className="zmdi zmdi-share fs-17" />
                 </a>
               )}
@@ -231,6 +243,28 @@ class RbPreview extends React.Component {
 
     const that = this
 
+    // 富内容全屏
+    if (this.props.richContent) {
+      const $node = this.props.richContent
+      this._$placeholder = $('<div></div>')
+      $node.after(this._$placeholder)
+      $(this._previewBody).append($node)
+
+      const chart = $node.data('echarts-instance')
+      if (chart) $setTimeout(() => chart.resize(), 50, 'rich-fs-open')
+
+      // ESC 关闭（capture 优先于 aibot 的 keydown.aibot-hide）
+      this._richEscHandler = function (e) {
+        if (e.keyCode === 27) {
+          e.preventDefault()
+          e.stopImmediatePropagation()
+          that.hide()
+        }
+      }
+      document.addEventListener('keydown', this._richEscHandler, true)
+      return
+    }
+
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
     if (this._isDoc(fileName)) {
@@ -295,11 +329,21 @@ class RbPreview extends React.Component {
   }
 
   componentWillUnmount() {
+    if (this._richEscHandler) document.removeEventListener('keydown', this._richEscHandler, true)
     if (!this.__modalOpen) $(document.body).removeClass('modal-open')
     $(document).off('keyup.esc-hide mousewheel.image-zoom')
   }
 
   hide = () => {
+    // 富内容移回原位
+    if (this.props.richContent && this._$placeholder) {
+      const $node = this.props.richContent
+      this._$placeholder.after($node)
+      this._$placeholder.remove()
+
+      const chart = $node.data('echarts-instance')
+      if (chart) $setTimeout(() => chart.resize(), 50, 'rich-fs-close')
+    }
     if (!this.props.unclose) $unmount($(this._dlg).parent(), 1)
   }
 
@@ -398,6 +442,12 @@ class RbPreview extends React.Component {
    * @param {*} id
    */
   static create(urls, index, id) {
+    // DOM 节点 = 富内容全屏（不跨窗口，节点属于当前文档）
+    if (urls && urls.jquery) {
+      renderRbcomp(<RbPreview richContent={urls} />)
+      return
+    }
+
     // v4.4.2 使用父级窗口
     if (window.top !== window.self && parent && parent.RbPreview) {
       parent.RbPreview.create(urls, index, id)

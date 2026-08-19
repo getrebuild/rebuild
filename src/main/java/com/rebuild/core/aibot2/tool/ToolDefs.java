@@ -64,6 +64,7 @@ public class ToolDefs {
         register(new GetConfigSchema());
         register(new BuildTrigger());
         register(new BuildFilter());
+        register(new BuildSkill());
     }
 
     /**
