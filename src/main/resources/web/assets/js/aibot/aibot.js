@@ -65,8 +65,6 @@ class AiBot extends React.Component {
       })
       .on('hidden.bs.modal', () => {
         this._isShown = false
-        // v35 backdrop=false 时 Bootstrap 会无条件移除 modal-open，需恢复
-        if ($('.modal.show').length > 0) $(document.body).addClass('modal-open')
       })
 
     setTimeout(() => this.show(), 50)
