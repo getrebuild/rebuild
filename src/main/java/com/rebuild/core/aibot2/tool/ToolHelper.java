@@ -326,9 +326,7 @@ public class ToolHelper {
     }
 
     /**
-     * 校验过滤条件。除了结构合法性，还会检查字段名是否真实存在——
-     * AdvFilterParser 对无效字段/值等静默跳过并记录到 parseErrors，
-     * 此方法通过 getParseErrors() 检测被忽略的无效配置项。
+     * 校验过滤条件。除了结构合法性，还会检查字段名是否真实存在
      *
      * @param entity
      * @param filterExpr
@@ -345,19 +343,14 @@ public class ToolHelper {
     }
 
     /**
-     * 检查过滤条件中是否有被 AdvFilterParser 静默忽略的无效配置项。
-     * AdvFilterParser.parseItem 对无效字段/值等调用 parseError 记录并返回 null（不抛异常），
-     * 导致无效配置项被静默跳过、查询范围比预期更宽。此方法通过 getParseErrors()
-     * 检测被忽略的无效配置项并抛出异常。
-     *
-     * @param parser 已执行过 toSqlWhere 的 AdvFilterParser
+     * @param parser
      */
     private static void checkParseErrors(AdvFilterParser parser) {
         List<String> parseErrors;
         try {
             parseErrors = parser.getParseErrors();
         } catch (Exception ignored) {
-            return;  // toSqlWhere 提前返回（如 filterExpr 为空），无需校验
+            return;
         }
         if (!parseErrors.isEmpty()) {
             throw new KnownToolException("过滤条件中存在无效配置项，请确认使用了 ListEntities 返回的真实字段名。"
