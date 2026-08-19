@@ -62,7 +62,7 @@ public class UpsertRecord implements Tool {
         String content = args.getString("content");
         String entityName = args.getString("entity");
         String recordId = args.getString("recordId");
-        boolean outputJson = args.getBooleanValue("outputJson");
+        boolean confirmed = args.getBooleanValue("confirmed");
 
         if (StringUtils.isBlank(file) && StringUtils.isBlank(content)) {
             throw new KnownToolException("文件或内容不能为空（需指定 file 或 content 参数之一）");
@@ -96,10 +96,17 @@ public class UpsertRecord implements Tool {
 
         ensureMetadata(recordJson, entity);
 
-        if (outputJson) {
+        if (!confirmed) {
+            JSONObject changes = new JSONObject(true);
+            changes.put("操作", StringUtils.isNotBlank(recordId) && ID.isId(recordId) ? "更新记录" : "新建记录");
+            changes.put("目标实体", EasyMetaFactory.getLabel(entity));
+            changes.put("记录数据", recordJson);
             return JSONUtils.toJSONObject(
-                    new String[]{"status", "data", "message"},
-                    new Object[]{"ok", recordJson, "文件内容已解析为 JSON"});
+                    new String[]{"status", "needConfirm", "changes", "message"},
+                    new Object[]{"ok", true, changes,
+                            "本次操作尚未执行。保存记录会影响业务数据，请先将解析结果摘要（关键字段值与明细条数）完整转述给用户并征求确认，"
+                                    + "用户明确同意后再以相同参数并设置 confirmed=true 重新调用本工具执行保存。"
+                                    + "用户未确认或要求调整时不得执行保存"});
         }
 
         return saveRecord(recordJson, entity, recordId);
