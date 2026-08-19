@@ -289,9 +289,14 @@ public class BuildTrigger implements Tool, AdminGuard {
                         item.put("targetField", ToolHelper.resolveField(target4Fields, targetField).getName());
                     }
 
+                    // FIELD/VFIXED 模式校验 sourceField；FORMULA 模式校验 sourceFormula 中的字段变量
                     String sourceField = item.getString("sourceField");
                     if (StringUtils.isNotBlank(sourceField)) {
                         item.put("sourceField", ToolHelper.resolveFieldPath(sourceEntity, sourceField));
+                    }
+                    String sourceFormula = item.getString("sourceFormula");
+                    if (StringUtils.isNotBlank(sourceFormula)) {
+                        validateContentVariables(sourceEntity, sourceFormula, "sourceFormula");
                     }
                 }
             }
@@ -308,6 +313,40 @@ public class BuildTrigger implements Tool, AdminGuard {
                 }
             }
 
+            // FIELDAGGREGATION 专属：dataFilter（聚合条件）和 fillbackField（回填字段）
+            JSONObject dataFilter = content.getJSONObject("dataFilter");
+            if (dataFilter != null && !dataFilter.isEmpty()) {
+                ToolHelper.validateFilter(sourceEntity, dataFilter);
+            }
+            String fillbackField = content.getString("fillbackField");
+            if (StringUtils.isNotBlank(fillbackField)) {
+                content.put("fillbackField", ToolHelper.resolveField(sourceEntity, fillbackField).getName());
+            }
+
+        } else if (actionType == ActionType.DATAVALIDATE) {
+            // 校验模式：1=自定义条件(advFilter), 2=高级表达式(formula)
+            int validateMode = content.getIntValue("validateMode");
+            if (validateMode == 0) validateMode = 1;  // 默认
+
+            if (validateMode == 1) {
+                JSONObject validateFilter = content.getJSONObject("validateFilter");
+                if (validateFilter != null && !validateFilter.isEmpty()) {
+                    ToolHelper.validateFilter(sourceEntity, validateFilter);
+                }
+            } else if (validateMode == 2) {
+                String validateFormula = content.getString("validateFormula");
+                if (StringUtils.isNotBlank(validateFormula)) {
+                    validateContentVariables(sourceEntity, validateFormula, "validateFormula");
+                }
+            }
+            // 校验失败提示内容中的字段变量
+            String tipContent = content.getString("tipContent");
+            if (StringUtils.isNotBlank(tipContent)) {
+                String resolved = resolveContentVariables(sourceEntity, tipContent);
+                putIfResolved(content, "tipContent", resolved);
+                validateContentVariables(sourceEntity, resolved, "tipContent");
+            }
+
         } else if (actionType == ActionType.SENDNOTIFICATION) {
             int userType = content.getIntValue("userType");
 
@@ -322,26 +361,49 @@ public class BuildTrigger implements Tool, AdminGuard {
                 }
             }
 
-            putIfResolved(content, "title", resolveContentVariables(sourceEntity, content.getString("title")));
-            putIfResolved(content, "content", resolveContentVariables(sourceEntity, content.getString("content")));
+            // 通知内容字段变量（先解析标签→字段名，再校验残留的无效变量）
+            String resolvedTitle = resolveContentVariables(sourceEntity, content.getString("title"));
+            putIfResolved(content, "title", resolvedTitle);
+            validateContentVariables(sourceEntity, resolvedTitle, "title");
+
+            String resolvedContent = resolveContentVariables(sourceEntity, content.getString("content"));
+            putIfResolved(content, "content", resolvedContent);
+            validateContentVariables(sourceEntity, resolvedContent, "content");
+
+            // 邮件附件字段名列表
+            validateFieldNames(sourceEntity, content.getJSONArray("attach"), "attach");
+
+            // 发送后回填字段
+            String sendFillback = content.getString("sendFillback");
+            if (StringUtils.isNotBlank(sendFillback)) {
+                content.put("sendFillback", ToolHelper.resolveField(sourceEntity, sendFillback).getName());
+            }
 
         } else if (actionType == ActionType.AUTOASSIGN) {
             Object assignTo = content.get("assignTo");
             if (assignTo != null) {
                 content.put("assignTo", resolveUserSelector(sourceEntity, assignTo, "assignTo"));
             }
+            // 级联分配的关联记录字段列表
+            validateFieldNames(sourceEntity, content.getJSONArray("fields42"), "fields42");
+            validateCascades(content.getString("cascades"));
 
         } else if (actionType == ActionType.AUTOSHARE) {
             Object shareTo = content.get("shareTo");
             if (shareTo != null) {
                 content.put("shareTo", resolveUserSelector(sourceEntity, shareTo, "shareTo"));
             }
+            // 级联共享的关联记录字段列表
+            validateFieldNames(sourceEntity, content.getJSONArray("fields42"), "fields42");
+            validateCascades(content.getString("cascades"));
 
         } else if (actionType == ActionType.AUTOAPPROVAL) {
             String useApproval = content.getString("useApproval");
             if (StringUtils.isNotBlank(useApproval)) {
                 content.put("useApproval", resolveApproval(useApproval, sourceEntity));
             }
+            // 撤销记录字段列表
+            validateFieldNames(sourceEntity, content.getJSONArray("revokeFields"), "revokeFields");
 
         } else if (actionType == ActionType.CREATEFEED) {
             for (String fieldRef : new String[]{"scheduleTime", "relatedRecord", "postUser"}) {
@@ -350,7 +412,25 @@ public class BuildTrigger implements Tool, AdminGuard {
                     content.put(fieldRef, ToolHelper.resolveField(sourceEntity, v).getName());
                 }
             }
-            putIfResolved(content, "content", resolveContentVariables(sourceEntity, content.getString("content")));
+            String resolvedContent = resolveContentVariables(sourceEntity, content.getString("content"));
+            putIfResolved(content, "content", resolvedContent);
+            validateContentVariables(sourceEntity, resolvedContent, "content");
+        }
+    }
+
+    /**
+     * 校验 cascades（逗号分隔的实体名）
+     *
+     * @param cascades
+     */
+    private void validateCascades(String cascades) {
+        if (StringUtils.isBlank(cascades)) return;
+        for (String en : cascades.split("[,，]")) {
+            en = en.trim();
+            if (StringUtils.isBlank(en)) continue;
+            if (ToolHelper.resolveEntity(en) == null) {
+                throw new KnownToolException("cascades 中存在无效实体 : " + en + ToolHelper.suggestEntity(en));
+            }
         }
     }
 
@@ -530,6 +610,58 @@ public class BuildTrigger implements Tool, AdminGuard {
         }
         m.appendTail(sb);
         return sb.toString();
+    }
+
+    // 系统变量（非实体字段）
+    private static boolean isSystemVar(String token) {
+        return "ID".equals(token) || "NOW".equals(token) || "CURRENT".equals(token);
+    }
+
+    /**
+     * 校验文本中的字段变量 {字段名} 是否真实存在
+     */
+    private void validateContentVariables(Entity sourceEntity, String content, String paramName) {
+        if (StringUtils.isBlank(content)) return;
+
+        Matcher m = PATT_CONTENT_VAR.matcher(content);
+        List<String> invalidVars = new ArrayList<>();
+        while (m.find()) {
+            String token = m.group(1);
+            if (isSystemVar(token)) continue;
+            if (MetadataHelper.getLastJoinField(sourceEntity, token) != null) continue;
+            try {
+                ToolHelper.resolveField(sourceEntity, token);
+                continue;
+            } catch (KnownToolException ignored) {
+            }
+            invalidVars.add(token);
+        }
+        if (!invalidVars.isEmpty()) {
+            throw new KnownToolException(paramName + " 中存在无效字段变量 : " + ToolHelper.joinErrors(invalidVars)
+                    + "。请使用 ListEntities 返回的真实字段名");
+        }
+    }
+
+    /**
+     * 校验字段名数组
+     */
+    private void validateFieldNames(Entity sourceEntity, JSONArray fieldNames, String paramName) {
+        if (fieldNames == null || fieldNames.isEmpty()) return;
+
+        List<String> invalid = new ArrayList<>();
+        for (int i = 0; i < fieldNames.size(); i++) {
+            String fn = fieldNames.getString(i);
+            if (StringUtils.isBlank(fn)) continue;
+            try {
+                ToolHelper.resolveField(sourceEntity, fn);
+            } catch (KnownToolException ex) {
+                invalid.add(fn);
+            }
+        }
+        if (!invalid.isEmpty()) {
+            throw new KnownToolException(paramName + " 中存在无效字段 : " + ToolHelper.joinErrors(invalid)
+                    + "。请使用 ListEntities 返回的真实字段名");
+        }
     }
 
     /**

@@ -1,0 +1,65 @@
+{
+  "type": "function",
+  "userDescription": "新建记录转换配置，将源实体记录按字段映射转换为目标实体记录",
+  "function": {
+    "name": "BuildTransform",
+    "description": "新建记录转换配置。当用户希望把一条记录自动转换为另一条记录（如线索转客户、报价转订单）时使用——用户可能不会提到「记录转换」一词，典型表述如：把 A 实体的数据转到 B 实体、根据这条记录生成另一条记录等。调用前应先用 ListEntities 查询源/目标实体的真实字段名。解析失败会返回错误提示",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "sourceEntity": {
+          "type": "string",
+          "description": "源实体名称（转换前记录所属实体）"
+        },
+        "targetEntity": {
+          "type": "string",
+          "description": "目标实体名称（转换后生成记录所属实体）"
+        },
+        "name": {
+          "type": "string",
+          "description": "转换配置名称，应简洁描述其用途，如「线索转客户」「报价转订单」"
+        },
+        "fieldsMapping": {
+          "type": "object",
+          "description": "主记录字段映射，key 为目标字段名，value 为源字段名或固定值。固定值会原样写入目标字段。系统字段如 owningUser 可映射为源实体的用户字段名。例如 {\"customerName\":\"leadName\", \"amount\":1000, \"owningUser\":\"salesPerson\"}"
+        },
+        "fieldsMappingDetail": {
+          "type": "array",
+          "description": "明细字段映射（可选，当源/目标实体含明细时使用）。每项为对象，含 source（源明细实体名称）、target（目标明细实体名称）、fieldsMapping（明细字段映射，同主记录格式）",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "源明细实体名称"
+              },
+              "target": {
+                "type": "string",
+                "description": "目标明细实体名称"
+              },
+              "fieldsMapping": {
+                "type": "object",
+                "description": "明细字段映射，格式与主记录 fieldsMapping 相同"
+              }
+            },
+            "required": ["source", "target", "fieldsMapping"]
+          }
+        },
+        "useFilter": {
+          "type": "object",
+          "description": "转换过滤条件（可选），符合该条件的记录才允许转换。结构见 adv-filter Schema（可用 GetConfigSchema 获取）"
+        },
+        "importsMode": {
+          "type": "boolean",
+          "description": "是否为明细导入模式（可选，默认 false）。启用后该转换可作为明细导入使用"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["sourceEntity", "targetEntity", "name", "fieldsMapping"],
+      "additionalProperties": false
+    }
+  }
+}

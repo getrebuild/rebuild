@@ -215,6 +215,7 @@ public class ExportReport implements Tool {
         // 优先使用 filter 条件，其次使用关键词搜索
         if (filter != null && !filter.isEmpty()) {
             filterObj.put("items", filter);
+            ToolHelper.validateFilter(entity, filterObj);  // 校验模型传入的字段名是否真实存在
         } else if (StringUtils.isNotBlank(keyword)) {
             if (ID.isId(keyword)) {
                 JSONObject item = new JSONObject();

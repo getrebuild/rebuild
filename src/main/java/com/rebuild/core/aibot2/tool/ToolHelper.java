@@ -203,16 +203,55 @@ public class ToolHelper {
     }
 
     /**
-     * 校验过滤条件
+     * 校验过滤条件。除了结构合法性，还会检查字段名是否真实存在——
+     * AdvFilterParser 对无效字段静默跳过（log.warn + return null），
+     * 此方法通过对比输入字段与 getIncludeFields() 检测被丢弃的无效字段。
      *
      * @param entity
      * @param filterExpr
      */
     public static void validateFilter(Entity entity, JSONObject filterExpr) {
+        AdvFilterParser parser;
         try {
-            new AdvFilterParser(filterExpr, entity).toSqlWhere();
+            parser = new AdvFilterParser(filterExpr, entity);
+            parser.toSqlWhere();
         } catch (Exception ex) {
             throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+        }
+        checkInvalidFilterFields(parser, filterExpr);
+    }
+
+    /**
+     * 检查过滤条件中是否有被 AdvFilterParser 静默丢弃的无效字段。
+     * AdvFilterParser.parseItem 对无效字段 log.warn + return null（不抛异常），
+     * 导致无效字段被静默跳过、查询范围比预期更宽。此方法通过对比输入字段
+     * 与 getIncludeFields() 检测被丢弃的无效字段并抛出异常。
+     *
+     * @param parser     已执行过 toSqlWhere 的 AdvFilterParser
+     * @param filterExpr 原始过滤条件 JSON
+     */
+    private static void checkInvalidFilterFields(AdvFilterParser parser, JSONObject filterExpr) {
+        Set<String> includeFields;
+        try {
+            includeFields = parser.getIncludeFields();
+        } catch (Exception ignored) {
+            return;  // toSqlWhere 提前返回（如 filterExpr 为空），无需校验
+        }
+
+        JSONArray items = filterExpr.getJSONArray("items");
+        if (items == null) return;
+
+        List<String> invalidFields = new ArrayList<>();
+        for (Object o : items) {
+            JSONObject item = (JSONObject) o;
+            String field = item.getString("field");
+            if (field != null && !includeFields.contains(field)) {
+                invalidFields.add(field);
+            }
+        }
+        if (!invalidFields.isEmpty()) {
+            throw new KnownToolException("过滤条件中存在无效字段，请确认使用了 ListEntities 返回的真实字段名。"
+                    + "无效字段: " + joinErrors(invalidFields));
         }
     }
 
@@ -278,7 +317,15 @@ public class ToolHelper {
     public static String parseFilterToWhere(Entity entity, JSONArray filter, String equation) {
         if (filter == null || filter.isEmpty()) return null;
         JSONObject filterExpr = buildFilterExpr(entity, filter, equation);
-        return new AdvFilterParser(filterExpr, entity).toSqlWhere();
+        AdvFilterParser parser = new AdvFilterParser(filterExpr, entity);
+        String whereClause;
+        try {
+            whereClause = parser.toSqlWhere();
+        } catch (Exception ex) {
+            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+        }
+        checkInvalidFilterFields(parser, filterExpr);
+        return whereClause;
     }
 
     /**
@@ -381,7 +428,14 @@ public class ToolHelper {
             for (String f : fields.split("[,;]")) {
                 f = f.trim();
                 if (StringUtils.isBlank(f)) continue;
-                if (!entity.containsField(f)) {
+                // 使用 resolveField 支持字段名和中文标签，返回真实字段名
+                try {
+                    Field field = resolveField(entity, f);
+                    String fn = field.getName();
+                    if (fn.equals(primaryField.getName())) continue;
+                    if (nameField != null && fn.equals(nameField.getName())) continue;
+                    result.add(fn);
+                } catch (KnownToolException ex) {
                     if (invalidFields != null) {
                         JSONObject invalid = new JSONObject();
                         invalid.put("name", f);
@@ -389,11 +443,7 @@ public class ToolHelper {
                         if (StringUtils.isNotBlank(suggestion)) invalid.put("suggestion", suggestion);
                         invalidFields.add(invalid);
                     }
-                    continue;
                 }
-                if (f.equals(primaryField.getName())) continue;
-                if (nameField != null && f.equals(nameField.getName())) continue;
-                result.add(f);
             }
         }
 

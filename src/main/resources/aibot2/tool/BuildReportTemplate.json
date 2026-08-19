@@ -1,0 +1,35 @@
+{
+  "type": "function",
+  "userDescription": "新建网页报表模板，基于 HTML 模板内容生成可导出的报表",
+  "function": {
+    "name": "BuildReportTemplate",
+    "description": "新建网页报表模板（HTML5 类型）。当用户希望为某实体创建可导出的报表模板（如「帮我做一个客户信息报表」「设计一个订单打印模板」）时使用。模板内容为 HTML 代码，支持主记录字段、明细列表、审批记录、相关项列表等多种变量语法，运行时自动替换为实际值",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "报表所属实体名称或标签"
+        },
+        "name": {
+          "type": "string",
+          "description": "报表模板名称，应简洁描述其用途，如「客户信息报表」「订单打印模板」"
+        },
+        "templateContent": {
+          "type": "string",
+          "description": "HTML 模板内容，应为完整的 HTML 片段（不需要 html/body 标签）。所有样式必须使用内联方式（style=\"...\"），不要使用 CSS class 或 <style> 标签，因为报表生成时仅提取 body 内容，外部样式不会生效。模板语法说明：\n\n1. 主记录字段：使用 {字段名} 或 {字段标签}，如 <h1>{客户名称}</h1>\n\n2. 明细列表：在 table 第一个单元格放置 {detail} 标记，后续数据行使用 [detail$字段名] 引用明细字段，该行按明细记录数量自动复制\n\n3. 审批记录：在 table 第一个单元格放置 {approval} 标记，行内使用 [approval$字段名]，可用字段：[approval$node](审批节点)、[approval$state](审批状态)、[approval$approver](审批人)、[approval$approvedTime](审批时间)、[approval$remark](批注)\n\n4. 相关项列表：在 table 第一个单元格放置 {引用字段名$相关实体名} 标记，行内使用 [引用字段名$相关实体名$字段名] 引用相关记录字段。例如主实体有引用字段 refCustomer 指向 Customer 实体，则标记为 {refCustomer$Customer}，行内字段如 [refCustomer$Customer$customerName]、[refCustomer$Customer$createdBy]\n\n5. 预置变量：{__NUMBER}(明细序号)、{__CURRENTUSER}(当前用户)、{__CURRENTDATE}(当前日期)、{__CURRENTDATETIME}(当前日期时间)、{__EXPORTTIMES}(导出/打印次数)\n\n6. 分页符：使用 <!-- pagebreak --> 插入分页\n\n注意：表格行字段使用方括号 [字段名]，主记录字段使用花括号 {字段名}，两者语法不同。工具会校验每个变量是否有效，无效变量将拒绝创建"
+        },
+        "useFilter": {
+          "type": "object",
+          "description": "报表过滤条件（可选），仅匹配的记录可使用该报表。结构见 adv-filter Schema（可用 GetConfigSchema 获取）"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["entity", "name", "templateContent"],
+      "additionalProperties": false
+    }
+  }
+}

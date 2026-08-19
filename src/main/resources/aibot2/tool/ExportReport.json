@@ -27,7 +27,7 @@
             "properties": {
               "field": {
                 "type": "string",
-                "description": "字段名称（必须是实体中存在的字段）"
+                "description": "字段名称"
               },
               "op": {
                 "type": "string",
