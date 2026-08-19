@@ -38,6 +38,10 @@ public class ToolHelper {
 
     private ToolHelper() {}
 
+    // ----------------------------------------------------------------
+    //  参数解析
+    // ----------------------------------------------------------------
+
     /**
      * 解析 ID 参数（可选）。字符串为空或非合法 ID 时返回 null
      *
@@ -203,72 +207,6 @@ public class ToolHelper {
     }
 
     /**
-     * 校验过滤条件。除了结构合法性，还会检查字段名是否真实存在——
-     * AdvFilterParser 对无效字段静默跳过（log.warn + return null），
-     * 此方法通过对比输入字段与 getIncludeFields() 检测被丢弃的无效字段。
-     *
-     * @param entity
-     * @param filterExpr
-     */
-    public static void validateFilter(Entity entity, JSONObject filterExpr) {
-        AdvFilterParser parser;
-        try {
-            parser = new AdvFilterParser(filterExpr, entity);
-            parser.toSqlWhere();
-        } catch (Exception ex) {
-            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
-        }
-        checkInvalidFilterFields(parser, filterExpr);
-    }
-
-    /**
-     * 检查过滤条件中是否有被 AdvFilterParser 静默丢弃的无效字段。
-     * AdvFilterParser.parseItem 对无效字段 log.warn + return null（不抛异常），
-     * 导致无效字段被静默跳过、查询范围比预期更宽。此方法通过对比输入字段
-     * 与 getIncludeFields() 检测被丢弃的无效字段并抛出异常。
-     *
-     * @param parser     已执行过 toSqlWhere 的 AdvFilterParser
-     * @param filterExpr 原始过滤条件 JSON
-     */
-    private static void checkInvalidFilterFields(AdvFilterParser parser, JSONObject filterExpr) {
-        Set<String> includeFields;
-        try {
-            includeFields = parser.getIncludeFields();
-        } catch (Exception ignored) {
-            return;  // toSqlWhere 提前返回（如 filterExpr 为空），无需校验
-        }
-
-        JSONArray items = filterExpr.getJSONArray("items");
-        if (items == null) return;
-
-        List<String> invalidFields = new ArrayList<>();
-        for (Object o : items) {
-            JSONObject item = (JSONObject) o;
-            String field = item.getString("field");
-            if (field != null && !includeFields.contains(field)) {
-                invalidFields.add(field);
-            }
-        }
-        if (!invalidFields.isEmpty()) {
-            throw new KnownToolException("过滤条件中存在无效字段，请确认使用了 ListEntities 返回的真实字段名。"
-                    + "无效字段: " + joinErrors(invalidFields));
-        }
-    }
-
-    /**
-     * 拼接错误明细（限制条数避免过长）
-     *
-     * @param errors
-     * @return
-     */
-    public static String joinErrors(List<String> errors) {
-        if (errors == null || errors.isEmpty()) return "";
-        List<String> use = errors.size() > 5 ? errors.subList(0, 5) : errors;
-        String s = StringUtils.join(use, "；");
-        return errors.size() > 5 ? s + "（等共 " + errors.size() + " 条错误）" : s;
-    }
-
-    /**
      * 解析用户（支持 ID、全名、用户名）
      *
      * @param userIdent
@@ -288,45 +226,9 @@ public class ToolHelper {
         return user;
     }
 
-    /**
-     * 构建过滤表达式 AdvFilterParser
-     *
-     * @param entity
-     * @param filter
-     * @param equation
-     * @return
-     */
-    public static JSONObject buildFilterExpr(Entity entity, JSONArray filter, String equation) {
-        JSONObject filterExpr = new JSONObject();
-        filterExpr.put("entity", entity.getName());
-        filterExpr.put("items", filter != null ? filter : new JSONArray());
-        if (StringUtils.isNotBlank(equation)) {
-            filterExpr.put("equation", equation);
-        }
-        return filterExpr;
-    }
-
-    /**
-     * 解析过滤条件为 SQL 子句
-     *
-     * @param entity
-     * @param filter
-     * @param equation
-     * @return
-     */
-    public static String parseFilterToWhere(Entity entity, JSONArray filter, String equation) {
-        if (filter == null || filter.isEmpty()) return null;
-        JSONObject filterExpr = buildFilterExpr(entity, filter, equation);
-        AdvFilterParser parser = new AdvFilterParser(filterExpr, entity);
-        String whereClause;
-        try {
-            whereClause = parser.toSqlWhere();
-        } catch (Exception ex) {
-            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
-        }
-        checkInvalidFilterFields(parser, filterExpr);
-        return whereClause;
-    }
+    // ----------------------------------------------------------------
+    //  字段/实体提示
+    // ----------------------------------------------------------------
 
     /**
      * 模糊匹配相似字段名
@@ -353,21 +255,6 @@ public class ToolHelper {
         return candidates.size() == 1
                 ? "，你是否想用 " + candidates.get(0) + "？"
                 : "，相似字段: " + StringUtils.join(candidates, ", ");
-    }
-
-    /**
-     * 列出实体中可用的字段名
-     *
-     * @param entity
-     * @return
-     */
-    public static String listFields(Entity entity) {
-        List<String> fields = new ArrayList<>();
-        for (Field f : entity.getFields()) {
-            if (MetadataHelper.isSystemField(f)) continue;
-            fields.add(f.getName());
-        }
-        return fields.isEmpty() ? "（无）" : StringUtils.join(fields, ", ");
     }
 
     /**
@@ -400,6 +287,109 @@ public class ToolHelper {
                 ? "，你是否想用 " + candidates.get(0) + "？"
                 : "，相似实体: " + StringUtils.join(candidates, ", ");
     }
+
+    /**
+     * 列出实体中可用的字段名
+     *
+     * @param entity
+     * @return
+     */
+    public static String listFields(Entity entity) {
+        List<String> fields = new ArrayList<>();
+        for (Field f : entity.getFields()) {
+            if (MetadataHelper.isSystemField(f)) continue;
+            fields.add(f.getName());
+        }
+        return fields.isEmpty() ? "（无）" : StringUtils.join(fields, ", ");
+    }
+
+    // ----------------------------------------------------------------
+    //  过滤条件
+    // ----------------------------------------------------------------
+
+    /**
+     * 构建过滤表达式 AdvFilterParser
+     *
+     * @param entity
+     * @param filter
+     * @param equation
+     * @return
+     */
+    public static JSONObject buildFilterExpr(Entity entity, JSONArray filter, String equation) {
+        JSONObject filterExpr = new JSONObject();
+        filterExpr.put("entity", entity.getName());
+        filterExpr.put("items", filter != null ? filter : new JSONArray());
+        if (StringUtils.isNotBlank(equation)) {
+            filterExpr.put("equation", equation);
+        }
+        return filterExpr;
+    }
+
+    /**
+     * 校验过滤条件。除了结构合法性，还会检查字段名是否真实存在——
+     * AdvFilterParser 对无效字段/值等静默跳过并记录到 parseErrors，
+     * 此方法通过 getParseErrors() 检测被忽略的无效配置项。
+     *
+     * @param entity
+     * @param filterExpr
+     */
+    public static void validateFilter(Entity entity, JSONObject filterExpr) {
+        AdvFilterParser parser;
+        try {
+            parser = new AdvFilterParser(filterExpr, entity);
+            parser.toSqlWhere();
+        } catch (Exception ex) {
+            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+        }
+        checkParseErrors(parser);
+    }
+
+    /**
+     * 检查过滤条件中是否有被 AdvFilterParser 静默忽略的无效配置项。
+     * AdvFilterParser.parseItem 对无效字段/值等调用 parseError 记录并返回 null（不抛异常），
+     * 导致无效配置项被静默跳过、查询范围比预期更宽。此方法通过 getParseErrors()
+     * 检测被忽略的无效配置项并抛出异常。
+     *
+     * @param parser 已执行过 toSqlWhere 的 AdvFilterParser
+     */
+    private static void checkParseErrors(AdvFilterParser parser) {
+        List<String> parseErrors;
+        try {
+            parseErrors = parser.getParseErrors();
+        } catch (Exception ignored) {
+            return;  // toSqlWhere 提前返回（如 filterExpr 为空），无需校验
+        }
+        if (!parseErrors.isEmpty()) {
+            throw new KnownToolException("过滤条件中存在无效配置项，请确认使用了 ListEntities 返回的真实字段名。"
+                    + "无效项: " + joinErrors(parseErrors));
+        }
+    }
+
+    /**
+     * 解析过滤条件为 SQL 子句
+     *
+     * @param entity
+     * @param filter
+     * @param equation
+     * @return
+     */
+    public static String parseFilterToWhere(Entity entity, JSONArray filter, String equation) {
+        if (filter == null || filter.isEmpty()) return null;
+        JSONObject filterExpr = buildFilterExpr(entity, filter, equation);
+        AdvFilterParser parser = new AdvFilterParser(filterExpr, entity);
+        String whereClause;
+        try {
+            whereClause = parser.toSqlWhere();
+        } catch (Exception ex) {
+            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+        }
+        checkParseErrors(parser);
+        return whereClause;
+    }
+
+    // ----------------------------------------------------------------
+    //  查询结果构建
+    // ----------------------------------------------------------------
 
     /**
      * 构建查询字段列表（不含主键和名称字段，它们会被单独添加）
@@ -508,6 +498,23 @@ public class ToolHelper {
      */
     public static Object wrapFieldValue(Object value, Field field) {
         return FieldValueHelper.wrapFieldValue(value, field, true);
+    }
+
+    // ----------------------------------------------------------------
+    //  通用工具
+    // ----------------------------------------------------------------
+
+    /**
+     * 拼接错误明细（限制条数避免过长）
+     *
+     * @param errors
+     * @return
+     */
+    public static String joinErrors(List<String> errors) {
+        if (errors == null || errors.isEmpty()) return "";
+        List<String> use = errors.size() > 5 ? errors.subList(0, 5) : errors;
+        String s = StringUtils.join(use, "；");
+        return errors.size() > 5 ? s + "（等共 " + errors.size() + " 条错误）" : s;
     }
 
     /**
