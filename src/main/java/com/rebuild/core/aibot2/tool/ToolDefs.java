@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,13 +113,18 @@ public class ToolDefs {
      *
      * @return
      */
-    private static Set<String> getDisabledTools() {
+    static Set<String> getDisabledTools() {
+        Set<String> dTools = new HashSet<>();
+
         String value = RebuildConfiguration.get(ConfigurationItem.AibotToolsDisabled);
-        if (StringUtils.isBlank(value)) return Collections.emptySet();
-        return Arrays.stream(value.split(","))
+        if (StringUtils.isBlank(value)) return dTools;
+
+        Set<String> d = Arrays.stream(value.split(","))
                 .map(String::trim)
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.toSet());
+        dTools.addAll(d);
+        return dTools;
     }
 
     /**

@@ -19,6 +19,11 @@ const _chatMarked = new marked.Marked({
         const safe = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         return `<div class="mermaid-to-render">${safe}</div>`
       }
+      // ```html
+      if (lang === 'html' || lang === 'htm') {
+        const safe = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        return `<div class="html-to-render">${safe}</div>`
+      }
       return false
     },
     link({ href, title, tokens }) {
@@ -477,59 +482,12 @@ class ChatMessage extends React.Component {
           }
         }
       })
-
-    this._tryRenderCharts()
-    this._tryRenderMermaid()
   }
 
   componentDidUpdate(props, prevState) {
     const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning
     const reasoningToggleChanged = prevState.reasoningOpen !== this.state.reasoningOpen
     if (contentChanged || reasoningToggleChanged) scrollToBottom()
-    if (contentChanged || prevState.waitResp !== this.state.waitResp) {
-      this._tryRenderCharts()
-      this._tryRenderMermaid()
-    }
-  }
-
-  componentWillUnmount() {
-    $(this._$message)
-      .find('.echarts-rendered')
-      .each(function () {
-        const chart = $(this).data('echarts-instance')
-        if (chart && typeof chart.dispose === 'function') chart.dispose()
-      })
-  }
-
-  _tryRenderCharts() {
-    const $el = this._$message && $(this._$message)
-    if (!$el || $el.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
-    if (!this._echartsSeq) this._echartsSeq = $random('echarts-', true)
-
-    const done = !this.props.sendResp || this.state.waitResp === -1
-    $setTimeout(() => renderEcharts($el, done), 200, 'render-echarts-' + this._echartsSeq)
-  }
-
-  _tryRenderMermaid() {
-    const $el = this._$message && $(this._$message)
-    if (!$el || $el.find('.mermaid-to-render').length === 0) return
-    if (this.props.sendResp && this.state.waitResp !== -1) return
-
-    $useMermaid(() => {
-      const checks = []
-      $el.find('.mermaid-to-render').each(function () {
-        const $node = $(this)
-        checks.push(
-          Promise.resolve()
-            .then(() => mermaid.parse($node.text(), { suppressErrors: true }))
-            .catch(() => false)
-            .then((ok) => {
-              if (!ok) _fallbackSource($node, 'mermaid')
-            }),
-        )
-      })
-      Promise.all(checks).then(() => $renderMermaid($el))
-    })
   }
 
   _feedbackable() {
@@ -590,7 +548,9 @@ class ChatMessage extends React.Component {
   renderUser() {
     return (
       <div className="msg-user">
-        <div className="msg-content">{this.renderContent(null, false)}</div>
+        <div className="msg-content">
+          <RichContent content={this.state.content} md={false} />
+        </div>
         {this.state.skill && (
           <div className="msg-attach">
             <Attach skill={this.state.skill} _chatid={this.props._chatid} />
@@ -608,7 +568,8 @@ class ChatMessage extends React.Component {
   }
 
   renderAi() {
-    const busy = this.props.sendResp && this.state.waitResp !== -1
+    const ready = !this.props.sendResp || this.state.waitResp === -1
+    const busy = !ready
     const thinking = this.state.waitResp === 2
     return (
       <div className="msg-ai">
@@ -628,10 +589,14 @@ class ChatMessage extends React.Component {
                 {thinking && <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />}
                 <span>{thinking ? $L('思考中...') : $L('思考过程')}</span>
               </div>
-              {this.state.reasoningOpen && <div className="reasoning-body">{this.renderContent(this.state.reasoning)}</div>}
+              {this.state.reasoningOpen && (
+                <div className="reasoning-body">
+                  <RichContent content={this.state.reasoning} ready={ready} />
+                </div>
+              )}
             </div>
           )}
-          {this.renderContent(this.state.content)}
+          <RichContent content={this.state.content} ready={ready} />
         </div>
       </div>
     )
@@ -649,11 +614,182 @@ class ChatMessage extends React.Component {
       </div>
     )
   }
+}
 
-  renderContent(content, md) {
-    let c = content || this.state.content
-    if (!c) return null
-    return <div className="msg-text">{md === false ? c : <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(fixMd(c)) }}></span>}</div>
+// 富内容渲染组件
+class RichContent extends React.Component {
+  render() {
+    const { content, md } = this.props
+    if (!content) return null
+    if (md === false) return <div className="msg-text">{content}</div>
+
+    return (
+      <div className="msg-text" ref={(c) => (this._$el = c)}>
+        <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(this._fixMd(content)) }}></span>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    this._renderRich()
+  }
+
+  componentDidUpdate(prev) {
+    if (prev.content !== this.props.content) this._renderRich()
+  }
+
+  componentWillUnmount() {
+    this._dispose()
+  }
+
+  _renderRich() {
+    const $el = this._$el && $(this._$el)
+    if (!$el || this.props.md === false) return
+    const ready = this.props.ready !== false
+
+    // echarts：流式中也渲染，done=ready 控制失败是否回退源码
+    if ($el.find('.echarts-to-render:not(.echarts-rendered)').length) {
+      if (!this._seq) this._seq = $random('rc-', true)
+      $setTimeout(() => this._renderEcharts($el, ready), 200, 'render-echarts-' + this._seq)
+    }
+    // mermaid/html：流式中跳过，避免渲染半截内容
+    if (ready && $el.find('.mermaid-to-render').length) {
+      this._renderMermaid($el)
+    }
+    if (ready && $el.find('.html-to-render:not(.html-rendered)').length) {
+      if (!this._seq) this._seq = $random('rc-', true)
+      $setTimeout(() => this._renderHtml($el), 200, 'render-html-' + this._seq)
+    }
+  }
+
+  _renderMermaid($el) {
+    const self = this
+    $useMermaid(() => {
+      const checks = []
+      $el.find('.mermaid-to-render').each(function () {
+        const $node = $(this)
+        checks.push(
+          Promise.resolve()
+            .then(() => mermaid.parse($node.text(), { suppressErrors: true }))
+            .catch(() => false)
+            .then((ok) => {
+              if (!ok) self._fallbackSource($node, 'mermaid')
+            }),
+        )
+      })
+      Promise.all(checks).then(() => $renderMermaid($el))
+    })
+  }
+
+  _renderHtml($container) {
+    const $nodes = $container.find('.html-to-render:not(.html-rendered)')
+    if (!$nodes.length) return
+    $nodes.each(function () {
+      const $node = $(this)
+      $node.addClass('html-rendered')
+      const html = $node.text() // textContent 自动解码 &lt; 等
+      const $iframe = $('<iframe></iframe>').attr({ sandbox: 'allow-scripts' })
+      $node.empty().append($iframe)
+      $iframe[0].srcdoc = html
+    })
+  }
+
+  _renderEcharts($container, done) {
+    if (!$container || !$container.length) return
+    if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
+
+    const self = this
+    $useEchart(() => {
+      $container.find('.echarts-to-render:not(.echarts-rendered)').each(function () {
+        const $node = $(this)
+        let option
+        try {
+          option = JSON.parse($node.text())
+        } catch (err) {
+          if (done) {
+            self._fallbackSource($node, 'echarts')
+          } else {
+            console.warn('ECharts option parse failed :', err)
+          }
+          return
+        }
+
+        $node.addClass('echarts-rendered').empty()
+        try {
+          const chart = echarts.init($node[0])
+          const base = { ...ECHART_BASE }
+          delete base.grid
+          const opt = { ...base, ...option }
+          opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
+          opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
+          if (opt.title) opt.title = { ...opt.title, top: 10 }
+          if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
+          opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
+          chart.setOption(opt)
+          $node.data('echarts-instance', chart)
+        } catch (err) {
+          console.error('ECharts render error :', err)
+          $node.removeClass('echarts-rendered')
+        }
+      })
+    })
+  }
+
+  _fallbackSource($node, lang) {
+    const source = $node.text()
+    $node.removeClass('echarts-to-render mermaid-to-render').empty()
+    $('<pre></pre>')
+      .append($('<code></code>').addClass(`language-${lang}`).text(source))
+      .appendTo($node)
+  }
+
+  _dispose() {
+    const $el = this._$el && $(this._$el)
+    if (!$el || !$el.length) return
+    $el.find('.echarts-rendered').each(function () {
+      const chart = $(this).data('echarts-instance')
+      if (chart && typeof chart.dispose === 'function') chart.dispose()
+    })
+  }
+
+  // 修复 AI 回复中常见的 Markdown 语法问题
+  _fixMd(md) {
+    if (!md) return md
+    if (window.__LAB45_NOTFIXAIMD) return md
+
+    // 1. 表格：GFM 要求表格前有空行，AI 有时忽略此规则
+    if (md.indexOf('|') !== -1 && /\|[\s:]*-{2,}/.test(md)) {
+      const lines = md.split('\n')
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i]
+        if (/\|[\s:]*-{2,}/.test(line) && /(\|)\s*(\|)/.test(line)) {
+          const firstPipe = line.indexOf('|')
+          let work = firstPipe > 0 ? line.substring(0, firstPipe).trimEnd() + '\n\n' + line.substring(firstPipe) : line
+          work = work.replace(/(\|)\s*(\|)/g, '$1\n$2')
+          lines[i] = work
+          continue
+        }
+
+        if (i + 1 < lines.length && /\|[\s:]*-{2,}/.test(lines[i + 1])) {
+          const pipeIdx = line.indexOf('|')
+          if (pipeIdx > 0) {
+            lines[i] = line.substring(0, pipeIdx).trimEnd() + '\n\n' + line.substring(pipeIdx)
+          } else if (pipeIdx === 0 && i > 0 && lines[i - 1].trim() !== '') {
+            lines[i] = '\n' + line
+          }
+        }
+      }
+      md = lines.join('\n')
+    }
+
+    // 2. 粗体：去除开启/闭合 ** 内侧多余空格（仅同行，避免跨行吞表格结构）
+    md = md.replace(/(\*\*)[ \t]+([^\n*]+?)[ \t]*(\*\*)/g, '$1$2$3')
+    md = md.replace(/(\*\*[^\n*]+\*\*)(?=[^\s)\]}>.,;:!?，。；：！？、）】])/g, '$1 ')
+
+    // 3. 标题：CommonMark 要求 # 后必须有空格
+    md = md.replace(/^(#{1,6})(?=[^\s#])/gm, '$1 ')
+
+    return md
   }
 }
 
@@ -1016,92 +1152,4 @@ class RecordSelectorModal2 extends RecordSelectorModal {
       </div>
     )
   }
-}
-
-// 修复 AI 回复中常见的 Markdown 语法问题，确保 marked 正确渲染
-function fixMd(md) {
-  if (!md) return md
-  if (window.__LAB45_NOTFIXAIMD) return md
-
-  // 1. 表格：GFM 要求表格前有空行，AI 有时忽略此规则
-  if (md.indexOf('|') !== -1 && /\|[\s:]*-{2,}/.test(md)) {
-    const lines = md.split('\n')
-    for (let i = 0; i < lines.length; i++) {
-      let line = lines[i]
-      if (/\|[\s:]*-{2,}/.test(line) && /(\|)\s*(\|)/.test(line)) {
-        const firstPipe = line.indexOf('|')
-        let work = firstPipe > 0 ? line.substring(0, firstPipe).trimEnd() + '\n\n' + line.substring(firstPipe) : line
-        work = work.replace(/(\|)\s*(\|)/g, '$1\n$2')
-        lines[i] = work
-        continue
-      }
-
-      if (i + 1 < lines.length && /\|[\s:]*-{2,}/.test(lines[i + 1])) {
-        const pipeIdx = line.indexOf('|')
-        if (pipeIdx > 0) {
-          lines[i] = line.substring(0, pipeIdx).trimEnd() + '\n\n' + line.substring(pipeIdx)
-        } else if (pipeIdx === 0 && i > 0 && lines[i - 1].trim() !== '') {
-          lines[i] = '\n' + line
-        }
-      }
-    }
-    md = lines.join('\n')
-  }
-
-  // 2. 粗体：去除开启/闭合 ** 内侧多余空格（仅同行，避免跨行吞表格结构）
-  md = md.replace(/(\*\*)[ \t]+([^\n*]+?)[ \t]*(\*\*)/g, '$1$2$3')
-  md = md.replace(/(\*\*[^\n*]+\*\*)(?=[^\s)\]}>.,;:!?，。；：！？、）】])/g, '$1 ')
-
-  // 3. 标题：CommonMark 要求 # 后必须有空格
-  md = md.replace(/^(#{1,6})(?=[^\s#])/gm, '$1 ')
-
-  return md
-}
-
-function _fallbackSource($node, lang) {
-  const source = $node.text()
-  $node.removeClass('echarts-to-render mermaid-to-render').empty()
-  $('<pre></pre>')
-    .append($('<code></code>').addClass(`language-${lang}`).text(source))
-    .appendTo($node)
-}
-
-function renderEcharts($container, done) {
-  if (!$container || !$container.length) return
-  if ($container.find('.echarts-to-render:not(.echarts-rendered)').length === 0) return
-
-  $useEchart(() => {
-    $container.find('.echarts-to-render:not(.echarts-rendered)').each(function () {
-      const $node = $(this)
-      let option
-      try {
-        option = JSON.parse($node.text())
-      } catch (err) {
-        if (done) {
-          _fallbackSource($node, 'echarts')
-        } else {
-          console.warn('ECharts option parse failed :', err)
-        }
-        return
-      }
-
-      $node.addClass('echarts-rendered').empty()
-      try {
-        const chart = echarts.init($node[0])
-        const base = { ...ECHART_BASE }
-        delete base.grid
-        const opt = { ...base, ...option }
-        opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
-        opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
-        if (opt.title) opt.title = { ...opt.title, top: 10 }
-        if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
-        opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
-        chart.setOption(opt)
-        $node.data('echarts-instance', chart)
-      } catch (err) {
-        console.error('ECharts render error :', err)
-        $node.removeClass('echarts-rendered')
-      }
-    })
-  })
 }
