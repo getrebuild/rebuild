@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global dlgActionAfter, ShowEnable taggedTitle */
 
 $(document).ready(function () {
-  $('.J_add').on('click', () => renderRbcomp(<TransformEditor />))
+  $('.J_add').on('click', () => renderRbcomp(<TransformEditor showAi />))
   renderRbcomp(<TransformList />, 'dataList')
 })
 
