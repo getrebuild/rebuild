@@ -347,7 +347,15 @@ class DlgSkillEdit extends RbModalHandler {
 
     const skills = this.state.skills || []
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
+      <RbModal
+        ref={(c) => (this._dlg = c)}
+        title={
+          <RF>
+            {this.props.title}
+            <AiCreateButton presetMessage={$L('我要创建一个技能')} />
+          </RF>
+        }
+        disposeOnHide>
         <div className="tab-container" style={{ marginTop: -10 }} ref={(c) => (this._$container = c)}>
           <ul className="nav nav-tabs">
             <li className="nav-item">

@@ -459,6 +459,25 @@ a.btn {
   border-bottom: 1px solid #a1a1a1;
 }
 
+.ai-create-btn {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  padding: 2px 10px;
+  padding-right: 12px;
+  border-radius: 20px;
+  color: #fff !important;
+  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe);
+  cursor: pointer;
+  transform: translateY(-3px);
+}
+
+.ai-create-btn .mdi {
+  animation: heartBeat 1.3s ease-in-out infinite;
+}
+
 .input-search,
 .input-search input {
   height: 2.8rem;

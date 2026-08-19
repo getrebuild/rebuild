@@ -182,5 +182,6 @@ module.exports = {
     $useAutocomplete: true,
     $useMermaid: true,
     $useSignPad: true,
+    AiCreateButton: true,
   },
 }

@@ -65,6 +65,8 @@ class AiBot extends React.Component {
       })
       .on('hidden.bs.modal', () => {
         this._isShown = false
+        // v35 backdrop=false 时 Bootstrap 会无条件移除 modal-open，需恢复
+        if ($('.modal.show').length > 0) $(document.body).addClass('modal-open')
       })
 
     setTimeout(() => this.show(), 50)
@@ -156,5 +158,22 @@ class AiBot extends React.Component {
         window._AiBot = this
       })
     }
+  }
+}
+
+// eslint-disable-next-line no-unused-vars
+class AiCreateButton extends React.Component {
+  render() {
+    return (
+      <a href="javascript:;" onClick={(e) => this._handleClick(e)} className="ai-create-btn hover-opacity">
+        <i className="mdi mdi-shimmer mr-1 fs-14" />
+        {$L('用 AI 创建')}
+      </a>
+    )
+  }
+
+  _handleClick(e) {
+    $stopEvent(e, true)
+    window.AiBot && window.AiBot.init({ draggable: true, presetMessage: this.props.presetMessage, autoSend: true }, false)
   }
 }

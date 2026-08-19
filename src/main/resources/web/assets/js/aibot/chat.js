@@ -95,10 +95,13 @@ class Chat extends React.Component {
   }
 
   componentWillUnmount() {
+    this._stopPendingPoll()
     $(this._$chat).off('click.chat-hide')
   }
 
   initChat(chatid) {
+    this._stopPendingPoll()
+
     // 如果当前正在对话，仅关闭前端连接，后端继续完成并保存完整内容
     if (this._ChatInput && this._ChatInput.state.postState !== 0) {
       __evt_StreamCancel = true
@@ -119,7 +122,15 @@ class Chat extends React.Component {
           this.setState({ chatid: d._chatid })
           this._ChatSidebar.setState({ current: d._chatid })
         }
-        this._ChatMessages.setMessages(d.messages || [], true, d.suggestQuestions || null)
+        let messages = d.messages || []
+        // 最后一条是用户消息，说明 AI 还在回答中（刷新中断场景）
+        if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
+          messages = [...messages, { role: 'assistant', sendResp: () => {}, pending: true }]
+          this._startPendingPoll(d._chatid || chatid)
+          this._ChatInput.setState({ postState: 1 })
+        }
+
+        this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
 
         if (_autoSend && this._ChatInput.state.content) {
           this._ChatInput.hanldeSend()
@@ -135,6 +146,7 @@ class Chat extends React.Component {
   }
 
   send(data, onDone) {
+    this._stopPendingPoll()
     scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
 
@@ -154,6 +166,7 @@ class Chat extends React.Component {
   }
 
   sendStream(data, onDone) {
+    this._stopPendingPoll()
     scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
 
@@ -168,6 +181,35 @@ class Chat extends React.Component {
         },
       })
     }, 20)
+  }
+
+  // 轮询检测 AI 回答是否已落库（刷新中断场景）
+  _startPendingPoll(chatid) {
+    this._stopPendingPoll()
+    if (!chatid) return
+    this._pendingChatid = chatid
+
+    this._pendingTimer = setInterval(() => {
+      $.get(`/aibot2/post/chat-init?chatid=${chatid}`, (res) => {
+        if (res.error_code !== 0) return
+        const newMessages = res.data.messages || []
+        const last = newMessages[newMessages.length - 1]
+        // 最后一条变成 AI 消息，说明回答已落库
+        if (last && (last.role === 'assistant' || last.role === 'ai')) {
+          this._stopPendingPoll()
+          this._ChatMessages.setMessages(newMessages, true, null)
+          this._ChatInput.setState({ postState: 0 })
+        }
+      })
+    }, 3000)
+  }
+
+  _stopPendingPoll() {
+    if (this._pendingTimer) {
+      clearInterval(this._pendingTimer)
+      this._pendingTimer = null
+    }
+    this._pendingChatid = null
   }
 }
 
@@ -415,9 +457,13 @@ class ChatMessages extends React.Component {
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
     this.setState(state, () => {
-      $setTimeout(() => $(this._$messages).perfectScrollbar('update'), 150, 'scrollToBottom')
+      this._updateScrollbar()
       scrollToBottom(forceScroll)
     })
+  }
+
+  _updateScrollbar() {
+    $setTimeout(() => $(this._$messages).perfectScrollbar('update'), 100, 'aibot-ps-update')
   }
 
   componentDidMount() {
@@ -485,9 +531,21 @@ class ChatMessage extends React.Component {
   }
 
   componentDidUpdate(props, prevState) {
+    // 占位消息被真实消息替换（sendResp 消失），同步 state
+    if (props.sendResp && !this.props.sendResp) {
+      this.setState({
+        content: this.props.content,
+        reasoning: this.props.reasoning,
+        waitResp: 0,
+        reasoningOpen: false,
+      })
+      return
+    }
     const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning
     const reasoningToggleChanged = prevState.reasoningOpen !== this.state.reasoningOpen
-    if (contentChanged || reasoningToggleChanged) scrollToBottom()
+    if (contentChanged) scrollToBottom()
+    // 思考过程展开/收起改变内容高度，需更新滚动条（不受滚动锁定影响）
+    if (reasoningToggleChanged) this.props._ChatMessages._updateScrollbar()
   }
 
   _feedbackable() {
@@ -577,7 +635,15 @@ class ChatMessage extends React.Component {
           <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
         </div>
         <div className="msg-content">
-          {this.state.waitResp === 1 && (
+          {this.state.waitResp === 1 && this.props.pending && (
+            <div className="reasoning">
+              <div className="reasoning-toggle cursor-default">
+                <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />
+                <span>{$L('回答中...')}</span>
+              </div>
+            </div>
+          )}
+          {this.state.waitResp === 1 && !this.props.pending && (
             <div className="wait-resp">
               <i className="mdi-spin mdi mdi-loading fs-20" />
             </div>
@@ -680,11 +746,15 @@ class RichContent extends React.Component {
       Promise.all(checks).then(() => {
         $renderMermaid($el)
         // mermaid.run 异步渲染，延迟添加全屏按钮
-        $setTimeout(() => {
-          $el.find('.mermaid:not(.has-fs-btn)').each(function () {
-            self._attachFullscreenBtn($(this))
-          })
-        }, 300, 'mermaid-fs-btn')
+        $setTimeout(
+          () => {
+            $el.find('.mermaid:not(.has-fs-btn)').each(function () {
+              self._attachFullscreenBtn($(this))
+            })
+          },
+          300,
+          'mermaid-fs-btn',
+        )
       })
     })
   }
@@ -825,7 +895,7 @@ function scrollToBottom(forceScroll) {
       const $el = $('.chat-messages')
       if ($el.length === 0) return
       $el.scrollTop($el[0].scrollHeight)
-      $el.perfectScrollbar('update')
+      $setTimeout(() => $el.perfectScrollbar('update'), 100, 'aibot-ps-update')
     },
     100,
     'scrollToBottom',
