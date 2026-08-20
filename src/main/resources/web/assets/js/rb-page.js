@@ -52,7 +52,10 @@ $(function () {
   $(document).on('hidden.bs.modal', '.modal', function () {
     if ($('.modal.show').length > 0) {
       $('body').addClass('modal-open')
-      $('.modal-backdrop:last').css('opacity', '')
+      $('.modal-backdrop:last').css({
+        'z-index': 1040 + $('.modal.show').length - 1,
+        'opacity': '',
+      })
     }
   })
   $(document).on('keydown', function (e) {
@@ -63,7 +66,10 @@ $(function () {
   })
 
   // for `moment`
-  if (window.moment) window.moment.locale(rb.locale)
+  if (window.moment) {
+    window.moment.locale(rb.locale)
+    window.moment.relativeTimeThreshold('d', 30)
+  }
 
   // for `datetimepicker`
   $.fn.datetimepicker.defaults = {

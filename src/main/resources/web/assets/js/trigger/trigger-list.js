@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global dlgActionAfter ShowEnable taggedTitle */
 
 $(document).ready(function () {
-  $('.J_add').on('click', () => renderRbcomp(<TriggerEdit />))
+  $('.J_add').on('click', () => renderRbcomp(<TriggerEdit showAi />))
   renderRbcomp(<TriggerList />, 'dataList')
 
   if (rb.commercial > 0) {

@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +59,15 @@ public class ToolDefs {
         register(new SearchKnowledge());
         register(new ScheduleTask());
         register(new UserMemory());
+
+        register(new BuildSkill());
+        register(new GetConfigSchema());
+        register(new BuildFilter());
         register(new BuildEntity());
         register(new BuildField());
-        register(new GetConfigSchema());
         register(new BuildTrigger());
-        register(new BuildFilter());
+        register(new BuildTransform());
+        register(new BuildReportTemplate());
     }
 
     /**
@@ -81,9 +85,11 @@ public class ToolDefs {
      * @return
      */
     public static List<ChatCompletionTool> tools() {
-        Set<String> disabled = getDisabledTools();
         // 管理员专属工具不提供给非管理员
-        boolean isAdmin = UserHelper.isAdmin(UserContextHolder.getUser());
+        boolean isAdmin = UserContextHolder.getUser(true) != null
+                && UserHelper.isAdmin(UserContextHolder.getUser());
+
+        Set<String> disabled = getDisabledTools();
         return TOOL_MAP.entrySet().stream()
                 .filter(e -> !disabled.contains(e.getKey()))
                 .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
@@ -113,13 +119,18 @@ public class ToolDefs {
      *
      * @return
      */
-    private static Set<String> getDisabledTools() {
+    static Set<String> getDisabledTools() {
+        Set<String> dTools = new HashSet<>();
+
         String value = RebuildConfiguration.get(ConfigurationItem.AibotToolsDisabled);
-        if (StringUtils.isBlank(value)) return Collections.emptySet();
-        return Arrays.stream(value.split(","))
+        if (StringUtils.isBlank(value)) return dTools;
+
+        Set<String> d = Arrays.stream(value.split(","))
                 .map(String::trim)
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.toSet());
+        dTools.addAll(d);
+        return dTools;
     }
 
     /**

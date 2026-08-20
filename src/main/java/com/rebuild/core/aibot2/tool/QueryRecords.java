@@ -21,6 +21,7 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -64,6 +65,14 @@ public class QueryRecords implements Tool {
         // 构建查询字段列表（同时收集无效字段名）
         JSONArray invalidFields = new JSONArray();
         List<String> queryFields = ToolHelper.buildQueryFields(entity, fields, invalidFields);
+        if (!invalidFields.isEmpty()) {
+            List<String> names = new ArrayList<>();
+            for (Object o : invalidFields) {
+                names.add(((JSONObject) o).getString("name"));
+            }
+            throw new KnownToolException("查询字段中存在无效字段 : " + ToolHelper.joinErrors(names)
+                    + "。请使用 ListEntities 返回的真实字段名");
+        }
         Field primaryField = entity.getPrimaryField();
         Field nameField = entity.getNameField();
 
@@ -79,9 +88,6 @@ public class QueryRecords implements Tool {
             result = queryList(entity, primaryField, nameField, queryFields, limit, offset, orderBy);
         }
 
-        if (!invalidFields.isEmpty()) {
-            result.put("invalidFields", invalidFields);
-        }
         return result;
     }
 
@@ -139,6 +145,8 @@ public class QueryRecords implements Tool {
         String whereClause;
         try {
             whereClause = ToolHelper.parseFilterToWhere(entity, filter, equation);
+        } catch (KnownToolException ex) {
+            throw ex;  // parseFilterToWhere 已包装了清晰的错误消息
         } catch (Exception ex) {
             throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
         }

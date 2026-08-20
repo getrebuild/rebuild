@@ -65,6 +65,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   })
 
   var rr_prefix = Math.floor(Math.random() * 88888888) + 10000000 + '-'
+
   $.ajaxSetup({
     headers: {
       'Content-Type': 'text/plain;charset=utf-8',
@@ -105,6 +106,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
       return settings
     },
   })
+  // v4.5 fetch
+  if (rb.authToken && typeof window.fetch === 'function') {
+    var __fetch = window.fetch
+    window.fetch = function (url, o) {
+      o = o || {}
+      o.headers = Object.assign({}, o.headers, { 'X-AuthToken': rb.authToken || '', 'X-CsrfToken': rb.csrfToken || '' })
+      return __fetch(url, o)
+    }
+  }
 
   window.onerror = function () {
     $.post('/error/jslog', JSON.stringify(arguments))

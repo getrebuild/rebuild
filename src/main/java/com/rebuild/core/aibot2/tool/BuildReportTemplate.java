@@ -10,10 +10,10 @@ package com.rebuild.core.aibot2.tool;
 import com.rebuild.core.privileges.AdminGuard;
 
 /**
- * 新建触发器
+ * 新建网页报表模板（仅 HTML5 类型）
  *
  * @author devezhao
- * @since 2026/8/16
+ * @since 2026/8/19
  */
-public class BuildTrigger extends RbvTool implements AdminGuard {
+public class BuildReportTemplate extends RbvTool implements AdminGuard {
 }

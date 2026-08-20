@@ -20,8 +20,17 @@ class ConfigFormDlg extends RbFormHandler {
 
   render() {
     const title = this.title || (this.props.id ? $L('修改%s', this.subtitle || '') : $L('添加%s', this.subtitle || ''))
+    const showAi = this.props.showAi && !this.props.id && !!this.subtitle
     return (
-      <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal
+        title={
+          <RF>
+            {title}
+            {showAi && <AiCreateButton presetMessage={$L('我要创建一个%s', this.subtitle)} />}
+          </RF>
+        }
+        ref={(c) => (this._dlg = c)}
+        disposeOnHide={true}>
         <div className="form">
           {this.renderFrom()}
           <div className="form-group row footer">

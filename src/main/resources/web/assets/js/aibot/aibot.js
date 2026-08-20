@@ -158,3 +158,20 @@ class AiBot extends React.Component {
     }
   }
 }
+
+// eslint-disable-next-line no-unused-vars
+class AiCreateButton extends React.Component {
+  render() {
+    return (
+      <a href="javascript:;" onClick={(e) => this._handleClick(e)} className="ai-create-btn hover-opacity">
+        <i className="mdi mdi-shimmer mr-1 fs-14" />
+        {$L('用 AI 创建')}
+      </a>
+    )
+  }
+
+  _handleClick(e) {
+    $stopEvent(e, true)
+    window.AiBot && window.AiBot.init({ draggable: true, presetMessage: this.props.presetMessage, autoSend: true }, false)
+  }
+}

@@ -14,13 +14,27 @@ useEditComp = function (name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
-      let models = 'deepseek-v4-flash qwen3.6-flash hy3-preview gpt-5 gemini-2.5-pro'.split(' ')
-      $autoComplete($('input[name="AibotBaseDefModel"]'), null, {
-        options: models,
+      let option = {
+        options: 'qwen3.8-max glm-5.2 deepseek-v4-flash gpt-5'.split(' '),
         onSelect: (v) => {
           // eslint-disable-next-line no-undef
           changeValue({ target: { value: v, name: 'AibotBaseDefModel' } })
         },
+      }
+      $autoComplete($('input[name="AibotBaseDefModel"]'), null, option)
+
+      // 异步获取可用模型
+      $.get('./aibot/models', (res) => {
+        if (res.error_code === 0 && res.data && res.data.length > 0) {
+          option.options = res.data.map((m) => {
+            // const ctx = m.contextWindow
+            // return {
+            //   text: ctx ? `${m.id} (${ctx >= 1000 ? Math.round(ctx / 1000) + 'K' : ctx})` : m.id,
+            //   name: m.id,
+            // }
+            return m.id
+          })
+        }
       })
     }, 500)
   }
@@ -347,7 +361,15 @@ class DlgSkillEdit extends RbModalHandler {
 
     const skills = this.state.skills || []
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
+      <RbModal
+        ref={(c) => (this._dlg = c)}
+        title={
+          <RF>
+            {this.props.title}
+            <AiCreateButton presetMessage={$L('我要创建一个技能')} />
+          </RF>
+        }
+        disposeOnHide>
         <div className="tab-container" style={{ marginTop: -10 }} ref={(c) => (this._$container = c)}>
           <ul className="nav nav-tabs">
             <li className="nav-item">

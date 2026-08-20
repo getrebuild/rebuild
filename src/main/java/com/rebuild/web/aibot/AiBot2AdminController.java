@@ -12,6 +12,9 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.openai.core.JsonValue;
+import com.openai.models.models.Model;
+import com.openai.models.models.ModelListPage;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.Config;
@@ -26,6 +29,7 @@ import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
 import com.rebuild.web.admin.ConfigurationController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,6 +43,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -105,6 +110,57 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/tools")
     public RespBody toolList() {
         return RespBody.ok(ToolDefs.listTools(true, false));
+    }
+
+    /**
+     * 获取可用模型列表（从已配置的 AI 服务商动态获取）
+     *
+     * @return
+     */
+    @GetMapping("aibot/models")
+    public RespBody modelList() {
+        if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
+
+        try {
+            ModelListPage page = Config.getClient().models().list();
+            List<JSONObject> models = new ArrayList<>();
+            for (Model m : page.data()) {
+                JSONObject item = new JSONObject(true);
+                item.put("id", m.id());
+                item.put("contextWindow", extractContextSize(m._additionalProperties()));
+                models.add(item);
+            }
+            return RespBody.ok(models);
+        } catch (Exception e) {
+            log.error("Failed to list available models", e);
+            return RespBody.error(e);
+        }
+    }
+
+    /**
+     * 从模型的额外属性中提取上下文窗口大小
+     *
+     * @param additionalProps
+     * @return
+     */
+    private static Long extractContextSize(Map<String, JsonValue> additionalProps) {
+        if (MapUtils.isEmpty(additionalProps)) return null;
+
+        String[] keys = {"context_length", "context_window", "max_context_length", "max_context_window"};
+        for (String key : keys) {
+            JsonValue value = additionalProps.get(key);
+            if (value == null) continue;
+            try {
+                return value.convert(Long.class);
+            } catch (Exception ignored) {
+            }
+            try {
+                String s = value.convert(String.class);
+                if (s != null && !s.isEmpty()) return Long.parseLong(s);
+            } catch (Exception ignored) {
+            }
+        }
+        return null;
     }
 
     @GetMapping("aibot/skill-list")

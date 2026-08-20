@@ -17,7 +17,16 @@ class FieldNew2 extends RbModalHandler {
   render() {
     const ftKeys = Object.keys(FIELD_TYPES)
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加字段')} disposeOnHide __root18={this.props.__root18}>
+      <RbModal
+        ref={(c) => (this._dlg = c)}
+        title={
+          <RF>
+            {$L('添加字段')}
+            <AiCreateButton presetMessage={$L('我要创建一个字段')} />
+          </RF>
+        }
+        disposeOnHide
+        __root18={this.props.__root18}>
         <div>
           <form>
             <div className="form-group row">

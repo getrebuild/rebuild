@@ -23,7 +23,7 @@
             "properties": {
               "field": {
                 "type": "string",
-                "description": "字段名称（必须是实体中存在的字段）"
+                "description": "字段名称"
               },
               "op": {
                 "type": "string",
@@ -47,7 +47,7 @@
         },
         "fields": {
           "type": "string",
-          "description": "返回的字段名称列表（逗号分隔），不传则返回所有可查询字段"
+          "description": "返回的字段名称列表（逗号分隔）。不传则返回所有可查询字段"
         },
         "limit": {
           "type": "integer",

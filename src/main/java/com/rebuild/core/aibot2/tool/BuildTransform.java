@@ -10,10 +10,10 @@ package com.rebuild.core.aibot2.tool;
 import com.rebuild.core.privileges.AdminGuard;
 
 /**
- * 新建触发器
+ * 新建记录转换配置
  *
  * @author devezhao
- * @since 2026/8/16
+ * @since 2026/8/19
  */
-public class BuildTrigger extends RbvTool implements AdminGuard {
+public class BuildTransform extends RbvTool implements AdminGuard {
 }
