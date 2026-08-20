@@ -93,6 +93,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         try {
             addObserver((SafeObserver) ReflectUtils.newObject("com.rebuild.rbv.sop.RobotSopObserver"));
         } catch (Exception ignoredRbvClassMiss){}
+        try {
+            addObserver((SafeObserver) ReflectUtils.newObject("com.rebuild.rbv.datasubscribe.service.DataSubscribeObserver"));
+        } catch (Exception ignoredRbvClassMiss){}
     }
 
     @Override

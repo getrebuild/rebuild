@@ -5,12 +5,6 @@
     <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
     <title>[[${_AiBot}]]</title>
     <style>
-      #chat-wrapper {
-        min-width: 360px;
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 0;
-      }
       .aibot.modal {
         z-index: 0;
       }
@@ -18,12 +12,36 @@
         width: 1000px;
         margin: 0 auto;
         box-shadow: none !important;
+        height: calc(100vh - 40px);
+        min-height: 0;
       }
-      .aibot.modal .modal-content {
-        width: 100%;
+      .aibot .modal-dialog > .modal-content {
+        border: 0 none;
       }
-      .aibot.modal .modal-header .hide2 {
+      .aibot.modal .modal-header .hide2,
+      .aibot.modal .modal-header .dock-toggle {
         display: none;
+      }
+      @media (max-width: 768px) {
+        .aibot .modal-dialog {
+          width: 100%;
+          max-width: 100%;
+          border-radius: 0;
+        }
+        .aibot .modal-header,
+        .aibot .modal-content {
+          border-radius: 0;
+        }
+        .chat .chat-input-container,
+        .chat-messages {
+          padding: 16px;
+        }
+        .page-footer {
+          display: none;
+        }
+        .aibot .modal-dialog {
+          height: 100vh;
+        }
       }
     </style>
   </head>

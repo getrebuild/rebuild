@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.JsonSchemaValidator;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -99,6 +100,7 @@ public class AdvFilterParser extends SetUser {
     final private Entity varRecordEntity;
 
     transient private Set<String> includeFields = null;
+    transient private List<String> parseErrors = null;
 
     /**
      * @param filterExpr
@@ -162,11 +164,14 @@ public class AdvFilterParser extends SetUser {
         if (CollectionUtils.isEmpty(filterExpr)) return null;
 
         this.includeFields = new HashSet<>();
+        this.parseErrors = new ArrayList<>();
 
         // 自动确定查询项
         if (MODE_QUICK.equalsIgnoreCase(filterExpr.getString("type"))) {
             rebuildQuickFilter38();
         }
+
+        JsonSchemaValidator.validate(JsonSchemaValidator.ADV_FILTER, filterExpr);
 
         JSONArray items = filterExpr.getJSONArray("items");
         items = items == null ? JSONUtils.EMPTY_ARRAY : items;
@@ -254,6 +259,16 @@ public class AdvFilterParser extends SetUser {
     }
 
     /**
+     * 解析时被忽略的无效配置项列表。必须先执行 toSqlWhere 方法
+     *
+     * @return
+     */
+    public List<String> getParseErrors() {
+        Assert.notNull(parseErrors, "Calls #toSqlWhere first");
+        return parseErrors;
+    }
+
+    /**
      * 解析查询项为 SQL
      *
      * @param item
@@ -279,7 +294,7 @@ public class AdvFilterParser extends SetUser {
         }
         if (lastFieldMeta == null) {
             log.warn("Invalid field : {} in {}", field, specRootEntity.getName());
-            return null;
+            return parseError("字段不存在", item);
         }
 
         String op = item.getString("op");
@@ -294,7 +309,7 @@ public class AdvFilterParser extends SetUser {
         } else if (hasNameFlag) {
             if (!(dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE)) {
                 log.warn("Non reference-field : {} in {}", field, specRootEntity.getName());
-                return null;
+                return parseError("名称字段仅支持引用字段", item);
             }
 
             // 转为名称字段
@@ -710,12 +725,12 @@ public class AdvFilterParser extends SetUser {
 
         if (StringUtils.isBlank(value)) {
             log.warn("No search value defined : {}", item.toJSONString());
-            return null;
+            return parseError("未定义查询值", item);
         }
 
         // 快速搜索的占位符 `{1}`
         if (value.matches("\\{\\d+}")) {
-            if (values == null || values.isEmpty()) return null;
+            if (values == null || values.isEmpty()) return parseError("未定义查询值", item);
 
             String valHold = value.replaceAll("[{}]", "");
             value = parseValue(values.get(valHold), op, lastFieldMeta, false);
@@ -724,7 +739,7 @@ public class AdvFilterParser extends SetUser {
         }
 
         // No value for search
-        if (value == null) return null;
+        if (value == null) return parseError("查询值无效", item);
 
         // 区间
         final boolean isBetween = op.equalsIgnoreCase(ParseHelper.BW);
@@ -771,6 +786,20 @@ public class AdvFilterParser extends SetUser {
                     specRootEntity.getPrimaryField().getName(), sb.toString().replace(VF_ACU, "approver"));
         }
         return sb.toString();
+    }
+
+    /**
+     * 记录解析错误并忽略该配置项
+     *
+     * @param reason
+     * @param item
+     * @return null
+     */
+    private String parseError(String reason, JSONObject item) {
+        if (parseErrors != null) {
+            parseErrors.add(reason + " : " + item.toJSONString());
+        }
+        return null;
     }
 
     /**

@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
@@ -77,11 +78,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.4.7";
+    public static final String VER = "4.5.0-dev";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4040714;
+    public static final int BUILD = 4050000;
 
     static {
         // Driver for DB
@@ -263,6 +264,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             }
         }
 
+        // AI 工具注册
+        ToolDefs.tools();
+
         // 初始化业务组件
         List<Initialization> ordered = new ArrayList<>(_CONTEXT.getBeansOfType(Initialization.class).values());
         OrderComparator.sort(ordered);
@@ -271,7 +275,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
 
         License.isRbvAttached();
-
         DatabaseFixer.fixIfNeed();
 
         return true;

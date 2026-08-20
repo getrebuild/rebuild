@@ -15,6 +15,17 @@
         font-weight: bold;
         cursor: pointer;
       }
+      .modal-body textarea.form-control {
+        min-height: 72px;
+      }
+      .init-models {
+        margin-left: -10px;
+        margin-right: -10px;
+      }
+      .init-models + .dialog-footer {
+        margin: 15px -35px 10px;
+        padding-top: 25px;
+      }
     </style>
   </head>
   <body>
@@ -45,7 +56,7 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('秘钥 (API Key)')}]]</td>
-                        <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未设置')}]]</td>
+                        <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未配置')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('使用模型')}]]</td>
@@ -74,6 +85,19 @@
                         <td width="40%">[[${bundle.L('默认提示词')}]]</td>
                         <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
                       </tr>
+                      <tr>
+                        <td width="40%">[[${bundle.L('引导问题')}]]</td>
+                        <td
+                          data-id="AibotSuggestQuestions"
+                          style="white-space: pre-line"
+                          th:data-value="${AibotSuggestQuestions ?:''}"
+                          data-optional="true"
+                          th:data-form-text="${bundle.L('新会话时展示，每行一个问题')}"
+                          th:text="${AibotSuggestQuestions ?:bundle.L('默认')}"
+                        >
+                          默认
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                   <div class="edit-footer">
@@ -88,7 +112,58 @@
                   </div>
                 </div>
               </div>
+
+              <div class="card mt-4">
+                <div class="card-header pb-1">[[${bundle.L('能力扩展')}]]</div>
+                <div class="card-body">
+                  <h5>
+                    [[${bundle.L('技能 /Skills')}]]
+                    <a href="###" class="float-right J_addSkill"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+                  </h5>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="skillsList"></tbody>
+                  </table>
+                  <div class="J_skillsEmpty text-muted text-center mt-6 mb-6" style="display: none">[[${bundle.L('暂无技能')}]]</div>
+                  <h5>
+                    [[${bundle.L('知识库 /Knowledge')}]]
+                    <a href="###" class="float-right J_addKb"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+                  </h5>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="kbList"></tbody>
+                  </table>
+                  <div class="J_kbEmpty text-muted text-center mt-6 mb-6" style="display: none">[[${bundle.L('暂无知识库')}]]</div>
+                  <h5 class="mt-5">
+                    [[${bundle.L('工具 /Tools')}]]
+                    <a href="https://getrebuild.com/market/go/aitool" target="_blank" class="float-right"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+                  </h5>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="toolsList"></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
+
             <div class="col-lg-3 col-12 col-right-compact">
               <div class="card">
                 <div class="card-header card-header-divider">[[${bundle.L('用量统计')}]] <small class="fs-13">([[${bundle.L('90天')}]])</small></div>
@@ -104,6 +179,13 @@
                   </div>
                 </div>
               </div>
+              <div class="card mt-4">
+                <div class="card-header pb-1">[[${bundle.L('MCP 接入')}]]</div>
+                <div class="card-body">
+                  <p>[[${bundle.L('请复制以下 MCP 配置使用。通过 MCP 接入，你可以在 WorkBuddy、QoderWork 等支持 MCP 协议的 AI 工具中直接操作系统数据。')}]]</p>
+                  <div class="J_mcpConfig" th:data-home-url="${HomeUrl}"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -112,6 +194,7 @@
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
     <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
+    <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/aibot.js}" type="text/babel"></script>
   </body>
 </html>

@@ -130,4 +130,11 @@ public class ApisManagerController extends BaseController {
 
         return RespBody.ok(array);
     }
+
+    // -- v4.5 for DataSubscribe
+
+    @GetMapping("apis-manager/data-subscribe")
+    public ModelAndView pageDataSubscribe() {
+        return createModelAndView("/admin/integration/data-subscribe-list");
+    }
 }

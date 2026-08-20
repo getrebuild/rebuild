@@ -9,7 +9,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 $(document).ready(() => {
   renderRbcomp(<ReportList />, 'dataList')
 
-  $('.J_add').on('click', () => renderRbcomp(<ReportEditor />))
+  $('.J_add').on('click', () => renderRbcomp(<ReportEditor showAi />))
   if ($urlp('new')) setTimeout(() => $('.J_add').trigger('click'), 500)
 })
 

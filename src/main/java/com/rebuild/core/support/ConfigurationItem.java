@@ -96,6 +96,7 @@ public enum ConfigurationItem {
 
     // App
     MobileAppPath,
+    DesktopAppPath,
 
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
@@ -126,8 +127,10 @@ public enum ConfigurationItem {
     AibotName("REBUILD AI 助手"),
     AibotDSUrl("https://api.deepseek.com/"),
     AibotDSSecret,
-    AibotBasePrompt,
     AibotBaseDefModel("deepseek-v4-flash"),
+    AibotBasePrompt,
+    AibotToolsDisabled,
+    AibotSuggestQuestions,
 
     // PORTALs
     PortalBaiduMapAk,
@@ -135,7 +138,6 @@ public enum ConfigurationItem {
     MobileNavStyle(34),
     PageMourningMode(false),
 
-    LoginPageStyle(44),
     LoginBulletinBoard("# _REBUILD_\n### 零代码、开源免费的企业管理系统"),
 
     /**

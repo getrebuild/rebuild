@@ -65,6 +65,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   })
 
   var rr_prefix = Math.floor(Math.random() * 88888888) + 10000000 + '-'
+
   $.ajaxSetup({
     headers: {
       'Content-Type': 'text/plain;charset=utf-8',
@@ -105,6 +106,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
       return settings
     },
   })
+  // v4.5 fetch
+  if (rb.authToken && typeof window.fetch === 'function') {
+    var __fetch = window.fetch
+    window.fetch = function (url, o) {
+      o = o || {}
+      o.headers = Object.assign({}, o.headers, { 'X-AuthToken': rb.authToken || '', 'X-CsrfToken': rb.csrfToken || '' })
+      return __fetch(url, o)
+    }
+  }
 
   window.onerror = function () {
     $.post('/error/jslog', JSON.stringify(arguments))
@@ -574,6 +584,82 @@ var $getScript = function (url, callback) {
       }
     },
   })
+}
+
+// 通用脚本懒加载
+// opts.check - 就绪检查函数，默认始终 true（脚本 onload 即视为就绪）
+// opts.jsonp - JSONP 全局回调名（百度地图等，脚本通过回调而非 onload 通知就绪）
+var $__useScript_loaded = {}
+var $__useScript_cbs = {}
+var $useScript = function (url, cb, option) {
+  option = option || {}
+  var check =
+    option.check ||
+    function () {
+      return true
+    }
+
+  if ($__useScript_loaded[url] === 2 && check()) {
+    typeof cb === 'function' && cb()
+    return
+  }
+  if ($__useScript_loaded[url] === 1) {
+    if (typeof cb === 'function') $__useScript_cbs[url].push(cb)
+    return
+  }
+
+  $__useScript_loaded[url] = 1
+  $__useScript_cbs[url] = typeof cb === 'function' ? [cb] : []
+
+  var _done = function () {
+    $__useScript_loaded[url] = 2
+    var cbs = $__useScript_cbs[url] || []
+    $__useScript_cbs[url] = []
+    $(cbs).each(function () {
+      this()
+    })
+  }
+  var _fail = function () {
+    // 加载失败，重置状态以便下次可重试，并通知等待中的回调
+    $__useScript_loaded[url] = 0
+    var cbs = $__useScript_cbs[url] || []
+    $__useScript_cbs[url] = []
+    console.error('Script load failed:', url)
+    $(cbs).each(function () {
+      try {
+        this()
+      } catch (e) {
+        console.error(e)
+      }
+    })
+  }
+
+  var _ajax = $.ajax({ type: 'GET', url: url, dataType: 'script', cache: true })
+  if (option.jsonp) {
+    window[option.jsonp] = _done
+    _ajax.fail(_fail)
+  } else {
+    _ajax
+      .done(function () {
+        if (check()) {
+          _done()
+        } else {
+          var _retry = 0
+          var _timer = setInterval(function () {
+            if (check()) {
+              _done()
+              clearInterval(_timer)
+            } else if (++_retry > 60) {
+              // 30s 超时后放弃
+              clearInterval(_timer)
+              _fail()
+              console.error('Script ready-check timeout:', url)
+            }
+          }, 500)
+        }
+      })
+      .fail(_fail)
+  }
 }
 
 // 绝对 URL

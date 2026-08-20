@@ -18,7 +18,7 @@ $(document).ready(function () {
     },
     function (res) {
       __cropper.setImg(res.key)
-    }
+    },
   )
 
   $('.J_email').on('click', () => renderRbcomp(<DlgChangeEmail />))
@@ -96,7 +96,7 @@ $(document).ready(function () {
         function () {
           RbHighbar.create($L('无法获取位置'))
           $(this).button('reset')
-        }
+        },
       )
     })
   })
@@ -170,6 +170,9 @@ $(document).ready(function () {
 
   if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
   else if (location.hash === '#logs') $('.nav-tabs a:eq(2)').trigger('click')
+
+  // AK 管理
+  _initAccessKey()
 })
 
 // 修改密码
@@ -330,7 +333,7 @@ class DlgTempAuth extends RbModalHandler {
     return (
       <RbModal title={$L('临时授权')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="file-share">
-          <label className="text-dark">{$L('临时授权链接')}</label>
+          <label className="text-dark text-bold">{$L('临时授权链接')}</label>
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.tempUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
@@ -339,7 +342,10 @@ class DlgTempAuth extends RbModalHandler {
               </button>
             </span>
           </div>
-          <p className="form-text text-danger text-bold">{$L('通过临时授权链接可登录你的账号')}</p>
+          <p className="form-text text-danger">
+            <i className="icon mdi mdi-alert mr-1" />
+            {$L('通过临时授权链接可登录你的账号，请勿向陌生人提供')}
+          </p>
         </div>
       </RbModal>
     )
@@ -348,17 +354,9 @@ class DlgTempAuth extends RbModalHandler {
   componentDidMount() {
     $.post('/settings/user/temp-auth', (res) => {
       this.setState({ tempUrl: res.data || 'ERROR' })
-
       // copy
-      const that = this
-      const initCopy = function () {
-        $clipboard($(that._$copy), that.state.tempUrl)
-      }
-      if (window.ClipboardJS) {
-        initCopy()
-      } else {
-        $getScript('/assets/lib/clipboard.min.js', initCopy)
-      }
+      $(this._$copy).data('clipboard-text', this.state.tempUrl)
+      $clipboard(this._$copy)
     })
   }
 }
@@ -412,5 +410,100 @@ class DlgCropper extends RbModalHandler {
     const xywh = [~~data.x, ~~data.y, ~~data.width, ~~data.height].join(',')
     $(this._btn).button('loading')
     $.post(`/account/user-avatar-update?avatar=${$encode(this.state.img)}&xywh=${xywh}`, () => location.reload())
+  }
+}
+
+// Access Key 管理
+let _hasAk = false
+
+function _initAccessKey() {
+  $.get('/settings/access-token/status', (res) => {
+    if (res.error_code === 0 && res.data.hasToken) {
+      _hasAk = true
+      $('.J_ak-generate').text($L('重置'))
+    }
+  })
+
+  $('.J_ak-generate').on('click', () => {
+    if (_hasAk) {
+      // 已有秘钥：提供重置/删除选项
+      RbAlert.create($L('重置后原秘钥立即失效，确认重置吗？'), {
+        confirmText: $L('重置'),
+        cancelText: $L('删除'),
+        onConfirm: function () {
+          this.hide()
+          _generateAk()
+        },
+        onCancel: function () {
+          this.hide()
+          _revokeAk()
+        },
+      })
+    } else {
+      RbAlert.create(<strong>{$L('注意!!! 请勿将个人秘钥分享给他人')}</strong>, $L('安全提示'), {
+        type: 'danger',
+        confirmText: $L('我知道了'),
+        onConfirm: function () {
+          this.hide()
+          _generateAk()
+        },
+        countdown: 5,
+      })
+    }
+  })
+}
+
+const _generateAk = function () {
+  $.post('/settings/access-token/generate', (res) => {
+    if (res.error_code === 0) {
+      renderRbcomp(<DlgAccessKey token={res.data.token} />)
+      _hasAk = true
+      $('.J_ak-generate').text($L('重置'))
+    } else {
+      RbHighbar.create(res.error_msg)
+    }
+  })
+}
+
+const _revokeAk = function () {
+  $.post('/settings/access-token/revoke', (res) => {
+    if (res.error_code === 0) {
+      RbHighbar.success($L('个人秘钥已删除'))
+      _hasAk = false
+      $('.J_ak-generate').text($L('获取'))
+    } else {
+      RbHighbar.create(res.error_msg)
+    }
+  })
+}
+
+// AK 显示弹窗
+// eslint-disable-next-line no-unused-vars
+class DlgAccessKey extends RbModalHandler {
+  render() {
+    return (
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('个人秘钥')} disposeOnHide>
+        <div className="file-share">
+          <label className="text-dark text-bold">{$L('秘钥仅显示一次请复制保存')}</label>
+          <div className="input-group input-group-sm">
+            <input className="form-control" value={this.props.token} readOnly onClick={(e) => $(e.target).select()} />
+            <span className="input-group-append">
+              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
+                <i className="icon zmdi zmdi-copy" />
+              </button>
+            </span>
+          </div>
+          <p className="form-text text-danger">
+            <i className="icon mdi mdi-alert mr-1" />
+            {$L('通过个人秘钥可以访问你的数据，请勿将秘钥分享给他人')}
+          </p>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $(this._$copy).data('clipboard-text', this.props.token)
+    $clipboard(this._$copy)
   }
 }

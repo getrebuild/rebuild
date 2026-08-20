@@ -100,6 +100,8 @@ public class ChartsFactory {
             return (ChartData) new DataList2Chart(config).setUser(user);
         } else if ("CNMAP".equalsIgnoreCase(type)) {
             return (ChartData) new CNMapChart(config).setUser(user);
+        } else if ("DOLOR".equalsIgnoreCase(type)) {
+            return (ChartData) new DolorChart(config).setUser(user);
         } else {
             for (BuiltinChart ch : getBuiltinCharts()) {
                 if (ch.getChartType().equalsIgnoreCase(type)) {

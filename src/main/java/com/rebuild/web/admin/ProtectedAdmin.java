@@ -85,7 +85,7 @@ public class ProtectedAdmin {
     public enum PaEntry {
         SYS("/systems", "通用配置"),
         SSI("/integration/", "服务集成"),
-        API("/apis-manager", "OpenAPI 秘钥"),
+        API("/apis-manager;/data-subscribe", "OpenAPI 秘钥"),
         AIB("/integration/aibot", "AI 助手"),
         ENT("/entities;/entity/;/metadata/", "实体管理"),
         APR("/robot/approval", "审批流程"),

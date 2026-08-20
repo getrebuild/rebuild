@@ -6049,10 +6049,6 @@ button.close {
   opacity: 0.2;
 }
 
-.modal-backdrop.show.o {
-  opacity: 0;
-}
-
 .modal-header {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -11578,7 +11574,7 @@ canvas {
 }
 
 .rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar {
-  padding-left: 25px;
+  /* padding-left: 25px; */
 }
 
 @media (max-width: 767.98px) {
@@ -14635,6 +14631,7 @@ a.avatar.x48 img {
   position: relative;
   overflow: hidden;
   vertical-align: middle;
+  text-align: left;
 }
 
 .switch-button input[type='checkbox'] {
@@ -20215,9 +20212,20 @@ select.form-control-xs:not([size]):not([multiple]) {
 .input-group-sm > .input-group-append > .input-group-text,
 .input-group-sm > .input-group-prepend > .btn,
 .input-group-sm > .input-group-prepend > .input-group-text {
-  height: 37px !important;
   font-size: 1rem;
   padding: 4px 10px;
+}
+
+/* fix:v4.5 */
+input.form-control-sm,
+select.form-control-sm,
+.input-group-sm > input.form-control,
+.input-group-sm > select.form-control,
+.input-group-sm > .input-group-append > .btn,
+.input-group-sm > .input-group-append > .input-group-text,
+.input-group-sm > .input-group-prepend > .btn,
+.input-group-sm > .input-group-prepend > .input-group-text {
+  height: 37px !important;
 }
 
 .form-control-lg,

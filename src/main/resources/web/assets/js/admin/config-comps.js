@@ -20,8 +20,17 @@ class ConfigFormDlg extends RbFormHandler {
 
   render() {
     const title = this.title || (this.props.id ? $L('修改%s', this.subtitle || '') : $L('添加%s', this.subtitle || ''))
+    const showAi = this.props.showAi && !this.props.id && !!this.subtitle
     return (
-      <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal
+        title={
+          <RF>
+            {title}
+            {showAi && <AiCreateButton presetMessage={$L('我要创建一个%s', this.subtitle)} />}
+          </RF>
+        }
+        ref={(c) => (this._dlg = c)}
+        disposeOnHide={true}>
         <div className="form">
           {this.renderFrom()}
           <div className="form-group row footer">
@@ -95,7 +104,9 @@ class ConfigList extends React.Component {
     entity = entity || this.__entity
     this.__entity = entity
 
-    $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(this.getSearchKey())}`, (res) => {
+    let url = this.requestUrl + (this.requestUrl.includes('?') ? '&' : '?')
+    url += `entity=${entity || ''}&q=${$encode(this.getSearchKey())}`
+    $.get(url, (res) => {
       if (res.error_code === 0) {
         const data = res.data || []
         if (this.renderEntityTree(data) !== false) {
@@ -184,22 +195,26 @@ class ConfigList extends React.Component {
   }
 }
 
-function ShowEnable(enable, cfgid) {
+function ShowEnable(disabled, cfgid, switchFn) {
   if (cfgid) {
-    const htmlid = `enable-${$random()}`
+    const htmlid = `enable-${cfgid}`
     return (
       <div className="switch-button switch-button-xs switch-button-success">
         <input
           type="checkbox"
-          defaultChecked={!enable}
+          defaultChecked={!disabled}
           id={htmlid}
           onClick={(e) => {
-            const _data = {
+            if (typeof switchFn === 'function') {
+              switchFn(e.target.checked)
+              return
+            }
+
+            const d = {
               isDisabled: !e.target.checked,
               metadata: { id: cfgid },
             }
-
-            $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
+            $.post('/app/entity/common-save', JSON.stringify(d), (res) => {
               if (res.error_code !== 0) RbHighbar.error(res.error_msg)
             })
           }}
@@ -210,12 +225,12 @@ function ShowEnable(enable, cfgid) {
       </div>
     )
   } else {
-    return enable ? <span className="badge badge-grey">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
+    return disabled ? <span className="badge badge-grey">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>
   }
 }
 
 $(document).ready(() => {
-  $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', () => {
+  $usePinyin(() => {
     console.log('pinyin-pro.min.js loaded')
   })
 
@@ -244,7 +259,7 @@ $(document).ready(() => {
             })
           },
           200,
-          '$dropdownMenuSearch'
+          '$dropdownMenuSearch',
         )
       })
       setTimeout(() => $input[0].focus(), 20)

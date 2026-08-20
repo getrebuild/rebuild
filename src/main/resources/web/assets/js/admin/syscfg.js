@@ -22,6 +22,7 @@ $(document).ready(() => {
     $stopEvent(e, true)
     post(__data)
   })
+
   $('.edit-footer .J_clear').on('click', (e) => {
     $stopEvent(e, true)
     RbAlert.create($L('确定要清空配置吗？'), {
@@ -32,7 +33,7 @@ $(document).ready(() => {
     })
   })
 
-  $('a[data-clipboard-text]').each((idx, item) => $clipboard($(item)))
+  $('a[data-clipboard-text]').each((idx, item) => $clipboard(item))
 })
 
 const __data = {}

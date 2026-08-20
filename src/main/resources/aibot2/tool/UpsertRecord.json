@@ -1,0 +1,35 @@
+{
+  "type": "function",
+  "userDescription": "解析文件或文本内容为业务记录并保存，支持新建和更新已有记录",
+  "function": {
+    "name": "UpsertRecord",
+    "description": "解析文件或文本内容为业务记录并保存，支持 PDF、Word、Excel 等格式。当用户提供文件（如发票、合同）或文本要录入/导入为新记录，或要据此更新已有记录时使用。传入 recordId 时更新已有记录，不传时新建记录。支持同时保存明细实体数据（主从结构）。保存前需经用户确认：首次调用返回解析结果清单，用户明确同意后再以 confirmed=true 重新调用执行保存",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "文件路径或标识（支持系统内标识、本地路径、外部URL）。与 content 二选一"
+        },
+        "content": {
+          "type": "string",
+          "description": "文本内容（直接传入，无需文件路径）。与 file 二选一"
+        },
+        "entity": {
+          "type": "string",
+          "description": "目标实体名称或标识（可通过 ListEntities 工具查询）"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "要更新的记录ID（可选，不传则新建）。可通过 QueryRecords 工具查询获取"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回解析结果清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行保存"
+        }
+      },
+      "required": ["entity"],
+      "additionalProperties": false
+    }
+  }
+}

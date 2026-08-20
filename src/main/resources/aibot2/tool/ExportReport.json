@@ -1,0 +1,57 @@
+{
+  "type": "function",
+  "userDescription": "导出报表文件并生成下载链接，支持按条件批量导出多条记录或基于单条记录生成报表",
+  "function": {
+    "name": "ExportReport",
+    "description": "导出报表文件并生成下载链接。当用户想把记录/报表导出为文件下载（如「把这个月的订单导出来」）时使用。报表分两种类型，LIST 报表按条件批量导出多条记录，RECORD 报表基于单条记录生成。不传 reportId 参数时返回该实体下可用报表列表供选择",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称或标签（用于查询可用报表模板）"
+        },
+        "reportId": {
+          "type": "string",
+          "description": "报表模板ID（可选，不传则返回该实体下可用报表列表）"
+        },
+        "record": {
+          "type": "string",
+          "description": "要导出报表的记录名称、编号或ID。单记录报表必填，支持模糊搜索，若匹配多条会返回列表供用户选择；LIST 报表可选，作为搜索关键词筛选多条记录，不传则导出全部。若传了 filter 参数则优先使用 filter"
+        },
+        "filter": {
+          "type": "array",
+          "description": "过滤条件数组（仅 LIST 报表有效），格式与 QueryRecords 的 filter 参数完全相同（含 field/op/value/value2，操作符及用法见该工具说明）",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "字段名称"
+              },
+              "op": {
+                "type": "string",
+                "description": "操作符，可选值见 QueryRecords 的 filter 说明"
+              },
+              "value": {
+                "type": "string",
+                "description": "过滤值。NL/NT 及日期/用户快捷操作符无需传值；IN/NIN 多值用 | 分隔；BW 传开始值并需配合 value2"
+              },
+              "value2": {
+                "type": "string",
+                "description": "区间结束值（仅 BW 操作符使用）"
+              }
+            },
+            "required": ["field", "op"]
+          }
+        },
+        "equation": {
+          "type": "string",
+          "description": "多条件间逻辑关系（仅 LIST 报表有效）。支持：OR（任一满足，默认）、AND（全部满足）、高级表达式（如 \"1 and (2 or 3)\"，数字代表 filter 中条件的位置，从1开始）"
+        }
+      },
+      "required": ["entity"],
+      "additionalProperties": false
+    }
+  }
+}

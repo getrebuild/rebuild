@@ -1,0 +1,31 @@
+{
+  "type": "function",
+  "userDescription": "创建 AI 技能，可指定名称、描述和提示词",
+  "function": {
+    "name": "BuildSkill",
+    "description": "新建 AI 技能。当管理员想创建可复用的技能时使用。技能由名称、描述和提示词组成，创建后可在对话中按名称调用，将提示词注入为系统上下文。新建前可先询问用户是否已有类似技能，避免重复创建",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "技能名称，需简洁明了，如「数据分析」「日报生成」"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "技能提示词，即注入为系统上下文的指令文本。应写清楚技能的职责、行为规则和输出要求"
+        },
+        "description": {
+          "type": "string",
+          "description": "技能描述（可选），简要说明技能的用途，便于管理时识别"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["name", "prompt"],
+      "additionalProperties": false
+    }
+  }
+}

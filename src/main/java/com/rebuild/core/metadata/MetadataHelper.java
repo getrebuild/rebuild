@@ -274,7 +274,8 @@ public class MetadataHelper {
                 || EntityHelper.ApprovalLastUser.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalLastTime.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalLastRemark.equalsIgnoreCase(fieldName)
-                || EntityHelper.ApprovalSubmitUser.equalsIgnoreCase(fieldName);
+                || EntityHelper.ApprovalSubmitUser.equalsIgnoreCase(fieldName)
+                || EntityHelper.ApprovalSubmitTime.equalsIgnoreCase(fieldName);
     }
 
     /**

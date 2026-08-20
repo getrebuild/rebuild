@@ -16,7 +16,15 @@ class EntityNew2 extends RbModalHandler {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加实体')} className="entity-new2">
+      <RbModal
+        ref={(c) => (this._dlg = c)}
+        title={
+          <RF>
+            {$L('添加实体')}
+            <AiCreateButton presetMessage={$L('我要创建一个业务实体')} />
+          </RF>
+        }
+        className="entity-new2">
         <div className="tab-container" style={{ marginTop: -10 }} ref={(c) => (this._$container = c)}>
           <ul className="nav nav-tabs">
             <li className="nav-item">

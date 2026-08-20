@@ -105,7 +105,6 @@ class RbFormModal extends React.Component {
         keyboard: true,
       })
       .on('hidden.bs.modal', () => {
-        $keepModalOpen()
         if (this.props.disposeOnHide === true) {
           $root.modal('dispose')
           $unmount($root.parent().parent())
@@ -672,7 +671,20 @@ class RbForm extends React.Component {
     )
   }
 
+  componentWillUnmount() {
+    if (this._$pasteBindTo) {
+      $(this._$pasteBindTo).off('paste.file')
+      this._$pasteBindTo = null
+    }
+  }
+
   componentDidMount() {
+    if (!this.props.readonly) {
+      const $modal = $(this._$form).closest('.modal')
+      this._$pasteBindTo = $modal.length > 0 ? $modal : $(this._$form)
+      this._$pasteBindTo.off('paste.file').on('paste.file', (e) => this._onPasteUpload(e))
+    }
+
     // 新记录初始值
     if (this.isNew || this.props.forceInitFieldValue) {
       this.props.children.map((child) => {
@@ -716,6 +728,59 @@ class RbForm extends React.Component {
         if (window.EasyFilterEval) window.EasyFilterEval.evalAndEffect(this)
       }
     }, 20)
+  }
+
+  // 粘贴板上传文件/图片
+  _onPasteUpload(e) {
+    const data = (e.originalEvent && e.originalEvent.clipboardData) || e.clipboardData
+    if (!data || !data.files || data.files.length === 0) return
+
+    // 可用的图片/文件字段
+    const $fields = $(this._$form)
+      .find('.form-group.type-IMAGE, .form-group.type-FILE')
+      .filter(function () {
+        if ($(this).hasClass('hide')) return false
+        return $(this).find('.img-field-btn:not(.hide), .file-select:not(.hide)').length > 0
+      })
+    if ($fields.length === 0) return
+
+    $stopEvent(e, true)
+
+    const files = []
+    for (let i = 0; i < data.files.length; i++) files.push(data.files[i])
+
+    // 将粘贴文件提交到指定字段的上传组件
+    function _routePasteFiles($field, files) {
+      const $input = $field.find('input.inputfile').first()
+      if ($input.length === 0) return
+
+      // 图片字段仅接受图片
+      if ($input.attr('accept') === 'image/*') {
+        files = files.filter((f) => (f.type || '').startsWith('image/'))
+        if (files.length === 0) {
+          RbHighbar.create($L('请上传图片'))
+          return
+        }
+      }
+
+      const dt = new DataTransfer()
+      files.forEach((f) => dt.items.add(f))
+      $input[0].files = dt.files
+      $input.trigger('change')
+    }
+
+    if ($fields.length === 1) {
+      _routePasteFiles($fields.eq(0), files)
+    } else {
+      const fields = []
+      $fields.each(function () {
+        fields.push({
+          text: $(this).find('.col-form-label').text(),
+          $el: $(this),
+        })
+      })
+      renderRbcomp(<SelectList title={$L('上传到哪个字段')} data={fields} disposeOnHide call={(item) => _routePasteFiles(item.$el, files)} />)
+    }
   }
 
   // 表单回填
@@ -1063,7 +1128,7 @@ class RbFormElement extends React.Component {
           .on('click', (e) => {
             if (e.target.tagName === 'A' || $(e.target).closest('a').length) return // fix:4.2.3 链接不复制
             $stopEvent(e, true)
-            $clipboard2($text.text(), true)
+            $clipboard($text.text(), true)
           })
       }
     } else {
@@ -1510,12 +1575,10 @@ class RbFormNText extends RbFormElement {
 
     this._height = 0
     if (props.useMdedit) {
-      // Nothings
+      if (this.props.height === '0') this._heightAuto = true
     } else {
       this._height = ~~this.props.height
-
       if (this.props.height === '0') {
-        // v4.2 填 0 自动高度
         this._heightAuto = true
       } else if (this._height > 0) {
         if (this._height === 1) this._height = 37
@@ -1597,7 +1660,7 @@ class RbFormNText extends RbFormElement {
         <a title={$L('展开/收起')} onClick={() => $(this._fieldText).toggleClass('ntext-expand')}>
           <i className="mdi mdi-arrow-expand" />
         </a>
-        <a title={$L('复制')} onClick={() => $clipboard2(this.state.value)}>
+        <a title={$L('复制')} onClick={() => $clipboard(this.state.value)}>
           <i className="mdi mdi-content-copy" />
         </a>
       </div>
@@ -1709,6 +1772,10 @@ class RbFormNText extends RbFormElement {
       // eslint-disable-next-line no-undef
       toolbar: _readonly37 ? false : DEFAULT_MDE_TOOLBAR(this),
       previewClass: 'markdown-body',
+      previewRender: (plainText, preview) => {
+        setTimeout(() => $renderMermaid($(preview)), 100)
+        return marked.parse(plainText)
+      },
       onToggleFullScreen: (is) => {
         let $s = $('.modal-wrapper>.modal.show')
         let $cm = $s.find('.CodeMirror-fullscreen')
@@ -1728,6 +1795,14 @@ class RbFormNText extends RbFormElement {
       },
     })
     this._EasyMDE = mde
+
+    if (this._heightAuto) {
+      $(mde.codemirror.getWrapperElement())
+        .find('.CodeMirror-scroll')
+        .each(function () {
+          this.style.setProperty('min-height', '30px', 'important')
+        })
+    }
 
     if (_readonly37) {
       mde.codemirror.setOption('readOnly', true)
@@ -3175,12 +3250,9 @@ class RbFormClassification extends RbFormElement {
     else {
       const p = this.props
       const that = this
-      renderRbcomp(
-        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen />,
-        function () {
-          that.__selector = this
-        },
-      )
+      renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} />, function () {
+        that.__selector = this
+      })
     }
   }
 

@@ -15,11 +15,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
-import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
@@ -252,11 +252,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-        RequestEntry requestEntry = REQUEST_ENTRY.get();
+        RequestEntry re = REQUEST_ENTRY.get();
         REQUEST_ENTRY.remove();
 
         // 打印处理时间
-        long time = requestEntry == null ? 0 : (System.currentTimeMillis() - requestEntry.getRequestTime());
+        long time = re == null ? 0 : (System.currentTimeMillis() - re.getRequestTime());
         if (time > 1500) {
             log.warn("Method handle time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
         }
@@ -325,12 +325,15 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/commons/theme/")
                 || requestUri.startsWith("/account/user-avatar/")
                 || requestUri.startsWith("/rbmob/env")
-                || requestUri.startsWith("/h5app-download")
+                || requestUri.startsWith("/apps-download")
+                || requestUri.startsWith("/app-download")
                 || requestUri.startsWith("/apiman/")
                 || requestUri.startsWith("/commons/frontjs/use-frontjs")
                 || requestUri.startsWith("/commons/file-preview")
                 || requestUri.endsWith("/commons/file-editor-save")
-                || requestUri.endsWith("/dashboard/chart-data");
+                || requestUri.endsWith("/dashboard/chart-data")
+                || requestUri.equals("/aibot/chat")
+                ;
     }
 
     private void sendRedirect(HttpServletResponse response, String url, String nexturl) throws IOException {
@@ -340,8 +343,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
     }
 
     private void checkSafeUse(String ipAddr, String requestUri) throws DefinedException {
-        if (!License.isRbvAttached()) return;
-
         if ("localhost".equals(ipAddr) || "127.0.0.1".equals(ipAddr)) {
             log.debug("Allow localhost/127.0.0.1 use : {}", requestUri);
             return;

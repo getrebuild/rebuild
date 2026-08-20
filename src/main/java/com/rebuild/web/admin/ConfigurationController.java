@@ -21,7 +21,6 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.KVStorage;
@@ -282,6 +281,12 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/submail")
     public RespBody postIntegrationSubmail(@RequestBody JSONObject data) {
+        if (data.getBooleanValue("__clear__")) {
+            ConfigurationController.clearConfigurationByPrefix("Mail");
+            ConfigurationController.clearConfigurationByPrefix("Sms");
+            return RespBody.ok();
+        }
+
         String dMailAddr = defaultIfBlank(data, ConfigurationItem.MailAddr);
         if (dMailAddr != null && !RegexUtils.isEMail(dMailAddr)) {
             return RespBody.errorl("无效发件人地址");
@@ -408,6 +413,11 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/dingtalk")
     public RespBody postIntegrationDingtalk(@RequestBody JSONObject data) {
+        if (data.getBooleanValue("__clear__")) {
+            ConfigurationController.clearConfigurationByPrefix("Dingtalk");
+            return RespBody.ok();
+        }
+
         setValues(data);
         return RespBody.ok();
     }
@@ -445,6 +455,11 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/wxwork")
     public RespBody postIntegrationWxwork(@RequestBody JSONObject data) {
+        if (data.getBooleanValue("__clear__")) {
+            ConfigurationController.clearConfigurationByPrefix("Wxwork");
+            return RespBody.ok();
+        }
+
         setValues(data);
         return RespBody.ok();
     }
@@ -482,77 +497,26 @@ public class ConfigurationController extends BaseController {
 
     @PostMapping("integration/feishu")
     public RespBody postIntegrationFeishu(@RequestBody JSONObject data) {
-        setValues(data);
-        return RespBody.ok();
-    }
-
-    // AiBot
-
-    @PostMapping("integration/aibot")
-    public RespBody postIntegrationAibot(@RequestBody JSONObject data) {
         if (data.getBooleanValue("__clear__")) {
-            clearConfigurationByPrefix("Aibot");
+            ConfigurationController.clearConfigurationByPrefix("Feishu");
             return RespBody.ok();
         }
 
         setValues(data);
-        Application.getBean(RebuildWebConfigurer.class).init();
-        Config.getClient(true);
         return RespBody.ok();
     }
 
-    @GetMapping("integration/aibot")
-    public ModelAndView pageIntegrationAibot() {
-        ModelAndView mv = createModelAndView("/admin/integration/aibot");
-        for (ConfigurationItem item : ConfigurationItem.values()) {
-            String name = item.name();
-            if (name.startsWith("Aibot")) {
-                String value = RebuildConfiguration.get(item);
-                if (value != null && item == ConfigurationItem.AibotDSSecret) {
-                    value = DataDesensitized.any(value);
-                }
-                mv.getModel().put(name, value);
-            }
-        }
-        return mv;
-    }
-
-    @GetMapping("integration/aibot/stats")
-    public JSON statsAibot() {
-        final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
-        final String sql = "select date_format(createdOn,'%Y-%m-%d'),sum(token) from AibotChat" +
-                " where createdOn > ? group by date_format(createdOn,'%Y-%m-%d')";
-
-        Object[][] aibot = Application.createQueryNoFilter(sql)
-                .setParameter(1, xday)
-                .array();
-        Arrays.sort(aibot, Comparator.comparing(o -> o[0].toString()));
-
-        double aibotCount = 0;
-        for (Object[] o : aibot) {
-            o[1] = o[1] == null ? 0L : o[1];
-            o[1] = ObjectUtils.round((Long) o[1] / 10000d, 2);
-            aibotCount += (Double) o[1];
-        }
-
-        return JSONUtils.toJSONObject(
-                new String[]{"aibot", "aibotCount"},
-                new Object[]{aibot, ObjectUtils.round(aibotCount, 2)});
-    }
-
-    // --
-
-    private String[] starsAccount(String[] account, int... index) {
+    protected String[] starsAccount(String[] account, int... index) {
         if (account == null || account.length == 0) return null;
         for (int i : index) account[i] = DataDesensitized.any(account[i]);
         return account;
     }
 
-    private String defaultIfBlank(JSONObject data, ConfigurationItem item) {
+    protected String defaultIfBlank(JSONObject data, ConfigurationItem item) {
         return StringUtils.defaultIfBlank(data.getString(item.name()), RebuildConfiguration.get(item));
     }
 
-    private void setValues(JSONObject data) {
+    public static void setValues(JSONObject data) {
         for (Map.Entry<String, Object> e : data.entrySet()) {
             try {
                 ConfigurationItem item = ConfigurationItem.valueOf(e.getKey());

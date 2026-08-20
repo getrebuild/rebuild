@@ -15,16 +15,21 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.aibot2.Chat;
+import com.rebuild.core.aibot2.ChatLogger;
+import com.rebuild.core.aibot2.ChatManager;
+import com.rebuild.core.aibot2.ChatRequest;
+import com.rebuild.core.aibot2.Config;
+import com.rebuild.core.aibot2.Message;
+import com.rebuild.core.aibot2.SkillDefs;
+import com.rebuild.core.aibot2.StreamEcho;
+import com.rebuild.core.aibot2.SuggestQuestions;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.service.aibot.StreamEcho;
-import com.rebuild.core.service.aibot2.Chat;
-import com.rebuild.core.service.aibot2.ChatManager;
-import com.rebuild.core.service.aibot2.ChatRequest;
-import com.rebuild.core.service.aibot2.Config;
-import com.rebuild.core.service.aibot2.Message;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.SysbaseSupport;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -36,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -52,8 +58,14 @@ public class AiBot2Controller extends BaseController {
         ChatRequest chatRequest = buildChatRequest(req);
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
 
-        Message respMessage = chat.post(chatRequest);
-        ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
+        try {
+            Message respMessage = chat.post(chatRequest);
+            ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
+        } catch (Throwable ex) {
+            log.error("chat-post", ex);
+            JSONObject error = JSONUtils.toJSONObject("error", "请求错误:" + CommonsUtils.getRootMessage(ex));
+            ServletUtils.writeJson(resp, error.toJSONString());
+        }
     }
 
     @PostMapping("post/chat-stream")
@@ -68,7 +80,7 @@ public class AiBot2Controller extends BaseController {
 
         try {
             chat.stream(chatRequest, resp);
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             log.error("chat-stream", ex);
             StreamEcho.error("请求错误:" + CommonsUtils.getRootMessage(ex), resp.getWriter());
         }
@@ -92,11 +104,26 @@ public class AiBot2Controller extends BaseController {
         return RespBody.ok();
     }
 
+    @PostMapping("post/chat-feedback")
+    public RespBody chatFeedback(HttpServletRequest req) {
+        ID chatid = getIdParameterNotNull(req, "chatid");
+        String type = getParameterNotNull(req, "type");
+
+        ChatLogger chatLogger = ChatManager.getChat(chatid).chatLogger();
+        File logFile = chatLogger.getLogFile();
+        if (!logFile.exists()) return RespBody.error();
+
+        chatLogger.log("FEEDBACK", type);
+        TaskExecutors.queue(() -> new SysbaseSupport().uploadAibotFeedback(logFile));
+        return RespBody.ok();
+    }
+
     @GetMapping("post/chat-init")
     public RespBody chatInit(HttpServletRequest req) {
         ID chatid = getIdParameter(req, "chatid");
 
         JSONArray messages = new JSONArray();
+        JSONArray suggestQuestions = null;
         if (chatid != null) {
             Chat chat = ChatManager.getChat(chatid);
             chat.getMessages().forEach(m -> messages.add(m.toJSON()));
@@ -108,10 +135,25 @@ public class AiBot2Controller extends BaseController {
                     new String[]{"role", "content"},
                     new Object[]{"ai", aibotName});
             messages.add(welcome);
+
+            try {
+                suggestQuestions = SuggestQuestions.generate(getRequestUser(req));
+            } catch (Exception ex) {
+                log.warn("SuggestQuestions failed", ex);
+            }
         }
 
-        return RespBody.ok(JSONUtils.toJSONObject(
-                new String[]{"_chatid", "messages"}, new Object[]{chatid, messages}));
+        JSONObject data = JSONUtils.toJSONObject(
+                new String[]{"_chatid", "messages"}, new Object[]{chatid, messages});
+        if (suggestQuestions != null) {
+            data.put("suggestQuestions", suggestQuestions);
+        }
+        return RespBody.ok(data);
+    }
+
+    @GetMapping("skills")
+    public RespBody skills() {
+        return RespBody.ok(SkillDefs.listSkills());
     }
 
     @PostMapping("post/chat-delete")

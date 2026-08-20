@@ -1,0 +1,340 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+package com.rebuild.core.aibot2.tool;
+
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
+import com.rebuild.core.aibot2.service.AibotConfigService;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * AI定时任务管理工具。支持创建、查询、取消操作
+ *
+ * @author devezhao
+ * @since 2026/8/9
+ */
+@Slf4j
+public class ScheduleTask implements Tool {
+
+    @Override
+    public Object tool(String arguments) throws Exception {
+        final JSONObject args = JSON.parseObject(arguments);
+
+        String action = args.getString("action");
+        if (StringUtils.isBlank(action)) {
+            action = "create";
+        }
+
+        switch (action) {
+            case "create":
+                return doCreate(args);
+            case "list":
+                return doList();
+            case "cancel":
+                return doCancel(args);
+            default:
+                throw new KnownToolException("无效的操作类型: " + action + "，可选: create, list, cancel");
+        }
+    }
+
+    /**
+     * 创建定时任务
+     */
+    private Object doCreate(JSONObject args) {
+        String content = args.getString("content");
+        if (StringUtils.isBlank(content)) {
+            throw new KnownToolException("任务内容 (content) 不能为空");
+        }
+
+        String scheduleType = args.getString("scheduleType");
+        if (StringUtils.isBlank(scheduleType)) {
+            throw new KnownToolException("调度类型 (scheduleType) 不能为空，可选: once, daily, weekly, monthly");
+        }
+
+        if (!"once".equals(scheduleType) && !"daily".equals(scheduleType)
+                && !"weekly".equals(scheduleType) && !"monthly".equals(scheduleType)) {
+            throw new KnownToolException("无效的调度类型: " + scheduleType + "，可选: once, daily, weekly, monthly");
+        }
+
+        final ID user = UserContextHolder.getUser();
+
+        String time = args.getString("time");
+        Integer dayOfWeek = args.getInteger("dayOfWeek");
+        Integer dayOfMonth = args.getInteger("dayOfMonth");
+        String executeTime = args.getString("executeTime");
+
+        if ("once".equals(scheduleType)) {
+            if (StringUtils.isBlank(executeTime)) {
+                throw new KnownToolException("一次性任务必须指定执行时间 (executeTime)");
+            }
+        } else {
+            if (StringUtils.isBlank(time)) {
+                throw new KnownToolException("周期任务必须指定执行时间 (time)，格式 HH:mm，如 09:00");
+            }
+            if ("weekly".equals(scheduleType) && (dayOfWeek == null || dayOfWeek < 1 || dayOfWeek > 7)) {
+                throw new KnownToolException("每周任务必须指定 dayOfWeek (1-7，1=周一，7=周日)");
+            }
+            if ("monthly".equals(scheduleType) && (dayOfMonth == null || dayOfMonth < 1 || dayOfMonth > 31)) {
+                throw new KnownToolException("每月任务必须指定 dayOfMonth (1-31)");
+            }
+        }
+
+        Date nextExecTime;
+        if ("once".equals(scheduleType)) {
+            nextExecTime = CommonsUtils.parseDate(executeTime);
+            if (nextExecTime == null) {
+                throw new KnownToolException("无法解析执行时间: " + executeTime + "，请使用 yyyy-MM-dd HH:mm:ss 格式");
+            }
+            if (!nextExecTime.after(CalendarUtils.getInstance().getTime())) {
+                throw new KnownToolException("一次性任务的执行时间必须是未来时间 : " + executeTime);
+            }
+        } else {
+            nextExecTime = calculateNextExecTime(scheduleType, time, dayOfWeek, dayOfMonth);
+        }
+
+        String subject = args.getString("subject");
+        if (StringUtils.isBlank(subject)) {
+            subject = CommonsUtils.maxstr(content, 40);
+        }
+
+        JSONObject config = new JSONObject(true);
+        config.put("userId", user.toLiteral());
+        config.put("content", content);
+        config.put("scheduleType", scheduleType);
+        if (executeTime != null) config.put("executeTime", executeTime);
+        if (time != null) config.put("time", time);
+        if (dayOfWeek != null) config.put("dayOfWeek", dayOfWeek);
+        if (dayOfMonth != null) config.put("dayOfMonth", dayOfMonth);
+        config.put("status", "active");
+        config.put("nextExecTime", CalendarUtils.getUTCDateTimeFormat().format(nextExecTime));
+        config.put("lastExecTime", null);
+
+        Record record = EntityHelper.forNew(EntityHelper.AibotConfig, user);
+        record.setString("type", AibotConfigManager.TYPE_AIBOT_SCHEDULE);
+        record.setString("name", subject);
+        record.setString("config", config.toJSONString());
+
+        record = Application.getBean(AibotConfigService.class).create(record);
+
+        String taskId = record.getPrimary().toLiteral();
+        String nextExecStr = CalendarUtils.getUTCDateTimeFormat().format(nextExecTime);
+        String typeDesc = getScheduleTypeDesc(scheduleType, time, dayOfWeek, dayOfMonth);
+
+        return JSONUtils.toJSONObject(
+                new String[]{"status", "taskId", "nextExecTime", "message"},
+                new Object[]{"ok", taskId, nextExecStr,
+                        String.format("已成功创建定时任务 [%s]，%s，下次执行时间: %s",
+                                subject, typeDesc, nextExecStr)});
+    }
+
+    /**
+     * 查询当前用户的所有定时任务
+     */
+    private Object doList() {
+        Object[][] array = queryUserTasks(UserContextHolder.getUser());
+
+        List<JSONObject> tasks = new ArrayList<>();
+        for (int i = 0; i < array.length; i++) {
+            Object[] row = array[i];
+            String taskId = ((ID) row[0]).toLiteral();
+            String configStr = (String) row[1];
+            String name = (String) row[2];
+            boolean disabled = row[3] != null && (Boolean) row[3];
+
+            JSONObject taskInfo = new JSONObject(true);
+            taskInfo.put("no", i + 1);
+            taskInfo.put("subject", name);
+            taskInfo.put("disabled", disabled);
+
+            if (StringUtils.isNotBlank(configStr)) {
+                try {
+                    JSONObject config = JSON.parseObject(configStr);
+                    taskInfo.put("scheduleType", config.getString("scheduleType"));
+                    taskInfo.put("nextExecTime", config.getString("nextExecTime"));
+                    taskInfo.put("lastExecTime", config.getString("lastExecTime"));
+                    taskInfo.put("status", config.getString("status"));
+                    taskInfo.put("content", CommonsUtils.maxstr(config.getString("content"), 60));
+
+                    String time = config.getString("time");
+                    Integer dayOfWeek = config.getInteger("dayOfWeek");
+                    Integer dayOfMonth = config.getInteger("dayOfMonth");
+                    taskInfo.put("scheduleDesc", getScheduleTypeDesc(
+                            config.getString("scheduleType"), time, dayOfWeek, dayOfMonth));
+                } catch (Exception e) {
+                    log.warn("Failed to parse task config: {}", taskId, e);
+                }
+            }
+            tasks.add(taskInfo);
+        }
+
+        return JSONUtils.toJSONObject(
+                new String[]{"status", "count", "tasks"},
+                new Object[]{"ok", tasks.size(), tasks});
+    }
+
+    /**
+     * 取消定时任务（按序号或任务 ID 定位）
+     */
+    private Object doCancel(JSONObject args) {
+        final ID user = UserContextHolder.getUser();
+
+        Integer no = args.getInteger("no");
+        ID taskId;
+        if (no != null) {
+            Object[][] array = queryUserTasks(user);
+            if (no < 1 || no > array.length) {
+                throw new KnownToolException(String.format(
+                        "序号 %d 无效（当前共 %d 个定时任务），请先通过 action=list 查看序号", no, array.length));
+            }
+            taskId = (ID) array[no - 1][0];
+        } else {
+            taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
+        }
+
+        Object[] task = Application.createQueryNoFilter(
+                "select config,name,createdBy from AibotConfig where configId = ? and type = ?")
+                .setParameter(1, taskId)
+                .setParameter(2, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
+                .unique();
+
+        if (task == null) {
+            throw new KnownToolException("定时任务不存在或已删除: " + taskId);
+        }
+
+        // 权限校验：仅创建者或管理员可取消
+        ID createdBy = (ID) task[2];
+        if (!user.equals(createdBy) && !UserHelper.isAdmin(user)) {
+            throw new KnownToolException("无权取消他人的定时任务");
+        }
+
+        String name = (String) task[1];
+
+        Application.getBean(AibotConfigService.class).delete(taskId);
+
+        return JSONUtils.toJSONObject(
+                new String[]{"status", "message"},
+                new Object[]{"ok", String.format("已成功取消定时任务 [%s]", name)});
+    }
+
+    /**
+     * 查询当前用户的定时任务（按创建时间由新到旧，序号与 list 结果一致）
+     *
+     * @param user
+     * @return
+     */
+    private Object[][] queryUserTasks(ID user) {
+        return Application.createQueryNoFilter(
+                "select configId,config,name,isDisabled from AibotConfig where type = ? and createdBy = ? order by createdOn desc")
+                .setParameter(1, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
+                .setParameter(2, user)
+                .array();
+    }
+
+    /**
+     * 计算下次执行时间
+     *
+     * @param scheduleType once/daily/weekly/monthly
+     * @param time         HH:mm
+     * @param dayOfWeek    1-7 (1=周一，7=周日)
+     * @param dayOfMonth   1-31
+     * @return 下次执行时间
+     */
+    public static Date calculateNextExecTime(String scheduleType, String time, Integer dayOfWeek, Integer dayOfMonth) {
+        int hour;
+        int minute;
+        try {
+            String[] hm = time.split(":");
+            hour = Integer.parseInt(hm[0].trim());
+            minute = hm.length > 1 ? Integer.parseInt(hm[1].trim()) : 0;
+        } catch (NumberFormatException ex) {
+            throw new KnownToolException("无法解析执行时间: " + time + "，请使用 HH:mm 格式，如 09:00");
+        }
+        if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+            throw new KnownToolException("执行时间超出范围: " + time + "，请使用 HH:mm 格式，如 09:00");
+        }
+
+        Calendar cal = CalendarUtils.getInstance();
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, minute);
+
+        Calendar now = CalendarUtils.getInstance();
+
+        switch (scheduleType) {
+            case "daily":
+                if (cal.before(now)) {
+                    cal.add(Calendar.DAY_OF_MONTH, 1);
+                }
+                break;
+
+            case "weekly":
+                // 1=周一 -> Calendar.MONDAY(2), ..., 7=周日 -> Calendar.SUNDAY(1)
+                int targetDay = (dayOfWeek % 7) + 1;
+                // 若时间已过，从明天开始找
+                if (cal.before(now)) {
+                    cal.add(Calendar.DAY_OF_MONTH, 1);
+                }
+                int delta = (targetDay - cal.get(Calendar.DAY_OF_WEEK) + 7) % 7;
+                cal.add(Calendar.DAY_OF_MONTH, delta);
+                break;
+
+            case "monthly":
+                if (cal.before(now)) {
+                    cal.add(Calendar.DAY_OF_MONTH, 1);
+                }
+                int maxDay = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+                int targetDom = Math.min(dayOfMonth, maxDay);
+                if (cal.get(Calendar.DAY_OF_MONTH) > targetDom) {
+                    cal.add(Calendar.MONTH, 1);
+                    maxDay = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    targetDom = Math.min(dayOfMonth, maxDay);
+                }
+                cal.set(Calendar.DAY_OF_MONTH, targetDom);
+                break;
+        }
+
+        return cal.getTime();
+    }
+
+    /**
+     * 调度类型描述
+     */
+    static String getScheduleTypeDesc(String scheduleType, String time, Integer dayOfWeek, Integer dayOfMonth) {
+        switch (scheduleType) {
+            case "once":
+                return "一次性执行";
+            case "daily":
+                return "每天 " + time + " 执行";
+            case "weekly":
+                String[] weekNames = {"", "周一", "周二", "周三", "周四", "周五", "周六", "周日"};
+                return "每" + weekNames[dayOfWeek] + " " + time + " 执行";
+            case "monthly":
+                return "每月" + dayOfMonth + "日 " + time + " 执行";
+            default:
+                return scheduleType;
+        }
+    }
+}
+

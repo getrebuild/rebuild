@@ -40,6 +40,20 @@
       .vcode-row img {
         cursor: pointer;
       }
+      .passwd-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 1.25rem;
+        cursor: pointer;
+        z-index: 2;
+        transition: color 0.2s;
+      }
+      #passwd {
+        padding-right: 40px;
+      }
       .h5-mobile .icon {
         background-color: #fc9a00;
         color: #fff;
@@ -108,6 +122,9 @@
         .splash-container {
           width: 430px;
         }
+        .login-form {
+          border-radius: 3px !important;
+        }
       }
       .splash-footer {
         margin-top: 30px;
@@ -119,15 +136,15 @@
       .login-form {
         padding: 40px;
         background-color: rgba(255, 255, 255, 1);
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
       }
       .login-form .logo-img {
-        margin: 3rem auto;
-        margin-top: 1rem;
+        margin: 1rem auto 3rem;
       }
       .bulletin-board,
       .bulletin-board > div {
         background-color: #4285f4;
-        background-color: var(--rb-theme-color);
         color: rgba(255, 255, 255, 0.9);
       }
       .bulletin-board > div {
@@ -175,8 +192,9 @@
                 <div class="form-group">
                   <input class="form-control" id="user" type="text" th:placeholder="${bundle.L('用户名 (或邮箱)')}" />
                 </div>
-                <div class="form-group">
-                  <input class="form-control" id="passwd" type="password" th:placeholder="${bundle.L('密码')}" />
+                <div class="form-group position-relative">
+                  <input class="form-control" id="passwd" type="password" th:placeholder="${bundle.L('密码')}" autocomplete="off" />
+                  <a class="passwd-toggle" tabindex="-1" th:title="${bundle.L('显示密码')}"><i class="zmdi zmdi-eye-off"></i></a>
                 </div>
                 <div class="form-group row pt-0 mb-3 vcode-row" th:if="${session.needLoginVCode}">
                   <div class="col-6 pr-0">
@@ -230,7 +248,7 @@
                       </div>
                     </div>
                     <div class="btn-group dropup h5-mobile pwa fs-0 ml-2">
-                      <a>
+                      <a th:href="${desktopAppUrl}">
                         <i class="icon mdi mdi-monitor-arrow-down fs-14"></i>
                         <span class="up-1">[[${bundle.L('放在桌面')}]]</span>
                       </a>

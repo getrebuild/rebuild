@@ -997,7 +997,7 @@ class OptionProps extends RbAlert {
           </div>
         </div>
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('显示位置')}</label>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顺序')}</label>
           <div className="col-sm-7">
             <select className="form-control form-control-sm w-50" ref={(c) => (this._$order = c)}>
               <option value="">{$L('默认')}</option>

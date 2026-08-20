@@ -37,6 +37,7 @@ public class CommandArgs {
     public static final String _HeavyStopWatcher = "_HeavyStopWatcher";
     public static final String _UniPush = "_UniPush";
     public static final String _UseDbFullText = "_UseDbFullText";
+    public static final String _TriggerLessLog = "_TriggerLessLog";
 
     // v4.1
     public static final String _StartEntityTypeCode = "_StartEntityTypeCode";
@@ -67,8 +68,6 @@ public class CommandArgs {
     public static final String _DistributedDisallowJobs = "_DistributedDisallowJobs";
     public static final String _DistributedAk = "_DistributedAk";
 
-    public static final String _TriggerLessLog = "_TriggerLessLog";
-
     /**
      * 内部消息同步发送短信
      */
@@ -86,6 +85,10 @@ public class CommandArgs {
      */
     public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
     /**
+     * 定时执行异步
+     */
+    public static final String _TriggerTimerAsync = "_TriggerTimerAsync";
+    /**
      * 新版本检测
      */
     public static final String _NotCheckBuild = "_NotCheckBuild";
@@ -97,6 +100,10 @@ public class CommandArgs {
      * 图片启用水印
      */
     public static final String _ImageWatermark = "_ImageWatermark";
+    /**
+     * v4.5 激活 AK 访问
+     */
+    public static final String _EnableAkAccess = "_EnableAkAccess";
 
     // --
 

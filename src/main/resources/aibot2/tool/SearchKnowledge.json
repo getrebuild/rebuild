@@ -1,0 +1,23 @@
+{
+  "type": "function",
+  "userDescription": "搜索企业知识库（内部导入的文档资料），返回最相关的知识片段",
+  "function": {
+    "name": "SearchKnowledge",
+    "description": "搜索系统知识库（企业内部导入的文档资料），获取与查询最相关的知识片段。当用户想查企业内部的制度、资料、文档内容（如「查一下公司的报价规则」）时使用。与 SearchHelp 不同，本工具搜索企业内部知识库，SearchHelp 搜索 REBUILD 官方帮助文档",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "搜索查询语句，支持自然语言提问，系统会从知识库中匹配最相关的知识片段"
+        },
+        "topK": {
+          "type": "integer",
+          "description": "返回结果数量，默认5，最大20"
+        }
+      },
+      "required": ["query"],
+      "additionalProperties": false
+    }
+  }
+}

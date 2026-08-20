@@ -97,7 +97,6 @@ class RbModal extends React.Component {
         keyboard: true,
       })
       .on('hidden.bs.modal', () => {
-        $keepModalOpen()
         if (this.props.disposeOnHide === true) {
           $root.modal('dispose')
           $unmount($root.parent(), 0, null, this.props.__root18)
@@ -250,6 +249,68 @@ class RbFormHandler extends RbModalHandler {
   }
 }
 
+// ~~ 列表选择弹窗
+// @see SelectReport
+class SelectList extends React.Component {
+  render() {
+    const props = this.props
+    return (
+      <div className={`modal select-list ${props.modalClazz || ''}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
+                <i className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body">
+              {props.title && <h5 className="mt-0 text-bold">{props.title}</h5>}
+              {props.children || this.renderList()}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  renderList() {
+    return (
+      <div>
+        <ul className="list-unstyled">{(this.props.data || []).map((item, idx) => this.renderItem(item, idx))}</ul>
+      </div>
+    )
+  }
+
+  renderItem(item, idx) {
+    return (
+      <li key={item.id || idx}>
+        <a className="text-truncate" onClick={() => this._handleClick(item)}>
+          {item.text || item.name}
+          <i className="zmdi zmdi-check" />
+        </a>
+      </li>
+    )
+  }
+
+  _handleClick = (item) => {
+    this.hide()
+    typeof this.props.call === 'function' && this.props.call(item)
+  }
+
+  componentDidMount() {
+    const $root = $(this._dlg).modal({ show: true, keyboard: true })
+    if (this.props.disposeOnHide === true) {
+      $root.on('hidden.bs.modal', () => {
+        $root.modal('dispose')
+        $unmount($root.parent())
+      })
+    }
+  }
+
+  hide = () => $(this._dlg).modal('hide')
+  show = () => $(this._dlg).modal('show')
+}
+
 // ~~ 提示框
 class RbAlert extends React.Component {
   constructor(props) {
@@ -323,18 +384,11 @@ class RbAlert extends React.Component {
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
       .on('hidden.bs.modal', function () {
-        $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
         // v4.2
         typeof that.props.onHide === 'function' && that.props.onHide()
       })
-
-    // z-index
-    setTimeout(() => {
-      const mb = $('.modal-backdrop.show')
-      if (mb.length > 1) $(mb[mb.length - 1]).addClass('rbalert')
-    }, 0)
 
     if (this.props.countdown > 0) {
       $countdownButton($(this._$btn), this.props.countdown)
@@ -1210,7 +1264,7 @@ class RecordSelectorModal extends RbAlert {
    * @param {*} props
    */
   static create(props) {
-    renderRbcomp(<RecordSelectorModal {...props} zIndex="1050" />)
+    renderRbcomp(<RecordSelectorModal {...props} />)
   }
 }
 
@@ -1360,6 +1414,8 @@ class Md2Html extends React.Component {
             })
           }
         })
+
+      $renderMermaid($(this._$md2html))
     })
   }
 }
@@ -1462,28 +1518,23 @@ class CodeViewport extends React.Component {
     return (
       <div className="code-viewport">
         <pre ref={(c) => (this._$code = c)}>LOADING</pre>
-        {window.ClipboardJS && (
-          <a className="copy" title={$L('复制')} ref={(c) => (this._$copy = c)}>
-            <i className="icon zmdi zmdi-copy" />
-          </a>
-        )}
+        <a
+          className="copy"
+          title={$L('复制')}
+          ref={(c) => (this._$copy = c)}
+          onClick={() => {
+            $clipboard($(this._$code).text())
+            $(this._$copy).addClass('copied-check')
+            setTimeout(() => $(this._$copy).removeClass('copied-check'), 1500)
+          }}>
+          <i className="icon mdi mdi-content-copy" />
+        </a>
       </div>
     )
   }
 
   componentDidMount() {
     this._$code.innerHTML = $formatCode(this.props.code || '', this.props.type)
-
-    if (this._$copy) {
-      const that = this
-      const $copy = $(this._$copy).on('mouseenter', () => $(this._$copy).removeClass('copied-check'))
-      // eslint-disable-next-line no-undef
-      new ClipboardJS($copy[0], {
-        text: function () {
-          return $(that._$code).text()
-        },
-      }).on('success', () => $copy.addClass('copied-check'))
-    }
   }
 
   UNSAFE_componentWillReceiveProps(newProps) {
@@ -2421,7 +2472,7 @@ class RbViewModal extends React.Component {
       .on('hidden.bs.modal', function () {
         $mc.css({ 'margin-right': -1500 })
         that.setState({ inLoad: true, isHide: true })
-        if (!$keepModalOpen()) location.hash = '!/View/'
+        if ($('.modal.rbview').length <= 1) location.hash = '!/View/'
 
         // SubView 子视图不保持
         if (that.state.disposeOnHide === true) {
@@ -2434,11 +2485,6 @@ class RbViewModal extends React.Component {
       })
       .on('shown.bs.modal', function () {
         $mc.css('margin-right', 0)
-        const $mcbd = $('body>.modal-backdrop.show')
-        if ($mcbd[0]) {
-          $mcbd.addClass('o')
-          $mcbd.eq(0).removeClass('o')
-        }
       })
     this.show()
   }

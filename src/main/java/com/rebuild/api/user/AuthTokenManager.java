@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.KVStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.springframework.util.Assert;
@@ -44,6 +45,11 @@ public class AuthTokenManager {
     private static final int ACCESSTOKEN_EXPIRES = CommonsCache.TS_HOUR * 24 * 3;
 
     private static final String TOKEN_PREFIX = "TOKEN:";
+
+    // v4.5 个人秘钥
+    public static final String AK_PREFIX = "rbk-";
+    public static final String KEY_AK = "MCPAK.";
+    public static final String KEY_REV = "MCPAK_REV.";
 
     /**
      * 生成 Token
@@ -140,5 +146,17 @@ public class AuthTokenManager {
         }
 
         return ID.valueOf(descs[1]);
+    }
+
+    /**
+     * 验证个人秘钥
+     *
+     * @param ak
+     * @return null or UserID
+     */
+    public static ID verifyAccessKey(String ak) {
+        if (ak == null || !ak.startsWith(AK_PREFIX)) return null;
+        String userId = KVStorage.getCustomValue(KEY_REV + EncryptUtils.toSHA256Hex(ak));
+        return ID.isId(userId) ? ID.valueOf(userId) : null;
     }
 }

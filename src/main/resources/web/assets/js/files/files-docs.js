@@ -311,9 +311,6 @@ class FileUploadDlg extends RbFormHandler {
               <button className={`btn btn-primary ${this.state.uploadState === 2 ? '' : 'hide'}`} type="button" onClick={() => this._reset()}>
                 {$L('继续上传')}
               </button>
-              <a className="btn btn-link" onClick={this.hide}>
-                {$L('取消')}
-              </a>
             </div>
           </div>
         </div>
