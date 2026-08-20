@@ -66,7 +66,11 @@ $(function () {
   })
 
   // for `moment`
-  if (window.moment) window.moment.locale(rb.locale)
+  if (window.moment) {
+    window.moment.locale(rb.locale)
+    // 调整相对时间阈值，避免不满 30 天即显示为“一个月前”
+    window.moment.relativeTimeThreshold('d', 30)
+  }
 
   // for `datetimepicker`
   $.fn.datetimepicker.defaults = {
