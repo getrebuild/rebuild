@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static com.rebuild.core.aibot2.ChatExecutor.MAX_TOOL_ROUNDS;
 import static com.rebuild.core.aibot2.ChatExecutor.ROUNDS_LIMIT_NOTICE;
@@ -218,7 +217,7 @@ public class ChatStreamExecutor {
 
             // assistant 消息的 tool_calls[].id 与后续 tool 消息的 tool_call_id 由本端统一构造，保持一致即可
             String toolCallId = StringUtils.isBlank(entry[0])
-                    ? "tool_call_" + CommonsUtils.randomHex(true)
+                    ? "call_" + CommonsUtils.randomHex(true)
                     : entry[0];
 
             ChatCompletionMessageFunctionToolCall fn = ChatCompletionMessageFunctionToolCall.builder()
