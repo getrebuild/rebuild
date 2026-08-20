@@ -331,7 +331,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/commons/frontjs/use-frontjs")
                 || requestUri.startsWith("/commons/file-preview")
                 || requestUri.endsWith("/commons/file-editor-save")
-                || requestUri.endsWith("/dashboard/chart-data");
+                || requestUri.endsWith("/dashboard/chart-data")
+                || requestUri.equals("/aibot/chat")
+                ;
     }
 
     private void sendRedirect(HttpServletResponse response, String url, String nexturl) throws IOException {

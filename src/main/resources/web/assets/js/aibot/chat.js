@@ -460,10 +460,10 @@ class ChatMessages extends React.Component {
   }
 
   componentDidMount() {
-    const $ms = $(this._$messages).perfectScrollbar()
-
     // scrollToBottom
     let _lastScroll = 0
+
+    const $ms = $(this._$messages).perfectScrollbar()
     $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
       if (_lastScroll - currentScroll > 20) {
@@ -885,14 +885,14 @@ class RichContent extends React.Component {
   }
 }
 
-function updateScrollbar() {
+function updateScrollbar(delay) {
   $setTimeout(
     () => {
       const $el = $('.chat-messages')
       if ($el.length === 0) return
       $($el).perfectScrollbar('update')
     },
-    100,
+    delay || 100,
     'aibot-ps-update',
   )
 }
@@ -906,7 +906,7 @@ function scrollToBottom(forceScroll) {
       const $el = $('.chat-messages')
       if ($el.length === 0) return
       $el.scrollTop($el[0].scrollHeight)
-      $setTimeout(() => $el.perfectScrollbar('update'), 100, 'aibot-ps-update')
+      updateScrollbar(1)
     },
     100,
     'scrollToBottom',

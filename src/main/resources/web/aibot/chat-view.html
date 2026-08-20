@@ -15,6 +15,9 @@
         height: calc(100vh - 40px);
         min-height: 0;
       }
+      .aibot .modal-dialog > .modal-content {
+        border: 0 none;
+      }
       .aibot.modal .modal-header .hide2,
       .aibot.modal .modal-header .dock-toggle {
         display: none;
@@ -24,6 +27,20 @@
           width: 100%;
           max-width: 100%;
           border-radius: 0;
+        }
+        .aibot .modal-header,
+        .aibot .modal-content {
+          border-radius: 0;
+        }
+        .chat .chat-input-container,
+        .chat-messages {
+          padding: 16px;
+        }
+        .page-footer {
+          display: none;
+        }
+        .aibot .modal-dialog {
+          height: 100vh;
         }
       }
     </style>

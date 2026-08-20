@@ -159,7 +159,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chat-message .msg-action > a {
   display: inline-block;
-  padding: 4px;
+  padding: 2px;
   color: #404040;
   opacity: 0.8;
   min-width: 20px;
@@ -167,7 +167,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-message .msg-action > a + a {
-  margin-left: 3px;
+  margin-left: 4px;
 }
 
 .chat-message .msg-action > a:hover,
