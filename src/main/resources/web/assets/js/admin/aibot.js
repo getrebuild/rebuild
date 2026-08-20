@@ -14,25 +14,25 @@ useEditComp = function (name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
-      // 默认模型列表，异步获取可用模型后自动更新
       let option = {
         options: 'deepseek-v4-flash qwen3.6-flash hy3-preview gpt-5 gemini-2.5-pro'.split(' '),
         onSelect: (v) => {
           // eslint-disable-next-line no-undef
-          const val = typeof v === 'string' ? v : (v && v.name) || v
-          changeValue({ target: { value: val, name: 'AibotBaseDefModel' } })
+          changeValue({ target: { value: v, name: 'AibotBaseDefModel' } })
         },
       }
       $autoComplete($('input[name="AibotBaseDefModel"]'), null, option)
+
       // 异步获取可用模型
       $.get('./aibot/models', (res) => {
         if (res.error_code === 0 && res.data && res.data.length > 0) {
           option.options = res.data.map((m) => {
-            const ctx = m.contextWindow
-            return {
-              text: ctx ? `${m.id} (${ctx >= 1000 ? Math.round(ctx / 1000) + 'K' : ctx})` : m.id,
-              name: m.id,
-            }
+            // const ctx = m.contextWindow
+            // return {
+            //   text: ctx ? `${m.id} (${ctx >= 1000 ? Math.round(ctx / 1000) + 'K' : ctx})` : m.id,
+            //   name: m.id,
+            // }
+            return m.id
           })
         }
       })

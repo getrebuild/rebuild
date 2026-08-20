@@ -12,10 +12,10 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.api.RespBody;
 import com.openai.core.JsonValue;
 import com.openai.models.models.Model;
 import com.openai.models.models.ModelListPage;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
@@ -29,6 +29,7 @@ import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
 import com.rebuild.web.admin.ConfigurationController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -118,14 +119,12 @@ public class AiBot2AdminController extends BaseController {
      */
     @GetMapping("aibot/models")
     public RespBody modelList() {
-        if (!Config.availableAiBot()) {
-            return RespBody.errorl("AI 助手未配置");
-        }
+        if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
+
         try {
             ModelListPage page = Config.getClient().models().list();
             List<JSONObject> models = new ArrayList<>();
             for (Model m : page.data()) {
-                if (m.id() == null) continue;
                 JSONObject item = new JSONObject(true);
                 item.put("id", m.id());
                 item.put("contextWindow", extractContextSize(m._additionalProperties()));
@@ -140,13 +139,13 @@ public class AiBot2AdminController extends BaseController {
 
     /**
      * 从模型的额外属性中提取上下文窗口大小
-     不同服务商使用不同字段名，依次尝试
      *
      * @param additionalProps
      * @return
      */
     private static Long extractContextSize(Map<String, JsonValue> additionalProps) {
-        if (additionalProps == null || additionalProps.isEmpty()) return null;
+        if (MapUtils.isEmpty(additionalProps)) return null;
+
         String[] keys = {"context_length", "context_window", "max_context_length", "max_context_window"};
         for (String key : keys) {
             JsonValue value = additionalProps.get(key);
