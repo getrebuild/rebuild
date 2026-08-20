@@ -37,7 +37,10 @@ _GA()
 // PAGE INITIAL
 $(function () {
   // for `moment`
-  if (window.moment) window.moment.locale(rb.locale)
+  if (window.moment) {
+    window.moment.locale(rb.locale)
+    window.moment.relativeTimeThreshold('d', 30)
+  }
 
   // for `datetimepicker`
   $.fn.datetimepicker.defaults = {
