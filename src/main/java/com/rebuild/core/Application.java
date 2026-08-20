@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
@@ -263,6 +264,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             }
         }
 
+        // AI 工具注册
+        ToolDefs.tools();
+
         // 初始化业务组件
         List<Initialization> ordered = new ArrayList<>(_CONTEXT.getBeansOfType(Initialization.class).values());
         OrderComparator.sort(ordered);
@@ -271,7 +275,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
 
         License.isRbvAttached();
-
         DatabaseFixer.fixIfNeed();
 
         return true;

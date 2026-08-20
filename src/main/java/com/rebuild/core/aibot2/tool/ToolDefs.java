@@ -59,12 +59,13 @@ public class ToolDefs {
         register(new SearchKnowledge());
         register(new ScheduleTask());
         register(new UserMemory());
+
+        register(new BuildSkill());
+        register(new GetConfigSchema());
+        register(new BuildFilter());
         register(new BuildEntity());
         register(new BuildField());
-        register(new GetConfigSchema());
         register(new BuildTrigger());
-        register(new BuildFilter());
-        register(new BuildSkill());
         register(new BuildTransform());
         register(new BuildReportTemplate());
     }
@@ -84,9 +85,11 @@ public class ToolDefs {
      * @return
      */
     public static List<ChatCompletionTool> tools() {
-        Set<String> disabled = getDisabledTools();
         // 管理员专属工具不提供给非管理员
-        boolean isAdmin = UserHelper.isAdmin(UserContextHolder.getUser());
+        boolean isAdmin = UserContextHolder.getUser(true) != null
+                && UserHelper.isAdmin(UserContextHolder.getUser());
+
+        Set<String> disabled = getDisabledTools();
         return TOOL_MAP.entrySet().stream()
                 .filter(e -> !disabled.contains(e.getKey()))
                 .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
