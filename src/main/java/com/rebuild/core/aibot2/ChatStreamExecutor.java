@@ -16,6 +16,7 @@ import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
 import com.openai.models.chat.completions.ChatCompletionStreamOptions;
 import com.rebuild.core.aibot2.ReasoningExtractor.FeedResult;
 import com.rebuild.core.aibot2.ReasoningExtractor.ThinkTagParser;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +28,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.rebuild.core.aibot2.ChatExecutor.MAX_TOOL_ROUNDS;
 import static com.rebuild.core.aibot2.ChatExecutor.ROUNDS_LIMIT_NOTICE;
@@ -201,19 +203,26 @@ public class ChatStreamExecutor {
     /**
      * 组装本轮工具调用并加入请求上下文
      *
-     * @return 是否有有效的工具调用（分片累积可能产生缺失 id/名称的畸形条目，需丢弃以免 API 拒绝请求）
+     * @return
      */
     private boolean appendToolMessages() {
         List<ChatCompletionMessageToolCall> assembledToolCalls = new ArrayList<>();
         for (String[] entry : toolCallAccumulator.values()) {
-            // 丢弃畸形工具调用（部分兼容服务返回的分片缺失 id 或名称），避免下一轮请求 400
-            if (StringUtils.isBlank(entry[0]) || StringUtils.isBlank(entry[1])) {
-                log.warn("Malformed tool call dropped : {}", Arrays.toString(entry));
+            // 名称缺失无法定位工具，只能丢弃
+            if (StringUtils.isBlank(entry[1])) {
+                String msg = "Malformed tool call dropped : " + Arrays.toString(entry);
+                log.warn(msg);
+                chatLogger().logEvent(msg);
                 continue;
             }
 
+            // assistant 消息的 tool_calls[].id 与后续 tool 消息的 tool_call_id 由本端统一构造，保持一致即可
+            String toolCallId = StringUtils.isBlank(entry[0])
+                    ? "tool_call_" + CommonsUtils.randomHex(true)
+                    : entry[0];
+
             ChatCompletionMessageFunctionToolCall fn = ChatCompletionMessageFunctionToolCall.builder()
-                    .id(entry[0])
+                    .id(toolCallId)
                     .function(ChatCompletionMessageFunctionToolCall.Function.builder()
                             .name(entry[1])
                             .arguments(entry[2] == null ? "" : entry[2])
