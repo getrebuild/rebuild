@@ -1,9 +1,9 @@
 {
   "type": "function",
-  "userDescription": "新建触发器（自动化规则），在记录变化时自动执行字段更新、汇总回写、发送通知、自动审批等动作",
+  "userDescription": "新建触发器（自动化规则），在记录变化时自动执行字段更新、字段聚合、数据校验、发送通知、自动审批/撤销、自动分配、自动共享/取消共享、自动记录转换、自动删除、新建动态/任务、回调URL、导出报表等动作",
   "function": {
     "name": "BuildTrigger",
-    "description": "新建触发器（自动化规则）。当用户希望实现自动化需求时使用——用户可能不会提到「触发器」一词，典型表述如：把明细/子记录数据汇总（求和、计数等）回写到主记录、记录创建/更新/删除/审批时自动更新字段、自动发送通知、自动审批、自动分配、自动共享等。仅一次性查询统计请用 StatisticsData。调用前必须先用 GetConfigSchema(schema=trigger-config) 获取 actionContent 的结构定义，并用 ListEntities 查询实体真实字段名。解析失败会返回错误提示",
+    "description": "新建触发器（自动化规则）。当用户希望实现自动化需求时使用——用户可能不会提到「触发器」一词，典型表述如：把明细/子记录数据汇总（求和、计数等）回写到主记录、记录创建/更新/删除/审批时自动更新字段、自动发送通知、自动审批、自动分配、自动共享、自动记录转换、自动删除、新建动态/任务、回调URL等。仅一次性查询统计请用 StatisticsData。调用前必须先用 GetConfigSchema(schema=trigger-config) 获取 actionContent 的结构定义，并用 ListEntities 查询实体真实字段名。解析失败会返回错误提示",
     "parameters": {
       "type": "object",
       "properties": {
@@ -34,11 +34,14 @@
         "actionType": {
           "type": "string",
           "enum": [
-            "FIELDWRITEBACK", "FIELDAGGREGATION", "GROUPAGGREGATION",
-            "DATAVALIDATE", "SENDNOTIFICATION", "AUTOAPPROVAL",
-            "AUTOASSIGN", "AUTOSHARE", "CREATEFEED"
+            "FIELDWRITEBACK", "FIELDAGGREGATION",
+            "DATAVALIDATE", "SENDNOTIFICATION", "AUTOAPPROVAL", "AUTOREVOKE",
+            "AUTOASSIGN", "AUTOSHARE", "AUTOUNSHARE",
+            "AUTOTRANSFORM", "AUTODELETE",
+            "CREATEFEED", "CREATETASK",
+            "HOOKURL", "AUTOGENREPORT"
           ],
-          "description": "动作类型。FIELDWRITEBACK=字段更新、FIELDAGGREGATION=字段聚合、GROUPAGGREGATION=分组聚合、DATAVALIDATE=数据校验、SENDNOTIFICATION=发送通知、AUTOAPPROVAL=自动审批、AUTOASSIGN=自动分配、AUTOSHARE=自动共享、CREATEFEED=新建动态"
+          "description": "动作类型。FIELDWRITEBACK=字段更新、FIELDAGGREGATION=字段聚合、DATAVALIDATE=数据校验、SENDNOTIFICATION=发送通知、AUTOAPPROVAL=自动审批、AUTOREVOKE=自动撤销审批、AUTOASSIGN=自动分配、AUTOSHARE=自动共享、AUTOUNSHARE=自动取消共享、AUTOTRANSFORM=自动记录转换、AUTODELETE=自动删除、CREATEFEED=新建动态、CREATETASK=新建任务、HOOKURL=回调URL、AUTOGENREPORT=导出报表"
         },
         "actionContent": {
           "type": "object",
