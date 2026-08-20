@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * @author devezhao
@@ -29,15 +27,9 @@ import java.io.IOException;
 public class AiBotController extends BaseController {
 
     @GetMapping("chat")
-    public ModelAndView chatIndex() {
+    public ModelAndView chatIndex(HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/aibot/chat-view");
         mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 助手强力驱动"));
         return mv;
-    }
-
-    @GetMapping("redirect")
-    public void chatRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String id = req.getParameter("id");
-        resp.sendRedirect("../");
     }
 }
