@@ -21,7 +21,7 @@
         },
         "fieldsMapping": {
           "type": "object",
-          "description": "主记录字段映射，key 为目标字段名，value 为源字段名或固定值。固定值会原样写入目标字段。系统字段如 owningUser 可映射为源实体的用户字段名。例如 {\"customerName\":\"leadName\", \"amount\":1000, \"owningUser\":\"salesPerson\"}"
+          "description": "主记录字段映射，key 为目标字段名，value 为源字段名或固定值。固定值会原样写入目标字段。系统字段如 owningUser 可映射为源实体的用户字段名"
         },
         "fieldsMappingDetail": {
           "type": "array",

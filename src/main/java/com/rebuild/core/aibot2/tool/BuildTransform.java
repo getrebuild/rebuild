@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.License;
 import com.rebuild.core.configuration.general.TransformConfigService;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
@@ -74,6 +75,11 @@ public class BuildTransform implements Tool, AdminGuard {
 
         // 语义解析：将字段标签转为真实字段名
         JSONObject resolvedMapping = resolveFieldsMapping(sourceEntity, targetEntity, fieldsMapping);
+        // 与 UI 保存格式一致：主映射含 `_` 元数据，转换执行（RecordTransfomer37）依赖其判断 v3.7+ 配置格式
+        JSONObject mappingMeta = new JSONObject(true);
+        mappingMeta.put("source", sourceEntity.getName());
+        mappingMeta.put("target", targetEntity.getName());
+        resolvedMapping.put("_", mappingMeta);
 
         // 明细字段映射
         JSONArray fieldsMappingDetail = args.getJSONArray("fieldsMappingDetail");

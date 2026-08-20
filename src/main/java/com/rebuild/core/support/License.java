@@ -164,7 +164,7 @@ public final class License {
         Map<String, String> hs = new HashMap<>();
         hs.put("X-SiteApi-K", OSA_KEY);
         if (!api.contains("/authority/new")) hs.put("X-SiteApi-SN", SN());
-        int timeout = api.contains("/authority/query") ? 5000 : 30000;
+        int timeout = api.contains("/authority/query") ? 5 : 30;
 
         try {
             String apiUrl = StringUtils.defaultIfEmpty(domain, "https://getrebuild.com/") + api;

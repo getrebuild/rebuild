@@ -28,6 +28,7 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
@@ -106,10 +107,8 @@ public class BuildTrigger implements Tool, AdminGuard {
             throw new KnownToolException("触发器名称 (name) 不能为空");
         }
 
-        ActionType actionType = parseActionType(args.getString("actionType"));
-
-        // 触发时机（位掩码）
         int whenMask = parseWhen(args.get("when"));
+        ActionType actionType = parseActionType(args.getString("actionType"));
 
         JSONObject actionContent = args.getJSONObject("actionContent");
         if (actionContent == null || actionContent.isEmpty()) {
