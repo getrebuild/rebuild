@@ -7,7 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openai.core.http.StreamResponse;
+import com.openai.errors.OpenAIServiceException;
 import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionChunk;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
 import com.openai.models.chat.completions.ChatCompletionMessageFunctionToolCall;
@@ -17,6 +21,7 @@ import com.openai.services.blocking.chat.ChatCompletionService;
 import com.rebuild.core.aibot2.ReasoningExtractor.FeedResult;
 import com.rebuild.core.aibot2.ReasoningExtractor.ThinkTagParser;
 import com.rebuild.core.aibot2.tool.ToolDefs;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,6 +35,7 @@ import java.util.Map;
  * @author Zixin
  * @since 2026/8/18
  */
+@Slf4j
 public class ChatExecutor {
 
     static final int MAX_TOOL_ROUNDS = 20;
@@ -56,7 +62,7 @@ public class ChatExecutor {
      * @return
      */
     public Message run() {
-        ChatCompletion resp = completions().create(builder.build());
+        ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
         accumulateUsage(resp);
         ChatCompletionMessage ai = resp.choices().get(0).message();
 
@@ -82,7 +88,7 @@ public class ChatExecutor {
      * @return
      */
     public String runContent() {
-        ChatCompletion resp = completions().create(builder.build());
+        ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
         accumulateUsage(resp);
         ChatCompletionMessage ai = resp.choices().get(0).message();
 
@@ -123,7 +129,7 @@ public class ChatExecutor {
 
             executeAndAppend(builder, toolCalls, chat.chatLogger());
 
-            ChatCompletion resp = completions().create(builder.build());
+            ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
             accumulateUsage(resp);
             ai = resp.choices().get(0).message();
 
@@ -201,6 +207,65 @@ public class ChatExecutor {
      */
     static ChatCompletionService completions() {
         return Config.getClient().chat().completions();
+    }
+
+    /**
+     * 调用 API，失败时转储请求内容便于定位上游拒绝原因
+     *
+     * @param params
+     * @param chatLogger 可为 null
+     * @return
+     */
+    static ChatCompletion createChat(ChatCompletionCreateParams params, ChatLogger chatLogger) {
+        try {
+            return completions().create(params);
+        } catch (OpenAIServiceException ex) {
+            logError(ex, params, chatLogger);
+            throw ex;
+        }
+    }
+
+    /**
+     * 调用流式 API，失败时转储请求内容便于定位上游拒绝原因
+     *
+     * @param params
+     * @param chatLogger 可为 null
+     * @return
+     */
+    static StreamResponse<ChatCompletionChunk> createChatStreaming(ChatCompletionCreateParams params, ChatLogger chatLogger) {
+        try {
+            return completions().createStreaming(params);
+        } catch (OpenAIServiceException ex) {
+            logError(ex, params, chatLogger);
+            throw ex;
+        }
+    }
+
+    /**
+     * 记录 API 错误及请求转储（同时写入系统日志与会话日志）
+     *
+     * @param ex
+     * @param params
+     * @param chatLogger 可为 null
+     */
+    private static void logError(OpenAIServiceException ex, ChatCompletionCreateParams params, ChatLogger chatLogger) {
+        String requestJson = paramsToJson(params);
+        log.error("Chat API error : {}\nREQUEST\n{}", ex.getMessage(), requestJson);
+        if (chatLogger != null) {
+            chatLogger.log("ERROR", "Chat API error : " + ex.getMessage() + "\n\n```json\n" + requestJson + "\n```");
+        }
+    }
+
+    /**
+     * @param params
+     * @return
+     */
+    static String paramsToJson(ChatCompletionCreateParams params) {
+        try {
+            return new ObjectMapper().writeValueAsString(params);
+        } catch (Exception ex) {
+            return "(unserializable: " + ex.getMessage() + ")";
+        }
     }
 
 
