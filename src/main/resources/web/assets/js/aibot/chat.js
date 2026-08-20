@@ -456,14 +456,7 @@ class ChatMessages extends React.Component {
   setMessages(messages, forceScroll, suggestQuestions) {
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
-    this.setState(state, () => {
-      this._updateScrollbar()
-      scrollToBottom(forceScroll)
-    })
-  }
-
-  _updateScrollbar() {
-    $setTimeout(() => $(this._$messages).perfectScrollbar('update'), 100, 'aibot-ps-update')
+    this.setState(state, () => scrollToBottom(forceScroll))
   }
 
   componentDidMount() {
@@ -545,7 +538,7 @@ class ChatMessage extends React.Component {
     const reasoningToggleChanged = prevState.reasoningOpen !== this.state.reasoningOpen
     if (contentChanged) scrollToBottom()
     // 思考过程展开/收起改变内容高度，需更新滚动条（不受滚动锁定影响）
-    if (reasoningToggleChanged) this.props._ChatMessages._updateScrollbar()
+    if (reasoningToggleChanged) updateScrollbar()
   }
 
   _feedbackable() {
@@ -751,6 +744,7 @@ class RichContent extends React.Component {
             $el.find('.mermaid:not(.has-fs-btn)').each(function () {
               self._attachFullscreenBtn($(this))
             })
+            updateScrollbar()
           },
           300,
           'mermaid-fs-btn',
@@ -772,6 +766,7 @@ class RichContent extends React.Component {
       $iframe[0].srcdoc = html
       self._attachFullscreenBtn($node)
     })
+    updateScrollbar()
   }
 
   _renderEcharts($container, done) {
@@ -813,6 +808,7 @@ class RichContent extends React.Component {
           $node.removeClass('echarts-rendered')
         }
       })
+      updateScrollbar()
     })
   }
 
@@ -887,6 +883,18 @@ class RichContent extends React.Component {
 
     return md
   }
+}
+
+function updateScrollbar() {
+  $setTimeout(
+    () => {
+      const $el = $('.chat-messages')
+      if ($el.length === 0) return
+      $($el).perfectScrollbar('update')
+    },
+    100,
+    'aibot-ps-update',
+  )
 }
 
 function scrollToBottom(forceScroll) {
