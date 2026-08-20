@@ -15,7 +15,7 @@ useEditComp = function (name) {
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
       let option = {
-        options: 'deepseek-v4-flash qwen3.6-flash hy3-preview gpt-5 gemini-2.5-pro'.split(' '),
+        options: 'qwen3.8-max glm-5.2 deepseek-v4-flash gpt-5'.split(' '),
         onSelect: (v) => {
           // eslint-disable-next-line no-undef
           changeValue({ target: { value: v, name: 'AibotBaseDefModel' } })
