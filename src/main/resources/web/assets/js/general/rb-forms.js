@@ -973,6 +973,8 @@ class RbForm extends React.Component {
     if (rlp) rlp.reload(data.id)
     // 刷新视图
     if (window.RbViewPage && next !== RbForm.NEXT_NEWDETAIL) window.RbViewPage.reload()
+
+    RbForm.postAfter(data, next, this)
   }
 
   // -- HOOK 复写
