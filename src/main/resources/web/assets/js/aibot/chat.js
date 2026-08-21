@@ -888,7 +888,7 @@ function scrollToBottom(forceScroll) {
       if ($el.length === 0) return
       $el.scrollTop($el[0].scrollHeight + 20)
     },
-    100,
+    40,
     'chat-scrollToBottom',
   )
 }
