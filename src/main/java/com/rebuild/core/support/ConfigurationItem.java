@@ -131,6 +131,7 @@ public enum ConfigurationItem {
     AibotBasePrompt,
     AibotToolsDisabled,
     AibotSuggestQuestions,
+    AibotContextCompressThreshold,
 
     // PORTALs
     PortalBaiduMapAk,
