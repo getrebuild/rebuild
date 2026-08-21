@@ -43,7 +43,7 @@
         },
         "taskId": {
           "type": "string",
-          "description": "任务ID（create 返回的 taskId）。cancel 时与 no 二选一，优先使用 no；不要向用户展示"
+          "description": "任务ID（create 返回的 id）。cancel 时与 no 二选一，优先使用 no；不要向用户展示"
         },
         "no": {
           "type": "integer",

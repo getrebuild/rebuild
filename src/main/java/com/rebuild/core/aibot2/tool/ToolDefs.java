@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.tool;
 
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -17,6 +18,7 @@ import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalException;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
@@ -229,6 +231,22 @@ public class ToolDefs {
             String toolRes = res instanceof String ? (String) res : JSON.toJSONString(res);
             log.info("TOOL_RESULT {}\n{}", toolName, compactJson(toolRes));
             if (chatLogger != null) chatLogger.log("TOOL_RESULT " + toolName, toolRes);
+
+            // 创建记录/配置时，查询实际存储的记录数据并记录到日志
+            if (chatLogger != null) {
+                try {
+                    JSONObject resultJson = JSON.parseObject(toolRes);
+                    if ("ok".equals(resultJson.getString("status"))) {
+                        String recordIdStr = resultJson.getString("id");
+                        if (ID.isId(recordIdStr)) {
+                            Record record = QueryHelper.recordNoFilter(ID.valueOf(recordIdStr));
+                            chatLogger.log("TOOL_RECORD " + toolName, JSON.toJSONString(record));
+                        }
+                    }
+                } catch (Exception ignored) {
+                    // 查询失败不影响正常流程
+                }
+            }
             return toolRes;
 
         } catch (KnownToolException ex) {

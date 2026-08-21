@@ -463,7 +463,7 @@ class ChatMessages extends React.Component {
     // scrollToBottom
     let _lastScroll = 0
 
-    const $ms = $(this._$messages).perfectScrollbar()
+    const $ms = $(this._$messages)
     $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
       if (_lastScroll - currentScroll > 20) {
@@ -478,9 +478,7 @@ class ChatMessages extends React.Component {
     })
   }
 
-  componentWillUnmount() {
-    $(this._$messages).perfectScrollbar('destroy')
-  }
+  componentWillUnmount() {}
 }
 
 class ChatMessage extends React.Component {
@@ -534,11 +532,9 @@ class ChatMessage extends React.Component {
       })
       return
     }
+
     const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning
-    const reasoningToggleChanged = prevState.reasoningOpen !== this.state.reasoningOpen
     if (contentChanged) scrollToBottom()
-    // 思考过程展开/收起改变内容高度，需更新滚动条（不受滚动锁定影响）
-    if (reasoningToggleChanged) updateScrollbar()
   }
 
   _feedbackable() {
@@ -744,7 +740,6 @@ class RichContent extends React.Component {
             $el.find('.mermaid:not(.has-fs-btn)').each(function () {
               self._attachFullscreenBtn($(this))
             })
-            updateScrollbar()
           },
           300,
           'mermaid-fs-btn',
@@ -766,7 +761,6 @@ class RichContent extends React.Component {
       $iframe[0].srcdoc = html
       self._attachFullscreenBtn($node)
     })
-    updateScrollbar()
   }
 
   _renderEcharts($container, done) {
@@ -808,7 +802,6 @@ class RichContent extends React.Component {
           $node.removeClass('echarts-rendered')
         }
       })
-      updateScrollbar()
     })
   }
 
@@ -885,18 +878,6 @@ class RichContent extends React.Component {
   }
 }
 
-function updateScrollbar(delay) {
-  $setTimeout(
-    () => {
-      const $el = $('.chat-messages')
-      if ($el.length === 0) return
-      $($el).perfectScrollbar('update')
-    },
-    delay || 100,
-    'aibot-ps-update',
-  )
-}
-
 function scrollToBottom(forceScroll) {
   if (forceScroll) __evt_ScrollToBottomStop = false
   if (__evt_ScrollToBottomStop) return
@@ -905,11 +886,10 @@ function scrollToBottom(forceScroll) {
     () => {
       const $el = $('.chat-messages')
       if ($el.length === 0) return
-      $el.scrollTop($el[0].scrollHeight)
-      updateScrollbar(1)
+      $el.scrollTop($el[0].scrollHeight + 20)
     },
     100,
-    'scrollToBottom',
+    'chat-scrollToBottom',
   )
 }
 
@@ -980,12 +960,9 @@ class ChatSidebar extends React.Component {
 
   componentDidMount() {
     this._loadChatList()
-    $(this._$list).perfectScrollbar()
   }
 
-  componentWillUnmount() {
-    $(this._$list).perfectScrollbar('destroy')
-  }
+  componentWillUnmount() {}
 
   componentDidUpdate(props, prevState) {
     if (prevState.current !== this.state.current) {
@@ -996,9 +973,7 @@ class ChatSidebar extends React.Component {
   _loadChatList() {
     $.get('/aibot2/post/chat-list', (res) => {
       const data = res.data || []
-      this.setState({ list: data }, () => {
-        $(this._$list).perfectScrollbar('update')
-      })
+      this.setState({ list: data }, () => {})
 
       if (this.state.current) {
         const delIf = data.find((x) => x.chatid === this.state.current)
