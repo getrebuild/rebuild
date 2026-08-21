@@ -17,7 +17,7 @@
         },
         "config": {
           "type": "object",
-          "description": "过滤条件配置，必须严格符合 adv-filter Schema 定义（含 items 条件项数组，op 操作符见 Schema 枚举）"
+          "description": "过滤条件配置，该参数为对象，含 entity（实体名）和 items（条件数组，每项含 field/op/value/value2）等字段，完整结构见 adv-filter Schema（可用 GetConfigSchema 获取）"
         },
         "shareTo": {
           "type": "string",
