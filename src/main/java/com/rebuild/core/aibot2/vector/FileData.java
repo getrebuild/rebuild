@@ -77,7 +77,15 @@ public class FileData implements VectorData {
         } else {
             file = RebuildConfiguration.getFileOfTemp(filePath);
             if (!file.exists()) file = RebuildConfiguration.getFileOfData(filePath);
-            if (!file.exists()) file = new File(filePath);
+            // 文件存储在七牛云
+            if (!file.exists() && QiniuCloud.instance().available()) {
+                try {
+                    file = QiniuCloud.downloadFile(filePath);
+                } catch (Exception e) {
+                    log.warn("Cannot download file from cloud : {}", filePath);
+                }
+            }
+            if (file == null || !file.exists()) file = new File(filePath);
         }
 
         if (file == null || !file.isFile()) {
