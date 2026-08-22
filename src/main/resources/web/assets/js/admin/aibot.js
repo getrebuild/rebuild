@@ -77,7 +77,12 @@ class KbList extends React.Component {
     return this.props.data.map((item) => {
       // -1 构建中，0 构建失败，>0 分片数
       let chunkBadge
-      if (item.chunkCount > 0) chunkBadge = <span className="badge badge-light ml-1 up-1">{item.chunkCount}</span>
+      if (item.chunkCount > 0)
+        chunkBadge = (
+          <span className="badge badge-light ml-1 up-1" title={$L('分片数量')}>
+            {item.chunkCount}
+          </span>
+        )
       else if (item.chunkCount === -1) chunkBadge = <span className="badge badge-warning ml-1">{$L('构建中')}</span>
       else chunkBadge = <span className="badge badge-danger ml-1">{$L('构建失败')}</span>
 
@@ -86,7 +91,7 @@ class KbList extends React.Component {
           <td>
             {item.name} {chunkBadge}
           </td>
-          <td>{item.description || $L('无')}</td>
+          <td>{item.description || <NoValue />}</td>
           <td className="actions">
             <a title={$L('修改')} className="icon" onClick={() => _editKb(item)}>
               <i className="zmdi zmdi-edit" />
@@ -275,7 +280,8 @@ class DlgKbEdit extends RbModalHandler {
           this.hide()
           KbList.load()
         }
-        // 内容未变化（如仅修改名称/描述）无需重新构建
+
+        // 内容未变化无需重新构建
         if (needBuild) {
           $.post(`./aibot/kb-build?id=${newId}`, next)
         } else {
@@ -306,7 +312,7 @@ class SkillList extends React.Component {
       return (
         <tr key={item.id}>
           <td>{item.name}</td>
-          <td>{cfg.description || $L('无')}</td>
+          <td>{cfg.description || <NoValue />}</td>
           <td className="actions">
             <a title={$L('修改')} className="icon" onClick={() => _editSkill(item)}>
               <i className="zmdi zmdi-edit" />
@@ -589,7 +595,7 @@ class ToolList extends React.Component {
       return (
         <tr key={item.name}>
           <td>{item.name}</td>
-          <td>{item.userDescription || item.description || $L('无')}</td>
+          <td>{item.userDescription || item.description || <NoValue />}</td>
           <td className="actions">{ShowEnable(item.disabled, item.name, (checked) => this._saveToolsDisabled(item.name, checked))}</td>
         </tr>
       )
