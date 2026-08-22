@@ -88,11 +88,6 @@ class KbList extends React.Component {
           </td>
           <td>{item.description || $L('无')}</td>
           <td className="actions">
-            {item.sourceType === 'FILE' && _getKbFile(item) && (
-              <a title={$L('下载文件')} className="icon" href={`${rb.baseUrl}/filex/download/${_getKbFile(item)}`} target="_blank">
-                <i className="zmdi zmdi-download" />
-              </a>
-            )}
             <a title={$L('修改')} className="icon" onClick={() => _editKb(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
@@ -174,11 +169,7 @@ class DlgKbEdit extends RbModalHandler {
                   </label>
                   {this.state.fileName ? <b className="text-underline ml-2">{this.state.fileName}</b> : null}
                   {!this.state.fileName && isFile && _getKbFile(item) && (
-                    <a
-                      className="text-underline ml-2"
-                      title={$L('下载文件')}
-                      href={`${rb.baseUrl}/filex/download/${_getKbFile(item)}`}
-                      target="_blank">
+                    <a className="ml-2 text-bold text-dark text-underline" title={$L('下载文件')} href={`${rb.baseUrl}/filex/download/${_getKbFile(item)}`} target="_blank">
                       {$fileCutName(_getKbFile(item))}
                     </a>
                   )}
