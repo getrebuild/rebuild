@@ -50,7 +50,7 @@ public class SystemPromptBuilder {
      *
      * @param basePrompt
      * @param skillName
-     * @param agent 可为 null
+     * @param agent
      * @return
      */
     public static String build(String basePrompt, String skillName, AibotAgent agent) {
@@ -61,7 +61,7 @@ public class SystemPromptBuilder {
             systemPrompt.append("<basic_requirements>\n").append(basePrompt.trim()).append("\n</basic_requirements>");
         }
 
-        // Agent 自定义提示词（优先级高于基础要求）
+        // Agent 提示词（优先级高于基础要求）
         if (agent != null && StringUtils.isNotBlank(agent.getPrompt())) {
             if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
             systemPrompt.append("<agent_prompt>\n")
@@ -143,7 +143,7 @@ public class SystemPromptBuilder {
     }
 
     /**
-     * 构建用户记忆注入文本（记忆为空时返回 null）
+     * 构建用户记忆注入文本
      *
      * @param user
      * @return

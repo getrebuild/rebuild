@@ -55,12 +55,6 @@ public class Chat implements Serializable {
         this(chatid, AibotAgent.defaultAgent());
     }
 
-    /**
-     * 通过 Agent 构造会话，从 Agent 获取 model/prompt
-     *
-     * @param chatid
-     * @param agent
-     */
     public Chat(ID chatid, AibotAgent agent) {
         this.chatid = chatid;
         this.agent = agent != null ? agent : AibotAgent.defaultAgent();

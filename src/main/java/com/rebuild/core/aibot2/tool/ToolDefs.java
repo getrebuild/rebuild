@@ -83,7 +83,7 @@ public class ToolDefs {
     }
 
     /**
-     * 获取可用工具（使用默认 Agent，即全部工具）
+     * 获取可用工具
      *
      * @return
      */
@@ -92,9 +92,9 @@ public class ToolDefs {
     }
 
     /**
-     * 获取可用工具（按 Agent 配置过滤）
-     *
-     * @param agent 可为 null，表示使用全部工具
+     * 获取可用工具
+     * 
+     * @param agent
      * @return
      */
     public static List<ChatCompletionTool> tools(AibotAgent agent) {
