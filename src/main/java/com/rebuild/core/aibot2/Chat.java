@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletionContentPart;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
-import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.service.query.QueryHelper;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +40,8 @@ public class Chat implements Serializable {
     private String model;
     @Getter
     private String prompt;
+    @Getter
+    private AibotAgent agent;
 
     @Getter
     private List<Message> messages = new ArrayList<>();
@@ -51,7 +52,22 @@ public class Chat implements Serializable {
     private transient ChatLogger chatLogger;
 
     public Chat(ID chatid) {
-        this(chatid, Config.getBasePrompt(), Config.getDefModel());
+        this(chatid, AibotAgent.defaultAgent());
+    }
+
+    /**
+     * 通过 Agent 构造会话，从 Agent 获取 model/prompt
+     *
+     * @param chatid
+     * @param agent
+     */
+    public Chat(ID chatid, AibotAgent agent) {
+        this.chatid = chatid;
+        this.agent = agent != null ? agent : AibotAgent.defaultAgent();
+        this.model = this.agent.model();
+        this.prompt = this.agent.prompt();
+
+        this.restoreIfNeed();
     }
 
     protected Chat(ID chatid, String prompt, String model) {
@@ -119,7 +135,7 @@ public class Chat implements Serializable {
         Message message = new Message(ROLE_USER, userMessage, null, null, null);
         messages.add(message);
 
-        String systemPrompt = SystemPromptBuilder.build(prompt, null);
+        String systemPrompt = agent.buildSystemPrompt(null);
         chatLogger().logSession(model, systemPrompt);
         chatLogger().log("USER", userMessage);
 
@@ -136,7 +152,7 @@ public class Chat implements Serializable {
      * @return
      */
     private ChatCompletionCreateParams.Builder requestParams(String userMessage, ChatRequest chatRequest) {
-        String systemPrompt = SystemPromptBuilder.build(prompt,
+        String systemPrompt = agent.buildSystemPrompt(
                 chatRequest == null ? null : chatRequest.getSkill());
         chatLogger().logSession(model, systemPrompt);
 
@@ -154,7 +170,7 @@ public class Chat implements Serializable {
             else if (ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(content);
         }
 
-        builder.tools(ToolDefs.tools())
+        builder.tools(agent.tools())
                 .toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO);
 
         return builder;

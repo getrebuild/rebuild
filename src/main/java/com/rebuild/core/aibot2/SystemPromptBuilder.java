@@ -42,11 +42,32 @@ public class SystemPromptBuilder {
      * @return
      */
     public static String build(String basePrompt, String skillName) {
+        return build(basePrompt, skillName, null);
+    }
+
+    /**
+     * 构建分层系统提示词
+     *
+     * @param basePrompt
+     * @param skillName
+     * @param agent 可为 null
+     * @return
+     */
+    public static String build(String basePrompt, String skillName, AibotAgent agent) {
         StringBuilder systemPrompt = new StringBuilder();
 
         // 基础要求（管理中心配置）
         if (StringUtils.isNotBlank(basePrompt)) {
             systemPrompt.append("<basic_requirements>\n").append(basePrompt.trim()).append("\n</basic_requirements>");
+        }
+
+        // Agent 自定义提示词（优先级高于基础要求）
+        if (agent != null && StringUtils.isNotBlank(agent.getPrompt())) {
+            if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
+            systemPrompt.append("<agent_prompt>\n")
+                    .append("以下是当前 Agent 的专属提示词，与前述要求冲突时以本节为准。\n\n")
+                    .append(agent.getPrompt().trim())
+                    .append("\n</agent_prompt>");
         }
 
         // 会话上下文（系统信息 + 当前用户信息）

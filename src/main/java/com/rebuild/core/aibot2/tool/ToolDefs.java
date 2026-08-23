@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AibotAgent;
 import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserHelper;
@@ -82,19 +83,32 @@ public class ToolDefs {
     }
 
     /**
-     * 获取可用工具
+     * 获取可用工具（使用默认 Agent，即全部工具）
      *
      * @return
      */
     public static List<ChatCompletionTool> tools() {
+        return tools(null);
+    }
+
+    /**
+     * 获取可用工具（按 Agent 配置过滤）
+     *
+     * @param agent 可为 null，表示使用全部工具
+     * @return
+     */
+    public static List<ChatCompletionTool> tools(AibotAgent agent) {
         // 管理员专属工具不提供给非管理员
         boolean isAdmin = UserContextHolder.getUser(true) != null
                 && UserHelper.isAdmin(UserContextHolder.getUser());
 
         Set<String> disabled = getDisabledTools();
+        Set<String> agentTools = agent != null ? agent.getTools() : null;
+
         return TOOL_MAP.entrySet().stream()
                 .filter(e -> !disabled.contains(e.getKey()))
                 .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
+                .filter(e -> agentTools == null || agentTools.contains(e.getKey()))
                 .map(e -> e.getValue().def())
                 .collect(Collectors.toList());
     }
