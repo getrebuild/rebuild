@@ -118,7 +118,7 @@ public abstract class ChatManager {
      */
     public static String ask(String userContent, String prompt, List<File> imageFiles) {
         ID chatid = initChat(UserService.AIBOT_USER, "AIASK-" + userContent);
-        Chat chat = new Chat(chatid, prompt, null);
+        Chat chat = new Chat(chatid, null, prompt);
 
         String result;
         if (CollectionUtils.isEmpty(imageFiles)) {

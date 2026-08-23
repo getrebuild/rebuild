@@ -37,10 +37,6 @@ public class Chat implements Serializable {
     @Getter
     private ID chatid;
     @Getter
-    private String model;
-    @Getter
-    private String prompt;
-    @Getter
     private AibotAgent agent;
 
     @Getter
@@ -52,23 +48,16 @@ public class Chat implements Serializable {
     private transient ChatLogger chatLogger;
 
     public Chat(ID chatid) {
-        this(chatid, AibotAgent.defaultAgent());
+        this(chatid, null);
+    }
+
+    protected Chat(ID chatid, String model, String prompt) {
+        this(chatid, AibotAgent.defaultAgent(model, prompt));
     }
 
     public Chat(ID chatid, AibotAgent agent) {
         this.chatid = chatid;
         this.agent = agent != null ? agent : AibotAgent.defaultAgent();
-        this.model = this.agent.model();
-        this.prompt = this.agent.prompt();
-
-        this.restoreIfNeed();
-    }
-
-    protected Chat(ID chatid, String prompt, String model) {
-        this.chatid = chatid;
-        this.model = model;
-        this.prompt = prompt;
-
         this.restoreIfNeed();
     }
 
@@ -130,10 +119,10 @@ public class Chat implements Serializable {
         messages.add(message);
 
         String systemPrompt = agent.buildSystemPrompt(null);
-        chatLogger().logSession(model, systemPrompt);
+        chatLogger().logSession(agent.model(), systemPrompt);
         chatLogger().log("USER", userMessage);
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model)
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent.model())
                 .addUserMessageOfArrayOfContentParts(parts);
         return new ChatExecutor(this, null, builder).runContent();
     }
@@ -148,7 +137,7 @@ public class Chat implements Serializable {
     private ChatCompletionCreateParams.Builder requestParams(String userMessage, ChatRequest chatRequest) {
         String systemPrompt = agent.buildSystemPrompt(
                 chatRequest == null ? null : chatRequest.getSkill());
-        chatLogger().logSession(model, systemPrompt);
+        chatLogger().logSession(agent.model(), systemPrompt);
 
         if (userMessage != null) {
             Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
@@ -157,7 +146,7 @@ public class Chat implements Serializable {
             chatLogger().log("USER", userMessage);
         }
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model);
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent.model());
         for (Message m : messages) {
             String content = m.getContent();
             if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);

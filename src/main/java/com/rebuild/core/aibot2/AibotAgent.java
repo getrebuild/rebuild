@@ -57,6 +57,10 @@ public class AibotAgent implements Serializable {
         return new AibotAgent().setName("default");
     }
 
+    public static AibotAgent defaultAgent(String model, String prompt) {
+        return new AibotAgent().setName("default").setModel(model).setPrompt(prompt);
+    }
+
     public String model() {
         return model != null ? model : Config.getDefModel();
     }
