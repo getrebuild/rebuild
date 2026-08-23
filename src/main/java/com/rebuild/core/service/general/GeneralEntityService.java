@@ -592,7 +592,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 CollectionUtils.addAll(idsAllow, ids);
             } else {
                 for (ID id : ids) {
-                    if (Application.getPrivilegesManager().allow(id, getCurrentUser(), action)) {
+                    if (Application.getPrivilegesManager().allow(getCurrentUser(), id, action)) {
                         idsAllow.add(id);
                     }
                 }
