@@ -65,15 +65,11 @@ public class AibotAgent implements Serializable {
         return model != null ? model : Config.getDefModel();
     }
 
-    public String prompt() {
-        return prompt != null ? prompt : Config.getBasePrompt();
-    }
-
     public List<ChatCompletionTool> tools() {
         return ToolDefs.tools(this);
     }
 
     public String buildSystemPrompt(String skillName) {
-        return SystemPromptBuilder.build(prompt(), skillName, this);
+        return SystemPromptBuilder.build(Config.getBasePrompt(), prompt, skillName);
     }
 }

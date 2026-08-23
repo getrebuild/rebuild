@@ -16,6 +16,7 @@ import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.aibot2.tool.UserMemory;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -38,22 +39,11 @@ public class SystemPromptBuilder {
      * 构建分层系统提示词
      *
      * @param basePrompt
+     * @param agentPrompt
      * @param skillName
      * @return
      */
-    public static String build(String basePrompt, String skillName) {
-        return build(basePrompt, skillName, null);
-    }
-
-    /**
-     * 构建分层系统提示词
-     *
-     * @param basePrompt
-     * @param skillName
-     * @param agent
-     * @return
-     */
-    public static String build(String basePrompt, String skillName, AibotAgent agent) {
+    public static String build(String basePrompt, String agentPrompt, String skillName) {
         StringBuilder systemPrompt = new StringBuilder();
 
         // 基础要求（管理中心配置）
@@ -62,17 +52,13 @@ public class SystemPromptBuilder {
         }
 
         // Agent 提示词（优先级高于基础要求）
-        if (agent != null && StringUtils.isNotBlank(agent.getPrompt())) {
+        if (StringUtils.isNotBlank(agentPrompt)) {
             if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
             systemPrompt.append("<agent_prompt>\n")
                     .append("以下是当前 Agent 的专属提示词，与前述要求冲突时以本节为准。\n\n")
-                    .append(agent.getPrompt().trim())
+                    .append(agentPrompt.trim())
                     .append("\n</agent_prompt>");
         }
-
-        // 会话上下文（系统信息 + 当前用户信息）
-        if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
-        systemPrompt.append("<session_context>\n").append(buildSessionContext(UserContextHolder.getUser())).append("\n</session_context>");
 
         // 系统能力（资源文件）
         String capabilityPrompt = Config.getSystemCapabilityPrompt();
@@ -81,13 +67,21 @@ public class SystemPromptBuilder {
             systemPrompt.append("<system_capabilities>\n").append(capabilityPrompt.trim()).append("\n</system_capabilities>");
         }
 
+        // 会话上下文（系统信息 + 当前用户信息）
+        ID user = UserContextHolder.getUser(true);
+        boolean isRealUser = user != null && !UserHelper.isSystemUser(user);
+
+        if (isRealUser) {
+            if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
+            systemPrompt.append("<session_context>\n").append(buildSessionContext(user)).append("\n</session_context>");
+        }
+
         // 用户记忆（工具启用时注入使用指引与记忆内容）
-        ID memoryUser = UserContextHolder.getUser(true);
-        if (memoryUser != null && !ToolDefs.isToolDisabled("UserMemory")) {
+        if (isRealUser && !ToolDefs.isToolDisabled("UserMemory")) {
             if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
             systemPrompt.append("<user_memory>\n").append(UserMemory.MEMORY_GUIDANCE);
 
-            String memoryPrompt = buildMemoryPrompt(memoryUser);
+            String memoryPrompt = buildMemoryPrompt(user);
             if (StringUtils.isNotBlank(memoryPrompt)) {
                 systemPrompt.append("\n\n以下为当前用户的个性化记忆，仅供参考，不要主动向用户复述这些内容。\n").append(memoryPrompt);
             }

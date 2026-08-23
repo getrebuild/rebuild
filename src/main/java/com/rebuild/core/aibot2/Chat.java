@@ -51,14 +51,14 @@ public class Chat implements Serializable {
         this(chatid, null);
     }
 
-    protected Chat(ID chatid, String model, String prompt) {
-        this(chatid, AibotAgent.defaultAgent(model, prompt));
-    }
-
     public Chat(ID chatid, AibotAgent agent) {
         this.chatid = chatid;
         this.agent = agent != null ? agent : AibotAgent.defaultAgent();
         this.restoreIfNeed();
+    }
+
+    protected Chat(ID chatid, String model, String prompt) {
+        this(chatid, AibotAgent.defaultAgent(model, prompt));
     }
 
     /**

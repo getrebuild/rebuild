@@ -149,7 +149,8 @@ public abstract class ChatManager {
             result = chat.ask(userContent, parts);
         }
 
-        chat.store();
+        // 补充 AI 消息后落库
+        chat.completionAfter(result, null, null);
         return result;
     }
 }
