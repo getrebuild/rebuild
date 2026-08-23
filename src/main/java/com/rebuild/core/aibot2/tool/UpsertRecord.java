@@ -87,7 +87,7 @@ public class UpsertRecord implements Tool {
         String entityMetaDesc = buildEntityMetaDesc(entity);
         String prompt = Objects.requireNonNull(PROMPT_TEMPLATE).replace("{ENTITY_META_DESC}", entityMetaDesc);
 
-        String aiResult = ChatManager.ask(fileContent, prompt);
+        String aiResult = ChatManager.ask(fileContent, prompt, null);
 
         JSONObject recordJson = extractJson(aiResult);
         if (recordJson == null) {

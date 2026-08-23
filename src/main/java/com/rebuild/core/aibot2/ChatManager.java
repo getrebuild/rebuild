@@ -108,19 +108,8 @@ public abstract class ChatManager {
     }
 
     /**
-     * 直接提问/回答
-     *
-     * @param userContent
-     * @param prompt
-     * @return
-     * @see Chat#ask(String)
-     */
-    public static String ask(String userContent, String prompt) {
-        return ask(userContent, prompt, null);
-    }
-
-    /**
-     * 直接提问/回答（支持图片视觉识别，内部调用，落库归属 AI 助手）
+     * 直接提问/回答（支持提示词、图片视觉识别）
+     * 内部调用，落库归属 AI 助手
      *
      * @param userContent
      * @param prompt

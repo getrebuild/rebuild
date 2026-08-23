@@ -112,6 +112,8 @@ public enum ConfigurationItem {
     WxworkSyncUsers(false),
     WxworkSyncUsersRole,
     WxworkSyncUsersMatch("ID"),
+    WxworkAibotToken,
+    WxworkAibotEncodingAESKey,
     // Feishu
     FeishuAppId, FeishuAppSecret,
     FeishuSyncUsers(false),

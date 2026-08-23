@@ -449,6 +449,7 @@ public class ConfigurationController extends BaseController {
         String homeUrl = RebuildConfiguration.getHomeUrl("/user/wxwork");
         mv.getModel().put("_WxworkHomeUrl", homeUrl);
         mv.getModel().put("_WxworkAuthCallUrl", homeUrl.split("//")[1].split("/")[0]);
+        mv.getModel().put("_WxworkAibotUrl", homeUrl + "/ai-ask");
 
         return mv;
     }
