@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import com.rebuild.core.support.License;
@@ -39,7 +40,7 @@ public class JsonSchemaValidator {
     public static final String ADV_FILTER = "adv-filter";
     public static final String TRANSFORM_CONFIG = "transform-config";
     public static final String TRIGGER_CONFIG = "trigger-config";
-    public static final String APPROVAL_FLOW = "approval-flow";
+    public static final String APPROVAL_CONFIG = "approval-config";
     public static final String FORM_LAYOUT = "form-layout";
     public static final String LIST_LAYOUT = "list-layout";
     public static final String NAV_MENU = "nav-menu";
@@ -48,11 +49,12 @@ public class JsonSchemaValidator {
     public static final String USER_SELECTOR = "user-selector";
 
     private static final Map<String, String> SCHEMA_RES_MAP = new HashMap<>();
+
     static {
         SCHEMA_RES_MAP.put(ADV_FILTER, "json-schema/adv-filter-schema.json");
         SCHEMA_RES_MAP.put(TRANSFORM_CONFIG, "json-schema/transform-config-schema.json");
         SCHEMA_RES_MAP.put(TRIGGER_CONFIG, "json-schema/trigger-config-schema.json");
-        SCHEMA_RES_MAP.put(APPROVAL_FLOW, "json-schema/approval-flow-schema.json");
+        SCHEMA_RES_MAP.put(APPROVAL_CONFIG, "json-schema/approval-config-schema.json");
         SCHEMA_RES_MAP.put(FORM_LAYOUT, "json-schema/form-layout-schema.json");
         SCHEMA_RES_MAP.put(LIST_LAYOUT, "json-schema/list-layout-schema.json");
         SCHEMA_RES_MAP.put(NAV_MENU, "json-schema/nav-menu-schema.json");
@@ -87,7 +89,7 @@ public class JsonSchemaValidator {
      *
      * @param schemaName
      * @param data
-     * @return 错误列表。null 表示 schema 不可用（未挂载或数据为空），空列表表示校验通过
+     * @return
      */
     public static List<String> validateErrors(String schemaName, Object data) {
         if (!License.isRbvAttached()) return null;
@@ -127,7 +129,7 @@ public class JsonSchemaValidator {
      * 获取 Schema 原文（供 AI 工具注入给模型作为生成约束）
      *
      * @param schemaName
-     * @return null 表示 schema 不存在或不可用
+     * @return
      */
     public static String getSchemaContent(String schemaName) {
         String schemaRes = SCHEMA_RES_MAP.get(schemaName);
@@ -156,7 +158,10 @@ public class JsonSchemaValidator {
 
         try {
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-            return factory.getSchema(schemaStr);
+            // typeLoose: 字符串可被解释为 number/integer/boolean
+            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+            config.setTypeLoose(true);
+            return factory.getSchema(schemaStr, config);
         } catch (Exception ex) {
             log.error("Cannot parse schema : {}", schemaRes, ex);
             return null;

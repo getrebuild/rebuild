@@ -91,6 +91,26 @@
                       </tr>
                     </tbody>
                   </table>
+                  <h5>[[${bundle.L('AI 助手集成')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">URL</td>
+                        <td>
+                          [[${_WxworkAibotUrl}]]
+                          <a class="ml-1 link" th:data-clipboard-text="${_WxworkAibotUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Token</td>
+                        <td data-id="WxworkAibotToken" th:data-value="${WxworkAibotToken ?:''}" data-optional="true">[[${WxworkAibotToken ?:bundle.L('未配置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>EncodingAESKey</td>
+                        <td data-id="WxworkAibotEncodingAESKey" th:data-value="${WxworkAibotEncodingAESKey ?:''}" data-optional="true">[[${WxworkAibotEncodingAESKey ?:bundle.L('未配置')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
                   <div class="edit-footer">
                     <button type="button" class="btn btn-link">[[${bundle.L('取消')}]]</button>
                     <div class="btn-group">

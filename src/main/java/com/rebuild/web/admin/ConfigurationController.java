@@ -435,7 +435,10 @@ public class ConfigurationController extends BaseController {
             if (name.startsWith("Wxwork")) {
                 String value = RebuildConfiguration.get(item);
 
-                if (value != null && item == ConfigurationItem.WxworkSecret) {
+                boolean dese = item == ConfigurationItem.WxworkSecret
+                        || item == ConfigurationItem.WxworkRxToken || item == ConfigurationItem.WxworkRxEncodingAESKey
+                        || item == ConfigurationItem.WxworkAibotToken || item == ConfigurationItem.WxworkAibotEncodingAESKey;
+                if (value != null && dese) {
                     value = DataDesensitized.any(value);
                 }
                 mv.getModel().put(name, value);
@@ -449,6 +452,7 @@ public class ConfigurationController extends BaseController {
         String homeUrl = RebuildConfiguration.getHomeUrl("/user/wxwork");
         mv.getModel().put("_WxworkHomeUrl", homeUrl);
         mv.getModel().put("_WxworkAuthCallUrl", homeUrl.split("//")[1].split("/")[0]);
+        mv.getModel().put("_WxworkAibotUrl", homeUrl + "/ai-ask");
 
         return mv;
     }

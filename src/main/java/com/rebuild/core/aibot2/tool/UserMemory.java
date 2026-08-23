@@ -63,8 +63,10 @@ public class UserMemory implements Tool {
                     throw new KnownToolException("add 操作必须提供 content 参数（记忆内容）");
                 }
                 Integer level = args.getInteger("level");
-                message = add(user, content, level == null ? 2 : level);
-                break;
+                JSONObject addResult = add(user, content, level == null ? 2 : level);
+                return JSONUtils.toJSONObject(
+                        new String[]{"status", "message", "id"},
+                        new Object[]{"ok", addResult.getString("message"), addResult.getString("id")});
             }
             case "update": {
                 Integer no = args.getInteger("no");
@@ -107,13 +109,14 @@ public class UserMemory implements Tool {
      * @param level
      * @return
      */
-    private String add(ID user, String content, int level) {
+    private JSONObject add(ID user, String content, int level) {
         content = CommonsUtils.maxstr(StringUtils.trim(content), MAX_CONTENT_LENGTH);
 
         Record r = EntityHelper.forNew(EntityHelper.AibotConfig, user);
         r.setString("type", TYPE_AIBOT_USERMEMORY);
         r.setString("config", newMemoryConfig(content, level).toJSONString());
-        Application.getBean(AibotConfigService.class).create(r);
+        r = Application.getBean(AibotConfigService.class).create(r);
+        ID memoryId = r.getPrimary();
 
         // 超限自动移除：level 数值最大（最低档）者优先，同档按 createdOn 最旧者优先
         StringBuilder removed = new StringBuilder();
@@ -136,11 +139,15 @@ public class UserMemory implements Tool {
             memories = AibotConfigManager.instance.getUserMemoryConfigs(user);
         }
 
-        String result = String.format("已记住（第 %d 档）：%s", level, content);
+        String message = String.format("已记住（第 %d 档）：%s", level, content);
         if (removed.length() > 0) {
-            result += String.format("\n注意：记忆数量已达上限（%d 条），已自动移除最低档位的记忆：%s", MAX_MEMORIES, removed);
+            message += String.format("\n注意：记忆数量已达上限（%d 条），已自动移除最低档位的记忆：%s", MAX_MEMORIES, removed);
         }
-        return result;
+
+        JSONObject ret = new JSONObject(true);
+        ret.put("message", message);
+        ret.put("id", memoryId.toLiteral());
+        return ret;
     }
 
     /**

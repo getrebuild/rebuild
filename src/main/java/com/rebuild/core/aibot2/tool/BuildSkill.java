@@ -90,7 +90,7 @@ public class BuildSkill implements Tool, AdminGuard {
         log.info("Skill created via AI : {} ({})", skillId, name);
 
         return JSONUtils.toJSONObject(
-                new String[]{"status", "skillId", "name", "url", "message"},
+                new String[]{"status", "id", "name", "url", "message"},
                 new Object[]{"ok", skillId, name, skillUrl,
                         String.format("已成功创建技能 [%s]，[点击管理技能](%s)，请将此链接展示给用户，以便其核对提示词是否符合预期",
                                 name, skillUrl)});

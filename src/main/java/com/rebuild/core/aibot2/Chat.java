@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletionContentPart;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
-import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.service.query.QueryHelper;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -38,9 +37,7 @@ public class Chat implements Serializable {
     @Getter
     private ID chatid;
     @Getter
-    private String model;
-    @Getter
-    private String prompt;
+    private AibotAgent agent;
 
     @Getter
     private List<Message> messages = new ArrayList<>();
@@ -51,15 +48,17 @@ public class Chat implements Serializable {
     private transient ChatLogger chatLogger;
 
     public Chat(ID chatid) {
-        this(chatid, Config.getBasePrompt(), Config.getDefModel());
+        this(chatid, null);
     }
 
-    protected Chat(ID chatid, String prompt, String model) {
+    public Chat(ID chatid, AibotAgent agent) {
         this.chatid = chatid;
-        this.model = model;
-        this.prompt = prompt;
-
+        this.agent = agent != null ? agent : AibotAgent.defaultAgent();
         this.restoreIfNeed();
+    }
+
+    protected Chat(ID chatid, String model, String prompt) {
+        this(chatid, AibotAgent.defaultAgent(model, prompt));
     }
 
     /**
@@ -119,11 +118,11 @@ public class Chat implements Serializable {
         Message message = new Message(ROLE_USER, userMessage, null, null, null);
         messages.add(message);
 
-        String systemPrompt = SystemPromptBuilder.build(prompt, null);
-        chatLogger().logSession(model, systemPrompt);
+        String systemPrompt = agent.buildSystemPrompt(null);
+        chatLogger().logSession(agent.model(), systemPrompt);
         chatLogger().log("USER", userMessage);
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model)
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent.model())
                 .addUserMessageOfArrayOfContentParts(parts);
         return new ChatExecutor(this, null, builder).runContent();
     }
@@ -136,9 +135,9 @@ public class Chat implements Serializable {
      * @return
      */
     private ChatCompletionCreateParams.Builder requestParams(String userMessage, ChatRequest chatRequest) {
-        String systemPrompt = SystemPromptBuilder.build(prompt,
+        String systemPrompt = agent.buildSystemPrompt(
                 chatRequest == null ? null : chatRequest.getSkill());
-        chatLogger().logSession(model, systemPrompt);
+        chatLogger().logSession(agent.model(), systemPrompt);
 
         if (userMessage != null) {
             Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
@@ -147,14 +146,14 @@ public class Chat implements Serializable {
             chatLogger().log("USER", userMessage);
         }
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, model);
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent.model());
         for (Message m : messages) {
             String content = m.getContent();
             if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);
             else if (ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(content);
         }
 
-        builder.tools(ToolDefs.tools())
+        builder.tools(agent.tools())
                 .toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO);
 
         return builder;

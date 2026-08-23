@@ -82,7 +82,7 @@ public class Message implements Serializable {
      */
     public JSONObject toJSON() {
         JSONObject d;
-        if (Message.ROLE_USER.equals(role)) {
+        if (Message.ROLE_USER.equals(role) && userReqJson != null) {
             d = (JSONObject) JSONUtils.clone(userReqJson);
         } else {
             d = toSimpleJSON();

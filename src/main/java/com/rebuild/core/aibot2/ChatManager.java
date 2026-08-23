@@ -108,19 +108,8 @@ public abstract class ChatManager {
     }
 
     /**
-     * 直接提问/回答
-     *
-     * @param userContent
-     * @param prompt
-     * @return
-     * @see Chat#ask(String)
-     */
-    public static String ask(String userContent, String prompt) {
-        return ask(userContent, prompt, null);
-    }
-
-    /**
-     * 直接提问/回答（支持图片视觉识别，内部调用，落库归属 AI 助手）
+     * 直接提问/回答（支持提示词、图片视觉识别）
+     * 内部调用，落库归属 AI 助手
      *
      * @param userContent
      * @param prompt
@@ -128,8 +117,8 @@ public abstract class ChatManager {
      * @return
      */
     public static String ask(String userContent, String prompt, List<File> imageFiles) {
-        ID chatid = initChat(UserService.AIBOT_USER, "aiask");
-        Chat chat = new Chat(chatid, prompt, null);
+        ID chatid = initChat(UserService.AIBOT_USER, "AIASK-" + userContent);
+        Chat chat = new Chat(chatid, null, prompt);
 
         String result;
         if (CollectionUtils.isEmpty(imageFiles)) {
@@ -160,7 +149,8 @@ public abstract class ChatManager {
             result = chat.ask(userContent, parts);
         }
 
-        chat.store();
+        // 补充 AI 消息后落库
+        chat.completionAfter(result, null, null);
         return result;
     }
 }

@@ -77,7 +77,12 @@ class KbList extends React.Component {
     return this.props.data.map((item) => {
       // -1 构建中，0 构建失败，>0 分片数
       let chunkBadge
-      if (item.chunkCount > 0) chunkBadge = <span className="badge badge-light ml-1 up-1">{item.chunkCount}</span>
+      if (item.chunkCount > 0)
+        chunkBadge = (
+          <span className="badge badge-light ml-1 up-1" title={$L('分片数量')}>
+            {item.chunkCount}
+          </span>
+        )
       else if (item.chunkCount === -1) chunkBadge = <span className="badge badge-warning ml-1">{$L('构建中')}</span>
       else chunkBadge = <span className="badge badge-danger ml-1">{$L('构建失败')}</span>
 
@@ -86,7 +91,7 @@ class KbList extends React.Component {
           <td>
             {item.name} {chunkBadge}
           </td>
-          <td>{item.description || $L('无')}</td>
+          <td>{item.description || <NoValue />}</td>
           <td className="actions">
             <a title={$L('修改')} className="icon" onClick={() => _editKb(item)}>
               <i className="zmdi zmdi-edit" />
@@ -98,6 +103,15 @@ class KbList extends React.Component {
         </tr>
       )
     })
+  }
+}
+
+// 获取知识库源文件
+const _getKbFile = function (item) {
+  try {
+    return (JSON.parse(item.sourceConfig || '{}') || {}).file || ''
+  } catch (e) {
+    return ''
   }
 }
 
@@ -153,12 +167,17 @@ class DlgKbEdit extends RbModalHandler {
               <label className="col-sm-3 col-form-label text-sm-right">{$L('内容')}</label>
               <div className="col-sm-7">
                 <div className="mb-1 file-select">
-                  <input type="file" className="inputfile" id="DlgKbEdit__file" data-local="temp" ref={(c) => (this._$file = c)} />
+                  <input type="file" className="inputfile" id="DlgKbEdit__file" ref={(c) => (this._$file = c)} />
                   <label htmlFor="DlgKbEdit__file" className="btn-secondary">
                     <span className="zmdi zmdi-upload" />
                     <span className="ml-1">{$L('上传文件')}</span>
                   </label>
                   {this.state.fileName ? <b className="text-underline ml-2">{this.state.fileName}</b> : null}
+                  {!this.state.fileName && isFile && _getKbFile(item) && (
+                    <a className="ml-2 text-bold text-dark text-underline" title={$L('下载文件')} href={`${rb.baseUrl}/filex/download/${_getKbFile(item)}`} target="_blank">
+                      {$fileCutName(_getKbFile(item))}
+                    </a>
+                  )}
                 </div>
                 <textarea className="form-control form-control-sm" ref={(c) => (this._$text = c)} defaultValue={!isFile ? this._getSourceConfig('text', item.sourceConfig) : ''} />
                 <p className="form-text">{WrapHtml($L('输入内容，或上传文件自动解析'))}</p>
@@ -261,7 +280,8 @@ class DlgKbEdit extends RbModalHandler {
           this.hide()
           KbList.load()
         }
-        // 内容未变化（如仅修改名称/描述）无需重新构建
+
+        // 内容未变化无需重新构建
         if (needBuild) {
           $.post(`./aibot/kb-build?id=${newId}`, next)
         } else {
@@ -292,7 +312,7 @@ class SkillList extends React.Component {
       return (
         <tr key={item.id}>
           <td>{item.name}</td>
-          <td>{cfg.description || $L('无')}</td>
+          <td>{cfg.description || <NoValue />}</td>
           <td className="actions">
             <a title={$L('修改')} className="icon" onClick={() => _editSkill(item)}>
               <i className="zmdi zmdi-edit" />
@@ -575,7 +595,7 @@ class ToolList extends React.Component {
       return (
         <tr key={item.name}>
           <td>{item.name}</td>
-          <td>{item.userDescription || item.description || $L('无')}</td>
+          <td>{item.userDescription || item.description || <NoValue />}</td>
           <td className="actions">{ShowEnable(item.disabled, item.name, (checked) => this._saveToolsDisabled(item.name, checked))}</td>
         </tr>
       )

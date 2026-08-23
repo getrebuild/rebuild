@@ -83,7 +83,7 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
     @Override
     protected void cleanCache(ID cfgid) {
         Object c = QueryHelper.queryFieldValue(cfgid, "flowDefinition");
-        JsonSchemaValidator.validate(JsonSchemaValidator.APPROVAL_FLOW, c);
+        JsonSchemaValidator.validate(JsonSchemaValidator.APPROVAL_CONFIG, c);
 
         String be = RobotApprovalManager.instance.getBelongEntity(cfgid, false);
         if (be != null) {

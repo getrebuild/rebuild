@@ -65,8 +65,10 @@ public class FileData implements VectorData {
         File file = null;
         if (fileOrPath instanceof File) {
             file = (File) fileOrPath;
+
         } else if (fileOrPath instanceof Path) {
             file = ((Path) fileOrPath).toFile();
+
         } else if (CommonsUtils.isExternalUrl(filePath)) {
             CommonsUtils.checkUrlSafe(filePath);
             try {
@@ -74,9 +76,17 @@ public class FileData implements VectorData {
             } catch (IOException e) {
                 log.error("Reading file error : {}", filePath, e);
             }
+
         } else {
             file = RebuildConfiguration.getFileOfTemp(filePath);
             if (!file.exists()) file = RebuildConfiguration.getFileOfData(filePath);
+            if (!file.exists() && QiniuCloud.instance().available()) {
+                try {
+                    file = QiniuCloud.downloadFile(filePath);
+                } catch (Exception e) {
+                    log.warn("Cannot download file from cloud : {}", filePath);
+                }
+            }
             if (!file.exists()) file = new File(filePath);
         }
 

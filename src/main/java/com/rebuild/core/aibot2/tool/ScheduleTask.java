@@ -142,7 +142,7 @@ public class ScheduleTask implements Tool {
         String typeDesc = getScheduleTypeDesc(scheduleType, time, dayOfWeek, dayOfMonth);
 
         return JSONUtils.toJSONObject(
-                new String[]{"status", "taskId", "nextExecTime", "message"},
+                new String[]{"status", "id", "nextExecTime", "message"},
                 new Object[]{"ok", taskId, nextExecStr,
                         String.format("已成功创建定时任务 [%s]，%s，下次执行时间: %s",
                                 subject, typeDesc, nextExecStr)});
