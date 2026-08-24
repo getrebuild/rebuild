@@ -96,7 +96,6 @@ const post = function (data) {
       return false
     }
   }
-
   if (!(data = postBefore(data))) return false
 
   const $btn = $('.edit-footer>.btn-primary, .card-header .J_save').button('loading')

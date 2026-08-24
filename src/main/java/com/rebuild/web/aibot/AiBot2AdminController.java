@@ -80,7 +80,8 @@ public class AiBot2AdminController extends BaseController {
                 mv.getModel().put(name, value);
             }
         }
-        mv.getModel().put("HomeUrl", RebuildConfiguration.getHomeUrl());
+
+        mv.getModel().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
         return mv;
     }
 

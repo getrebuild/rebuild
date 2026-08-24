@@ -92,8 +92,8 @@ public class KVStorage {
         if (value == SETNULL) {
             if (e != null) {
                 Application.getCommonsService().delete((ID) e[0]);
-                Application.getCommonsCache().evict(key);
             }
+            Application.getCommonsCache().evict(key);
             return;
         }
 

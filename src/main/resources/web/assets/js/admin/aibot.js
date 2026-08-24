@@ -615,12 +615,13 @@ class ToolList extends React.Component {
 
 // eslint-disable-next-line no-undef
 postBefore = function (data) {
+  if (data.__clear__) return data
+
   const $ds = $('td[data-id="AibotDSSecret"]')
   if (!data['AibotDSSecret'] && !$ds.data('value')) {
     RbHighbar.create($L('%s不能为空', $ds.prev().text()))
     return false
   }
-
   return data
 }
 
@@ -688,11 +689,10 @@ const _renderStats = function (data, $el) {
 
 const _renderMcpConfig = function () {
   const $mcp = $('.J_mcpConfig')
-  const homeUrl = $mcp.data('home-url') || ''
   const code = {
     mcpServers: {
       rebuild: {
-        url: homeUrl + 'gw/mcp/sse',
+        url: $mcp.data('url') || '',
         headers: {
           Authorization: 'Bearer',
         },
@@ -700,6 +700,7 @@ const _renderMcpConfig = function () {
       },
     },
   }
+
   renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0], function () {
     const $pre = $mcp.find('pre')
     const $a = $('<a>', { href: '../../settings/user#secure', target: '_blank', text: `<${$L('你的个人秘钥')}>` })
