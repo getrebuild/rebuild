@@ -34,6 +34,16 @@ $(document).ready(() => {
   })
 
   $('a[data-clipboard-text]').each((idx, item) => $clipboard(item))
+
+  let rbam = 'https://getrebuild.com/js/_market/'
+  $getScript(rbam + 'rebuild-market.min.js?v=1.1', () => {
+    $('<link/>', {
+      rel: 'stylesheet',
+      type: 'text/css',
+      href: rbam + 'rebuild-market.min.css?v=1.1',
+    }).appendTo('head')
+    typeof window.evalMarket === 'function' && window.evalMarket($('a[data-sn]').data('sn'), { ...window.rb })
+  })
 })
 
 const __data = {}
