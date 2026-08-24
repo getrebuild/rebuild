@@ -161,6 +161,11 @@ public class AiBot2AdminController extends BaseController {
         return mv;
     }
 
+    @GetMapping("aibot-agents")
+    public ModelAndView pageIntegrationAibotAgents() {
+        return createModelAndView("/admin/integration/aibot-agents");
+    }
+
     @GetMapping("aibot/tools")
     public RespBody toolList() {
         return RespBody.ok(ToolDefs.listTools(true, false));
