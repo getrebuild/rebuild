@@ -98,7 +98,7 @@ public class AiBot2AdminController extends BaseController {
         double aibotCount = 0;
         for (Object[] o : aibot) {
             o[1] = o[1] == null ? 0L : o[1];
-            o[1] = ObjectUtils.round((Long) o[1] / 10000d, 2);
+            o[1] = ObjectUtils.round(((Number) o[1]).longValue() / 10000d, 2);
             aibotCount += (Double) o[1];
         }
 

@@ -28,20 +28,22 @@ const _chatMarked = new marked.Marked({
     },
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens)
+      // 非安全协议（javascript:/data: 等）渲染为纯文本，防止 XSS
+      if (!/^https?:\/\//i.test(href)) return text
+
       let safeHref = href
-      if (/^https?:\/\//i.test(href)) {
-        try {
-          const url = new URL(href, window.location.href)
-          if (url.hostname !== window.location.hostname) {
-            safeHref = `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent(href)}`
-          }
-        } catch (e) {
+      try {
+        const url = new URL(href, window.location.href)
+        if (url.hostname !== window.location.hostname) {
           safeHref = `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent(href)}`
         }
+      } catch (e) {
+        safeHref = `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent(href)}`
       }
 
-      let out = `<a href="${safeHref}"`
-      if (title) out += ` title="${title}"`
+      const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+      let out = `<a href="${escAttr(safeHref)}"`
+      if (title) out += ` title="${escAttr(title)}"`
       out += ` target="_blank" rel="noopener noreferrer">${text}</a>`
       return out
     },

@@ -58,6 +58,12 @@ public class AiBot2Controller extends BaseController {
         ChatRequest chatRequest = buildChatRequest(req);
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
 
+        if (!chat.tryBeginRun()) {
+            JSONObject error = JSONUtils.toJSONObject("error", Language.L("会话正在处理中，请稍后再试"));
+            ServletUtils.writeJson(resp, error.toJSONString());
+            return;
+        }
+
         try {
             Message respMessage = chat.post(chatRequest);
             ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
@@ -65,6 +71,8 @@ public class AiBot2Controller extends BaseController {
             log.error("chat-post", ex);
             JSONObject error = JSONUtils.toJSONObject("error", "请求错误:" + CommonsUtils.getRootMessage(ex));
             ServletUtils.writeJson(resp, error.toJSONString());
+        } finally {
+            chat.endRun();
         }
     }
 
@@ -78,11 +86,18 @@ public class AiBot2Controller extends BaseController {
         ChatRequest chatRequest = buildChatRequest(req);
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
 
+        if (!chat.tryBeginRun()) {
+            StreamEcho.error(Language.L("会话正在处理中，请稍后再试"), resp.getWriter());
+            return;
+        }
+
         try {
             chat.stream(chatRequest, resp);
         } catch (Throwable ex) {
             log.error("chat-stream", ex);
             StreamEcho.error("请求错误:" + CommonsUtils.getRootMessage(ex), resp.getWriter());
+        } finally {
+            chat.endRun();
         }
     }
 

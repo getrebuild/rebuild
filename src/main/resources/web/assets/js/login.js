@@ -32,7 +32,6 @@ $(document).ready(() => {
     const $a = $('.h5-mobile>a:eq(0)')
     const h = $a.attr('href') || ''
     $a.on('click', () => {
-      debugger
       if (h.includes('/apps-download')) {
         window.open(h, '_blank')
       }

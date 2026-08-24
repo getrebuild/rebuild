@@ -326,7 +326,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/account/user-avatar/")
                 || requestUri.startsWith("/rbmob/env")
                 || requestUri.startsWith("/apps-download")
-                || requestUri.startsWith("/app-download")
                 || requestUri.startsWith("/apiman/")
                 || requestUri.startsWith("/commons/frontjs/use-frontjs")
                 || requestUri.startsWith("/commons/file-preview")
