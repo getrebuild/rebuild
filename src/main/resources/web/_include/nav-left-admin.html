@@ -63,7 +63,7 @@
                 </ul>
               </li>
               <li th:class="${active == 'apis-manager'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('API', #request)}">
-                <a th:href="@{/admin/apis-manager}"><i class="icon mdi mdi-api"></i><span>[[${bundle.L('OpenAPI 密钥')}]]</span> <sup class="rbv"></sup></a>
+                <a th:href="@{/admin/apis-manager}"><i class="icon mdi mdi-api"></i><span>OpenAPI</span> <sup class="rbv"></sup></a>
               </li>
 
               <li class="divider">[[${bundle.L('业务实体')}]]</li>

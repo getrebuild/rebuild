@@ -50,3 +50,67 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .rb-loading.data-list {
   overflow-x: auto;
 }
+
+.api-logs {
+  padding: 25px 20px;
+}
+
+.api-logs .logs-list {
+  border-right: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.api-logs .logs-list .list-group-item {
+  padding: 6px 8px;
+  line-height: 1.2;
+}
+
+.api-logs .logs-list .list-group-item.active > div {
+  color: #fff;
+}
+
+.api-logs .logs-list .list-group-item.active > div > .text-muted {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.api-logs .logs-list .list-group-item:first-child {
+  border-top-width: 0;
+}
+
+.api-logs .logs-detail {
+  position: sticky;
+  top: 20px;
+}
+
+.api-logs .logs-detail dt {
+  margin-bottom: 10px;
+  font-weight: normal;
+  color: #666;
+}
+
+.api-logs .logs-detail dd {
+  color: #222;
+}
+
+.api-logs .search-logs > input {
+  appearance: none !important;
+  outline: none !important;
+  border: 0 none;
+  padding: 6px 8px;
+  width: 100%;
+  border-radius: 2px;
+  display: block;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  line-height: 1;
+}
+
+.api-logs .search-logs > input:focus {
+  background-color: #eee;
+}
+
+.api-logs .search-logs > em {
+  font-size: 1.2rem;
+  position: absolute;
+  top: 7px;
+  right: 6px;
+  color: #aaa;
+}

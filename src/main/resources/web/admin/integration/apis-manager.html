@@ -5,60 +5,7 @@
     <meta name="page-help" content="https://getrebuild.com/docs/dev/how-use-apis" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/config-comps.css}" />
     <title>[[${bundle.L('OpenAPI 密钥')}]]</title>
-    <style>
-      .logs {
-        padding: 25px 20px;
-      }
-      .logs-list {
-        border-right: 1px solid rgba(0, 0, 0, 0.125);
-      }
-      .logs-list .list-group-item {
-        padding: 6px 8px;
-        line-height: 1.2;
-      }
-      .logs-list .list-group-item.active > div {
-        color: #fff;
-      }
-      .logs-list .list-group-item.active > div > .text-muted {
-        color: rgba(255, 255, 255, 0.6) !important;
-      }
-      .logs-list .list-group-item:first-child {
-        border-top-width: 0;
-      }
-      .logs-detail {
-        position: sticky;
-        top: 20px;
-      }
-      .logs-detail dt {
-        margin-bottom: 10px;
-        font-weight: normal;
-        color: #666;
-      }
-      .logs-detail dd {
-        color: #222;
-      }
-      .search-logs > input {
-        appearance: none !important;
-        outline: none !important;
-        border: 0 none;
-        padding: 6px 8px;
-        width: 100%;
-        border-radius: 2px;
-        display: block;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-        line-height: 1;
-      }
-      .search-logs > input:focus {
-        background-color: #eee;
-      }
-      .search-logs > em {
-        font-size: 1.2rem;
-        position: absolute;
-        top: 7px;
-        right: 6px;
-        color: #aaa;
-      }
-    </style>
+    <style></style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -66,8 +13,12 @@
       <th:block th:replace="~{/_include/nav-left-admin(active='apis-manager')}" />
       <div class="rb-content">
         <div class="page-head">
-          <div class="float-left"><div class="page-head-title">[[${bundle.L('OpenAPI 密钥')}]]</div></div>
+          <div class="float-left"><div class="page-head-title">OpenAPI</div></div>
           <div class="float-right pt-1">
+            <span class="mr-2 bosskey-show">
+              <a class="btn btn-link w-auto hide" href="../apiman/" target="_blank">API Man</a>
+              <a class="btn btn-link w-auto" href="apis-manager/subscribe"><i class="mdi mdi-bell-check-outline icon"></i> 数据订阅</a>
+            </span>
             <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
           </div>
           <div class="clearfix"></div>
