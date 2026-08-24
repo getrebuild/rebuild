@@ -70,6 +70,10 @@
                           [[${AibotBaseDefModel ?:bundle.L('默认')}]]
                         </td>
                       </tr>
+                      <tr>
+                        <td>[[${bundle.L('默认提示词')}]]</td>
+                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
+                      </tr>
                     </tbody>
                   </table>
                   <span id="AibotBaseDefModel_defs">
@@ -78,12 +82,21 @@
                       <a class="badge text-ellipsis">gpt-5</a>
                     </div>
                   </span>
-                  <h5>[[${bundle.L('提示词')}]]</h5>
+                  <h5>[[${bundle.L('使用引导')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('默认提示词')}]]</td>
-                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
+                        <td width="40%">[[${bundle.L('欢迎词')}]]</td>
+                        <td
+                          data-id="AibotWelcome"
+                          style="white-space: pre-line"
+                          th:data-value="${AibotWelcome ?:''}"
+                          data-optional="true"
+                          th:data-form-text="${bundle.L('新会话时展示的欢迎语')}"
+                          th:text="${AibotWelcome ?:bundle.L('默认')}"
+                        >
+                          默认
+                        </td>
                       </tr>
                       <tr>
                         <td width="40%">[[${bundle.L('引导问题')}]]</td>

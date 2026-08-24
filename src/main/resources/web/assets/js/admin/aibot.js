@@ -10,7 +10,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 useEditComp = function (name) {
   if ('AibotBasePrompt' === name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
-  } else if ('AibotSuggestQuestions' === name) {
+  } else if ('AibotSuggestQuestions' === name || 'AibotWelcome' === name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {

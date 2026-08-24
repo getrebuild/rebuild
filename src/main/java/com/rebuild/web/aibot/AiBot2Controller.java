@@ -34,6 +34,7 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -143,13 +144,16 @@ public class AiBot2Controller extends BaseController {
             Chat chat = ChatManager.getChat(chatid);
             chat.getMessages().forEach(m -> messages.add(m.toJSON()));
         } else {
-            String aibotName = RebuildConfiguration.get(ConfigurationItem.AibotName);
-            aibotName = String.format("欢迎使用 %s！有什么问题都可以向我提问哦", aibotName);
+            String welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);
+            if (StringUtils.isBlank(welcome)) {
+                String aibotName = RebuildConfiguration.get(ConfigurationItem.AibotName);
+                welcome = String.format("欢迎使用 %s！有什么问题都可以向我提问哦", aibotName);
+            }
 
-            JSON welcome = JSONUtils.toJSONObject(
+            JSON welcomeMsg = JSONUtils.toJSONObject(
                     new String[]{"role", "content"},
-                    new Object[]{"ai", aibotName});
-            messages.add(welcome);
+                    new Object[]{"ai", welcome});
+            messages.add(welcomeMsg);
 
             try {
                 suggestQuestions = SuggestQuestions.generate(getRequestUser(req));

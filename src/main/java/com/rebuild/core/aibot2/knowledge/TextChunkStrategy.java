@@ -7,10 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.knowledge;
 
+import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.seg.common.Term;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 文本分片策略：按段落分割，每片不超过 maxChunkSize，相邻片之间有 overlap 重叠
@@ -78,31 +82,66 @@ public class TextChunkStrategy implements ChunkStrategy {
     }
 
     /**
-     * 提取关键词：按标点空白分词，CJK 文本使用 bigram 滑窗（无需分词库）
+     * 提取关键词：HanLP 分词后按权重提取，附加英文/数字词；
+     * HanLP 提取为空时回退 bigram 滑窗保证短文本可用（构建与查询共用，需保持一致）
      */
     public static List<String> extractKeywords(String text) {
         List<String> keywords = new ArrayList<>();
         if (StringUtils.isBlank(text)) return keywords;
+        Set<String> seen = new HashSet<>();
 
-        String[] words = text.split("[\\s\\p{Punct}\uFF0C\u3002\uFF01\uFF1F\uFF1B\uFF1A\u3001\u201C\u201D\u2018\u2019\uFF08\uFF09\u3010\u3011\u300A\u300B]+");
-        for (String word : words) {
-            String w = word.trim();
-            if (w.length() < 2) continue;
-
-            if (containsCJK(w)) {
-                for (int i = 0; i + 2 <= w.length() && i < 30; i++) {
-                    String bigram = w.substring(i, i + 2);
-                    if (!keywords.contains(bigram)) keywords.add(bigram);
-                }
-            } else if (w.length() <= 20 && !keywords.contains(w)) {
-                keywords.add(w);
+        // HanLP 提取的关键词已按权重排序（含停用词过滤）
+        try {
+            for (String kw : HanLP.extractKeyword(text, 15)) {
+                addKeyword(keywords, seen, kw);
             }
+        } catch (Exception ignored) {
+        }
+
+        // 补充英文/数字词（产品名、字段名等，HanLP 可能忽略）
+        try {
+            for (Term term : HanLP.segment(text)) {
+                addKeyword(keywords, seen, term.word);
+            }
+        } catch (Exception ignored) {
         }
 
         if (keywords.size() > 30) {
             keywords = new ArrayList<>(keywords.subList(0, 30));
         }
+
+        // 短文本 HanLP 可能提取不出关键词，回退 bigram 滑窗兜底（无需分词库）
+        if (keywords.isEmpty()) {
+            for (String w : text.split("[\\s\\p{Punct}\uFF0C\u3002\uFF01\uFF1F\uFF1B\uFF1A\u3001\u201C\u201D\u2018\u2019\uFF08\uFF09\u3010\u3011\u300A\u300B]+")) {
+                if (w.trim().length() < 2) continue;
+                if (!containsCJK(w)) continue;
+                for (int i = 0; i + 2 <= w.length() && i < 10; i++) {
+                    addKeyword(keywords, seen, w.substring(i, i + 2));
+                }
+            }
+        }
+
         return keywords;
+    }
+
+    /**
+     * 添加关键词：仅保留纯字母/数字词或含汉字的词，去重（忽略大小写）
+     */
+    private static void addKeyword(List<String> keywords, Set<String> seen, String word) {
+        if (StringUtils.isBlank(word)) return;
+        String w = word.trim();
+        if (w.length() < 2 || w.length() > 20) return;
+        if (!containsCJK(w)) {
+            boolean allLetterOrDigit = true;
+            for (int i = 0; i < w.length(); i++) {
+                if (!Character.isLetterOrDigit(w.charAt(i))) {
+                    allLetterOrDigit = false;
+                    break;
+                }
+            }
+            if (!allLetterOrDigit) return;
+        }
+        if (seen.add(w.toLowerCase())) keywords.add(w);
     }
 
     /**
