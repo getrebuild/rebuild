@@ -1782,7 +1782,7 @@ class RbFormNText extends RbFormElement {
 class RbFormNTextUseCode extends RbFormNText {
   renderElement() {
     let cmOptions = {
-      theme: 'material',
+      // theme: 'default',  // light
     }
 
     return (
@@ -3937,7 +3937,7 @@ var detectElement = function (item, entity) {
       return <RbFormNTextUseCode {...item} />
     }
     if (~~item.showStyle === 11) {
-      if (window.CodeMirror && window.prettier) return <RbFormNTextUseHtml {...item} />
+      if (window.tinymce) return <RbFormNTextUseHtml {...item} />
       else console.warn('tinymce not found')
     }
     return <RbFormNText {...item} />

@@ -1559,7 +1559,7 @@ class CodeEditor extends React.Component {
 
     let options = {
       mode: 'text/jsx',
-      theme: this.props.theme || 'material-palenight',
+      theme: 'material',
       lineNumbers: true,
       dragDrop: false,
       smartIndent: true,
