@@ -85,7 +85,7 @@ public class BuildSkill implements Tool, AdminGuard {
         record = Application.getBean(AibotConfigService.class).create(record);
 
         String skillId = record.getPrimary().toLiteral();
-        String skillUrl = AppUtils.getContextPath("/admin/integration/aibot");
+        String skillUrl = AppUtils.getContextPath("/admin/integration/aibot-kits");
 
         log.info("Skill created via AI : {} ({})", skillId, name);
 

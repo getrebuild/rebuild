@@ -80,8 +80,6 @@ public class AiBot2AdminController extends BaseController {
                 mv.getModel().put(name, value);
             }
         }
-
-        mv.getModel().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
         return mv;
     }
 
@@ -108,16 +106,6 @@ public class AiBot2AdminController extends BaseController {
                 new Object[]{aibot, ObjectUtils.round(aibotCount, 2)});
     }
 
-    @GetMapping("aibot/tools")
-    public RespBody toolList() {
-        return RespBody.ok(ToolDefs.listTools(true, false));
-    }
-
-    /**
-     * 获取可用模型列表（从已配置的 AI 服务商动态获取）
-     *
-     * @return
-     */
     @GetMapping("aibot/models")
     public RespBody modelList() {
         if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
@@ -162,6 +150,20 @@ public class AiBot2AdminController extends BaseController {
             }
         }
         return null;
+    }
+
+    // -- KITS
+
+    @GetMapping("aibot-kits")
+    public ModelAndView pageIntegrationAibotKits() {
+        ModelAndView mv = createModelAndView("/admin/integration/aibot-kits");
+        mv.getModel().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
+        return mv;
+    }
+
+    @GetMapping("aibot/tools")
+    public RespBody toolList() {
+        return RespBody.ok(ToolDefs.listTools(true, false));
     }
 
     @GetMapping("aibot/skill-list")
