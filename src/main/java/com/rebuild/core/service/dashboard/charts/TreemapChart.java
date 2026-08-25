@@ -50,6 +50,7 @@ public class TreemapChart extends ChartData {
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();
         renderOption.put("dataFlags", new String[]{getNumericalFlag(num1)});
+        renderOption.put("dataColors", new String[]{num1.getColor()});
         renderOption.remove("useBgcolor");
 
         return JSONUtils.toJSONObject(

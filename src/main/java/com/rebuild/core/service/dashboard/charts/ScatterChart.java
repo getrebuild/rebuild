@@ -36,6 +36,7 @@ public class ScatterChart extends ChartData {
 
         JSONArray series = new JSONArray();
         List<String> dataFlags = new ArrayList<>();
+        List<String> dataColors = new ArrayList<>();
 
         // 模式1: 0-DMI + N-NUM
         if (dims.length == 0) {
@@ -78,11 +79,13 @@ public class ScatterChart extends ChartData {
         for (int i = 0; i < nums.length; i++) {
             dataLabel[i] = nums[i].getLabel();
             dataFlags.add(getNumericalFlag(nums[i]));
+            dataColors.add(nums[i].getColor());
         }
 
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();
         renderOption.put("dataFlags", dataFlags);
+        renderOption.put("dataColors", dataColors);
 
         return JSONUtils.toJSONObject(
                 new String[]{"series", "dataLabel", "_renderOption"},
