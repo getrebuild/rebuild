@@ -386,6 +386,8 @@ class FileUploadDlg extends RbFormHandler {
     e && $stopEvent(e, true)
     const files = this.state.files || {}
     delete files[fileName]
+    if ($empty(files)) return this._reset()
+
     this.setState({ files: files }, () => this._postIfUploaded())
   }
 
