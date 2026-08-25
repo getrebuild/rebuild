@@ -967,9 +967,7 @@ class ChartDolor extends BaseChart {
     const MIN_FONT = 14
     const MAX_FONT = 52
 
-    const sorted = [...filtered]
-      .sort((a, b) => (parseFloat(b.value) || 0) - (parseFloat(a.value) || 0))
-      .slice(0, 100)
+    const sorted = [...filtered].sort((a, b) => (parseFloat(b.value) || 0) - (parseFloat(a.value) || 0)).slice(0, 100)
 
     const words = sorted.map((item, idx) => {
       const v = parseFloat(item.value) || 0
@@ -1010,20 +1008,17 @@ class ChartDolor extends BaseChart {
     })
   }
 
-  // 螺旋布局：Archimedean 螺旋从中心向外均匀排布
   _layoutSpiral() {
     const $chart = $(this._$chart)
     if (!$chart || !$chart.length) return
     const $inner = $chart.find('.dolor-inner')
     const zoom = this._dolorZoom || 1
-    // 父容器尺寸不受子元素 zoom 影响
     const pw = $chart.width()
     const ph = $chart.height()
     if (pw < 50 || ph < 50) {
       $setTimeout(() => this._layoutSpiral(), 200, `dolor-layout-${this.state.id}`)
       return
     }
-    // 布局空间 = 父容器 / zoom，zoom 后正好填满
     const cw = pw / zoom
     const ch = ph / zoom
     const cx = cw / 2
@@ -1031,7 +1026,6 @@ class ChartDolor extends BaseChart {
     const placed = []
     const $words = $inner.find('.dolor-word')
 
-    // 平均词高决定螺旋间距
     let totalH = 0
     $words.each((idx, el) => {
       totalH += $(el).outerHeight()
@@ -1084,7 +1078,7 @@ class ChartDolor extends BaseChart {
     $setTimeout(
       () => {
         if (!this._$chart) return
-        // 全屏后利用 zoom 放大，参考 IndexChart
+
         const ch = $(this._$chart).height()
         const zoom = ch > 330 ? 1.5 : ch > 200 ? 1.2 : 1
         this._dolorZoom = zoom
@@ -2486,7 +2480,7 @@ class ChartSelect extends RbModalHandler {
     )
   }
 
-  componentDidMount  () {
+  componentDidMount() {
     this._loadCharts()
   }
   _loadCharts() {
