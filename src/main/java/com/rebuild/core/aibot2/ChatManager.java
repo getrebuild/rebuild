@@ -153,4 +153,19 @@ public abstract class ChatManager {
         chat.completionAfter(result, null, null);
         return result;
     }
+
+    /**
+     * 直接提问/回答（无权限）
+     *
+     * @param userContent
+     * @return
+     */
+    public static String askWithAibot(String userContent) {
+        ID keepCurrentUser = UserContextHolder.setUser(UserService.AIBOT_USER);
+        try {
+            return ask(userContent);
+        } finally {
+            UserContextHolder.clearUser(keepCurrentUser);
+        }
+    }
 }

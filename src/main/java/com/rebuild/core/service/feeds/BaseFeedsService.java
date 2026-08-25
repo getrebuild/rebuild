@@ -108,6 +108,10 @@ public abstract class BaseFeedsService extends ObservableService {
             related = record.getID("feedsId");
         }
 
+        // @所有人展开前，记录 AI 助手是否被显式 @（@AI助手），
+        // 展开后 AIBOT_USER 也会出现在 atUsers 中，但不应触发 AI 回复
+        boolean aibotExplicitlyMentioned = atUsers.contains(AIBOT_USER);
+
         if (atUsers.contains(USER_ALLS) && !existsAtUsers.contains(USER_ALLS)) {
             atUsers.clear();
             for (User u : Application.getUserStore().getAllUsers()) {
@@ -115,12 +119,12 @@ public abstract class BaseFeedsService extends ObservableService {
             }
         }
 
-        if (atUsers.contains(AIBOT_USER) && !existsAtUsers.contains(AIBOT_USER)) {
+        if (aibotExplicitlyMentioned && !existsAtUsers.contains(AIBOT_USER)) {
             TransactionManual.registerAfterCommit(() -> {
                 String aiReply;
                 if (Config.availableAiBot()) {
                     try {
-                        aiReply = ChatManager.ask("请直接、简洁的回答问题（不要MD格式）：\n" + content);
+                        aiReply = ChatManager.askWithAibot("请直接、简洁的回答问题（不要MD格式）：\n" + content);
                     } catch (Exception ex) {
                         log.error("AiBot error on ask", ex);
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
@@ -137,11 +141,11 @@ public abstract class BaseFeedsService extends ObservableService {
                         .add("content", aiReply)
                         .build(AIBOT_USER);
 
-                UserContextHolder.setUser(AIBOT_USER);
+                ID keepCurrentUser = UserContextHolder.setUser(AIBOT_USER);
                 try {
                     Application.getBean(FeedsCommentService.class).createOrUpdate(r);
                 } finally {
-                    UserContextHolder.clearUser();
+                    UserContextHolder.clearUser(keepCurrentUser);
                 }
             });
         }
