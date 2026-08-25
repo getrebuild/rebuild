@@ -28,7 +28,10 @@ const EntityTree = {
         'navTree',
         function () {
           const e = (location.hash || '').split('Entity/')[1]
-          if (e) this.triggerClick(~~e)
+          if (e) {
+            if (this.__items[~~e]) this.triggerClick(~~e)
+            else filesList.loadData(__DEFAULT_ALL)
+          }
         },
       )
     })
@@ -40,6 +43,10 @@ class FilesList4Atts extends FilesList {
   constructor(props) {
     super(props)
     this._lastEntry = __DEFAULT_ALL
+  }
+
+  componentDidMount() {
+    if (!(location.hash || '').includes('Entity/')) this.loadData()
   }
 
   renderExtras(item) {
