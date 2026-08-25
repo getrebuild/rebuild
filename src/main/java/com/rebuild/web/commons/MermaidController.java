@@ -53,7 +53,8 @@ public class MermaidController extends BaseController {
         ConfigBean c = ChartManager.instance.getChart(chartid);
 
         String listFilter = getParameter(request, "filter");
-        JSONObject listFilterJson = JSONUtils.wellFormat(listFilter) ? JSONUtils.parseObjectSafe(listFilter) : null;
+        JSONObject listFilterJson = JSONUtils.wellFormat(listFilter)
+                ? (JSONObject) JSONUtils.parseSafe(listFilter) : null;
         if (listFilterJson != null) {
             // 支持传 Filter 数据体
             Object hasFilterItems = listFilterJson.get("items");

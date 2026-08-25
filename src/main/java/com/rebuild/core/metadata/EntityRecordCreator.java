@@ -295,7 +295,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
             // v4.3 处理位置字段
             else if (fieldType == FieldType.STRING && EasyMetaFactory.getDisplayType(field) == DisplayType.LOCATION) {
                 if (JSONUtils.wellFormat(value)) {
-                    JSONObject fix43 = JSONUtils.parseObjectSafe(value);
+                    JSONObject fix43 = (JSONObject) JSONUtils.parseSafe(value);
                     value = String.format("%s%s%s,%s", fix43.getString("text"), MetadataHelper.SPLITER,
                             fix43.getString("lng"), fix43.getString("lat"));
                 }
