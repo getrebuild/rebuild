@@ -93,7 +93,7 @@ public class DataListCategory38 {
         // 分类,引用（父级）支持树状
         if (!isSingleLevel && useFormat != null) {
             if (dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE) {
-                log.warn("When multiple category fields, the format is disabled : {}", categoryFields);
+                log.warn("Format disabled when multiple category fields : {}", categoryFields);
                 useFormat = null;
             }
         }

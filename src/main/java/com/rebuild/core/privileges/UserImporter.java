@@ -67,13 +67,13 @@ public class UserImporter extends HeavyTask<Integer> {
             }
 
             if (Application.getUserStore().existsName(loginName)) {
-                log.warn("[loginName] cannot be repeated");
+                log.warn("[loginName] cannot be duplicated");
                 continue;
             }
 
             String email = cellAsString(row, 7);
             if (StringUtils.isNotBlank(email) && Application.getUserStore().existsEmail(email)) {
-                log.warn("[email] cannot be repeated");
+                log.warn("[email] cannot be duplicated");
                 continue;
             }
 

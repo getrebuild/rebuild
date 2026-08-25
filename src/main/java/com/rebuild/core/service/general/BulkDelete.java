@@ -51,7 +51,7 @@ public class BulkDelete extends BulkOperator {
                 }
 
             } else {
-                log.warn("No have privileges to DELETE : {} < {}", id, context.getOpUser());
+                log.warn("No privileges to DELETE : {} < {}", id, context.getOpUser());
             }
             this.addCompleted();
         }

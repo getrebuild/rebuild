@@ -93,12 +93,12 @@ public class PerHourJob extends DistributedJobLock {
 
         // DB
         if (Installer.isUseH2()) {
-            log.warn("H2DB Unsupportted backup");
+            log.warn("H2DB backup not supported");
         } else {
             try {
                 new DatabaseBackup().backup(backups);
             } catch (Exception e) {
-                log.error("Executing [DatabaseBackup] fails", e);
+                log.error("Executing [DatabaseBackup] failed", e);
                 SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, e.getLocalizedMessage());
             }
         }
@@ -107,7 +107,7 @@ public class PerHourJob extends DistributedJobLock {
         try {
             new DatafileBackup().backup(backups);
         } catch (Exception e) {
-            log.error("Executing [DatafileBackup] fails", e);
+            log.error("Executing [DatafileBackup] failed", e);
             SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatafileBackupFail, e.getLocalizedMessage());
         }
 

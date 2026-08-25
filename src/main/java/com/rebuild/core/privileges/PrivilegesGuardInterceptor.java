@@ -55,7 +55,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         if (!isGuardMethod(invocation))  return;
 
         final ID caller = UserContextHolder.getUser();
-        if (Application.devMode()) log.info("User [ {} ] call : {}", caller, invocation.getMethod());
+        if (Application.devMode()) log.info("User [ {} ] called : {}", caller, invocation.getMethod());
 
         Class<?> invocationClass = Objects.requireNonNull(invocation.getThis()).getClass();
 

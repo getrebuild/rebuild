@@ -50,7 +50,7 @@ public class EntityHelper {
      */
     public static Record parse(JSONObject data) {
         ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
-        log.info("Use '{}' do parse", user);
+        log.info("Using '{}' for parsing", user);
         return parse(data, user, true, false);
     }
 
@@ -125,7 +125,7 @@ public class EntityHelper {
      */
     public static Record forUpdate(ID recordId) {
         ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
-        log.info("Use '{}' do forUpdate", user);
+        log.info("Using '{}' for update", user);
         return forUpdate(recordId, user, true);
     }
 
@@ -167,7 +167,7 @@ public class EntityHelper {
      */
     public static Record forNew(int entityCode) {
         ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
-        log.info("Use '{}' do forNew", user);
+        log.info("Using '{}' for creation", user);
         return forNew41(entityCode, user, true);
     }
 
@@ -200,7 +200,7 @@ public class EntityHelper {
      */
     public static Record forNew(String entityName) {
         ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
-        log.info("Use '{}' do forNew", user);
+        log.info("Using '{}' for creation", user);
         return forNew41(entityName, user, true);
     }
 

@@ -40,7 +40,7 @@ public class HeavyTaskController extends BaseController {
         HeavyTask<?> task = TaskExecutors.get(taskid);
 
         if (task == null) {
-            return RespBody.error("Unknow task : " + taskid);
+            return RespBody.error("Unknown task : " + taskid);
         } else {
             return formatTaskState(task);
         }
@@ -52,7 +52,7 @@ public class HeavyTaskController extends BaseController {
         String taskid = getParameterNotNull(request, "taskid");
         HeavyTask<?> task = TaskExecutors.get(taskid);
         if (task == null) {
-            return RespBody.error("Unknow task : " + taskid);
+            return RespBody.error("Unknown task : " + taskid);
         }
         if (task.isCompleted()) {
             return RespBody.errorl("无法终止，因为任务已经完成");

@@ -768,7 +768,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                     Object newValue = AviatorUtils.eval(formula, env);
                     dataItem[i + dimSize] = ObjectUtils.toDouble(newValue);
                 } catch (Exception ex) {
-                    log.warn("Invalid formula of axis : {} << {}", formula, env);
+                    log.warn("Invalid axis formula : {} << {}", formula, env);
                     dataItem[i + dimSize] = 0d;
                 }
             }

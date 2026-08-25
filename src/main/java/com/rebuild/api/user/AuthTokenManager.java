@@ -136,7 +136,7 @@ public class AuthTokenManager {
         }
 
         if (verifyAfterDestroy) {
-            log.debug("Destroy token ({}) : {}", descs[0], token);
+            log.debug("Destroyed token ({}) : {}", descs[0], token);
             Application.getCommonsCache().evict(TOKEN_PREFIX + token);
             verifyAfterRefresh = false;
         }

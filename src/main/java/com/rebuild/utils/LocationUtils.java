@@ -108,7 +108,7 @@ public class LocationUtils {
         try {
             return JSON.parseObject(OkHttpUtils.get(url));
         } catch (Exception e) {
-            log.debug("Error occured : {} >> {}", url, e);
+            log.debug("Error occurred : {} >> {}", url, e);
         }
         return null;
     }

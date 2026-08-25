@@ -1039,7 +1039,7 @@ public class FormsBuilder extends FormsManager {
         // v3.1.1 父级已删除
         Entity entity = MetadataHelper.getEntity(record.getEntityCode());
         if (MetadataHelper.getLastJoinField(entity, fieldParent) == null) {
-            log.warn("Unknow field : {} in {}", fieldParent, entity.getName());
+            log.warn("Unknown field : {} in {}", fieldParent, entity.getName());
             return null;
         }
 

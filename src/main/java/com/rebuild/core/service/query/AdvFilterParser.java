@@ -1021,7 +1021,7 @@ public class AdvFilterParser extends SetUser {
                     if (dept != null) useValue = dept.getIdentity();
                 }
             } else {
-                log.warn("Cannot use `{}` in `{}` (None date/ref fields)", value, queryField);
+                log.warn("Cannot use `{}` in `{}` (Not date/ref fields)", value, queryField);
                 return new VarFieldNoValue37(value);
             }
         }

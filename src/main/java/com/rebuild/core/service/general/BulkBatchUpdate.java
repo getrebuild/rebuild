@@ -99,7 +99,7 @@ public class BulkBatchUpdate extends BulkOperator {
                 }
 
             } else {
-                log.warn("No have privileges to UPDATE : {} < {}", id, context.getOpUser());
+                log.warn("No privileges to UPDATE : {} < {}", id, context.getOpUser());
             }
             this.addCompleted();
         }
