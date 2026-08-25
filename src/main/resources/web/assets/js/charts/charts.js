@@ -254,9 +254,11 @@ class ChartIndex extends BaseChart {
 
   renderChart(data) {
     const showGrowthRate = data._renderOption && data._renderOption.showGrowthRate
-    const color = data._renderOption ? data._renderOption.useColor : null
+    const useColor = data._renderOption ? data._renderOption.useColor : null
+    const dataColors = data._renderOption ? data._renderOption.dataColors : null
     const icon = data._renderOption ? data._renderOption.useIcon : null
-    const style2 = { color: color || null }
+    const style2 = { color: (dataColors && dataColors[0]) || useColor || null }
+    const style2b = { color: (dataColors && dataColors[1]) || useColor || null }
     const _index = data.index
 
     let clazz2, rate2
@@ -298,8 +300,8 @@ class ChartIndex extends BaseChart {
 
                   {_index.label2 && (
                     <div className="index43-with">
-                      <p>{_index.label2}</p>
-                      <strong>
+                      <p style={style2b}>{_index.label2}</p>
+                      <strong style={style2b}>
                         <a
                           title={$L('查看来源数据')}
                           href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N2`}
@@ -439,6 +441,18 @@ const ECHART_TOOLTIP_FORMATTER = function (i, dataFlags = []) {
   return tooltip.join('<br>')
 }
 
+// 应用图表颜色
+const _applyChartColors = function (option, renderOption) {
+  const themeStyle = renderOption ? renderOption.themeStyle : null
+  if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+
+  // 应用数值颜色
+  let dataColors = renderOption && renderOption.dataColors
+  if (!dataColors || !dataColors.some((c) => c)) return
+  const baseColors = option.color || RBCOLORS
+  option.color = baseColors.map((c, i) => dataColors[i] || c)
+}
+
 // 图例
 // vertical = 是否竖排
 const ECHART_LEGEND = function (vertical) {
@@ -571,7 +585,6 @@ class ChartLine extends BaseChart {
       const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis
       const showAreaColor = data._renderOption && data._renderOption.showAreaColor
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
       const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
       const labelRotate = data._renderOption ? data._renderOption.labelRotate : null
 
@@ -621,7 +634,7 @@ class ChartLine extends BaseChart {
         option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
       if (showMutliYAxis && option.series.length > 1) reOptionMutliYAxis(option)
       // v4.3
       if (labelRotate) {
@@ -652,7 +665,6 @@ class ChartBar extends BaseChart {
       const showHorizontal = data._renderOption && data._renderOption.showHorizontal // v3.7
       const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis // v3.7
       const dataFlags = data._renderOption.dataFlags || [] // 小数符号
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
       const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
       const labelRotate = data._renderOption ? data._renderOption.labelRotate : null
 
@@ -711,7 +723,7 @@ class ChartBar extends BaseChart {
         option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
       // 加大左侧距离
       if (showHorizontal) option.grid.left = 100
       // 排他
@@ -785,7 +797,6 @@ class ChartPie extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
       if (showNumerical) {
@@ -804,7 +815,7 @@ class ChartPie extends BaseChart {
         return `<b>${a.data.name}</b> <br/> ${a.marker} ${a.seriesName} : ${formatThousands(a.data.value, dataFlags[0])} (${a.percent}%)`
       }
       if (showLegend) option.legend = ECHART_LEGEND(true)
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
@@ -825,7 +836,6 @@ class ChartFunnel extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const option = {
         ...$clone(ECHART_BASE),
@@ -859,7 +869,7 @@ class ChartFunnel extends BaseChart {
         else return `<b>${a.name}</b> <br/> ${a.marker} ${formatThousands(a.value, dataFlags[a.dataIndex])}`
       }
       if (showLegend) option.legend = ECHART_LEGEND(true)
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
@@ -880,7 +890,6 @@ class ChartTreemap extends BaseChart {
     this.setState({ chartdata: <div className="chart treemap" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const option = {
         ...$clone(ECHART_BASE),
@@ -924,7 +933,7 @@ class ChartTreemap extends BaseChart {
           return ns[ns.length - 1] + (showNumerical ? ` (${formatThousands(a.value, dataFlags[0])})` : '')
         },
       }
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
@@ -958,8 +967,7 @@ class ChartDolor extends BaseChart {
     const MIN_FONT = 14
     const MAX_FONT = 52
 
-    // 按数值降序排列（大词在中心）
-    const sorted = [...filtered].sort((a, b) => (parseFloat(b.value) || 0) - (parseFloat(a.value) || 0))
+    const sorted = [...filtered].sort((a, b) => (parseFloat(b.value) || 0) - (parseFloat(a.value) || 0)).slice(0, 100)
 
     const words = sorted.map((item, idx) => {
       const v = parseFloat(item.value) || 0
@@ -1000,20 +1008,17 @@ class ChartDolor extends BaseChart {
     })
   }
 
-  // 螺旋布局：Archimedean 螺旋从中心向外均匀排布
   _layoutSpiral() {
     const $chart = $(this._$chart)
     if (!$chart || !$chart.length) return
     const $inner = $chart.find('.dolor-inner')
     const zoom = this._dolorZoom || 1
-    // 父容器尺寸不受子元素 zoom 影响
     const pw = $chart.width()
     const ph = $chart.height()
     if (pw < 50 || ph < 50) {
       $setTimeout(() => this._layoutSpiral(), 200, `dolor-layout-${this.state.id}`)
       return
     }
-    // 布局空间 = 父容器 / zoom，zoom 后正好填满
     const cw = pw / zoom
     const ch = ph / zoom
     const cx = cw / 2
@@ -1021,7 +1026,6 @@ class ChartDolor extends BaseChart {
     const placed = []
     const $words = $inner.find('.dolor-word')
 
-    // 平均词高决定螺旋间距
     let totalH = 0
     $words.each((idx, el) => {
       totalH += $(el).outerHeight()
@@ -1074,7 +1078,7 @@ class ChartDolor extends BaseChart {
     $setTimeout(
       () => {
         if (!this._$chart) return
-        // 全屏后利用 zoom 放大，参考 IndexChart
+
         const ch = $(this._$chart).height()
         const zoom = ch > 330 ? 1.5 : ch > 200 ? 1.2 : 1
         this._dolorZoom = zoom
@@ -1391,7 +1395,6 @@ class ChartRadar extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const option = {
         ...$clone(ECHART_BASE),
@@ -1450,7 +1453,7 @@ class ChartRadar extends BaseChart {
         return tooltip.join('<br/>')
       }
       if (showLegend) option.legend = ECHART_LEGEND(true)
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
@@ -1472,7 +1475,6 @@ class ChartScatter extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
       const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
 
       const axisOption = {
@@ -1541,7 +1543,7 @@ class ChartScatter extends BaseChart {
         option.legend = ECHART_LEGEND()
         option.grid.top = 50
       }
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
@@ -2478,7 +2480,9 @@ class ChartSelect extends RbModalHandler {
     )
   }
 
-  componentDidMount = () => this._loadCharts()
+  componentDidMount() {
+    this._loadCharts()
+  }
   _loadCharts() {
     $.get(`/dashboard/chart-list?type=${this.state.tabActive.substr(1)}&entity=${this.props.entity || ''}`, (res) => {
       this.setState({ chartList: res.data })

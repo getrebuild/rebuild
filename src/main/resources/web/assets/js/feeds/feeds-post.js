@@ -71,7 +71,9 @@ class FeedsPost extends React.Component {
     }
   }
 
-  componentDidMount = () => $('#rb-feeds').attr('class', '')
+  componentDidMount() {
+    $('#rb-feeds').attr('class', '')
+  }
 
   _post = () => {
     const _data = this._FeedsEditor.vals()

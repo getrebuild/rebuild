@@ -73,7 +73,10 @@ const FolderTree = {
           FolderTree._filesNav = this
           // be:v4.0
           const e = (location.hash || '').split('Folder/')[1]
-          if (e) this.triggerClick(e)
+          if (e) {
+            if (this.__items[e]) this.triggerClick(e)
+            else filesList.loadData(__DEFAULT_ALL)
+          }
         },
       )
     })
@@ -612,6 +615,10 @@ class FilesList4Docs extends FilesList {
   constructor(props) {
     super(props)
     this._lastEntry = __DEFAULT_ALL
+  }
+
+  componentDidMount() {
+    if (!(location.hash || '').includes('Folder/')) this.loadData()
   }
 
   renderExtras34(item) {

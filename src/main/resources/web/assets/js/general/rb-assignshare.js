@@ -339,10 +339,12 @@ class DlgShareManager extends RbModalHandler {
     )
   }
 
+  componentDidMount() {
+    this._componentDidMount()
+  }
   _componentDidMount() {
     $.get(`/app/entity/shared-list?id=${this.props.id}`, (res) => this.setState({ sharingList: res.data || [] }))
   }
-  componentDidMount = () => this._componentDidMount()
 
   post() {
     const s = []

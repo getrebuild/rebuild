@@ -59,6 +59,7 @@ public class LineChart extends ChartData {
         List<String> dimAxis = new ArrayList<>();
         JSONArray yyyAxis = new JSONArray();
         List<String> dataFlags = new ArrayList<>();
+        List<String> dataColors = new ArrayList<>();
 
         // 模式1: 2-DIM + 1-NUM
         // FIXME 多余AXIS会舍弃
@@ -120,6 +121,7 @@ public class LineChart extends ChartData {
                 map.put("data", yAxis);
                 yyyAxis.add(map);
                 dataFlags.add(num1Flag);
+                dataColors.add(num1.getColor());
             }
         }
         // 模式2: 1-DIM + N-NUM
@@ -177,10 +179,12 @@ public class LineChart extends ChartData {
                 map.put("data", data);
                 yyyAxis.add(map);
                 dataFlags.add(getNumericalFlag(axis));
+                dataColors.add(axis.getColor());
             }
         }
 
         renderOption.put("dataFlags", dataFlags);
+        renderOption.put("dataColors", dataColors);
 
         return JSONUtils.toJSONObject(
                 new String[]{"xAxis", "yyyAxis", "_renderOption"},

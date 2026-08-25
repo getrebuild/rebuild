@@ -167,6 +167,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
                     item.getString("label"),
                     item.getInteger("scale"),
                     item.getInteger("unit"),
+                    item.getString("color"),
                     item.getString("formula"),
                     item.getJSONObject("filter"),
                     validFields[1]);
