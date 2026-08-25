@@ -31,6 +31,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RateLimiters;
 import com.rebuild.web.KnownExceptionConverter;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
@@ -275,7 +276,7 @@ public class ApiGateway extends Controller implements Initialization {
 
         String appid = getParameterNotNull(sortedMap, "appid");
         String postData = ServletUtils.getRequestString(request);
-        JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
+        JSON postJson = postData != null ? JSONUtils.parseSafe(postData) : null;
 
         return new ApiContext(sortedMap, postJson, appid, null);
     }

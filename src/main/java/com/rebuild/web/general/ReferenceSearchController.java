@@ -91,7 +91,7 @@ public class ReferenceSearchController extends EntityController {
         ProtocolFilterParser fp = new ProtocolFilterParser();
         if (StringUtils.isNotBlank(varRecord)) {
             if (JSONUtils.wellFormat(varRecord)) {
-                fp.setVarRecord(JSONUtils.parseObjectSafe(varRecord));
+                fp.setVarRecord(JSONUtils.parseSafe(varRecord));
             } else {
                 // 兼容处理
                 try {
@@ -99,7 +99,7 @@ public class ReferenceSearchController extends EntityController {
                 } catch (Exception ignored) {
                 }
                 if (JSONUtils.wellFormat(varRecord)) {
-                    fp.setVarRecord(JSONUtils.parseObjectSafe(varRecord));
+                    fp.setVarRecord(JSONUtils.parseSafe(varRecord));
                 }
             }
         }

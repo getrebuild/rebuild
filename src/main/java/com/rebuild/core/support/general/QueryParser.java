@@ -385,7 +385,7 @@ public class QueryParser {
     private String parseProtocolFilter(String protocolFilter) {
         // fix:4.3.2
         if (JSONUtils.wellFormat(protocolFilter)) {
-            JSONObject filterBody432 = JSONUtils.parseObjectSafe(protocolFilter);
+            JSONObject filterBody432 = (JSONObject) JSONUtils.parseSafe(protocolFilter);
             if (ParseHelper.validAdvFilter(filterBody432)) {
                 return new AdvFilterParser(filterBody432, entity).toSqlWhere();
             } else {

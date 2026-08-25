@@ -116,7 +116,7 @@ public class ReportsController extends BaseController {
             // vars in URL
             String vars = getParameter(request, "vars");
             if (JSONUtils.wellFormat(vars) && reportGenerator instanceof EasyExcelGenerator33) {
-                JSONObject varsJson = JSONUtils.parseObjectSafe(vars);
+                JSONObject varsJson = (JSONObject) JSONUtils.parseSafe(vars);
                 if (varsJson != null) {
                     ((EasyExcelGenerator33) reportGenerator).setTempVars(varsJson.getInnerMap());
                 }

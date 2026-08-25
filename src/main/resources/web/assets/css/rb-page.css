@@ -5421,6 +5421,10 @@ pre.unstyle {
   height: auto;
 }
 
+.code-editor .CodeMirror.cm-s-default {
+  border: 1px solid #ced4da;
+}
+
 .code-editor .CodeMirror-scroll {
   height: auto;
   overflow-y: hidden;
@@ -5461,6 +5465,12 @@ pre.unstyle {
   background-color: rgba(255, 255, 255, 0.2);
   z-index: 101;
   border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.code-editor:hover .code-editor-actions {
+  opacity: 1;
 }
 
 .code-editor .code-editor-actions > a,
@@ -5469,7 +5479,7 @@ pre.unstyle {
   font-size: 1.3rem;
   padding: 6px;
   line-height: 1;
-  transition: all 0.4s;
+  transition: all 0.2s;
   opacity: 0.8;
   color: rgba(255, 255, 255, 0.8);
 }
