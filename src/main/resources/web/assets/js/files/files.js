@@ -107,7 +107,9 @@ class FilesList extends React.Component {
     return null
   }
 
-  componentDidMount = () => this.loadData()
+  componentDidMount() {
+    this.loadData()
+  }
 
   loadData(entry, pageNo) {
     this._lastEntry = entry || this._lastEntry

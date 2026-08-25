@@ -1792,6 +1792,9 @@ function $autoComplete($el, fieldKey, option) {
         $stopEvent(e, true)
         typeof option.onSelect === 'function' && option.onSelect(item)
       })
+      .on('autocomplete.dd.shown', function () {
+        $(this).next('.bootstrap-autocomplete.dropdown-menu').addClass('auto-scroller')
+      })
 
     if (option.options) {
       c.on('focus', function () {

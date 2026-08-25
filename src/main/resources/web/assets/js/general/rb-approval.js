@@ -445,7 +445,9 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     )
   }
 
-  componentDidMount = () => this.reload()
+  componentDidMount() {
+    this.reload()
+  }
 
   reload() {
     $.get(`/app/entity/approval/workable?record=${this.props.id}`, (res) => {

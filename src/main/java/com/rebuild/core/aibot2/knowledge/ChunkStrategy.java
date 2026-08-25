@@ -36,7 +36,7 @@ public interface ChunkStrategy {
         private final String title;
         private final String content;
         private final int index;
-        private final List<String> keywords;
+        private List<String> keywords;
 
         public Chunk(String title, String content, int index, List<String> keywords) {
             this.title = title;
@@ -49,5 +49,6 @@ public interface ChunkStrategy {
         public String getContent() { return content; }
         public int getIndex() { return index; }
         public List<String> getKeywords() { return keywords; }
+        public void setKeywords(List<String> keywords) { this.keywords = keywords; }
     }
 }

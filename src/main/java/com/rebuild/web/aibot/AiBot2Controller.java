@@ -34,6 +34,7 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +59,12 @@ public class AiBot2Controller extends BaseController {
         ChatRequest chatRequest = buildChatRequest(req);
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
 
+        if (!chat.tryBeginRun()) {
+            JSONObject error = JSONUtils.toJSONObject("error", Language.L("会话正在处理中，请稍后再试"));
+            ServletUtils.writeJson(resp, error.toJSONString());
+            return;
+        }
+
         try {
             Message respMessage = chat.post(chatRequest);
             ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
@@ -65,6 +72,8 @@ public class AiBot2Controller extends BaseController {
             log.error("chat-post", ex);
             JSONObject error = JSONUtils.toJSONObject("error", "请求错误:" + CommonsUtils.getRootMessage(ex));
             ServletUtils.writeJson(resp, error.toJSONString());
+        } finally {
+            chat.endRun();
         }
     }
 
@@ -78,11 +87,18 @@ public class AiBot2Controller extends BaseController {
         ChatRequest chatRequest = buildChatRequest(req);
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
 
+        if (!chat.tryBeginRun()) {
+            StreamEcho.error(Language.L("会话正在处理中，请稍后再试"), resp.getWriter());
+            return;
+        }
+
         try {
             chat.stream(chatRequest, resp);
         } catch (Throwable ex) {
             log.error("chat-stream", ex);
             StreamEcho.error("请求错误:" + CommonsUtils.getRootMessage(ex), resp.getWriter());
+        } finally {
+            chat.endRun();
         }
     }
 
@@ -128,13 +144,16 @@ public class AiBot2Controller extends BaseController {
             Chat chat = ChatManager.getChat(chatid);
             chat.getMessages().forEach(m -> messages.add(m.toJSON()));
         } else {
-            String aibotName = RebuildConfiguration.get(ConfigurationItem.AibotName);
-            aibotName = String.format("欢迎使用 %s！有什么问题都可以向我提问哦", aibotName);
+            String welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);
+            if (StringUtils.isBlank(welcome)) {
+                String aibotName = RebuildConfiguration.get(ConfigurationItem.AibotName);
+                welcome = String.format("欢迎使用 %s！有什么问题都可以向我提问哦", aibotName);
+            }
 
-            JSON welcome = JSONUtils.toJSONObject(
+            JSON welcomeMsg = JSONUtils.toJSONObject(
                     new String[]{"role", "content"},
-                    new Object[]{"ai", aibotName});
-            messages.add(welcome);
+                    new Object[]{"ai", welcome});
+            messages.add(welcomeMsg);
 
             try {
                 suggestQuestions = SuggestQuestions.generate(getRequestUser(req));

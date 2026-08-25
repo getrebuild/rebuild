@@ -1023,7 +1023,9 @@ class TaskCommentsList extends React.Component {
     )
   }
 
-  componentDidMount = () => this.fetchComments()
+  componentDidMount() {
+    this.fetchComments()
+  }
 
   fetchComments() {
     $.get(`/project/comments/list?task=${this.props.taskid}`, (res) => this.setState({ comments: res.data }))

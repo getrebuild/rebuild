@@ -155,14 +155,14 @@ class AppEdit extends ConfigFormDlg {
           <label className="col-sm-3 col-form-label text-sm-right">{$L('绑定用户 (权限)')}</label>
           <div className="col-sm-7">
             <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector = c)} defaultValue={this.props.bindUser} />
-            <p className="form-text">{$L('建议为 OpenAPI 密钥绑定一个用户，此密钥将拥有和其一样的权限。如不绑定则拥有全部权限')}</p>
+            <p className="form-text">{$L('建议为 OpenAPI 密钥绑定一个用户，此密钥将拥有和其一样的权限')}</p>
           </div>
         </div>
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('IP 白名单')}</label>
           <div className="col-sm-7">
             <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$bindIps = c)} defaultValue={this.props.bindIps} placeholder={$L('(可选)')} />
-            <p className="form-text">{$L('白名单内的 IP 才可以通过此 OpenAPI 密钥调用接口，如有多个 IP 请使用逗号或空格分开，留空则不限制')}</p>
+            <p className="form-text">{$L('白名单内的 IP 才可以通过此 OpenAPI 密钥调用接口')}</p>
           </div>
         </div>
       </RF>
@@ -204,7 +204,7 @@ class AppLogsViewer extends RbModal {
     const dataShow = this.state.dataShow
     return (
       <div className="modal-body m-0 p-0">
-        <div className="logs">
+        <div className="api-logs">
           <div className="row">
             <div className="col-3 logs-list">
               <div className="search-logs position-relative">

@@ -46,10 +46,12 @@ public class PieChart extends ChartData {
         }
 
         List<String> dataFlags = Collections.singletonList(getNumericalFlag(num1));
+        List<String> dataColors = Collections.singletonList(num1.getColor());
 
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();
         renderOption.put("dataFlags", dataFlags);
+        renderOption.put("dataColors", dataColors);
 
         return JSONUtils.toJSONObject(
                 new String[]{"data", "name", "_renderOption"},

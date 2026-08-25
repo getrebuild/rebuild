@@ -23,7 +23,6 @@ import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
@@ -80,7 +79,6 @@ public class AiBot2AdminController extends BaseController {
                 mv.getModel().put(name, value);
             }
         }
-        mv.getModel().put("HomeUrl", RebuildConfiguration.getHomeUrl());
         return mv;
     }
 
@@ -98,7 +96,7 @@ public class AiBot2AdminController extends BaseController {
         double aibotCount = 0;
         for (Object[] o : aibot) {
             o[1] = o[1] == null ? 0L : o[1];
-            o[1] = ObjectUtils.round((Long) o[1] / 10000d, 2);
+            o[1] = ObjectUtils.round(((Number) o[1]).longValue() / 10000d, 2);
             aibotCount += (Double) o[1];
         }
 
@@ -107,16 +105,6 @@ public class AiBot2AdminController extends BaseController {
                 new Object[]{aibot, ObjectUtils.round(aibotCount, 2)});
     }
 
-    @GetMapping("aibot/tools")
-    public RespBody toolList() {
-        return RespBody.ok(ToolDefs.listTools(true, false));
-    }
-
-    /**
-     * 获取可用模型列表（从已配置的 AI 服务商动态获取）
-     *
-     * @return
-     */
     @GetMapping("aibot/models")
     public RespBody modelList() {
         if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
@@ -161,6 +149,25 @@ public class AiBot2AdminController extends BaseController {
             }
         }
         return null;
+    }
+
+    // -- KITS
+
+    @GetMapping("aibot-kits")
+    public ModelAndView pageIntegrationAibotKits() {
+        ModelAndView mv = createModelAndView("/admin/integration/aibot-kits");
+        mv.getModel().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
+        return mv;
+    }
+
+    @GetMapping("aibot-agents")
+    public ModelAndView pageIntegrationAibotAgents() {
+        return createModelAndView("/admin/integration/aibot-agents");
+    }
+
+    @GetMapping("aibot/tools")
+    public RespBody toolList() {
+        return RespBody.ok(ToolDefs.listTools(true, false));
     }
 
     @GetMapping("aibot/skill-list")
@@ -210,26 +217,17 @@ public class AiBot2AdminController extends BaseController {
     public RespBody build(HttpServletRequest req) {
         ID knowledgeId = getIdParameterNotNull(req, "id");
         Object[] knowledge = Application.createQueryNoFilter(
-                "select name,config from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
+                "select configId from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
                 .setParameter(1, knowledgeId)
                 .unique();
         if (knowledge == null) return RespBody.error();
 
-        String name = (String) knowledge[0];
-        JSONObject conf = JSONUtils.parseObjectSafe((String) knowledge[1]);
-        String sourceType = conf != null ? conf.getString("sourceType") : null;
-        String sourceConfig = conf != null ? conf.getString("sourceConfig") : null;
+        // 已有排队中的构建任务（执行时会重读最新配置），无需重复提交
+        if (KnowledgeBuilder.isBuildPending(knowledgeId)) return RespBody.ok();
 
-        // -1=构建中 0=构建失败
+        // -1=构建中 0=构建失败。任务开始执行时会再次重置，避免被前一个任务完成状态覆盖
         KnowledgeBuilder.updateChunkCount(knowledgeId, -1);
-        TaskExecutors.queue(() -> {
-            try {
-                KnowledgeBuilder.build(knowledgeId, sourceType, sourceConfig, name);
-            } catch (Exception e) {
-                KnowledgeBuilder.updateChunkCount(knowledgeId, 0);
-                log.error("Failed to build knowledge: {}", knowledgeId, e);
-            }
-        });
+        KnowledgeBuilder.buildAsync(knowledgeId);
         return RespBody.ok();
     }
 }

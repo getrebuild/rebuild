@@ -1534,13 +1534,13 @@ class CodeViewport extends React.Component {
   }
 
   componentDidMount() {
-    this._$code.innerHTML = $formatCode(this.props.code || '', this.props.type)
+    this._$code.innerText = $formatCode(this.props.code || '', this.props.type)
   }
 
   UNSAFE_componentWillReceiveProps(newProps) {
     // eslint-disable-next-line eqeqeq
     if (newProps.code && newProps.code != this.props.code) {
-      this._$code.innerHTML = $formatCode(newProps.code, this.props.type)
+      this._$code.innerText = $formatCode(newProps.code, this.props.type)
     }
   }
 }

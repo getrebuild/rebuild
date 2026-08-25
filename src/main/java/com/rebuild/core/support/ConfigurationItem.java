@@ -127,13 +127,14 @@ public enum ConfigurationItem {
 
     // Aibot
     AibotName("REBUILD AI 助手"),
-    AibotDSUrl("https://api.deepseek.com/"),
+    AibotDSUrl,
     AibotDSSecret,
-    AibotBaseDefModel("deepseek-v4-flash"),
-    AibotBasePrompt,
-    AibotToolsDisabled,
-    AibotSuggestQuestions,
+    AibotBaseDefModel,
     AibotContextCompressThreshold,
+    AibotSuggestQuestions,
+    AibotBasePrompt,
+    AibotWelcome,
+    AibotToolsDisabled,
 
     // PORTALs
     PortalBaiduMapAk,

@@ -31,9 +31,7 @@ public class RebuildApiManager implements ConfigManager {
     public ConfigBean getApp(String appid) {
         final String ckey = CKEY_PREFIX + appid;
         ConfigBean cb = (ConfigBean) Application.getCommonsCache().getx(ckey);
-        if (cb != null) {
-            return cb;
-        }
+        if (cb != null) return cb;
 
         Object[] o = Application.createQueryNoFilter(
                 "select appSecret,bindUser,bindIps from RebuildApi where appId = ?")

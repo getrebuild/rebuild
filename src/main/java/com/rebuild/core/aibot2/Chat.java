@@ -38,14 +38,13 @@ public class Chat implements Serializable {
     private ID chatid;
     @Getter
     private AibotAgent agent;
-
     @Getter
     private List<Message> messages = new ArrayList<>();
-
     @Getter
     private long tokenUsage;
 
     private transient ChatLogger chatLogger;
+    private transient volatile boolean running;
 
     public Chat(ID chatid) {
         this(chatid, null);
@@ -62,8 +61,6 @@ public class Chat implements Serializable {
     }
 
     /**
-     * 累计 Token 用量
-     *
      * @param usage
      */
     public synchronized void addTokenUsage(long usage) {
@@ -76,6 +73,24 @@ public class Chat implements Serializable {
     public synchronized ChatLogger chatLogger() {
         if (chatLogger == null) chatLogger = new ChatLogger(chatid);
         return chatLogger;
+    }
+
+    /**
+     * 尝试开始执行，已在执行中返回 false
+     *
+     * @return
+     */
+    public synchronized boolean tryBeginRun() {
+        if (running) return false;
+        running = true;
+        return true;
+    }
+
+    /**
+     * 结束执行
+     */
+    public synchronized void endRun() {
+        running = false;
     }
 
     /**

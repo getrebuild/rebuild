@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.Date;
 
+import static com.rebuild.core.aibot2.vector.VectorData.NN;
+
 /**
  * 系统提示词构建。各层以标签包裹，避免指令混杂
  *
@@ -53,17 +55,22 @@ public class SystemPromptBuilder {
 
         // Agent 提示词（优先级高于基础要求）
         if (StringUtils.isNotBlank(agentPrompt)) {
-            if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
+            if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<agent_prompt>\n")
                     .append("以下是当前 Agent 的专属提示词，与前述要求冲突时以本节为准。\n\n")
                     .append(agentPrompt.trim())
                     .append("\n</agent_prompt>");
         }
 
-        // 系统能力（资源文件）
+        // 系统能力（资源文件 + 动态追加搜索工具选择规则）
         String capabilityPrompt = Config.getSystemCapabilityPrompt();
+        String searchGuidance = buildSearchToolGuidance();
+        if (StringUtils.isNotBlank(searchGuidance)) {
+            capabilityPrompt = StringUtils.isBlank(capabilityPrompt)
+                    ? searchGuidance : capabilityPrompt.trim() + NN + searchGuidance;
+        }
         if (StringUtils.isNotBlank(capabilityPrompt)) {
-            if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
+            if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<system_capabilities>\n").append(capabilityPrompt.trim()).append("\n</system_capabilities>");
         }
 
@@ -72,13 +79,13 @@ public class SystemPromptBuilder {
         boolean isRealUser = user != null && !UserHelper.isSystemUser(user);
 
         if (isRealUser) {
-            if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
+            if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<session_context>\n").append(buildSessionContext(user)).append("\n</session_context>");
         }
 
         // 用户记忆（工具启用时注入使用指引与记忆内容）
         if (isRealUser && !ToolDefs.isToolDisabled("UserMemory")) {
-            if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
+            if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<user_memory>\n").append(UserMemory.MEMORY_GUIDANCE);
 
             String memoryPrompt = buildMemoryPrompt(user);
@@ -91,7 +98,7 @@ public class SystemPromptBuilder {
         // 技能（用户指定，冲突时优先）
         String skillPrompt = SkillDefs.getSkillPrompt(skillName);
         if (skillPrompt != null) {
-            if (systemPrompt.length() > 0) systemPrompt.append("\n\n");
+            if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<current_skill>\n")
                     .append("以下是用户为本次会话指定的技能要求，与前述要求冲突时以本节为准。\n\n")
                     .append(skillPrompt.trim())
@@ -99,6 +106,32 @@ public class SystemPromptBuilder {
         }
 
         return systemPrompt.toString();
+    }
+
+    /**
+     * 根据可用工具动态生成搜索工具选择规则
+     *
+     * @return
+     */
+    private static String buildSearchToolGuidance() {
+        boolean knowledgeEnabled = !ToolDefs.isToolDisabled("SearchKnowledge");
+        boolean helpEnabled = !ToolDefs.isToolDisabled("SearchHelp");
+
+        if (!knowledgeEnabled && !helpEnabled) return null;
+
+        StringBuilder sb = new StringBuilder("## 搜索工具选择\n\n");
+
+        if (knowledgeEnabled && helpEnabled) {
+            sb.append("- 用户提问涉及查阅资料、文档、制度、规范、流程等内容时，优先使用 SearchKnowledge 搜索企业知识库\n");
+            sb.append("- 仅当知识库未匹配到相关内容，或用户明确询问 REBUILD 系统自身功能用法时，才使用 SearchHelp 搜索官方帮助文档\n");
+            sb.append("- 不要同时调用两个搜索工具");
+        } else if (knowledgeEnabled) {
+            sb.append("- 用户提问涉及查阅资料、文档、制度、规范、流程等内容时，使用 SearchKnowledge 搜索企业知识库");
+        } else {
+            sb.append("- 用户询问系统功能用法或操作指引时，使用 SearchHelp 搜索官方帮助文档");
+        }
+
+        return sb.toString();
     }
 
     /**

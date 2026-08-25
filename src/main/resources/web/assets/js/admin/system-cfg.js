@@ -50,14 +50,6 @@ $(document).ready(() => {
       })
     }
   })
-  $getScript('https://getrebuild.com/js/_market/rebuild-market.min.js?v=1.0', () => {
-    $('<link/>', {
-      rel: 'stylesheet',
-      type: 'text/css',
-      href: 'https://getrebuild.com/js/_market/rebuild-market.min.css?v=1.0',
-    }).appendTo('head')
-    typeof window.evalMarket === 'function' && window.evalMarket($('a[data-sn]').data('sn'))
-  })
 
   // v3.4
   const $mm = $('.J_maintenanceMode')

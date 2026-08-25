@@ -22,7 +22,9 @@ import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,12 +71,10 @@ public class DolorChart extends ChartData {
                 counts.merge(name, ObjectUtils.toLong(o[1]), Long::sum);
             }
         } else {
-            // 统一查询: select dim, count(dim) from entity where filter group by dim
             String sql = buildSql(dim1);
             Object[][] dataRaw = createQuery(sql).array();
 
             if (dimType == DisplayType.MULTISELECT) {
-                // 多选: 解码 bitmask，将分组计数分配到各选中选项
                 ConfigBean[] options = MultiSelectManager.instance.getPickListRaw(dim1.getField(), true);
                 Map<Long, String> maskToText = new LinkedHashMap<>();
                 for (ConfigBean option : options) {
@@ -90,12 +90,10 @@ public class DolorChart extends ChartData {
                         }
                     }
                 }
-                // 确保所有选项都出现（即使计数为0）
                 for (ConfigBean option : options) {
                     counts.putIfAbsent(option.getString("text"), 0L);
                 }
             } else {
-                // 普通字段: 直接使用分组结果
                 for (Object[] o : dataRaw) {
                     String name = wrapAxisValue(dim1, o[0]);
                     if (StringUtils.isBlank(name) || ChartsHelper.VALUE_NONE.equals(name)) continue;
@@ -104,8 +102,12 @@ public class DolorChart extends ChartData {
             }
         }
 
+        List<Map.Entry<String, Long>> sortedCounts = new ArrayList<>(counts.entrySet());
+        sortedCounts.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
+
         JSONArray data = new JSONArray();
-        for (Map.Entry<String, Long> e : counts.entrySet()) {
+        for (int i = 0; i < Math.min(200, sortedCounts.size()); i++) {
+            Map.Entry<String, Long> e = sortedCounts.get(i);
             if (StringUtils.isBlank(e.getKey())) continue;
             data.add(JSONUtils.toJSONObject(
                     new String[]{"name", "value"},
@@ -121,8 +123,6 @@ public class DolorChart extends ChartData {
     }
 
     /**
-     * 构建 SQL: select dim, count(dim) from entity where filter group by dim
-     *
      * @param dim
      * @return
      */
