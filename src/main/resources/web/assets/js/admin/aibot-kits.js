@@ -43,8 +43,8 @@ class KbList extends React.Component {
             {item.chunkCount}
           </span>
         )
-      else if (item.chunkCount === -1) chunkBadge = <span className="badge badge-warning ml-1">{$L('构建中')}</span>
-      else chunkBadge = <span className="badge badge-danger ml-1">{$L('构建失败')}</span>
+      else if (item.chunkCount === -1) chunkBadge = <span className="badge badge-warning ml-1 up-1">{$L('构建中')}</span>
+      else chunkBadge = <span className="badge badge-danger ml-1 up-1">{$L('构建失败')}</span>
 
       return (
         <tr key={item.id}>
