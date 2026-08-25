@@ -254,9 +254,11 @@ class ChartIndex extends BaseChart {
 
   renderChart(data) {
     const showGrowthRate = data._renderOption && data._renderOption.showGrowthRate
-    const color = data._renderOption ? data._renderOption.useColor : null
+    const useColor = data._renderOption ? data._renderOption.useColor : null
+    const dataColors = data._renderOption ? data._renderOption.dataColors : null
     const icon = data._renderOption ? data._renderOption.useIcon : null
-    const style2 = { color: color || null }
+    const style2 = { color: (dataColors && dataColors[0]) || useColor || null }
+    const style2b = { color: (dataColors && dataColors[1]) || useColor || null }
     const _index = data.index
 
     let clazz2, rate2
@@ -298,8 +300,8 @@ class ChartIndex extends BaseChart {
 
                   {_index.label2 && (
                     <div className="index43-with">
-                      <p>{_index.label2}</p>
-                      <strong>
+                      <p style={style2b}>{_index.label2}</p>
+                      <strong style={style2b}>
                         <a
                           title={$L('查看来源数据')}
                           href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N2`}

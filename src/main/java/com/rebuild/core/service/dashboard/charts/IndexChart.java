@@ -49,6 +49,12 @@ public class IndexChart extends ChartData {
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();
 
+        // v4.5 数值颜色
+        String[] dataColors = nums.length > 1
+                ? new String[]{nums[0].getColor(), nums[1].getColor()}
+                : new String[]{nums[0].getColor()};
+        renderOption.put("dataColors", dataColors);
+
         return JSONUtils.toJSONObject(
                 new String[]{"index", "_renderOption"},
                 new Object[]{index, renderOption});
