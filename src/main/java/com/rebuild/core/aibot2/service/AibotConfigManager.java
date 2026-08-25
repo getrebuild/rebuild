@@ -73,7 +73,7 @@ public class AibotConfigManager implements ConfigManager {
 
         List<ConfigBean> list = new ArrayList<>();
         for (Object[] o : array) {
-            JSONObject config = JSONUtils.parseObjectSafe((String) o[1]);
+            JSONObject config = (JSONObject) JSONUtils.parseSafe((String) o[1]);
             if (config == null) continue;
 
             ConfigBean cb = new ConfigBean()
@@ -107,7 +107,7 @@ public class AibotConfigManager implements ConfigManager {
         for (Object[] o : array) {
             ConfigBean cb = new ConfigBean()
                     .set("id", o[0])
-                    .set("config", o[1] != null ? JSONUtils.parseObjectSafe((String) o[1]) : new JSONObject())
+                    .set("config", o[1] != null ? JSONUtils.parseSafe((String) o[1]) : new JSONObject())
                     .set("name", o[3])
                     .set("isDisabled", o[2] != null && (Boolean) o[2]);
             list.add(cb);

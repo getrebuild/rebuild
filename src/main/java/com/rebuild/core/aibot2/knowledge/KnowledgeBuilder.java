@@ -87,7 +87,7 @@ public class KnowledgeBuilder {
                 if (knowledge == null) return;
 
                 String name = (String) knowledge[0];
-                JSONObject conf = JSONUtils.parseObjectSafe((String) knowledge[1]);
+                JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) knowledge[1]);
                 String sourceType = conf != null ? conf.getString("sourceType") : null;
                 String sourceConfig = conf != null ? conf.getString("sourceConfig") : null;
 
@@ -264,7 +264,7 @@ public class KnowledgeBuilder {
         if (o == null) return;
 
         JSONObject config = (o[0] != null)
-                ? JSONUtils.parseObjectSafe((String) o[0]) : new JSONObject();
+                ? (JSONObject) JSONUtils.parseSafe((String) o[0]) : new JSONObject();
         if (config == null) config = new JSONObject();
 
         config.put("chunkCount", count);

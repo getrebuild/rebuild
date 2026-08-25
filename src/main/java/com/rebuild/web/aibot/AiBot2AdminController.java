@@ -181,7 +181,7 @@ public class AiBot2AdminController extends BaseController {
             JSONObject item = new JSONObject(true);
             item.put("id", o[0]);
             item.put("name", o[1]);
-            JSONObject conf = JSONUtils.parseObjectSafe((String) o[2]);
+            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[2]);
             item.put("config", conf != null ? conf : new JSONObject());
             item.put("isDisabled", o[3]);
             list.add(item);
@@ -200,7 +200,7 @@ public class AiBot2AdminController extends BaseController {
             JSONObject item = new JSONObject(true);
             item.put("id", o[0]);
             item.put("name", o[1]);
-            JSONObject conf = JSONUtils.parseObjectSafe((String) o[2]);
+            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[2]);
             if (conf != null) {
                 item.put("description", conf.getString("description"));
                 item.put("sourceType", conf.getString("sourceType"));
