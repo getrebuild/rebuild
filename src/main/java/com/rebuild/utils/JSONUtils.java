@@ -122,10 +122,9 @@ public class JSONUtils {
     /**
      * @param text
      * @return
-     * @see JSON#parseObject(String)
      */
-    public static JSONObject parseObjectSafe(String text) {
-        return JSON.parseObject(text, Feature.SafeMode);
+    public static JSON parseSafe(String text) {
+        return (JSON) JSON.parse(text, Feature.SafeMode);
     }
 
     /**

@@ -472,7 +472,10 @@ public class FormsBuilder extends FormsManager {
                 boolean isNewState = isNew;
                 if (entity.getMainEntity() != null) {
                     ID fromMain = FormsBuilderContextHolder.getMainIdOfDetail(false);
-                    isNewState = EntityHelper.isUnsavedId(fromMain);
+                    // fix:4.4.9 仅主记录为新建时明细才跟随视为新建，不覆盖明细自身的状态
+                    if (fromMain != null && EntityHelper.isUnsavedId(fromMain)) {
+                        isNewState = true;
+                    }
                 }
 
                 // 视图下忽略此选项

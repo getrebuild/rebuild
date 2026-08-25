@@ -1512,12 +1512,10 @@ class RbFormNText extends RbFormElement {
 
     this._height = 0
     if (props.useMdedit) {
-      // Nothings
+      if (this.props.height === '0') this._heightAuto = true
     } else {
       this._height = ~~this.props.height
-
       if (this.props.height === '0') {
-        // v4.2 填 0 自动高度
         this._heightAuto = true
       } else if (this._height > 0) {
         if (this._height === 1) this._height = 37
@@ -1731,6 +1729,14 @@ class RbFormNText extends RbFormElement {
     })
     this._EasyMDE = mde
 
+    if (this._heightAuto) {
+      $(mde.codemirror.getWrapperElement())
+        .find('.CodeMirror-scroll')
+        .each(function () {
+          this.style.setProperty('min-height', '30px', 'important')
+        })
+    }
+
     if (_readonly37) {
       mde.codemirror.setOption('readOnly', true)
     } else {
@@ -1782,7 +1788,7 @@ class RbFormNText extends RbFormElement {
 class RbFormNTextUseCode extends RbFormNText {
   renderElement() {
     let cmOptions = {
-      theme: 'material',
+      // theme: 'default',  // light
     }
 
     return (
@@ -3937,7 +3943,7 @@ var detectElement = function (item, entity) {
       return <RbFormNTextUseCode {...item} />
     }
     if (~~item.showStyle === 11) {
-      if (window.CodeMirror && window.prettier) return <RbFormNTextUseHtml {...item} />
+      if (window.tinymce) return <RbFormNTextUseHtml {...item} />
       else console.warn('tinymce not found')
     }
     return <RbFormNText {...item} />

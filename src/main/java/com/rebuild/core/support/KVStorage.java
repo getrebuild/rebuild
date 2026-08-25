@@ -13,6 +13,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.TransactionManual;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -56,7 +57,9 @@ public class KVStorage {
     }
 
     /**
-     * 异步存（注意此方法因为周期性存储到数据库，因此存在值丢失隐患）
+     * 异步存。注意：
+     * - 此方法因为周期性存储到数据库，因此存在值丢失隐患
+     * - 依赖事务的（即需要回滚的勿用）
      *
      * @param key
      * @param value
@@ -90,10 +93,8 @@ public class KVStorage {
 
         // 删除
         if (value == SETNULL) {
-            if (e != null) {
-                Application.getCommonsService().delete((ID) e[0]);
-                Application.getCommonsCache().evict(key);
-            }
+            if (e != null) Application.getCommonsService().delete((ID) e[0]);
+            Application.getCommonsCache().evict(key);
             return;
         }
 
@@ -108,15 +109,21 @@ public class KVStorage {
         kv.setString("value", String.valueOf(value));
         Application.getCommonsService().createOrUpdate(kv);
         Application.getCommonsCache().put(key, String.valueOf(value));
+
+        // fix:4.4.9 事务回滚时自动清理缓存，避免缓存与数据库不一致
+        TransactionManual.registerAfterRollback(() -> {
+            log.info("Cache invalidate on rollback : {}", key);
+            Application.getCommonsCache().evict(key);
+        });
     }
 
     /**
      * @param key
-     * @param noCache
+     * @param skipCache
      * @param defaultValue
      * @return
      */
-    protected static String getValue(final String key, boolean noCache, Object defaultValue) {
+    protected static String getValue(final String key, boolean skipCache, Object defaultValue) {
         String value = null;
 
         // 0.1. 从命令行
@@ -132,7 +139,11 @@ public class KVStorage {
         if (Application.isStateReady()) {
             // 1.0. 从缓存
             value = Application.getCommonsCache().get(key);
-            if (noCache) value = null;
+            if (skipCache) {
+                if (value != null) Application.getCommonsCache().evict(key);
+                value = null;
+            }
+
             if (value != null) {
                 if (StringUtils.isNotEmpty(value)) return value;
                 return defaultValue == null ? null : defaultValue.toString();

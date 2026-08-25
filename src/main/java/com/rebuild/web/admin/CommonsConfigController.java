@@ -56,7 +56,7 @@ public class CommonsConfigController extends BaseController {
 
             String conf = (String) o[2];
             if (JSONUtils.wellFormat(conf)) {
-                item.put("config", JSONUtils.parseObjectSafe(conf));
+                item.put("config", JSONUtils.parseSafe(conf));
             }
             res.add(item);
         }

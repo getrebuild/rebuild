@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>4.4.8</version>
+    <version>4.4.9</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
@@ -307,7 +307,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.83</version>
+            <version>1.2.84</version>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>

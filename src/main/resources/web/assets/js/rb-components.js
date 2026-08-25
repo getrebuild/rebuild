@@ -1565,7 +1565,7 @@ class CodeEditor extends React.Component {
       smartIndent: true,
       styleActiveLine: true,
       autoCloseBrackets: true,
-      matchBrackets: this.props.readonly ? false : true,
+      matchBrackets: !this.props.readonly,
       lint: {
         esversion: 6,
       },

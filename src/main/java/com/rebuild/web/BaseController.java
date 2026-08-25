@@ -83,7 +83,7 @@ public abstract class BaseController extends Controller {
         if (!reqJson) return d;
 
         if (JSONUtils.wellFormat(d)) {
-            return JSON.parse(d);
+            return JSONUtils.parseSafe(d);
         }
         log.warn("Bad JSON format : {}", d);
         return null;
