@@ -26,6 +26,12 @@ import org.jsoup.Jsoup;
 import org.springframework.transaction.TransactionStatus;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 知识库构建服务
@@ -44,6 +50,57 @@ public class KnowledgeBuilder {
 
     private static final int MAX_CHUNK_SIZE = 1200;
 
+    // 专用串行构建队列。单线程保证同一知识库不会并发构建（避免分片删插竞态），
+    // 且不占用全局 TaskExecutors 单线程队列，避免长耗时构建（如 AI 关键词增强）阻塞系统日志等任务
+    private static final ExecutorService BUILD_EXEC = new ThreadPoolExecutor(
+            1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+
+    // 已排队待执行的构建任务（同一知识库只允许排队一个）
+    private static final Set<ID> PENDING_BUILDS = ConcurrentHashMap.newKeySet();
+
+    /**
+     * 是否有排队中的构建任务。
+     * 排队任务开始执行时会重读最新配置，因此排队期间无需重复提交
+     *
+     * @param knowledgeId
+     * @return
+     */
+    public static boolean isBuildPending(ID knowledgeId) {
+        return PENDING_BUILDS.contains(knowledgeId);
+    }
+
+    /**
+     * 异步（排队）构建知识库。配置在执行时重读，确保提交后、执行前的编辑能生效
+     *
+     * @param knowledgeId
+     */
+    public static void buildAsync(ID knowledgeId) {
+        PENDING_BUILDS.add(knowledgeId);
+        BUILD_EXEC.execute(() -> {
+            PENDING_BUILDS.remove(knowledgeId);
+            try {
+                Object[] knowledge = Application.createQueryNoFilter(
+                        "select name,config from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
+                        .setParameter(1, knowledgeId)
+                        .unique();
+                // 知识库可能已被删除（分片随之级联删除）
+                if (knowledge == null) return;
+
+                String name = (String) knowledge[0];
+                JSONObject conf = JSONUtils.parseObjectSafe((String) knowledge[1]);
+                String sourceType = conf != null ? conf.getString("sourceType") : null;
+                String sourceConfig = conf != null ? conf.getString("sourceConfig") : null;
+
+                // 再次置为构建中，避免被前一个任务的完成状态覆盖（-1=构建中 0=构建失败）
+                updateChunkCount(knowledgeId, -1);
+                build(knowledgeId, sourceType, sourceConfig, name);
+            } catch (Exception ex) {
+                updateChunkCount(knowledgeId, 0);
+                log.error("Failed to build knowledge: {}", knowledgeId, ex);
+            }
+        });
+    }
+
     /**
      * 构建（或重建）知识库的分片
      *
@@ -61,6 +118,8 @@ public class KnowledgeBuilder {
 
         ChunkStrategy strategy = chooseStrategy(sourceType, content);
         List<ChunkStrategy.Chunk> chunks = strategy.chunk(content, MAX_CHUNK_SIZE);
+
+        KnowledgeKeywordEnricher.enrich(chunks);
 
         TransactionStatus tx = TransactionManual.newTransaction();
         try {

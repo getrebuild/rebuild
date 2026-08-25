@@ -23,7 +23,6 @@ import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
@@ -218,26 +217,17 @@ public class AiBot2AdminController extends BaseController {
     public RespBody build(HttpServletRequest req) {
         ID knowledgeId = getIdParameterNotNull(req, "id");
         Object[] knowledge = Application.createQueryNoFilter(
-                "select name,config from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
+                "select configId from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
                 .setParameter(1, knowledgeId)
                 .unique();
         if (knowledge == null) return RespBody.error();
 
-        String name = (String) knowledge[0];
-        JSONObject conf = JSONUtils.parseObjectSafe((String) knowledge[1]);
-        String sourceType = conf != null ? conf.getString("sourceType") : null;
-        String sourceConfig = conf != null ? conf.getString("sourceConfig") : null;
+        // 已有排队中的构建任务（执行时会重读最新配置），无需重复提交
+        if (KnowledgeBuilder.isBuildPending(knowledgeId)) return RespBody.ok();
 
-        // -1=构建中 0=构建失败
+        // -1=构建中 0=构建失败。任务开始执行时会再次重置，避免被前一个任务完成状态覆盖
         KnowledgeBuilder.updateChunkCount(knowledgeId, -1);
-        TaskExecutors.queue(() -> {
-            try {
-                KnowledgeBuilder.build(knowledgeId, sourceType, sourceConfig, name);
-            } catch (Exception e) {
-                KnowledgeBuilder.updateChunkCount(knowledgeId, 0);
-                log.error("Failed to build knowledge: {}", knowledgeId, e);
-            }
-        });
+        KnowledgeBuilder.buildAsync(knowledgeId);
         return RespBody.ok();
     }
 }
