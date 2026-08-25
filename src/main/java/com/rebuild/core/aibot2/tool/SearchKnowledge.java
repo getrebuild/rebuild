@@ -86,9 +86,4 @@ public class SearchKnowledge implements Tool {
         }
         return false;
     }
-
-    @Override
-    public boolean isSystem() {
-        return HIDDEN_SYSTEM;
-    }
 }
