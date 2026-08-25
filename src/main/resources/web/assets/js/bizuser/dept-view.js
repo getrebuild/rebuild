@@ -14,7 +14,7 @@ RbForm.renderAfter = function (formObject) {
         c.setTip(
           <span className="text-warning">
             <i className="fs-14 mdi mdi-alert-circle-outline" /> {$L('禁用后子部门及其下用户将会同时禁用')}
-          </span>
+          </span>,
         )
     }
   })
@@ -84,7 +84,9 @@ class MemberList extends React.Component {
     )
   }
 
-  componentDidMount = () => this.loadMembers()
+  componentDidMount() {
+    this.loadMembers()
+  }
 
   loadMembers() {
     $.get(`/app/bizuser/group-members?id=${this.props.id}`, (res) => {

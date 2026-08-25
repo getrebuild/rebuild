@@ -199,7 +199,9 @@ class FeedsList extends React.Component {
     )
   }
 
-  componentDidMount = () => this.props.fetchNow && this.fetchFeeds()
+  componentDidMount() {
+    this.props.fetchNow && this.fetchFeeds()
+  }
 
   /**
    * 加载数据
@@ -415,7 +417,9 @@ class FeedsComments extends React.Component {
     )
   }
 
-  componentDidMount = () => this._fetchComments()
+  componentDidMount() {
+    this._fetchComments()
+  }
 
   _fetchComments() {
     $.get(`/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {

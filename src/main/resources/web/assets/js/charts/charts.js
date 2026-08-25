@@ -2486,7 +2486,9 @@ class ChartSelect extends RbModalHandler {
     )
   }
 
-  componentDidMount = () => this._loadCharts()
+  componentDidMount  () {
+    this._loadCharts()
+  }
   _loadCharts() {
     $.get(`/dashboard/chart-list?type=${this.state.tabActive.substr(1)}&entity=${this.props.entity || ''}`, (res) => {
       this.setState({ chartList: res.data })
