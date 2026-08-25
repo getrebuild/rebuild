@@ -967,8 +967,9 @@ class ChartDolor extends BaseChart {
     const MIN_FONT = 14
     const MAX_FONT = 52
 
-    // 按数值降序排列（大词在中心）
-    const sorted = [...filtered].sort((a, b) => (parseFloat(b.value) || 0) - (parseFloat(a.value) || 0))
+    const sorted = [...filtered]
+      .sort((a, b) => (parseFloat(b.value) || 0) - (parseFloat(a.value) || 0))
+      .slice(0, 100)
 
     const words = sorted.map((item, idx) => {
       const v = parseFloat(item.value) || 0
