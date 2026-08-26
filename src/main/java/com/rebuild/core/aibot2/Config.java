@@ -57,6 +57,23 @@ public class Config {
 
         if (CLIENT != null) return CLIENT;
 
+        CLIENT = getClient(getServerUrl(null), getSecret());
+        return CLIENT;
+    }
+
+    /**
+     * 创建临时客户端（使用指定参数，不从已保存配置读取）
+     *
+     * @param baseUrl
+     * @param apiKey
+     * @return
+     */
+    public static OpenAIClient getClient(String baseUrl, String apiKey) {
+        Assert.notNull(baseUrl, "[baseUrl] is not set");
+        Assert.notNull(apiKey, "[apiKey] is not set");
+
+        if (!baseUrl.endsWith("/")) baseUrl += "/";
+
         // 连接超时 30s、读取超时 300s（流式响应分块间隔兜底）、写入超时 60s
         // 注意不可设置 request 总超时，否则会截断长时间流式输出
         Timeout timeout = Timeout.builder()
@@ -65,13 +82,12 @@ public class Config {
                 .write(Duration.ofSeconds(60))
                 .build();
 
-        CLIENT = OpenAIOkHttpClient.builder()
-                .baseUrl(getServerUrl(null))
-                .apiKey(getSecret())
+        return OpenAIOkHttpClient.builder()
+                .baseUrl(baseUrl)
+                .apiKey(apiKey)
                 .timeout(timeout)
                 .maxRetries(3)  // 缓解 TLS 握手被 RST 等偶发网络失败
                 .build();
-        return CLIENT;
     }
 
     /**

@@ -23,7 +23,18 @@ useEditComp = function (name) {
       $autoComplete($('input[name="AibotBaseDefModel"]'), null, option)
 
       // 异步获取可用模型
-      $.get('./aibot/models', (res) => {
+      const $urlInput = $('input[name="AibotDSUrl"]')
+      const $keyInput = $('input[name="AibotDSSecret"]')
+      const baseUrl = ($urlInput.val() || '').trim()
+      const apiKey = ($keyInput.val() || '').trim()
+
+      const origUrl = ($('td[data-id="AibotDSUrl"]').data('value') || '').trim()
+      const origKey = ($('td[data-id="AibotDSSecret"]').data('value') || '').trim()
+      const params = []
+      if (baseUrl && baseUrl !== origUrl) params.push(`baseUrl=${encodeURIComponent(baseUrl)}`)
+      if (apiKey && apiKey !== origKey) params.push(`apiKey=${encodeURIComponent(apiKey)}`)
+      const qs = params.length > 0 ? `?${params.join('&')}` : ''
+      $.get(`./aibot/models${qs}`, (res) => {
         if (res.error_code === 0 && res.data && res.data.length > 0) {
           option.options = res.data.map((m) => {
             // const ctx = m.contextWindow
