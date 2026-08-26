@@ -4633,7 +4633,9 @@ html.external-auth .auth-body.must-center .login {
   background-color: #eee;
   background-color: rgba(255, 255, 255, 0.15);
   font-size: 1rem;
-  color: #222;
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: none;
+  mix-blend-mode: difference;
 }
 
 .page-footer > p {
