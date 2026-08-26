@@ -160,6 +160,13 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             }
             log.info("File/Attachment deleted : {} >> {}", path, s);
         }
+
+        // 4.5 RebuildApiRequest 保留 90d
+
+        String dSql = String.format(
+                "delete from `rebuild_api_request` where `REQUEST_TIME` < '%s 00:00:00' limit 1000000",
+                CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-90)));
+        Application.getSqlExecutor().execute(dSql, 60 * 3);
     }
 
     // --
