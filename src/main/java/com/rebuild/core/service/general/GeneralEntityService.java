@@ -363,7 +363,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                         }
                     }
                 } else {
-                    log.warn("No have privileges to DELETE : {} > {}", currentUser, id);
+                    log.warn("No privileges to DELETE : {} > {}", currentUser, id);
                 }
             }
         }
@@ -415,7 +415,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         int affected;
         if (toUserId.equals(Application.getRecordOwningCache().getOwningUser(recordId))) {
             // No need to change
-            log.debug("The record owner has not changed, ignore : {}", recordId);
+            log.debug("The record owner has not changed, ignored : {}", recordId);
             affected = 1;
         } else {
             assignBefore = countObservers() > 0 ? recordSnap(assignAfter, false) : null;
@@ -456,7 +456,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 if (!Application.getPrivilegesManager().allowUpdate(toUserId, recordId.getEntityCode()) /* 目标用户无基础更新权限 */
                         || !Application.getPrivilegesManager().allow(currentUser, recordId, BizzPermission.UPDATE, true) /* 操作用户无记录更新权限 */) {
                     rights = BizzPermission.READ.getMask();
-                    log.warn("Downgrade share rights to READ({}) : {}", BizzPermission.READ.getMask(), recordId);
+                    log.warn("Downgraded share rights to READ({}) : {}", BizzPermission.READ.getMask(), recordId);
                 }
             }
         }
@@ -487,7 +487,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 sharedAfter.setID("accessId", (ID) hasShared[0]);
 
             } else {
-                log.debug("The record has been shared and has the same rights, ignore : {}", recordId);
+                log.debug("The record has been shared with the same rights, ignored : {}", recordId);
                 affected = 1;
             }
 
@@ -495,7 +495,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             // 可以共享给自己
             if (log.isDebugEnabled()
                     && toUserId.equals(Application.getRecordOwningCache().getOwningUser(recordId))) {
-                log.debug("Share to the same user as the record, ignore : {}", recordId);
+                log.debug("Sharing with the same user as the record, ignored : {}", recordId);
             }
 
             delegateService.create(sharedAfter);
@@ -580,7 +580,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         for (String cas : cascadeEntities) {
             if (!MetadataHelper.containsEntity(cas)) {
-                log.warn("The entity not longer exists : {}", cas);
+                log.warn("The entity no longer exists : {}", cas);
                 continue;
             }
 
@@ -900,7 +900,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 }
 
                 if (mainid == null) {
-                    log.warn("Check all records of detail for repeatable");
+                    log.warn("Checking all detail records for duplicates");
                 } else {
                     checkSql.append(String.format(" and (%s = '%s')", dtfName, mainid));
                 }
@@ -926,7 +926,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (approvalUser == null) {
             approvalUser = SYSTEM_USER;
-            log.warn("Use '{}' do approve : {}", approvalUser, recordId);
+            log.warn("Using '{}' to approve : {}", approvalUser, recordId);
         }
 
         // after

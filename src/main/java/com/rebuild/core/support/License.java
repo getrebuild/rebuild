@@ -175,7 +175,7 @@ public final class License {
 
                 String hasError = o.getString("error");
                 if (hasError != null) {
-                    log.error("Result return error : {}", result);
+                    log.error("Error in returned result : {}", result);
                 } else {
                     CACHED.put(api, o);
                 }
@@ -186,13 +186,13 @@ public final class License {
             }
 
         } catch (Exception ex) {
-            log.error("Call X-SiteApi `{}` error : {}", api.split("\\?")[0], ex.toString());
+            log.error("Error calling X-SiteApi `{}` : {}", api.split("\\?")[0], ex.toString());
         }
 
         if (domain == null) {
             return siteApi(api, t, "http://rebuild.ruifang-tech.com/");
         } else {
-            return JSONUtils.toJSONObject("error", "Call X-SiteApi fails");
+            return JSONUtils.toJSONObject("error", "Error calling X-SiteApi");
         }
     }
 }

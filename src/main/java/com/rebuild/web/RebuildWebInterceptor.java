@@ -258,7 +258,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         // 打印处理时间
         long time = re == null ? 0 : (System.currentTimeMillis() - re.getRequestTime());
         if (time > 1500) {
-            log.warn("Method handle time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
+            log.warn("Method handling time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
         }
 
         // 清理用户
@@ -343,7 +343,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
     private void checkSafeUse(String ipAddr, String requestUri) throws DefinedException {
         if ("localhost".equals(ipAddr) || "127.0.0.1".equals(ipAddr)) {
-            log.debug("Allow localhost/127.0.0.1 use : {}", requestUri);
+            log.debug("Allowing localhost/127.0.0.1 access : {}", requestUri);
             return;
         }
 

@@ -138,13 +138,13 @@ public class RecordTransfomer37 extends RecordTransfomer {
 
         String dTargetEntity = fmdMeta.getString("target");
         if (!MetadataHelper.containsEntity(dTargetEntity)) {
-            log.warn("Tatget entity not longer exists : {}", dTargetEntity);
+            log.warn("Target entity no longer exists : {}", dTargetEntity);
             return null;
         }
 
         String dSourceEntity = fmdMeta.getString("source");
         if (!MetadataHelper.containsEntity(dSourceEntity)) {
-            log.warn("Source entity not longer exists : {}", dSourceEntity);
+            log.warn("Source entity no longer exists : {}", dSourceEntity);
             return null;
         }
 

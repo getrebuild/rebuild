@@ -474,7 +474,7 @@ const EXPIRES_TIME = [
 class FileShare extends RbModalHandler {
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title || $L('分享文件')} disposeOnHide>
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title || $L('分享文件')} disposeOnHide zIndex={1100}>
         <div className="file-share">
           <label className="text-dark text-bold">{$L('分享链接')}</label>
           <div className="input-group input-group-sm">

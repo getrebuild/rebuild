@@ -186,7 +186,7 @@ public class ConfigurationController extends BaseController {
                     SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatabaseBackupFail, null);
                 } catch (Exception e) {
                     dbFile = "ERR:" + e.getMessage();
-                    log.error("Executing [DatabaseBackup] fails", e);
+                    log.error("Executing [DatabaseBackup] failed", e);
                 }
             }
         }
@@ -196,7 +196,7 @@ public class ConfigurationController extends BaseController {
                 SysbaseHeartbeat.setItem(SysbaseHeartbeat.DatafileBackupFail, null);
             } catch (Exception e) {
                 fileFile = "ERR:" + e.getMessage();
-                log.error("Executing [DatafileBackup] fails", e);
+                log.error("Executing [DatafileBackup] failed", e);
             }
         }
 

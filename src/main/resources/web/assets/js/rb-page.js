@@ -36,11 +36,11 @@ _GA()
 
 // PAGE INITIAL
 $(function () {
-  // 通用 Bootstrap 多层 modal 处理
+  // 多层 modal 处理
   $(document).on('show.bs.modal', '.modal', function () {
     var total = $('.modal.show').length + 1
     $('.modal-backdrop').css('opacity', '0')
-    $(this).css('z-index', 1040 + total)
+    $(this).css('z-index', parseInt(this.style.zIndex) || 1040 + total)
   })
   $(document).on('shown.bs.modal', '.modal', function () {
     var total = $('.modal.show').length

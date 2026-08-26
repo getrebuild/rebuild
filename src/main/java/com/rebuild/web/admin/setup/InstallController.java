@@ -151,7 +151,7 @@ public class InstallController extends BaseController implements InstallState {
             new Installer(installProps).install();
             return RespBody.ok();
         } catch (Exception ex) {
-            log.error("An error occurred during install", ex);
+            log.error("An error occurred during installation", ex);
             return RespBody.errorl("安装失败 : %s", CommonsUtils.getRootMessage(ex));
         }
     }

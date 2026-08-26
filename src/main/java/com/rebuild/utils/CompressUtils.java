@@ -41,7 +41,7 @@ public class CompressUtils {
      */
     public static void forceZip(File destZip, File fileOrDir, FileFilter filter) throws IOException {
         if (destZip.exists()) {
-            log.warn("delete exists after create : {}", destZip);
+            log.warn("Deleted existing file before creating new one : {}", destZip);
             FileUtils.deleteQuietly(destZip);
         }
 
@@ -85,7 +85,7 @@ public class CompressUtils {
      */
     public static void forceZip(File destZip, File... files) throws IOException {
         if (destZip.exists()) {
-            log.warn("delete exists after create : {}", destZip);
+            log.warn("Deleted existing file before creating new one : {}", destZip);
             FileUtils.deleteQuietly(destZip);
         }
 

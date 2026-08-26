@@ -158,7 +158,7 @@ public class ApiGateway extends Controller implements Initialization {
             UserContextHolder.clear();
         }
 
-        JSON error = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
+        JSON error = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Internal Server Error"), errorCode);
         if (errorData40 != null) ((JSONObject) error).put("error_data", errorData40);
 
         try {

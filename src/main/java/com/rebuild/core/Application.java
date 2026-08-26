@@ -163,7 +163,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         } catch (Exception ex) {
             _STATE_READY = false;
-            log.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FILAED !!!"), ex);
+            log.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FAILED !!!"), ex);
 
         } finally {
             if (!started) {
@@ -217,7 +217,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         if (!(_STATE_READY = ServerStatus.checkAll())) {
             log.error(RebuildBanner.formatBanner(
-                    "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
+                    "REBUILD STARTUP FAILED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
             return false;
         }
 
@@ -363,7 +363,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         if (_ESS != null && _ESS.containsKey(entityCode)) {
             ServiceSpec es = _ESS.get(entityCode);
             if (EntityService.class.isAssignableFrom(es.getClass())) {
-                log.warn("Use the #getEntityService is recommended");
+                log.warn("Using #getEntityService is recommended");
             }
             return es;
 

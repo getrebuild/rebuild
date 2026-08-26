@@ -68,7 +68,7 @@ public class TestSupport {
 
     @AfterAll
     public static void setDown() {
-        _log.warn("TESTING Setdown ...");
+        _log.warn("TESTING Teardown ...");
 
         UserContextHolder.clear();
     }

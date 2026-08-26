@@ -192,7 +192,7 @@ public class CommonsUtils {
         try (InputStream is = getStreamOfRes(file)) {
             return IOUtils.toString(is, StandardCharsets.UTF_8);
         } catch (IOException ex) {
-            log.error("Cannot load file of res : {}", file);
+            log.error("Cannot load resource file : {}", file);
             return null;
         }
     }

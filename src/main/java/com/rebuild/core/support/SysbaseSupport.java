@@ -63,10 +63,10 @@ public class SysbaseSupport {
         JSONObject resJson;
         try {
             String res = upload(logFile, "https://getrebuild.com/api/misc/request-support");
-            log.info("Upload file of support : {}", res);
+            log.info("Uploading support file : {}", res);
             resJson = (JSONObject) JSON.parse(res);
         } catch (IOException e) {
-            log.error("Upload file of support fails", e);
+            log.error("Failed to upload support file", e);
             return null;
         }
         return resJson.getString("TSID");
@@ -82,10 +82,10 @@ public class SysbaseSupport {
         JSONObject resJson;
         try {
             String res = upload(logFile, "https://getrebuild.com/api/misc/request-support?type=aibot");
-            log.info("Upload file of aibot-chat : {}", res);
+            log.info("Uploading aibot-chat file : {}", res);
             resJson = (JSONObject) JSON.parse(res);
         } catch (IOException e) {
-            log.error("Upload file of aibot-chat fails", e);
+            log.error("Failed to upload aibot-chat file", e);
             return null;
         }
         return resJson.getString("TSID");
