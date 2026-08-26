@@ -7,10 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.impl;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.core.Application;
@@ -19,9 +22,13 @@ import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.AdminGuard;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.InternalPersistService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 请使用协作类 {@link Field2Schema}
@@ -55,19 +62,41 @@ public class MetaFieldService extends InternalPersistService implements AdminGua
         }
 
         // 删除此字段的相关配置记录
-        // Field: belongEntity, belongField
+        // Field: belongEntity,belongField
         String[] whoUsed = field == null ? new String[0] : new String[]{
                 "PickList", "AutoFillinConfig", "NreferenceItem", "Attachment"
         };
 
         int del = 0;
         for (String who : whoUsed) {
-            Entity whichEntity = MetadataHelper.getEntity(who);
+            // v4.5 标记删除，后续由 RecycleBinCleanerJob 清理
+            // 附件/图片的底层类型是 STRING
+            if ("Attachment".equals(who) && field.getType() == FieldType.STRING) {
+                Object[][] array = Application.createQueryNoFilter(
+                        "select attachmentId from Attachment where belongEntity = ? and belongField = ?")
+                        .setParameter(1, field.getOwnEntity().getEntityCode())
+                        .setParameter(2, field.getName())
+                        .array();
+                if (array.length > 0) {
+                    List<Record> drops = new ArrayList<>();
+                    for (Object[] o : array) {
+                        Record d = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
+                        d.setBoolean(EntityHelper.IsDeleted, true);
+                        d.setDate(EntityHelper.ModifiedOn, CalendarUtils.now());
+                        drops.add(d);
+                    }
 
-            Object belongEntity = "Attachment".equals(who) ? field.getOwnEntity().getEntityCode() : field.getOwnEntity().getName();
+                    Application.getCommonsService().createOrUpdate(drops.toArray(new Record[0]), false);
+                    log.warn("Marked deleted attachments of field [ {}.{} ] : {}",
+                            field.getOwnEntity().getName(), field.getName(), array.length);
+                }
+                continue;
+            }
+
+            Entity whichEntity = MetadataHelper.getEntity(who);
             String dsql = String.format(
                     "delete from `%s` where `BELONG_ENTITY` = '%s' and `BELONG_FIELD` = '%s'",
-                    whichEntity.getPhysicalName(), belongEntity.toString(), field.getName());
+                    whichEntity.getPhysicalName(), field.getOwnEntity().getName(), field.getName());
             int d = Application.getSqlExecutor().execute(dsql);
 
             if (d > 0) {
