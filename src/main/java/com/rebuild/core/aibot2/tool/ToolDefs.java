@@ -74,6 +74,7 @@ public class ToolDefs {
         register(new BuildFormLayout());
         register(new BuildListLayout());
         register(new BuildNavMenu());
+        register(new BuildApp());
     }
 
     /**
