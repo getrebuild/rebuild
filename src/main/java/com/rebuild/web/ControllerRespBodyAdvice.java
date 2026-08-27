@@ -46,7 +46,7 @@ public class ControllerRespBodyAdvice implements ResponseBodyAdvice<Object> {
         HttpServletResponse response = ((ServletServerHttpResponse) serverHttpResponse).getServletResponse();
 
         // #supports
-        // Controller send status of error
+        // Controller sent an error status
         if (response.getStatus() != 200) {
             if (o instanceof Map) {
                 String path404 = (String) ((Map<?, ?>) o).get("path");

@@ -178,7 +178,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (checkDetailsRepeated) {
                     Record c = d.clone();
-                    // for check use clone
+                    // Use a clone for checking
                     ID hasMainid = c.getID(dtfField);
                     if (hasMainid == null || EntityHelper.isUnsavedId(hasMainid)) c.setID(dtfField, mainid);
 

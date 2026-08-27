@@ -114,12 +114,12 @@ public class CompressUtils {
     }
 
     private static void addFileToZip(ZipArchiveOutputStream zipArchiveOutputStream, File file, String path, FileFilter filter) throws IOException {
-        // at first call it is the folder, otherwise is the relative path
+        // At first call it is the folder, otherwise it is the relative path
         String entryName = (path != null) ? path + file.getName() : file.getName();
         ZipArchiveEntry zipEntry = new ZipArchiveEntry(file, entryName);
         zipArchiveOutputStream.putArchiveEntry(zipEntry);
 
-        // if is a file, add the content to zip file
+        // If it is a file, add its content to the zip file
         if (file.isFile()) {
             FileInputStream fInputStream = null;
             try {
@@ -130,7 +130,7 @@ public class CompressUtils {
                 IOUtils.closeQuietly(fInputStream);
             }
         } else {
-            // is a directory so it calls recursively all files in folder
+            // It is a directory, so process all files in the folder recursively
             zipArchiveOutputStream.closeArchiveEntry();
             File[] children = file.listFiles(filter);
             if (children != null) {
@@ -145,8 +145,6 @@ public class CompressUtils {
      * @param source
      * @param dest
      * @throws IOException
-     * @see FileUtils#copyFile(File, File) Bad on unix!
-     * @see IOUtils#copyLarge(Reader, Writer)
      */
     public static void copy(File source, File dest) throws IOException {
         FileUtils.copyFile(source, dest);
