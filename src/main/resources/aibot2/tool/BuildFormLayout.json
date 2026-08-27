@@ -17,7 +17,7 @@
         },
         "config": {
           "type": "array",
-          "description": "表单布局数据。每项含 field（字段名或 $DIVIDER$ 分割线/$REFFORM$ 引用表单）、colspan（栅格宽度）等，必填/只读/隐藏等细节由用户在表单设计器中自行调整，完整结构见 form-layout Schema（用 GetConfigSchema 获取）"
+          "description": "表单布局数据，数组，每项为一个字段或分割线，结构定义见 form-layout Schema（用 GetConfigSchema 获取）"
         },
         "shareTo": {
           "type": "string",

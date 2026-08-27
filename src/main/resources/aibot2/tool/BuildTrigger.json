@@ -29,7 +29,7 @@
         },
         "whenFilter": {
           "type": "object",
-          "description": "附加触发条件（可选），符合该条件的记录才触发动作。该参数为对象，含 entity（实体名）和 items（条件数组，每项含 field/op/value/value2）等字段，完整结构见 adv-filter Schema（可用 GetConfigSchema 获取）"
+          "description": "附加触发条件（可选），符合该条件的记录才触发动作。该参数为对象，含实体名和条件数组（条件数组为数组而非对象），结构定义见 adv-filter Schema（用 GetConfigSchema 获取）"
         },
         "actionType": {
           "type": "string",
@@ -45,7 +45,7 @@
         },
         "actionContent": {
           "type": "object",
-          "description": "动作配置内容，结构随 actionType 变化，必须严格符合 trigger-config Schema 中对应 $defs 的定义"
+          "description": "动作配置内容，结构随 actionType 变化，必须严格符合 trigger-config Schema 中对应 $defs 的定义（用 GetConfigSchema 获取）"
         },
         "priority": {
           "type": "integer",

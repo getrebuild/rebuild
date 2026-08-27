@@ -21,7 +21,7 @@
         },
         "useFilter": {
           "type": "object",
-          "description": "报表过滤条件（可选），仅匹配的记录可使用该报表。该参数为对象，含 entity（实体名）和 items（条件数组，每项含 field/op/value/value2）等字段，完整结构见 adv-filter Schema（可用 GetConfigSchema 获取）"
+          "description": "报表过滤条件（可选），仅匹配的记录可使用该报表。该参数为对象，含实体名和条件数组（条件数组为数组而非对象），结构定义见 adv-filter Schema（用 GetConfigSchema 获取）"
         },
         "confirmed": {
           "type": "boolean",

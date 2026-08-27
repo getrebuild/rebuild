@@ -17,7 +17,7 @@
         },
         "config": {
           "type": "array",
-          "description": "列表布局数据。每项仅含 field（字段名，支持 1-2 级引用路径），列宽/排序等细节由用户在列表设置中自行调整，完整结构见 list-layout Schema（用 GetConfigSchema 获取）"
+          "description": "列表布局数据，数组，每项为一个显示列，结构定义见 list-layout Schema（用 GetConfigSchema 获取）"
         },
         "confirmed": {
           "type": "boolean",

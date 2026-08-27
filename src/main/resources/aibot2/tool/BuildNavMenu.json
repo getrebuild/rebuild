@@ -13,7 +13,7 @@
         },
         "config": {
           "type": "array",
-          "description": "完整的导航菜单数据（整个左侧导航栏的全部菜单项，而非单个菜单项）。每项仅含 text（显示文字）、type（BUILTIN 内置/ENTITY 实体/URL 外部链接）、value（值），$PARENT$ 父菜单用 sub 子菜单组织层级，完整结构见 nav-menu Schema（用 GetConfigSchema 获取）"
+          "description": "完整的导航菜单数据，数组，为整个左侧导航栏的全部菜单项而非单个菜单项，结构定义见 nav-menu Schema（用 GetConfigSchema 获取）"
         },
         "confirmed": {
           "type": "boolean",
