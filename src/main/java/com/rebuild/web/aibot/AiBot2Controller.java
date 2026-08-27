@@ -120,20 +120,6 @@ public class AiBot2Controller extends BaseController {
         return RespBody.ok();
     }
 
-    @PostMapping("post/chat-feedback")
-    public RespBody chatFeedback(HttpServletRequest req) {
-        ID chatid = getIdParameterNotNull(req, "chatid");
-        String type = getParameterNotNull(req, "type");
-
-        ChatLogger chatLogger = ChatManager.getChat(chatid).chatLogger();
-        File logFile = chatLogger.getLogFile();
-        if (!logFile.exists()) return RespBody.error();
-
-        chatLogger.log("FEEDBACK", type);
-        TaskExecutors.queue(() -> new SysbaseSupport().uploadAibotFeedback(logFile));
-        return RespBody.ok();
-    }
-
     @GetMapping("post/chat-init")
     public RespBody chatInit(HttpServletRequest req) {
         ID chatid = getIdParameter(req, "chatid");
@@ -201,6 +187,23 @@ public class AiBot2Controller extends BaseController {
         r.setString("subject", subject);
         Application.getCommonsService().update(r);
 
+        return RespBody.ok();
+    }
+
+    @PostMapping("post/chat-feedback")
+    public RespBody chatFeedback(HttpServletRequest req) {
+        ID chatid = getIdParameterNotNull(req, "chatid");
+        String type = getParameterNotNull(req, "type");
+        String comment = getParameter(req, "comment");
+
+        ChatLogger chatLogger = ChatManager.getChat(chatid).chatLogger();
+        File logFile = chatLogger.getLogFile();
+        if (!logFile.exists()) return RespBody.error();
+
+        String feedbackDetail = StringUtils.isBlank(comment) ? type : type + " : " + comment;
+        chatLogger.log("FEEDBACK", feedbackDetail);
+
+        TaskExecutors.queue(() -> new SysbaseSupport().uploadAibotFeedback(logFile, comment));
         return RespBody.ok();
     }
 }

@@ -547,7 +547,16 @@ class ChatMessage extends React.Component {
   _feedback(type) {
     if (this.state.feedback) return
     const chatid = this.props._ChatMessages.props._Chat.state.chatid
-    $.post(`/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}`, () => {
+
+    if (type === 'dislike') {
+      renderRbcomp(<DlgFeedbackInput onConfirm={(comment) => this._submitFeedback(type, chatid, comment)} />)
+    } else {
+      this._submitFeedback(type, chatid, '')
+    }
+  }
+
+  _submitFeedback(type, chatid, comment) {
+    $.post(`/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}&comment=${encodeURIComponent(comment)}`, () => {
       this.setState({ feedback: type })
     })
   }
@@ -1167,6 +1176,42 @@ class DlgChatRename extends RbAlert {
   _onConfirm = () => {
     typeof this.props.onConfirm === 'function' && this.props.onConfirm($(this._$name).val())
     this.hide()
+  }
+}
+
+// 反馈输入弹窗（可选输入）
+// eslint-disable-next-line no-unused-vars
+class DlgFeedbackInput extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, comment: '' }
+  }
+
+  renderContent() {
+    return (
+      <div className="ml-6 mr-6">
+        <h5 className="mb-2 text-bold">{$L('能告诉我们哪里不对吗')}</h5>
+        <textarea
+          className="form-control form-control-sm"
+          maxLength="200"
+          placeholder={$L('您的反馈非常重要')}
+          value={this.state.comment || ''}
+          onChange={(e) => this.setState({ comment: e.target.value })}
+          autoFocus
+        />
+        <div className="mt-3 mb-1">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
+            {$L('提交')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  _onConfirm = () => {
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(this.state.comment || '')
+    this.hide()
+    RbHighbar.success($L('感谢您的反馈'))
   }
 }
 
