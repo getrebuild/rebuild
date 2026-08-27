@@ -100,6 +100,7 @@ public class NavBuilder extends NavManager {
             NAV_BUILTIN_ICONS.put(n.getString("value"), n.getString("icon"));
         }
         NAV_BUILTIN_ICONS.put(NAV_DASHBOARD, "chart");
+        NAV_BUILTIN_ICONS.put(NAV_PARENT, "menu");
     }
 
     /**
@@ -183,6 +184,8 @@ public class NavBuilder extends NavManager {
 
             // 父级菜单
             if (subNavs != null && !subNavs.isEmpty()) {
+                fixNavIcon(nav, nav.getString("value"));
+
                 for (Iterator<Object> subIter = subNavs.iterator(); subIter.hasNext(); ) {
                     JSONObject subNav = (JSONObject) subIter.next();
                     if (isFilterNavItem(subNav, user)) {
