@@ -148,7 +148,7 @@ public class FieldAggregation extends TriggerAction {
         }
 
         if (tschain.size() >= MAX_TRIGGER_DEPTH) {
-            throw new TriggerException("Exceed the maximum trigger depth : " + StringUtils.join(tschain, " > "));
+            throw new TriggerException("Exceeded the maximum trigger depth : " + StringUtils.join(tschain, " > "));
         }
 
         return tschain;
@@ -260,7 +260,7 @@ public class FieldAggregation extends TriggerAction {
 
         // 有需要才执行
         if (targetRecord.isEmpty()) {
-            if (!RobotTriggerObserver._TriggerLessLog) log.info("No data of target record : {}", targetRecordId);
+            if (!RobotTriggerObserver._TriggerLessLog) log.info("No target record data : {}", targetRecordId);
             return TriggerResult.targetEmpty();
         }
 
@@ -378,7 +378,7 @@ public class FieldAggregation extends TriggerAction {
             }
         }
 
-        if (targetRecordId == null) log.warn("Cannot found [targetRecordId]: {}", operatingContext);
+        if (targetRecordId == null) log.warn("Cannot find [targetRecordId]: {}", operatingContext);
         this.followSourceWhere = String.format("%s = '%s'", followSourceField, targetRecordId);
     }
 

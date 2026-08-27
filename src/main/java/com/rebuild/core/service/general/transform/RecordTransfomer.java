@@ -155,7 +155,7 @@ public class RecordTransfomer extends SetUser {
         // 主
         JSONObject fieldsMapping = transConfig.getJSONObject("fieldsMapping");
         if (MapUtils.isEmpty(fieldsMapping)) {
-            throw new ConfigurationException("Invalid config of transform : " + transConfig);
+            throw new ConfigurationException("Invalid transform config : " + transConfig);
         }
 
         // 明细

@@ -393,7 +393,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         if (EntityService.class.isAssignableFrom(es.getClass())) {
             return (EntityService) es;
         }
-        throw new RebuildException("Non EntityService implements : " + entityCode);
+        throw new RebuildException("Not an EntityService implementation : " + entityCode);
     }
 
     /**

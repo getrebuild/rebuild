@@ -254,7 +254,7 @@ public class AdvFilterParser extends SetUser {
      * @return
      */
     public Set<String> getIncludeFields() {
-        Assert.notNull(includeFields, "Calls #toSqlWhere first");
+        Assert.notNull(includeFields, "Call #toSqlWhere first");
         return includeFields;
     }
 
@@ -264,7 +264,7 @@ public class AdvFilterParser extends SetUser {
      * @return
      */
     public List<String> getParseErrors() {
-        Assert.notNull(parseErrors, "Calls #toSqlWhere first");
+        Assert.notNull(parseErrors, "Call #toSqlWhere first");
         return parseErrors;
     }
 

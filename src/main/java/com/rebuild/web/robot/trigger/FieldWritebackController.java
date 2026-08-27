@@ -83,7 +83,7 @@ public class FieldWritebackController extends BaseController {
         for (Field refTo : MetadataHelper.getReferenceToFields(sourceEntity, true)) {
             String key = refTo.getOwnEntity().getName() + "." + refTo.getName();
             if (unique.contains(key)) {
-                log.warn("None unique-key in {}, ignored", sourceEntity);
+                log.warn("No unique-key in {}, ignored", sourceEntity);
             } else {
                 Entity refToEntity = refTo.getOwnEntity();
                 if (isFilterTargetEntity(refToEntity)) continue;

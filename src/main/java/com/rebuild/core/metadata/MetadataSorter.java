@@ -111,7 +111,7 @@ public class MetadataSorter {
      * @return
      */
     public static Entity[] sortDetailEntities(Entity mainEntity) {
-        Assert.notNull(mainEntity.getDetailEntity(), "None main entity : " + mainEntity);
+        Assert.notNull(mainEntity.getDetailEntity(), "Not a main-entity : " + mainEntity);
 
         List<BaseMeta> entities = new ArrayList<>();
         CollectionUtils.addAll(entities, mainEntity.getDetialEntities());

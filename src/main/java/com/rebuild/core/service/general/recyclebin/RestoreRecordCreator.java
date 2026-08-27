@@ -40,7 +40,7 @@ public class RestoreRecordCreator extends JsonRecordCreator {
         for (Map.Entry<String, Object> e : source.entrySet()) {
             String fileName = e.getKey();
             if (!entity.containsField(fileName)) {
-                log.warn("Cannot found field [ " + entity.getName() + '#' + fileName + " ], will ignore");
+                log.warn("Cannot find field [ " + entity.getName() + '#' + fileName + " ], will ignore");
                 continue;
             }
 

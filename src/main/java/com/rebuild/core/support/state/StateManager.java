@@ -95,6 +95,6 @@ public class StateManager {
             if (s.getName().equalsIgnoreCase(nv.toString())
                     || ((Enum<?>) s).name().equalsIgnoreCase(nv.toString())) return s;
         }
-        throw new RebuildException("Cannot found state : " + nv);
+        throw new RebuildException("Cannot find state : " + nv);
     }
 }

@@ -154,7 +154,7 @@ public class FieldWriteback extends FieldAggregation {
         }
 
         if (targetRecordData.isEmpty()) {
-            if (!RobotTriggerObserver._TriggerLessLog) log.info("No data of target record : {}", targetRecordIds);
+            if (!RobotTriggerObserver._TriggerLessLog) log.info("No target record data : {}", targetRecordIds);
             return TriggerResult.targetEmpty();
         }
 
