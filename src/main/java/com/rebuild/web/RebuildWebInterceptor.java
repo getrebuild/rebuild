@@ -74,6 +74,10 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         if (!Application.isStateLoaded()) {
             throw new DefinedException(CODE_STARTING, "Please wait while REBUILD starting up ...");
+        } else {
+            if (System.getProperty("BLOCKED45") != null) {
+                throw new DefinedException(CODE_BLOCKED, "Your REBUILD authorization is temporarily unavailable.");
+            }
         }
 
         final String ipAddr = ServletUtils.getRemoteAddr(request);
