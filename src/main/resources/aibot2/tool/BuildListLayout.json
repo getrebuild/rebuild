@@ -1,0 +1,31 @@
+{
+  "type": "function",
+  "userDescription": "新建列表布局，自定义列表页显示哪些列",
+  "function": {
+    "name": "BuildListLayout",
+    "description": "新建列表布局，定义实体列表页显示哪些列及列宽、排序等，创建后共享给全部用户并作为默认显示列（已自定义列表的用户不受影响）。当用户希望调整/自定义某个实体的列表显示列时使用。调用前必须先调用 GetConfigSchema(schema=list-layout) 获取布局数据结构，并用 ListEntities 查询实体的真实字段名。字段支持中文标签（自动转换为真实字段名）及引用路径（如 客户.负责人）。显示列建议包含实体的名称字段并置于前列，解析失败会返回错误提示",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称（布局所属实体）"
+        },
+        "name": {
+          "type": "string",
+          "description": "布局名称（可选），应简洁说明用途"
+        },
+        "config": {
+          "type": "array",
+          "description": "列表布局数据。每项含 field（字段名，支持 1-3 级引用路径）、width（列宽像素）、label2（自定义列标签）、sort（排序方向）等，完整结构见 list-layout Schema（用 GetConfigSchema 获取）"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["entity", "config"],
+      "additionalProperties": false
+    }
+  }
+}
