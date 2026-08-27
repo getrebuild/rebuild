@@ -3,7 +3,7 @@
   "userDescription": "新建导航菜单，自定义系统左侧导航栏的菜单内容",
   "function": {
     "name": "BuildNavMenu",
-    "description": "新建导航菜单，一次性设置系统左侧导航栏的完整菜单结构（config 必须是包含所有菜单项的完整列表，而非单个菜单项，创建后共享给全部用户并整体生效）。当用户希望自定义/调整系统导航菜单时使用。调用前必须先调用 GetConfigSchema(schema=nav-menu) 获取菜单数据结构，并用 ListEntities 查询实体菜单项的真实实体名。菜单项支持内置功能、实体、外部链接三种类型，可用 $PARENT$ 父菜单组织层级。注意：新菜单会整体替代用户当前导航。除用户明确提到的菜单项外，应主动补充首页（BUILTIN，value=$DASHBOARD$）等常用内置入口（可选值还有 $FEEDS$ 动态/$PROJECT$ 项目/$FILEMRG$ 文件/$CONTACT$ 通讯录/$APPROVAL$ 审批中心）；但对于实体菜单项，不得自行猜测补充——若用户未说明导航上要放哪些实体，必须先询问用户确认后再创建。当实体菜单项较多（如超过 8 个）时，建议用 $PARENT$ 父菜单按业务域分组展示——可根据实体名称/标签推断分组（如 客户/订单/商机归入 CRM，产品/供应商归入基础数据），并在确认环节将分组方案完整展示给用户，用户不认可时再调整。解析失败会返回错误提示",
+    "description": "新建导航菜单，一次性设置系统左侧导航栏的完整菜单结构（config 必须是包含所有菜单项的完整列表，而非单个菜单项，创建后共享给全部用户并整体生效）。当用户希望自定义/调整系统导航菜单时使用。调用前必须先调用 GetConfigSchema(schema=nav-menu) 获取菜单数据结构，并用 ListEntities 查询实体菜单项的真实实体名。菜单项支持内置功能、实体、外部链接三种类型，可用 $PARENT$ 父菜单组织层级。注意：新菜单会整体替代用户当前导航。系统左侧导航栏顶部固定显示「首页」，不要在菜单中重复添加，$DASHBOARD$ 是仪表盘入口而非首页。除用户明确提到的菜单项外，可酌情补充常用内置入口（可选值：$FEEDS$ 动态/$PROJECT$ 项目/$FILEMRG$ 文件/$CONTACT$ 通讯录/$APPROVAL$ 审批中心/$DASHBOARD$ 仪表盘/$DIVIDER$ 分栏）；但对于实体菜单项，不得自行猜测补充——若用户未说明导航上要放哪些实体，必须先询问用户确认后再创建。菜单项不带 icon 字段，图标由系统默认处理。当实体菜单项较多（如超过 8 个）时，建议用 $PARENT$ 父菜单按业务域分组展示——可根据实体名称/标签推断分组（如 客户/订单/商机归入 CRM，产品/供应商归入基础数据），并在确认环节将分组方案完整展示给用户，用户不认可时再调整。解析失败会返回错误提示",
     "parameters": {
       "type": "object",
       "properties": {
@@ -13,7 +13,7 @@
         },
         "config": {
           "type": "array",
-          "description": "完整的导航菜单数据（整个左侧导航栏的全部菜单项，而非单个菜单项）。每项含 text（显示文字）、type（BUILTIN 内置/ENTITY 实体/URL 外部链接）、value（值）、icon（图标，可选）等，完整结构见 nav-menu Schema（用 GetConfigSchema 获取）"
+          "description": "完整的导航菜单数据（整个左侧导航栏的全部菜单项，而非单个菜单项）。每项仅含 text（显示文字）、type（BUILTIN 内置/ENTITY 实体/URL 外部链接）、value（值），$PARENT$ 父菜单用 sub 子菜单组织层级，完整结构见 nav-menu Schema（用 GetConfigSchema 获取）"
         },
         "confirmed": {
           "type": "boolean",
