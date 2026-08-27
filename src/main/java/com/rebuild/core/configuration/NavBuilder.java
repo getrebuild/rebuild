@@ -20,6 +20,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.RoleService;
@@ -149,6 +150,14 @@ public class NavBuilder extends NavManager {
         if (config == null) {
             JSONArray useDefault = (JSONArray) JSONUtils.clone(NAVS_DEFAULT);
             ((JSONObject) useDefault.get(NAV_PROJECT__INDEX)).put("sub", buildAvailableProjects(user));
+
+            // v4.5 未配置时使用全部实体
+            for (Entity e : MetadataSorter.sortEntities(user, false, false)) {
+                EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
+                useDefault.add(JSONUtils.toJSONObject(
+                        new String[]{"icon", "text", "type", "value"},
+                        new Object[]{easyEntity.getIcon(), easyEntity.getLabel(), "ENTITY", easyEntity.getName()}));
+            }
             return useDefault;
         }
 

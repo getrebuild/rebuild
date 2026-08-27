@@ -7,15 +7,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.service.query.QueryHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -125,11 +134,45 @@ public class FormsManager extends BaseLayoutManager {
         return useBlank(entity);
     }
 
-    // 未配置, 无符合
+    // 无配置使用全部字段
     private ConfigBean useBlank(String entity) {
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+
+        List<Field> customFields = new ArrayList<>();
+        List<Field> approvalFields = new ArrayList<>();
+        List<Field> sysFields = new ArrayList<>();
+        for (Field field : MetadataSorter.sortFields(entityMeta)) {
+            if (MetadataHelper.isApprovalField(field.getName())) approvalFields.add(field);
+            else if (EasyMetaFactory.valueOf(field).isBuiltin()) sysFields.add(field);
+            else customFields.add(field);
+        }
+
+        JSONArray elements = new JSONArray();
+        for (Field field : customFields) {
+            elements.add(JSONUtils.toJSONObject("field", EasyMetaFactory.valueOf(field).getName()));
+        }
+        if (CollectionUtils.isNotEmpty(approvalFields)) {
+            addBlankGroup(elements, Language.L("审批相关"), approvalFields);
+        }
+        if (CollectionUtils.isNotEmpty(sysFields)) {
+            addBlankGroup(elements, Language.L("系统相关"), sysFields);
+        }
+
         return new ConfigBean()
                 .set("entity", entity)
-                .set("elements", JSONUtils.EMPTY_ARRAY);
+                .set("elements", elements);
+    }
+
+    // 添加分栏及组内字段
+    private void addBlankGroup(JSONArray elements, String label, List<Field> fields) {
+        elements.add(JSONUtils.toJSONObject(
+                new String[]{"field", "label"},
+                new Object[]{FormsBuilder.DIVIDER_LINE, label}));
+
+        for (Field field : fields) {
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            elements.add(JSONUtils.toJSONObject("field", easyField.getName()));
+        }
     }
 
     // 默认优先级布局
