@@ -52,7 +52,7 @@ public class UpsertRecord implements Tool {
     private static final Pattern JSON_CODE_BLOCK = Pattern.compile("```(?:json)?\\s*([\\s\\S]*?)```", Pattern.CASE_INSENSITIVE);
     private static final Pattern JSON_OBJECT = Pattern.compile("\\{[\\s\\S]*}");
 
-    private static final String PROMPT_TEMPLATE = CommonsUtils.getStringOfRes("aibot2/tool/UpsertRecord__ask.md");
+    private static final String PROMPT_TEMPLATE = CommonsUtils.getStringOfRes("aibot2/tool/UpsertRecord__schema.md");
 
     @Override
     public Object tool(String arguments) throws Exception {
@@ -121,6 +121,12 @@ public class UpsertRecord implements Tool {
         }
         if (isUpdate && !entity.isUpdatable()) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许更新记录");
+        }
+
+        // 新建时移除模型可能臆造的记录 ID，避免误走更新分支（更新仅由 recordId 参数决定）
+        if (!isUpdate) {
+            JSONObject metadata = recordJson.getJSONObject("metadata");
+            if (metadata != null) metadata.remove("id");
         }
 
         Object detailsObj = recordJson.remove(GeneralEntityService.HAS_DETAILS);
