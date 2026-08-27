@@ -23,8 +23,8 @@ import com.rebuild.core.service.datareport.ReportsFile;
 import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.RbvFunction;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -282,7 +282,7 @@ public class ExportReport implements Tool {
                 CodecUtils.urlEncode(output.getName()),
                 AuthTokenManager.generateCsrfToken(90),
                 CodecUtils.urlEncode(fileName));
-        fileUrl = RebuildConfiguration.getHomeUrl(fileUrl);
+        fileUrl = AppUtils.getContextPath(fileUrl);
 
         JSONObject result = new JSONObject();
         result.put("status", "ok");

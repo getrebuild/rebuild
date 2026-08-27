@@ -28,8 +28,8 @@ const _chatMarked = new marked.Marked({
     },
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens)
-      // 非安全协议（javascript:/data: 等）渲染为纯文本，防止 XSS
-      if (!/^https?:\/\//i.test(href)) return text
+      // 非安全协议（javascript:/data: 等）渲染为纯文本，防止 XSS；站内相对路径（/ 开头）放行
+      if (!/^https?:\/\//i.test(href) && !href.startsWith('/')) return text
 
       let safeHref = href
       try {
