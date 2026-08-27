@@ -1,6 +1,6 @@
 {
   "type": "function",
-  "userDescription": "新建列表布局，自定义列表页显示哪些列",
+  "userDescription": "构建列表布局，自定义列表页显示哪些列",
   "function": {
     "name": "BuildListLayout",
     "description": "新建列表布局，定义实体列表页显示哪些列，创建后共享给全部用户并作为默认显示列（已自定义列表的用户不受影响）。当用户希望调整/自定义某个实体的列表显示列时使用。调用前必须先调用 GetConfigSchema(schema=list-layout) 获取布局数据结构，并用 ListEntities 查询实体的真实字段名。字段支持中文标签（自动转换为真实字段名）及引用路径（如 客户.负责人）。显示列建议包含实体的名称字段并置于前列，解析失败会返回错误提示",
