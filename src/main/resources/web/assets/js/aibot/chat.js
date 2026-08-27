@@ -1188,9 +1188,17 @@ class DlgFeedbackInput extends RbAlert {
   }
 
   renderContent() {
+    const presets = ['回答不准确', '答非所问', '没能完成我的操作', '报错了', '格式有问题']
     return (
       <div className="ml-6 mr-6">
         <h5 className="mb-2 text-bold">{$L('能告诉我们哪里不对吗')}</h5>
+        <div className="mb-2 d-flex flex-wrap">
+          {presets.map((p, idx) => (
+            <a key={idx} className="badge badge-pill cursor-pointer mr-1 mb-1" onClick={() => this.setState({ comment: p })}>
+              {p}
+            </a>
+          ))}
+        </div>
         <textarea
           className="form-control form-control-sm"
           maxLength="200"

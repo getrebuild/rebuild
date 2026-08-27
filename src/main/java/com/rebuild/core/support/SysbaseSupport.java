@@ -87,8 +87,7 @@ public class SysbaseSupport {
             trimmed = CommonsUtils.maxstr(trimmed, 20);
             if (StringUtils.isNotBlank(trimmed)) {
                 String origName = logFile.getName();
-                String id = origName.substring("aibot-chat-".length(), origName.length() - 4);
-                uploadName = "aibot-chat-" + trimmed + "-" + id + ".log";
+                uploadName = origName.replace(".log", "-" + trimmed + ".log");
             }
         }
 
