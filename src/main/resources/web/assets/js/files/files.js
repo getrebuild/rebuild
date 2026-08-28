@@ -155,7 +155,8 @@ class SharedFiles extends RbModalHandler {
                   this.state.data.map((item, idx) => {
                     let icon = <i className="file-icon" data-type={$fileExtName(item[1])} />
                     if (item[1].startsWith('024-')) icon = <i className="mdi mdi-folder up-2" style={{ color: '#54aeff', fontSize: 24 }} />
-                    if (item[1].startsWith('016-')) icon = <i className="zmdi zmdi-chart up-2" style={{ color: '#54aeff', fontSize: 24, marginLeft: 3 }} />
+                    if (item[1].startsWith('016-')) icon = <i className="zmdi zmdi-chart up-2" style={{ fontSize: 24, marginLeft: 3 }} />
+                    if (item[1].startsWith('096-')) icon = <i className="mdi mdi-shimmer up-2" style={{ fontSize: 22 }} />
 
                     return (
                       <tr key={idx}>

@@ -598,6 +598,17 @@ class ChatMessage extends React.Component {
               </a>
             </RF>
           )}
+          {(this.props.role === 'assistant' || this.props.role === 'ai') && rb.fileSharable && (
+            <a
+              title={$L('分享')}
+              onClick={() => {
+                const chatid = this.props._ChatMessages.props._Chat.state.chatid
+                // eslint-disable-next-line react/jsx-no-undef
+                renderRbcomp(<FileShare file={chatid} title={$L('分享会话')} />)
+              }}>
+              <i className="icon zmdi zmdi-share fs-15" />
+            </a>
+          )}
         </div>
       </div>
     )

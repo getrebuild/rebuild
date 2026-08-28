@@ -305,6 +305,10 @@ public class FilesHelper {
         if (fileId.getEntityCode() == EntityHelper.DashboardConfig) {
             return UserHelper.isSelf(user, fileId) ? fileId.toLiteral() : null;
         }
+        // v4.5 AI会话临时借用
+        if (fileId.getEntityCode() == EntityHelper.AibotChat) {
+            return UserHelper.isSelf(user, fileId) ? fileId.toLiteral() : null;
+        }
 
         Object[] file = Application.getQueryFactory().uniqueNoFilter(
                 fileId, "filePath,relatedRecord,belongEntity");

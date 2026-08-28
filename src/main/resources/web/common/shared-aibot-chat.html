@@ -1,0 +1,63 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-size=1,user-scalable=no" />
+    <title>[[${subject ?: bundle.L('AI 会话分享')}]]</title>
+    <style>
+      .shared-aibot-chat {
+        max-width: 982px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .shared-aibot-chat h1 {
+        font-size: 1.5rem;
+      }
+      .shared-aibot-chat .chat-messages {
+        height: auto;
+        min-height: 300px;
+        border-radius: 8px;
+      }
+      @media (max-width: 800px) {
+        .shared-aibot-chat {
+          width: 100%;
+        }
+        .shared-aibot-chat h1 {
+          margin: 16px;
+        }
+        .shared-aibot-chat .chat-messages {
+          border-radius: 0;
+          padding: 16px;
+        }
+        .rb-scroll-top.show {
+          right: 16px;
+        }
+      }
+      .page-footer {
+        background: transparent;
+        position: static;
+        padding: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shared-aibot-chat">
+      <h1 class="text-bold">[[${subject}]]</h1>
+      <div class="rb-loading rb-loading-active chat-messages J_content">
+        <th:block th:replace="~{/_include/spinner}" />
+      </div>
+    </div>
+
+    <div th:if="${pageFooter != null}" class="page-footer">
+      <a class="ai-color link" href="https://getrebuild.com/docs/topic/aibot">[(${pageFooter})]</a>
+    </div>
+    <div class="rb-scroll-top"></div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        messages: [(${messages ?:'null'})],
+      }
+    </script>
+    <script th:src="@{/assets/js/shared-aibot-chat.js}" type="text/babel"></script>
+  </body>
+</html>
