@@ -38,11 +38,21 @@
         position: static;
         padding: 16px;
       }
+      .chat-input .chat-input-attach > span,
+      .chat-message .msg-user > .msg-attach > a {
+        cursor: default;
+      }
     </style>
   </head>
   <body>
     <div class="shared-aibot-chat">
-      <h1 class="text-bold">[[${subject}]]</h1>
+      <h1 class="text-bold">
+        [[${subject}]]
+        <small class="text-muted ml-1">
+          <i class="icon mdi mdi-information-outline"></i>
+          [[${bundle.L('内容由 AI 生成')}]]
+        </small>
+      </h1>
       <div class="rb-loading rb-loading-active chat-messages J_content">
         <th:block th:replace="~{/_include/spinner}" />
       </div>
