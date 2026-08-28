@@ -12,6 +12,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.openai.client.OpenAIClient;
 import com.openai.core.JsonValue;
 import com.openai.models.models.Model;
 import com.openai.models.models.ModelListPage;
@@ -29,6 +30,7 @@ import com.rebuild.web.RebuildWebConfigurer;
 import com.rebuild.web.admin.ConfigurationController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -106,11 +108,26 @@ public class AiBot2AdminController extends BaseController {
     }
 
     @GetMapping("aibot/models")
-    public RespBody modelList() {
-        if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
+    public RespBody modelList(HttpServletRequest request) {
+        String baseUrl = getParameter(request, "baseUrl");
+        String apiKey = getParameter(request, "apiKey");
+
+        OpenAIClient client;
+        if (StringUtils.isNotBlank(baseUrl) || StringUtils.isNotBlank(apiKey)) {
+            // 前端传了部分参数：用传入值覆盖，缺失的用已保存配置
+            if (StringUtils.isBlank(baseUrl)) baseUrl = Config.getServerUrl(null);
+            if (StringUtils.isBlank(apiKey)) {
+                if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
+                apiKey = Config.getSecret();
+            }
+            client = Config.getClient(baseUrl, apiKey);
+        } else {
+            if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
+            client = Config.getClient();
+        }
 
         try {
-            ModelListPage page = Config.getClient().models().list();
+            ModelListPage page = client.models().list();
             List<JSONObject> models = new ArrayList<>();
             for (Model m : page.data()) {
                 JSONObject item = new JSONObject(true);

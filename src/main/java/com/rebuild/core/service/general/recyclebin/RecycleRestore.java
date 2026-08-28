@@ -89,7 +89,7 @@ public class RecycleRestore {
                 conver2Record(JSON.parseObject((String) main[0]), (ID) main[1]));
 
         if (willRestores.isEmpty()) {
-            throw new RebuildException("Record entity not exists");
+            throw new RebuildException("Record entity does not exist");
         }
         recycleIds.add((ID) main[2]);
 

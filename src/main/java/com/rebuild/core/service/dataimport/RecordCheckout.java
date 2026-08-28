@@ -186,7 +186,7 @@ public class RecordCheckout {
             if (PickListManager.instance.getLabel(val2id) != null) {
                 return val2id;
             } else {
-                log.warn("No item of PickList found by ID {}", val2id);
+                log.warn("No PickList item found by ID {}", val2id);
                 return null;
             }
         } else {
@@ -213,7 +213,7 @@ public class RecordCheckout {
             if (ClassificationManager.instance.getName(vla2id) != null) {
                 return vla2id;
             } else {
-                log.warn("No item of Classification found by ID : {}", vla2id);
+                log.warn("No Classification item found by ID : {}", vla2id);
                 return null;
             }
         } else {

@@ -19883,7 +19883,7 @@ h5 .small,
 h5 small,
 h6 .small,
 h6 small {
-  font-weight: 300;
+  /* font-weight: 300; */
 }
 
 .h1,

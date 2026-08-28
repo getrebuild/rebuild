@@ -133,7 +133,7 @@ public class FormsBuilder extends FormsManager {
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
         if (recordId != null) {
-            Assert.isTrue(entityMeta.getEntityCode().equals(recordId.getEntityCode()), "[entity] and [recordId] do not matchs");
+            Assert.isTrue(entityMeta.getEntityCode().equals(recordId.getEntityCode()), "[entity] and [recordId] do not match");
 
             if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, recordId)) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));
@@ -949,7 +949,7 @@ public class FormsBuilder extends FormsManager {
     // 支持明细
     private JSONObject setFormInitialValue4Details39(Entity entity, JSONArray details) {
         final Entity defDetailEntity = entity.getDetailEntity();
-        Assert.notNull(defDetailEntity, "None detail-entity");
+        Assert.notNull(defDetailEntity, "No detail-entity");
 
         ID forceMainid = EntityHelper.UNSAVED_ID;
         FormsBuilderContextHolder.setMainIdOfDetail(forceMainid);

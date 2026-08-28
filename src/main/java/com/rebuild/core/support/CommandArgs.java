@@ -104,6 +104,10 @@ public class CommandArgs {
      * v4.5 激活 AK 访问
      */
     public static final String _EnableAkAccess = "_EnableAkAccess";
+    /**
+     * v4.5 OpenAPI 请求日志保留天数（默认 90）
+     */
+    public static final String _ApiRequestKeepingDays = "_ApiRequestKeepingDays";
 
     // --
 

@@ -71,6 +71,10 @@ public class ToolDefs {
         register(new BuildTrigger());
         register(new BuildTransform());
         register(new BuildReportTemplate());
+        register(new BuildFormLayout());
+        register(new BuildListLayout());
+        register(new BuildNavMenu());
+        register(new BuildApp());
     }
 
     /**

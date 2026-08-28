@@ -167,7 +167,7 @@ public class EasyMetaFactory {
     public static String getLabel(BaseMeta entityOrField) {
         if (entityOrField instanceof Entity) return valueOf((Entity) entityOrField).getLabel();
         else if (entityOrField instanceof Field) return valueOf((Field) entityOrField).getLabel();
-        else throw new MetadataException("Unsupport meta type : " + entityOrField);
+        else throw new MetadataException("Unsupported meta type : " + entityOrField);
     }
 
     /**

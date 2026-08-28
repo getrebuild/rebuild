@@ -1,6 +1,6 @@
 {
   "type": "function",
-  "userDescription": "创建 AI 技能，可指定名称、描述和提示词",
+  "userDescription": "构建 AI 技能，可指定名称、描述和提示词",
   "function": {
     "name": "BuildSkill",
     "description": "新建 AI 技能。当管理员想创建可复用的技能时使用。技能由名称、描述和提示词组成，创建后可在对话中按名称调用，将提示词注入为系统上下文。新建前可先询问用户是否已有类似技能，避免重复创建",

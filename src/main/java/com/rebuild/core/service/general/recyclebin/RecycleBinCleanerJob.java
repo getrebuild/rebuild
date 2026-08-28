@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
@@ -161,12 +162,15 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             log.info("File/Attachment deleted : {} >> {}", path, s);
         }
 
-        // 4.5 RebuildApiRequest 保留 90d
+        // 4.5 RebuildApiRequest
 
-        String dSql = String.format(
-                "delete from `rebuild_api_request` where `REQUEST_TIME` < '%s 00:00:00' limit 1000000",
-                CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-90)));
-        Application.getSqlExecutor().execute(dSql, 60 * 3);
+        final int arDays = CommandArgs.getInt(CommandArgs._ApiRequestKeepingDays, 90);
+        if (arDays > 0) {
+            String dSql = String.format(
+                    "delete from `rebuild_api_request` where `REQUEST_TIME` < '%s 00:00:00' limit 1000000",
+                    CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-arDays)));
+            Application.getSqlExecutor().execute(dSql, 60 * 3);
+        }
     }
 
     // --

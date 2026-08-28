@@ -99,6 +99,7 @@ public final class License {
                     new String[]{SN(), "开源社区版", "OSC", "无"});
         }
         if ("BLOCKED".equals(error)) System.exit(110);
+        if ("BLOCKED45".equals(error)) System.setProperty("BLOCKED45", "604");
 
         CACHED.put(api, auth);
         return auth;

@@ -185,8 +185,6 @@ public class FileManagerController extends BaseController {
         return filePath == null ? RespBody.error() : RespBody.ok(filePath);
     }
 
-
-
     @PostMapping("batch-download")
     public void downloadBatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         final String files = req.getParameter("files");

@@ -28,8 +28,8 @@ const _chatMarked = new marked.Marked({
     },
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens)
-      // 非安全协议（javascript:/data: 等）渲染为纯文本，防止 XSS
-      if (!/^https?:\/\//i.test(href)) return text
+      // 非安全协议（javascript:/data: 等）渲染为纯文本，防止 XSS；站内相对路径（/ 开头）放行
+      if (!/^https?:\/\//i.test(href) && !href.startsWith('/')) return text
 
       let safeHref = href
       try {
@@ -547,7 +547,16 @@ class ChatMessage extends React.Component {
   _feedback(type) {
     if (this.state.feedback) return
     const chatid = this.props._ChatMessages.props._Chat.state.chatid
-    $.post(`/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}`, () => {
+
+    if (type === 'dislike') {
+      renderRbcomp(<DlgFeedbackInput onConfirm={(comment) => this._submitFeedback(type, chatid, comment)} />)
+    } else {
+      this._submitFeedback(type, chatid, '')
+    }
+  }
+
+  _submitFeedback(type, chatid, comment) {
+    $.post(`/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}&comment=${encodeURIComponent(comment)}`, () => {
       this.setState({ feedback: type })
     })
   }
@@ -588,6 +597,17 @@ class ChatMessage extends React.Component {
                 <i className="icon mdi mdi-thumb-down-outline fs-15" />
               </a>
             </RF>
+          )}
+          {(this.props.role === 'assistant' || this.props.role === 'ai') && rb.fileSharable && (
+            <a
+              title={$L('分享')}
+              onClick={() => {
+                const chatid = this.props._ChatMessages.props._Chat.state.chatid
+                // eslint-disable-next-line react/jsx-no-undef
+                renderRbcomp(<FileShare file={chatid} title={$L('分享会话')} />)
+              }}>
+              <i className="icon zmdi zmdi-share fs-15" />
+            </a>
           )}
         </div>
       </div>
@@ -1167,6 +1187,50 @@ class DlgChatRename extends RbAlert {
   _onConfirm = () => {
     typeof this.props.onConfirm === 'function' && this.props.onConfirm($(this._$name).val())
     this.hide()
+  }
+}
+
+// 反馈输入弹窗（可选输入）
+// eslint-disable-next-line no-unused-vars
+class DlgFeedbackInput extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, comment: '' }
+  }
+
+  renderContent() {
+    const presets = ['回答不准确', '缺少内容', '实现不了我的要求', '回答中断了', '内容格式有问题']
+    return (
+      <div className="ml-6 mr-6">
+        <h5 className="mb-2 text-bold">{$L('能告诉我们哪里不对吗')}</h5>
+        <div className="mb-2 d-flex flex-wrap">
+          {presets.map((p, idx) => (
+            <a key={idx} className="badge badge-pill cursor-pointer mr-1 mb-1" onClick={() => this.setState({ comment: p })}>
+              {p}
+            </a>
+          ))}
+        </div>
+        <textarea
+          className="form-control form-control-sm"
+          maxLength="200"
+          placeholder={$L('您的反馈非常重要')}
+          value={this.state.comment || ''}
+          onChange={(e) => this.setState({ comment: e.target.value })}
+          autoFocus
+        />
+        <div className="mt-3 mb-1">
+          <button type="button" className="btn btn-primary" onClick={this._onConfirm}>
+            {$L('提交')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  _onConfirm = () => {
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(this.state.comment || '')
+    this.hide()
+    RbHighbar.success($L('感谢您的反馈'))
   }
 }
 

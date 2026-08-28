@@ -137,7 +137,7 @@ public class DataReportManager implements ConfigManager {
         if (entity == null) {
             Object[] o = Application.getQueryFactory().uniqueNoFilter(reportId, "belongEntity");
             if (o == null || !MetadataHelper.containsEntity((String) o[0])) {
-                throw new ConfigurationException("No config of report found : " + reportId);
+                throw new ConfigurationException("No report config found : " + reportId);
             }
             entity = MetadataHelper.getEntity((String) o[0]);
         }
@@ -146,7 +146,7 @@ public class DataReportManager implements ConfigManager {
         for (ConfigBean cb : cbs) {
             if (reportId.equals(cb.getID("id"))) return cb;
         }
-        throw new ConfigurationException("No config of report found : " + reportId);
+        throw new ConfigurationException("No report config found : " + reportId);
     }
 
     /**
@@ -184,12 +184,12 @@ public class DataReportManager implements ConfigManager {
         }
 
         if (templateFile == null) {
-            throw new ConfigurationException("No template of report found : " + reportId);
+            throw new ConfigurationException("No report template found : " + reportId);
         }
 
         File file = RebuildConfiguration.getFileOfData(templateFile);
         if (!file.exists()) {
-            throw new ConfigurationException("File of template not exists : " + file);
+            throw new ConfigurationException("Template file does not exist : " + file);
         }
 
         return new TemplateFile(file, entity, type, isV33, reportId);

@@ -13,10 +13,13 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.ChartManager;
@@ -33,7 +36,10 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.LocationUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,6 +65,7 @@ import java.util.Objects;
  * @author ZHAO
  * @since 2019/9/26
  */
+@Slf4j
 @RestController
 public class FileShareController extends BaseController {
 
@@ -103,23 +110,96 @@ public class FileShareController extends BaseController {
             return null;
         }
 
-        // v4.2
-        final ID folderOrDash42 = ID.isId(fileUrl) ? ID.valueOf(fileUrl) : null;
+        final ID folderOrDashOrChat45 = ID.isId(fileUrl) ? ID.valueOf(fileUrl) : null;
+
+        // v4.5 分享 AI 会话
+        if (folderOrDashOrChat45 != null && folderOrDashOrChat45.getEntityCode() == EntityHelper.AibotChat) {
+            Object[] chat = Application.createQueryNoFilter(
+                    "select subject,contents,createdBy from AibotChat where chatId = ?")
+                    .setParameter(1, folderOrDashOrChat45)
+                    .unique();
+            if (chat == null) {
+                response.sendError(403, Language.L("分享不存在"));
+                return null;
+            }
+
+            Object[] sharer = Application.createQueryNoFilter(
+                    "select createdBy from ShortUrl where shortKey = ?")
+                    .setParameter(1, shareKey)
+                    .unique();
+            if (sharer == null || !sharer[0].equals(chat[2])) {
+                response.sendError(403, Language.L("分享不存在"));
+                return null;
+            }
+
+            JSONArray contents = JSON.parseArray((String) chat[1]);
+            if (contents == null || contents.isEmpty()) {
+                response.sendError(403, Language.L("分享不存在"));
+                return null;
+            }
+
+            // 仅保留问答消息，忽略思考过程等
+            JSONArray msgs = new JSONArray();
+            for (int i = 0; i < contents.size(); i++) {
+                JSONObject msg = contents.getJSONObject(i);
+                String role = msg.getString("role");
+                if (!("user".equals(role) || "assistant".equals(role) || "ai".equals(role))) continue;
+                if (StringUtils.isBlank(msg.getString("content"))) continue;
+
+                JSONObject m = JSONUtils.toJSONObject(
+                        new String[]{"role", "content"},
+                        new Object[]{role, msg.getString("content")});
+
+                if ("user".equals(role)) {
+                    JSONArray attachNames = new JSONArray();
+                    JSONArray attachs = msg.getJSONArray("attach");
+                    if (CollectionUtils.isNotEmpty(attachs)) {
+                        try {
+                            for (int j = 0; j < attachs.size(); j++) {
+                                JSONObject a = attachs.getJSONObject(j);
+                                if (a.containsKey("file")) {
+                                    attachNames.add(Language.L("[文件] %s", QiniuCloud.parseFileName(a.getString("file"))));
+                                } else if (a.containsKey("record") && ID.isId(a.getString("record"))) {
+                                    attachNames.add(Language.L("[记录] %s", FieldValueHelper.getLabelNotry(ID.valueOf(a.getString("record")))));
+                                } else if (a.containsKey("listFilter")) {
+                                    String entity = a.getJSONObject("listFilter").getString("entity");
+                                    attachNames.add(Language.L("[列表] %s", EasyMetaFactory.getLabel(MetadataHelper.getEntity(entity))));
+                                }
+                            }
+                        } catch (Exception ex) {
+                            log.error(ex.getMessage(), ex);
+                        }
+                    }
+
+                    if (StringUtils.isNotBlank(msg.getString("skill"))) attachNames.add(msg.getString("skill"));
+                    if (!attachNames.isEmpty()) m.put("attach", attachNames);
+                }
+
+                msgs.add(m);
+            }
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("subject", chat[0]);
+            map.put("messages", msgs.toJSONString().replace("</", "<\\/"));
+            map.put("pageFooter", "由 REBUILD AI 助手强力驱动");
+            return createModelAndView("/common/shared-aibot-chat", map);
+        }
+
         // 分享仪表盘
-        if (folderOrDash42 != null && folderOrDash42.getEntityCode() == EntityHelper.DashboardConfig) {
-            String dashName = FieldValueHelper.getLabelNotry(folderOrDash42);
+        if (folderOrDashOrChat45 != null && folderOrDashOrChat45.getEntityCode() == EntityHelper.DashboardConfig) {
+            String dashName = FieldValueHelper.getLabelNotry(folderOrDashOrChat45);
             if (Objects.equals(dashName, FieldValueHelper.MISS_REF_PLACE)) {
                 response.sendError(403, Language.L("分享不存在"));
                 return null;
             }
 
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(folderOrDash42, "config");
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(folderOrDashOrChat45, "config");
             JSONArray dashConfig = JSON.parseArray(o[0].toString());
             ChartManager.instance.richingCharts(dashConfig, UserService.SYSTEM_USER);
 
             Map<String, Object> map = new HashMap<>();
             map.put("dashName", dashName);
-            map.put("dashId", folderOrDash42);
+            map.put("dashId", folderOrDashOrChat45);
             map.put("dashConfig", dashConfig);
             map.put("shareKey", shareKey);
             map.put("csrfToken", "sk:" + shareKey);
@@ -127,13 +207,13 @@ public class FileShareController extends BaseController {
         }
 
         // 分享目录
-        if (folderOrDash42 != null && folderOrDash42.getEntityCode() == EntityHelper.AttachmentFolder) {
+        if (folderOrDashOrChat45 != null && folderOrDashOrChat45.getEntityCode() == EntityHelper.AttachmentFolder) {
             String viewFile = getParameter(request, "file");
             // 查看目录内文件
             if (ID.isId(viewFile)) {
                 fileUrl = (String) QueryHelper.queryFieldValue(ID.valueOf(viewFile), "filePath");
             } else {
-                String folderName = FieldValueHelper.getLabelNotry(folderOrDash42);
+                String folderName = FieldValueHelper.getLabelNotry(folderOrDashOrChat45);
                 if (Objects.equals(folderName, FieldValueHelper.MISS_REF_PLACE)) {
                     response.sendError(403, Language.L("分享不存在"));
                     return null;
@@ -144,7 +224,7 @@ public class FileShareController extends BaseController {
 
                 Object[][] array = Application.createQueryNoFilter(
                         "select attachmentId,fileName,fileSize,fileType,modifiedOn from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
-                        .setParameter(1, folderOrDash42)
+                        .setParameter(1, folderOrDashOrChat45)
                         .array();
                 List<String[]> files = new ArrayList<>();
                 DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm");
@@ -191,16 +271,20 @@ public class FileShareController extends BaseController {
 
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, CalendarUtils.now())
-                .setLimit(1000)
+                .setLimit(2000)
                 .array();
         for (Object[] o : array) {
             o[0] = RebuildConfiguration.getHomeUrl("s/" + o[0]);
             o[4] = UserHelper.getName((ID) o[4]);
 
-            final ID folderOrDash42 = ID.isId(o[1]) ? ID.valueOf((String) o[1]) : null;
-            if (folderOrDash42 != null
-                    && (folderOrDash42.getEntityCode() == EntityHelper.AttachmentFolder || folderOrDash42.getEntityCode() == EntityHelper.DashboardConfig)) {
-                o[1] = o[1] + "/" + FieldValueHelper.getLabel(ID.valueOf((String) o[1]));
+            final ID folderOrDashOrChat45 = ID.isId(o[1]) ? ID.valueOf((String) o[1]) : null;
+            if (folderOrDashOrChat45 != null) {
+                if (folderOrDashOrChat45.getEntityCode() == EntityHelper.AibotChat) {
+                    o[1] = o[1] + "/" + Language.L("AI 会话分享");
+                } else if (folderOrDashOrChat45.getEntityCode() == EntityHelper.AttachmentFolder
+                        || folderOrDashOrChat45.getEntityCode() == EntityHelper.DashboardConfig) {
+                    o[1] = o[1] + "/" + FieldValueHelper.getLabel(folderOrDashOrChat45);
+                }
             }
         }
 

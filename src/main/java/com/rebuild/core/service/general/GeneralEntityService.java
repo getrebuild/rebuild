@@ -178,7 +178,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (checkDetailsRepeated) {
                     Record c = d.clone();
-                    // for check use clone
+                    // Use a clone for checking
                     ID hasMainid = c.getID(dtfField);
                     if (hasMainid == null || EntityHelper.isUnsavedId(hasMainid)) c.setID(dtfField, mainid);
 
@@ -786,7 +786,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @param recordOfNew
      */
     private void appendDefaultValue(Record recordOfNew) {
-        Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
+        Assert.isNull(recordOfNew.getPrimary(), "Must be a new record");
 
         Entity entity = recordOfNew.getEntity();
         // fix: 3.7.5
@@ -922,7 +922,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     public void approve(ID recordId, ApprovalState state, ID approvalUser) {
         Assert.isTrue(
                 state == ApprovalState.REVOKED || state == ApprovalState.APPROVED,
-                "Only REVOKED or APPROVED allowed");
+                "Only REVOKED or APPROVED are allowed");
 
         if (approvalUser == null) {
             approvalUser = SYSTEM_USER;
