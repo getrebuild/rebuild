@@ -1,9 +1,9 @@
 {
   "type": "function",
-  "userDescription": "导出报表文件并生成下载链接，支持按条件批量导出多条记录或基于单条记录生成报表",
+  "userDescription": "导出报表文件并生成下载链接，支持按条件批量导出多条记录或基于单条记录生成报表，无报表模板时也可导出数据列表",
   "function": {
     "name": "ExportReport",
-    "description": "导出报表文件并生成下载链接。当用户想把记录/报表导出为文件下载（如「把这个月的订单导出来」）时使用。报表分两种类型，LIST 报表按条件批量导出多条记录，RECORD 报表基于单条记录生成。不传 reportId 参数时返回该实体下可用报表列表供选择",
+    "description": "导出报表文件并生成下载链接。当用户想把记录/报表导出为文件下载（如「把这个月的订单导出来」）时使用。报表分两种类型，LIST 报表按条件批量导出多条记录，RECORD 报表基于单条记录生成。不传 reportId 参数时返回该实体下可用报表列表供选择，其中包含内置的「数据导出」，无需报表模板即可按条件导出列表数据",
     "parameters": {
       "type": "object",
       "properties": {
@@ -13,7 +13,7 @@
         },
         "reportId": {
           "type": "string",
-          "description": "报表模板ID（可选，不传则返回该实体下可用报表列表）"
+          "description": "报表模板ID（可选，不传则返回该实体下可用报表列表）。可传 DATA-EXPORT 使用内置数据导出（无需报表模板，导出全部可导出字段）"
         },
         "record": {
           "type": "string",
@@ -48,6 +48,18 @@
         "equation": {
           "type": "string",
           "description": "多条件间逻辑关系（仅 LIST 报表有效）。支持：OR（任一满足，默认）、AND（全部满足）、高级表达式（如 \"1 and (2 or 3)\"，数字代表 filter 中条件的位置，从1开始）"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["xls", "csv"],
+          "description": "导出格式，默认 xls，仅内置数据导出（DATA-EXPORT）有效"
+        },
+        "fields": {
+          "type": "array",
+          "description": "导出哪些字段（仅内置数据导出有效），字段名称或标签均可，不传则导出全部可导出字段",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": ["entity"],

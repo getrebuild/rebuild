@@ -7,15 +7,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.tool;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.MediaValue;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
@@ -23,6 +30,7 @@ import com.rebuild.core.service.datareport.ReportsFile;
 import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.RbvFunction;
+import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
@@ -51,6 +59,9 @@ public class ExportReport implements Tool {
 
     private static final int MAX_LIST_EXPORT_ROWS = 1000;
 
+    // 内置数据导出（无报表模板，同系统列表页的数据导出）
+    private static final String BUILTIN_DATA_EXPORT_ID = "DATA-EXPORT";
+
     @Override
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
@@ -72,11 +83,20 @@ public class ExportReport implements Tool {
             return listReports(entity);
         }
 
-        ID reportId = ID.valueOf(report);
-        TemplateFile tt = DataReportManager.instance.buildTemplateFile(reportId, entity);
-
         JSONArray filter = args.getJSONArray("filter");
         String equation = args.getString("equation");
+
+        // 内置数据导出（无报表模板）
+        if (BUILTIN_DATA_EXPORT_ID.equalsIgnoreCase(report)) {
+            return exportBuiltInList(entity, args.getString("format"), args.getJSONArray("fields"), record, filter, equation);
+        }
+
+        if (!ID.isId(report)) {
+            throw new KnownToolException("无效的报表模板 ID : " + report + "，请从可用报表列表中选取");
+        }
+
+        ID reportId = ID.valueOf(report);
+        TemplateFile tt = DataReportManager.instance.buildTemplateFile(reportId, entity);
 
         // LIST 报表按条件导出多条记录，其他为单记录报表
         if (tt.type == DataReportManager.TYPE_LIST) {
@@ -102,11 +122,13 @@ public class ExportReport implements Tool {
         for (Object o : listReports) ((JSONObject) o).put("type", "LIST");
         reports.addAll(listReports);
 
-        if (reports.isEmpty()) {
-            return JSONUtils.toJSONObject(
-                    new String[]{"status", "message"},
-                    new Object[]{"ok", "实体 [" + EasyMetaFactory.getLabel(entity) + "] 下暂无可用报表模板"});
-        }
+        // 内置数据导出（无需报表模板）
+        JSONObject builtin = new JSONObject();
+        builtin.put("id", BUILTIN_DATA_EXPORT_ID);
+        builtin.put("name", "数据导出");
+        builtin.put("type", "LIST");
+        builtin.put("builtin", true);
+        reports.add(builtin);
 
         return JSONUtils.toJSONObject(
                 new String[]{"status", "entity", "reports"},
@@ -200,6 +222,105 @@ public class ExportReport implements Tool {
      * @return
      */
     private JSONObject exportListReport(Entity entity, ID reportId, String keyword, JSONArray filter, String equation) {
+        JSONObject queryData = buildListQueryData(entity, keyword, filter, equation);
+
+        File output;
+        int exportCount;
+        try {
+            DataExporter exporter = new DataExporter(queryData);
+            output = exporter.export(reportId);
+            exportCount = exporter.getExportCount();
+        } catch (Exception ex) {
+            log.error("List report export failed : {} / {}", reportId, keyword, ex);
+            throw new KnownToolException("列表报表生成失败 : " + CommonsUtils.getRootMessage(ex));
+        }
+
+        if (output == null) {
+            throw new KnownToolException("无法输出报表，请检查报表模板是否有误");
+        }
+
+        String fileName = DataReportManager.getPrettyReportName(reportId, entity.getName(), output.getName());
+
+        JSONObject result = buildDownloadResult(fileName, output);
+        result.put("exportCount", exportCount);
+        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，[点击下载](%s)，请将此下载链接展示给用户", fileName, exportCount, result.getString("downloadUrl")));
+        return result;
+    }
+
+    /**
+     * 内置数据导出（无报表模板），同系统列表页的数据导出，支持 CSV/Excel
+     *
+     * @param entity
+     * @param format xls/csv，默认 xls
+     * @param exportFields 导出字段（名称或标签），为空则导出全部可导出字段
+     * @param keyword 搜索关键词（可为空，为空则导出全部）
+     * @return
+     */
+    private JSONObject exportBuiltInList(Entity entity, String format, JSONArray exportFields, String keyword, JSONArray filter, String equation) {
+        final ID user = UserContextHolder.getUser();
+        if (!Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport)) {
+            throw new KnownToolException("无数据导出权限");
+        }
+
+        if ("csv".equalsIgnoreCase(format)) format = "csv";
+        else format = "xls";
+
+        JSONObject queryData = buildListQueryData(entity, keyword, filter, equation);
+        if (exportFields != null && !exportFields.isEmpty()) {
+            // 指定导出字段，名称或标签均可，需可导出
+            JSONArray fields = new JSONArray();
+            for (Object o : exportFields) {
+                Field f = ToolHelper.resolveField(entity, o.toString());
+                EasyField ef = EasyMetaFactory.valueOf(f);
+                if (!ef.getDisplayType().isExportable() || ef instanceof MediaValue) {
+                    throw new KnownToolException("字段不可导出 : " + o);
+                }
+                fields.add(f.getName());
+            }
+            queryData.put("fields", fields);
+        } else {
+            // 空 fields 会填充全部可导出字段，同系统数据导出的"全部列"
+            queryData.put("fields", new JSONArray());
+        }
+        queryData = new BatchOperatorQuery(BatchOperatorQuery.DR_QUERYED, queryData)
+                .wrapQueryData(MAX_LIST_EXPORT_ROWS, false);
+
+        File output;
+        int exportCount;
+        try {
+            DataExporter exporter = (DataExporter) new DataExporter(queryData).setUser(user);
+            output = exporter.export(format);
+            exportCount = exporter.getExportCount();
+        } catch (Exception ex) {
+            log.error("Built-in data export failed : {} / {}", entity.getName(), keyword, ex);
+            throw new KnownToolException("数据导出失败 : " + CommonsUtils.getRootMessage(ex));
+        }
+
+        if (output == null) {
+            throw new KnownToolException("无法输出文件");
+        }
+
+        String fileName = String.format("%s-%s.%s",
+                EasyMetaFactory.getLabel(entity),
+                CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
+                FileUtil.getSuffix(output));
+
+        JSONObject result = buildDownloadResult(fileName, output);
+        result.put("exportCount", exportCount);
+        result.put("message", String.format("[%s] 数据导出已生成，共导出 %d 条记录，[点击下载](%s)，请将此下载链接展示给用户", EasyMetaFactory.getLabel(entity), exportCount, result.getString("downloadUrl")));
+        return result;
+    }
+
+    /**
+     * 构建列表查询数据（含过滤条件：优先 filter 参数，其次关键词/记录 ID）
+     *
+     * @param entity
+     * @param keyword
+     * @param filter
+     * @param equation
+     * @return
+     */
+    private JSONObject buildListQueryData(Entity entity, String keyword, JSONArray filter, String equation) {
         JSONObject queryData = new JSONObject();
         queryData.put("entity", entity.getName());
         queryData.put("pageNo", 1);
@@ -242,28 +363,7 @@ public class ExportReport implements Tool {
                 }
             }
         }
-
-        File output;
-        int exportCount;
-        try {
-            DataExporter exporter = new DataExporter(queryData);
-            output = exporter.export(reportId);
-            exportCount = exporter.getExportCount();
-        } catch (Exception ex) {
-            log.error("List report export failed : {} / {}", reportId, keyword, ex);
-            throw new KnownToolException("列表报表生成失败 : " + CommonsUtils.getRootMessage(ex));
-        }
-
-        if (output == null) {
-            throw new KnownToolException("无法输出报表，请检查报表模板是否有误");
-        }
-
-        String fileName = DataReportManager.getPrettyReportName(reportId, entity.getName(), output.getName());
-
-        JSONObject result = buildDownloadResult(fileName, output);
-        result.put("exportCount", exportCount);
-        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，[点击下载](%s)，请将此下载链接展示给用户", fileName, exportCount, result.getString("downloadUrl")));
-        return result;
+        return queryData;
     }
 
     /**
