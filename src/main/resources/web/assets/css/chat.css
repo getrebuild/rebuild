@@ -486,10 +486,6 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   transition: all 0.4s;
 }
 
-.chat-message .markdown-body {
-  font-size: 14px;
-}
-
 .chat-message .msg-user .markdown-body,
 .chat-message .msg-user .markdown-body a {
   color: #fff;
