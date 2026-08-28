@@ -1199,7 +1199,7 @@ class DlgFeedbackInput extends RbAlert {
   }
 
   renderContent() {
-    const presets = ['回答不准确', '答非所问', '没能完成我的操作', '报错了', '格式有问题']
+    const presets = ['回答不准确', '缺少内容', '实现不了我的要求', '回答中断了', '内容格式有问题']
     return (
       <div className="ml-6 mr-6">
         <h5 className="mb-2 text-bold">{$L('能告诉我们哪里不对吗')}</h5>

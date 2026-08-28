@@ -36,6 +36,8 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.LocationUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
@@ -63,6 +65,7 @@ import java.util.Objects;
  * @author ZHAO
  * @since 2019/9/26
  */
+@Slf4j
 @RestController
 public class FileShareController extends BaseController {
 
@@ -150,17 +153,21 @@ public class FileShareController extends BaseController {
                 if ("user".equals(role)) {
                     JSONArray attachNames = new JSONArray();
                     JSONArray attachs = msg.getJSONArray("attach");
-                    if (attachs != null) {
-                        for (int j = 0; j < attachs.size(); j++) {
-                            JSONObject at = attachs.getJSONObject(j);
-                            if (at.containsKey("file")) {
-                                attachNames.add(Language.L("[文件] %s", QiniuCloud.parseFileName(at.getString("file"))));
-                            } else if (at.containsKey("record") && ID.isId(at.getString("record"))) {
-                                attachNames.add(Language.L("[记录] %s", FieldValueHelper.getLabelNotry(ID.valueOf(at.getString("record")))));
-                            } else if (at.containsKey("listFilter")) {
-                                String entity = at.getJSONObject("listFilter").getString("entity");
-                                attachNames.add(Language.L("[列表] %s", EasyMetaFactory.getLabel(MetadataHelper.getEntity(entity))));
+                    if (CollectionUtils.isNotEmpty(attachs)) {
+                        try {
+                            for (int j = 0; j < attachs.size(); j++) {
+                                JSONObject a = attachs.getJSONObject(j);
+                                if (a.containsKey("file")) {
+                                    attachNames.add(Language.L("[文件] %s", QiniuCloud.parseFileName(a.getString("file"))));
+                                } else if (a.containsKey("record") && ID.isId(a.getString("record"))) {
+                                    attachNames.add(Language.L("[记录] %s", FieldValueHelper.getLabelNotry(ID.valueOf(a.getString("record")))));
+                                } else if (a.containsKey("listFilter")) {
+                                    String entity = a.getJSONObject("listFilter").getString("entity");
+                                    attachNames.add(Language.L("[列表] %s", EasyMetaFactory.getLabel(MetadataHelper.getEntity(entity))));
+                                }
                             }
+                        } catch (Exception ex) {
+                            log.error(ex.getMessage(), ex);
                         }
                     }
 
@@ -173,7 +180,7 @@ public class FileShareController extends BaseController {
 
             Map<String, Object> map = new HashMap<>();
             map.put("subject", chat[0]);
-            map.put("messages", msgs.toJSONString());
+            map.put("messages", msgs.toJSONString().replace("</", "<\\/"));
             map.put("pageFooter", "由 REBUILD AI 助手强力驱动");
             return createModelAndView("/common/shared-aibot-chat", map);
         }
