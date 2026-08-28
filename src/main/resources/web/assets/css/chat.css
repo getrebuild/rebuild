@@ -167,7 +167,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-message .msg-action > a + a {
-  margin-left: 4px;
+  margin-left: 5px;
 }
 
 .chat-message .msg-action > a:hover,
@@ -484,6 +484,10 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   background-clip: text;
   color: transparent;
   transition: all 0.4s;
+}
+
+.chat-message .markdown-body {
+  font-size: 14px;
 }
 
 .chat-message .msg-user .markdown-body,
