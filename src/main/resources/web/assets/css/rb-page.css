@@ -4635,7 +4635,6 @@ html.external-auth .auth-body.must-center .login {
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.9) !important;
   text-shadow: none;
-  mix-blend-mode: difference;
 }
 
 .page-footer > p {
@@ -6835,4 +6834,8 @@ div.formula-code {
 input[type='password']::-ms-reveal,
 input[type='password']::-ms-clear {
   display: none;
+}
+
+.mix-color {
+  mix-blend-mode: difference;
 }
