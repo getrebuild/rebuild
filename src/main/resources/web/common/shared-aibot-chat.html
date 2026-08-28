@@ -5,6 +5,9 @@
     <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-size=1,user-scalable=no" />
     <title>[[${subject ?: bundle.L('AI 会话分享')}]]</title>
     <style>
+      body {
+        min-height: auto;
+      }
       .shared-aibot-chat {
         max-width: 982px;
         margin-left: auto;
@@ -33,6 +36,10 @@
         .rb-scroll-top.show {
           right: 16px;
         }
+        span.chat-meta {
+          display: block;
+          margin-left: 0 !important;
+        }
       }
       .page-footer {
         background: transparent;
@@ -49,7 +56,7 @@
     <div class="shared-aibot-chat">
       <h1 class="text-bold">
         [[${subject}]]
-        <span class="ml-1">
+        <span class="ml-1 chat-meta">
           <small class="text-muted">
             <i class="icon mdi mdi-information-outline"></i>
             [[${bundle.L('内容由 AI 生成')}]]
