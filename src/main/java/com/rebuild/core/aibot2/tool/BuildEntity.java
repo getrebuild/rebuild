@@ -15,6 +15,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.privileges.AdminGuard;
+import com.rebuild.core.support.License;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,10 @@ public class BuildEntity implements Tool, AdminGuard {
             }
             if (useMain.getMainEntity() != null) {
                 throw new KnownToolException("明细实体不能作为主实体");
+            }
+            // 免费版一个主实体只能挂载一个明细实体
+            if (useMain.getDetailEntity() != null && !License.isCommercial()) {
+                throw new KnownToolException("免费版不支持多明细功能，一个主实体只能挂载一个明细实体");
             }
             mainEntity = useMain.getName();
         }
