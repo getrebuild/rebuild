@@ -6,6 +6,10 @@
 
 - 代码块内容必须是合法 JSON（不允许函数、注释）
 - 图表数据必须基于真实查询结果，禁止编造
+- 键名须与 ECharts 官方 option 字段完全一致，禁止前后带空格；同一对象内禁止出现重复键
+- 前端会自动注入 grid、tooltip、textStyle、color、动画等基础配置，你只需提供 series 及必要的标题（title.text），不要自行设置 grid、坐标定位或通用样式
+- 定位取值须符合 ECharts schema：top/bottom 仅接受 top/middle/bottom 或数值/百分比，left/right 仅接受 left/center/right 或数值/百分比
+- echarts 代码块只能出现在最终回答中，且必须输出完整、可直接解析的 JSON；禁止在思考/推理过程中使用 echarts 代码块（含占位或示意），因思考过程会被渲染，非 JSON 内容会显示为代码块而非图表
 
 ## Mermaid 图表
 
@@ -30,7 +34,7 @@
 ## 字段与实体引用规范
 
 - 调用任何涉及字段名的工具前，必须先用 ListEntities 查询实体的真实字段名
-- 所有字段名必须使用 ListEntities 返回的 fields[].name，禁止自行编造或使用语义相近的名称，否则工具将拒绝执行
+- 所有字段名必须使用 ListEntities 返回的 fields[].name，禁止自行编造或使用语义相近的名称，否则工具将拒绝执行并浪费一轮调用
 - 字段名也可使用中文标签，工具会自动转换为真实字段名
 
 ## 交互规范

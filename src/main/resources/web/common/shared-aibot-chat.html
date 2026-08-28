@@ -7,6 +7,7 @@
     <style>
       body {
         min-height: auto;
+        padding-bottom: 60px;
       }
       .shared-aibot-chat {
         max-width: 982px;
@@ -41,11 +42,6 @@
           margin-left: 0 !important;
         }
       }
-      .page-footer {
-        background: transparent;
-        position: static;
-        padding: 16px;
-      }
       .chat-input .chat-input-attach > span,
       .chat-message .msg-user > .msg-attach > a {
         cursor: default;
@@ -70,8 +66,8 @@
       <div class="chat-messages J_content hide"></div>
     </div>
 
-    <div th:if="${pageFooter != null}" class="page-footer hide">
-      <a class="ai-color link" href="https://getrebuild.com/docs/topic/aibot">[(${pageFooter})]</a>
+    <div th:if="${pageFooter != null}" class="page-footer">
+      <a class="ai-color link" href="https://getrebuild.com/docs/topic/aibot" target="_blank">[(${pageFooter})]</a>
     </div>
     <div class="rb-scroll-top"></div>
     <th:block th:replace="~{/_include/footer}" />
