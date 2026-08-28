@@ -861,7 +861,8 @@ class RichContent extends React.Component {
     if (!md) return md
     if (window.__LAB45_NOTFIXAIMD) return md
 
-    // 0. 代码块 fence：AI 有时把内容紧贴在语言标记后
+    // 0. 代码块 fence：AI 有时把 fence 接在文字行尾（CommonMark 要求 fence 行首，否则闭合 fence 会被误作开启吞噬后续内容），或把内容紧贴在语言标记后
+    md = md.replace(/([^\s`])[ \t]*(`{3,}|~{3,})([A-Za-z0-9_+-]*)[ \t]*$/gm, '$1\n$2$3')
     md = md.replace(/(`{3,}|~{3,})(html|mermaid|echarts)(\S)/g, '$1$2\n$3')
 
     // 1. 表格：GFM 要求表格前有空行，AI 有时忽略此规则
