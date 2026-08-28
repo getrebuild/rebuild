@@ -3734,6 +3734,15 @@ a.user-show:not([href]) {
   line-height: 60px;
 }
 
+.preview-modal .preview-header .float-left > h5 {
+  font-size: 16px;
+}
+
+.preview-modal .preview-header .float-left > h5 small {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .preview-modal .preview-header .float-right a {
   display: inline-block;
   width: 56px;

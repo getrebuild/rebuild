@@ -112,6 +112,13 @@ public class FileShareController extends BaseController {
 
         final ID folderOrDashOrChat45 = ID.isId(fileUrl) ? ID.valueOf(fileUrl) : null;
 
+        // 分享人
+        Object[] sharer = Application.createQueryNoFilter(
+                "select createdBy from ShortUrl where shortKey = ?")
+                .setParameter(1, shareKey)
+                .unique();
+        final String shareByName = sharer == null ? null : UserHelper.getName((ID) sharer[0]);
+
         // v4.5 分享 AI 会话
         if (folderOrDashOrChat45 != null && folderOrDashOrChat45.getEntityCode() == EntityHelper.AibotChat) {
             Object[] chat = Application.createQueryNoFilter(
@@ -123,10 +130,6 @@ public class FileShareController extends BaseController {
                 return null;
             }
 
-            Object[] sharer = Application.createQueryNoFilter(
-                    "select createdBy from ShortUrl where shortKey = ?")
-                    .setParameter(1, shareKey)
-                    .unique();
             if (sharer == null || !sharer[0].equals(chat[2])) {
                 response.sendError(403, Language.L("分享不存在"));
                 return null;
@@ -182,6 +185,7 @@ public class FileShareController extends BaseController {
             map.put("subject", chat[0]);
             map.put("messages", msgs.toJSONString().replace("</", "<\\/"));
             map.put("pageFooter", "由 REBUILD AI 助手强力驱动");
+            map.put("shareByName", shareByName);
             return createModelAndView("/common/shared-aibot-chat", map);
         }
 
@@ -203,6 +207,7 @@ public class FileShareController extends BaseController {
             map.put("dashConfig", dashConfig);
             map.put("shareKey", shareKey);
             map.put("csrfToken", "sk:" + shareKey);
+            map.put("shareByName", shareByName);
             return createModelAndView("/common/shared-dash", map);
         }
 
@@ -221,6 +226,7 @@ public class FileShareController extends BaseController {
 
                 Map<String, Object> map = new HashMap<>();
                 map.put("folderName", folderName);
+                map.put("shareByName", shareByName);
 
                 Object[][] array = Application.createQueryNoFilter(
                         "select attachmentId,fileName,fileSize,fileType,modifiedOn from Attachment where inFolder = ? and isDeleted <> 'T' order by fileName")
@@ -254,6 +260,7 @@ public class FileShareController extends BaseController {
 
         Map<String, Object> map = new HashMap<>();
         map.put("publicUrl", makePublicUrl(fileUrl, null));
+        map.put("shareByName", shareByName);
         map.put("csrfToken", AuthTokenManager.generateCsrfToken(180));
         return createModelAndView("/common/shared-file", map);
     }

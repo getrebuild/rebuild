@@ -598,7 +598,7 @@ class ChatMessage extends React.Component {
               </a>
             </RF>
           )}
-          {(this.props.role === 'assistant' || this.props.role === 'ai') && rb.fileSharable && (
+          {(this.props.role === 'assistant' || this.props.role === 'ai') && this._feedbackable() && rb.fileSharable && (
             <a
               title={$L('分享')}
               onClick={() => {

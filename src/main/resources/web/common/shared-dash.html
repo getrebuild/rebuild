@@ -20,12 +20,21 @@
       .J_mores {
         display: none !important;
       }
+      h1.subject {
+        font-size: 1.5rem;
+        margin: 0 20px;
+        margin-top: 16px;
+      }
     </style>
   </head>
   <body>
     <div class="rb-loading rb-loading-active must-center J_load-page">
       <th:block th:replace="~{/_include/spinner}" />
     </div>
+    <h1 class="text-bold subject">
+      [[${dashName}]]
+      <small th:if="${shareByName != null}" class="text-muted ml-1">[[${bundle.L('由 %s 分享', shareByName)}]]</small>
+    </h1>
     <div class="chart-grid">
       <div class="grid-stack"></div>
     </div>

@@ -43,7 +43,8 @@ const SharedAibotChat = function ({ messages }) {
 $(document).ready(() => {
   const messages = (window.__PageConfig && window.__PageConfig.messages) || []
   renderRbcomp(<SharedAibotChat messages={messages} />, $('.J_content')[0], function () {
-    $('.rb-loading-active').removeClass('rb-loading-active')
+    $('.rb-loading-active').remove()
+    $('.J_content, page-footer').removeClass('hide')
     $enableScrollTop()
   })
 })

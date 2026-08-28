@@ -36,11 +36,12 @@
     <script>
       window.__PageConfig = {
         publicUrl: '[[${publicUrl}]]'.replace('&amp;', '&'),
+        shareByName: '[[${shareByName}]]',
       }
     </script>
     <script type="text/babel">
       $(document).ready(() => {
-        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} unclose fullwidth csrfToken={rb.csrfToken} />)
+        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} shareBy={window.__PageConfig.shareByName} unclose fullwidth csrfToken={rb.csrfToken} />)
       })
     </script>
   </body>
