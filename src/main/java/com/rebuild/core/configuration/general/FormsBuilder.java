@@ -341,10 +341,10 @@ public class FormsBuilder extends FormsManager {
         if (readonlywMessage != null) model.set("readonlywMessage", readonlywMessage);
         else if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
 
-        // v3.4
-        String disabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
-                .getExtraAttr(EasyEntityConfigProps.DISABLED_VIEW_EDITABLE);
-        model.set("onViewEditable", !BooleanUtils.toBoolean(disabledViewEditable));
+        // v4.5 详情页单字段编辑默认不启用，需在实体配置中手动启用
+        String enabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
+                .getExtraAttr(EasyEntityConfigProps.ENABLED_VIEW_EDITABLE);
+        model.set("onViewEditable", BooleanUtils.toBoolean(enabledViewEditable));
 
         // v3.7
         model.set("hadSop", License.isRbvAttached());
