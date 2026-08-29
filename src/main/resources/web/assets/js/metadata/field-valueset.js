@@ -189,6 +189,11 @@ class FieldValueSet extends React.Component {
   }
 
   setValue(val) {
+    if (this._RecordSelector || this._AnyRecordSelector) {
+      let s = this._RecordSelector || this._AnyRecordSelector
+      s.setValue(val)
+      return
+    }
     if (!this._$value) return
 
     const field = this.props.field
