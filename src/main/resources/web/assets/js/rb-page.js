@@ -37,25 +37,26 @@ _GA()
 // PAGE INITIAL
 $(function () {
   // 多层 modal 处理
+  // AI 助手无 backdrop 不参与计数，防止 backdrop 层级虚高遮挡
   $(document)
     .on('show.bs.modal', '.modal', function () {
-      var total = $('.modal.show').length + 1
+      var total = $('.modal.show:not(.aibot)').length + 1
       $('.modal-backdrop').css('opacity', '0')
       var zindex = $(this).hasClass('aibot') ? 1040 + total : parseInt(this.style.zIndex) || 1040 + total
       $(this).css('z-index', zindex)
     })
     .on('shown.bs.modal', '.modal', function () {
-      var total = $('.modal.show').length
+      var total = $('.modal.show:not(.aibot)').length
       $('.modal-backdrop:last').css({
         'z-index': 1040 + total - 1,
         'opacity': '',
       })
     })
     .on('hidden.bs.modal', '.modal', function () {
-      if ($('.modal.show').length > 0) {
+      if ($('.modal.show:not(.aibot)').length > 0) {
         $('body').addClass('modal-open')
         $('.modal-backdrop:last').css({
-          'z-index': 1040 + $('.modal.show').length - 1,
+          'z-index': 1040 + $('.modal.show:not(.aibot)').length - 1,
           'opacity': '',
         })
       }
