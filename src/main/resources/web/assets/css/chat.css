@@ -390,10 +390,6 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   overflow: hidden;
 }
 
-.aibot.aibot-dock {
-  z-index: 1055 !important;
-}
-
 .aibot.aibot-dock .modal-dialog {
   position: fixed !important;
   top: 60px !important;
