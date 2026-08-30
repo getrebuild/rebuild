@@ -7,7 +7,13 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/meta-edit.css}" />
     <style>
       .custom-control-label .support-plat2 {
-        margin-top: 1px;
+        margin-top: 1.5px;
+      }
+      .adv-group-title {
+        font-weight: bold;
+        margin: 0 0 0.6rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid #eee;
       }
     </style>
   </head>
@@ -98,8 +104,14 @@
                     <div class="adv-options hide">
                       <div>
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="hideViewAside" />
+                          <span class="custom-control-label">[[${bundle.L('隐藏详情页侧栏')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+                        </label>
+                      </div>
+                      <div>
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="enabledListEditable" />
-                          <span class="custom-control-label">[[${bundle.L('启用列表页单快速编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+                          <span class="custom-control-label">[[${bundle.L('启用列表页快速编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
                       <div>
@@ -108,12 +120,7 @@
                           <span class="custom-control-label">[[${bundle.L('启用详情页快速编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
-                      <div>
-                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                          <input class="custom-control-input" type="checkbox" id="hideViewAside" />
-                          <span class="custom-control-label">[[${bundle.L('隐藏详情页侧栏')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
-                        </label>
-                      </div>
+
                       <div th:if="${currentEntity == mainEntity || detailEntity == null}">
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="enableRecordMerger" />
@@ -136,6 +143,7 @@
                         </label>
                       </div>
                       <th:block th:if="${currentEntity == detailEntity}">
+                        <div class="adv-group-title">[[${bundle.L('明细选项')}]]</div>
                         <div>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsGlobalRepeat" />
@@ -201,6 +209,7 @@
                     </div>
                   </div>
                 </div>
+
                 <div class="form-group row footer">
                   <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
                     <div class="J_action hide">

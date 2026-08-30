@@ -13,7 +13,7 @@
         },
         "entities": {
           "type": "array",
-          "description": "要创建的实体列表。按依赖排序：独立实体在前，明细实体和被引用实体优先。每个对象含 entityLabel(必填)、comments(可选)、mainEntity(明细实体时指定)、nameField(默认true)、seriesField(默认false)、fields(字段列表，每项参数与 BuildField 一致: fieldLabel/type/refEntity/options/classification/seriesFormat/comments)",
+          "description": "要创建的实体列表。按依赖排序：独立实体在前，明细实体和被引用实体优先。每个对象含 entityLabel(必填)、comments(可选)、mainEntity(明细实体时指定)、nameField(默认true)、seriesField(默认false)、fields(字段列表，每项参数与 BuildField 一致: fieldLabel/type/refEntity/options/classification/comments)",
           "items": {
             "type": "object",
             "properties": {

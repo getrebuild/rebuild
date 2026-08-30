@@ -5505,6 +5505,7 @@ pre.unstyle {
   bottom: 10px;
 }
 
+.code-editor .CodeMirror.cm-s-default + .code-editor-actions,
 .code-editor .code-editor-actions.light {
   background-color: rgba(0, 0, 0, 0.7);
 }
