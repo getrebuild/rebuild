@@ -613,7 +613,7 @@
                     </div>
                     <div class="alert alert-sm alert-info alert-icon mt-3 J_tas hide">
                       <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
-                      <div class="message">[[${bundle.L('该字段存在多个数据来源 [点击查看](#)')}]]</div>
+                      <div class="message" th:utext="${bundle.L('该字段存在多个数据来源 [点击查看](#)')}"></div>
                     </div>
                     <div th:if="${fieldBuildin}" class="alert alert-warning alert-icon mb-0">
                       <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
