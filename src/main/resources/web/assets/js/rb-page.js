@@ -36,24 +36,24 @@ _GA()
 
 // PAGE INITIAL
 $(function () {
-  // 多层 modal 处理
+  // 多层 modal 处理（排除 AI 助手）
   $(document).on('show.bs.modal', '.modal', function () {
-    var total = $('.modal.show').length + 1
+    var total = $('.modal.show:not(.aibot)').length + 1
     $('.modal-backdrop').css('opacity', '0')
     $(this).css('z-index', parseInt(this.style.zIndex) || 1040 + total)
   })
   $(document).on('shown.bs.modal', '.modal', function () {
-    var total = $('.modal.show').length
+    var total = $('.modal.show:not(.aibot)').length
     $('.modal-backdrop:last').css({
       'z-index': 1040 + total - 1,
       'opacity': '',
     })
   })
   $(document).on('hidden.bs.modal', '.modal', function () {
-    if ($('.modal.show').length > 0) {
+    if ($('.modal.show:not(.aibot)').length > 0) {
       $('body').addClass('modal-open')
       $('.modal-backdrop:last').css({
-        'z-index': 1040 + $('.modal.show').length - 1,
+        'z-index': 1040 + $('.modal.show:not(.aibot)').length - 1,
         'opacity': '',
       })
     }
@@ -684,7 +684,7 @@ var _initGlobalSearch = function () {
     var s = $('.search-input-gs').val()
     if ($(this).hasClass('aibot-quick')) {
       $('.search-container .dropdown-toggle').dropdown('toggle')
-      window.AiBot && window.AiBot.init({ draggable: true, presetMessage: s, autoSend: true }, false)
+      window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
       return
     }
     $storage.set('GlobalSearch-gs', s || '')
@@ -714,7 +714,7 @@ var _initGlobalSearch = function () {
       var s = $('.search-input-gs').val()
       if ($active.hasClass('aibot-quick')) {
         $('.search-container .dropdown-toggle').dropdown('toggle')
-        window.AiBot && window.AiBot.init({ draggable: true, presetMessage: s, autoSend: true }, false)
+        window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
         return
       }
       $storage.set('GlobalSearch-gs', s || '')

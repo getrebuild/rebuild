@@ -26,7 +26,7 @@ class ConfigFormDlg extends RbFormHandler {
         title={
           <RF>
             {title}
-            {showAi && <AiCreateButton presetMessage={$L('我要创建一个%s', this.subtitle)} />}
+            {showAi && <AiCreateButton preset={{ content: $L('我要创建一个%s', this.subtitle) }} />}
           </RF>
         }
         ref={(c) => (this._dlg = c)}

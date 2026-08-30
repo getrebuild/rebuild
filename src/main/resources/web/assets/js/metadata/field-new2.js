@@ -22,7 +22,7 @@ class FieldNew2 extends RbModalHandler {
         title={
           <RF>
             {$L('添加字段')}
-            <AiCreateButton presetMessage={$L('我要创建一个字段')} />
+            <AiCreateButton preset={{ content: $L('我要创建一个字段') }} />
           </RF>
         }
         disposeOnHide
