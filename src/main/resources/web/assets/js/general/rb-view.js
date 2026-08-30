@@ -777,7 +777,7 @@ const RbViewPage = {
     $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))
     $('.J_report').on('click', () => SelectReport.create(entity[0], id))
     $('.J_aianalysis').on('click', () => {
-      AiBot.init({ preset: { attach: [{ record: this.__id }] } })
+      AiBot.init({ draggable: true, preset: { attach: [{ record: this.__id }] } })
     })
     $('.J_add-detail-menu>a').on('click', function () {
       const iv = { $MAINID$: id }

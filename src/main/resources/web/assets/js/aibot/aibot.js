@@ -122,12 +122,27 @@ class AiBot extends React.Component {
   }
 
   show() {
+    if (this.state.dockMode) {
+      var $dialog = $(this._$modal).find('.modal-dialog')
+      $dialog.css({ left: '', top: '', right: '', bottom: '' })
+    }
     $(this._$modal).modal('show')
   }
 
   // --
 
   static init(props, toggleShow) {
+    if (window.top !== window.self) {
+      try {
+        if (parent.AiBot && parent.AiBot !== AiBot) {
+          parent.AiBot.init(props, toggleShow)
+          return
+        }
+      } catch (err) {
+        // Ignored
+      }
+    }
+
     var preset = props && props.preset
     if (window._AiBot) {
       if (toggleShow) {
