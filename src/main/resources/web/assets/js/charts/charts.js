@@ -1135,7 +1135,7 @@ class ApprovalList extends BaseChart {
                 onClick={() => {
                   this.renderChart(data, item[0])
                 }}>
-                {s[1]} ({item[1]})
+                {s[1]} ({item[1]}{item[1] >= 500 ? '+' : ''})
               </div>
             )
           })}
