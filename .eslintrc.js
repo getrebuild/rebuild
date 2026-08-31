@@ -183,5 +183,6 @@ module.exports = {
     $useMermaid: true,
     $useSignPad: true,
     AiCreateButton: true,
+    AiBot: true,
   },
 }

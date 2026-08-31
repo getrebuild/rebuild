@@ -37,33 +37,41 @@ _GA()
 // PAGE INITIAL
 $(function () {
   // 多层 modal 处理
-  $(document).on('show.bs.modal', '.modal', function () {
-    var total = $('.modal.show').length + 1
-    $('.modal-backdrop').css('opacity', '0')
-    $(this).css('z-index', parseInt(this.style.zIndex) || 1040 + total)
-  })
-  $(document).on('shown.bs.modal', '.modal', function () {
-    var total = $('.modal.show').length
-    $('.modal-backdrop:last').css({
-      'z-index': 1040 + total - 1,
-      'opacity': '',
+  // AI 助手无 backdrop 不参与计数，防止 backdrop 层级虚高遮挡
+  $(document)
+    .on('show.bs.modal', '.modal', function () {
+      var total = $('.modal.show:not(.aibot)').length + 1
+      $('.modal-backdrop').css('opacity', '0')
+      var zindex = $(this).hasClass('aibot') ? 1040 + total : parseInt(this.style.zIndex) || 1040 + total
+      $(this).css('z-index', zindex)
     })
-  })
-  $(document).on('hidden.bs.modal', '.modal', function () {
-    if ($('.modal.show').length > 0) {
-      $('body').addClass('modal-open')
+    .on('shown.bs.modal', '.modal', function () {
+      var total = $('.modal.show:not(.aibot)').length
       $('.modal-backdrop:last').css({
-        'z-index': 1040 + $('.modal.show').length - 1,
+        'z-index': 1040 + total - 1,
         'opacity': '',
       })
-    }
-  })
-  $(document).on('keydown', function (e) {
-    if (e.key === 'Escape' && $('.modal.show').length > 1) {
-      $('.modal.show:last').modal('hide')
-      return false
-    }
-  })
+    })
+    .on('hidden.bs.modal', '.modal', function () {
+      if ($('.modal.show:not(.aibot)').length > 0) {
+        $('body').addClass('modal-open')
+        $('.modal-backdrop:last').css({
+          'z-index': 1040 + $('.modal.show:not(.aibot)').length - 1,
+          'opacity': '',
+        })
+      }
+    })
+    .on('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var $modals = $('.modal.show')
+        for (var i = $modals.length - 1; i >= 0; i--) {
+          var inst = $($modals[i]).data('bs.modal')
+          if (inst && inst._config && inst._config.keyboard === false) continue
+          $($modals[i]).modal('hide')
+          return false
+        }
+      }
+    })
 
   // for `moment`
   if (window.moment) {
@@ -684,7 +692,7 @@ var _initGlobalSearch = function () {
     var s = $('.search-input-gs').val()
     if ($(this).hasClass('aibot-quick')) {
       $('.search-container .dropdown-toggle').dropdown('toggle')
-      window.AiBot && window.AiBot.init({ draggable: true, presetMessage: s, autoSend: true }, false)
+      window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
       return
     }
     $storage.set('GlobalSearch-gs', s || '')
@@ -714,7 +722,7 @@ var _initGlobalSearch = function () {
       var s = $('.search-input-gs').val()
       if ($active.hasClass('aibot-quick')) {
         $('.search-container .dropdown-toggle').dropdown('toggle')
-        window.AiBot && window.AiBot.init({ draggable: true, presetMessage: s, autoSend: true }, false)
+        window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
         return
       }
       $storage.set('GlobalSearch-gs', s || '')

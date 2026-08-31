@@ -21,7 +21,7 @@ class EntityNew2 extends RbModalHandler {
         title={
           <RF>
             {$L('添加实体')}
-            <AiCreateButton presetMessage={$L('我要创建一个业务实体')} />
+            <AiCreateButton preset={{ content: $L('我要创建一个业务实体') }} />
           </RF>
         }
         className="entity-new2">

@@ -40,8 +40,7 @@ class AiBot extends React.Component {
             <div className="modal-body">
               <Chat
                 chatid={this.props.chatid}
-                presetMessage={this.props.presetMessage}
-                autoSend={this.props.autoSend}
+                preset={this.props.preset}
                 sendMode={this.props.sendMode}
                 onChatidChanged={(id) => {
                   this.setState({ chatid: id })
@@ -76,7 +75,7 @@ class AiBot extends React.Component {
       })
       $(document).on('keydown.aibot-hide', null, 'esc', (e) => {
         if (e.isDefaultPrevented()) return
-        if ($('.modal.show').length <= 1) this.hide()
+        this.hide()
       })
 
       if (this.state.dockMode) {
@@ -123,14 +122,28 @@ class AiBot extends React.Component {
   }
 
   show() {
+    if (this.state.dockMode) {
+      var $dialog = $(this._$modal).find('.modal-dialog')
+      $dialog.css({ left: '', top: '', right: '', bottom: '' })
+    }
     $(this._$modal).modal('show')
   }
 
   // --
 
   static init(props, toggleShow) {
-    var presetMessage = props && props.presetMessage
-    var autoSend = props && props.autoSend
+    if (window.top !== window.self) {
+      try {
+        if (parent.AiBot && parent.AiBot !== AiBot) {
+          parent.AiBot.init(props, toggleShow)
+          return
+        }
+      } catch (err) {
+        // Ignored
+      }
+    }
+
+    var preset = props && props.preset
     if (window._AiBot) {
       if (toggleShow) {
         if (!window._AiBot._isShown) window._AiBot.show()
@@ -138,21 +151,16 @@ class AiBot extends React.Component {
       } else {
         window._AiBot.show()
       }
-      // 将搜索词填入已有会话输入框并自动发送
-      if (presetMessage) {
-        var _Chat = window._AiBot._Chat
-        if (_Chat && _Chat._ChatInput) {
-          _Chat._ChatInput.setState({ content: presetMessage }, function () {
-            if (autoSend && _Chat._ChatInput.state.postState === 0) {
-              _Chat._ChatInput.hanldeSend()
-            } else {
-              _Chat._ChatInput._$textarea && _Chat._ChatInput._$textarea.focus()
-            }
-          })
-        }
+      // 有 preset：新建会话并应用预设
+      if (preset) {
+        window._AiBot._Chat._preset = preset
+        window._AiBot._Chat.initChat()
       }
     } else {
-      renderRbcomp(<AiBot {...props} />, function () {
+      // 首次创建：将 preset 传入组件
+      var aiBotProps = { ...props }
+      if (preset) aiBotProps.preset = preset
+      renderRbcomp(<AiBot {...aiBotProps} />, function () {
         window._AiBot = this
       })
     }
@@ -172,6 +180,6 @@ class AiCreateButton extends React.Component {
 
   _handleClick(e) {
     $stopEvent(e, true)
-    window.AiBot && window.AiBot.init({ draggable: true, presetMessage: this.props.presetMessage, autoSend: true }, false)
+    window.AiBot && window.AiBot.init({ draggable: true, preset: { content: this.props.preset.content, autoSend: true } }, false)
   }
 }

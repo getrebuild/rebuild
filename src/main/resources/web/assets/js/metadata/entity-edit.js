@@ -54,7 +54,7 @@ $(document).ready(() => {
     }
     extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
     extConfig.enabledListEditable = $val('#enabledListEditable')
-    extConfig.disabledViewEditable = $val('#disabledViewEditable')
+    extConfig.enabledViewEditable = $val('#enabledViewEditable')
     extConfig.hideViewAside = $val('#hideViewAside')
     extConfig.enableRecordMerger = $val('#enableRecordMerger')
 
@@ -69,7 +69,7 @@ $(document).ready(() => {
         'detailsHide',
         'repeatFieldsCheckMode',
         'enabledListEditable',
-        'disabledViewEditable',
+        'enabledViewEditable',
         'hideViewAside',
         'enableRecordMerger',
       ]
@@ -197,7 +197,7 @@ $(document).ready(() => {
   if (wpc.extConfig.detailsGlobalRepeat) $('#detailsGlobalRepeat').attr('checked', true)
   if (wpc.extConfig.repeatFieldsCheckMode === 'and') $('#repeatFieldsCheckMode').attr('checked', true)
   if (wpc.extConfig.enabledListEditable) $('#enabledListEditable').attr('checked', true)
-  if (wpc.extConfig.disabledViewEditable) $('#disabledViewEditable').attr('checked', true)
+  if (wpc.extConfig.enabledViewEditable) $('#enabledViewEditable').attr('checked', true)
   if (wpc.extConfig.hideViewAside) $('#hideViewAside').attr('checked', true)
   if (wpc.extConfig.detailsShowAt2) $('#detailsShowAt2').attr('checked', true)
   // v3.6

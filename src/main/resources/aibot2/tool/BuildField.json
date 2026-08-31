@@ -52,10 +52,6 @@
           "type": "string",
           "description": "分类数据名称或 ID。type 为 CLASSIFICATION 时必填，如「省市县」"
         },
-        "seriesFormat": {
-          "type": "string",
-          "description": "自动编号规则（type 为 SERIES 时可选）。占位符: {YYYY}=年、{MM}=月、{DD}=日、{AUTO}=自动编号，如 \"{YYYY}{MM}{DD}-{AUTO}\""
-        },
         "comments": {
           "type": "string",
           "description": "字段描述（可选），说明该字段用于记录什么信息"

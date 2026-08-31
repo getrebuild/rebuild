@@ -390,15 +390,12 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   overflow: hidden;
 }
 
-.aibot.aibot-dock {
-  z-index: 1029 !important;
-}
-
 .aibot.aibot-dock .modal-dialog {
-  position: fixed;
-  top: 60px;
-  right: 0;
-  bottom: 0;
+  position: fixed !important;
+  top: 60px !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
   margin: 0;
   width: 600px;
   max-width: 100vw;
@@ -477,10 +474,10 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
 }
 
 .ai-color,
+.ai-color.btn > .icon,
 .aibot-icon::before,
 .aibot-show .icon::before {
   background: linear-gradient(90deg, #fe5281, #a928bf, #474efe);
-  -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   transition: all 0.4s;

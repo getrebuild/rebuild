@@ -61,9 +61,8 @@ class Chat extends React.Component {
       ...props,
       messages: [],
     }
-    // 搜索框问AI时传入的预设消息（仅首次使用）
-    this._presetMessage = props.presetMessage
-    this._autoSend = props.autoSend
+    // 预设输入对象（仅首次使用）
+    this._preset = props.preset
   }
 
   render() {
@@ -111,10 +110,9 @@ class Chat extends React.Component {
 
     this.setState({ chatid: chatid || null })
     this._ChatMessages.setMessages([], false, null)
-    this._ChatInput.reset(true, this._presetMessage)
-    this._presetMessage = null
-    var _autoSend = this._autoSend
-    this._autoSend = null
+    this._ChatInput.reset(true)
+    const _preset = this._preset
+    this._preset = null
     this._ChatSidebar.setState({ current: null })
 
     $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}`, (res) => {
@@ -134,8 +132,17 @@ class Chat extends React.Component {
 
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
 
-        if (_autoSend && this._ChatInput.state.content) {
-          this._ChatInput.hanldeSend()
+        // 应用预设输入
+        if (_preset) {
+          let newState = {}
+          if (_preset.content) newState.content = _preset.content
+          if (_preset.attach) newState.attach = _preset.attach
+          if (_preset.skill) newState.activeSkill = _preset.skill
+          this._ChatInput.setState(newState, () => {
+            if (_preset.autoSend && this._ChatInput.state.content) {
+              this._ChatInput.hanldeSend()
+            }
+          })
         }
       } else {
         this._ChatMessages.setMessages([{ error: res.error_msg }])

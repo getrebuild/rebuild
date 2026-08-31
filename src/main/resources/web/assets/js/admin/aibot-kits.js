@@ -346,7 +346,7 @@ class DlgSkillEdit extends RbModalHandler {
         title={
           <RF>
             {this.props.title}
-            <AiCreateButton presetMessage={$L('我要创建一个技能')} />
+            <AiCreateButton preset={{ content: $L('我要创建一个技能') }} />
           </RF>
         }
         disposeOnHide>
