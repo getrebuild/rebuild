@@ -6772,6 +6772,18 @@ div.formula-code {
   font-size: 13px;
 }
 
+.markdown-body.fs14,
+.markdown-body.fs14 p,
+.markdown-body.fs14 blockquote,
+.markdown-body.fs14 ul,
+.markdown-body.fs14 ol,
+.markdown-body.fs14 dl,
+.markdown-body.fs14 table,
+.markdown-body.fs14 pre,
+.markdown-body.fs14 details {
+  font-size: 14px;
+}
+
 .markdown-body h1,
 .EasyMDEContainer .cm-s-easymde .cm-header-1 {
   font-size: 2em;
