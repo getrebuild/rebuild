@@ -19,6 +19,8 @@ class FieldValueSet extends React.Component {
       return (
         <RecordSelector
           entity={field.ref[0]}
+          fieldName={field.name}
+          fieldEntity={this.props.entity}
           allowMultiple={field.type === 'N2NREFERENCE'}
           initValue={this.props.defaultValue}
           placeholder={this.props.placeholder || $L('新值')}
