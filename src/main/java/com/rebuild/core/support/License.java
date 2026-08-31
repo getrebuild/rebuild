@@ -81,7 +81,7 @@ public final class License {
         JSONObject auth = TaskExecutors.invoke(() -> {
             if (cached) return siteApi(api);
             return siteApiNoCache(api);
-        }, 10 * 1000);
+        }, 15 * 1000);
 
         if (auth == null || auth.getString("error") != null) {
             try {
@@ -99,6 +99,7 @@ public final class License {
                     new String[]{SN(), "开源社区版", "OSC", "无"});
         }
         if ("BLOCKED".equals(error)) System.exit(110);
+        if ("BLOCKED45".equals(error)) System.setProperty("BLOCKED45", "604");
 
         CACHED.put(api, auth);
         return auth;
@@ -175,7 +176,7 @@ public final class License {
 
                 String hasError = o.getString("error");
                 if (hasError != null) {
-                    log.error("Result return error : {}", result);
+                    log.error("Error in returned result : {}", result);
                 } else {
                     CACHED.put(api, o);
                 }
@@ -186,13 +187,13 @@ public final class License {
             }
 
         } catch (Exception ex) {
-            log.error("Call X-SiteApi `{}` error : {}", api.split("\\?")[0], ex.toString());
+            log.error("Error calling X-SiteApi `{}` : {}", api.split("\\?")[0], ex.toString());
         }
 
         if (domain == null) {
             return siteApi(api, t, "http://rebuild.ruifang-tech.com/");
         } else {
-            return JSONUtils.toJSONObject("error", "Call X-SiteApi fails");
+            return JSONUtils.toJSONObject("error", "Error calling X-SiteApi");
         }
     }
 }
