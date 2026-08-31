@@ -52,6 +52,16 @@ public class RBStore {
     }
 
     /**
+     * for Holidays
+     *
+     * @param fileUri
+     * @return
+     */
+    public static JSON fetchHolidays(String fileUri) {
+        return fetchRemoteJson("holidays/" + fileUri);
+    }
+
+    /**
      * @param fileUrl
      * @return
      * @throws RebuildException
