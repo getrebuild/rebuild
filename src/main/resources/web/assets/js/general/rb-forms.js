@@ -1811,7 +1811,7 @@ class RbFormNTextUseCode extends RbFormNText {
 
     let code2 = $formatCode(this.state.value)
     let cmOptions = {
-      theme: 'material',
+      // theme: 'default',  // light
     }
     return (
       <RF>

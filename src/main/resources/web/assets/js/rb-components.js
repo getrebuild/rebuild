@@ -1573,7 +1573,7 @@ class CodeEditor extends React.Component {
         completeSingle: false,
         useGlobalScope: false,
       },
-      readOnly: this.props.readonly === true ? 'nocursor' : false,
+      readOnly: this.props.readonly === true,
       viewportMargin: Infinity,
       lineWrapping: true,
       ...this.props.cmOptions,
