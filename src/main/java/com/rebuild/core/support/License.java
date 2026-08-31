@@ -54,7 +54,7 @@ public final class License {
         SN = newsn.getString("sn");
         if (SN != null) {
             RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
-            queryAuthority(false);  // reset
+            queryAuthority(false);
         }
 
         if (SN == null) {
@@ -65,7 +65,7 @@ public final class License {
                     CalendarUtils.format("wwyy", new Date()),
                     CodecUtils.randomCode(6)).toUpperCase();
             RebuildConfiguration.setValue(ConfigurationItem.SN.name(), SN);
-            queryAuthority(false);  // reset
+            queryAuthority(false);
         }
 
         USE_SN = SN;
@@ -83,6 +83,13 @@ public final class License {
             return siteApiNoCache(api);
         }, 15 * 1000);
 
+        String error = auth == null ? null : auth.getString("error");
+        if ("BLOCKED".equals(error)) System.exit(110);
+        if ("BLOCKED45".equals(error)) {
+            auth.remove("error");
+            System.setProperty("BLOCKED45", "604");
+        }
+
         if (auth == null || auth.getString("error") != null) {
             try {
                 String c = FileUtils.readFileToString(RebuildConfiguration.getFileOfData(".license"), "ISO-8859-1");
@@ -92,14 +99,11 @@ public final class License {
             } catch (Exception ignored) {}
         }
 
-        String error = null;
-        if (auth == null || (error = auth.getString("error")) != null) {
+        if (auth == null || auth.getString("error") != null) {
             auth = JSONUtils.toJSONObject(
                     new String[]{"sn", "authType", "authObject", "authExpires"},
                     new String[]{SN(), "开源社区版", "OSC", "无"});
         }
-        if ("BLOCKED".equals(error)) System.exit(110);
-        if ("BLOCKED45".equals(error)) System.setProperty("BLOCKED45", "604");
 
         CACHED.put(api, auth);
         return auth;
