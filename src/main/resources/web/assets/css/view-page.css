@@ -128,7 +128,7 @@ body {
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext {
-  max-height: 72px;
+  max-height: 1000px;
   position: relative;
   word-break: break-all;
 }
@@ -142,12 +142,12 @@ body {
   height: 18.56px;
 }
 
-.rbview-form .type-NTEXT .markdown-body.form-control-plaintext {
-  max-height: 1000px;
-}
-
-.rbview-form .type-NTEXT .formula-code.form-control-plaintext {
-  max-height: 300px;
+.rbview-form .type-NTEXT .form-control-plaintext,
+.rbview-form .type-NTEXT .form-control.markdown-body,
+.rbview-form .type-NTEXT .code-editor > textarea {
+  height: auto !important;
+  max-height: 1000px !important;
+  overflow: auto;
 }
 
 .rbview-form .type-NTEXT .ntext-action {
@@ -177,10 +177,6 @@ body {
 
 .rbview-form .type-NTEXT .col-form-control:hover .ntext-action {
   opacity: 1;
-}
-
-.rbview-form .type-NTEXT .col-form-control.ntext-expand .ntext-action .mdi-arrow-expand::before {
-  content: '\F0615';
 }
 
 .nav-tabs > li.nav-item a.nav-link {
