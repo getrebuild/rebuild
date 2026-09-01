@@ -655,7 +655,7 @@ $(document).ready(() => {
     filesList = this
   })
 
-  $('.J_add-folder').on('click', () => renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} />))
+  $('.J_add-folder').on('click', () => renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} parent={currentFolder === __DEFAULT_ALL ? null : currentFolder} />))
   $('.J_upload-file').on('click', () => renderRbcomp(<FileUploadDlg call={() => filesList && filesList.loadData()} inFolder={currentFolder} />))
 
   $('.J_delete').on('click', () => {
