@@ -109,6 +109,11 @@ public class DataListCategory38 {
             dataList = DataListCategory.instance.datasOptions(useFieldMeta, dt);
             hasChild = categoryFields.size() > fieldIndex + 1;
         }
+        // 单字段适用:状态字段
+        else if (dt == DisplayType.STATE) {
+            dataList = DataListCategory.instance.datasState(useFieldMeta);
+            hasChild = categoryFields.size() > fieldIndex + 1;
+        }
         // 单字段适用:分类字段
         else if (dt == DisplayType.CLASSIFICATION && isSingleLevel) {
             dataList = DataListCategory.instance.datasClassification(useFieldMeta, useFormat);
@@ -140,6 +145,18 @@ public class DataListCategory38 {
             if (dt == DisplayType.N2NREFERENCE) {
                 sql = String.format(
                         "select distinct referenceId from NreferenceItem where belongEntity = '%s' and belongField = '%s'",
+                        entity.getName(), useField);
+                // N级
+                if (parentValues != null) {
+                    String nestSql = String.format("select %s from %s where %s",
+                            entity.getPrimaryField().getName(), entity.getName(),
+                            buildParentFilters(entity, categoryFields, parentValues));
+                    sql += String.format(" and recordId in ( %s )", nestSql);
+                }
+
+            } else if (dt == DisplayType.TAG) {
+                sql = String.format(
+                        "select distinct tagName from TagItem where belongEntity = '%s' and belongField = '%s'",
                         entity.getName(), useField);
                 // N级
                 if (parentValues != null) {
@@ -346,6 +363,14 @@ public class DataListCategory38 {
             if (dt == DisplayType.N2NREFERENCE) {
                 String filter = String.format(
                         "exists (select recordId from NreferenceItem where ^%s = recordId and belongField = '%s' and referenceId = '%s')",
+                        entity.getPrimaryField().getName(), fieldMeta.getName(), fieldValue);
+                and.add(filter);
+                continue;
+            }
+
+            if (dt == DisplayType.TAG) {
+                String filter = String.format(
+                        "exists (select recordId from TagItem where ^%s = recordId and belongField = '%s' and tagName = '%s')",
                         entity.getPrimaryField().getName(), fieldMeta.getName(), fieldValue);
                 and.add(filter);
                 continue;
