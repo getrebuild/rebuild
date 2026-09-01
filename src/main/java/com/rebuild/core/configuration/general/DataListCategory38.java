@@ -153,6 +153,13 @@ public class DataListCategory38 {
                             buildParentFilters(entity, categoryFields, parentValues));
                     sql += String.format(" and recordId in ( %s )", nestSql);
                 }
+                if (ParseHelper.validAdvFilter(ffConf.getJSONObject("filter"))) {
+                    String where = new AdvFilterParser(ffConf.getJSONObject("filter")).toSqlWhere();
+                    if (where != null) {
+                        sql += String.format(" and recordId in (select %s from %s where %s)",
+                                entity.getPrimaryField().getName(), entity.getName(), where);
+                    }
+                }
 
             } else if (dt == DisplayType.TAG) {
                 sql = String.format(
@@ -164,6 +171,13 @@ public class DataListCategory38 {
                             entity.getPrimaryField().getName(), entity.getName(),
                             buildParentFilters(entity, categoryFields, parentValues));
                     sql += String.format(" and recordId in ( %s )", nestSql);
+                }
+                if (ParseHelper.validAdvFilter(ffConf.getJSONObject("filter"))) {
+                    String where = new AdvFilterParser(ffConf.getJSONObject("filter")).toSqlWhere();
+                    if (where != null) {
+                        sql += String.format(" and recordId in (select %s from %s where %s)",
+                                entity.getPrimaryField().getName(), entity.getName(), where);
+                    }
                 }
 
             } else {
