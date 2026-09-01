@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
@@ -1550,12 +1551,12 @@ class CodeEditor extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this._isCode = true
+    this._isCode = true // 是否使用 CodeMirror
   }
 
   render() {
     return (
-      <div className={`code-editor ${this.props.readonly && 'cm-readonly'}`} ref={(c) => (this._$element = c)}>
+      <div className={`code-editor ${this.props.readonly && 'cm-readonly'} ${this.props.heightAuto && 'cm-auto-height'}`} ref={(c) => (this._$element = c)}>
         <textarea
           className="form-control formula-code"
           spellCheck="false"
@@ -1599,9 +1600,13 @@ class CodeEditor extends React.Component {
   }
 
   componentDidMount() {
-    if (window.CodeMirror && this._isCode) {
+    if (this._isCode && window.CodeMirror) {
       setTimeout(() => this.initCodeMirror(), 200)
+    } else if (this.props.heightAuto) {
+      // eslint-disable-next-line no-undef
+      autosize(this._$content)
     }
+
     this.props.autoFocus === true && setTimeout(() => this.focus(), 220)
   }
 
@@ -1640,6 +1645,15 @@ class CodeEditor extends React.Component {
     })
 
     this._CodeMirror = cm5
+
+    // 自动高度
+    if (this.props.heightAuto) {
+      $(cm5.getWrapperElement())
+        .find('.CodeMirror-scroll')
+        .each(function () {
+          this.style.setProperty('min-height', '37px', 'important')
+        })
+    }
   }
 
   componentWillUnmount() {
@@ -1650,6 +1664,9 @@ class CodeEditor extends React.Component {
     if (this._CodeMirror) {
       this._CodeMirror.toTextArea()
       this._CodeMirror = null
+    } else if (this.props.heightAuto) {
+      // eslint-disable-next-line no-undef
+      autosize.destroy(this._$content)
     }
   }
 

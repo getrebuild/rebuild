@@ -1576,7 +1576,7 @@ class RbFormNText extends RbFormElement {
     this._textCommonMenuId = props.readonly || !props.textCommon ? null : $random('tcddm-')
 
     this._height = 0
-    if (props.useMdedit) {
+    if (props.useMdedit || props.useCode) {
       if (this.props.height === '0') this._heightAuto = true
     } else {
       this._height = ~~this.props.height
@@ -1868,6 +1868,7 @@ class RbFormNTextUseCode extends RbFormNText {
         }}
         readonly={this.state.readonly}
         cmOptions={cmOptions}
+        heightAuto={this._heightAuto}
         extraActions={[]}
         ref={(c) => (this._CodeEditor = c)}
         key="CodeEditor-write"
@@ -1884,7 +1885,7 @@ class RbFormNTextUseCode extends RbFormNText {
     }
     return (
       <RF>
-        <CodeEditor value={code2} readonly cmOptions={cmOptions} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
+        <CodeEditor value={code2} readonly cmOptions={cmOptions} heightAuto={this._heightAuto} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
         {this.renderViewElementExtAction()}
       </RF>
     )
