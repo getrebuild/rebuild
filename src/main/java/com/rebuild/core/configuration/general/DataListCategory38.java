@@ -385,12 +385,12 @@ public class DataListCategory38 {
             if (dt == DisplayType.TAG) {
                 String filter = String.format(
                         "exists (select recordId from TagItem where ^%s = recordId and belongField = '%s' and tagName = '%s')",
-                        entity.getPrimaryField().getName(), fieldMeta.getName(), fieldValue);
+                        entity.getPrimaryField().getName(), fieldMeta.getName(), CommonsUtils.escapeSql(fieldValue));
                 and.add(filter);
                 continue;
             }
 
-            String simple = String.format("%s = '%s'", fieldName, fieldValue);
+            String simple = String.format("%s = '%s'", fieldName, CommonsUtils.escapeSql(fieldValue));
             and.add(simple);
         }
         return "( " + StringUtils.join(and, " and ") + " )";

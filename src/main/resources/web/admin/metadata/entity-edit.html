@@ -104,12 +104,6 @@
                     <div class="adv-options hide">
                       <div>
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                          <input class="custom-control-input" type="checkbox" id="hideViewAside" />
-                          <span class="custom-control-label">[[${bundle.L('隐藏详情页侧栏')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
-                        </label>
-                      </div>
-                      <div>
-                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="enabledListEditable" />
                           <span class="custom-control-label">[[${bundle.L('启用列表页快速编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
@@ -120,11 +114,16 @@
                           <span class="custom-control-label">[[${bundle.L('启用详情页快速编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
-
                       <div th:if="${currentEntity == mainEntity || detailEntity == null}">
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="enableRecordMerger" />
                           <span class="custom-control-label">[[${bundle.L('启用记录合并功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+                        </label>
+                      </div>
+                      <div>
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="hideViewAside" />
+                          <span class="custom-control-label">[[${bundle.L('隐藏详情页侧栏')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
                       <div>
@@ -179,7 +178,7 @@
                         </div>
                         <div>
                           <div class="row">
-                            <div class="col-5 pr-2">
+                            <div class="col-4 pr-2">
                               <label class="mb-1">[[${bundle.L('显示顺序')}]]</label>
                               <select class="form-control form-control-sm" id="detailsSeq">
                                 <option value="">[[${bundle.L('默认')}]]</option>
@@ -194,7 +193,7 @@
                                 <option value="9">9.</option>
                               </select>
                             </div>
-                            <div class="col-5 pl-2 pr-2">
+                            <div class="col-4 pl-2">
                               <label class="mb-1">[[${bundle.L('是否隐藏')}]]</label>
                               <select class="form-control form-control-sm" id="detailsHide">
                                 <option value="">[[${bundle.L('默认')}]]</option>
