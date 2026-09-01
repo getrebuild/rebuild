@@ -863,47 +863,23 @@ class RichContent extends React.Component {
     })
   }
 
-  // 修复 AI 回复中常见的 Markdown 语法问题
+  // 修复 AI 回复中常见的 MD 语法问题
   _fixMd(md) {
     if (!md) return md
-    if (window.__LAB45_NOTFIXAIMD) return md
+    const mdOrigin = md
 
-    // 0. 代码块 fence：AI 有时把 fence 接在文字行尾（CommonMark 要求 fence 行首，否则闭合 fence 会被误作开启吞噬后续内容），或把内容紧贴在语言标记后
-    md = md.replace(/([^\s`])[ \t]*(`{3,}|~{3,})([A-Za-z0-9_+-]*)[ \t]*$/gm, '$1\n$2$3')
-    md = md.replace(/(`{3,}|~{3,})(html|mermaid|echarts)(\S)/g, '$1$2\n$3')
+    const FENCE_LANGS =
+      'javascript|typescript|dockerfile|powershell|plaintext|makefile|markdown|mermaid|echarts|golang|python|kotlin|script|shell|swift|bash|html|java|json|yaml|xml|css|scss|less|ruby|rust|php|vue|jsx|tsx|sql|toml|diff|text|ini|htm|cpp|py|js|ts|cs|go|rb|sh|md'
+    md = md.replace(new RegExp('(`{3,}|~{3,})(?=(' + FENCE_LANGS + '))\\2(\\S)', 'gi'), (m, fence, lang, next) => fence + lang.toLowerCase() + '\n' + next)
 
-    // 1. 表格：GFM 要求表格前有空行，AI 有时忽略此规则
-    if (md.indexOf('|') !== -1 && /\|[\s:]*-{2,}/.test(md)) {
-      const lines = md.split('\n')
-      for (let i = 0; i < lines.length; i++) {
-        let line = lines[i]
-        if (/\|[\s:]*-{2,}/.test(line) && /(\|)\s*(\|)/.test(line)) {
-          const firstPipe = line.indexOf('|')
-          let work = firstPipe > 0 ? line.substring(0, firstPipe).trimEnd() + '\n\n' + line.substring(firstPipe) : line
-          work = work.replace(/(\|)\s*(\|)/g, '$1\n$2')
-          lines[i] = work
-          continue
-        }
-
-        if (i + 1 < lines.length && /\|[\s:]*-{2,}/.test(lines[i + 1])) {
-          const pipeIdx = line.indexOf('|')
-          if (pipeIdx > 0) {
-            lines[i] = line.substring(0, pipeIdx).trimEnd() + '\n\n' + line.substring(pipeIdx)
-          } else if (pipeIdx === 0 && i > 0 && lines[i - 1].trim() !== '') {
-            lines[i] = '\n' + line
-          }
-        }
-      }
-      md = lines.join('\n')
-    }
-
-    // 2. 粗体：去除开启/闭合 ** 内侧多余空格（仅同行，避免跨行吞表格结构）
-    md = md.replace(/(\*\*)[ \t]+([^\n*]+?)[ \t]*(\*\*)/g, '$1$2$3')
-    md = md.replace(/(\*\*[^\n*]+\*\*)(?=[^\s)\]}>.,;:!?，。；：！？、）】])/g, '$1 ')
-
-    // 3. 标题：CommonMark 要求 # 后必须有空格
-    md = md.replace(/^(#{1,6})(?=[^\s#])/gm, '$1 ')
-
+    $setTimeout(
+      () => {
+        // eslint-disable-next-line eqeqeq
+        if (md != mdOrigin) console.log('\n==== Origin ====\n', mdOrigin, '\n==== Fixed ====\n', md)
+      },
+      1000,
+      'fix-md-log',
+    )
     return md
   }
 }

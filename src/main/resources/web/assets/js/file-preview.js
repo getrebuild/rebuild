@@ -34,9 +34,9 @@ class RbPreview extends React.Component {
     if (this.props.richContent) {
       const $node = this.props.richContent
       if ($node.is('.echarts-rendered')) fileName = $L('图表')
-      else if ($node.is('.mermaid')) fileName = 'Mermaid'
+      else if ($node.is('.mermaid')) fileName = '图表'
       else if ($node.is('.html-rendered')) fileName = $L('网页')
-      else fileName = $L('富内容')
+      else fileName = $L('代码')
     } else {
       currentUrl = this.props.urls[this.state.currentIndex]
       fileName = $fileCutName(currentUrl)
