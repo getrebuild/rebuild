@@ -1559,7 +1559,7 @@ class CodeEditor extends React.Component {
       <div className={`code-editor ${this.props.readonly && 'cm-readonly'} ${this.props.heightAuto && 'cm-auto-height'}`} ref={(c) => (this._$element = c)}>
         <textarea
           className="form-control formula-code"
-          data-fix-autosize-height={this.props.heightAuto ? '37px' : null}
+          data-fix-autosize-height={this.props.heightAuto || this.props.readonly ? '37px' : null}
           spellCheck="false"
           defaultValue={this.props.value || ''}
           ref={(c) => (this._$content = c)}
@@ -1603,7 +1603,7 @@ class CodeEditor extends React.Component {
   componentDidMount() {
     if (this._isCode && window.CodeMirror) {
       setTimeout(() => this.initCodeMirror(), 200)
-    } else if (this.props.heightAuto) {
+    } else if (this.props.heightAuto || this.props.readonly) {
       autosize(this._$content)
     }
 
@@ -1675,7 +1675,7 @@ class CodeEditor extends React.Component {
         this._CodeMirror.setValue(arguments[0])
       } else {
         this._$content.value = arguments[0]
-        if (this.props.heightAuto) autosize.update(this._$content)
+        if (this.props.heightAuto || this.props.readonly) autosize.update(this._$content)
       }
     } else {
       if (this._CodeMirror) return this._CodeMirror.getValue()

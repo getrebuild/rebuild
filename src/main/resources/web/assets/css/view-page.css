@@ -143,10 +143,9 @@ body {
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext,
-.rbview-form .type-NTEXT .form-control.markdown-body,
-.rbview-form .type-NTEXT .code-editor > textarea {
-  height: auto !important;
-  max-height: 1000px !important;
+.rbview-form .type-NTEXT .form-control.markdown-body {
+  height: auto;
+  max-height: 1000px;
   overflow: auto;
 }
 

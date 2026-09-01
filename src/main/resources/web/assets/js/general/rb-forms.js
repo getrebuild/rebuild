@@ -1874,14 +1874,13 @@ class RbFormNTextUseCode extends RbFormNText {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    const style2 = { maxHeight: 1000 }
     let code2 = $formatCode(this.state.value)
     let cmOptions = {
       // theme: 'default',  // light
     }
     return (
       <RF>
-        <CodeEditor value={code2} readonly cmOptions={cmOptions} heightAuto={this._heightAuto} style={style2} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
+        <CodeEditor value={code2} readonly cmOptions={cmOptions} heightAuto={this._heightAuto} ref={(c) => (this._CodeEditor = c)} key="CodeEditor-read" />
         {this.renderViewElementExtAction()}
       </RF>
     )
