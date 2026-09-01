@@ -6,7 +6,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
-/* global EasyMDE */
+/* global EasyMDE, autosize */
 
 // ~~ Modal 兼容子元素和 iFrame
 class RbModal extends React.Component {
@@ -1559,6 +1559,7 @@ class CodeEditor extends React.Component {
       <div className={`code-editor ${this.props.readonly && 'cm-readonly'} ${this.props.heightAuto && 'cm-auto-height'}`} ref={(c) => (this._$element = c)}>
         <textarea
           className="form-control formula-code"
+          data-fix-autosize-height={this.props.heightAuto ? '37px' : null}
           spellCheck="false"
           defaultValue={this.props.value || ''}
           ref={(c) => (this._$content = c)}
@@ -1603,7 +1604,6 @@ class CodeEditor extends React.Component {
     if (this._isCode && window.CodeMirror) {
       setTimeout(() => this.initCodeMirror(), 200)
     } else if (this.props.heightAuto) {
-      // eslint-disable-next-line no-undef
       autosize(this._$content)
     }
 
@@ -1665,15 +1665,18 @@ class CodeEditor extends React.Component {
       this._CodeMirror.toTextArea()
       this._CodeMirror = null
     } else if (this.props.heightAuto) {
-      // eslint-disable-next-line no-undef
       autosize.destroy(this._$content)
     }
   }
 
   val() {
     if (arguments.length) {
-      if (this._CodeMirror) this._CodeMirror.setValue(arguments[0])
-      else this._$content.value = arguments[0]
+      if (this._CodeMirror) {
+        this._CodeMirror.setValue(arguments[0])
+      } else {
+        this._$content.value = arguments[0]
+        if (this.props.heightAuto) autosize.update(this._$content)
+      }
     } else {
       if (this._CodeMirror) return this._CodeMirror.getValue()
       else return this._$content.value
