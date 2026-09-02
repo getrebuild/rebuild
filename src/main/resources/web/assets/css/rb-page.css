@@ -6659,6 +6659,10 @@ div.formula-code {
   word-break: break-all !important;
 }
 
+.cm-readonly .CodeMirror-cursor {
+  display: none !important;
+}
+
 .EasyMDEContainer .CodeMirror {
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;

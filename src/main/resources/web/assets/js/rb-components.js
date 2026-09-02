@@ -998,9 +998,12 @@ class RecordSelector extends React.Component {
       this._ReferenceSearcher = null
     }
 
+    // fix:4.4.10 有字段名时使用 reference 搜索以应用附加过滤条件
+    const useRefSearch = props.fieldName && props.fieldEntity
     this.__select2 = $initReferenceSelect2(this._$select, {
-      searchType: 'search',
-      entity: props.entity,
+      searchType: useRefSearch ? 'reference' : 'search',
+      name: props.fieldName,
+      entity: useRefSearch ? props.fieldEntity : props.entity,
       placeholder: props.placeholder || props.entityLabel || undefined,
     }).on('change', (e) => {
       typeof props.onSelect === 'function' && props.onSelect(e.target.value)
@@ -1021,7 +1024,12 @@ class RecordSelector extends React.Component {
       this._ReferenceSearcher.show()
     } else {
       const props = this.state // use state
-      const searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${props.entity}` // be:v4.2 只传实体
+      // fix:4.4.10 有字段名时使用 reference 搜索以应用附加过滤条件
+      const hasField = props.fieldName && props.fieldEntity
+      const fieldParam = hasField ? `${props.fieldName}.${props.fieldEntity}` : props.entity
+      let searchUrl = `${rb.baseUrl}/app/entity/reference-search?field=${fieldParam}`
+      if (hasField) searchUrl += `&referenceDataFilter=${$random()}`
+
       renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择%s', props.entityLabel || '')} useWhite />, function () {
         that._ReferenceSearcher = this
       })
@@ -1573,7 +1581,7 @@ class CodeEditor extends React.Component {
         completeSingle: false,
         useGlobalScope: false,
       },
-      readOnly: this.props.readonly === true ? 'nocursor' : false,
+      readOnly: this.props.readonly === true,
       viewportMargin: Infinity,
       lineWrapping: true,
       ...this.props.cmOptions,
