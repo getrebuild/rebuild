@@ -400,6 +400,28 @@ const COLOR_PALETTES = {
   macarons: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa', '#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050', '#59678c', '#c9ab00'],
 }
 
+// 图表类型图标 (mdi)
+const CHART_TYPE_ICONS = {
+  TABLE: 'mdi-view-module-outline',
+  INDEX: 'mdi-counter',
+  LINE: 'mdi-chart-line',
+  BAR: 'mdi-chart-bar',
+  BAR2: 'mdi-chart-bar-stacked',
+  BAR3: 'mdi-chart-timeline-variant',
+  PARETO: 'mdi-chart-multiple',
+  PIE: 'mdi-chart-pie',
+  FUNNEL: 'mdi-filter-variant',
+  TREEMAP: 'mdi-view-dashboard-outline',
+  RADAR: 'mdi-radar',
+  SCATTER: 'mdi-chart-scatter-plot',
+  DOLOR: 'mdi-cloud-outline',
+  CNMAP: 'mdi-map-outline',
+  DATALIST2: 'mdi-view-list-outline',
+  DataList: 'mdi-view-list-outline',
+  BARNEGATIVE: 'mdi-chart-bar',
+  SUNBURST: 'mdi-chart-donut',
+}
+
 const ECHART_AXIS_LABEL = {
   textStyle: {
     color: '#555',
@@ -2444,7 +2466,7 @@ class ChartSelect extends RbModalHandler {
                   return (
                     <div key={item.id}>
                       <span className="float-left chart-icon">
-                        <i className={`${item.type} ${item.type === 'DataList' && item.id !== '017-9000000000000004' && 'custom'}`} />
+                        <i className={`mdi ${CHART_TYPE_ICONS[item.type] || 'mdi-chart-box-outline'} ${item.type === 'DataList' && item.id !== '017-9000000000000004' && 'custom'}`} />
                       </span>
                       <span className="float-left title">
                         <strong>{item.title}</strong>
