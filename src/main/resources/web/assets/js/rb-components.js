@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
@@ -5,7 +6,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
-/* global EasyMDE */
+/* global EasyMDE, autosize */
 
 // ~~ Modal 兼容子元素和 iFrame
 class RbModal extends React.Component {
@@ -1550,14 +1551,15 @@ class CodeEditor extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this._isCode = true
+    this._isCode = true // 是否使用 CodeMirror
   }
 
   render() {
     return (
-      <div className={`code-editor ${this.props.readonly && 'cm-readonly'}`} ref={(c) => (this._$element = c)}>
+      <div className={`code-editor ${this.props.readonly && 'cm-readonly'} ${this.props.heightAuto && 'cm-auto-height'}`} ref={(c) => (this._$element = c)}>
         <textarea
           className="form-control formula-code"
+          data-fix-autosize-height={this.props.heightAuto ? '37px' : null}
           spellCheck="false"
           defaultValue={this.props.value || ''}
           ref={(c) => (this._$content = c)}
@@ -1599,9 +1601,12 @@ class CodeEditor extends React.Component {
   }
 
   componentDidMount() {
-    if (window.CodeMirror && this._isCode) {
+    if (this._isCode && window.CodeMirror) {
       setTimeout(() => this.initCodeMirror(), 200)
+    } else if (this.props.heightAuto) {
+      autosize(this._$content)
     }
+
     this.props.autoFocus === true && setTimeout(() => this.focus(), 220)
   }
 
@@ -1640,6 +1645,15 @@ class CodeEditor extends React.Component {
     })
 
     this._CodeMirror = cm5
+
+    // 自动高度
+    if (this.props.heightAuto) {
+      $(cm5.getWrapperElement())
+        .find('.CodeMirror-scroll')
+        .each(function () {
+          this.style.setProperty('min-height', '37px', 'important')
+        })
+    }
   }
 
   componentWillUnmount() {
@@ -1650,13 +1664,19 @@ class CodeEditor extends React.Component {
     if (this._CodeMirror) {
       this._CodeMirror.toTextArea()
       this._CodeMirror = null
+    } else if (this.props.heightAuto) {
+      autosize.destroy(this._$content)
     }
   }
 
   val() {
     if (arguments.length) {
-      if (this._CodeMirror) this._CodeMirror.setValue(arguments[0])
-      else this._$content.value = arguments[0]
+      if (this._CodeMirror) {
+        this._CodeMirror.setValue(arguments[0])
+      } else {
+        this._$content.value = arguments[0]
+        if (this.props.heightAuto) autosize.update(this._$content)
+      }
     } else {
       if (this._CodeMirror) return this._CodeMirror.getValue()
       else return this._$content.value

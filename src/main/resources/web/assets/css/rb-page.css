@@ -3735,7 +3735,8 @@ a.user-show:not([href]) {
 }
 
 .preview-modal .preview-header .float-left > h5 {
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .preview-modal .preview-header .float-left > h5 small {
@@ -6483,6 +6484,10 @@ div.formula-code {
   width: 30px;
 }
 
+.rb-scroll-top::before {
+  font-size: 32px;
+}
+
 .rb-scroll-top.show {
   display: block;
   right: 20px;
@@ -6769,6 +6774,22 @@ div.formula-code {
 
 .markdown-body,
 .EasyMDEContainer .CodeMirror-lines {
+  font-size: 13px;
+}
+
+.markdown-body.fs-14 p,
+.markdown-body.fs-14 ul,
+.markdown-body.fs-14 ol,
+.markdown-body.fs-14 dl,
+.markdown-body.fs-14 table,
+.markdown-body.fs-14 details {
+  font-size: 14px;
+}
+
+.markdown-body.fs-14 blockquote p,
+.markdown-body.fs-14 pre,
+.markdown-body.fs-14 code,
+.markdown-body.fs-14 tt {
   font-size: 13px;
 }
 

@@ -9,6 +9,7 @@ package com.rebuild.web.user.signup;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
@@ -20,9 +21,11 @@ import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.UserAvatar;
@@ -35,6 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.rebuild.core.cache.CacheTemplate.TS_HOUR;
 
 /**
  * @author devezhao
@@ -55,6 +60,8 @@ public class LoginAction extends BaseController {
 
     protected static final String PREFIX_2FA = "2FA:";
     protected static final String PREFIX_ALT = "ALT:";
+
+    public static final String CK_PASSWD_GRANT = "PasswdExpiredGrant:";
 
     /**
      * @param request
@@ -130,7 +137,12 @@ public class LoginAction extends BaseController {
 
         // 密码过期剩余时间
         Integer ed = UserService.getPasswdExpiredDayLeft(user);
-        return ed == null || ed > 14 ? null : ed;
+        if (ed != null && ed <= 14) {
+            // 临近过期时发放改密许可标记
+            Application.getCommonsCache().putx(CK_PASSWD_GRANT + user, true, TS_HOUR);
+            return ed;
+        }
+        return null;
     }
 
     /**
@@ -193,5 +205,58 @@ public class LoginAction extends BaseController {
         });
 
         return loginChannel;
+    }
+
+    // --
+
+    /**
+     * 检查用户登录
+     *
+     * @param user
+     * @param password
+     * @return 返回 null 表示成功
+     */
+    public static String checkUser(String user, String password) {
+        if (!Application.getUserStore().existsUser(user)) {
+            return Language.L("用户名或密码错误");
+        }
+
+        User loginUser = Application.getUserStore().getUser(user);
+        if (!loginUser.isActive()
+                || !Application.getPrivilegesManager().allow(loginUser.getId(), ZeroEntry.AllowLogin)) {
+            return Language.L("用户未激活或不允许登录");
+        }
+
+        if (checkPassword(user, password)) return null;
+        return Language.L("用户名或密码错误");
+    }
+
+    /**
+     * 验证密码
+     *
+     * @param userIdent
+     * @param passwd2sha
+     * @return
+     */
+    public static boolean checkPassword(Object userIdent, String passwd2sha) {
+        Object[] o;
+        if (userIdent instanceof ID) {
+            o = Application.createQueryNoFilter(
+                    "select password from User where userId = ?")
+                    .setParameter(1, userIdent)
+                    .unique();
+        } else {
+            o = Application.createQueryNoFilter(
+                    "select password from User where loginName = ? or email = ?")
+                    .setParameter(1, userIdent)
+                    .setParameter(2, userIdent)
+                    .unique();
+        }
+
+        if (o == null || o[0] == null) return false;
+
+        String salt = "iloverb" + CalendarUtils.format("yyyyMMdd", CalendarUtils.now());
+        String hash = EncryptUtils.toSHA256Hex(o[0].toString() + salt);
+        return StringUtils.equals(passwd2sha, hash);
     }
 }

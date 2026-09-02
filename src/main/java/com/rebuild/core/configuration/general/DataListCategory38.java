@@ -109,6 +109,11 @@ public class DataListCategory38 {
             dataList = DataListCategory.instance.datasOptions(useFieldMeta, dt);
             hasChild = categoryFields.size() > fieldIndex + 1;
         }
+        // 单字段适用:状态字段
+        else if (dt == DisplayType.STATE) {
+            dataList = DataListCategory.instance.datasState(useFieldMeta);
+            hasChild = categoryFields.size() > fieldIndex + 1;
+        }
         // 单字段适用:分类字段
         else if (dt == DisplayType.CLASSIFICATION && isSingleLevel) {
             dataList = DataListCategory.instance.datasClassification(useFieldMeta, useFormat);
@@ -147,6 +152,32 @@ public class DataListCategory38 {
                             entity.getPrimaryField().getName(), entity.getName(),
                             buildParentFilters(entity, categoryFields, parentValues));
                     sql += String.format(" and recordId in ( %s )", nestSql);
+                }
+                if (ParseHelper.validAdvFilter(ffConf.getJSONObject("filter"))) {
+                    String where = new AdvFilterParser(ffConf.getJSONObject("filter")).toSqlWhere();
+                    if (where != null) {
+                        sql += String.format(" and recordId in (select %s from %s where %s)",
+                                entity.getPrimaryField().getName(), entity.getName(), where);
+                    }
+                }
+
+            } else if (dt == DisplayType.TAG) {
+                sql = String.format(
+                        "select distinct tagName from TagItem where belongEntity = '%s' and belongField = '%s'",
+                        entity.getName(), useField);
+                // N级
+                if (parentValues != null) {
+                    String nestSql = String.format("select %s from %s where %s",
+                            entity.getPrimaryField().getName(), entity.getName(),
+                            buildParentFilters(entity, categoryFields, parentValues));
+                    sql += String.format(" and recordId in ( %s )", nestSql);
+                }
+                if (ParseHelper.validAdvFilter(ffConf.getJSONObject("filter"))) {
+                    String where = new AdvFilterParser(ffConf.getJSONObject("filter")).toSqlWhere();
+                    if (where != null) {
+                        sql += String.format(" and recordId in (select %s from %s where %s)",
+                                entity.getPrimaryField().getName(), entity.getName(), where);
+                    }
                 }
 
             } else {
@@ -351,7 +382,15 @@ public class DataListCategory38 {
                 continue;
             }
 
-            String simple = String.format("%s = '%s'", fieldName, fieldValue);
+            if (dt == DisplayType.TAG) {
+                String filter = String.format(
+                        "exists (select recordId from TagItem where ^%s = recordId and belongField = '%s' and tagName = '%s')",
+                        entity.getPrimaryField().getName(), fieldMeta.getName(), CommonsUtils.escapeSql(fieldValue));
+                and.add(filter);
+                continue;
+            }
+
+            String simple = String.format("%s = '%s'", fieldName, CommonsUtils.escapeSql(fieldValue));
             and.add(simple);
         }
         return "( " + StringUtils.join(and, " and ") + " )";

@@ -491,10 +491,18 @@ class ValueDescription extends ValueComp {
             setTimeout(() => $renderMermaid($(preview)), 100)
             return marked.parse(plainText)
           },
-          minHeight: 158,
-          maxHeight: 2000,
+          codeMirrorOptions: {
+            viewportMargin: Infinity,
+          },
         })
         this._EasyMDE = mde
+
+        // 自动高度
+        $(mde.codemirror.getWrapperElement())
+          .find('.CodeMirror-scroll')
+          .each(function () {
+            this.style.setProperty('min-height', '30px', 'important')
+          })
 
         $createUploader(this._fieldValue__upload, null, (res) => {
           const pos = mde.codemirror.getCursor()

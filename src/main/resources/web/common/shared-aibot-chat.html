@@ -5,6 +5,9 @@
     <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-size=1,user-scalable=no" />
     <title>[[${subject ?: bundle.L('AI 会话分享')}]]</title>
     <style>
+      html {
+        font-size: 14px;
+      }
       body {
         min-height: auto;
         padding-bottom: 60px;
@@ -46,17 +49,6 @@
       .chat-message .msg-user > .msg-attach > a {
         cursor: default;
       }
-      .chat-message .markdown-body,
-      .chat-message .markdown-body p,
-      .chat-message .markdown-body blockquote,
-      .chat-message .markdown-body ul,
-      .chat-message .markdown-body ol,
-      .chat-message .markdown-body dl,
-      .chat-message .markdown-body table,
-      .chat-message .markdown-body pre,
-      .chat-message .markdown-body details {
-        font-size: 14px;
-      }
     </style>
   </head>
   <body>
@@ -65,11 +57,11 @@
       <h1 class="text-bold">
         [[${subject}]]
         <span class="ml-1 chat-meta">
-          <small class="text-muted">
+          <small class="text-muted fs-12">
             <i class="icon mdi mdi-information-outline"></i>
             [[${bundle.L('内容由 AI 生成')}]]
           </small>
-          <small th:if="${shareByName != null}" class="text-muted"><b> · </b>[[${bundle.L('由 %s 分享', shareByName)}]]</small>
+          <small th:if="${shareByName != null}" class="text-muted fs-12"><b> · </b>[[${bundle.L('由 %s 分享', shareByName)}]]</small>
         </span>
       </h1>
       <div class="rb-loading rb-loading-active must-center J_load-page">
@@ -79,7 +71,7 @@
     </div>
 
     <div th:if="${pageFooter != null}" class="page-footer">
-      <a class="ai-color link" href="https://getrebuild.com/docs/topic/aibot" target="_blank">[(${pageFooter})]</a>
+      <a class="ai-color link" href="https://getrebuild.com/market/go/aibot?s=shared-aibot-chat" target="_blank">[(${pageFooter})]</a>
     </div>
     <div class="rb-scroll-top"></div>
     <th:block th:replace="~{/_include/footer}" />

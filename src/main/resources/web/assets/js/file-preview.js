@@ -34,9 +34,9 @@ class RbPreview extends React.Component {
     if (this.props.richContent) {
       const $node = this.props.richContent
       if ($node.is('.echarts-rendered')) fileName = $L('图表')
-      else if ($node.is('.mermaid')) fileName = 'Mermaid'
+      else if ($node.is('.mermaid')) fileName = '图表'
       else if ($node.is('.html-rendered')) fileName = $L('网页')
-      else fileName = $L('富内容')
+      else fileName = $L('代码')
     } else {
       currentUrl = this.props.urls[this.state.currentIndex]
       fileName = $fileCutName(currentUrl)
@@ -71,7 +71,7 @@ class RbPreview extends React.Component {
         <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''} ${isRich ? 'rich-preview' : ''} file-${$fileExtName(fileName)}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
           <div className="preview-header">
             <div className="float-left">
-              <h5 className="text-bold">
+              <h5>
                 {fileName}
                 {this.props.shareBy && <small className="ml-1">{$L('由 %s 分享', this.props.shareBy)}</small>}
               </h5>
@@ -185,7 +185,7 @@ class RbPreview extends React.Component {
       content = <i className="text-muted">{$L('无')}</i>
     } else if (this.state.previewText) {
       content = showMd ? (
-        <div className="p-4 markdown-body">
+        <div className="p-4 markdown-body fs-14">
           <Md2Html markdown={this.state.previewText} csrfToken={this.props.csrfToken} />
         </div>
       ) : (

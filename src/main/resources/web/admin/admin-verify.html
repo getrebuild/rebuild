@@ -51,6 +51,7 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/sha256.min.js}"></script>
     <script type="text/babel">
       $(document).ready(() => {
         const nexturl = $decode($urlp('nexturl') || '../admin/systems')
@@ -62,7 +63,7 @@
           }
 
           $btn.button('loading')
-          $.post('admin-verify?passwd=******', passwd, (res) => {
+          $.post('admin-verify?passwd=******', $saltText(passwd), (res) => {
             if (res.error_code === 0) {
               location.replace(nexturl)
             } else {

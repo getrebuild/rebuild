@@ -34,7 +34,6 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginAction;
 import com.rebuild.web.user.signup.LoginController;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +44,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+
+import static com.rebuild.web.user.signup.LoginAction.CK_PASSWD_GRANT;
 
 /**
  * 用户设置
@@ -142,8 +143,7 @@ public class UserSettingsController extends BaseController {
         String oldp = p.getString("oldp");
         String newp = p.getString("newp");
 
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(user, "password");
-        if (o == null || !StringUtils.equals((String) o[0], EncryptUtils.toSHA256Hex(oldp))) {
+        if (!LoginAction.checkPassword(user, oldp)) {
             return RespBody.errorl("原密码输入有误");
         }
 
@@ -195,14 +195,21 @@ public class UserSettingsController extends BaseController {
     @PostMapping("/passwd-expired-save")
     public RespBody passwdExpiredSave(@RequestBody JSONObject post, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        String newpasswd = post.getString("newpasswd");
+        if (Application.getCommonsCache().getx(CK_PASSWD_GRANT + user) == null) {
+            return RespBody.errorl("当前无需修改密码，请通过个人设置修改");
+        }
 
-        Object[] oldpasswd = Application.getQueryFactory().uniqueNoFilter(user, "password");
-        if (oldpasswd[0].equals(EncryptUtils.toSHA256Hex(newpasswd))) {
+        String newp = post.getString("newpasswd");
+        Object[] oldp = Application.getQueryFactory().uniqueNoFilter(user, "password");
+        if (oldp[0].equals(EncryptUtils.toSHA256Hex(newp))) {
             return RespBody.errorl("新密码与原密码不能相同");
         }
 
-        return savePasswd(user, newpasswd);
+        RespBody res = savePasswd(user, newp);
+        if (res.getErrorCode() == Controller.CODE_OK) {
+            Application.getCommonsCache().evict(CK_PASSWD_GRANT + user);
+        }
+        return res;
     }
 
     private RespBody savePasswd(ID user, String password) {

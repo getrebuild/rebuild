@@ -85,7 +85,8 @@ $(document).ready(() => {
 
     const $btn = $('.login-submit button').button('loading')
     const url = `/user/user-login?user=${$encode(user)}&passwd=******&autoLogin=${$val('#autoLogin')}&vcode=${vcode || ''}`
-    $.post(url, passwd, (res) => {
+    // eslint-disable-next-line no-undef
+    $.post(url, $saltText(passwd), (res) => {
       if (res.error_code === 0) {
         const nexturl = $decode($urlp('nexturl'))
         let to = nexturl && nexturl.startsWith('http') ? null : nexturl
