@@ -21,6 +21,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
 import com.rebuild.core.aibot2.tool.ToolDefs;
+import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -43,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -102,9 +105,34 @@ public class AiBot2AdminController extends BaseController {
             aibotCount += (Double) o[1];
         }
 
+        // 按用户汇总
+        final String sql2 = "select createdBy,sum(token) from AibotChat" +
+                " where createdOn > ? group by createdBy";
+        Object[][] userTokens = Application.createQueryNoFilter(sql2)
+                .setParameter(1, xday)
+                .array();
+
+        Map<ID, Long> tokenMap = new HashMap<>();
+        for (Object[] o : userTokens) {
+            ID userId = (ID) o[0];
+            long tokenSum = o[1] == null ? 0L : ((Number) o[1]).longValue();
+            tokenMap.merge(userId, tokenSum, Long::sum);
+        }
+
+        List<Object[]> usersList = new ArrayList<>();
+        for (User u : Application.getUserStore().getAllUsers()) {
+            if (!u.isActive()) continue;
+            if (UserHelper.isSystemUser(u.getId())) continue;
+
+            long tokenSum = tokenMap.getOrDefault(u.getId(), 0L);
+            usersList.add(new Object[]{u.getId().toString(), u.getFullName(),
+                    ObjectUtils.round(tokenSum / 10000d, 2)});
+        }
+        usersList.sort((a, b) -> Double.compare((Double) b[2], (Double) a[2]));
+
         return JSONUtils.toJSONObject(
-                new String[]{"aibot", "aibotCount"},
-                new Object[]{aibot, ObjectUtils.round(aibotCount, 2)});
+                new String[]{"aibot", "aibotCount", "aibotUsers"},
+                new Object[]{aibot, ObjectUtils.round(aibotCount, 2), usersList.toArray()});
     }
 
     @GetMapping("aibot/models")

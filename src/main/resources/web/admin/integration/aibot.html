@@ -15,6 +15,30 @@
         font-weight: bold;
         cursor: pointer;
       }
+      .J_stats-users .user-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 13px;
+      }
+      .J_stats-users .user-row .name {
+        width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 0;
+        text-align: right;
+      }
+      .J_stats-users .user-row .progress {
+        flex: 1;
+        margin: 0;
+        margin-left: 10px;
+        height: 8px;
+        border-radius: 4px;
+      }
+      .J_stats-users .user-row .progress-bar {
+        border-radius: 4px;
+      }
     </style>
   </head>
   <body>
@@ -128,6 +152,12 @@
                       <p class="text-muted m-0">[[${bundle.L('万')}]]/Token</p>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div class="card mt-3">
+                <div class="card-header card-header-divider">[[${bundle.L('TOP10 用户榜')}]]</div>
+                <div class="card-body">
+                  <div class="J_stats-users"></div>
                 </div>
               </div>
             </div>
