@@ -12,6 +12,8 @@ import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.bizz.security.member.Team;
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -521,5 +523,23 @@ public class UserHelper {
         String mobile = u.getWorkphone();
         if (!RegexUtils.isCNMobile(mobile)) mobile = u.getName();
         return RegexUtils.isCNMobile(mobile) ? mobile : null;
+    }
+
+    /**
+     * 验证用户密码
+     *
+     * @param userId
+     * @param password 明文密码
+     * @return
+     */
+    public static boolean checkPassword(ID userId, String password) {
+        String salt = "iloverb" + CalendarUtils.format("yyyyMMdd", CalendarUtils.now());
+        String hash = EncryptUtils.toSHA256Hex(EncryptUtils.toSHA256Hex(password + salt));
+        Object[] o = Application.createQueryNoFilter(
+                "select password from User where userId = ?")
+                .setParameter(1, userId)
+                .unique();
+        if (o == null || o[0] == null) return false;
+        return StringUtils.equals((String) o[0], hash);
     }
 }

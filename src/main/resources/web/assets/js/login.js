@@ -59,7 +59,9 @@ $(document).ready(() => {
 
     const $btn = $('.login-submit button').button('loading')
     const url = `/user/user-login?user=${$encode(user)}&passwd=******&autoLogin=${$val('#autoLogin')}&vcode=${vcode || ''}`
-    $.post(url, passwd, (res) => {
+    const _d = new Date()
+    const _salt = 'iloverb' + _d.getFullYear() + ('0' + (_d.getMonth() + 1)).slice(-2) + ('0' + _d.getDate()).slice(-2)
+    $.post(url, sha256(passwd + _salt), (res) => {
       if (res.error_code === 0) {
         const nexturl = $decode($urlp('nexturl'))
         let to = nexturl && nexturl.startsWith('http') ? null : nexturl
