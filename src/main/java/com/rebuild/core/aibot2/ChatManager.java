@@ -109,7 +109,6 @@ public abstract class ChatManager {
 
     /**
      * 直接提问/回答（支持提示词、图片视觉识别）
-     * 内部调用，落库归属 AI 助手
      *
      * @param userContent
      * @param prompt
@@ -180,58 +179,29 @@ public abstract class ChatManager {
     }
 
     /**
-     * 直接提问/回答（无权限）
+     * 直接提问/回答
      *
      * @param userContent
+     * @param source
      * @return
+     * @see #askAsUser(String, String, ID)
      */
-    public static String askWithAibot(String userContent) {
-        return askWithAibot(userContent, null);
-    }
-
-    /**
-     * 直接提问/回答（无权限）
-     *
-     * @param userContent
-     * @param source 调用来源标识（如 Feeds、Wxwork），用于区分会话主题，可为 null
-     * @return
-     */
-    public static String askWithAibot(String userContent, String source) {
-        ID keepCurrentUser = UserContextHolder.setUser(UserService.AIBOT_USER);
-        try {
-            return ask(userContent, null, null, source);
-        } finally {
-            UserContextHolder.clearUser(keepCurrentUser);
-        }
+    public static String askAsAibot(String userContent, String source) {
+        return askAsUser(userContent, source, UserService.AIBOT_USER);
     }
 
     /**
      * 以指定用户身份提问/回答（会话归属该用户，工具按其权限执行）
      *
      * @param userContent
-     * @param source 调用来源标识（如 Feeds、Wxwork），用于区分会话主题，可为 null
-     * @param user 执行用户（需已激活）
+     * @param source
+     * @param user
      * @return
      */
     public static String askAsUser(String userContent, String source, ID user) {
-        String subject = "ASK:" + (StringUtils.isBlank(source) ? "N" : source) + ":" + userContent;
-        ID chatid = initChat(user, subject);
-        Chat chat = new Chat(chatid, null, null);
-
         ID keepCurrentUser = UserContextHolder.setUser(user);
         try {
-            String result = chat.ask(userContent);
-            // 补充 AI 消息后落库
-            chat.completionAfter(result, null, null);
-            return result;
-        } catch (Exception ex) {
-            // 失败时用户消息也落库，避免产生空会话记录（落库失败不掩盖原始异常）
-            try {
-                chat.store();
-            } catch (Exception storeEx) {
-                log.error("Cannot store chat on failure : {}", chatid, storeEx);
-            }
-            throw ex;
+            return ask(userContent, null, null, source);
         } finally {
             UserContextHolder.clearUser(keepCurrentUser);
         }
