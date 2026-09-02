@@ -164,6 +164,7 @@ public class AdminCli4 {
         String name = commands[1];
         if ("clean".equals(name)) {
             Installer.clearAllCache();
+            License.queryAuthority(false);
         } else if ("get".equals(name)) {
             if (commands.length < 3) return "WRAN: Bad arguments";
             String key = commands[2];

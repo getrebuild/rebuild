@@ -46,6 +46,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Collator;
+import java.time.DateTimeException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -388,6 +395,23 @@ public class CommonsUtils {
 
         if (source.length() <= 5) {
             return CalendarUtils.parse(source.substring(0, 4), "yyyy");
+        }
+
+        // be:4.4.10 ISO-8601
+        if (source.contains("T")) {
+            try {
+                TemporalAccessor ta = DateTimeFormatter.ISO_DATE_TIME.parseBest(source,
+                        ZonedDateTime::from, OffsetDateTime::from, LocalDateTime::from);
+                if (ta instanceof ZonedDateTime) {
+                    return Date.from(((ZonedDateTime) ta).toInstant());
+                }
+                if (ta instanceof OffsetDateTime) {
+                    return Date.from(((OffsetDateTime) ta).toInstant());
+                }
+                LocalDateTime ldt = (LocalDateTime) ta;
+                return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+            } catch (DateTimeException ignored) {
+            }
         }
 
         if (source.contains("-") || source.contains("年") || source.contains("/")) {

@@ -129,6 +129,7 @@ public class KVStorage {
         // 0.1. 从命令行
         if (ConfigurationItem.SN.name().equals(key)) {
             value = BootEnvironmentPostProcessor.getProperty(key);
+            if (StringUtils.isNotBlank(value)) return value;
         } else if (ConfigurationItem.inJvmArgs(key)) {
             if (DataDirectory.name().equalsIgnoreCase(key) || RedisDatabase.name().equalsIgnoreCase(key)) {
                 return BootEnvironmentPostProcessor.getProperty(key);

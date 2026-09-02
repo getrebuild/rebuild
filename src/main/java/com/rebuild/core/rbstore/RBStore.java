@@ -53,13 +53,21 @@ public class RBStore {
 
     /**
      * for Skills
-     *
+     * 
      * @param fileUri
      * @return
      */
     public static JSON fetchSkills(String fileUri) {
         return fetchRemoteJson("skills/" +
                 StringUtils.defaultIfBlank(fileUri, "index.json"));
+    }
+
+    /**
+     * for Holidays
+     * 
+     */
+    public static JSON fetchHolidays(String fileUri) {
+        return fetchRemoteJson("holidays/" + fileUri);
     }
 
     /**
