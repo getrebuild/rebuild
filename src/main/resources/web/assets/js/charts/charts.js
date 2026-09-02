@@ -822,8 +822,8 @@ class ChartRank extends ChartBar {
     const numItems = (data.xAxis || []).length
     if (numItems === 0) return option
 
-    const barH = 14
-    const catGap = 7
+    const barH = 16
+    const catGap = 8
     const bandH = barH + catGap * 2
 
     let chartH = 0
@@ -841,13 +841,31 @@ class ChartRank extends ChartBar {
     option.yAxis.inverse = true
 
     const radius = [0, 6, 6, 0]
+    const rankColors = ['#F5A623', '#9E9E9E', '#CD7F32']
+    const baseColor = (option.color && option.color[0]) || RBCOLORS[0]
+
     option.series.forEach((s) => {
       s.barWidth = barH
       s.barCategoryGap = catGap
-      s.itemStyle = { ...(s.itemStyle || {}), borderRadius: radius }
+      s.itemStyle = {
+        ...(s.itemStyle || {}),
+        borderRadius: radius,
+        color: (p) => (p.dataIndex < 3 ? rankColors[p.dataIndex] : baseColor),
+      }
       s.showBackground = true
       s.backgroundStyle = { color: '#f0f0f0', borderRadius: radius }
     })
+
+    const _axisLabel = option.yAxis.axisLabel || {}
+    option.yAxis.axisLabel = {
+      ..._axisLabel,
+      formatter: (val, idx) => (idx < 3 ? `{r${idx}|${idx + 1}. ${val}}` : `${idx + 1}. ${val}`),
+      rich: {
+        r0: { color: rankColors[0], fontWeight: 'bold' },
+        r1: { color: rankColors[1], fontWeight: 'bold' },
+        r2: { color: rankColors[2], fontWeight: 'bold' },
+      },
+    }
 
     if (numItems > visibleItems) {
       option.dataZoom = [
