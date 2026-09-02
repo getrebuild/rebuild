@@ -793,6 +793,8 @@ class ChartRank extends ChartBar {
       ...y,
       data: indices.map((i) => y.data[i]),
     }))
+    // 排行榜仅支持单数值系列，多余系列丢弃
+    sortedYyyAxis = sortedYyyAxis.slice(0, 1)
 
     // 限制条数
     if (pageSize > 0 && sortedXAxis.length > pageSize) {
@@ -814,6 +816,52 @@ class ChartRank extends ChartBar {
     }
 
     super.renderChart(sortedData)
+  }
+
+  _renderChartBarBefore(option, data) {
+    const numItems = (data.xAxis || []).length
+    if (numItems === 0) return option
+
+    const barH = 14
+    const catGap = 7
+    const bandH = barH + catGap * 2
+
+    let chartH = 0
+    const $chart = this._$body && this._$body.querySelector('.chart')
+    if ($chart) chartH = $chart.clientHeight
+    if (!chartH || chartH < 60) chartH = 320
+    const gridTop = (option.grid && option.grid.top) || 30
+    const gridBottom = (option.grid && option.grid.bottom) || 30
+    const availH = Math.max(bandH, chartH - gridTop - gridBottom)
+
+    const visibleItems = Math.max(1, Math.floor(availH / bandH))
+    const displayItems = Math.min(numItems, visibleItems)
+
+    option.grid.height = displayItems * bandH
+    option.yAxis.inverse = true
+
+    const radius = [0, 6, 6, 0]
+    option.series.forEach((s) => {
+      s.barWidth = barH
+      s.barCategoryGap = catGap
+      s.itemStyle = { ...(s.itemStyle || {}), borderRadius: radius }
+      s.showBackground = true
+      s.backgroundStyle = { color: '#f0f0f0', borderRadius: radius }
+    })
+
+    if (numItems > visibleItems) {
+      option.dataZoom = [
+        {
+          type: 'inside',
+          yAxisIndex: 0,
+          zoomLock: true,
+          start: 0,
+          end: (visibleItems / numItems) * 100,
+        },
+      ]
+    }
+
+    return option
   }
 }
 
