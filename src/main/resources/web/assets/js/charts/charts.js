@@ -815,37 +815,6 @@ class ChartRank extends ChartBar {
 
     super.renderChart(sortedData)
   }
-
-  _renderChartBarBefore(option) {
-    // 反转 Y 轴让第 1 名在顶部
-    option.yAxis.inverse = true
-    // 隐藏数值轴（X 轴）的轴线和标签
-    option.xAxis.axisLine.show = false
-    option.xAxis.axisLabel.show = false
-    option.xAxis.splitLine = { show: false }
-    // 固定柱子高度和间距
-    const numItems = (option.yAxis.data || []).length
-    const barH = 20
-    const gap = 8
-    option.series.forEach((s) => {
-      s.barWidth = barH
-      s.barCategoryGap = gap
-    })
-    // 数据过多时滚动查看
-    const visibleItems = Math.max(1, Math.floor(280 / (barH + gap * 2)))
-    if (numItems > visibleItems) {
-      option.dataZoom = [
-        {
-          type: 'inside',
-          yAxisIndex: 0,
-          zoomLock: true,
-          start: 0,
-          end: (visibleItems / numItems) * 100,
-        },
-      ]
-    }
-    return option
-  }
 }
 
 // 堆叠柱状图
