@@ -204,4 +204,36 @@ public abstract class ChatManager {
             UserContextHolder.clearUser(keepCurrentUser);
         }
     }
+
+    /**
+     * 以指定用户身份提问/回答（会话归属该用户，工具按其权限执行）
+     *
+     * @param userContent
+     * @param source 调用来源标识（如 Feeds、Wxwork），用于区分会话主题，可为 null
+     * @param user 执行用户（需已激活）
+     * @return
+     */
+    public static String askAsUser(String userContent, String source, ID user) {
+        String subject = "ASK:" + (StringUtils.isBlank(source) ? "N" : source) + ":" + userContent;
+        ID chatid = initChat(user, subject);
+        Chat chat = new Chat(chatid, null, null);
+
+        ID keepCurrentUser = UserContextHolder.setUser(user);
+        try {
+            String result = chat.ask(userContent);
+            // 补充 AI 消息后落库
+            chat.completionAfter(result, null, null);
+            return result;
+        } catch (Exception ex) {
+            // 失败时用户消息也落库，避免产生空会话记录（落库失败不掩盖原始异常）
+            try {
+                chat.store();
+            } catch (Exception storeEx) {
+                log.error("Cannot store chat on failure : {}", chatid, storeEx);
+            }
+            throw ex;
+        } finally {
+            UserContextHolder.clearUser(keepCurrentUser);
+        }
+    }
 }
