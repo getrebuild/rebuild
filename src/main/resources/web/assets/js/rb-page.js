@@ -1883,3 +1883,10 @@ function $renderMermaid($container) {
 
   $useMermaid(doRender)
 }
+
+function $saltText(text) {
+  const _d = new Date()
+  const _salt = 'iloverb' + _d.getFullYear() + ('0' + (_d.getMonth() + 1)).slice(-2) + ('0' + _d.getDate()).slice(-2)
+  // eslint-disable-next-line no-undef
+  return sha256(sha256(text) + _salt)
+}

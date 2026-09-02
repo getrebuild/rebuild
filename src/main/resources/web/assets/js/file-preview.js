@@ -71,7 +71,7 @@ class RbPreview extends React.Component {
         <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''} ${isRich ? 'rich-preview' : ''} file-${$fileExtName(fileName)}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
           <div className="preview-header">
             <div className="float-left">
-              <h5 className="text-bold">
+              <h5>
                 {fileName}
                 {this.props.shareBy && <small className="ml-1">{$L('由 %s 分享', this.props.shareBy)}</small>}
               </h5>

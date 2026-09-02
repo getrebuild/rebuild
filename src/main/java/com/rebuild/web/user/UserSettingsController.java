@@ -34,7 +34,6 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginAction;
 import com.rebuild.web.user.signup.LoginController;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -142,8 +141,7 @@ public class UserSettingsController extends BaseController {
         String oldp = p.getString("oldp");
         String newp = p.getString("newp");
 
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(user, "password");
-        if (o == null || !StringUtils.equals((String) o[0], EncryptUtils.toSHA256Hex(oldp))) {
+        if (!LoginAction.checkPassword(user, oldp)) {
             return RespBody.errorl("原密码输入有误");
         }
 
@@ -195,14 +193,15 @@ public class UserSettingsController extends BaseController {
     @PostMapping("/passwd-expired-save")
     public RespBody passwdExpiredSave(@RequestBody JSONObject post, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        String newpasswd = post.getString("newpasswd");
 
-        Object[] oldpasswd = Application.getQueryFactory().uniqueNoFilter(user, "password");
-        if (oldpasswd[0].equals(EncryptUtils.toSHA256Hex(newpasswd))) {
+        // FIXME 验证旧密码
+        String newp = post.getString("newpasswd");
+        Object[] oldp = Application.getQueryFactory().uniqueNoFilter(user, "password");
+        if (oldp[0].equals(EncryptUtils.toSHA256Hex(newp))) {
             return RespBody.errorl("新密码与原密码不能相同");
         }
 
-        return savePasswd(user, newpasswd);
+        return savePasswd(user, newp);
     }
 
     private RespBody savePasswd(ID user, String password) {

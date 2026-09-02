@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin;
 
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -19,6 +18,7 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.SysbaseHeartbeat;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.user.signup.LoginAction;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,13 +60,7 @@ public class AdminVerfiyController extends BaseController {
         Assert.isTrue(UserHelper.isAdmin(admin), Language.L("非管理员用户"));
 
         String passwd = ServletUtils.getRequestString(request);
-
-        Object[] adminUser = Application.createQueryNoFilter(
-                "select password from User where userId = ?")
-                .setParameter(1, admin)
-                .unique();
-
-        if (adminUser[0].equals(EncryptUtils.toSHA256Hex(passwd))) {
+        if (LoginAction.checkPassword(admin, passwd)) {
             ServletUtils.setSessionAttribute(request, KEY_VERIFIED, CalendarUtils.now());
             return RespBody.ok();
         } else {

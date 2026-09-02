@@ -222,7 +222,8 @@ class DlgChangePasswd extends RbFormHandler {
     if (s.newPasswd !== s.newPasswdAgain) return RbHighbar.create($L('两次输入的新密码不一致'))
 
     const $btn = $(this._$btn).find('.btn').button('loading')
-    $.post('/settings/user/save-passwd', JSON.stringify({ oldp: s.oldPasswd, newp: s.newPasswd }), (res) => {
+    // eslint-disable-next-line no-undef
+    $.post('/settings/user/save-passwd', JSON.stringify({ oldp: $saltText(s.oldPasswd), newp: s.newPasswd }), (res) => {
       if (res.error_code === 0) {
         // this.hide()
         RbHighbar.success($L('修改成功'))

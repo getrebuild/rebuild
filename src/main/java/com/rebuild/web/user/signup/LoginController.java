@@ -13,13 +13,11 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
-import com.rebuild.api.user.LoginToken;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseHeartbeat;
@@ -45,7 +43,17 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.rebuild.core.cache.CacheTemplate.TS_MINTE;
+import static com.rebuild.core.support.ConfigurationItem.DesktopAppPath;
+import static com.rebuild.core.support.ConfigurationItem.DingtalkAppkey;
+import static com.rebuild.core.support.ConfigurationItem.FeishuAppId;
+import static com.rebuild.core.support.ConfigurationItem.LiveWallpaper;
+import static com.rebuild.core.support.ConfigurationItem.Login2FAMode;
 import static com.rebuild.core.support.ConfigurationItem.LoginBulletinBoard;
+import static com.rebuild.core.support.ConfigurationItem.LoginCaptchaPolicy;
+import static com.rebuild.core.support.ConfigurationItem.MobileAppPath;
+import static com.rebuild.core.support.ConfigurationItem.SecurityEnhanced;
+import static com.rebuild.core.support.ConfigurationItem.WxworkCorpid;
 import static com.rebuild.web.commons.LanguageController.putLocales;
 
 /**
@@ -111,7 +119,7 @@ public class LoginController extends LoginAction {
         putLocales(mv, AppUtils.getReuqestLocale(request));
 
         // 验证码
-        if (RebuildConfiguration.getInt(ConfigurationItem.LoginCaptchaPolicy) == 2) {
+        if (RebuildConfiguration.getInt(LoginCaptchaPolicy) == 2) {
             ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
         }
 
@@ -119,21 +127,21 @@ public class LoginController extends LoginAction {
         String mobileUrl = RebuildConfiguration.getMobileUrl("/");
         mv.getModel().put("mobileUrl", mobileUrl);
         // App
-        if (RebuildConfiguration.get(ConfigurationItem.MobileAppPath) != null) {
+        if (RebuildConfiguration.get(MobileAppPath) != null) {
             mv.getModel().put("mobileUrl", RebuildConfiguration.getHomeUrl("apps-download?type=mobile"));
         }
         // Desktop App
-        if (RebuildConfiguration.get(ConfigurationItem.DesktopAppPath) != null) {
+        if (RebuildConfiguration.get(DesktopAppPath) != null) {
             mv.getModel().put("desktopAppUrl", RebuildConfiguration.getHomeUrl("apps-download?type=desktop"));
         }
 
         if (License.isRbvAttached()) {
             // DingTalk
-            mv.getModel().put("ssoDingtalk", RebuildConfiguration.get(ConfigurationItem.DingtalkAppkey));
+            mv.getModel().put("ssoDingtalk", RebuildConfiguration.get(DingtalkAppkey));
             // WxWork
-            mv.getModel().put("ssoWxwork", RebuildConfiguration.get(ConfigurationItem.WxworkCorpid));
+            mv.getModel().put("ssoWxwork", RebuildConfiguration.get(WxworkCorpid));
             // Feishu
-            mv.getModel().put("ssoFeishu", RebuildConfiguration.get(ConfigurationItem.FeishuAppId));
+            mv.getModel().put("ssoFeishu", RebuildConfiguration.get(FeishuAppId));
         } else {
             mv.getModel().put("ssoDingtalk", "#");
             mv.getModel().put("ssoWxwork", "#");
@@ -166,7 +174,7 @@ public class LoginController extends LoginAction {
             return RespBody.error("VCODE");
         }
 
-        String hasError = LoginToken.checkUser(user, password);
+        String hasError = LoginAction.checkUser(user, password);
         if (hasError != null) {
             return RespBody.error(hasError);
         }
@@ -190,13 +198,13 @@ public class LoginController extends LoginAction {
         Map<String, Object> resMap = new HashMap<>();
 
         // 2FA
-        int faMode = RebuildConfiguration.getInt(ConfigurationItem.Login2FAMode);
-        boolean faModeSkip = UserHelper.isSuperAdmin(loginUser.getId()) && !RebuildConfiguration.getBool(ConfigurationItem.SecurityEnhanced);
+        int faMode = RebuildConfiguration.getInt(Login2FAMode);
+        boolean faModeSkip = UserHelper.isSuperAdmin(loginUser.getId()) && !RebuildConfiguration.getBool(SecurityEnhanced);
         if (faMode > 0 && !faModeSkip) {
             resMap.put("login2FaMode", faMode);
 
             final String userToken = CodecUtils.randomCode(40);
-            Application.getCommonsCache().putx(PREFIX_2FA + userToken, loginUser.getId(), CommonsCache.TS_MINTE * 15);
+            Application.getCommonsCache().putx(PREFIX_2FA + userToken, loginUser.getId(), TS_MINTE * 15);
             resMap.put("login2FaUserToken", userToken);
 
             if (isRbMobile) {
@@ -270,7 +278,7 @@ public class LoginController extends LoginAction {
 
     @GetMapping("live-wallpaper")
     public RespBody getLiveWallpaper() {
-        if (!RebuildConfiguration.getBool(ConfigurationItem.LiveWallpaper)) {
+        if (!RebuildConfiguration.getBool(LiveWallpaper)) {
             return RespBody.ok();
         }
 

@@ -3735,7 +3735,8 @@ a.user-show:not([href]) {
 }
 
 .preview-modal .preview-header .float-left > h5 {
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .preview-modal .preview-header .float-left > h5 small {
