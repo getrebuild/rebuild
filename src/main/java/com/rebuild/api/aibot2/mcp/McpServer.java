@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.md.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -160,13 +161,15 @@ public class McpServer {
         JSONObject text = new JSONObject(true);
         text.put("type", "text");
         try {
-            text.put("text", ToolDefs.execute(name, args.toJSONString()));
+            String resp = ToolDefs.execute(name, args.toJSONString());
+            text.put("text", MarkdownUtils.rewriteFileUrls(resp));
             result.put("isError", false);
         } catch (Exception ex) {
             log.error("MCP tools/call error : {}", name, ex);
             text.put("text", CommonsUtils.getRootMessage(ex));
             result.put("isError", true);
         }
+
         content.add(text);
         result.put("content", content);
         return result;
