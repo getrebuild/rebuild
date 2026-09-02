@@ -558,17 +558,26 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-list > div .chart-icon {
   width: 48px;
   text-align: center;
+  margin-top: 5px;
 }
 
 .chart-list > div .chart-icon > i {
   width: 32px;
-  height: 32px;
+  height: 36px;
+  line-height: 36px;
   display: inline-block;
-  margin-top: 7px;
   text-align: center;
-  font-size: 27px;
-  line-height: 32px;
+  font-size: 20px;
   color: #4285f4;
+}
+
+.chart-list > div .chart-icon[data-type='INDEX'] > i {
+  font-size: 21px;
+}
+
+.chart-list > div .chart-icon[data-type='TABLE'] > i,
+.chart-list > div .chart-icon[data-type='DATALIST2'] > i {
+  font-size: 24px;
 }
 
 .sortable-box.h200 {

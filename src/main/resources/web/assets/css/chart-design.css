@@ -370,9 +370,18 @@ a.ui-draggable.ui-draggable-dragging {
   height: 32px;
   display: inline-block;
   text-align: center;
-  font-size: 25px;
   line-height: 32px;
   color: #ddd;
+  font-size: 20px;
+}
+
+.chart-type > a[data-type='INDEX'] > i {
+  font-size: 21px;
+}
+
+.chart-type > a[data-type='TABLE'] > i,
+.chart-type > a[data-type='DATALIST2'] > i {
+  font-size: 24px;
 }
 
 .chart-type > a.active > i {

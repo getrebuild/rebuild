@@ -400,7 +400,7 @@ const COLOR_PALETTES = {
   macarons: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa', '#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050', '#59678c', '#c9ab00'],
 }
 
-// 图表类型图标 (mdi)
+// 图表类型图标
 const CHART_TYPE_ICONS = {
   TABLE: 'mdi-view-module-outline',
   INDEX: 'mdi-counter',
@@ -420,6 +420,7 @@ const CHART_TYPE_ICONS = {
   DataList: 'mdi-view-list-outline',
   BARNEGATIVE: 'mdi-chart-bar',
   SUNBURST: 'mdi-chart-donut',
+  RANK: 'mdi-trophy-variant',
 }
 
 const ECHART_AXIS_LABEL = {
@@ -764,6 +765,85 @@ class ChartBar extends BaseChart {
   }
 
   _renderChartBarBefore(option) {
+    return option
+  }
+}
+
+// 排行榜
+class ChartRank extends ChartBar {
+  renderChart(data) {
+    if (data.xAxis.length === 0) {
+      this.renderError($L('暂无数据'))
+      return
+    }
+
+    const pageSize = data._renderOption && data._renderOption.pageSize ? ~~data._renderOption.pageSize : 0
+    const yyyAxis = data.yyyAxis || []
+
+    // 按第一个数值降序排序
+    const indices = data.xAxis.map((_, i) => i)
+    indices.sort((a, b) => {
+      const va = parseFloat((yyyAxis[0] && yyyAxis[0].data[a]) || 0) || 0
+      const vb = parseFloat((yyyAxis[0] && yyyAxis[0].data[b]) || 0) || 0
+      return vb - va
+    })
+
+    let sortedXAxis = indices.map((i) => data.xAxis[i])
+    let sortedYyyAxis = yyyAxis.map((y) => ({
+      ...y,
+      data: indices.map((i) => y.data[i]),
+    }))
+
+    // 限制条数
+    if (pageSize > 0 && sortedXAxis.length > pageSize) {
+      sortedXAxis = sortedXAxis.slice(0, pageSize)
+      sortedYyyAxis = sortedYyyAxis.map((y) => ({
+        ...y,
+        data: y.data.slice(0, pageSize),
+      }))
+    }
+
+    const sortedData = {
+      ...data,
+      xAxis: sortedXAxis,
+      yyyAxis: sortedYyyAxis,
+      _renderOption: {
+        ...(data._renderOption || {}),
+        showHorizontal: true,
+      },
+    }
+
+    super.renderChart(sortedData)
+  }
+
+  _renderChartBarBefore(option) {
+    // 反转 Y 轴让第 1 名在顶部
+    option.yAxis.inverse = true
+    // 隐藏数值轴（X 轴）的轴线和标签
+    option.xAxis.axisLine.show = false
+    option.xAxis.axisLabel.show = false
+    option.xAxis.splitLine = { show: false }
+    // 固定柱子高度和间距
+    const numItems = (option.yAxis.data || []).length
+    const barH = 20
+    const gap = 8
+    option.series.forEach((s) => {
+      s.barWidth = barH
+      s.barCategoryGap = gap
+    })
+    // 数据过多时滚动查看
+    const visibleItems = Math.max(1, Math.floor(280 / (barH + gap * 2)))
+    if (numItems > visibleItems) {
+      option.dataZoom = [
+        {
+          type: 'inside',
+          yAxisIndex: 0,
+          zoomLock: true,
+          start: 0,
+          end: (visibleItems / numItems) * 100,
+        },
+      ]
+    }
     return option
   }
 }
@@ -1157,7 +1237,8 @@ class ApprovalList extends BaseChart {
                 onClick={() => {
                   this.renderChart(data, item[0])
                 }}>
-                {s[1]} ({item[1]}{item[1] >= 500 ? '+' : ''})
+                {s[1]} ({item[1]}
+                {item[1] >= 500 ? '+' : ''})
               </div>
             )
           })}
@@ -2367,6 +2448,8 @@ const detectChart = function (conf, id) {
     return <ChartPareto {...props} />
   } else if (conf.type === 'PIE') {
     return <ChartPie {...props} />
+  } else if (conf.type === 'RANK') {
+    return <ChartRank {...props} />
   } else if (conf.type === 'FUNNEL') {
     return <ChartFunnel {...props} />
   } else if (conf.type === 'TREEMAP') {
@@ -2465,8 +2548,8 @@ class ChartSelect extends RbModalHandler {
 
                   return (
                     <div key={item.id}>
-                      <span className="float-left chart-icon">
-                        <i className={`mdi ${CHART_TYPE_ICONS[item.type] || 'mdi-chart-box-outline'} ${item.type === 'DataList' && item.id !== '017-9000000000000004' && 'custom'}`} />
+                      <span className="float-left chart-icon" data-type={item.type}>
+                        <i className={`mdi ${CHART_TYPE_ICONS[item.type] || 'mdi-square-outline mdi-rotate-45 text-muted'}`} />
                       </span>
                       <span className="float-left title">
                         <strong>{item.title}</strong>
