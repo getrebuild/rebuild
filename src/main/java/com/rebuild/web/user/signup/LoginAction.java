@@ -39,6 +39,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.rebuild.core.cache.CacheTemplate.TS_HOUR;
+
 /**
  * @author devezhao
  * @since 2022/3/4
@@ -58,6 +60,8 @@ public class LoginAction extends BaseController {
 
     protected static final String PREFIX_2FA = "2FA:";
     protected static final String PREFIX_ALT = "ALT:";
+
+    public static final String CK_PASSWD_GRANT = "PasswdExpiredGrant:";
 
     /**
      * @param request
@@ -133,7 +137,12 @@ public class LoginAction extends BaseController {
 
         // 密码过期剩余时间
         Integer ed = UserService.getPasswdExpiredDayLeft(user);
-        return ed == null || ed > 14 ? null : ed;
+        if (ed != null && ed <= 14) {
+            // 临近过期时发放改密许可标记
+            Application.getCommonsCache().putx(CK_PASSWD_GRANT + user, true, TS_HOUR);
+            return ed;
+        }
+        return null;
     }
 
     /**

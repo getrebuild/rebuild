@@ -14,8 +14,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
-import com.rebuild.core.cache.CacheTemplate;
-import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.License;
@@ -43,6 +41,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.rebuild.core.cache.CacheTemplate.TS_HOUR;
 import static com.rebuild.core.cache.CacheTemplate.TS_MINTE;
 import static com.rebuild.core.support.ConfigurationItem.DesktopAppPath;
 import static com.rebuild.core.support.ConfigurationItem.DingtalkAppkey;
@@ -222,10 +221,13 @@ public class LoginController extends LoginAction {
             if (ed != null) {
                 resMap.put("passwdExpiredDays", ed);
             } else {
-                // v4.3 TODO 仅在 PC 正常登录时有效
                 final String mcpKey = "MustChangePwd:" + user;
                 String mcpType = Application.getCommonsCache().get(mcpKey);
-                if (mcpType != null) resMap.put("passwdSafeType", mcpType);
+                if (mcpType != null) {
+                    resMap.put("passwdSafeType", mcpType);
+                    // 发放改密许可标记
+                    Application.getCommonsCache().putx(CK_PASSWD_GRANT + user, true, TS_HOUR);
+                }
             }
         }
         return RespBody.ok(resMap);
@@ -242,7 +244,7 @@ public class LoginController extends LoginAction {
         retry = retry == null ? 0 : retry;
         if (state == 1) {
             retry += 1;
-            Application.getCommonsCache().putx(ckey, retry, CommonsCache.TS_HOUR);
+            Application.getCommonsCache().putx(ckey, retry, TS_HOUR);
         }
         return retry;
     }
@@ -300,7 +302,7 @@ public class LoginController extends LoginAction {
         // 兼容跨域
         String mobKey = request.getParameter("k");
         if (StringUtils.isNotBlank(mobKey)) {
-            Application.getCommonsCache().put("MobKey" + mobKey, captcha.text(), CacheTemplate.TS_HOUR / 60);
+            Application.getCommonsCache().put("MobKey" + mobKey, captcha.text(), TS_HOUR / 60);
         }
     }
 

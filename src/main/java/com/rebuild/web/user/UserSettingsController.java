@@ -45,6 +45,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
+import static com.rebuild.web.user.signup.LoginAction.CK_PASSWD_GRANT;
+
 /**
  * 用户设置
  *
@@ -193,15 +195,21 @@ public class UserSettingsController extends BaseController {
     @PostMapping("/passwd-expired-save")
     public RespBody passwdExpiredSave(@RequestBody JSONObject post, HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        if (Application.getCommonsCache().getx(CK_PASSWD_GRANT + user) == null) {
+            return RespBody.errorl("当前无需修改密码，请通过个人设置修改");
+        }
 
-        // FIXME 验证旧密码
         String newp = post.getString("newpasswd");
         Object[] oldp = Application.getQueryFactory().uniqueNoFilter(user, "password");
         if (oldp[0].equals(EncryptUtils.toSHA256Hex(newp))) {
             return RespBody.errorl("新密码与原密码不能相同");
         }
 
-        return savePasswd(user, newp);
+        RespBody res = savePasswd(user, newp);
+        if (res.getErrorCode() == Controller.CODE_OK) {
+            Application.getCommonsCache().evict(CK_PASSWD_GRANT + user);
+        }
+        return res;
     }
 
     private RespBody savePasswd(ID user, String password) {
