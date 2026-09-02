@@ -41,7 +41,6 @@ public class CommandArgs {
 
     // v4.1
     public static final String _StartEntityTypeCode = "_StartEntityTypeCode";
-    public static final String _InitScriptEngine = "_InitScriptEngine";
 
     // v4.2
     public static final String _AdminDownload = "_AdminDownload";
