@@ -140,13 +140,13 @@ public class FileData implements VectorData {
         String askContent = "请详细描述这张图片中的内容，包括所有可见的文字、数据、表格、界面元素等信息";
 
         if (mimeType.startsWith("image/")) {
-            return ChatManager.ask(askContent, null, Collections.singletonList(file));
+            return ChatManager.ask(askContent, null, Collections.singletonList(file), "FileData");
         } else {
             List<File> pageImages = renderPdfToImages(file);
             if (pageImages.isEmpty()) return null;
 
             try {
-                return ChatManager.ask(askContent, null, pageImages);
+                return ChatManager.ask(askContent, null, pageImages, "FileData");
             } finally {
                 pageImages.forEach(FileUtils::deleteQuietly);
             }

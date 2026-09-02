@@ -104,7 +104,7 @@ public abstract class ChatManager {
      * @return
      */
     public static String ask(String userContent) {
-        return ask(userContent, null, null);
+        return ask(userContent, null, null, null);
     }
 
     /**
@@ -117,36 +117,61 @@ public abstract class ChatManager {
      * @return
      */
     public static String ask(String userContent, String prompt, List<File> imageFiles) {
-        ID chatid = initChat(UserService.AIBOT_USER, "AIASK-" + userContent);
+        return ask(userContent, prompt, imageFiles, null);
+    }
+
+    /**
+     * 直接提问/回答（支持提示词、图片视觉识别）
+     * 内部调用，落库归属 AI 助手
+     *
+     * @param userContent
+     * @param prompt
+     * @param imageFiles
+     * @param source
+     * @return
+     */
+    public static String ask(String userContent, String prompt, List<File> imageFiles, String source) {
+        String subject = "ASK:" + (StringUtils.isBlank(source) ? "N" : source) + ":" + userContent;
+        ID chatid = initChat(UserService.AIBOT_USER, subject);
         Chat chat = new Chat(chatid, null, prompt);
 
         String result;
-        if (CollectionUtils.isEmpty(imageFiles)) {
-            result = chat.ask(userContent);
-        } else {
-            // 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
-            List<ChatCompletionContentPart> parts = new ArrayList<>();
-            parts.add(ChatCompletionContentPart.ofText(
-                    ChatCompletionContentPartText.builder().text(userContent).build()));
+        try {
+            if (CollectionUtils.isEmpty(imageFiles)) {
+                result = chat.ask(userContent);
+            } else {
+                // 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
+                List<ChatCompletionContentPart> parts = new ArrayList<>();
+                parts.add(ChatCompletionContentPart.ofText(
+                        ChatCompletionContentPartText.builder().text(userContent).build()));
 
-            for (File imageFile : imageFiles) {
-                String base64 = CommonsUtils.fileToBase64(imageFile);
-                String mimeType;
-                try {
-                    mimeType = Config.TIKA.detect(imageFile);
-                } catch (IOException e) {
-                    mimeType = "image/png";
-                    log.warn("Failed to detect image mime type, fallback to png : {}", imageFile.getName(), e);
+                for (File imageFile : imageFiles) {
+                    String base64 = CommonsUtils.fileToBase64(imageFile);
+                    String mimeType;
+                    try {
+                        mimeType = Config.TIKA.detect(imageFile);
+                    } catch (IOException e) {
+                        mimeType = "image/png";
+                        log.warn("Failed to detect image mime type, fallback to png : {}", imageFile.getName(), e);
+                    }
+
+                    String dataUrl = String.format("data:%s;base64,%s", mimeType, base64);
+                    parts.add(ChatCompletionContentPart.ofImageUrl(
+                            ChatCompletionContentPartImage.builder()
+                                    .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder().url(dataUrl).build())
+                                    .build()));
                 }
 
-                String dataUrl = String.format("data:%s;base64,%s", mimeType, base64);
-                parts.add(ChatCompletionContentPart.ofImageUrl(
-                        ChatCompletionContentPartImage.builder()
-                                .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder().url(dataUrl).build())
-                                .build()));
+                result = chat.ask(userContent, parts);
             }
-
-            result = chat.ask(userContent, parts);
+        } catch (Exception ex) {
+            // 失败时用户消息也落库，避免产生空会话记录（落库失败不掩盖原始异常）
+            try {
+                chat.store();
+            } catch (Exception storeEx) {
+                log.error("Cannot store chat on failure : {}", chatid, storeEx);
+            }
+            throw ex;
         }
 
         // 补充 AI 消息后落库
@@ -161,9 +186,20 @@ public abstract class ChatManager {
      * @return
      */
     public static String askWithAibot(String userContent) {
+        return askWithAibot(userContent, null);
+    }
+
+    /**
+     * 直接提问/回答（无权限）
+     *
+     * @param userContent
+     * @param source 调用来源标识（如 Feeds、Wxwork），用于区分会话主题，可为 null
+     * @return
+     */
+    public static String askWithAibot(String userContent, String source) {
         ID keepCurrentUser = UserContextHolder.setUser(UserService.AIBOT_USER);
         try {
-            return ask(userContent);
+            return ask(userContent, null, null, source);
         } finally {
             UserContextHolder.clearUser(keepCurrentUser);
         }

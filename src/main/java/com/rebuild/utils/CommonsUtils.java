@@ -186,7 +186,7 @@ public class CommonsUtils {
      * @see org.springframework.util.ResourceUtils#getFile(URI)
      */
     public static InputStream getStreamOfRes(String file) throws IOException {
-        return new ClassPathResource(file).getInputStream();
+        return new ClassPathResource(file, CommonsUtils.class.getClassLoader()).getInputStream();
     }
 
     /**

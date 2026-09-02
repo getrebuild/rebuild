@@ -124,7 +124,7 @@ public abstract class BaseFeedsService extends ObservableService {
                 String aiReply;
                 if (Config.availableAiBot()) {
                     try {
-                        aiReply = ChatManager.askWithAibot("请直接、简洁的回答问题（不要MD格式）：\n" + content);
+                        aiReply = ChatManager.askWithAibot("请直接、简洁的回答问题（不要MD格式）：\n" + content, "BaseFeedsService");
                     } catch (Exception ex) {
                         log.error("AiBot error during ask", ex);
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);

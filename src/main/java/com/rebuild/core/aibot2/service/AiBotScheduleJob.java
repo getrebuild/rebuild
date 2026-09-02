@@ -138,7 +138,7 @@ public class AiBotScheduleJob extends DistributedJobLock {
                 return;
             }
 
-            String aiResponse = ChatManager.ask(content);
+            String aiResponse = ChatManager.ask(content, null, null, "AiBotScheduleJob");
 
             String message = String.format("**[%s]**\n\n%s", subject, aiResponse);
             Application.getNotifications().send(
