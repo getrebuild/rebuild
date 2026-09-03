@@ -67,6 +67,10 @@ public class SearchKnowledge implements Tool {
             item.put("knowledgeName", chunk.getKnowledgeName());
             item.put("content", chunk.getContent());
             item.put("score", chunk.getScore());
+            
+            if (StringUtils.isNotBlank(chunk.getSourceLink())) {
+                item.put("url", chunk.getSourceLink());
+            }
             results.add(item);
         }
 

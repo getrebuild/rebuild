@@ -28,6 +28,7 @@ public class KnowledgeChunk {
     private int chunkIndex;
     private String keywords;
     private double score;
+    private String sourceLink;
 
     public KnowledgeChunk() {}
 
