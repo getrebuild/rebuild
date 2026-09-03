@@ -28,7 +28,7 @@ const _chatMarked = new marked.Marked({
     },
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens)
-      // 非安全协议（javascript:/data: 等）渲染为纯文本，防止 XSS；站内相对路径（/ 开头）放行
+      // 非安全协议
       if (!/^https?:\/\//i.test(href) && !href.startsWith('/')) return text
 
       let safeHref = href
@@ -52,6 +52,7 @@ const _chatMarked = new marked.Marked({
 
 let __evt_ScrollToBottomStop = false
 let __evt_StreamCancel = false
+let __streamController = null
 
 // eslint-disable-next-line no-unused-vars
 class Chat extends React.Component {
@@ -106,6 +107,10 @@ class Chat extends React.Component {
     // 如果当前正在对话，仅关闭前端连接，后端继续完成并保存完整内容
     if (this._ChatInput && this._ChatInput.state.postState !== 0) {
       __evt_StreamCancel = true
+      if (__streamController) {
+        __streamController.abort()
+        __streamController = null
+      }
     }
 
     this.setState({ chatid: chatid || null })
@@ -338,7 +343,10 @@ class ChatInput extends React.Component {
   handleCancel() {
     this.setState({ postState: 2 })
     __evt_StreamCancel = true
-    // 通知后端中断流式输出
+    if (__streamController) {
+      __streamController.abort()
+      __streamController = null
+    }
     const chatid = this.props._Chat.state.chatid
     if (chatid) {
       $.post(`/aibot2/post/chat-stream-stop?chatid=${chatid}`)
@@ -469,7 +477,6 @@ class ChatMessages extends React.Component {
   }
 
   componentDidMount() {
-    // scrollToBottom
     let _lastScroll = 0
 
     const $ms = $(this._$messages)
@@ -687,8 +694,7 @@ class ChatMessage extends React.Component {
   }
 
   renderSystem() {
-    // TODO 不渲染
-    console.log('renderSystem', this.state.content)
+    console.log('TODO renderSystem?', this.state.content)
   }
 
   renderError() {
@@ -731,12 +737,10 @@ class RichContent extends React.Component {
     if (!$el || this.props.md === false) return
     const ready = this.props.ready !== false
 
-    // echarts：流式中也渲染，done=ready 控制失败是否回退源码
     if ($el.find('.echarts-to-render:not(.echarts-rendered)').length) {
       if (!this._seq) this._seq = $random('rc-', true)
       $setTimeout(() => this._renderEcharts($el, ready), 200, 'render-echarts-' + this._seq)
     }
-    // mermaid/html：流式中跳过，避免渲染半截内容
     if (ready && $el.find('.mermaid-to-render').length) {
       this._renderMermaid($el)
     }
@@ -763,7 +767,6 @@ class RichContent extends React.Component {
       })
       Promise.all(checks).then(() => {
         $renderMermaid($el)
-        // mermaid.run 异步渲染，延迟添加全屏按钮
         $setTimeout(
           () => {
             $el.find('.mermaid:not(.has-fs-btn)').each(function () {
@@ -902,6 +905,7 @@ function scrollToBottom(forceScroll) {
 function fetchStream(url, data, onChunk, onDone) {
   const decoder = new TextDecoder('utf-8')
   const controller = new AbortController()
+  __streamController = controller
   const signal = controller.signal
 
   let buffer = ''
@@ -920,12 +924,14 @@ function fetchStream(url, data, onChunk, onDone) {
         if (__evt_StreamCancel) {
           controller.abort()
           __evt_StreamCancel = false
+          __streamController = null
           typeof onDone === 'function' && onDone(null, true)
           return
         }
 
         return reader.read().then(({ done, value }) => {
           if (done) {
+            __streamController = null
             typeof onDone === 'function' && onDone(null, true)
             return
           }
@@ -950,8 +956,13 @@ function fetchStream(url, data, onChunk, onDone) {
       return readChunk()
     })
     .catch((err) => {
-      console.error('Error on stream :', err)
-      typeof onChunk === 'function' && onChunk({ error: err })
+      __streamController = null
+      if (__evt_StreamCancel) {
+        __evt_StreamCancel = false
+      } else {
+        console.error('Error on stream :', err)
+        typeof onChunk === 'function' && onChunk({ error: err })
+      }
       typeof onDone === 'function' && onDone(null, true)
     })
 }
