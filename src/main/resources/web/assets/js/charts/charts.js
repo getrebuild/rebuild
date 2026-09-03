@@ -777,45 +777,14 @@ class ChartRank extends ChartBar {
       return
     }
 
-    const pageSize = data._renderOption && data._renderOption.pageSize ? ~~data._renderOption.pageSize : 0
-    const yyyAxis = data.yyyAxis || []
-
-    // 按第一个数值降序排序
-    const indices = data.xAxis.map((_, i) => i)
-    indices.sort((a, b) => {
-      const va = parseFloat((yyyAxis[0] && yyyAxis[0].data[a]) || 0) || 0
-      const vb = parseFloat((yyyAxis[0] && yyyAxis[0].data[b]) || 0) || 0
-      return vb - va
-    })
-
-    let sortedXAxis = indices.map((i) => data.xAxis[i])
-    let sortedYyyAxis = yyyAxis.map((y) => ({
-      ...y,
-      data: indices.map((i) => y.data[i]),
-    }))
-    // 排行榜仅支持单数值系列，多余系列丢弃
-    sortedYyyAxis = sortedYyyAxis.slice(0, 1)
-
-    // 限制条数
-    if (pageSize > 0 && sortedXAxis.length > pageSize) {
-      sortedXAxis = sortedXAxis.slice(0, pageSize)
-      sortedYyyAxis = sortedYyyAxis.map((y) => ({
-        ...y,
-        data: y.data.slice(0, pageSize),
-      }))
-    }
-
-    const sortedData = {
+    // 后端已处理排序、单系列截取、pageSize 限制
+    super.renderChart({
       ...data,
-      xAxis: sortedXAxis,
-      yyyAxis: sortedYyyAxis,
       _renderOption: {
         ...(data._renderOption || {}),
         showHorizontal: true,
       },
-    }
-
-    super.renderChart(sortedData)
+    })
   }
 
   _renderChartBarBefore(option, data) {
@@ -838,6 +807,8 @@ class ChartRank extends ChartBar {
     const displayItems = Math.min(numItems, visibleItems)
 
     option.grid.height = displayItems * bandH
+    option.grid.containLabel = true
+    option.grid.left = 0
     option.yAxis.inverse = true
 
     const radius = [0, 6, 6, 0]
