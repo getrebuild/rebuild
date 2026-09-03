@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -109,34 +110,22 @@ public abstract class ChatManager {
 
     /**
      * 直接提问/回答（支持提示词、图片视觉识别）
-     *
-     * @param userContent
-     * @param prompt
-     * @param imageFiles
-     * @return
-     */
-    public static String ask(String userContent, String prompt, List<File> imageFiles) {
-        return ask(userContent, prompt, imageFiles, null);
-    }
-
-    /**
-     * 直接提问/回答（支持提示词、图片视觉识别）
      * 内部调用，落库归属 AI 助手
      *
      * @param userContent
      * @param prompt
-     * @param imageFiles
+     * @param files
      * @param source
      * @return
      */
-    public static String ask(String userContent, String prompt, List<File> imageFiles, String source) {
+    public static String ask(String userContent, String prompt, List<File> files, String source) {
         String subject = "ASK:" + (StringUtils.isBlank(source) ? "N" : source) + ":" + userContent;
         ID chatid = initChat(UserService.AIBOT_USER, subject);
         Chat chat = new Chat(chatid, null, prompt);
 
         String result;
         try {
-            if (CollectionUtils.isEmpty(imageFiles)) {
+            if (CollectionUtils.isEmpty(files)) {
                 result = chat.ask(userContent);
             } else {
                 // 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
@@ -144,7 +133,7 @@ public abstract class ChatManager {
                 parts.add(ChatCompletionContentPart.ofText(
                         ChatCompletionContentPartText.builder().text(userContent).build()));
 
-                for (File imageFile : imageFiles) {
+                for (File imageFile : files) {
                     String base64 = CommonsUtils.fileToBase64(imageFile);
                     String mimeType;
                     try {
@@ -179,18 +168,6 @@ public abstract class ChatManager {
     }
 
     /**
-     * 直接提问/回答
-     *
-     * @param userContent
-     * @param source
-     * @return
-     * @see #askAsUser(String, String, ID)
-     */
-    public static String askAsAibot(String userContent, String source) {
-        return askAsUser(userContent, source, UserService.AIBOT_USER);
-    }
-
-    /**
      * 以指定用户身份提问/回答（会话归属该用户，工具按其权限执行）
      *
      * @param userContent
@@ -198,10 +175,11 @@ public abstract class ChatManager {
      * @param user
      * @return
      */
-    public static String askAsUser(String userContent, String source, ID user) {
+    public static String askAsUser(String userContent, String prompt, List<File> files, String source, ID user) {
+        Assert.notNull(user, "[user] cannot be null");
         ID keepCurrentUser = UserContextHolder.setUser(user);
         try {
-            return ask(userContent, null, null, source);
+            return ask(userContent, prompt, files, source);
         } finally {
             UserContextHolder.clearUser(keepCurrentUser);
         }
