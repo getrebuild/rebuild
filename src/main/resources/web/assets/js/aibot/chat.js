@@ -715,7 +715,7 @@ class RichContent extends React.Component {
 
     return (
       <div className="msg-text" ref={(c) => (this._$el = c)}>
-        <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(this._fixMd(content)) }}></span>
+        <span className="markdown-body" dangerouslySetInnerHTML={{ __html: _chatMarked.parse(FixMd.fix(content)) }}></span>
       </div>
     )
   }
@@ -864,26 +864,6 @@ class RichContent extends React.Component {
       const chart = $(this).data('echarts-instance')
       if (chart && typeof chart.dispose === 'function') chart.dispose()
     })
-  }
-
-  // 修复 AI 回复中常见的 MD 语法问题
-  _fixMd(md) {
-    if (!md) return md
-    const mdOrigin = md
-
-    const FENCE_LANGS =
-      'javascript|typescript|dockerfile|powershell|plaintext|makefile|markdown|mermaid|echarts|golang|python|kotlin|script|shell|swift|bash|html|java|json|yaml|xml|css|scss|less|ruby|rust|php|vue|jsx|tsx|sql|toml|diff|text|ini|htm|cpp|py|js|ts|cs|go|rb|sh|md'
-    md = md.replace(new RegExp('(`{3,}|~{3,})(?=(' + FENCE_LANGS + '))\\2(\\S)', 'gi'), (m, fence, lang, next) => fence + lang.toLowerCase() + '\n' + next)
-
-    $setTimeout(
-      () => {
-        // eslint-disable-next-line eqeqeq
-        if (md != mdOrigin) console.log('\n==== Origin ====\n', mdOrigin, '\n==== Fixed ====\n', md)
-      },
-      1000,
-      'fix-md-log',
-    )
-    return md
   }
 }
 
@@ -1292,4 +1272,158 @@ class RecordSelectorModal2 extends RecordSelectorModal {
       </div>
     )
   }
+}
+
+// AI 输出偶发丢失块级结构边界处的换行（表格行粘连、标题/列表粘在正文后），
+// marked 等解析器只解析合法 GFM 语法，需在渲染前还原。入口为 FixMd.blocks(md)。
+const FixMd = {
+  // 行中块标记前导门控：空白或标点，宁可漏修不误伤正文（注意 - 在字符类首位）
+  GATE: '[\\s。！？；：，、!?:,\\-]',
+  RE_FENCE: /^\s*(`{3,}|~{3,})/,
+  RE_HEADING: /^#{1,6}\s/,
+  RE_LIST: /^(?:[-*+]|\d{1,3}\.)\s/,
+  RE_SEP_PART: /\|(?:\s*:?-{3,}:?\s*\|)+/,
+
+  // 修复 AI 回复中常见的 MD 语法问题
+  fix(md) {
+    if (!md) return md
+    const mdOrigin = md
+
+    const FENCE_LANGS =
+      'javascript|typescript|dockerfile|powershell|plaintext|makefile|markdown|mermaid|echarts|golang|python|kotlin|script|shell|swift|bash|html|java|json|yaml|xml|css|scss|less|ruby|rust|php|vue|jsx|tsx|sql|toml|diff|text|ini|htm|cpp|py|js|ts|cs|go|rb|sh|md'
+    md = md.replace(new RegExp('(`{3,}|~{3,})(?=(' + FENCE_LANGS + '))\\2(\\S)', 'gi'), (m, fence, lang, next) => fence + lang.toLowerCase() + '\n' + next)
+    md = FixMd.blocks(md)
+
+    $setTimeout(
+      () => {
+        // eslint-disable-next-line eqeqeq
+        if (md != mdOrigin) console.log('\n==== Origin ====\n', mdOrigin, '\n==== Fixed ====\n', md)
+      },
+      1000,
+      'FixMd-log',
+    )
+    return md
+  },
+
+  pipeCount(s) {
+    return (s.match(/\|/g) || []).length
+  },
+
+  // 整行是否为表格分隔行（| --- | --- |，允许对齐冒号）
+  isSepLine(line) {
+    return /^\s*\|(?:\s*:?-{3,}:?\s*\|)+\s*$/.test(String(line || ''))
+  },
+
+  // 表格行修复：|| 连行拆分，或按列数（以分隔行为准）重组单管道连行；无法确认时保持原文
+  tableLine(line, nextLine) {
+    const t = line.trim()
+    if (!/^\|.+\|$/.test(t)) return line
+
+    // 保护转义管道 \|
+    const PH = '\u0001'
+    let s = t.replace(/\\\|/g, PH)
+    if (FixMd.pipeCount(s) < 3) return line
+
+    // 行粘连：|| 几乎必然是行边界（相邻空列极少见）
+    if (s.indexOf('||') !== -1) {
+      return s.replace(/\|\|/g, '|\n|').split('\u0001').join('\\|')
+    }
+
+    // 单管道多行粘连：按列数重组。列数取自行内分隔行片段，其次取下一行分隔行；
+    // 重组结果必须含分隔行才生效，避免误伤数据行（如 | - | x |）
+    const sepPart = s.match(/\|(?:\s*:?-{3,}:?\s*\|)+/)
+    let cols = 0
+    if (sepPart) cols = FixMd.pipeCount(sepPart[0]) - 1
+    else if (nextLine && FixMd.isSepLine(nextLine)) cols = FixMd.pipeCount(nextLine) - 1
+    if (cols > 0) {
+      const cells = s.split('|').slice(1, -1)
+      if (cells.length > cols && cells.length % cols === 0) {
+        const rows = []
+        for (let k = 0; k < cells.length; k += cols) rows.push('|' + cells.slice(k, k + cols).join('|') + '|')
+        if (rows.some(FixMd.isSepLine)) return rows.join('\n').split('\u0001').join('\\|')
+      }
+    }
+    return line
+  },
+
+  // 块边界还原：行中块标记拆行、表格行修复、块结构前补空行（防被 marked 段落吞并）
+  blocks(md) {
+    const lines = md.split(/\r?\n/)
+    const fixed = []
+    let inFence = false
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      // 围栏感知：代码块内不做任何改动（行首内联代码除外，不识别）
+      if (FixMd.RE_FENCE.test(line)) {
+        inFence = !inFence
+        fixed.push(line)
+        continue
+      }
+      if (inFence) {
+        fixed.push(line)
+        continue
+      }
+
+      // 行中表格粘连：正文后紧跟表格起点，且本行或下一行能找到分隔行才拆，避免误伤普通含 | 的句子
+      let segs = [line]
+      const firstPipe = line.indexOf('|')
+      if (firstPipe > 0) {
+        const prefix = line.substring(0, firstPipe)
+        const rest = line.substring(firstPipe)
+        if (prefix.trim() && FixMd.pipeCount(rest) >= 2 && (FixMd.RE_SEP_PART.test(rest) || FixMd.isSepLine(lines[i + 1] || ''))) {
+          segs = [prefix.replace(/\s+$/, ''), rest]
+        }
+      }
+
+      for (const seg of segs) {
+        // 表格行修复（可能拆出多行）
+        const segLines = FixMd.tableLine(seg, lines[i + 1]).split('\n')
+
+        for (const s0 of segLines) {
+          let s = s0
+          // 行中标题/列表粘连（跳过表格行，避免拆散单元格文本）
+          if (!s.trim().startsWith('|')) {
+            s = s
+              .replace(new RegExp('(' + FixMd.GATE + ')(#{1,6}\\s+\\S)', 'g'), '$1\n$2')
+              .replace(new RegExp('(' + FixMd.GATE + ')([-*+]\\s{1,4}\\S)', 'g'), '$1\n$2')
+              .replace(new RegExp('(' + FixMd.GATE + ')(\\d{1,3}\\.\\s{1,4}\\S)', 'g'), '$1\n$2')
+          }
+          fixed.push(...s.split('\n'))
+        }
+      }
+    }
+
+    // 块结构前补空行：表格/标题/列表首行紧跟正文时，marked 会将其吞进段落；
+    // 已有空行或前一行是同类块（表格行、列表项）时不重复插入，避免表格被空行截断或列表变松散
+    const final = []
+    inFence = false
+    for (let i = 0; i < fixed.length; i++) {
+      const line = fixed[i]
+
+      if (FixMd.RE_FENCE.test(line)) {
+        inFence = !inFence
+        final.push(line)
+        continue
+      }
+
+      if (!inFence && final.length > 0) {
+        const t = line.trim()
+        let blockStart = FixMd.RE_HEADING.test(t) || FixMd.RE_LIST.test(t)
+        if (!blockStart && /^\|.+\|$/.test(t)) {
+          blockStart = FixMd.isSepLine(t) || FixMd.isSepLine(fixed[i + 1] || '')
+        }
+
+        const prev = final[final.length - 1].trim()
+        if (blockStart && prev !== '') {
+          const sameKind = (t.startsWith('|') && prev.startsWith('|')) || (FixMd.RE_LIST.test(t) && FixMd.RE_LIST.test(prev)) || (FixMd.RE_HEADING.test(t) && FixMd.RE_HEADING.test(prev))
+          if (!sameKind) final.push('')
+        }
+      }
+      final.push(line)
+    }
+
+    return final.join('\n')
+  },
 }
