@@ -93,7 +93,8 @@ public abstract class BaseFeedsService extends ObservableService {
         if (content == null || record.getID("feedsId") == null) return;
 
         // 已存在的
-        Set<ID> existsAtUsers = isNew ? Collections.emptySet() : this.awareMentionDelete(record.getPrimary(), true);
+        Set<ID> existsAtUsers = isNew ? Collections.emptySet()
+                : this.awareMentionDelete(record.getPrimary(), true);
 
         Set<ID> atUsers = this.awareMentionCreate(record);
         if (atUsers.isEmpty()) return;
@@ -123,8 +124,9 @@ public abstract class BaseFeedsService extends ObservableService {
             TransactionManual.registerAfterCommit(() -> {
                 String aiReply;
                 if (Config.availableAiBot()) {
+                    String userContent = "请直接、简洁的回答问题（不要MD格式）：\n" + content;
                     try {
-                        aiReply = ChatManager.askWithAibot("请直接、简洁的回答问题（不要MD格式）：\n" + content, "BaseFeedsService");
+                        aiReply = ChatManager.askAsUser(userContent, null, null, "BaseFeedsService", publishUser);
                     } catch (Exception ex) {
                         log.error("AiBot error during ask", ex);
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);

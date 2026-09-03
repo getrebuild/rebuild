@@ -400,6 +400,29 @@ const COLOR_PALETTES = {
   macarons: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa', '#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050', '#59678c', '#c9ab00'],
 }
 
+// 图表类型图标
+const CHART_TYPE_ICONS = {
+  TABLE: 'mdi-view-module-outline',
+  INDEX: 'mdi-counter',
+  LINE: 'mdi-chart-line',
+  BAR: 'mdi-chart-bar',
+  BAR2: 'mdi-chart-bar-stacked',
+  BAR3: 'mdi-chart-timeline-variant',
+  PARETO: 'mdi-chart-multiple',
+  PIE: 'mdi-chart-pie',
+  FUNNEL: 'mdi-filter-variant',
+  TREEMAP: 'mdi-view-dashboard-outline',
+  RADAR: 'mdi-radar',
+  SCATTER: 'mdi-chart-scatter-plot',
+  DOLOR: 'mdi-cloud-outline',
+  CNMAP: 'mdi-map-outline',
+  DATALIST2: 'mdi-view-list-outline',
+  DataList: 'mdi-view-list-outline',
+  BARNEGATIVE: 'mdi-chart-bar',
+  SUNBURST: 'mdi-chart-donut',
+  RANK: 'mdi-trophy-variant',
+}
+
 const ECHART_AXIS_LABEL = {
   textStyle: {
     color: '#555',
@@ -742,6 +765,91 @@ class ChartBar extends BaseChart {
   }
 
   _renderChartBarBefore(option) {
+    return option
+  }
+}
+
+// 排行榜
+class ChartRank extends ChartBar {
+  renderChart(data) {
+    if (data.xAxis.length === 0) {
+      this.renderError($L('暂无数据'))
+      return
+    }
+
+    // 后端已处理排序、单系列截取、pageSize 限制
+    super.renderChart({
+      ...data,
+      _renderOption: {
+        ...(data._renderOption || {}),
+        showHorizontal: true,
+      },
+    })
+  }
+
+  _renderChartBarBefore(option, data) {
+    const numItems = (data.xAxis || []).length
+    if (numItems === 0) return option
+
+    const barH = 16
+    const catGap = 8
+    const bandH = barH + catGap * 2
+
+    let chartH = 0
+    const $chart = this._$body && this._$body.querySelector('.chart')
+    if ($chart) chartH = $chart.clientHeight
+    if (!chartH || chartH < 60) chartH = 320
+    const gridTop = (option.grid && option.grid.top) || 30
+    const gridBottom = (option.grid && option.grid.bottom) || 30
+    const availH = Math.max(bandH, chartH - gridTop - gridBottom)
+
+    const visibleItems = Math.max(1, Math.floor(availH / bandH))
+    const displayItems = Math.min(numItems, visibleItems)
+
+    option.grid.height = displayItems * bandH
+    option.grid.containLabel = true
+    option.grid.left = 0
+    option.yAxis.inverse = true
+
+    const radius = [0, 6, 6, 0]
+    const rankColors = ['#F5A623', '#9E9E9E', '#CD7F32']
+    const baseColor = (option.color && option.color[0]) || RBCOLORS[0]
+
+    option.series.forEach((s) => {
+      s.barWidth = barH
+      s.barCategoryGap = catGap
+      s.itemStyle = {
+        ...(s.itemStyle || {}),
+        borderRadius: radius,
+        color: (p) => (p.dataIndex < 3 ? rankColors[p.dataIndex] : baseColor),
+      }
+      s.showBackground = true
+      s.backgroundStyle = { color: '#f0f0f0', borderRadius: radius }
+    })
+
+    const _axisLabel = option.yAxis.axisLabel || {}
+    option.yAxis.axisLabel = {
+      ..._axisLabel,
+      formatter: (val, idx) => (idx < 3 ? `{r${idx}|${idx + 1}. ${val}}` : `${idx + 1}. ${val}`),
+      rich: {
+        r0: { color: rankColors[0], fontWeight: 'bold' },
+        r1: { color: rankColors[1], fontWeight: 'bold' },
+        r2: { color: rankColors[2], fontWeight: 'bold' },
+      },
+    }
+
+    if (numItems > visibleItems) {
+      option.dataZoom = [
+        {
+          type: 'inside',
+          yAxisIndex: 0,
+          zoomLock: true,
+          start: 0,
+          end: (visibleItems / numItems) * 100,
+        },
+      ]
+    }
+
     return option
   }
 }
@@ -1135,7 +1243,8 @@ class ApprovalList extends BaseChart {
                 onClick={() => {
                   this.renderChart(data, item[0])
                 }}>
-                {s[1]} ({item[1]}{item[1] >= 500 ? '+' : ''})
+                {s[1]} ({item[1]}
+                {item[1] >= 500 ? '+' : ''})
               </div>
             )
           })}
@@ -2345,6 +2454,8 @@ const detectChart = function (conf, id) {
     return <ChartPareto {...props} />
   } else if (conf.type === 'PIE') {
     return <ChartPie {...props} />
+  } else if (conf.type === 'RANK') {
+    return <ChartRank {...props} />
   } else if (conf.type === 'FUNNEL') {
     return <ChartFunnel {...props} />
   } else if (conf.type === 'TREEMAP') {
@@ -2443,8 +2554,8 @@ class ChartSelect extends RbModalHandler {
 
                   return (
                     <div key={item.id}>
-                      <span className="float-left chart-icon">
-                        <i className={`${item.type} ${item.type === 'DataList' && item.id !== '017-9000000000000004' && 'custom'}`} />
+                      <span className="float-left chart-icon" data-type={item.type}>
+                        <i className={`mdi ${CHART_TYPE_ICONS[item.type] || 'mdi-square-outline mdi-rotate-45 text-muted'}`} />
                       </span>
                       <span className="float-left title">
                         <strong>{item.title}</strong>
