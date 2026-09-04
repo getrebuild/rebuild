@@ -1388,6 +1388,8 @@ const FixMd = {
               .replace(new RegExp('(' + FixMd.GATE + ')(#{1,6}\\s+\\S)', 'g'), '$1\n$2')
               .replace(new RegExp('(' + FixMd.GATE + ')([-*+]\\s{1,4}\\S)', 'g'), '$1\n$2')
               .replace(new RegExp('(' + FixMd.GATE + ')(\\d{1,3}\\.\\s{1,4}\\S)', 'g'), '$1\n$2')
+            // **加粗** 闭合后紧跟字母/数字时补空格（CommonMark 强调闭合规则限制）
+            s = s.replace(/(\*\*[^*\n]+?\*\*)(?=[A-Za-z0-9])/g, '$1 ')
           }
           fixed.push(...s.split('\n'))
         }

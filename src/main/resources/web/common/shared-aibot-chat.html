@@ -31,18 +31,14 @@
           width: 100%;
         }
         .shared-aibot-chat h1 {
-          margin: 16px;
+          margin: 20px 16px;
         }
         .shared-aibot-chat .chat-messages {
           border-radius: 0;
-          padding: 16px;
+          padding: 20px 16px;
         }
         .rb-scroll-top.show {
           right: 16px;
-        }
-        span.chat-meta {
-          display: block;
-          margin-left: 0 !important;
         }
       }
       .chat-input .chat-input-attach > span,
@@ -56,13 +52,13 @@
     <div class="shared-aibot-chat">
       <h1 class="text-bold">
         [[${subject}]]
-        <span class="ml-1 chat-meta">
+        <div class="chat-meta">
           <small class="text-muted fs-12">
             <i class="icon mdi mdi-information-outline"></i>
             [[${bundle.L('内容由 AI 生成')}]]
           </small>
           <small th:if="${shareByName != null}" class="text-muted fs-12"><b> · </b>[[${bundle.L('由 %s 分享', shareByName)}]]</small>
-        </span>
+        </div>
       </h1>
       <div class="rb-loading rb-loading-active must-center J_load-page">
         <th:block th:replace="~{/_include/spinner}" />
