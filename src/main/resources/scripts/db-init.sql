@@ -221,7 +221,7 @@ create table if not exists `filter_config` (
   `CONFIG`             text(65535) not null,
   `SHARE_TO`           varchar(4001) default 'SELF' comment '共享给谁 (可选值: ALL/SELF/$MemberID)',
   `FILTER_NAME`        varchar(100) not null comment '名称',
-  `SEQ`                int(11) default '0' comment '显示顺序',
+  `SEQ`                int(11) default '0' comment '显示顺序 (大到小)',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -898,32 +898,6 @@ create table if not exists `tag_item` (
   unique index UIX2_tag_item (`BELONG_FIELD`, `RECORD_ID`, `TAG_NAME`)
 )Engine=InnoDB;
 
--- ************ Entity [AibotChatAttach] DDL ************
-create table if not exists `aibot_chat_attach` (
-  `ATTACH_ID`          char(20) not null,
-  `CHAT_ID`            char(20) not null,
-  `CONTENT`            varchar(701) comment '附件',
-  `VECTOR_DATA`        longtext comment '附件内容',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
-  primary key  (`ATTACH_ID`),
-  index IX0_aibot_chat_attach (`CHAT_ID`, `CREATED_ON`, `CREATED_BY`)
-)Engine=InnoDB;
-
--- ************ Entity [AibotChat] DDL ************
-create table if not exists `aibot_chat` (
-  `CHAT_ID`            char(20) not null,
-  `SUBJECT`            varchar(100) comment '主题',
-  `CONTENTS`           longtext comment '会话内容',
-  `TOKEN`              bigint(20) comment '词元用量',
-  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
-  primary key  (`CHAT_ID`),
-  index IX0_aibot_chat (`CREATED_BY`, `MODIFIED_ON`, `CREATED_ON`)
-)Engine=InnoDB;
-
 -- ************ Entity [AibotKnowledgeChunk] DDL ************
 create table if not exists `aibot_knowledge_chunk` (
   `CHUNK_ID`           char(20) not null,
@@ -948,6 +922,32 @@ create table if not exists `aibot_config` (
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
+-- ************ Entity [AibotChatAttach] DDL ************
+create table if not exists `aibot_chat_attach` (
+  `ATTACH_ID`          char(20) not null,
+  `CHAT_ID`            char(20) not null,
+  `CONTENT`            varchar(701) comment '附件',
+  `VECTOR_DATA`        longtext comment '附件内容',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`ATTACH_ID`),
+  index IX0_aibot_chat_attach (`CHAT_ID`, `CREATED_ON`, `CREATED_BY`)
+)Engine=InnoDB;
+
+-- ************ Entity [AibotChat] DDL ************
+create table if not exists `aibot_chat` (
+  `CHAT_ID`            char(20) not null,
+  `SUBJECT`            varchar(100) comment '主题',
+  `CONTENTS`           longtext comment '会话内容',
+  `TOKEN`              bigint(20) comment '词元用量',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`CHAT_ID`),
+  index IX0_aibot_chat (`CREATED_BY`, `MODIFIED_ON`, `CREATED_ON`)
 )Engine=InnoDB;
 
 -- ************ Entity [ShortUrl] DDL ************

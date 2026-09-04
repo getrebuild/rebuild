@@ -37,7 +37,9 @@ _GA()
 // PAGE INITIAL
 $(function () {
   // 多层 modal 处理
-  // AI 助手无 backdrop 不参与计数，防止 backdrop 层级虚高遮挡
+  $(document).on('show hide', '.modal input', function (e) {
+    e.stopPropagation()
+  })
   $(document)
     .on('show.bs.modal', '.modal', function () {
       var total = $('.modal.show:not(.aibot)').length + 1
