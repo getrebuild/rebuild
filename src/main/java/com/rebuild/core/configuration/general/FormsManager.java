@@ -152,10 +152,10 @@ public class FormsManager extends BaseLayoutManager {
             elements.add(JSONUtils.toJSONObject("field", EasyMetaFactory.valueOf(field).getName()));
         }
         if (CollectionUtils.isNotEmpty(approvalFields)) {
-            addBlankGroup(elements, Language.L("审批相关"), approvalFields);
+            addBlankGroup(elements, Language.L("审批信息"), approvalFields);
         }
         if (CollectionUtils.isNotEmpty(sysFields)) {
-            addBlankGroup(elements, Language.L("系统相关"), sysFields);
+            addBlankGroup(elements, Language.L("系统信息"), sysFields);
         }
 
         return new ConfigBean()
