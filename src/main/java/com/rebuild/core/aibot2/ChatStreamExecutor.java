@@ -17,8 +17,8 @@ import com.openai.models.chat.completions.ChatCompletionStreamOptions;
 import com.rebuild.core.aibot2.ReasoningExtractor.FeedResult;
 import com.rebuild.core.aibot2.ReasoningExtractor.ThinkTagParser;
 import com.rebuild.utils.CommonsUtils;
-import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -112,6 +112,13 @@ public class ChatStreamExecutor {
         fullContent.setLength(0);
         toolCallAccumulator.clear();
         interrupted = false;
+
+        // API 调用前检查中断标志
+        if (StreamEcho.isInterrupted(chatRequest.getChatid())) {
+            interrupted = true;
+            this.finish(maxRounds);
+            return;
+        }
 
         try (StreamResponse<ChatCompletionChunk> resp = createChatStreaming(builder.build(), chatLogger())) {
             try {

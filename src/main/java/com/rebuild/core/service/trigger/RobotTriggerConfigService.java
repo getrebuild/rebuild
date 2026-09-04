@@ -10,6 +10,8 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.aibot2.JsonSchemaValidator;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
@@ -38,8 +40,14 @@ public class RobotTriggerConfigService extends BaseConfigurationService implemen
 
     @Override
     protected void cleanCache(ID cfgid) {
-        Object c = QueryHelper.queryFieldValue(cfgid, "actionContent");
-        JsonSchemaValidator.validate(JsonSchemaValidator.TRIGGER_CONFIG, c);
+        Object actionType = QueryHelper.queryFieldValue(cfgid, "actionType");
+        Object actionContent = QueryHelper.queryFieldValue(cfgid, "actionContent");
+        if (actionType != null && actionContent != null) {
+            JSONObject validateData = new JSONObject();
+            validateData.put("actionType", actionType);
+            validateData.put("actionContent", JSON.parseObject((String) actionContent));
+            JsonSchemaValidator.validate(JsonSchemaValidator.TRIGGER_CONFIG, validateData);
+        }
 
         String be = RobotTriggerManager.instance.getBelongEntity(cfgid, false);
         if (be != null) {

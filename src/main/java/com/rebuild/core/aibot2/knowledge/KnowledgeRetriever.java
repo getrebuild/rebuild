@@ -8,9 +8,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2.knowledge;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -151,7 +156,7 @@ public class KnowledgeRetriever {
         return score;
     }
 
-    // 批量查询知识库名称（避免 N+1 查询）
+    // 批量查询知识库名称、源文档链接（避免 N+1 查询）
     private static void attachKnowledgeName(Map<ID, KnowledgeChunk> chunks) {
         if (chunks.isEmpty()) return;
 
@@ -164,7 +169,7 @@ public class KnowledgeRetriever {
         if (knowledgeIds.isEmpty()) return;
 
         StringBuilder sql = new StringBuilder(
-                "select configId,name from AibotConfig where type = 'KNOWLEDGE' and configId in (");
+                "select configId,name,config from AibotConfig where type = 'KNOWLEDGE' and configId in (");
         for (int i = 0; i < knowledgeIds.size(); i++) {
             if (i > 0) sql.append(",");
             sql.append("'").append(knowledgeIds.get(i)).append("'");
@@ -172,15 +177,40 @@ public class KnowledgeRetriever {
         sql.append(")");
 
         Map<ID, String> nameMap = new HashMap<>();
+        Map<ID, String> linkMap = new HashMap<>();
         for (Object[] row : Application.createQueryNoFilter(sql.toString()).array()) {
             nameMap.put((ID) row[0], (String) row[1]);
+            linkMap.put((ID) row[0], buildSourceLink((String) row[2]));
         }
 
         for (KnowledgeChunk chunk : chunks.values()) {
             if (chunk.getKnowledgeId() != null) {
                 chunk.setKnowledgeName(nameMap.get(chunk.getKnowledgeId()));
+                chunk.setSourceLink(linkMap.get(chunk.getKnowledgeId()));
             }
         }
+    }
+
+    /**
+     * 构建文件型知识库的源文档预览链接（非文件型无文档可预览）
+     *
+     * @param configJson
+     * @return
+     */
+    private static String buildSourceLink(String configJson) {
+        JSONObject conf = (JSONObject) JSONUtils.parseSafe(configJson);
+        if (conf == null || !KnowledgeBuilder.SOURCE_FILE.equals(conf.getString("sourceType"))) {
+            return null;
+        }
+
+        JSONObject sourceConfig = (JSONObject) JSONUtils.parseSafe(conf.getString("sourceConfig"));
+        String fileKey = sourceConfig != null ? sourceConfig.getString("file") : null;
+        if (StringUtils.isBlank(fileKey)) return null;
+
+        String fileUrl = String.format("/filex/download/%s?csrfToken=%s&attname=%s",
+                fileKey, QiniuCloud.parseFileName(fileKey), AuthTokenManager.generateCsrfToken(90));
+        fileUrl = AppUtils.getContextPath(fileUrl);
+        return fileUrl;
     }
 
     private static List<KnowledgeChunk> trimByContentLength(List<KnowledgeChunk> chunks) {

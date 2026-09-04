@@ -1582,6 +1582,40 @@ a.link.link-icon::after {
   z-index: 1052;
 }
 
+.ui-mprogress .deter-bar::after,
+.ui-mprogress .indeter-bar::after,
+.ui-mprogress .query-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.5) 40%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0.5) 60%, transparent 100%);
+  -webkit-animation: mp-shimmer 2.4s infinite linear;
+  animation: mp-shimmer 2.4s infinite linear;
+  pointer-events: none;
+}
+
+@-webkit-keyframes mp-shimmer {
+  0% {
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+  100% {
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+}
+@keyframes mp-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* DataList */
 
 .rb-datatable-body,
@@ -3879,10 +3913,6 @@ a.user-show:not([href]) {
   padding-right: 0;
 }
 
-.file-share {
-  padding: 10px 40px;
-}
-
 .file-share .expires ul li a {
   background-color: #eee;
   border-radius: 99px;
@@ -3898,11 +3928,6 @@ a.user-show:not([href]) {
 
 .file-share .expires ul li.active a::after {
   content: attr(_title);
-}
-
-.file-share .form-control {
-  background-color: #fff !important;
-  cursor: text;
 }
 
 .dialog-table {
