@@ -475,6 +475,11 @@ const EXPIRES_TIME = [
 ]
 
 class FileShare extends RbAlert {
+  constructor(props) {
+    super(props)
+    this._zIndex = 1100
+  }
+
   renderContent() {
     return (
       <div className="file-share rbalert-form-sm">
