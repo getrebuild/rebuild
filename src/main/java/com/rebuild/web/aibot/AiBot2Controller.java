@@ -70,8 +70,16 @@ public class AiBot2Controller extends BaseController {
             ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
         } catch (Throwable ex) {
             log.error("chat-post", ex);
-            JSONObject error = JSONUtils.toJSONObject("error", "请求错误:" + CommonsUtils.getRootMessage(ex));
+            String errorMsg = "请求错误:" + CommonsUtils.getRootMessage(ex);
+            JSONObject error = JSONUtils.toJSONObject("error", errorMsg);
             ServletUtils.writeJson(resp, error.toJSONString());
+
+            // 错误落库
+            try {
+                chat.completionAfter(errorMsg, null, chatRequest);
+            } catch (Exception e) {
+                log.warn("Failed to save error message for chat", e);
+            }
         } finally {
             chat.endRun();
         }
@@ -96,7 +104,19 @@ public class AiBot2Controller extends BaseController {
             chat.stream(chatRequest, resp);
         } catch (Throwable ex) {
             log.error("chat-stream", ex);
-            StreamEcho.error("请求错误:" + CommonsUtils.getRootMessage(ex), resp.getWriter());
+            String errorMsg = "请求错误:" + CommonsUtils.getRootMessage(ex);
+            try {
+                StreamEcho.error(errorMsg, resp.getWriter());
+            } catch (Exception ignored) {
+                // writer 可能已关闭
+            }
+
+            // 错误落库
+            try {
+                chat.completionAfter(errorMsg, null, chatRequest);
+            } catch (Exception e) {
+                log.warn("Failed to save error message for chat", e);
+            }
         } finally {
             chat.endRun();
         }
