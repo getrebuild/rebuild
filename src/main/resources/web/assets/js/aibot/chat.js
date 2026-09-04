@@ -652,11 +652,10 @@ class ChatMessage extends React.Component {
 
   renderAi() {
     const ready = !this.props.sendResp || this.state.waitResp === -1
-    const busy = !ready
     const thinking = this.state.waitResp === 2
     return (
       <div className="msg-ai">
-        <div className={`avatar${busy ? ' avatar-busy' : ''}`}>
+        <div className="avatar">
           <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
         </div>
         <div className="msg-content">
