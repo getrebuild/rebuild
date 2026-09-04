@@ -27,8 +27,9 @@ class RbModal extends React.Component {
     }
 
     let modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
-    let modalDialogClazz42 = `modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''} ${this.state._maximize && 'modal-dialog-maximize'}`
-    if (props.useScrollable) modalDialogClazz42 += ' modal-dialog-scrollable'
+    let modalDialogClazz = `modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''} ${this.state._maximize && 'modal-dialog-maximize'}`
+    if (props.useScrollable) modalDialogClazz += ' modal-dialog-scrollable'
+    if (props.centered) modalDialogClazz += ' modal-dialog-centered'
 
     return (
       <div
@@ -40,7 +41,7 @@ class RbModal extends React.Component {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className={modalDialogClazz42} style={style2}>
+        <div className={modalDialogClazz} style={style2}>
           <div className="modal-content" style={style2}>
             <div
               className={`modal-header ${props.useWhite ? '' : 'modal-header-colored'}`}
