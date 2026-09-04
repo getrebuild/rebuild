@@ -67,6 +67,10 @@ public class CommandArgs {
     public static final String _DistributedDisallowJobs = "_DistributedDisallowJobs";
     public static final String _DistributedAk = "_DistributedAk";
 
+    // v4.5
+    public static final String _AiBotDangersTool = "_AiBotDangersTool";
+
+
     /**
      * 内部消息同步发送短信
      */
