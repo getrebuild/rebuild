@@ -3913,10 +3913,6 @@ a.user-show:not([href]) {
   padding-right: 0;
 }
 
-.file-share {
-  padding: 10px 40px;
-}
-
 .file-share .expires ul li a {
   background-color: #eee;
   border-radius: 99px;
@@ -3932,11 +3928,6 @@ a.user-show:not([href]) {
 
 .file-share .expires ul li.active a::after {
   content: attr(_title);
-}
-
-.file-share .form-control {
-  background-color: #fff !important;
-  cursor: text;
 }
 
 .dialog-table {
