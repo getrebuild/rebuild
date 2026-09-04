@@ -177,7 +177,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chat-message .msg-user > .msg-content {
   padding: 10px;
   background-color: #4285f4;
-  background-color: var(--rb-theme-color);
   color: #fff;
   border-radius: 10px;
   max-width: 100%;
