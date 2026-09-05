@@ -18,7 +18,6 @@ import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -71,7 +70,7 @@ public class AibotChatService extends ObservableService {
                 .array();
 
         for (Object[] attach : attaches) {
-            if (attach[0] == null || JSONUtils.wellFormat(attach[0].toString())) continue;
+            if (JSONUtils.wellFormat(attach[0])) continue;
             try {
                 JSONArray attachArray = JSON.parseArray((String) attach[0]);
                 if (attachArray == null) continue;

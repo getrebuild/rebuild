@@ -92,9 +92,16 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                         deletePaths42.add((String) o[0]);
                     }
                 }
-            }
 
-            cleanExpiredChatFiles(commonFrom, entity);
+                // v4.5 清理过期 AI 会话的物理文件
+                if ("AibotChatAttach".equals(refName)) {
+                    String sql = "select RECORD_ID " + commonFrom + " and `BELONG_ENTITY` = 'AibotChat'";
+                    Object[][] array = Application.getQueryFactory().createNativeQuery(sql).array();
+                    for (Object[] o : array) {
+                        AibotChatService.cleanChatFiles((ID) o[0]);
+                    }
+                }
+            }
 
             String delSql = "delete " + commonFrom;
             dels.add(delSql);
@@ -176,23 +183,6 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                     "delete from `rebuild_api_request` where `REQUEST_TIME` < '%s 00:00:00' limit 1000000",
                     CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-arDays)));
             Application.getSqlExecutor().execute(dSql, 60 * 3);
-        }
-    }
-
-    /**
-     * 清理过期 AI 会话的物理文件
-     *
-     * @param commonFrom
-     * @param recycleBinEntity
-     */
-    private void cleanExpiredChatFiles(String commonFrom, Entity recycleBinEntity) {
-        String recordIdPhys = recycleBinEntity.getField("recordId").getPhysicalName();
-        String belongEntityPhys = recycleBinEntity.getField("belongEntity").getPhysicalName();
-        String sql = "select " + recordIdPhys + " " + commonFrom
-                + " and `" + belongEntityPhys + "` = 'AibotChat'";
-        Object[][] array = Application.getQueryFactory().createNativeQuery(sql).array();
-        for (Object[] o : array) {
-            AibotChatService.cleanChatFiles((ID) o[0]);
         }
     }
 

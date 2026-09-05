@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2.css}" />
     <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-size=1,user-scalable=no" />
     <title>[[${subject ?: bundle.L('AI 会话分享')}]]</title>
     <style>
