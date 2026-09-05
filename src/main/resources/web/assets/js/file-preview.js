@@ -486,7 +486,7 @@ class FileShare extends RbAlert {
         <div class="form-group mb-2">
           <label className="text-dark text-bold">{this.props.title || $L('分享链接')}</label>
           <div className="input-group input-group-sm">
-            <input className="form-control form-control-sm bg-white" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
+            <input className="form-control form-control-sm bg-transparent" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
               <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
                 <i className="icon zmdi zmdi-copy" />

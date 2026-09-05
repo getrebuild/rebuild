@@ -503,7 +503,7 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
 .chat-message .msg-text .html-to-render {
   background-color: #f5f5f5;
   border-radius: 6px;
-  padding: 1px;
+  padding: 0;
   margin: 8px 0;
 }
 

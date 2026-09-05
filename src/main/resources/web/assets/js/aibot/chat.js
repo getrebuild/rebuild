@@ -498,6 +498,13 @@ class ChatMessages extends React.Component {
     let _lastScroll = 0
 
     const $ms = $(this._$messages)
+    $ms.perfectScrollbar()
+    this._psObserver = new MutationObserver(() => {
+      $setTimeout(() => $ms.perfectScrollbar('update'), 100, 'chat-ps-update')
+    })
+    this._psObserver.observe(this._$messages, { childList: true, subtree: true, characterData: true })
+    $(window).on('resize.chat-ps', () => $setTimeout(() => $ms.perfectScrollbar('update'), 150, 'chat-ps-resize'))
+
     $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
       if (_lastScroll - currentScroll > 20) {
@@ -512,7 +519,11 @@ class ChatMessages extends React.Component {
     })
   }
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    if (this._psObserver) this._psObserver.disconnect()
+    $(window).off('resize.chat-ps')
+    $(this._$messages).perfectScrollbar('destroy')
+  }
 }
 
 class ChatMessage extends React.Component {

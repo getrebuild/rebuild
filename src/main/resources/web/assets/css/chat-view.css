@@ -84,6 +84,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-standalone .chat-messages {
+  position: relative;
   height: auto;
   flex: 1;
   overflow-y: auto;
@@ -334,7 +335,7 @@ html.theme-dark2 .chat-message .msg-text .mermaid,
 html.theme-dark2 .chat-message .msg-text .mermaid-to-render,
 html.theme-dark2 .chat-message .msg-text .echarts-to-render,
 html.theme-dark2 .chat-message .msg-text .html-to-render {
-  background-color: #fff;
+  background-color: transparent;
 }
 
 html.theme-dark2 .chat-message .msg-text .echarts-to-render:not(.echarts-rendered) {
@@ -359,18 +360,6 @@ html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-
 html.theme-dark2 .wait-resp,
 html.theme-dark2 .rb-loading {
   color: var(--rb-dark-muted);
-}
-
-html.theme-dark2 ::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.18);
-}
-
-html.theme-dark2 ::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-
-html.theme-dark2 .chat-sidebar .ps-scrollbar-y-rail > .ps-scrollbar-y {
-  background-color: rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 900px) {
