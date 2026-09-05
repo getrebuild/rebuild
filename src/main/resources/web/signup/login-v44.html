@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2.css}" />
     <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
     <title>[[${bundle.L('用户登录')}]]</title>
     <style>
@@ -162,6 +163,24 @@
           left: 50%;
           transform: translate(-50%, -50%);
         }
+      }
+
+      html.theme-dark2 .login-form {
+        background-color: var(--rb-dark-panel);
+        color: var(--rb-dark-text);
+      }
+      html.theme-dark2 .login-form .logo-img {
+        background-image: url(../commons/theme/use-logo-white);
+      }
+      html.theme-dark2 .login-with {
+        border-top-color: var(--rb-dark-border);
+      }
+      html.theme-dark2 .login-with > span {
+        color: var(--rb-dark-muted);
+        background-color: var(--rb-dark-panel);
+      }
+      html.theme-dark2 .h5-mobile span {
+        color: var(--rb-dark-muted);
       }
     </style>
     <script>

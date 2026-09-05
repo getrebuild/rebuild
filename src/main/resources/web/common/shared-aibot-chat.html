@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chat-view.css}" />
     <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-size=1,user-scalable=no" />
     <title>[[${subject ?: bundle.L('AI 会话分享')}]]</title>
     <style>
@@ -44,6 +46,14 @@
       .chat-input .chat-input-attach > span,
       .chat-message .msg-user > .msg-attach > a {
         cursor: default;
+      }
+
+      html.theme-dark2 body {
+        background-color: #151b23;
+      }
+      html.theme-dark2 .chat-messages {
+        background-color: rgba(13, 17, 23, 0.6);
+        /* background-color: #0d1117; */
       }
     </style>
   </head>

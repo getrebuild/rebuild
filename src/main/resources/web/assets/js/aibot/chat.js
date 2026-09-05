@@ -69,7 +69,7 @@ class Chat extends React.Component {
   render() {
     return (
       <RF>
-        <div className="chat" ref={(c) => (this._$chat = c)}>
+        <div className={`chat ${this.props.standalone ? 'chat-standalone' : ''}`} ref={(c) => (this._$chat = c)}>
           <ChatMessages _Chat={this} ref={(c) => (this._ChatMessages = c)} />
           <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
         </div>
@@ -82,6 +82,9 @@ class Chat extends React.Component {
     this.initChat(this.state.chatid)
 
     $(this._$chat).on('click.sidebar-hide', (e) => {
+      // 独立页桌面端侧栏常驻，点击聊天区不收起（小屏抽屉模式仍点击外部关闭）
+      if (this.props.standalone && window.innerWidth >= 900) return
+
       const $e = $(e.target)
       if ($e.hasClass('chat-sidebar') || $e.parents('.chat-sidebar')[0]);
       else {
@@ -169,10 +172,14 @@ class Chat extends React.Component {
         role: 'assistant',
         sendResp: (onChunk) => {
           $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload`, JSON.stringify(data), (res) => {
-            if (res._chatid) this.setState({ chatid: res._chatid })
+            if (res._chatid) {
+              this.setState({ chatid: res._chatid })
+              this._ChatSidebar && this._ChatSidebar.setState({ current: res._chatid })
+            }
             typeof onChunk === 'function' && onChunk({ ...res })
             typeof onChunk === 'function' && onChunk({ type: '_done' })
             typeof onDone === 'function' && onDone()
+            this._ChatSidebar && this._ChatSidebar._loadChatList()
           })
         },
       })
@@ -188,10 +195,19 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
-          fetchStream(`${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`, data, onChunk, () => {
-            typeof onChunk === 'function' && onChunk({ type: '_done' })
-            typeof onDone === 'function' && onDone()
-          })
+          fetchStream(
+            `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`,
+            data,
+            (chunk) => {
+              if (chunk && chunk.type === '_chatid') this._ChatSidebar && this._ChatSidebar._loadChatList()
+              typeof onChunk === 'function' && onChunk(chunk)
+            },
+            () => {
+              typeof onChunk === 'function' && onChunk({ type: '_done' })
+              typeof onDone === 'function' && onDone()
+              this._ChatSidebar && this._ChatSidebar._loadChatList()
+            },
+          )
         },
       })
     }, 20)
@@ -298,9 +314,11 @@ class ChatInput extends React.Component {
                 <a className="dropdown-item" onClick={() => this.attachRecord()}>
                   {$L('选择记录')}
                 </a>
-                <a className="dropdown-item" onClick={() => this.attachPageData()}>
-                  {$L('选择当前页数据')}
-                </a>
+                {window.attachAibotPageData && (
+                  <a className="dropdown-item" onClick={() => this.attachPageData()}>
+                    {$L('选择当前页数据')}
+                  </a>
+                )}
               </div>
             </span>
             <button
@@ -315,7 +333,7 @@ class ChatInput extends React.Component {
               <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : this.state.postState === 2 ? 'mdi mdi-spin mdi-loading' : 'mdi mdi-stop'} />
             </button>
           </div>
-          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-local="temp" data-maxsize="52428800" multiple />
+          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-maxsize="52428800" multiple />
         </div>
       </div>
     )
@@ -480,6 +498,13 @@ class ChatMessages extends React.Component {
     let _lastScroll = 0
 
     const $ms = $(this._$messages)
+    $ms.perfectScrollbar()
+    this._psObserver = new MutationObserver(() => {
+      $setTimeout(() => $ms.perfectScrollbar('update'), 100, 'chat-ps-update')
+    })
+    this._psObserver.observe(this._$messages, { childList: true, subtree: true, characterData: true })
+    $(window).on('resize.chat-ps', () => $setTimeout(() => $ms.perfectScrollbar('update'), 150, 'chat-ps-resize'))
+
     $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
       if (_lastScroll - currentScroll > 20) {
@@ -494,7 +519,11 @@ class ChatMessages extends React.Component {
     })
   }
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    if (this._psObserver) this._psObserver.disconnect()
+    $(window).off('resize.chat-ps')
+    $(this._$messages).perfectScrollbar('destroy')
+  }
 }
 
 class ChatMessage extends React.Component {
@@ -591,37 +620,40 @@ class ChatMessage extends React.Component {
               <DateShow date={moment(Number(this.state.sendTime)).format('YYYY-MM-DD HH:mm:ss')} showOrigin />
             </span>
           )}
-
-          <a
-            title={$L('复制')}
-            onClick={(e) => {
-              $clipboard(this.state.content || '')
-              const $a = $(e.currentTarget)
-              $a.addClass('copied-check')
-              setTimeout(() => $a.removeClass('copied-check'), 1500)
-            }}>
-            <i className="icon mdi mdi-content-copy" />
-          </a>
-          {(this.props.role === 'assistant' || this.props.role === 'ai') && this._feedbackable() && (
+          {this._feedbackable() && (
             <RF>
-              <a title={$L('有帮助')} onClick={() => this._feedback('like')} className={this.state.feedback === 'like' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
-                <i className="icon mdi mdi-thumb-up-outline fs-15" />
+              <a
+                title={$L('复制')}
+                onClick={(e) => {
+                  $clipboard(this.state.content || '')
+                  const $a = $(e.currentTarget)
+                  $a.addClass('copied-check')
+                  setTimeout(() => $a.removeClass('copied-check'), 1500)
+                }}>
+                <i className="icon mdi mdi-content-copy" />
               </a>
-              <a title={$L('没帮助')} onClick={() => this._feedback('dislike')} className={this.state.feedback === 'dislike' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
-                <i className="icon mdi mdi-thumb-down-outline fs-15" />
-              </a>
+              {(this.props.role === 'assistant' || this.props.role === 'ai') && (
+                <RF>
+                  <a title={$L('有帮助')} onClick={() => this._feedback('like')} className={this.state.feedback === 'like' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
+                    <i className="icon mdi mdi-thumb-up-outline fs-15" />
+                  </a>
+                  <a title={$L('没帮助')} onClick={() => this._feedback('dislike')} className={this.state.feedback === 'dislike' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
+                    <i className="icon mdi mdi-thumb-down-outline fs-15" />
+                  </a>
+                </RF>
+              )}
+              {(this.props.role === 'assistant' || this.props.role === 'ai') && rb.fileSharable && (
+                <a
+                  title={$L('分享')}
+                  onClick={() => {
+                    const chatid = this.props._ChatMessages.props._Chat.state.chatid
+                    // eslint-disable-next-line react/jsx-no-undef
+                    renderRbcomp(<FileShare file={chatid} title={$L('分享会话')} />)
+                  }}>
+                  <i className="icon zmdi zmdi-share fs-15" />
+                </a>
+              )}
             </RF>
-          )}
-          {(this.props.role === 'assistant' || this.props.role === 'ai') && this._feedbackable() && rb.fileSharable && (
-            <a
-              title={$L('分享')}
-              onClick={() => {
-                const chatid = this.props._ChatMessages.props._Chat.state.chatid
-                // eslint-disable-next-line react/jsx-no-undef
-                renderRbcomp(<FileShare file={chatid} title={$L('分享会话')} />)
-              }}>
-              <i className="icon zmdi zmdi-share fs-15" />
-            </a>
           )}
         </div>
       </div>
@@ -956,13 +988,19 @@ class ChatSidebar extends React.Component {
 
   componentDidMount() {
     this._loadChatList()
+    $(this._$list).perfectScrollbar()
   }
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    $(this._$list).perfectScrollbar('destroy')
+  }
 
   componentDidUpdate(props, prevState) {
     if (prevState.current !== this.state.current) {
       $storage.set('__AiBotLastChatId', this.state.current)
+    }
+    if (prevState.list !== this.state.list) {
+      $(this._$list).perfectScrollbar('update')
     }
   }
 
@@ -972,8 +1010,8 @@ class ChatSidebar extends React.Component {
       this.setState({ list: data }, () => {})
 
       if (this.state.current) {
-        const delIf = data.find((x) => x.chatid === this.state.current)
-        if (!delIf) {
+        const exists = data.some((g) => g.items.some((x) => x.chatid === this.state.current))
+        if (!exists) {
           this.props._Chat.initChat()
           this.setState({ current: null })
         }
@@ -990,49 +1028,62 @@ class ChatSidebar extends React.Component {
             onClick={() => {
               this.props._Chat.initChat()
               this.setState({ current: null })
-              this.toggleShow(false)
+              if (!this.props._Chat.props.standalone || window.innerWidth < 900) this.toggleShow(false)
             }}>
             <i className="mdi mdi-chat-plus-outline mr-1 icon" />
             {$L('新会话')}
           </a>
         </div>
-        <div className="chat-list" ref={(c) => (this._$list = c)}>
-          <ul className="list-unstyled m-0">
-            {this.state.list.map((item) => {
-              return (
-                <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
-                  <div
-                    className="text-ellipsis"
-                    title={item.subject}
-                    onClick={() => {
-                      this.props._Chat.initChat(item.chatid)
-                      this.setState({ current: item.chatid })
-                      // this.toggleShow(false)
-                    }}>
-                    {item.subject}
-                  </div>
-                  <span>
-                    <a data-toggle="dropdown">
-                      <i className="icon zmdi zmdi-more fs-18" />
-                    </a>
-                    <div className="dropdown-menu dropdown-menu-right">
-                      <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
-                        {$L('删除')}
-                      </a>
-                      <a className="dropdown-item" onClick={() => this.handleRename(item)}>
-                        {$L('重命名')}
-                      </a>
-                      <a className="dropdown-item" href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`} target="_blank">
-                        {$L('新窗口打开')}
-                      </a>
-                    </div>
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
+        <div className="chat-list auto-scroller" ref={(c) => (this._$list = c)}>
+          <ul className="list-unstyled m-0">{this._renderGroupedList()}</ul>
         </div>
       </div>
+    )
+  }
+
+  _renderGroupedList() {
+    const labels = { today: $L('今天'), week: $L('最近一周'), earlier: $L('更早') }
+    const ret = this.state.list.map((g) => {
+      if (!g.items || g.items.length === 0) return null
+      return (
+        <React.Fragment key={g.group}>
+          <li className="chat-list-group">{labels[g.group] || g.group}</li>
+          {g.items.map((item) => this._renderItem(item))}
+        </React.Fragment>
+      )
+    })
+
+    return ret
+  }
+
+  _renderItem(item) {
+    return (
+      <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
+        <a
+          className="text-ellipsis"
+          title={item.subject}
+          href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`}
+          onClick={(e) => {
+            $stopEvent(e, true)
+            this.props._Chat.initChat(item.chatid)
+            this.setState({ current: item.chatid })
+          }}>
+          {item.subject}
+        </a>
+        <span>
+          <a data-toggle="dropdown">
+            <i className="icon zmdi zmdi-more fs-18" />
+          </a>
+          <div className="dropdown-menu dropdown-menu-right">
+            <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
+              {$L('删除')}
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleRename(item)}>
+              {$L('重命名')}
+            </a>
+          </div>
+        </span>
+      </li>
     )
   }
 

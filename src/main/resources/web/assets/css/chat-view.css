@@ -1,0 +1,373 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.preview-modal.rich-preview .preview-body {
+  padding: 0;
+}
+
+/* 独立聊天页 */
+
+.aibot-page {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.aibot-main {
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'sidebar header'
+    'sidebar body'
+    'sidebar footer';
+}
+
+.aibot-header {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+  height: 60px;
+}
+
+.aibot-header h3 {
+  margin: 0;
+  font-size: 1.51rem;
+}
+
+.aibot-header .icon {
+  font-size: 1.9rem;
+}
+
+.aibot-header .aibot-header-toggle {
+  border: 0 none;
+  background: none;
+  padding: 2px 8px;
+  margin-right: 6px;
+  border-radius: 6px;
+  color: #666;
+  font-size: 1.538rem;
+  cursor: pointer;
+}
+
+.aibot-header .aibot-header-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.aibot-footer {
+  grid-area: footer;
+  text-align: center;
+  padding: 6px 10px calc(10px + env(safe-area-inset-bottom));
+  font-size: 12px;
+  background-color: #fff;
+}
+
+.aibot-footer .page-footer {
+  position: static;
+  width: auto;
+  padding: 0;
+  background-color: transparent;
+}
+
+.chat-standalone {
+  grid-area: body;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chat-standalone .chat-messages {
+  position: relative;
+  height: auto;
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.chat-standalone .chat-messages > .chat-message,
+.chat-standalone .chat-messages > .chat-suggest {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.chat-standalone .chat-input-container {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  flex-shrink: 0;
+  align-self: center;
+  width: 100%;
+  max-width: 800px;
+  padding: 8px 0 12px;
+}
+
+.aibot-main > .chat-sidebar {
+  position: relative;
+  grid-area: sidebar;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  width: 264px;
+  border-left: 0 none;
+  border-right: 1px solid #e8e8e8;
+  box-shadow: none;
+  background-color: #f7f7f8;
+}
+
+@media (min-width: 901px) {
+  .aibot-main > .chat-sidebar:not(.show) {
+    display: none;
+  }
+}
+
+.aibot-main > .chat-sidebar .chat-list > ul {
+  padding-bottom: 10px;
+}
+
+@media (max-width: 900px) {
+  .aibot-main > .chat-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    transform: translateX(-100%);
+    transition: transform 0.2s;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .aibot-main > .chat-sidebar.show {
+    transform: translateX(0);
+  }
+
+  .chat-standalone .chat-messages {
+    padding: 16px;
+  }
+
+  .chat-standalone .chat-input-container {
+    padding: 8px 16px 12px;
+  }
+
+  .aibot-footer {
+    display: none;
+  }
+}
+
+.aibot-nologin {
+  grid-area: body;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  min-width: 0;
+}
+
+.aibot-nologin > .mdi {
+  font-size: 56px;
+  color: #bbb;
+}
+
+/* 暗黑模式 */
+
+html.theme-dark2 {
+  color-scheme: dark;
+}
+
+html.theme-dark2 .aibot-page {
+  background-color: var(--rb-dark-bg);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .chat-message .markdown-body {
+  background-color: transparent;
+}
+
+html.theme-dark2 .aibot-header {
+  background-color: #010409;
+  border-bottom-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .aibot-header h3 {
+  color: #f0f6fc;
+}
+
+html.theme-dark2 .aibot-header .aibot-header-toggle {
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .aibot-header .aibot-header-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #f0f6fc;
+}
+
+html.theme-dark2 .aibot-nologin > .mdi {
+  color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .aibot-footer {
+  background-color: transparent;
+}
+
+html.theme-dark2 .aibot-main > .chat-sidebar {
+  background-color: #010409;
+  border-right-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .chat-sidebar .chat-list > ul > li > a {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .chat-sidebar .chat-list > ul > li:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+html.theme-dark2 .chat-sidebar .chat-list > ul > li.active {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+html.theme-dark2 .chat-sidebar .chat-list > ul > li > span > a {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .chat-sidebar .chat-list > ul > li.chat-list-group {
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .chat-sidebar .chat-list > ul > li.chat-list-group:hover {
+  background-color: transparent;
+}
+
+html.theme-dark2 .chat-sidebar .chat-new a.btn {
+  background-color: var(--rb-dark-panel);
+  border: 1px solid var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .chat,
+html.theme-dark2 .chat-messages {
+  background-color: transparent;
+}
+
+html.theme-dark2 .chat-message .msg-user > .msg-content {
+  background-color: var(--rb-dark-panel);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .chat-message .msg-user .markdown-body,
+html.theme-dark2 .chat-message .msg-user .markdown-body a {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .chat-message .msg-user > .msg-attach > a {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .chat-message .msg-user > .msg-attach > a[href]:hover {
+  color: var(--rb-theme-color);
+}
+
+html.theme-dark2 .chat-message .msg-ai > .msg-content {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .chat-message .msg-action > a {
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .chat-message .msg-error {
+  background-color: rgba(248, 81, 73, 0.15);
+  color: #f85149;
+}
+
+html.theme-dark2 .chat-suggest .badge {
+  background-color: var(--rb-dark-panel);
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .chat-input {
+  background-color: var(--rb-dark-panel);
+  border-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .chat-input .chat-input-input textarea {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .chat-input .chat-input-input textarea::placeholder {
+  color: rgba(145, 152, 161, 0.6);
+}
+
+html.theme-dark2 .chat-input .chat-input-action button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .chat-input .chat-input-action button:disabled {
+  color: rgba(145, 152, 161, 0.4);
+}
+
+html.theme-dark2 .chat-input .chat-input-action span > button {
+  background-color: transparent;
+}
+
+html.theme-dark2 .chat-input .chat-input-attach > span {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .chat-input .chat-input-attach > span > a.close {
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .chat-message .msg-text .mermaid,
+html.theme-dark2 .chat-message .msg-text .mermaid-to-render,
+html.theme-dark2 .chat-message .msg-text .echarts-to-render,
+html.theme-dark2 .chat-message .msg-text .html-to-render {
+  background-color: transparent;
+}
+
+html.theme-dark2 .chat-message .msg-text .echarts-to-render:not(.echarts-rendered) {
+  background-color: var(--rb-dark-panel);
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-toggle {
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body {
+  border-left-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body,
+html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body > *,
+html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body .markdown-body * {
+  color: rgba(145, 152, 161, 0.85);
+}
+
+html.theme-dark2 .wait-resp,
+html.theme-dark2 .rb-loading {
+  color: var(--rb-dark-muted);
+}
+
+@media (max-width: 900px) {
+  html.theme-dark2 .aibot-main > .chat-sidebar {
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.5);
+  }
+}

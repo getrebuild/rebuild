@@ -361,10 +361,6 @@
                         <td>[[${bundle.L('百度地图 AK')}]]</td>
                         <td th:data-id="PortalBaiduMapAk" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
                       </tr>
-                      <tr class="bosskey-show">
-                        <td>[[${bundle.L('悼念模式')}]] (LAB) <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'PageMourningMode' : ''}" th:data-value="${PageMourningMode}">[[${PageMourningMode ? bundle.L('是') : bundle.L('否')}]]</td>
-                      </tr>
                       <tr>
                         <td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true" id="_MobileNavStyle">[[${MobileNavStyle}]]</td>

@@ -14,6 +14,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -71,17 +72,7 @@ public class FetchUrl implements Tool {
         String result;
         if ("POST".equals(method)) {
             String body = args.getString("body");
-            Object postData;
-            if (StringUtils.isNotBlank(body)) {
-                try {
-                    postData = JSON.parse(body);
-                } catch (Exception ex) {
-                    postData = body;
-                }
-            } else {
-                postData = "";
-            }
-
+            Object postData = ObjectUtils.getIfNull(ToolHelper.parseJsonOrRaw(body), "");
             result = OkHttpUtils.post(url, postData, headers, REQ_TIMEOUT);
         } else {
             result = OkHttpUtils.get(url, headers, null, REQ_TIMEOUT);

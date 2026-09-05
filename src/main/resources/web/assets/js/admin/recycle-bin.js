@@ -9,6 +9,7 @@ const _ENTITIES = {
   'Feeds': $L('动态'),
   'ProjectTask': $L('任务'),
   'Attachment': $L('文件'),
+  'AibotChat': $L('AI 会话'),
 }
 
 $(document).ready(() => {

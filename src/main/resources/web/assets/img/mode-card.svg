@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 130">
+  <defs>
+    <symbol id="card" viewBox="0 0 64 48">
+      <rect width="64" height="48" rx="2" fill="#fff" stroke="#e9ecef"/>
+      <rect x="6" y="6" width="52" height="24" rx="2" fill="#e9ecef"/>
+      <rect x="6" y="36" width="30" height="4" rx="2" fill="#ced4da"/>
+      <rect x="6" y="42" width="44" height="3" rx="2" fill="#dee2e6"/>
+    </symbol>
+  </defs>
+  <rect x=".5" y=".5" width="199" height="129" rx="2" fill="#fff" stroke="#e9ecef"/>
+  <rect x="8" y="8" width="32" height="114" rx="2" fill="#eef0f2"/>
+  <rect x="46" y="8" width="146" height="114" rx="2" fill="#f5f6f8"/>
+  <use href="#card" x="52" y="14" width="64" height="48"/>
+  <use href="#card" x="122" y="14" width="64" height="48"/>
+  <use href="#card" x="52" y="68" width="64" height="48"/>
+  <use href="#card" x="122" y="68" width="64" height="48"/>
+</svg>

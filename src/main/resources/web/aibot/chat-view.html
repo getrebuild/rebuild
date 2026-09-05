@@ -2,51 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chat-view.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2.css}" />
     <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
     <title>[[${_AiBot}]]</title>
-    <style>
-      .aibot.modal {
-        z-index: 0;
-      }
-      .aibot .modal-dialog {
-        width: 1000px;
-        margin: 0 auto;
-        box-shadow: none !important;
-        height: calc(100vh - 40px);
-        min-height: 0;
-      }
-      .aibot .modal-dialog > .modal-content {
-        border: 0 none;
-      }
-      .aibot.modal .modal-header .hide2,
-      .aibot.modal .modal-header .dock-toggle {
-        display: none;
-      }
-      .page-footer {
-        background: transparent !important;
-      }
-      @media (max-width: 800px) {
-        .aibot .modal-dialog {
-          width: 100%;
-          max-width: 100%;
-          border-radius: 0;
-        }
-        .aibot .modal-header,
-        .aibot .modal-content {
-          border-radius: 0;
-        }
-        .chat .chat-input-container,
-        .chat-messages {
-          padding: 16px;
-        }
-        .page-footer {
-          display: none;
-        }
-        .aibot .modal-dialog {
-          height: 100vh;
-        }
-      }
-    </style>
   </head>
   <body>
     <div id="chat-wrapper">

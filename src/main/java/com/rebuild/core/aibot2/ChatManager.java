@@ -15,6 +15,7 @@ import com.openai.models.chat.completions.ChatCompletionContentPartImage;
 import com.openai.models.chat.completions.ChatCompletionContentPartText;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.service.AibotChatService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.utils.CommonsUtils;
@@ -90,12 +91,13 @@ public abstract class ChatManager {
     }
 
     /**
+     * 删除会话（支持回收站）
+     *
      * @param chatid
+     * @see AibotChatService#delete(ID)
      */
     public static void deleteChat(ID chatid) {
-        String ckey = "chat2-" + chatid;
-        Application.getCommonsCache().evict(ckey);
-        Application.getCommonsService().delete(chatid);
+        Application.getBean(AibotChatService.class).delete(chatid);
     }
 
     /**

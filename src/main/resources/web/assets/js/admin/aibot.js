@@ -5,6 +5,8 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+const __MODELS = ['qwen3.8-max', 'glm-5.2', 'deepseek-v4-flash', 'gpt-5']
+
 // eslint-disable-next-line no-undef, react/display-name
 useEditComp = function (name) {
   if ('AibotBasePrompt' === name) {
@@ -14,7 +16,7 @@ useEditComp = function (name) {
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
       let option = {
-        options: 'qwen3.8-max glm-5.2 deepseek-v4-flash gpt-5'.split(' '),
+        options: __MODELS,
         onSelect: (v) => {
           // eslint-disable-next-line no-undef
           changeValue({ target: { value: v, name: 'AibotBaseDefModel' } })
@@ -22,30 +24,31 @@ useEditComp = function (name) {
       }
       $autoComplete($('input[name="AibotBaseDefModel"]'), null, option)
 
-      // 异步获取可用模型
-      const $urlInput = $('input[name="AibotDSUrl"]')
-      const $keyInput = $('input[name="AibotDSSecret"]')
-      const baseUrl = ($urlInput.val() || '').trim()
-      const apiKey = ($keyInput.val() || '').trim()
+      // 聚焦时按页面当前参数拉取可用模型
+      let fetching = false
+      const fetchModels = () => {
+        if (fetching) return
+        fetching = true
 
-      const origUrl = ($('td[data-id="AibotDSUrl"]').data('value') || '').trim()
-      const origKey = ($('td[data-id="AibotDSSecret"]').data('value') || '').trim()
-      const params = []
-      if (baseUrl && baseUrl !== origUrl) params.push(`baseUrl=${encodeURIComponent(baseUrl)}`)
-      if (apiKey && apiKey !== origKey) params.push(`apiKey=${encodeURIComponent(apiKey)}`)
-      const qs = params.length > 0 ? `?${params.join('&')}` : ''
-      $.get(`./aibot/models${qs}`, (res) => {
-        if (res.error_code === 0 && res.data && res.data.length > 0) {
-          option.options = res.data.map((m) => {
-            // const ctx = m.contextWindow
-            // return {
-            //   text: ctx ? `${m.id} (${ctx >= 1000 ? Math.round(ctx / 1000) + 'K' : ctx})` : m.id,
-            //   name: m.id,
-            // }
-            return m.id
-          })
-        }
-      })
+        const baseUrl = ($('input[name="AibotDSUrl"]').val() || '').trim()
+        const apiKey = ($('input[name="AibotDSSecret"]').val() || '').trim()
+        const origKey = ($('td[data-id="AibotDSSecret"]').data('value') || '').trim()
+
+        const params = []
+        if (baseUrl) params.push(`baseUrl=${encodeURIComponent(baseUrl)}`)
+        if (apiKey && apiKey !== origKey) params.push(`apiKey=${encodeURIComponent(apiKey)}`)
+        const qs = params.length > 0 ? `?${params.join('&')}` : ''
+
+        $.get(`./aibot/models${qs}`, (res) => {
+          if (res.error_code === 0 && res.data && res.data.length) {
+            option.options = res.data.map((m) => m.id)
+          } else {
+            option.options = [...__MODELS]
+          }
+        }).always(() => (fetching = false))
+      }
+
+      $('input[name="AibotBaseDefModel"]').on('focus', fetchModels)
     }, 500)
   }
 }
