@@ -12,7 +12,7 @@ class AiBot extends React.Component {
     super(props)
     this._isShown = false
     const savedDock = props.draggable ? $storage.get('__AiBotDockMode') : 'false'
-    this.state = { dockMode: !savedDock ? true : savedDock === 'true' }
+    this.state = { dockMode: !savedDock ? true : savedDock === 'true', chatid: props.chatid }
   }
 
   render() {
@@ -29,9 +29,9 @@ class AiBot extends React.Component {
                 type="button"
                 onClick={() => {
                   window.open(`${rb.baseUrl}/aibot/chat${this.state.chatid ? '#chatid=' + this.state.chatid : ''}`, '_blank')
-                  // this.hide()
+                  this.hide()
                 }}
-                title={$L('新窗口打开')}>
+                title={$L('独立窗口')}>
                 <span className="mdi mdi-open-in-new" />
               </button>
               <button className="close dock-toggle" type="button" onClick={() => this.toggleDockMode()} title={dockMode ? $L('浮动模式') : $L('侧栏模式')}>

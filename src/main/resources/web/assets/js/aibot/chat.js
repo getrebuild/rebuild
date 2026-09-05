@@ -28,7 +28,6 @@ const _chatMarked = new marked.Marked({
     },
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens)
-      // 非安全协议
       if (!/^https?:\/\//i.test(href) && !href.startsWith('/')) return text
 
       let safeHref = href
@@ -62,7 +61,6 @@ class Chat extends React.Component {
       ...props,
       messages: [],
     }
-    // 预设输入对象（仅首次使用）
     this._preset = props.preset
   }
 
@@ -82,7 +80,6 @@ class Chat extends React.Component {
     this.initChat(this.state.chatid)
 
     $(this._$chat).on('click.sidebar-hide', (e) => {
-      // 独立页桌面端侧栏常驻，点击聊天区不收起（小屏抽屉模式仍点击外部关闭）
       if (this.props.standalone && window.innerWidth >= 900) return
 
       const $e = $(e.target)
@@ -140,7 +137,6 @@ class Chat extends React.Component {
 
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
 
-        // 应用预设输入
         if (_preset) {
           let newState = {}
           if (_preset.content) newState.content = _preset.content
@@ -766,18 +762,18 @@ class RichContent extends React.Component {
   _renderRich() {
     const $el = this._$el && $(this._$el)
     if (!$el || this.props.md === false) return
+
     const ready = this.props.ready !== false
+    if (!this._rnd) this._rnd = $random('rc-', true)
 
     if ($el.find('.echarts-to-render:not(.echarts-rendered)').length) {
-      if (!this._seq) this._seq = $random('rc-', true)
-      $setTimeout(() => this._renderEcharts($el, ready), 200, 'render-echarts-' + this._seq)
+      $setTimeout(() => this._renderEcharts($el, ready), 100, 'render-echarts-' + this._rnd)
     }
     if (ready && $el.find('.mermaid-to-render').length) {
-      this._renderMermaid($el)
+      $setTimeout(() => this._renderMermaid($el), 100, 'render-html-' + this._rnd)
     }
     if (ready && $el.find('.html-to-render:not(.html-rendered)').length) {
-      if (!this._seq) this._seq = $random('rc-', true)
-      $setTimeout(() => this._renderHtml($el), 200, 'render-html-' + this._seq)
+      $setTimeout(() => this._renderHtml($el), 100, 'render-html-' + this._rnd)
     }
   }
 
