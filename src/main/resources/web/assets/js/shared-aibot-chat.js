@@ -46,5 +46,9 @@ $(document).ready(() => {
     $('.rb-loading-active').remove()
     $('.J_content').removeClass('hide')
     $enableScrollTop()
+
+    if (document.documentElement.classList.contains('theme-dark2')) {
+      $('.J_content .markdown-body').attr('data-theme', 'dark')
+    }
   })
 })

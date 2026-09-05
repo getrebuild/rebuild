@@ -5,6 +5,10 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+.preview-modal.rich-preview .preview-body {
+  padding: 0;
+}
+
 /* 独立聊天页 */
 
 .aibot-page {
