@@ -45,17 +45,13 @@ public class AibotChatService extends ObservableService {
     @Override
     public int delete(ID recordId) {
         final RecycleStore recycleBin = useRecycleStore(recordId);
-
-        // 清理缓存
-        Application.getCommonsCache().evict("chat2-" + recordId);
-
         if (recycleBin == null) {
-            // 回收站未开启，清理物理文件并删除 AibotChatAttach 记录
             cleanChatFiles(recordId);
             deleteChatAttach(recordId);
         }
 
         int d = super.delete(recordId);
+        Application.getCommonsCache().evict("chat2-" + recordId);
 
         if (recycleBin != null) recycleBin.store();
         return d;
@@ -80,21 +76,22 @@ public class AibotChatService extends ObservableService {
 
                 for (int i = 0; i < attachArray.size(); i++) {
                     JSONObject item = attachArray.getJSONObject(i);
-                    String filePath = item.getString("file");
-                    if (StringUtils.isBlank(filePath)) continue;
+                    String fp = item.getString("file");
+                    if (StringUtils.isBlank(fp)) continue;
 
                     try {
                         if (QiniuCloud.instance().available()) {
-                            QiniuCloud.instance().delete(filePath);
+                            QiniuCloud.instance().delete(fp);
                         } else {
-                            FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData(filePath));
+                            FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData(fp));
                         }
-                        log.info("Deleted chat file : {}", filePath);
+                        log.info("Deleted chat file : {}", fp);
                     } catch (Exception ex) {
-                        log.warn("Failed to delete chat file : {}", filePath, ex);
+                        log.warn("Failed to delete chat file : {}", fp, ex);
                     }
                 }
             }
+
         } catch (Exception ex) {
             log.warn("Failed to clean chat files for {}", chatid, ex);
         }
@@ -110,12 +107,12 @@ public class AibotChatService extends ObservableService {
                 "select attachId from AibotChatAttach where chatId = ?")
                 .setParameter(1, chatid)
                 .array();
-        if (attaches.length > 0) {
-            ID[] ids = new ID[attaches.length];
-            for (int i = 0; i < attaches.length; i++) {
-                ids[i] = (ID) attaches[i][0];
-            }
-            Application.getCommonsService().delete(ids, false);
+        if (attaches.length == 0) return;
+
+        ID[] ids = new ID[attaches.length];
+        for (int i = 0; i < attaches.length; i++) {
+            ids[i] = (ID) attaches[i][0];
         }
+        Application.getCommonsService().delete(ids, false);
     }
 }
