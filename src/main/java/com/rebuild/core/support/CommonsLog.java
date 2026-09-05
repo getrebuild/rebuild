@@ -39,6 +39,7 @@ public class CommonsLog {
     public static final String TYPE_ACCESS = "ACCESS";
     public static final String TYPE_EXTFORM = "EXTFORM";
     public static final String TYPE_TRANSFORM = "TRANSFORM";
+    public static final String TYPE_DATASYNC = "DATASYNC";
 
     /**
      * @param type

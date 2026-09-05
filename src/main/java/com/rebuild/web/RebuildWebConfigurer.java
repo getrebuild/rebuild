@@ -58,7 +58,6 @@ import static com.rebuild.core.support.ConfigurationItem.AppName;
 import static com.rebuild.core.support.ConfigurationItem.FileSharable;
 import static com.rebuild.core.support.ConfigurationItem.MarkWatermark;
 import static com.rebuild.core.support.ConfigurationItem.PageFooter;
-import static com.rebuild.core.support.ConfigurationItem.PageMourningMode;
 import static com.rebuild.core.support.ConfigurationItem.PortalBaiduMapAk;
 import static com.rebuild.core.support.ConfigurationItem.PortalOfficePreviewUrl;
 import static com.rebuild.core.support.ConfigurationItem.PortalUploadMaxSize;
@@ -115,7 +114,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         setStaticVariable(PortalBaiduMapAk);
         setStaticVariable(PortalUploadMaxSize);
         setStaticVariable(AppBuild);
-        setStaticVariable(PageMourningMode);
 
         if (License.isCommercial()) {
             String aibot = RebuildConfiguration.get(AibotDSSecret);
@@ -166,6 +164,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RebuildWebInterceptor())
                 .excludePathPatterns("/gw/api/**")
+                .excludePathPatterns("/gw/mcp/**")
                 .excludePathPatterns("/language/**")
                 .excludePathPatterns("/assets/**")
                 .excludePathPatterns("/h5app/**")

@@ -113,10 +113,13 @@ public class JSONUtils {
      * @param text
      * @return
      */
-    public static boolean wellFormat(String text) {
-        if (StringUtils.isBlank(text)) return false;
-        text = text.trim();
-        return (text.startsWith("{") && text.endsWith("}")) || (text.startsWith("[") && text.endsWith("]"));
+    public static boolean wellFormat(Object text) {
+        if (text == null) return false;
+        if (text instanceof JSON) return true;
+
+        String text2 = text.toString().trim();
+        if (StringUtils.isBlank(text2)) return false;
+        return (text2.startsWith("{") && text2.endsWith("}")) || (text2.startsWith("[") && text2.endsWith("]"));
     }
 
     /**

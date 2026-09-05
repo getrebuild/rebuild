@@ -1,0 +1,36 @@
+{
+  "type": "function",
+  "userDescription": "构建表单布局，自定义记录表单显示哪些字段、如何排布",
+  "function": {
+    "name": "BuildFormLayout",
+    "description": "新建表单布局，定义实体记录表单中显示哪些字段及排布规则（栅格宽度、分割线）。当用户希望调整/自定义某个实体的新建或编辑表单显示时使用。调用前必须先调用 GetConfigSchema(schema=form-layout) 获取布局数据结构，并用 ListEntities 查询实体的真实字段名。字段支持中文标签（自动转换为真实字段名），解析失败会返回错误提示",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称（布局所属实体）"
+        },
+        "name": {
+          "type": "string",
+          "description": "布局名称（可选），应简洁说明用途"
+        },
+        "config": {
+          "type": "array",
+          "description": "表单布局数据，数组，每项为一个字段或分割线，结构定义见 form-layout Schema（用 GetConfigSchema 获取）"
+        },
+        "shareTo": {
+          "type": "string",
+          "enum": ["ALL", "SELF"],
+          "description": "共享范围（可选，默认 ALL）：ALL=全部用户可用、SELF=仅创建人可用"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["entity", "config"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -68,7 +68,7 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
             sw.stop();
         }
 
-        log.info("Modify the `OwningDept` to complete : {}:{} : {}\n{}", this.user, deptNew, changed, sw.prettyPrint());
+        log.info("`OwningDept` modification completed : {}:{} : {}\n{}", this.user, deptNew, changed, sw.prettyPrint());
         return changed;
     }
 }

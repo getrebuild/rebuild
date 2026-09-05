@@ -59,7 +59,7 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
         if (!MetadataHelper.hasPrivilegesField(entity)) {
             useMain = entity.getMainEntity();
             if (!(useMain != null && MetadataHelper.hasPrivilegesField(useMain))) {
-                throw new PrivilegesException("None privileges entity : " + entity.getName());
+                throw new PrivilegesException("No privileges for entity : " + entity.getName());
             }
         }
 

@@ -221,7 +221,7 @@ create table if not exists `filter_config` (
   `CONFIG`             text(65535) not null,
   `SHARE_TO`           varchar(4001) default 'SELF' comment '共享给谁 (可选值: ALL/SELF/$MemberID)',
   `FILTER_NAME`        varchar(100) not null comment '名称',
-  `SEQ`                int(11) default '0' comment '显示顺序',
+  `SEQ`                int(11) default '0' comment '显示顺序 (大到小)',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -236,6 +236,7 @@ create table if not exists `commons_config` (
   `TYPE`               varchar(100) not null comment '类型',
   `NAME`               varchar(100) comment '名称',
   `CONFIG`             text(65535) comment '规则',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
@@ -897,6 +898,32 @@ create table if not exists `tag_item` (
   unique index UIX2_tag_item (`BELONG_FIELD`, `RECORD_ID`, `TAG_NAME`)
 )Engine=InnoDB;
 
+-- ************ Entity [AibotKnowledgeChunk] DDL ************
+create table if not exists `aibot_knowledge_chunk` (
+  `CHUNK_ID`           char(20) not null,
+  `KNOWLEDGE_ID`       char(20) not null,
+  `CONTENT`            longtext comment '片段内容',
+  `CHUNK_INDEX`        int(11) comment '分片序号',
+  `KEYWORDS`           varchar(1000) comment '关键词 (逗号分隔)',
+  primary key  (`CHUNK_ID`),
+  index IX0_aibot_knowledge_chunk (`KNOWLEDGE_ID`, `CHUNK_INDEX`),
+  fulltext index FIX1_aibot_knowledge_chunk (`CONTENT`)
+)Engine=InnoDB;
+
+-- ************ Entity [AibotConfig] DDL ************
+create table if not exists `aibot_config` (
+  `CONFIG_ID`          char(20) not null,
+  `TYPE`               varchar(100) not null comment '配置类型',
+  `NAME`               varchar(200) comment '名称',
+  `CONFIG`             longtext comment '配置内容 (JSON)',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
 -- ************ Entity [AibotChatAttach] DDL ************
 create table if not exists `aibot_chat_attach` (
   `ATTACH_ID`          char(20) not null,
@@ -1020,4 +1047,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 76);
+  values ('021-9000000000000001', 'DBVer', 78);

@@ -10,6 +10,7 @@ package com.rebuild.core.support;
 import cn.devezhao.commons.CalendarUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OkHttpUtils;
 import com.rebuild.utils.RebuildBanner;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ import java.util.Objects;
 public class SysbaseSupport {
 
     /**
-     * 提交支持
+     * 提交支持日志
      *
      * @return
      */
@@ -62,31 +63,62 @@ public class SysbaseSupport {
 
         JSONObject resJson;
         try {
-            String res = upload(logFile, "https://getrebuild.com/api/misc/request-support");
-            log.info("Upload file of support : {}", res);
+            String res = upload(logFile, null, "https://getrebuild.com/api/misc/request-support");
+            log.info("Uploading support file : {}", res);
             resJson = (JSONObject) JSON.parse(res);
         } catch (IOException e) {
-            log.error("Upload file of support fails", e);
+            log.error("Failed to upload support file", e);
             return null;
         }
+        return resJson.getString("TSID");
+    }
 
+    /**
+     * 提交支持 AI 反馈日志
+     *
+     * @param logFile
+     * @param comment
+     * @return
+     */
+    public String uploadAibotFeedback(File logFile, String comment) {
+        String uploadName = logFile.getName();
+        if (StringUtils.isNotBlank(comment)) {
+            String trimmed = comment.trim().replaceAll("[\\\\/:*?\"<>|]", "").trim();
+            trimmed = CommonsUtils.maxstr(trimmed, 20);
+            if (StringUtils.isNotBlank(trimmed)) {
+                String origName = logFile.getName();
+                uploadName = origName.replace(".log", "-" + trimmed + ".log");
+            }
+        }
+
+        JSONObject resJson;
+        try {
+            String res = upload(logFile, uploadName, "https://getrebuild.com/api/misc/request-support?type=aibot");
+            log.info("Uploading aibot-chat file : {}", res);
+            resJson = (JSONObject) JSON.parse(res);
+        } catch (IOException e) {
+            log.error("Failed to upload aibot-chat file", e);
+            return null;
+        }
         return resJson.getString("TSID");
     }
 
     /**
      * @param file
+     * @param uploadName
      * @param uploadUrl
      * @return
      * @throws IOException
      */
-    protected String upload(File file, String uploadUrl) throws IOException {
-        OkHttpClient client = OkHttpUtils.getHttpClient();
+    String upload(File file, String uploadName, String uploadUrl) throws IOException {
+        if (uploadName == null) uploadName = file.getName();
 
+        OkHttpClient client = OkHttpUtils.getHttpClient();
         RequestBody fileBody = RequestBody.create(
                 file, MediaType.parse("multipart/form-data"));
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("file", file.getName(), fileBody)
+                .addFormDataPart("file", uploadName, fileBody)
                 .build();
 
         Request.Builder builder = new Request.Builder()

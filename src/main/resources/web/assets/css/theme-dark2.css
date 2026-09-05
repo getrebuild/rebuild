@@ -1,0 +1,194 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+html.theme-dark2 {
+  --rb-dark-bg: #0d1117;
+  --rb-dark-panel: #151b23;
+  --rb-dark-border: #3d444d;
+  --rb-dark-text: #e6edf3;
+  --rb-dark-muted: #9198a1;
+}
+
+html.theme-dark2 body {
+  background-color: var(--rb-dark-bg);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .modal .modal-content {
+  background-color: var(--rb-dark-panel);
+  border-color: var(--rb-dark-border);
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.5);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .modal .modal-header .close {
+  color: var(--rb-dark-muted);
+  text-shadow: none;
+}
+
+html.theme-dark2 .modal.rbmodal.use-white .modal-header {
+  background-color: transparent;
+  border-bottom-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .form-control {
+  background-color: var(--rb-dark-bg);
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .form-group label {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .text-dark {
+  color: var(--rb-dark-text) !important;
+}
+
+html.theme-dark2 .select2-container .select2-selection--single,
+html.theme-dark2 .select2-container .select2-selection--multiple {
+  background-color: var(--rb-dark-bg);
+  border-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .select2-container .select2-selection__rendered {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .select2-container--default .select2-dropdown {
+  background-color: var(--rb-dark-panel);
+  border-color: var(--rb-dark-border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+html.theme-dark2 .select2-container--default .select2-dropdown--above {
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.5);
+}
+
+html.theme-dark2 .select2-container--default .select2-search--dropdown {
+  background-color: var(--rb-dark-panel);
+  border-bottom-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .select2-container--default .select2-search--dropdown .select2-search__field {
+  background-color: transparent;
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .select2-container--default .select2-results__option {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .select2-container--default .select2-results__option[aria-selected='true'] {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+html.theme-dark2 .dropdown-menu {
+  background-color: var(--rb-dark-panel);
+  border-color: var(--rb-dark-border);
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+html.theme-dark2 .dropdown-item {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .dropdown-item.active,
+html.theme-dark2 .dropdown-item:active {
+  background-color: var(--rb-theme-color);
+  color: #fff;
+}
+
+html.theme-dark2 .btn-secondary {
+  background-color: var(--rb-dark-panel);
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .btn-secondary:focus,
+html.theme-dark2 .btn-secondary.active,
+html.theme-dark2 .btn-secondary:active,
+html.theme-dark2 .btn-secondary:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn-secondary:not([disabled]):not(.disabled):active,
+html.theme-dark2 .show > .btn-secondary.dropdown-toggle {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 input:-webkit-autofill,
+html.theme-dark2 input:-webkit-autofill:hover,
+html.theme-dark2 input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--rb-dark-bg) inset;
+  box-shadow: 0 0 0 1000px var(--rb-dark-bg) inset;
+  -webkit-text-fill-color: var(--rb-dark-text);
+  caret-color: var(--rb-dark-text);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+html.theme-dark2 .custom-control-label {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .custom-control-label::before {
+  background-color: var(--rb-dark-bg);
+  border: 1px solid var(--rb-dark-border);
+}
+
+html.theme-dark2 .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: var(--rb-dark-bg);
+}
+
+html.theme-dark2 .custom-control-input:focus ~ .custom-control-label::before {
+  -webkit-box-shadow: 0 0 0 0.15rem rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 0.15rem rgba(255, 255, 255, 0.15);
+}
+
+html.theme-dark2 a.select-lang {
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 a.select-lang:hover {
+  border-color: var(--rb-dark-border);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+html.theme-dark2 .page-footer {
+  background-color: rgba(13, 17, 23, 0.6);
+  color: var(--rb-dark-muted);
+  mix-blend-mode: normal;
+}
+
+html.theme-dark2 .ps-scrollbar-y-rail .ps-scrollbar-y {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+html.theme-dark2 .file-share .expires ul li:not(.active) a {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--rb-dark-muted);
+}

@@ -50,6 +50,6 @@
   <meta name="rb._markWatermarkText" th:content="${markWatermarkText}" th:if="${markWatermarkText != null}" />
   <meta name="rb._aibotName" th:content="${_AiBot}" th:if="${_AiBot != null}" />
   <!--[if IE]><script>location.href = '[[${baseUrl}]]/error/unsupported-browser'</script><![endif]-->
+  <script>!function(){var e=document.cookie.match(/(?:^|;\s*)rb\.ThemeDark2=(dark|light)/);(e?"dark"===e[1]:matchMedia("(prefers-color-scheme: dark)").matches)&&document.documentElement.classList.add("theme-dark2")}();</script>
   <script th:if="${markWatermark == 'true' || session.rbTempAuth != null}" th:src="@{/assets/lib/watermark.js?v=310}"></script>
-  <style th:if="${PageMourningMode}">html{-webkit-filter:grayscale(100%);-moz-filter:grayscale(100%);-ms-filter:gray(100%);-o-filter:grayscale(100%);filter:grayscale(100%);filter:gray;filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1)}</style>
 </th:block>

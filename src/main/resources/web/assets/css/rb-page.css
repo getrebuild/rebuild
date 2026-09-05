@@ -403,10 +403,10 @@ a.btn {
 }
 
 .logo-img {
-  height: 30px;
-  width: 150px;
+  height: 32px;
+  width: 155px;
   background: url(../img/logo.png) center center no-repeat;
-  background-size: auto 30px;
+  background-size: 155px auto;
   display: block;
   margin: 0 auto;
   cursor: default;
@@ -457,6 +457,25 @@ a.btn {
 .alert-dark.alert-sm .icon {
   border-top: 1px solid #a1a1a1;
   border-bottom: 1px solid #a1a1a1;
+}
+
+.ai-create-btn {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  padding: 2px 10px;
+  padding-right: 12px;
+  border-radius: 20px;
+  color: #fff !important;
+  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe);
+  cursor: pointer;
+  transform: translateY(-3px);
+}
+
+.ai-create-btn .mdi {
+  animation: heartBeat 1.3s ease-in-out infinite;
 }
 
 .input-search,
@@ -578,11 +597,11 @@ a.hover-color:hover {
   border-color: #0d5bdd !important;
 }
 
-a.hover-opacity {
+.hover-opacity {
   opacity: 1;
 }
 
-a.hover-opacity:hover {
+.hover-opacity:hover {
   opacity: 0.8;
 }
 
@@ -787,14 +806,6 @@ div.dataTables_filter .filter-badge:hover .close {
   max-width: 551px;
 }
 
-.modal.show.rbalert {
-  z-index: 1051;
-}
-
-.modal-backdrop.show.rbalert {
-  z-index: 1050;
-}
-
 .modal-body.iframe {
   padding: 0 !important;
   height: 100%;
@@ -853,6 +864,10 @@ body.view-body {
   min-height: 100%;
 }
 
+.select2-dropdown {
+  z-index: 1055;
+}
+
 .select2-search--dropdown .select2-search__field {
   padding: 3px 6px;
 }
@@ -908,11 +923,6 @@ body.view-body {
   color: #222222;
 }
 
-/* .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
-  max-width: 100%;
-  min-width: 21px;
-} */
-
 .select2-container--default.select2-container--focus .select2-selection.select2-selection--multiple {
   border-color: #4285f4;
 }
@@ -931,6 +941,10 @@ body.view-body {
   padding-left: 0.5em;
   padding-right: 0.5em;
   transform: translateY(-1px);
+}
+
+.input-group .select2-container--default.select2-container--focus {
+  z-index: 3;
 }
 
 textarea.row1x {
@@ -1566,6 +1580,40 @@ a.link.link-icon::after {
 
 .ui-mprogress .indeter-bar {
   z-index: 1052;
+}
+
+.ui-mprogress .deter-bar::after,
+.ui-mprogress .indeter-bar::after,
+.ui-mprogress .query-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.5) 40%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0.5) 60%, transparent 100%);
+  -webkit-animation: mp-shimmer 2.4s infinite linear;
+  animation: mp-shimmer 2.4s infinite linear;
+  pointer-events: none;
+}
+
+@-webkit-keyframes mp-shimmer {
+  0% {
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+  100% {
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+}
+@keyframes mp-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* DataList */
@@ -2446,6 +2494,7 @@ th.column-fixed::before,
 .aside-tree li.active > a {
   background-color: rgba(0, 0, 0, 0.09) !important;
   background-color: #4285f4 !important;
+  background-color: var(--rb-theme-color) !important;
   color: #fff !important;
 }
 
@@ -3620,6 +3669,11 @@ a.user-show:not([href]) {
   color: #fff !important;
 }
 
+.global-search > .dropdown-menu a.badge.aibot-quick {
+  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe) !important;
+  color: #fff !important;
+}
+
 .rb-icons-nav > li.dropdown.global-create2 {
   position: relative;
 }
@@ -3696,6 +3750,7 @@ a.user-show:not([href]) {
 
 .preview-modal .preview-header {
   background: rgba(0, 0, 0, 0.9);
+  background-color: #010409;
   color: #fff;
   padding: 0 20px;
   height: 61px;
@@ -3712,6 +3767,16 @@ a.user-show:not([href]) {
   margin: 0;
   height: 60px;
   line-height: 60px;
+}
+
+.preview-modal .preview-header .float-left > h5 {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.preview-modal .preview-header .float-left > h5 small {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .preview-modal .preview-header .float-right a {
@@ -3849,10 +3914,6 @@ a.user-show:not([href]) {
   padding-right: 0;
 }
 
-.file-share {
-  padding: 10px 40px;
-}
-
 .file-share .expires ul li a {
   background-color: #eee;
   border-radius: 99px;
@@ -3868,11 +3929,6 @@ a.user-show:not([href]) {
 
 .file-share .expires ul li.active a::after {
   content: attr(_title);
-}
-
-.file-share .form-control {
-  background-color: #fff !important;
-  cursor: text;
 }
 
 .dialog-table {
@@ -3958,7 +4014,7 @@ a.user-show:not([href]) {
   background-color: rgba(0, 0, 0, 0.06);
   padding: 9px 10px;
   position: relative;
-  color: #555;
+  color: #404040;
   border-radius: 2px;
   overflow: hidden;
   white-space: nowrap;
@@ -4160,6 +4216,17 @@ a.icon-link > .zmdi {
 
 .syscfg.edit .show-on-edit {
   display: table-row;
+}
+
+.syscfg .col-right-compact {
+  padding-left: 0;
+}
+
+@media (max-width: 992px) {
+  .syscfg .col-right-compact {
+    padding-left: 15px;
+    margin-top: 20px;
+  }
 }
 
 .announcement-wrapper > div {
@@ -4480,7 +4547,7 @@ h3.modal-title > .rbv {
 }
 
 .use-theme ul li a.theme-dark {
-  background-color: #1c2128 !important;
+  background-color: #010409 !important;
 }
 
 .use-theme ul li a.theme-blue {
@@ -4602,7 +4669,8 @@ html.external-auth .auth-body.must-center .login {
   background-color: #eee;
   background-color: rgba(255, 255, 255, 0.15);
   font-size: 1rem;
-  color: #222;
+  color: #444;
+  text-shadow: none;
 }
 
 .page-footer > p {
@@ -4727,8 +4795,8 @@ html.external-auth .auth-body.must-center .login {
   content: '\F01F0';
 }
 
-.copied-check > .zmdi-copy::before {
-  content: '\f26b' !important;
+.copied-check > .mdi-content-copy::before {
+  content: '\F012C' !important;
   color: #34a853;
   font-weight: bold;
 }
@@ -4889,6 +4957,7 @@ pre.unstyle {
   margin-left: 6px;
   margin-right: 6px;
   border-radius: 2px;
+  font-size: 14px;
 }
 
 .rb-left-sidebar.v2 .sidebar-elements > li ul li > a {
@@ -5045,7 +5114,7 @@ pre.unstyle {
 
 .modal-header > .icon.mdi,
 .header-icon.mdi {
-  font-size: 2rem;
+  font-size: 1.9rem;
 }
 
 /* v3.1: theme defs */
@@ -5238,7 +5307,7 @@ pre.unstyle {
 }
 
 .rb-top-header .rb-navbar-header .navbar-brand {
-  background-size: auto 30px;
+  background-size: 155px auto;
   padding-right: 0;
 }
 
@@ -5308,16 +5377,6 @@ pre.unstyle {
   margin-bottom: 0;
 }
 
-.col-right-compact {
-  padding-left: 0;
-}
-
-@media (max-width: 768px) {
-  .col-right-compact {
-    padding-left: 15px;
-  }
-}
-
 /* LiteForm */
 
 .liteform-wrap > .rbform {
@@ -5383,6 +5442,7 @@ pre.unstyle {
   top: 15px;
   right: 15px;
   display: none;
+  font-size: 14px;
 }
 
 .code-viewport:hover > a.copy {
@@ -5472,6 +5532,7 @@ pre.unstyle {
   bottom: 10px;
 }
 
+.code-editor .CodeMirror.cm-s-default + .code-editor-actions,
 .code-editor .code-editor-actions.light {
   background-color: rgba(0, 0, 0, 0.7);
 }
@@ -6449,6 +6510,10 @@ div.formula-code {
   width: 30px;
 }
 
+.rb-scroll-top::before {
+  font-size: 32px;
+}
+
 .rb-scroll-top.show {
   display: block;
   right: 20px;
@@ -6742,6 +6807,22 @@ div.formula-code {
   font-size: 13px;
 }
 
+.markdown-body.fs-14 p,
+.markdown-body.fs-14 ul,
+.markdown-body.fs-14 ol,
+.markdown-body.fs-14 dl,
+.markdown-body.fs-14 table,
+.markdown-body.fs-14 details {
+  font-size: 14px;
+}
+
+.markdown-body.fs-14 blockquote p,
+.markdown-body.fs-14 pre,
+.markdown-body.fs-14 code,
+.markdown-body.fs-14 tt {
+  font-size: 13px;
+}
+
 .markdown-body h1,
 .EasyMDEContainer .cm-s-easymde .cm-header-1 {
   font-size: 2em;
@@ -6782,4 +6863,40 @@ div.formula-code {
 .markdown-body pre,
 .EasyMDEContainer .cm-s-easymde .cm-comment {
   font-size: 12px;
+}
+
+.markdown-body .mermaid,
+.markdown-body .mermaid-to-render {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+  text-align: center;
+  background: transparent;
+  overflow-x: auto;
+}
+
+.markdown-body .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid rect {
+  rx: 6px;
+  ry: 6px;
+}
+
+.mermaid text,
+.mermaid .nodeLabel,
+.mermaid .edgeLabel {
+  font-family: inherit;
+  font-size: 13px;
+}
+
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
+
+.mix-color {
+  mix-blend-mode: difference;
 }

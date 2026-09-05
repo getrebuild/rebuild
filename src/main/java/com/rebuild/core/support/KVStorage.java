@@ -112,7 +112,7 @@ public class KVStorage {
 
         // fix:4.4.9 事务回滚时自动清理缓存，避免缓存与数据库不一致
         TransactionManual.registerAfterRollback(() -> {
-            log.info("Cache invalidate on rollback : {}", key);
+            log.info("Cache invalidated on rollback : {}", key);
             Application.getCommonsCache().evict(key);
         });
     }
@@ -204,12 +204,12 @@ public class KVStorage {
                     final Map<String, Object> queue = new HashMap<>(THROTTLED_QUEUE);
                     THROTTLED_QUEUE.clear();
 
-                    log.info("Synchronize KV pairs ... {}", queue);
+                    log.info("Synchronizing KV pairs ... {}", queue);
                     for (Map.Entry<String, Object> e : queue.entrySet()) {
                         try {
                             setCustomValue(e.getKey(), e.getValue());
                         } catch (Throwable ex) {
-                            log.error("Synchronize KV error : {}", e, ex);
+                            log.error("Failed to synchronize KV : {}", e, ex);
 
                             // Retry next-time
                             THROTTLED_QUEUE.put(e.getKey(), e.getValue());

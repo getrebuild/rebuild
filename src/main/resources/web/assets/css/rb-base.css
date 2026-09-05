@@ -6049,10 +6049,6 @@ button.close {
   opacity: 0.2;
 }
 
-.modal-backdrop.show.o {
-  opacity: 0;
-}
-
 .modal-header {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -11578,7 +11574,7 @@ canvas {
 }
 
 .rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar {
-  padding-left: 25px;
+  /* padding-left: 25px; */
 }
 
 @media (max-width: 767.98px) {
@@ -14635,6 +14631,7 @@ a.avatar.x48 img {
   position: relative;
   overflow: hidden;
   vertical-align: middle;
+  text-align: left;
 }
 
 .switch-button input[type='checkbox'] {
@@ -19886,7 +19883,7 @@ h5 .small,
 h5 small,
 h6 .small,
 h6 small {
-  font-weight: 300;
+  /* font-weight: 300; */
 }
 
 .h1,
@@ -20215,9 +20212,20 @@ select.form-control-xs:not([size]):not([multiple]) {
 .input-group-sm > .input-group-append > .input-group-text,
 .input-group-sm > .input-group-prepend > .btn,
 .input-group-sm > .input-group-prepend > .input-group-text {
-  height: 37px !important;
   font-size: 1rem;
   padding: 4px 10px;
+}
+
+/* fix:v4.5 */
+input.form-control-sm,
+select.form-control-sm,
+.input-group-sm > input.form-control,
+.input-group-sm > select.form-control,
+.input-group-sm > .input-group-append > .btn,
+.input-group-sm > .input-group-append > .input-group-text,
+.input-group-sm > .input-group-prepend > .btn,
+.input-group-sm > .input-group-prepend > .input-group-text {
+  height: 37px !important;
 }
 
 .form-control-lg,
@@ -23403,27 +23411,27 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   --color-prettylights-syntax-entity: #d2a8ff;
   --color-prettylights-syntax-entity-tag: #7ee787;
   --color-prettylights-syntax-keyword: #ff7b72;
-  --color-prettylights-syntax-markup-bold: #f0f6fc;
+  --color-prettylights-syntax-markup-bold: #e6edf3;
   --color-prettylights-syntax-markup-changed-bg: #5a1e02;
   --color-prettylights-syntax-markup-changed-text: #ffdfb6;
   --color-prettylights-syntax-markup-deleted-bg: #67060c;
   --color-prettylights-syntax-markup-deleted-text: #ffdcd7;
   --color-prettylights-syntax-markup-heading: #1f6feb;
   --color-prettylights-syntax-markup-ignored-bg: #1158c7;
-  --color-prettylights-syntax-markup-ignored-text: #f0f6fc;
+  --color-prettylights-syntax-markup-ignored-text: #e6edf3;
   --color-prettylights-syntax-markup-inserted-bg: #033a16;
   --color-prettylights-syntax-markup-inserted-text: #aff5b4;
-  --color-prettylights-syntax-markup-italic: #f0f6fc;
+  --color-prettylights-syntax-markup-italic: #e6edf3;
   --color-prettylights-syntax-markup-list: #f2cc60;
   --color-prettylights-syntax-meta-diff-range: #d2a8ff;
-  --color-prettylights-syntax-storage-modifier-import: #f0f6fc;
+  --color-prettylights-syntax-storage-modifier-import: #e6edf3;
   --color-prettylights-syntax-string: #a5d6ff;
   --color-prettylights-syntax-string-regexp: #7ee787;
   --color-prettylights-syntax-sublimelinter-gutter-mark: #3d444d;
   --color-prettylights-syntax-variable: #ffa657;
   --fgColor-attention: #d29922;
   --fgColor-danger: #f85149;
-  --fgColor-default: #f0f6fc;
+  --fgColor-default: #e6edf3;
   --fgColor-done: #ab7df8;
   --fgColor-muted: #9198a1;
   --fgColor-success: #3fb950;

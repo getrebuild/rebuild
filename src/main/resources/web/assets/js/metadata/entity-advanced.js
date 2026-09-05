@@ -16,12 +16,11 @@ $(document).ready(() => {
   if (!metaid) {
     $('.J_drop-confirm').next().removeClass('hide')
     $('.J_drop-confirm').remove()
-    $('.J_truncate-confirm').remove()
     $('.J_drop-check').parent().parent().remove()
     return
   }
 
-  const $confirm = $('.J_drop-confirm, .J_truncate-confirm')
+  const $confirm = $('.J_drop-confirm')
   $('.J_drop-check').on('click', function () {
     $confirm.attr('disabled', !$(this).prop('checked'))
   })
@@ -38,27 +37,6 @@ $(document).ready(() => {
           if (res.error_code === 0) {
             RbHighbar.success($L('实体已删除'))
             setTimeout(() => location.replace('../../entities'), 1500)
-          } else {
-            RbHighbar.error(res.error_msg)
-            this.disabled()
-          }
-        })
-      },
-      countdown: 5,
-    })
-  })
-  $('.J_truncate-confirm').on('click', () => {
-    if (!$('.J_drop-check').prop('checked')) return
-    RbAlert.create($L('此操作将直接清空数据，不会保留在回收站及触发相关业务规则。'), $L('清空数据'), {
-      type: 'danger',
-      confirmText: $L('清空'),
-      confirm: function () {
-        $confirm.button('loading')
-        this.disabled(true)
-        $.post(`../entity-truncate?id=${metaid}`, (res) => {
-          if (res.error_code === 0) {
-            RbHighbar.success($L('数据已清空'))
-            setTimeout(() => location.reload(), 1500)
           } else {
             RbHighbar.error(res.error_msg)
             this.disabled()
@@ -118,7 +96,7 @@ function modeSave(newOption, next) {
   })
 }
 
-const _CATEGORY_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE', 'TEXT']
+const _CATEGORY_TYPES = ['PICKLIST', 'MULTISELECT', 'CLASSIFICATION', 'DATE', 'DATETIME', 'REFERENCE', 'N2NREFERENCE', 'TEXT', 'STATE', 'TAG']
 // 模式选项
 class DlgMode1Option extends RbFormHandler {
   constructor(props) {
@@ -997,7 +975,7 @@ class OptionProps extends RbAlert {
           </div>
         </div>
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('显示位置')}</label>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('显示顺序')}</label>
           <div className="col-sm-7">
             <select className="form-control form-control-sm w-50" ref={(c) => (this._$order = c)}>
               <option value="">{$L('默认')}</option>

@@ -96,6 +96,7 @@ public enum ConfigurationItem {
 
     // App
     MobileAppPath,
+    DesktopAppPath,
 
     // DingTalk
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
@@ -111,6 +112,8 @@ public enum ConfigurationItem {
     WxworkSyncUsers(false),
     WxworkSyncUsersRole,
     WxworkSyncUsersMatch("ID"),
+    WxworkAibotToken,
+    WxworkAibotEncodingAESKey,
     // Feishu
     FeishuAppId, FeishuAppSecret,
     FeishuSyncUsers(false),
@@ -124,18 +127,20 @@ public enum ConfigurationItem {
 
     // Aibot
     AibotName("REBUILD AI 助手"),
-    AibotDSUrl("https://api.deepseek.com/"),
+    AibotDSUrl,
     AibotDSSecret,
+    AibotBaseDefModel,
+    AibotContextCompressThreshold,
+    AibotSuggestQuestions,
     AibotBasePrompt,
-    AibotBaseDefModel("deepseek-v4-flash"),
+    AibotWelcome,
+    AibotToolsDisabled,
 
     // PORTALs
     PortalBaiduMapAk,
     PortalUploadMaxSize(200),
     MobileNavStyle(34),
-    PageMourningMode(false),
 
-    LoginPageStyle(44),
     LoginBulletinBoard("# _REBUILD_\n### 零代码、开源免费的企业管理系统"),
 
     /**

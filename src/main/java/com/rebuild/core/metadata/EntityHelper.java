@@ -28,6 +28,8 @@ import org.springframework.util.Assert;
 import java.util.Date;
 import java.util.Set;
 
+import static com.rebuild.core.rbstore.MetaschemaExporter.KEEP_ID;
+
 /**
  * @author Zhao Fangfang
  * @see MetadataHelper
@@ -48,7 +50,7 @@ public class EntityHelper {
      */
     public static Record parse(JSONObject data) {
         ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
-        log.info("Use '{}' do parse", user);
+        log.info("Using '{}' for parsing", user);
         return parse(data, user, true, false);
     }
 
@@ -79,7 +81,7 @@ public class EntityHelper {
                     com.rebuild.core.support.i18n.Language.L("无效实体数据格式 : %s", data.toJSONString()));
         }
 
-        // v4.0 VID
+        // v4.0 用于未保存记录的预置ID
         String _id40 = metadata.getString("id");
         if (_id40 != null && _id40.startsWith("000-")) metadata.remove("id");
         else _id40 = null;
@@ -106,7 +108,7 @@ public class EntityHelper {
         Record record = new EntityRecordCreator(
                 MetadataHelper.getEntity(entityName), data, user, safetyUrl)
                 .create(false);
-        if (_id40 != null) record.addExtra("_id", _id40);
+        if (_id40 != null) record.addExtra(KEEP_ID, _id40);
 
         // v3.4 表单后端回填
         if (MetadataHelper.isBusinessEntity(record.getEntity())) {
@@ -123,7 +125,7 @@ public class EntityHelper {
      */
     public static Record forUpdate(ID recordId) {
         ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
-        log.info("Use '{}' do forUpdate", user);
+        log.info("Using '{}' for update", user);
         return forUpdate(recordId, user, true);
     }
 
@@ -165,7 +167,7 @@ public class EntityHelper {
      */
     public static Record forNew(int entityCode) {
         ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
-        log.info("Use '{}' do forNew", user);
+        log.info("Using '{}' for creation", user);
         return forNew41(entityCode, user, true);
     }
 
@@ -198,7 +200,7 @@ public class EntityHelper {
      */
     public static Record forNew(String entityName) {
         ID user = (ID) ObjectUtils.defaultIfNull(UserContextHolder.getUser(true), UserService.SYSTEM_USER);
-        log.info("Use '{}' do forNew", user);
+        log.info("Using '{}' for creation", user);
         return forNew41(entityName, user, true);
     }
 
@@ -351,6 +353,7 @@ public class EntityHelper {
     public static final String ApprovalLastTime = "approvalLastTime";
     public static final String ApprovalLastRemark = "approvalLastRemark";
     public static final String ApprovalSubmitUser = "approvalSubmitUser";
+    public static final String ApprovalSubmitTime = "approvalSubmitTime";
 
     // 用户
 
@@ -439,5 +442,7 @@ public class EntityHelper {
 
     public static final int AibotChat = 96;
     public static final int AibotChatAttach = 95;
+    public static final int AibotConfig = 94;
+    public static final int AibotKnowledgeChunk = 93;
 
 }

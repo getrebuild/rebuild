@@ -496,7 +496,7 @@ public class UserHelper {
             // 所有管理员被视为同一用户
             return isAdmin(createdBy) && isAdmin(user);
         } catch (Exception ex) {
-            log.warn("Check isSelf error : {}, {}", user, otherUserOrAnyRecordId, ex);
+            log.warn("Error checking isSelf : {}, {}", user, otherUserOrAnyRecordId, ex);
             return false;
         }
     }

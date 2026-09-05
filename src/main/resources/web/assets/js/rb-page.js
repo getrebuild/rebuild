@@ -36,6 +36,45 @@ _GA()
 
 // PAGE INITIAL
 $(function () {
+  // 多层 modal 处理
+  $(document).on('show hide', '.modal input', function (e) {
+    e.stopPropagation()
+  })
+  $(document)
+    .on('show.bs.modal', '.modal', function () {
+      var total = $('.modal.show:not(.aibot)').length + 1
+      $('.modal-backdrop').css('opacity', '0')
+      var zindex = $(this).hasClass('aibot') ? 1040 + total : parseInt(this.style.zIndex) || 1040 + total
+      $(this).css('z-index', zindex)
+    })
+    .on('shown.bs.modal', '.modal', function () {
+      var total = $('.modal.show:not(.aibot)').length
+      $('.modal-backdrop:last').css({
+        'z-index': 1040 + total - 1,
+        'opacity': '',
+      })
+    })
+    .on('hidden.bs.modal', '.modal', function () {
+      if ($('.modal.show:not(.aibot)').length > 0) {
+        $('body').addClass('modal-open')
+        $('.modal-backdrop:last').css({
+          'z-index': 1040 + $('.modal.show:not(.aibot)').length - 1,
+          'opacity': '',
+        })
+      }
+    })
+    .on('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var $modals = $('.modal.show')
+        for (var i = $modals.length - 1; i >= 0; i--) {
+          var inst = $($modals[i]).data('bs.modal')
+          if (inst && inst._config && inst._config.keyboard === false) continue
+          $($modals[i]).modal('hide')
+          return false
+        }
+      }
+    })
+
   // for `moment`
   if (window.moment) {
     window.moment.locale(rb.locale)
@@ -270,7 +309,7 @@ $(function () {
   var $ai = $('.aibot-show a')
   if ($ai[0]) {
     var _FN = function () {
-      window.AiBot && window.AiBot.init({ chatid: $storage.get('__LastChatId'), draggable: true }, true)
+      window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId'), draggable: true }, true)
     }
     $ai.on('click', _FN)
     $(document).on('keydown.aibot', null, 'shift+/', function (e) {
@@ -278,26 +317,6 @@ $(function () {
       _FN()
     })
   }
-
-  // v4.4 多个 Modal 只关最后一个
-  document.addEventListener(
-    'keydown',
-    function (e) {
-      if (e.key === 'Escape' || e.keyCode === 27) {
-        var visibleModals = document.querySelectorAll('.modal.show')
-        if (visibleModals.length > 1) {
-          try {
-            $(visibleModals[visibleModals.length - 1]).modal('hide')
-            e.stopPropagation()
-            e.preventDefault()
-          } catch (err) {
-            console.log(err)
-          }
-        }
-      }
-    },
-    true,
-  )
 })
 
 $(window).on('load', function () {
@@ -658,6 +677,9 @@ var _initGlobalSearch = function () {
     }, 100)
   })
 
+  // v4.5
+  $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer"></i> ' + $L('问 AI') + '</a>').appendTo($gs)
+
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
     var $a = $item.find('>a')
@@ -670,6 +692,11 @@ var _initGlobalSearch = function () {
 
   var $es = $gs.find('a').on('click', function () {
     var s = $('.search-input-gs').val()
+    if ($(this).hasClass('aibot-quick')) {
+      $('.search-container .dropdown-toggle').dropdown('toggle')
+      window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
+      return
+    }
     $storage.set('GlobalSearch-gs', s || '')
     location.href = $(this).data('url') + ($(this).hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
   })
@@ -695,6 +722,11 @@ var _initGlobalSearch = function () {
       _tryActive($active, $next)
     } else if (e.keyCode === 13) {
       var s = $('.search-input-gs').val()
+      if ($active.hasClass('aibot-quick')) {
+        $('.search-container .dropdown-toggle').dropdown('toggle')
+        window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
+        return
+      }
       $storage.set('GlobalSearch-gs', s || '')
       location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
     }
@@ -1041,12 +1073,9 @@ var $initReferenceSelect2 = function (el, option) {
 // 搜索 text/id
 // https://select2.org/searching#customizing-how-results-are-matched
 var $select2MatcherAll = function (params, data) {
-  if (!window.__pinyinLoaded && !window.pinyinPro) {
-    window.__pinyinLoaded = 1
-    $getScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', function () {
-      console.log('pinyin-pro.min.js loaded')
-    })
-  }
+  $usePinyin(function () {
+    console.log('pinyin-pro.min.js loaded')
+  })
 
   if ($trim(params.term) === '') return data
   if (typeof data.text === 'undefined') return null
@@ -1079,16 +1108,6 @@ var $select2MatcherAll = function (params, data) {
   }
 
   return null
-}
-
-// 保持模态窗口（如果需要）
-var $keepModalOpen = function () {
-  if ($('.rbmodal.show, .rbview.show').length > 0) {
-    var $body = $(document.body)
-    if (!$body.hasClass('modal-open')) $body.addClass('modal-open').css({ 'padding-right': 17 })
-    return true
-  }
-  return false
 }
 
 // 禁用按钮 N 秒（用在一些危险操作上）
@@ -1281,45 +1300,84 @@ var _getLang = function (key) {
 
 // 加载地图脚本
 // https://lbsyun.baidu.com/index.php?title=jspopularGL/guide/helloworld
-var $useMap__Loaded
-var $useMap__Callbacks = []
 var $useMap = function (cb, v3) {
-  // fix: v3.9 并发
-  var _cbs = function () {
-    $($useMap__Callbacks).each(function () {
-      this()
-    })
-    $useMap__Callbacks = []
-  }
-
   var _BMap = v3 ? window.BMap : window.BMapGL
-  if ($useMap__Loaded === 2 && _BMap) {
-    typeof cb === 'function' && cb()
-  } else if ($useMap__Loaded === 1) {
-    typeof cb === 'function' && $useMap__Callbacks.push(cb)
-    var _timer = setInterval(function () {
-      if ($useMap__Loaded === 2 && _BMap) {
-        _cbs()
-        clearInterval(_timer)
-      }
-    }, 500)
-  } else {
-    $useMap__Loaded = 1
-    typeof cb === 'function' && $useMap__Callbacks.push(cb)
-    window['$useMap__callback'] = function () {
-      _cbs()
-      $useMap__Loaded = 2
-    }
-
-    // JSAPI WebGL v1.0
-    var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'Z8YJOqCIysCGK0MsNJChsxPCWeWbqYXS') + '&callback=$useMap__callback'
-    if (window._BMapSecurityConfig && window._BMapSecurityConfig.serviceHost) {
-      apiUrl = window._BMapSecurityConfig.serviceHost + 'api?v=1.0&type=webgl&callback=$useMap__callback'
-    }
-    // JSAPI v3.0
-    if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
-    $getScript(apiUrl)
+  // JSAPI WebGL v1.0
+  var apiUrl = 'https://api.map.baidu.com/api?v=1.0&type=webgl&ak=' + (rb._baiduMapAk || 'Z8YJOqCIysCGK0MsNJChsxPCWeWbqYXS') + '&callback=$useMap__callback'
+  if (window._BMapSecurityConfig && window._BMapSecurityConfig.serviceHost) {
+    apiUrl = window._BMapSecurityConfig.serviceHost + 'api?v=1.0&type=webgl&callback=$useMap__callback'
   }
+  // JSAPI v3.0
+  if (v3) apiUrl = apiUrl.replace('v=1.0&type=webgl&', 'v=3.0&')
+  $useScript(apiUrl, cb, {
+    jsonp: '$useMap__callback',
+    check: function () {
+      return _BMap
+    },
+  })
+}
+
+// ECharts 图表库
+var $useEchart = function (cb) {
+  $useScript('/assets/lib/charts/echarts.min.js?v=5.5.0', cb, {
+    check: function () {
+      return typeof echarts !== 'undefined'
+    },
+  })
+}
+
+// Mermaid 流程图
+var $useMermaid = function (cb) {
+  $useScript('/assets/lib/charts/mermaid.min.js?v=10.4.0', cb, {
+    check: function () {
+      return typeof mermaid !== 'undefined'
+    },
+  })
+}
+
+// 剪切板
+var $useClipboard = function (cb) {
+  $useScript('/assets/lib/clipboard.min.js', cb, {
+    check: function () {
+      return typeof ClipboardJS !== 'undefined'
+    },
+  })
+}
+
+// 拼音
+var $usePinyin = function (cb) {
+  $useScript('/assets/lib/pinyin-pro.min.js?v=3.27.0', cb, {
+    check: function () {
+      return typeof pinyinPro !== 'undefined'
+    },
+  })
+}
+
+// 自动补全
+var $useAutocomplete = function (cb) {
+  $useScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', cb, {
+    check: function () {
+      return !!jQuery.prototype.autoComplete
+    },
+  })
+}
+
+// Excel 导出
+var $useXlsx = function (cb) {
+  $useScript('/assets/lib/charts/xlsx.full.min.js', cb, {
+    check: function () {
+      return typeof XLSX !== 'undefined'
+    },
+  })
+}
+
+// 签名板
+var $useSignPad = function (cb) {
+  $useScript('/assets/lib/widget/signature_pad.umd.min.js', cb, {
+    check: function () {
+      return typeof SignaturePad !== 'undefined'
+    },
+  })
 }
 
 // 自动定位（有误差）
@@ -1408,50 +1466,64 @@ var $formatCode = function (c, type) {
 }
 
 // 复制
-var $clipboard = function ($el, text) {
-  if (!window.ClipboardJS) {
-    console.log('No `ClipboardJS` defined')
+function $clipboard(target, tips) {
+  // 直接复制
+  var _directCopy = function (text) {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(function () {
+          tips && RbHighbar.success($L('已复制'))
+        })
+        .catch(function (err) {
+          console.log('Cannot copy text :', err)
+        })
+    } else {
+      var textarea = document.createElement('textarea')
+      textarea.value = text
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+      tips && RbHighbar.success($L('已复制'))
+    }
+  }
+
+  if (typeof target === 'string') {
+    _directCopy(target)
     return
   }
 
-  var oTitle = $el.attr('title') || $L('点击复制')
-  var $b = $el.attr('title', oTitle).on('mouseleave', function () {
-    $b.attr('data-original-title', oTitle)
+  var $el = $(target)
+  var text = $el.data('clipboard-text') || $el.text() || ''
+  if (!window.ClipboardJS) {
+    $useClipboard(function () {
+      $clipboard(target, tips)
+    })
+    return
+  }
+
+  var title = $el.attr('title') || $L('点击复制')
+  var $b = $el.attr('title', title).on('mouseleave', function () {
+    $b.attr('data-original-title', title)
   })
-  $b.tooltip()
+  $b.tooltip({})
+
   new window.ClipboardJS($b[0], {
     text: function () {
-      return text || $el.data('clipboard-text')
+      return text
     },
-  }).on('success', function () {
-    $b.attr('data-original-title', $L('已复制'))
-    $b.tooltip('hide')
-    setTimeout(function () {
-      $b.tooltip('show')
-    }, 20)
   })
-}
-
-// 复制
-var $clipboard2 = function (text, tips) {
-  if (navigator.clipboard) {
-    navigator.clipboard
-      .writeText(text)
-      .then(function () {
-        tips && RbHighbar.success($L('已复制'))
-      })
-      .catch(function (err) {
-        console.log('Cannot copy text :', err)
-      })
-  } else {
-    var textarea = document.createElement('textarea')
-    textarea.value = text
-    document.body.appendChild(textarea)
-    textarea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textarea)
-    tips && RbHighbar.success($L('已复制'))
-  }
+    .on('success', function () {
+      $b.attr('data-original-title', $L('已复制'))
+      $b.tooltip('hide')
+      setTimeout(function () {
+        $b.tooltip('show')
+      }, 20)
+    })
+    .on('error', function () {
+      _directCopy(text)
+    })
 }
 
 // select2
@@ -1538,7 +1610,7 @@ function $showNotification(title, _onClick, _onShow) {
     if (_Notification.permission === 'granted') {
       var n = new _Notification(title, {
         body: window.rb.appName,
-        icon: rb.baseUrl + '/assets/img/icon-192x192.png',
+        icon: rb.baseUrl + '/assets/img/icon-256x256.png',
         tag: 'rbNotification44',
         renotify: true,
         silent: false,
@@ -1599,10 +1671,49 @@ var $enableScrollTop = function () {
   })
 }
 
-// 颜色
-var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#ff6b35', '#ea4335', '#7500ea', '#eb2f96']
 // 不支持排序的字段
 var UNSORT_FIELDTYPES = ['N2NREFERENCE', 'ANYREFERENCE', 'MULTISELECT', 'TAG', 'FILE', 'IMAGE', 'AVATAR', 'SIGN']
+
+// 颜色
+var RBCOLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#ff6b35', '#ea4335', '#7500ea', '#eb2f96']
+
+// for ECharts
+var ECHART_AXIS_COLOR = '#ddd'
+var ECHART_BASE = {
+  grid: { left: 60, right: 30, top: 30, bottom: 30 },
+  animation: window.__LAB_CHARTANIMATION || false,
+  tooltip: {
+    trigger: 'item',
+    textStyle: {
+      fontSize: 12,
+      lineHeight: 1.2,
+      color: '#333',
+    },
+    axisPointer: {
+      type: 'line', // line, cross, shadow
+      lineStyle: { color: ECHART_AXIS_COLOR },
+      crossStyle: { color: ECHART_AXIS_COLOR },
+      label: {
+        color: '#222',
+        backgroundColor: ECHART_AXIS_COLOR,
+        padding: [7, 7, 5, 7],
+      },
+    },
+    backgroundColor: '#fff',
+    extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
+    confine: true,
+    position: 'top',
+    borderWidth: 0,
+    padding: [5, 10],
+  },
+  toolbox: {
+    show: false,
+  },
+  textStyle: {
+    fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+  },
+  color: RBCOLORS,
+}
 
 /**
  * Modal 可拖动
@@ -1635,12 +1746,14 @@ function $modalDraggable($modal, option) {
     let last = $storage.get(option.keepPositionKey)
     if (last) {
       last = last.split(',').map((v) => parseInt(v))
-      $($modal).find('.modal-dialog').css({
-        left: last[0],
-        top: last[1],
-        right: 'unset',
-        bottom: 'unset',
-      })
+      $($modal)
+        .find('.modal-dialog')
+        .css({
+          left: last[0],
+          top: Math.max(-22, last[1]),
+          right: 'unset',
+          bottom: 'unset',
+        })
     }
   }
 }
@@ -1689,6 +1802,9 @@ function $autoComplete($el, fieldKey, option) {
         $stopEvent(e, true)
         typeof option.onSelect === 'function' && option.onSelect(item)
       })
+      .on('autocomplete.dd.shown', function () {
+        $(this).next('.bootstrap-autocomplete.dropdown-menu').addClass('auto-scroller')
+      })
 
     if (option.options) {
       c.on('focus', function () {
@@ -1699,11 +1815,7 @@ function $autoComplete($el, fieldKey, option) {
     typeof option.onRender === 'function' && option.onRender(c)
   }
 
-  if (jQuery.prototype.autoComplete) {
-    _FN()
-  } else {
-    $getScript('/assets/lib/bootstrap-autocomplete.min.js?v=2.3.7', _FN)
-  }
+  $useAutocomplete(_FN)
 }
 
 // 打开记录详情页
@@ -1718,4 +1830,65 @@ function $openView(id, e) {
 
   if (window.RbViewModal && !_blank && !_spec) window.RbViewModal.create(id)
   else window.open(rb.baseUrl + '/app/redirect?id=' + id.id + '&type=newtab')
+}
+
+// Mermaid 图表渲染支持
+var _mermaidCodeRenderer = function (token) {
+  var text, lang
+  if (typeof token === 'object' && token !== null) {
+    text = token.text
+    lang = token.lang
+  } else {
+    text = arguments[0]
+    lang = arguments[1]
+  }
+  if (lang === 'mermaid') return '<div class="mermaid-to-render">' + text + '</div>'
+  return false
+}
+// 全局注册 mermaid 代码块 renderer，所有 marked.parse() 自动处理
+if (typeof marked !== 'undefined') {
+  marked.use({ renderer: { code: _mermaidCodeRenderer } })
+}
+
+// 懒加载 mermaid 并渲染
+function $renderMermaid($container) {
+  if (!$container || !$container.length) $container = $(document)
+
+  function doRender() {
+    var $nodes = $container.find('.mermaid-to-render')
+    if ($nodes.length === 0) return
+    if (typeof mermaid === 'undefined') return
+
+    // eslint-disable-next-line no-undef
+    mermaid.initialize({
+      securityLevel: 'loose',
+      startOnLoad: false,
+      theme: 'neutral',
+      flowchart: {
+        curve: 'basis',
+        padding: 20,
+        nodeSpacing: 80,
+        rankSpacing: 100,
+      },
+    })
+    var nodes = []
+    $nodes.each(function () {
+      var $node = $(this)
+      $node.removeClass('mermaid-to-render').addClass('mermaid')
+      nodes.push($node[0])
+    })
+    // eslint-disable-next-line no-undef
+    mermaid.run({ nodes: nodes }).catch(function (err) {
+      console.error('Mermaid render error:', err)
+    })
+  }
+
+  $useMermaid(doRender)
+}
+
+function $saltText(text) {
+  const _d = new Date()
+  const _salt = 'iloverb' + _d.getFullYear() + ('0' + (_d.getMonth() + 1)).slice(-2) + ('0' + _d.getDate()).slice(-2)
+  // eslint-disable-next-line no-undef
+  return sha256(sha256(text) + _salt)
 }

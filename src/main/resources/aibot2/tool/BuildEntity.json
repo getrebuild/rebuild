@@ -1,0 +1,39 @@
+{
+  "type": "function",
+  "userDescription": "构建业务实体，可同时添加名称字段和自动编号字段",
+  "function": {
+    "name": "BuildEntity",
+    "description": "新建实体。当用户想创建新的业务管理对象（如「我要管理合同/设备/供应商」「帮我建一个XX表」）时使用，用户通常不会说「实体」一词。可同时创建名称字段和自动编号字段，指定主实体时创建为该实体的明细实体。新建前先用 ListEntities 查看已有实体，能复用的不重复新建。系统创建实体时会自动生成主键、自增ID、创建人、创建时间、修改人、修改时间等系统字段，非明细实体还会生成所属用户、所属部门、助记码，明细实体则不生成所属用户和所属部门（沿用主实体），这些字段均无需也不应通过 BuildField 重复创建。创建后可用 BuildField 继续添加字段",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entityLabel": {
+          "type": "string",
+          "description": "实体名称，如「客户」「订单」"
+        },
+        "mainEntity": {
+          "type": "string",
+          "description": "主实体名称（可选）。指定后创建为该主实体的明细实体，如订单明细。主实体必须是独立实体，不能是明细实体。未指定则创建独立实体"
+        },
+        "nameField": {
+          "type": "boolean",
+          "description": "是否同时创建名称字段（默认 true）。名称字段用于记录标题/主键显示，业务实体通常需要，建议保留"
+        },
+        "seriesField": {
+          "type": "boolean",
+          "description": "是否同时创建自动编号字段（默认 false）"
+        },
+        "comments": {
+          "type": "string",
+          "description": "实体描述（可选），说明该实体用于什么业务场景"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["entityLabel"],
+      "additionalProperties": false
+    }
+  }
+}

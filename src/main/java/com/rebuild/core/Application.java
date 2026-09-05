@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
@@ -77,11 +78,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.4.10";
+    public static final String VER = "4.5.0-dev";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4041017;
+    public static final int BUILD = 4050000;
 
     static {
         // Driver for DB
@@ -162,7 +163,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         } catch (Exception ex) {
             _STATE_READY = false;
-            log.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FILAED !!!"), ex);
+            log.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FAILED !!!"), ex);
 
         } finally {
             if (!started) {
@@ -216,7 +217,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         if (!(_STATE_READY = ServerStatus.checkAll())) {
             log.error(RebuildBanner.formatBanner(
-                    "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
+                    "REBUILD STARTUP FAILED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
             return false;
         }
 
@@ -263,6 +264,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             }
         }
 
+        // AI 工具注册
+        ToolDefs.tools();
+
         // 初始化业务组件
         List<Initialization> ordered = new ArrayList<>(_CONTEXT.getBeansOfType(Initialization.class).values());
         OrderComparator.sort(ordered);
@@ -271,7 +275,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
 
         License.isRbvAttached();
-
         DatabaseFixer.fixIfNeed();
 
         return true;
@@ -360,7 +363,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         if (_ESS != null && _ESS.containsKey(entityCode)) {
             ServiceSpec es = _ESS.get(entityCode);
             if (EntityService.class.isAssignableFrom(es.getClass())) {
-                log.warn("Use the #getEntityService is recommended");
+                log.warn("Using #getEntityService is recommended");
             }
             return es;
 
@@ -390,7 +393,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         if (EntityService.class.isAssignableFrom(es.getClass())) {
             return (EntityService) es;
         }
-        throw new RebuildException("Non EntityService implements : " + entityCode);
+        throw new RebuildException("Not an EntityService implementation : " + entityCode);
     }
 
     /**

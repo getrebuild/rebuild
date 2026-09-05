@@ -362,7 +362,7 @@ function add_axis($target, axis) {
     sort = axis.sort
     fkey = axis.fkey
     if (axis.filter) _axisAdvFilters__data[axis.fkey] = axis.filter
-    $dd.attr({ 'data-label': axis.label, 'data-scale': axis.scale, 'data-unit': axis.unit, 'data-formula': axis.formula })
+    $dd.attr({ 'data-label': axis.label, 'data-scale': axis.scale, 'data-unit': axis.unit, 'data-formula': axis.formula, 'data-color': axis.color })
   }
   // New
   else {
@@ -451,9 +451,10 @@ function add_axis($target, axis) {
         label: $dd.attr('data-label'),
         scale: $dd.attr('data-scale'),
         unit: $dd.attr('data-unit'),
+        color: $dd.attr('data-color'),
       }
       state.onConfirm = (s) => {
-        $dd.attr({ 'data-label': s.label, 'data-scale': s.scale, 'data-unit': s.unit })
+        $dd.attr({ 'data-label': s.label, 'data-scale': s.scale, 'data-unit': s.unit, 'data-color': s.color })
         render_preview()
       }
 
@@ -569,7 +570,7 @@ function render_preview() {
         return
       }
 
-      if (!(conf.type === 'CNMAP' || conf.type === 'DATALIST2')) {
+      if (!(conf.type === 'CNMAP' || conf.type === 'DATALIST2' || conf.type === 'DOLOR')) {
         if ($('.axis-editor span[data-type="map"]')[0]) {
           render_preview_error($L('选择的字段仅适用于“地图”、“数据列表”图表'))
           return
@@ -652,6 +653,7 @@ function _buildAxisItem(item, isNum) {
     x.calc = item.attr('data-calc')
     x.scale = item.attr('data-scale')
     x.unit = item.attr('data-unit')
+    x.color = item.attr('data-color')
     x.filter = _axisAdvFilters__data[x.fkey] || null
     x.formula = item.attr('data-formula') || '' // v4.3
   } else if (['date', 'time', 'clazz'].includes(item.data('type'))) {
@@ -706,6 +708,22 @@ class DlgAxisProps extends RbFormHandler {
                   </select>
                 </div>
               </div>
+              <div className="form-group row pt-1 pb-0">
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('颜色')}</label>
+                <div className="col-sm-7">
+                  <div className="rbcolors mt-1">
+                    <a className="default" title={$L('默认')} onClick={() => this._setColor(null)}>
+                      {!this.state.color && <i className="zmdi zmdi-check" />}
+                    </a>
+                    {RBCOLORS.map((c) => (
+                      <a key={c} style={{ backgroundColor: c }} onClick={() => this._setColor(c)}>
+                        {this.state.color === c && <i className="zmdi zmdi-check" />}
+                      </a>
+                    ))}
+                    <input type="color" value={this.state.color || '#000000'} onChange={(e) => this._setColor(e.target.value === '#000000' ? null : e.target.value)} />
+                  </div>
+                </div>
+              </div>
             </RF>
           )}
           <div className="form-group row footer">
@@ -727,8 +745,13 @@ class DlgAxisProps extends RbFormHandler {
     // super.componentDidMount()
   }
 
+  _setColor(color) {
+    this.setState({ color })
+  }
+
   saveProps() {
     const data = { ...this.state }
+    if (data.color === '#000000') data.color = null
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
     this.hide()
   }

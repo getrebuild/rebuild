@@ -68,6 +68,12 @@ $(document).ready(function () {
     $('#referenceQuickNew')[0].checked = false
   }
 
+  // 高级选项折叠
+  $('.adv-options-btn').on('click', () => {
+    $('.adv-options-btn').addClass('hide')
+    $('.adv-options').toggleClass('hide')
+  })
+
   const $btn = $('.J_save').on('click', function () {
     if (!wpc.metaId) return
     let data = {
@@ -166,7 +172,7 @@ $(document).ready(function () {
     if (SHOW_ADVPATTERN.includes(dt)) extConfigNew['advPattern'] = $val('#advPattern')
     if (SHOW_SCANCODE.includes(dt)) extConfigNew['textScanCode'] = $val('#textScanCode')
 
-    if ((extConfigNew['advDesensitized'] || extConfigNew['advPattern'] || extConfigNew['textScanCode']) && rb.commercial < 1) {
+    if ((extConfigNew['advDesensitized'] || extConfigNew['advPattern'] || extConfigNew['textScanCode'] || !data.queryable) && rb.commercial < 1) {
       RbAlertFree43.create($L('免费版不支持高级选项 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
       return
     }

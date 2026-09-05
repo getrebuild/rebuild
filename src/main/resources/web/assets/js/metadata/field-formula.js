@@ -531,14 +531,17 @@ class FormulaCalcWithCode extends FormulaCalc {
         <li className="list-inline-item">
           <a data-toggle="dropdown">{$L('函数')}</a>
           <div className="dropdown-menu">
-            <a className="dropdown-item" onClick={() => this.handleInput('DATEDIFF')} title="DATEDIFF($DATE1, $DATE2, [H|D|M|Y])">
-              DATEDIFF
-            </a>
             <a className="dropdown-item" onClick={() => this.handleInput('DATEADD')} title="DATEADD($DATE, $NUMBER[H|D|M|Y])">
               DATEADD
             </a>
             <a className="dropdown-item" onClick={() => this.handleInput('DATESUB')} title="DATESUB($DATE, $NUMBER[H|D|M|Y])">
               DATESUB
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEDIFF')} title="DATEDIFF($DATE1, $DATE2, [H|D|M|Y])">
+              DATEDIFF
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('OVERTIME')} title="OVERTIME($DATE1, $DATE2)">
+              OVERTIME
             </a>
             <a className="dropdown-item" onClick={() => this.handleInput('DATEPICKAT')} title="DATEPICKAT($DATE, [Y|Q|M|D|H|I])">
               DATEPICKAT

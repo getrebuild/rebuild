@@ -1,0 +1,56 @@
+{
+  "type": "function",
+  "userDescription": "定时任务管理，支持创建、查询、取消一次性或周期性任务，到时自动执行并通过站内信通知结果",
+  "function": {
+    "name": "ScheduleTask",
+    "description": "定时任务管理，支持创建、查询、取消。当用户想设定定时/周期性任务（如「每天早上9点汇总昨日新增客户」「下周一提醒我跟进XX」）时使用。到执行时间后 AI 会自动处理任务内容，并将结果通过站内信通知",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "操作类型 create=创建, list=查询列表, cancel=取消。不传时默认 create",
+          "enum": ["create", "list", "cancel"]
+        },
+        "content": {
+          "type": "string",
+          "description": "任务内容/提示词（create 必填）。到执行时间后 AI 会自动处理此内容"
+        },
+        "scheduleType": {
+          "type": "string",
+          "description": "调度类型（create 必填）: once=一次性, daily=每日, weekly=每周, monthly=每月",
+          "enum": ["once", "daily", "weekly", "monthly"]
+        },
+        "executeTime": {
+          "type": "string",
+          "description": "一次性任务的执行时间，必须是未来时间，格式 yyyy-MM-dd HH:mm:ss（scheduleType=once 必填）"
+        },
+        "time": {
+          "type": "string",
+          "description": "周期任务的执行时间，格式 HH:mm（scheduleType=daily/weekly/monthly 必填）"
+        },
+        "dayOfWeek": {
+          "type": "integer",
+          "description": "每周第几天执行，1=周一 ... 7=周日（scheduleType=weekly 必填）"
+        },
+        "dayOfMonth": {
+          "type": "integer",
+          "description": "每月第几天执行，1-31（scheduleType=monthly 必填）"
+        },
+        "subject": {
+          "type": "string",
+          "description": "任务名称（可选，默认取内容前 40 字）"
+        },
+        "taskId": {
+          "type": "string",
+          "description": "任务ID（create 返回的 id）。cancel 时与 no 二选一，优先使用 no；不要向用户展示"
+        },
+        "no": {
+          "type": "integer",
+          "description": "任务序号，即 action=list 结果中每个任务的编号（1、2、3…）。cancel 时与 taskId 二选一，优先使用 no"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -6,13 +6,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 :root {
-  --rb-theme-color: #1c2128;
+  --rb-theme-color: #010409;
 }
 
 .rb-wrapper .rb-top-header,
 .rb-user-nav > li.dropdown .dropdown-menu .user-info {
-  background-color: #1c2128;
-  border-bottom-color: #1c2128;
+  background-color: #010409;
+  border-bottom-color: #010409;
 }
 
 .rb-wrapper .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
@@ -35,13 +35,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu:after {
-  border-bottom-color: #1c2128;
+  border-bottom-color: #010409;
 }
 
 @media (max-width: 767.98px) {
   .rb-top-header .rb-right-navbar {
-    background-color: #1c2128;
-    border-bottom-color: #1c2128;
+    background-color: #010409;
+    border-bottom-color: #010409;
   }
 }
 
@@ -70,7 +70,7 @@ html[data-theme='dark'] body {
 html[data-theme='dark'] .rb-top-header,
 html[data-theme='dark'] .rb-left-sidebar::before,
 html[data-theme='dark'] .rb-left-sidebar .sidebar-elements > li > ul {
-  border-color: #1c2128;
+  border-color: #010409;
 }
 
 html[data-theme='dark'] .rb-left-sidebar,

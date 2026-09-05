@@ -42,7 +42,7 @@ public class RateLimiters {
      * @return
      */
     public static RequestRateLimiter createRateLimiter(int[] seconds, int[] limits) {
-        Assert.isTrue(seconds.length == limits.length, "Rule pair not matchs");
+        Assert.isTrue(seconds.length == limits.length, "Rule pair does not match");
 
         Set<RequestLimitRule> rules = new HashSet<>();
         for (int i = 0; i < seconds.length; i++) {

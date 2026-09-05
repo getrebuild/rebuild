@@ -2,15 +2,16 @@ services:
   mysql:
     image: mysql:5.7
     environment:
-      MYSQL_ROOT_HOST: "%"
-      MYSQL_ROOT_PASSWORD: "rebuild!P4wd"
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: 'rebuild!P4wd'
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "mysql", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      test: ['CMD-SHELL', 'mysqladmin ping -h mysql -u root -p$$MYSQL_ROOT_PASSWORD']
       interval: 5s
       timeout: 3s
       retries: 10
+    restart: unless-stopped
     networks:
       - app_network
 
@@ -19,15 +20,16 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    entrypoint: [ "sh", "-c" ]
+    entrypoint: ['sh', '-c']
     command:
       - >
         mkdir -p /app/rebuild/.rebuild &&
         java -Dinitialize=docker -Duser.timezone=Asia/Shanghai -DSN= -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
     ports:
-      - "18080:18080"
+      - '18080:18080'
     volumes:
       - rebuild_data:/app/rebuild/.rebuild
+    restart: unless-stopped
     networks:
       - app_network
 

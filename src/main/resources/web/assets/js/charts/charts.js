@@ -217,7 +217,7 @@ class BaseChart extends React.Component {
     }
 
     const name = `${this.state.title}.xls`
-    const _export = function () {
+    $useXlsx(() => {
       // RM
       _rmLinks(table, '__href', 'href')
       // export
@@ -229,15 +229,7 @@ class BaseChart extends React.Component {
       })
       // RE
       setTimeout(() => _rmLinks(table, 'href', '__href'), 201)
-    }
-
-    if (window.XLSX && window.XLSX.utils) {
-      _export()
-    } else {
-      $getScript('/assets/lib/charts/xlsx.full.min.js', () => {
-        setTimeout(_export, 1000)
-      })
-    }
+    })
   }
 
   renderError(error, cb) {
@@ -262,9 +254,11 @@ class ChartIndex extends BaseChart {
 
   renderChart(data) {
     const showGrowthRate = data._renderOption && data._renderOption.showGrowthRate
-    const color = data._renderOption ? data._renderOption.useColor : null
+    const useColor = data._renderOption ? data._renderOption.useColor : null
+    const dataColors = data._renderOption ? data._renderOption.dataColors : null
     const icon = data._renderOption ? data._renderOption.useIcon : null
-    const style2 = { color: color || null }
+    const style2 = { color: (dataColors && dataColors[0]) || useColor || null }
+    const style2b = { color: (dataColors && dataColors[1]) || useColor || null }
     const _index = data.index
 
     let clazz2, rate2
@@ -306,8 +300,8 @@ class ChartIndex extends BaseChart {
 
                   {_index.label2 && (
                     <div className="index43-with">
-                      <p>{_index.label2}</p>
-                      <strong>
+                      <p style={style2b}>{_index.label2}</p>
+                      <strong style={style2b}>
                         <a
                           title={$L('查看来源数据')}
                           href={window.render_preview_chart ? null : `${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}&axis=N2`}
@@ -392,9 +386,6 @@ class ChartTable extends BaseChart {
   }
 }
 
-// for ECharts
-const COLOR_AXIS = '#ddd'
-const COLOR_LABEL = '#555'
 // 可用调色板
 const COLOR_PALETTES = {
   shine: ['#c12e34', '#e6b600', '#0098d9', '#2b821d', '#005eaa', '#339ca8', '#cda819', '#32a487'],
@@ -409,45 +400,32 @@ const COLOR_PALETTES = {
   macarons: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa', '#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050', '#59678c', '#c9ab00'],
 }
 
-const ECHART_BASE = {
-  grid: { left: 60, right: 30, top: 30, bottom: 30 },
-  animation: window.__LAB_CHARTANIMATION || false,
-  tooltip: {
-    trigger: 'item',
-    textStyle: {
-      fontSize: 12,
-      lineHeight: 1.2,
-      color: '#333',
-    },
-    axisPointer: {
-      type: 'line', // line, cross, shadow
-      lineStyle: { color: COLOR_AXIS },
-      crossStyle: { color: COLOR_AXIS },
-      label: {
-        color: '#222',
-        backgroundColor: COLOR_AXIS,
-        padding: [7, 7, 5, 7],
-      },
-    },
-    backgroundColor: '#fff',
-    extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
-    confine: true,
-    position: 'top',
-    borderWidth: 0,
-    padding: [5, 10],
-  },
-  toolbox: {
-    show: false,
-  },
-  textStyle: {
-    fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-  },
-  color: RBCOLORS,
+// 图表类型图标
+const CHART_TYPE_ICONS = {
+  TABLE: 'mdi-view-module-outline',
+  INDEX: 'mdi-counter',
+  LINE: 'mdi-chart-line',
+  BAR: 'mdi-chart-bar',
+  BAR2: 'mdi-chart-bar-stacked',
+  BAR3: 'mdi-chart-timeline-variant',
+  PARETO: 'mdi-chart-multiple',
+  PIE: 'mdi-chart-pie',
+  FUNNEL: 'mdi-filter-variant',
+  TREEMAP: 'mdi-view-dashboard-outline',
+  RADAR: 'mdi-radar',
+  SCATTER: 'mdi-chart-scatter-plot',
+  DOLOR: 'mdi-cloud-outline',
+  CNMAP: 'mdi-map-outline',
+  DATALIST2: 'mdi-view-list-outline',
+  DataList: 'mdi-view-list-outline',
+  BARNEGATIVE: 'mdi-chart-bar',
+  SUNBURST: 'mdi-chart-donut',
+  RANK: 'mdi-trophy-variant',
 }
 
 const ECHART_AXIS_LABEL = {
   textStyle: {
-    color: COLOR_LABEL,
+    color: '#555',
     fontSize: 12,
     fontWeight: '400',
   },
@@ -484,6 +462,18 @@ const ECHART_TOOLTIP_FORMATTER = function (i, dataFlags = []) {
     tooltip.push(`${a.marker} ${a.seriesName} : ${formatThousands(a.value, dataFlags[a.seriesIndex])}`)
   })
   return tooltip.join('<br>')
+}
+
+// 应用图表颜色
+const _applyChartColors = function (option, renderOption) {
+  const themeStyle = renderOption ? renderOption.themeStyle : null
+  if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+
+  // 应用数值颜色
+  let dataColors = renderOption && renderOption.dataColors
+  if (!dataColors || !dataColors.some((c) => c)) return
+  const baseColors = option.color || RBCOLORS
+  option.color = baseColors.map((c, i) => dataColors[i] || c)
 }
 
 // 图例
@@ -579,8 +569,8 @@ const reOptionMutliYAxis = function (option) {
       c.position = 'right'
       c.offset = i * 45 - 45
     }
-    c.axisLabel.textStyle.color = option.color[i] || COLOR_AXIS
-    // c.axisLine = { show: true, lineStyle: { color: option.color[i] || COLOR_AXIS } }
+    c.axisLabel.textStyle.color = option.color[i] || ECHART_AXIS_COLOR
+    // c.axisLine = { show: true, lineStyle: { color: option.color[i] || ECHART_AXIS_COLOR } }
     option.series[i].yAxisIndex = i
     yAxisMutli.push(c)
   }
@@ -618,7 +608,6 @@ class ChartLine extends BaseChart {
       const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis
       const showAreaColor = data._renderOption && data._renderOption.showAreaColor
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
       const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
       const labelRotate = data._renderOption ? data._renderOption.labelRotate : null
 
@@ -645,18 +634,18 @@ class ChartLine extends BaseChart {
           data: data.xAxis,
           axisLabel: { ...ECHART_AXIS_LABEL },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS },
+            lineStyle: { color: ECHART_AXIS_COLOR },
           },
         },
         yAxis: {
           type: 'value',
-          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
+          splitLine: { show: showGrid, lineStyle: { color: ECHART_AXIS_COLOR } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber,
           },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 },
+            lineStyle: { color: ECHART_AXIS_COLOR, width: showGrid ? 1 : 0 },
           },
         },
         series: data.yyyAxis,
@@ -668,7 +657,7 @@ class ChartLine extends BaseChart {
         option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
       if (showMutliYAxis && option.series.length > 1) reOptionMutliYAxis(option)
       // v4.3
       if (labelRotate) {
@@ -699,7 +688,6 @@ class ChartBar extends BaseChart {
       const showHorizontal = data._renderOption && data._renderOption.showHorizontal // v3.7
       const showMutliYAxis = data._renderOption && data._renderOption.showMutliYAxis // v3.7
       const dataFlags = data._renderOption.dataFlags || [] // 小数符号
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
       const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
       const labelRotate = data._renderOption ? data._renderOption.labelRotate : null
 
@@ -727,19 +715,19 @@ class ChartBar extends BaseChart {
           data: showHorizontal ? null : data.xAxis,
           axisLabel: { ...ECHART_AXIS_LABEL },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS },
+            lineStyle: { color: ECHART_AXIS_COLOR },
           },
         },
         yAxis: {
           type: showHorizontal ? 'category' : 'value',
           data: showHorizontal ? data.xAxis : null,
-          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
+          splitLine: { show: showGrid, lineStyle: { color: ECHART_AXIS_COLOR } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber,
           },
           axisLine: {
-            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 },
+            lineStyle: { color: ECHART_AXIS_COLOR, width: showGrid ? 1 : 0 },
           },
         },
         series: data.yyyAxis,
@@ -758,7 +746,7 @@ class ChartBar extends BaseChart {
         option.grid.top = 50
       }
       if (showMarkLine) option.grid.right = 60
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
       // 加大左侧距离
       if (showHorizontal) option.grid.left = 100
       // 排他
@@ -777,6 +765,91 @@ class ChartBar extends BaseChart {
   }
 
   _renderChartBarBefore(option) {
+    return option
+  }
+}
+
+// 排行榜
+class ChartRank extends ChartBar {
+  renderChart(data) {
+    if (data.xAxis.length === 0) {
+      this.renderError($L('暂无数据'))
+      return
+    }
+
+    // 后端已处理排序、单系列截取、pageSize 限制
+    super.renderChart({
+      ...data,
+      _renderOption: {
+        ...(data._renderOption || {}),
+        showHorizontal: true,
+      },
+    })
+  }
+
+  _renderChartBarBefore(option, data) {
+    const numItems = (data.xAxis || []).length
+    if (numItems === 0) return option
+
+    const barH = 16
+    const catGap = 8
+    const bandH = barH + catGap * 2
+
+    let chartH = 0
+    const $chart = this._$body && this._$body.querySelector('.chart')
+    if ($chart) chartH = $chart.clientHeight
+    if (!chartH || chartH < 60) chartH = 320
+    const gridTop = (option.grid && option.grid.top) || 30
+    const gridBottom = (option.grid && option.grid.bottom) || 30
+    const availH = Math.max(bandH, chartH - gridTop - gridBottom)
+
+    const visibleItems = Math.max(1, Math.floor(availH / bandH))
+    const displayItems = Math.min(numItems, visibleItems)
+
+    option.grid.height = displayItems * bandH
+    option.grid.containLabel = true
+    option.grid.left = 0
+    option.yAxis.inverse = true
+
+    const radius = [0, 6, 6, 0]
+    const rankColors = ['#F5A623', '#9E9E9E', '#CD7F32']
+    const baseColor = (option.color && option.color[0]) || RBCOLORS[0]
+
+    option.series.forEach((s) => {
+      s.barWidth = barH
+      s.barCategoryGap = catGap
+      s.itemStyle = {
+        ...(s.itemStyle || {}),
+        borderRadius: radius,
+        color: (p) => (p.dataIndex < 3 ? rankColors[p.dataIndex] : baseColor),
+      }
+      s.showBackground = true
+      s.backgroundStyle = { color: '#f0f0f0', borderRadius: radius }
+    })
+
+    const _axisLabel = option.yAxis.axisLabel || {}
+    option.yAxis.axisLabel = {
+      ..._axisLabel,
+      formatter: (val, idx) => (idx < 3 ? `{r${idx}|${idx + 1}. ${val}}` : `${idx + 1}. ${val}`),
+      rich: {
+        r0: { color: rankColors[0], fontWeight: 'bold' },
+        r1: { color: rankColors[1], fontWeight: 'bold' },
+        r2: { color: rankColors[2], fontWeight: 'bold' },
+      },
+    }
+
+    if (numItems > visibleItems) {
+      option.dataZoom = [
+        {
+          type: 'inside',
+          yAxisIndex: 0,
+          zoomLock: true,
+          start: 0,
+          end: (visibleItems / numItems) * 100,
+        },
+      ]
+    }
+
     return option
   }
 }
@@ -832,7 +905,6 @@ class ChartPie extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
       if (showNumerical) {
@@ -851,7 +923,7 @@ class ChartPie extends BaseChart {
         return `<b>${a.data.name}</b> <br/> ${a.marker} ${a.seriesName} : ${formatThousands(a.data.value, dataFlags[0])} (${a.percent}%)`
       }
       if (showLegend) option.legend = ECHART_LEGEND(true)
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
@@ -872,7 +944,6 @@ class ChartFunnel extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const option = {
         ...$clone(ECHART_BASE),
@@ -906,7 +977,7 @@ class ChartFunnel extends BaseChart {
         else return `<b>${a.name}</b> <br/> ${a.marker} ${formatThousands(a.value, dataFlags[a.dataIndex])}`
       }
       if (showLegend) option.legend = ECHART_LEGEND(true)
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
@@ -927,7 +998,6 @@ class ChartTreemap extends BaseChart {
     this.setState({ chartdata: <div className="chart treemap" id={elid} /> }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const option = {
         ...$clone(ECHART_BASE),
@@ -971,11 +1041,161 @@ class ChartTreemap extends BaseChart {
           return ns[ns.length - 1] + (showNumerical ? ` (${formatThousands(a.value, dataFlags[0])})` : '')
         },
       }
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
     })
+  }
+}
+
+// 词云
+class ChartDolor extends BaseChart {
+  renderChart(data) {
+    // 过滤 0 计数
+    const filtered = data.data.filter((item) => (parseFloat(item.value) || 0) > 0)
+    if (filtered.length === 0) {
+      this.renderError($L('暂无数据'))
+      return
+    }
+
+    const showNumerical = data._renderOption && data._renderOption.showNumerical
+    const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
+    const colors = themeStyle && COLOR_PALETTES[themeStyle] ? COLOR_PALETTES[themeStyle] : RBCOLORS
+
+    let maxVal = 0
+    let minVal = Infinity
+    filtered.forEach((item) => {
+      const v = parseFloat(item.value) || 0
+      if (v > maxVal) maxVal = v
+      if (v < minVal) minVal = v
+    })
+    if (minVal === Infinity) minVal = 0
+
+    const MIN_FONT = 14
+    const MAX_FONT = 52
+
+    const sorted = [...filtered].sort((a, b) => (parseFloat(b.value) || 0) - (parseFloat(a.value) || 0)).slice(0, 100)
+
+    const words = sorted.map((item, idx) => {
+      const v = parseFloat(item.value) || 0
+      let fontSize, fontWeight
+      if (maxVal === minVal) {
+        fontSize = (MIN_FONT + MAX_FONT) / 2
+        fontWeight = 500
+      } else {
+        const ratio = (v - minVal) / (maxVal - minVal)
+        fontSize = MIN_FONT + ratio * (MAX_FONT - MIN_FONT)
+        fontWeight = Math.round(300 + ratio * 600) // 300-900
+      }
+      const color = colors[idx % colors.length]
+
+      return (
+        <span
+          key={`dolor-${idx}`}
+          className="dolor-word"
+          title={`${item.name} : ${formatThousands(v)}`}
+          style={{
+            fontSize: `${Math.round(fontSize)}px`,
+            fontWeight: fontWeight,
+            color: color,
+          }}>
+          {item.name}
+          {showNumerical && <span className="dolor-count">({formatThousands(v)})</span>}
+        </span>
+      )
+    })
+
+    const chartdata = (
+      <div className="chart dolor" ref={(c) => (this._$chart = c)}>
+        <div className="dolor-inner">{words}</div>
+      </div>
+    )
+    this.setState({ chartdata: _ChartWrapper43(chartdata, this) }, () => {
+      this.resize()
+    })
+  }
+
+  _layoutSpiral() {
+    const $chart = $(this._$chart)
+    if (!$chart || !$chart.length) return
+    const $inner = $chart.find('.dolor-inner')
+    const zoom = this._dolorZoom || 1
+    const pw = $chart.width()
+    const ph = $chart.height()
+    if (pw < 50 || ph < 50) {
+      $setTimeout(() => this._layoutSpiral(), 200, `dolor-layout-${this.state.id}`)
+      return
+    }
+    const cw = pw / zoom
+    const ch = ph / zoom
+    const cx = cw / 2
+    const cy = ch / 2
+    const placed = []
+    const $words = $inner.find('.dolor-word')
+
+    let totalH = 0
+    $words.each((idx, el) => {
+      totalH += $(el).outerHeight()
+    })
+    const avgH = $words.length > 0 ? totalH / $words.length : 20
+    const spiralA = Math.max(avgH * 0.8, 8) // r = a * theta
+    const dtheta = 0.1
+
+    $words.each((idx, el) => {
+      const $w = $(el)
+      const w = $w.outerWidth()
+      const h = $w.outerHeight()
+      const gap = 4
+
+      let theta = 0
+      let x = cx - w / 2
+      let y = cy - h / 2
+      let found = false
+
+      for (let i = 0; i < 5000 && !found; i++) {
+        const r = spiralA * theta
+        x = cx + r * Math.cos(theta) - w / 2
+        y = cy + r * Math.sin(theta) - h / 2
+
+        if (x >= 2 && y >= 2 && x + w <= cw - 2 && y + h <= ch - 2) {
+          let hit = false
+          for (let j = 0; j < placed.length; j++) {
+            const p = placed[j]
+            if (x < p.x + p.w + gap && x + w + gap > p.x && y < p.y + p.h + gap && y + h + gap > p.y) {
+              hit = true
+              break
+            }
+          }
+          if (!hit) found = true
+        }
+
+        if (!found) theta += dtheta
+      }
+
+      placed.push({ x, y, w, h })
+      $w.css({
+        position: 'absolute',
+        left: `${Math.round(x)}px`,
+        top: `${Math.round(y)}px`,
+      })
+    })
+  }
+
+  resize() {
+    $setTimeout(
+      () => {
+        if (!this._$chart) return
+
+        const ch = $(this._$chart).height()
+        const zoom = ch > 330 ? 1.5 : ch > 200 ? 1.2 : 1
+        this._dolorZoom = zoom
+        $(this._$chart).find('.dolor-inner').css('zoom', zoom)
+        this._layoutSpiral()
+      },
+      400,
+      `resize-chart-${this.state.id}`,
+    )
   }
 }
 
@@ -1023,7 +1243,8 @@ class ApprovalList extends BaseChart {
                 onClick={() => {
                   this.renderChart(data, item[0])
                 }}>
-                {s[1]} ({item[1]})
+                {s[1]} ({item[1]}
+                {item[1] >= 500 ? '+' : ''})
               </div>
             )
           })}
@@ -1283,7 +1504,6 @@ class ChartRadar extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
 
       const option = {
         ...$clone(ECHART_BASE),
@@ -1291,7 +1511,7 @@ class ChartRadar extends BaseChart {
           indicator: data.indicator,
           name: {
             textStyle: {
-              color: COLOR_LABEL,
+              color: '#555',
               fontSize: 12,
             },
           },
@@ -1303,12 +1523,12 @@ class ChartRadar extends BaseChart {
           },
           splitLine: {
             lineStyle: {
-              color: COLOR_AXIS,
+              color: ECHART_AXIS_COLOR,
             },
           },
           axisLine: {
             lineStyle: {
-              color: COLOR_AXIS,
+              color: ECHART_AXIS_COLOR,
             },
           },
         },
@@ -1342,7 +1562,7 @@ class ChartRadar extends BaseChart {
         return tooltip.join('<br/>')
       }
       if (showLegend) option.legend = ECHART_LEGEND(true)
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
@@ -1364,19 +1584,18 @@ class ChartScatter extends BaseChart {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
       const showLegend = data._renderOption && data._renderOption.showLegend
       const dataFlags = data._renderOption.dataFlags || []
-      const themeStyle = data._renderOption ? data._renderOption.themeStyle : null
       const showMarkLine = data._renderOption ? data._renderOption.showMarkLine : null
 
       const axisOption = {
         splitLine: {
-          lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0, type: 'solid' },
+          lineStyle: { color: ECHART_AXIS_COLOR, width: showGrid ? 1 : 0, type: 'solid' },
         },
         axisLabel: {
           ...ECHART_AXIS_LABEL,
           formatter: shortNumber,
         },
         axisLine: {
-          lineStyle: { color: COLOR_AXIS },
+          lineStyle: { color: ECHART_AXIS_COLOR },
         },
         scale: false,
       }
@@ -1433,7 +1652,7 @@ class ChartScatter extends BaseChart {
         option.legend = ECHART_LEGEND()
         option.grid.top = 50
       }
-      if (themeStyle && COLOR_PALETTES[themeStyle]) option.color = COLOR_PALETTES[themeStyle]
+      _applyChartColors(option, data._renderOption)
 
       option.__id = this.props.id
       this._echarts = renderEChart(_ChartWrapper43(option, this), elid)
@@ -1744,7 +1963,9 @@ class ChartCNMap extends BaseChart {
 
         // #2 Cluster
         // https://lbs.baidu.com/index.php?title=jspopularGL/guide/cluster#service-page-anchor1
-        $getScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => this._renderCluster(data, this._map))
+        $useScript('/assets/lib/charts/bmap-cluster.js?v=0.0.10', () => {
+          this._renderCluster(data, this._map)
+        })
       }, false)
     })
   }
@@ -2233,10 +2454,14 @@ const detectChart = function (conf, id) {
     return <ChartPareto {...props} />
   } else if (conf.type === 'PIE') {
     return <ChartPie {...props} />
+  } else if (conf.type === 'RANK') {
+    return <ChartRank {...props} />
   } else if (conf.type === 'FUNNEL') {
     return <ChartFunnel {...props} />
   } else if (conf.type === 'TREEMAP') {
     return <ChartTreemap {...props} />
+  } else if (conf.type === 'DOLOR') {
+    return <ChartDolor {...props} />
   } else if (conf.type === 'ApprovalList') {
     return <ApprovalList {...props} builtin />
   } else if (conf.type === 'FeedsSchedule') {
@@ -2329,8 +2554,8 @@ class ChartSelect extends RbModalHandler {
 
                   return (
                     <div key={item.id}>
-                      <span className="float-left chart-icon">
-                        <i className={`${item.type} ${item.type === 'DataList' && item.id !== '017-9000000000000004' && 'custom'}`} />
+                      <span className="float-left chart-icon" data-type={item.type}>
+                        <i className={`mdi ${CHART_TYPE_ICONS[item.type] || 'mdi-square-outline mdi-rotate-45 text-muted'}`} />
                       </span>
                       <span className="float-left title">
                         <strong>{item.title}</strong>
@@ -2366,7 +2591,9 @@ class ChartSelect extends RbModalHandler {
     )
   }
 
-  componentDidMount = () => this._loadCharts()
+  componentDidMount() {
+    this._loadCharts()
+  }
   _loadCharts() {
     $.get(`/dashboard/chart-list?type=${this.state.tabActive.substr(1)}&entity=${this.props.entity || ''}`, (res) => {
       this.setState({ chartList: res.data })

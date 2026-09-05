@@ -26,19 +26,30 @@ class RbPreview extends React.Component {
   }
 
   render() {
-    const currentUrl = this.props.urls[this.state.currentIndex]
-    const fileName = $fileCutName(currentUrl)
-    const downloadUrl = this._buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
-
+    let currentUrl = ''
+    let downloadUrl = ''
+    let fileName = ''
     let previewContent = null
-    if (this._isImage(fileName)) previewContent = this.renderImage()
-    else if (this._isDoc(fileName)) previewContent = this.renderDoc()
-    else if (this._isText(fileName)) previewContent = this.renderText(fileName)
-    else if (this._isAudio(fileName)) previewContent = this.renderAudio()
-    else if (this._isVideo(fileName)) previewContent = this.renderVideo()
+
+    if (this.props.richContent) {
+      const $node = this.props.richContent
+      if ($node.is('.echarts-rendered')) fileName = $L('图表')
+      else if ($node.is('.mermaid')) fileName = '图表'
+      else if ($node.is('.html-rendered')) fileName = $L('网页')
+      else fileName = $L('代码')
+    } else {
+      currentUrl = this.props.urls[this.state.currentIndex]
+      fileName = $fileCutName(currentUrl)
+      downloadUrl = this._buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
+      if (this._isImage(fileName)) previewContent = this.renderImage()
+      else if (this._isDoc(fileName)) previewContent = this.renderDoc()
+      else if (this._isText(fileName)) previewContent = this.renderText(fileName)
+      else if (this._isAudio(fileName)) previewContent = this.renderAudio()
+      else if (this._isVideo(fileName)) previewContent = this.renderVideo()
+    }
 
     // Has error
-    if (this.state.errorMsg || !previewContent) {
+    if (!this.props.richContent && (this.state.errorMsg || !previewContent)) {
       previewContent = (
         <div className="unsupports shadow-lg rounded bg-light">
           <h4 className="mt-1">{this.state.errorMsg || $L('暂不支持此类型文件的预览')}</h4>
@@ -50,16 +61,20 @@ class RbPreview extends React.Component {
       )
     }
 
-    const xdoc433 = this._isDoc(fileName) || this._isText(fileName)
-    const md433 = fileName.toLowerCase().endsWith('.md')
-    const pdf433 = fileName.toLowerCase().endsWith('.pdf')
+    const isRich = !!this.props.richContent
+    const xdoc433 = !isRich && (this._isDoc(fileName) || this._isText(fileName))
+    const md433 = !isRich && fileName.toLowerCase().endsWith('.md')
+    const pdf433 = !isRich && fileName.toLowerCase().endsWith('.pdf')
 
     return (
       <RF>
-        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''} file-${$fileExtName(fileName)}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
+        <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''} ${isRich ? 'rich-preview' : ''} file-${$fileExtName(fileName)}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
           <div className="preview-header">
             <div className="float-left">
-              <h5 className="text-bold">{fileName}</h5>
+              <h5>
+                {fileName}
+                {this.props.shareBy && <small className="ml-1">{$L('由 %s 分享', this.props.shareBy)}</small>}
+              </h5>
             </div>
             <div className="float-right">
               {(xdoc433 || md433 || pdf433) && (
@@ -73,7 +88,7 @@ class RbPreview extends React.Component {
                 </a>
               )}
               {rb.fileSharable && rb.currentUser && (
-                <a onClick={this.share} title={$L('分享')}>
+                <a onClick={this.share} className="J_shareFile" title={$L('分享')}>
                   <i className="zmdi zmdi-share fs-17" />
                 </a>
               )}
@@ -170,7 +185,7 @@ class RbPreview extends React.Component {
       content = <i className="text-muted">{$L('无')}</i>
     } else if (this.state.previewText) {
       content = showMd ? (
-        <div className="p-4 markdown-body">
+        <div className="p-4 markdown-body fs-14">
           <Md2Html markdown={this.state.previewText} csrfToken={this.props.csrfToken} />
         </div>
       ) : (
@@ -230,6 +245,28 @@ class RbPreview extends React.Component {
     this.setState({ inLoad: false })
 
     const that = this
+
+    // 富内容全屏
+    if (this.props.richContent) {
+      const $node = this.props.richContent
+      this._$placeholder = $('<div></div>')
+      $node.after(this._$placeholder)
+      $(this._previewBody).append($node)
+
+      const chart = $node.data('echarts-instance')
+      if (chart) $setTimeout(() => chart.resize(), 50, 'rich-fs-open')
+
+      // ESC 关闭（capture 优先于 aibot 的 keydown.aibot-hide）
+      this._richEscHandler = function (e) {
+        if (e.keyCode === 27) {
+          e.preventDefault()
+          e.stopImmediatePropagation()
+          that.hide()
+        }
+      }
+      document.addEventListener('keydown', this._richEscHandler, true)
+      return
+    }
 
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
@@ -295,11 +332,21 @@ class RbPreview extends React.Component {
   }
 
   componentWillUnmount() {
+    if (this._richEscHandler) document.removeEventListener('keydown', this._richEscHandler, true)
     if (!this.__modalOpen) $(document.body).removeClass('modal-open')
     $(document).off('keyup.esc-hide mousewheel.image-zoom')
   }
 
   hide = () => {
+    // 富内容移回原位
+    if (this.props.richContent && this._$placeholder) {
+      const $node = this.props.richContent
+      this._$placeholder.after($node)
+      this._$placeholder.remove()
+
+      const chart = $node.data('echarts-instance')
+      if (chart) $setTimeout(() => chart.resize(), 50, 'rich-fs-close')
+    }
     if (!this.props.unclose) $unmount($(this._dlg).parent(), 1)
   }
 
@@ -398,6 +445,12 @@ class RbPreview extends React.Component {
    * @param {*} id
    */
   static create(urls, index, id) {
+    // DOM 节点 = 富内容全屏（不跨窗口，节点属于当前文档）
+    if (urls && urls.jquery) {
+      renderRbcomp(<RbPreview richContent={urls} />)
+      return
+    }
+
     // v4.4.2 使用父级窗口
     if (window.top !== window.self && parent && parent.RbPreview) {
       parent.RbPreview.create(urls, index, id)
@@ -421,14 +474,19 @@ const EXPIRES_TIME = [
   [0, $L('永久')],
 ]
 
-class FileShare extends RbModalHandler {
-  render() {
+class FileShare extends RbAlert {
+  constructor(props) {
+    super(props)
+    this._zIndex = 1100
+  }
+
+  renderContent() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title || $L('分享文件')} disposeOnHide>
-        <div className="file-share">
-          <label className="text-dark text-bold">{$L('分享链接')}</label>
+      <div className="file-share rbalert-form-sm">
+        <div class="form-group mb-2">
+          <label className="text-dark text-bold">{this.props.title || $L('分享链接')}</label>
           <div className="input-group input-group-sm">
-            <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
+            <input className="form-control form-control-sm bg-transparent" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
               <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
                 <i className="icon zmdi zmdi-copy" />
@@ -445,26 +503,26 @@ class FileShare extends RbModalHandler {
               </div>
             </span>
           </div>
-          <div className="expires mt-2">
-            <ul className="list-unstyled">
-              {EXPIRES_TIME.map((item) => {
-                return (
-                  <li key={`time-${item[0]}`} className={`list-inline-item ${this.state.time === item[0] && 'active'}`}>
-                    <a onClick={this._changeTime} data-time={item[0]} _title={` ${$L('有效')}`}>
-                      {item[1]}
-                    </a>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
         </div>
-      </RbModal>
+        <div className="expires">
+          <ul className="list-unstyled">
+            {EXPIRES_TIME.map((item) => {
+              return (
+                <li key={`time-${item[0]}`} className={`list-inline-item ${this.state.time === item[0] && 'active'}`}>
+                  <a onClick={(e) => this._changeTime(e)} data-time={item[0]} _title={` ${$L('有效')}`}>
+                    {item[1]}
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      </div>
     )
   }
 
   componentDidMount() {
-    $(this._dlg._rbmodal).css({ zIndex: 1099 })
+    super.componentDidMount && super.componentDidMount()
 
     this._filePath = this.props.file
     if ($regex.isId(this.props.file)) {
@@ -481,24 +539,16 @@ class FileShare extends RbModalHandler {
     }
   }
 
-  _changeTime = (e) => {
+  _changeTime(e) {
     const t = e ? ~~e.target.dataset.time : EXPIRES_TIME[0][0]
     if (this.state.time === t) return
     this.setState({ time: t }, () => {
       $.get(`/filex/make-share?url=${$encode(this._filePath)}&time=${t}&shareUrl=${$encode(this.__shareUrl)}`, (res) => {
         this.__shareUrl = (res.data || {}).shareUrl
         this.setState({ shareUrl: this.__shareUrl })
-
         // copy
-        const that = this
-        const initCopy = function () {
-          $clipboard($(that._$copy), that.__shareUrl)
-        }
-        if (window.ClipboardJS) {
-          initCopy()
-        } else {
-          $getScript('/assets/lib/clipboard.min.js', initCopy)
-        }
+        $(this._$copy).data('clipboard-text', this.__shareUrl)
+        $clipboard(this._$copy)
       })
     })
   }

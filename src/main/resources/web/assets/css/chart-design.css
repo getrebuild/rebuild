@@ -369,152 +369,22 @@ a.ui-draggable.ui-draggable-dragging {
   width: 32px;
   height: 32px;
   display: inline-block;
-  background: url(../img/charts-sprite.svg?v=1.10) 0 0 no-repeat;
-}
-
-.chart-type > a > i.C200 {
-  background-position: -1244px -1464px;
-}
-
-.chart-type > a.active > i.C200 {
-  background-position: -1180px -1464px;
-}
-
-.chart-type > a > i.C310 {
-  background-position: -202px -1288px;
-}
-
-.chart-type > a.active > i.C310 {
-  background-position: -170px -1288px;
-}
-
-.chart-type > a > i.C220 {
-  background-position: -1138px -1326px;
-}
-
-.chart-type > a.active > i.C220 {
-  background-position: -1106px -1326px;
-}
-
-.chart-type > a > i.C210 {
-  background-position: -1148px -1464px;
-}
-
-.chart-type > a.active > i.C210 {
-  background-position: -1501px -1406px;
-}
-
-.chart-type > a > i.C240 {
-  background-position: -1469px -1406px;
-}
-
-.chart-type > a.active > i.C240 {
-  background-position: -1437px -1406px;
-}
-
-.chart-type > a > i.C250 {
-  background-position: -1258px -1288px;
-}
-
-.chart-type > a.active > i.C250 {
-  background-position: -1226px -1288px;
-}
-
-.chart-type > a > i.C230 {
-  background-position: -1010px -1326px;
-}
-
-.chart-type > a.active > i.C230 {
-  background-position: -978px -1326px;
-}
-
-.chart-type > a > i.C330 {
-  background-position: -768px -871px;
-}
-
-.chart-type > a.active > i.C330 {
-  background-position: -709px -387px;
-}
-
-.chart-type > a > i.C370 {
-  background-position: -1212px -1464px;
-}
-
-.chart-type > a.active > i.C370 {
-  background-position: -1020px -1464px;
-}
-
-.chart-type > a > i.C290 {
-  background-position: -394px -1288px;
-}
-
-.chart-type > a.active > i.C290 {
-  background-position: -362px -1288px;
-}
-
-.chart-type > a > i.C340 {
-  background-position: -1105px -722px;
-}
-
-.chart-type > a.active > i.C340 {
-  background-position: -956px -1464px;
-}
-
-.chart-type > a > i.C280 {
-  background-position: -714px -1288px;
-}
-
-.chart-type > a.active > i.C280 {
-  background-position: -650px -1288px;
-}
-
-.chart-type > a > i.C271 {
-  background-position: -970px -1288px;
-}
-
-.chart-type > a.active > i.C271 {
-  background-position: -938px -1288px;
-}
-
-.chart-type > a > i.C360 {
-  background-position: -1330px -1326px;
-}
-
-.chart-type > a.active > i.C360 {
-  background-position: -1372px -1464px;
-}
-
-.chart-type > a > i.C243 {
-  background-position: -1322px -1288px;
-}
-
-.chart-type > a.active > i.C243 {
-  background-position: -1290px -1288px;
-}
-
-.chart-type > a.DATALIST2,
-.chart-type > a.PARETO {
-  transform: translateY(7px);
-}
-
-.chart-type > a > i.DATALIST2,
-.chart-type > a > i.PARETO {
-  position: absolute;
-  background: none;
-  font-size: 29px;
+  text-align: center;
+  line-height: 32px;
   color: #ddd;
-  margin-top: 2px;
-  margin-left: 1px;
-}
-
-.chart-type > a > i.PARETO {
   font-size: 20px;
-  margin-left: 5px;
-  margin-top: 7px;
 }
 
-.chart-type > a.active > i.DATALIST2,
-.chart-type > a.active > i.PARETO {
+.chart-type > a[data-type='INDEX'] > i {
+  font-size: 21px;
+}
+
+.chart-type > a[data-type='TABLE'] > i,
+.chart-type > a[data-type='DATALIST2'] > i {
+  font-size: 24px;
+}
+
+.chart-type > a.active > i {
   color: #4285f4;
 }
 

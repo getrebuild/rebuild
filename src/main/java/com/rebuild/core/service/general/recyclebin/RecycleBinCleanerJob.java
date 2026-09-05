@@ -12,8 +12,10 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.aibot2.service.AibotChatService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
@@ -66,11 +68,14 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             // 相关系统引用也在此时一并删除，因为记录已经彻底删除
             // Field: recordId
             String[] sysRefs = new String[]{
-                    "Attachment", "ShareAccess", "RobotApprovalStep", "NreferenceItem", "TagItem"
+                    "Attachment", "ShareAccess", "RobotApprovalStep", "NreferenceItem", "TagItem", "AibotChatAttach"
             };
             for (String refName : sysRefs) {
                 Entity refEntity = MetadataHelper.getEntity(refName);
-                String refRecordIdName = "Attachment".equals(refName) ? "relatedRecord" : "recordId";
+                String refRecordIdName;
+                if ("Attachment".equals(refName)) refRecordIdName = "relatedRecord";
+                else if ("AibotChatAttach".equals(refName)) refRecordIdName = "chatId";
+                else refRecordIdName = "recordId";
 
                 String delRef = String.format(
                         "delete from `%s` where `%s` in ( select %s %s )",
@@ -85,6 +90,15 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                     Object[][] array = Application.getQueryFactory().createNativeQuery(sql).array();
                     for (Object[] o : array) {
                         deletePaths42.add((String) o[0]);
+                    }
+                }
+
+                // v4.5 清理过期 AI 会话的物理文件
+                if ("AibotChatAttach".equals(refName)) {
+                    String sql = "select RECORD_ID " + commonFrom + " and `BELONG_ENTITY` = 'AibotChat'";
+                    Object[][] array = Application.getQueryFactory().createNativeQuery(sql).array();
+                    for (Object[] o : array) {
+                        AibotChatService.cleanChatFiles((ID) o[0]);
                     }
                 }
             }
@@ -159,6 +173,16 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                 s = FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData(path));
             }
             log.info("File/Attachment deleted : {} >> {}", path, s);
+        }
+
+        // 4.5 RebuildApiRequest
+
+        final int arDays = CommandArgs.getInt(CommandArgs._ApiRequestKeepingDays, 90);
+        if (arDays > 0) {
+            String dSql = String.format(
+                    "delete from `rebuild_api_request` where `REQUEST_TIME` < '%s 00:00:00' limit 1000000",
+                    CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-arDays)));
+            Application.getSqlExecutor().execute(dSql, 60 * 3);
         }
     }
 

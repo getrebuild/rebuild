@@ -19,6 +19,8 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * RB 在线元数据仓库
+ * <p>
+ * https://github.com/getrebuild/rebuild-datas/
  *
  * @author devezhao-mbp
  * @since 2019/04/28
@@ -26,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 @Slf4j
 public class RBStore {
 
-    // https://github.com/getrebuild/rebuild-datas/
     public static final String DATA_REPO = BootEnvironmentPostProcessor.getProperty(
             ConfigurationItem.RbStoreUrl.name(), "https://getrebuild.com/gh/getrebuild/rebuild-datas/");
 
@@ -49,6 +50,17 @@ public class RBStore {
     public static JSON fetchMetaschema(String fileUri) {
         return fetchRemoteJson("metaschemas/" +
                 StringUtils.defaultIfBlank(fileUri, "index-3.7.json"));
+    }
+
+    /**
+     * for Skills
+     * 
+     * @param fileUri
+     * @return
+     */
+    public static JSON fetchSkills(String fileUri) {
+        return fetchRemoteJson("skills/" +
+                StringUtils.defaultIfBlank(fileUri, "index.json"));
     }
 
     /**

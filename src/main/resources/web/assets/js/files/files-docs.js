@@ -73,7 +73,10 @@ const FolderTree = {
           FolderTree._filesNav = this
           // be:v4.0
           const e = (location.hash || '').split('Folder/')[1]
-          if (e) this.triggerClick(e)
+          if (e) {
+            if (this.__items[e]) this.triggerClick(e)
+            else filesList.loadData(__DEFAULT_ALL)
+          }
         },
       )
     })
@@ -311,9 +314,6 @@ class FileUploadDlg extends RbFormHandler {
               <button className={`btn btn-primary ${this.state.uploadState === 2 ? '' : 'hide'}`} type="button" onClick={() => this._reset()}>
                 {$L('继续上传')}
               </button>
-              <a className="btn btn-link" onClick={this.hide}>
-                {$L('取消')}
-              </a>
             </div>
           </div>
         </div>
@@ -344,6 +344,17 @@ class FileUploadDlg extends RbFormHandler {
       (res) => _FN(res.file, { key: res.key }),
       (res) => _FN(res.file, { error: res.error }),
     )
+
+    // 页面拖动/粘贴的文件自动填充
+    if (this.props.initFiles && this.props.initFiles.length > 0) {
+      const files = {}
+      this.props.initFiles.forEach((file) => {
+        // 粘贴的文件可能没有名称
+        if (!file.name) file = new File([file], `clipboard-${Date.now()}.png`, { type: file.type || 'image/png' })
+        files[file.name] = { file: file, key: null, error: null, percent: 0 }
+      })
+      this.setState({ files })
+    }
 
     $(this._$upload).on('change', (e) => {
       let files = {}
@@ -378,6 +389,8 @@ class FileUploadDlg extends RbFormHandler {
     e && $stopEvent(e, true)
     const files = this.state.files || {}
     delete files[fileName]
+    if ($empty(files)) return this._reset()
+
     this.setState({ files: files }, () => this._postIfUploaded())
   }
 
@@ -591,11 +604,21 @@ class FileMoveDlg extends RbFormHandler {
   }
 }
 
+// ~ 拖动/粘贴自动打开上传
+function _openUploadDlg45(files) {
+  if ($('.modal.show').length > 0) return
+  renderRbcomp(<FileUploadDlg initFiles={files} call={() => filesList && filesList.loadData()} inFolder={currentFolder} />)
+}
+
 // eslint-disable-next-line no-undef
 class FilesList4Docs extends FilesList {
   constructor(props) {
     super(props)
     this._lastEntry = __DEFAULT_ALL
+  }
+
+  componentDidMount() {
+    if (!(location.hash || '').includes('Folder/')) this.loadData()
   }
 
   renderExtras34(item) {
@@ -657,6 +680,18 @@ $(document).ready(() => {
 
   $('.J_add-folder').on('click', () => renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} parent={currentFolder === __DEFAULT_ALL ? null : currentFolder} />))
   $('.J_upload-file').on('click', () => renderRbcomp(<FileUploadDlg call={() => filesList && filesList.loadData()} inFolder={currentFolder} />))
+
+  // 拖动/粘贴文件自动打开上传
+  $dropUpload($('.main-content'), (files) => {
+    if (files && files.length > 0) _openUploadDlg45(Array.from(files))
+  })
+  $(document).on('paste.dropupload', (e) => {
+    const data = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData
+    if (data && data.items && data.files && data.files.length > 0) {
+      $stopEvent(e, true)
+      _openUploadDlg45(Array.from(data.files))
+    }
+  })
 
   $('.J_delete').on('click', () => {
     const s = filesList.getSelected()

@@ -121,6 +121,41 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #fff;
 }
 
+.chart.dolor {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.chart.dolor .dolor-inner {
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chart.dolor .dolor-word {
+  position: absolute;
+  display: inline-block;
+  line-height: 1.4;
+  cursor: default;
+  white-space: nowrap;
+  transition: text-shadow 0.2s ease;
+}
+
+.chart.dolor .dolor-word:hover {
+  text-shadow: 0 0 8px currentColor;
+  z-index: 10;
+}
+
+.chart.dolor .dolor-count {
+  font-size: 0.55em;
+  margin-left: 4px;
+  opacity: 0.6;
+  font-weight: 400;
+}
+
 .chart.index {
   overflow: hidden;
   position: relative;
@@ -523,94 +558,26 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-list > div .chart-icon {
   width: 48px;
   text-align: center;
+  margin-top: 5px;
 }
 
 .chart-list > div .chart-icon > i {
   width: 32px;
-  height: 32px;
+  height: 36px;
+  line-height: 36px;
   display: inline-block;
-  margin-top: 7px;
-  background: url(../img/charts-sprite.svg?v=1.10) no-repeat -1092px -1410px;
-}
-
-.chart-list > div .chart-icon > i.TABLE {
-  background-position: -1180px -1464px;
-}
-
-.chart-list > div .chart-icon > i.INDEX {
-  background-position: -170px -1288px;
-}
-
-.chart-list > div .chart-icon > i.LINE {
-  background-position: -1106px -1326px;
-}
-
-.chart-list > div .chart-icon > i.BAR {
-  background-position: -1501px -1406px;
-}
-
-.chart-list > div .chart-icon > i.BAR2 {
-  background-position: -1437px -1406px;
-}
-
-.chart-list > div .chart-icon > i.PIE {
-  background-position: -978px -1326px;
-}
-
-.chart-list > div .chart-icon > i.FUNNEL {
-  background-position: -709px -387px;
-}
-
-.chart-list > div .chart-icon > i.TREEMAP {
-  background-position: -1020px -1464px;
-}
-
-.chart-list > div .chart-icon > i.RADAR {
-  background-position: -362px -1288px;
-}
-
-.chart-list > div .chart-icon > i.SCATTER {
-  background-position: -650px -1288px;
-}
-
-.chart-list > div .chart-icon > i.BARNEGATIVE {
-  background-position: -1290px -1288px;
-}
-
-.chart-list > div .chart-icon > i.DOLOR {
-  background-position: -956px -1464px;
-}
-
-.chart-list > div .chart-icon > i.CNMAP {
-  background-position: -938px -1288px;
-}
-
-.chart-list > div .chart-icon > i.SUNBURST {
-  background-position: -1372px -1464px;
-}
-
-.chart-list > div .chart-icon > i.DATALIST2,
-.chart-list > div .chart-icon > i.PARETO {
-  background: none;
-  margin-top: 4px;
-}
-
-.chart-list > div .chart-icon > i.DATALIST2::before,
-.chart-list > div .chart-icon > i.PARETO::before {
-  font-family: 'Material Design Icons', serif;
-  content: '\F148C';
+  text-align: center;
+  font-size: 20px;
   color: #4285f4;
-  font-size: 28px;
-  font-style: normal;
 }
 
-.chart-list > div .chart-icon > i.PARETO {
-  margin-top: 9px;
-}
-
-.chart-list > div .chart-icon > i.PARETO::before {
+.chart-list > div .chart-icon[data-type='INDEX'] > i {
   font-size: 21px;
-  content: '\F1213';
+}
+
+.chart-list > div .chart-icon[data-type='TABLE'] > i,
+.chart-list > div .chart-icon[data-type='DATALIST2'] > i {
+  font-size: 24px;
 }
 
 .sortable-box.h200 {

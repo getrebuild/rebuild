@@ -88,7 +88,7 @@ public class ProtocolFilterParser {
     public String toSqlWhere() {
         Assert.notNull(protocolExpr, "[protocolExpr] cannot be null");
         String[] ps = protocolExpr.split(":");
-        Assert.isTrue(ps.length >= 2, "Bad arguments of protocol expr : " + protocolExpr);
+        Assert.isTrue(ps.length >= 2, "Bad protocol expression arguments : " + protocolExpr);
 
         switch (ps[0]) {
             case P_VIA: {

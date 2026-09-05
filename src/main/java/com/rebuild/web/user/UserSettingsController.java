@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controller;
 import com.rebuild.api.RespBody;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.EntityHelper;
@@ -22,16 +23,17 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginAction;
 import com.rebuild.web.user.signup.LoginController;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +44,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+
+import static com.rebuild.web.user.signup.LoginAction.CK_PASSWD_GRANT;
 
 /**
  * 用户设置
@@ -139,8 +143,7 @@ public class UserSettingsController extends BaseController {
         String oldp = p.getString("oldp");
         String newp = p.getString("newp");
 
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(user, "password");
-        if (o == null || !StringUtils.equals((String) o[0], EncryptUtils.toSHA256Hex(oldp))) {
+        if (!LoginAction.checkPassword(user, oldp)) {
             return RespBody.errorl("原密码输入有误");
         }
 
@@ -192,14 +195,21 @@ public class UserSettingsController extends BaseController {
     @PostMapping("/passwd-expired-save")
     public RespBody passwdExpiredSave(@RequestBody JSONObject post, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        String newpasswd = post.getString("newpasswd");
+        if (Application.getCommonsCache().getx(CK_PASSWD_GRANT + user) == null) {
+            return RespBody.errorl("当前无需修改密码，请通过个人设置修改");
+        }
 
-        Object[] oldpasswd = Application.getQueryFactory().uniqueNoFilter(user, "password");
-        if (oldpasswd[0].equals(EncryptUtils.toSHA256Hex(newpasswd))) {
+        String newp = post.getString("newpasswd");
+        Object[] oldp = Application.getQueryFactory().uniqueNoFilter(user, "password");
+        if (oldp[0].equals(EncryptUtils.toSHA256Hex(newp))) {
             return RespBody.errorl("新密码与原密码不能相同");
         }
 
-        return savePasswd(user, newpasswd);
+        RespBody res = savePasswd(user, newp);
+        if (res.getErrorCode() == Controller.CODE_OK) {
+            Application.getCommonsCache().evict(CK_PASSWD_GRANT + user);
+        }
+        return res;
     }
 
     private RespBody savePasswd(ID user, String password) {
@@ -245,5 +255,40 @@ public class UserSettingsController extends BaseController {
     private void throwIfTempAuth(HttpServletRequest request) {
         Object tempAuth = ServletUtils.getSessionAttribute(request, LoginController.SK_TEMP_AUTH);
         if (tempAuth != null) throw new DefinedException(Language.L("无权访问该页面"));
+    }
+
+    // ----- Access Key -----
+
+    @GetMapping("/access-token/status")
+    public RespBody akStatus(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        boolean has = KVStorage.getCustomValue(AuthTokenManager.KEY_AK + user) != null;
+        return RespBody.ok(JSONUtils.toJSONObject("hasToken", has));
+    }
+
+    @PostMapping("/access-token/generate")
+    public RespBody akGenerate(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
+        String oldHash = KVStorage.getCustomValue(AuthTokenManager.KEY_AK + user);
+        if (oldHash != null) KVStorage.removeCustomValue(AuthTokenManager.KEY_REV + oldHash);
+
+        String plainAk = AuthTokenManager.AK_PREFIX + CodecUtils.randomCode(40);
+        String akHash = EncryptUtils.toSHA256Hex(plainAk);
+        KVStorage.setCustomValue(AuthTokenManager.KEY_AK + user, akHash);
+        KVStorage.setCustomValue(AuthTokenManager.KEY_REV + akHash, user.toLiteral());
+
+        return RespBody.ok(JSONUtils.toJSONObject("token", plainAk));
+    }
+
+    @PostMapping("/access-token/revoke")
+    public RespBody akRevoke(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        String oldHash = KVStorage.getCustomValue(AuthTokenManager.KEY_AK + user);
+        if (oldHash != null) {
+            KVStorage.removeCustomValue(AuthTokenManager.KEY_REV + oldHash);
+            KVStorage.removeCustomValue(AuthTokenManager.KEY_AK + user);
+        }
+        return RespBody.ok();
     }
 }

@@ -203,7 +203,7 @@ public class ParseHelper {
             return "=";
         }
 
-        throw new UnsupportedOperationException("Unsupported token of operation : " + token);
+        throw new UnsupportedOperationException("Unsupported operation token : " + token);
     }
 
     // --
@@ -311,7 +311,7 @@ public class ParseHelper {
         }
 
         if (usesFields.isEmpty()) {
-            log.warn("No fields of search found : {}", usesFields);
+            log.warn("No search fields found : {}", usesFields);
         }
         return usesFields;
     }

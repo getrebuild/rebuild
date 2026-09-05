@@ -15,12 +15,36 @@
         font-weight: bold;
         cursor: pointer;
       }
+      .J_stats-users .user-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 13px;
+      }
+      .J_stats-users .user-row .name {
+        width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 0;
+        text-align: right;
+      }
+      .J_stats-users .user-row .progress {
+        flex: 1;
+        margin: 0;
+        margin-left: 10px;
+        height: 8px;
+        border-radius: 4px;
+      }
+      .J_stats-users .user-row .progress-bar {
+        border-radius: 4px;
+      }
     </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
       <th:block th:replace="~{/_include/nav-top}" />
-      <th:block th:replace="~{/_include/nav-left-admin(active='integration-aibot')}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='aibot')}" />
       <div class="rb-content">
         <div class="main-content container-fluid syscfg">
           <div class="row">
@@ -41,11 +65,11 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('API 地址')}]]</td>
-                        <td data-id="AibotDSUrl" th:data-value="${AibotDSUrl ?:''}">[[${AibotDSUrl ?:bundle.L('默认')}]]</td>
+                        <td data-id="AibotDSUrl" th:data-value="${AibotDSUrl ?:''}">[[${AibotDSUrl ?:bundle.L('未配置')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('秘钥 (API Key)')}]]</td>
-                        <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未设置')}]]</td>
+                        <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未配置')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('使用模型')}]]</td>
@@ -53,11 +77,14 @@
                           class="position-relative"
                           data-id="AibotBaseDefModel"
                           th:data-value="${AibotBaseDefModel ?:''}"
-                          data-optional="true"
-                          th:data-form-text="${bundle.L('请正确填写模型名称，如 %s 等', 'deepseek-v4-flash qwen3.6-flash hy3-preview gpt-5 gemini-2.5-pro')}"
+                          th:data-form-text="${bundle.L('请正确填写模型名称。填写API 地址、秘钥后可自动获取可用模型列表')}"
                         >
-                          [[${AibotBaseDefModel ?:bundle.L('默认')}]]
+                          [[${AibotBaseDefModel ?:bundle.L('未配置')}]]
                         </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('默认提示词')}]]</td>
+                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -67,12 +94,34 @@
                       <a class="badge text-ellipsis">gpt-5</a>
                     </div>
                   </span>
-                  <h5>[[${bundle.L('提示词')}]]</h5>
+                  <h5>[[${bundle.L('使用引导')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('默认提示词')}]]</td>
-                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
+                        <td width="40%">[[${bundle.L('欢迎词')}]]</td>
+                        <td
+                          data-id="AibotWelcome"
+                          style="white-space: pre-line"
+                          th:data-value="${AibotWelcome ?:''}"
+                          data-optional="true"
+                          th:data-form-text="${bundle.L('新会话时展示的欢迎语')}"
+                          th:text="${AibotWelcome ?:bundle.L('默认')}"
+                        >
+                          默认
+                        </td>
+                      </tr>
+                      <tr>
+                        <td width="40%">[[${bundle.L('引导问题')}]]</td>
+                        <td
+                          data-id="AibotSuggestQuestions"
+                          style="white-space: pre-line"
+                          th:data-value="${AibotSuggestQuestions ?:''}"
+                          data-optional="true"
+                          th:data-form-text="${bundle.L('新会话时展示，每行一个问题')}"
+                          th:text="${AibotSuggestQuestions ?:bundle.L('默认')}"
+                        >
+                          默认
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -89,6 +138,7 @@
                 </div>
               </div>
             </div>
+
             <div class="col-lg-3 col-12 col-right-compact">
               <div class="card">
                 <div class="card-header card-header-divider">[[${bundle.L('用量统计')}]] <small class="fs-13">([[${bundle.L('90天')}]])</small></div>
@@ -104,6 +154,12 @@
                   </div>
                 </div>
               </div>
+              <div class="card mt-3">
+                <div class="card-header card-header-divider">[[${bundle.L('TOP10 用户榜')}]]</div>
+                <div class="card-body">
+                  <div class="J_stats-users"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -112,6 +168,7 @@
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
     <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
+    <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/aibot.js}" type="text/babel"></script>
   </body>
 </html>

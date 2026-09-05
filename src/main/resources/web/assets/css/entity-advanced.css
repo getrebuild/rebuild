@@ -9,50 +9,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-bottom: 25px;
 }
 
-.row.ph {
+.mode-preview {
+  display: block;
   width: 195px;
   height: 130px;
-  border: 1px solid #eee;
-  padding: 2px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.row.ph .block {
-  background-color: #eee;
-  height: 100%;
-  border: 1px solid #fff;
-}
-
-.row.ph .block .block-item,
-.row.ph .block .block-item3 {
-  background-color: #dee2e6;
-  height: 6px;
-  margin: 2px 5px;
-  font-size: 0;
-}
-
-.row.ph .block .block-item3 {
-  width: 21%;
-  height: 40px;
-  margin: 5px 0 0 1%;
-  display: inline-block;
-  text-align: center;
-}
-
-.row.ph .block .block-item3 > i.mdi {
-  color: #eee;
-  font-size: 35px;
-  display: inline-block;
-  transform: translateX(-1px) translateY(-1px);
-  line-height: 1;
-}
-
-.row.ph .block .block-item3 > .block-item {
-  height: 4px;
-  background-color: #eee;
-  margin: -3px 3px 0;
-  border-radius: 3px;
+  margin: 0 auto;
 }
 
 .form-group .switch-button-xs {
@@ -185,21 +146,4 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 4px;
   font-weight: bold;
   color: #fbbc05;
-}
-
-.block4 {
-  text-align: center;
-  vertical-align: middle;
-  font-size: 2px;
-  padding-top: 9px;
-}
-
-.block4 .block-item4 {
-  display: inline-block;
-  background-color: #dee2e6;
-  width: 30%;
-  height: 30%;
-  margin: 0;
-  padding: 0;
-  margin-top: 0;
 }

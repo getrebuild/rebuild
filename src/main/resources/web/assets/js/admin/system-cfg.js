@@ -50,14 +50,6 @@ $(document).ready(() => {
       })
     }
   })
-  $getScript('https://getrebuild.com/js/_market/rebuild-market.min.js?v=1.0', () => {
-    $('<link/>', {
-      rel: 'stylesheet',
-      type: 'text/css',
-      href: 'https://getrebuild.com/js/_market/rebuild-market.min.css?v=1.0',
-    }).appendTo('head')
-    typeof window.evalMarket === 'function' && window.evalMarket($('a[data-sn]').data('sn'))
-  })
 
   // v3.4
   const $mm = $('.J_maintenanceMode')
@@ -91,7 +83,7 @@ $(document).ready(() => {
 })
 
 useEditComp = function (name) {
-  if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions', 'ShowViewHistory', 'PageMourningMode'].includes(name)) {
+  if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions', 'ShowViewHistory'].includes(name)) {
     return (
       <select className="form-control form-control-sm">
         <option value="true">{$L('是')}</option>
@@ -145,19 +137,12 @@ useEditComp = function (name) {
         <option value="35">{$L('宫格')}</option>
       </select>
     )
-  } else if ('LoginPageStyle' === name) {
-    return (
-      <select className="form-control form-control-sm">
-        <option value="44">{$L('默认')}</option>
-        <option value="43">{$L('经典')}</option>
-      </select>
-    )
   }
 }
 
 let _$imgCurrent
 const _toggleImage = function (el, init) {
-  const $file = $('.file_4image')
+  const $file = $('.J_CustomWallpaper')
   if (init) {
     $createUploader($file, null, (res) => {
       _$imgCurrent.find('>i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key}?local=true)`)
@@ -316,56 +301,61 @@ class DlgMM extends RbAlert {
   }
 }
 
-// ~~ App
-
-$(document).ready(() => {
+const initAppPath = function (configKey, delTip) {
   if (rb.commercial < 1) {
-    $('.td-MobileAppPath button').remove()
+    $(`.td-${configKey} button`).remove()
     return
   }
 
-  const renderMobileAppPath = function (key) {
-    $('.td-MobileAppPath>a').text($fileCutName(key)).attr({
-      href: '../h5app-download',
-      target: '_blank',
-    })
-    $('button.J_MobileAppPath-del').removeClass('hide')
+  const render = function (key) {
+    $(`.td-${configKey}>a`)
+      .text($fileCutName(key))
+      .attr({
+        href: `../apps-download?type=${configKey.includes('Desktop') ? 'desktop' : 'mobile'}`,
+        target: '_blank',
+      })
+    $(`button.J_${configKey}-del`).removeClass('hide')
   }
 
-  const $input = $('input.J_MobileAppPath')
+  const $input = $(`input.J_${configKey}`)
   $createUploader(
     $input,
     (res) => {
-      $('button.J_MobileAppPath span').text(` (${res.percent.toFixed(1)}%)`)
+      $(`button.J_${configKey} span`).text(` (${res.percent.toFixed(1)}%)`)
     },
     (res) => {
       const fileKey = res.key
-      $.post(location.href, JSON.stringify({ MobileAppPath: fileKey }), (res) => {
+      $.post(location.href, JSON.stringify({ [configKey]: fileKey }), (res) => {
         if (res.error_code === 0) {
-          renderMobileAppPath(fileKey)
+          render(fileKey)
           RbHighbar.success($L('上传成功'))
         } else {
           RbHighbar.error(res.error_msg)
         }
-        $('button.J_MobileAppPath span').text('')
+        $(`button.J_${configKey} span`).text('')
       })
     },
   )
-  $('button.J_MobileAppPath').on('click', () => $input[0].click())
+  $(`button.J_${configKey}`).on('click', () => $input[0].click())
 
-  $('button.J_MobileAppPath-del').on('click', () => {
-    RbAlert.create($L('确认删除 APP 安装包？'), {
+  $(`button.J_${configKey}-del`).on('click', () => {
+    RbAlert.create($L(delTip), {
       onConfirm: function () {
         this.hide()
-        $.post(location.href, JSON.stringify({ MobileAppPath: '' }), () => {
+        $.post(location.href, JSON.stringify({ [configKey]: '' }), () => {
           location.reload()
         })
       },
     })
   })
 
-  const apk = $('.td-MobileAppPath>a').text()
-  if (apk && apk.length > 20) renderMobileAppPath(apk)
+  const v = $(`.td-${configKey}>a`).text()
+  if (v && v.length > 20) render(v)
+}
+
+$(document).ready(() => {
+  initAppPath('MobileAppPath', $L('确认删除 APP 安装包？'))
+  initAppPath('DesktopAppPath', $L('确认删除桌面端安装包？'))
 })
 
 class DlgBackup extends RbAlert {
