@@ -5,11 +5,11 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-/* 独立聊天页（/aibot/chat）双栏布局；侧栏样式按父容器作用域区分弹窗版 */
+/* 独立聊天页 */
 
 .aibot-page {
   height: 100vh;
-  height: 100dvh; /* 移动端真实视口（地址栏收缩） */
+  height: 100dvh;
   overflow: hidden;
   background-color: #fff;
 }
@@ -32,11 +32,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 10px 16px;
   border-bottom: 1px solid #eee;
   background-color: #fff;
+  height: 60px;
 }
 
 .aibot-header h3 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.51rem;
+}
+
+.aibot-header i.mdi-shimmer {
+  font-size: 2rem;
 }
 
 .aibot-header .aibot-header-toggle {
@@ -57,12 +62,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .aibot-footer {
   grid-area: footer;
   text-align: center;
-  padding: 6px 10px calc(10px + env(safe-area-inset-bottom)); /* 兼容 iPhone 底部安全区 */
+  padding: 6px 10px calc(10px + env(safe-area-inset-bottom));
   font-size: 12px;
   background-color: #fff;
 }
 
-/* 移入槽位的服务端页脚：重置全局 .page-footer 的 fixed 定位等属性 */
 .aibot-footer .page-footer {
   position: static;
   width: auto;
@@ -104,8 +108,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 8px 0 12px;
 }
 
-/* 独立页侧栏 */
-
 .aibot-main > .chat-sidebar {
   position: relative;
   grid-area: sidebar;
@@ -119,8 +121,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #f7f7f8;
 }
 
-/* 桌面端折叠时隐藏（grid 列宽 auto 自动收回） */
-
 @media (min-width: 901px) {
   .aibot-main > .chat-sidebar:not(.show) {
     display: none;
@@ -130,8 +130,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .aibot-main > .chat-sidebar .chat-list > ul {
   padding-bottom: 10px;
 }
-
-/* 小屏响应式：侧栏改左侧抽屉 */
 
 @media (max-width: 900px) {
   .aibot-main > .chat-sidebar {
@@ -149,7 +147,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
     transform: translateX(0);
   }
 
-  /* 小屏回补左右间距，避免内容贴边 */
   .chat-standalone .chat-messages {
     padding: 16px;
   }
@@ -159,18 +156,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   }
 }
 
-/* 暗黑模式（默认跟随系统，可手动切换；由 AiBotPage 计算生效状态后加 .chat-dark class）
-   色板采用 GitHub dark（与全局 .markdown-body[data-theme='dark'] 同源）：
-   底 #0d1117 / 面板 #151b23 / 正文 #f0f6fc / 次要 #9198a1 / 边框 #3d444d / 链接 #4493f8 */
+/* 暗黑模式 */
 
 .aibot-page.chat-dark {
   color-scheme: dark;
   background-color: #0d1117;
   color: #f0f6fc;
 }
-
-/* markdown dark 色板复用全局 `.markdown-body[data-theme='dark']`（属性由 AiBotPage 同步），
-   这里只把底色融入页面/气泡 */
 
 .aibot-page.chat-dark .chat-message .markdown-body {
   background-color: transparent;
@@ -297,8 +289,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #9198a1;
 }
 
-/* 图表保持浅底以保证可读性 */
-
 .aibot-page.chat-dark .chat-message .msg-text .mermaid,
 .aibot-page.chat-dark .chat-message .msg-text .mermaid-to-render,
 .aibot-page.chat-dark .chat-message .msg-text .echarts-to-render,
@@ -336,6 +326,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .aibot-page.chat-dark ::-webkit-scrollbar-track {
   background-color: transparent;
+}
+
+.aibot-page.chat-dark .chat-sidebar .ps-scrollbar-y-rail > .ps-scrollbar-y {
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 900px) {
