@@ -358,6 +358,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 10px 10px 2px;
 }
 
+.chat-sidebar .chat-list > ul > li.chat-list-group:first-child {
+  padding-top: 0;
+}
+
 .chat-sidebar .chat-list > ul > li.chat-list-group:hover {
   background-color: transparent;
 }

@@ -172,7 +172,10 @@ class Chat extends React.Component {
         role: 'assistant',
         sendResp: (onChunk) => {
           $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload`, JSON.stringify(data), (res) => {
-            if (res._chatid) this.setState({ chatid: res._chatid })
+            if (res._chatid) {
+              this.setState({ chatid: res._chatid })
+              this._ChatSidebar.setState({ current: res._chatid })
+            }
             typeof onChunk === 'function' && onChunk({ ...res })
             typeof onChunk === 'function' && onChunk({ type: '_done' })
             typeof onDone === 'function' && onDone()
@@ -192,11 +195,19 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
-          fetchStream(`${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`, data, onChunk, () => {
-            typeof onChunk === 'function' && onChunk({ type: '_done' })
-            typeof onDone === 'function' && onDone()
-            this._ChatSidebar && this._ChatSidebar._loadChatList()
-          })
+          fetchStream(
+            `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`,
+            data,
+            (chunk) => {
+              if (chunk && chunk.type === '_chatid') this._ChatSidebar._loadChatList()
+              typeof onChunk === 'function' && onChunk(chunk)
+            },
+            () => {
+              typeof onChunk === 'function' && onChunk({ type: '_done' })
+              typeof onDone === 'function' && onDone()
+              this._ChatSidebar && this._ChatSidebar._loadChatList()
+            },
+          )
         },
       })
     }, 20)
@@ -596,37 +607,40 @@ class ChatMessage extends React.Component {
               <DateShow date={moment(Number(this.state.sendTime)).format('YYYY-MM-DD HH:mm:ss')} showOrigin />
             </span>
           )}
-
-          <a
-            title={$L('复制')}
-            onClick={(e) => {
-              $clipboard(this.state.content || '')
-              const $a = $(e.currentTarget)
-              $a.addClass('copied-check')
-              setTimeout(() => $a.removeClass('copied-check'), 1500)
-            }}>
-            <i className="icon mdi mdi-content-copy" />
-          </a>
-          {(this.props.role === 'assistant' || this.props.role === 'ai') && this._feedbackable() && (
+          {this._feedbackable() && (
             <RF>
-              <a title={$L('有帮助')} onClick={() => this._feedback('like')} className={this.state.feedback === 'like' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
-                <i className="icon mdi mdi-thumb-up-outline fs-15" />
+              <a
+                title={$L('复制')}
+                onClick={(e) => {
+                  $clipboard(this.state.content || '')
+                  const $a = $(e.currentTarget)
+                  $a.addClass('copied-check')
+                  setTimeout(() => $a.removeClass('copied-check'), 1500)
+                }}>
+                <i className="icon mdi mdi-content-copy" />
               </a>
-              <a title={$L('没帮助')} onClick={() => this._feedback('dislike')} className={this.state.feedback === 'dislike' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
-                <i className="icon mdi mdi-thumb-down-outline fs-15" />
-              </a>
+              {(this.props.role === 'assistant' || this.props.role === 'ai') && (
+                <RF>
+                  <a title={$L('有帮助')} onClick={() => this._feedback('like')} className={this.state.feedback === 'like' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
+                    <i className="icon mdi mdi-thumb-up-outline fs-15" />
+                  </a>
+                  <a title={$L('没帮助')} onClick={() => this._feedback('dislike')} className={this.state.feedback === 'dislike' ? 'text-primary' : this.state.feedback ? 'text-disabled' : ''}>
+                    <i className="icon mdi mdi-thumb-down-outline fs-15" />
+                  </a>
+                </RF>
+              )}
+              {(this.props.role === 'assistant' || this.props.role === 'ai') && rb.fileSharable && (
+                <a
+                  title={$L('分享')}
+                  onClick={() => {
+                    const chatid = this.props._ChatMessages.props._Chat.state.chatid
+                    // eslint-disable-next-line react/jsx-no-undef
+                    renderRbcomp(<FileShare file={chatid} title={$L('分享会话')} />)
+                  }}>
+                  <i className="icon zmdi zmdi-share fs-15" />
+                </a>
+              )}
             </RF>
-          )}
-          {(this.props.role === 'assistant' || this.props.role === 'ai') && this._feedbackable() && rb.fileSharable && (
-            <a
-              title={$L('分享')}
-              onClick={() => {
-                const chatid = this.props._ChatMessages.props._Chat.state.chatid
-                // eslint-disable-next-line react/jsx-no-undef
-                renderRbcomp(<FileShare file={chatid} title={$L('分享会话')} />)
-              }}>
-              <i className="icon zmdi zmdi-share fs-15" />
-            </a>
           )}
         </div>
       </div>
