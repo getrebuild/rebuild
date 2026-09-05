@@ -22,30 +22,30 @@ useEditComp = function (name) {
       }
       $autoComplete($('input[name="AibotBaseDefModel"]'), null, option)
 
-      // 异步获取可用模型
-      const $urlInput = $('input[name="AibotDSUrl"]')
-      const $keyInput = $('input[name="AibotDSSecret"]')
-      const baseUrl = ($urlInput.val() || '').trim()
-      const apiKey = ($keyInput.val() || '').trim()
+      // 聚焦时按页面当前参数拉取可用模型
+      let fetching = false
+      const fetchModels = () => {
+        if (fetching) return
+        fetching = true
 
-      const origUrl = ($('td[data-id="AibotDSUrl"]').data('value') || '').trim()
-      const origKey = ($('td[data-id="AibotDSSecret"]').data('value') || '').trim()
-      const params = []
-      if (baseUrl && baseUrl !== origUrl) params.push(`baseUrl=${encodeURIComponent(baseUrl)}`)
-      if (apiKey && apiKey !== origKey) params.push(`apiKey=${encodeURIComponent(apiKey)}`)
-      const qs = params.length > 0 ? `?${params.join('&')}` : ''
-      $.get(`./aibot/models${qs}`, (res) => {
-        if (res.error_code === 0 && res.data && res.data.length > 0) {
-          option.options = res.data.map((m) => {
-            // const ctx = m.contextWindow
-            // return {
-            //   text: ctx ? `${m.id} (${ctx >= 1000 ? Math.round(ctx / 1000) + 'K' : ctx})` : m.id,
-            //   name: m.id,
-            // }
-            return m.id
-          })
-        }
-      })
+        const baseUrl = ($('input[name="AibotDSUrl"]').val() || '').trim()
+        const apiKey = ($('input[name="AibotDSSecret"]').val() || '').trim()
+        // 秘钥未改动时为脱敏值，不传由后端回退到已保存秘钥
+        const origKey = ($('td[data-id="AibotDSSecret"]').data('value') || '').trim()
+
+        const params = []
+        if (baseUrl) params.push(`baseUrl=${encodeURIComponent(baseUrl)}`)
+        if (apiKey && apiKey !== origKey) params.push(`apiKey=${encodeURIComponent(apiKey)}`)
+        const qs = params.length > 0 ? `?${params.join('&')}` : ''
+
+        $.get(`./aibot/models${qs}`, (res) => {
+          if (res.error_code === 0 && res.data && res.data.length > 0) {
+            option.options = res.data.map((m) => m.id)
+          }
+        }).always(() => (fetching = false))
+      }
+
+      $('input[name="AibotBaseDefModel"]').on('focus', fetchModels)
     }, 500)
   }
 }
