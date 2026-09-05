@@ -69,7 +69,7 @@ class Chat extends React.Component {
   render() {
     return (
       <RF>
-        <div className="chat" ref={(c) => (this._$chat = c)}>
+        <div className={`chat ${this.props.standalone ? 'chat-standalone' : ''}`} ref={(c) => (this._$chat = c)}>
           <ChatMessages _Chat={this} ref={(c) => (this._ChatMessages = c)} />
           <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
         </div>
@@ -82,6 +82,9 @@ class Chat extends React.Component {
     this.initChat(this.state.chatid)
 
     $(this._$chat).on('click.sidebar-hide', (e) => {
+      // 独立页桌面端侧栏常驻，点击聊天区不收起（小屏抽屉模式仍点击外部关闭）
+      if (this.props.standalone && window.innerWidth >= 900) return
+
       const $e = $(e.target)
       if ($e.hasClass('chat-sidebar') || $e.parents('.chat-sidebar')[0]);
       else {
@@ -173,6 +176,7 @@ class Chat extends React.Component {
             typeof onChunk === 'function' && onChunk({ ...res })
             typeof onChunk === 'function' && onChunk({ type: '_done' })
             typeof onDone === 'function' && onDone()
+            this._ChatSidebar && this._ChatSidebar._loadChatList()
           })
         },
       })
@@ -191,6 +195,7 @@ class Chat extends React.Component {
           fetchStream(`${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`, data, onChunk, () => {
             typeof onChunk === 'function' && onChunk({ type: '_done' })
             typeof onDone === 'function' && onDone()
+            this._ChatSidebar && this._ChatSidebar._loadChatList()
           })
         },
       })
@@ -990,7 +995,8 @@ class ChatSidebar extends React.Component {
             onClick={() => {
               this.props._Chat.initChat()
               this.setState({ current: null })
-              this.toggleShow(false)
+              // 弹窗/小屏抽屉模式下收起；独立页桌面端侧栏常驻不收起
+              if (!this.props._Chat.props.standalone || window.innerWidth < 900) this.toggleShow(false)
             }}>
             <i className="mdi mdi-chat-plus-outline mr-1 icon" />
             {$L('新会话')}

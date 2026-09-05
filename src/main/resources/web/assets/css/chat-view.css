@@ -1,0 +1,341 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+/* 独立聊天页（/aibot/chat）双栏布局；侧栏样式按父容器作用域区分弹窗版 */
+
+.aibot-page {
+  height: 100vh;
+  height: 100dvh; /* 移动端真实视口（地址栏收缩） */
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.aibot-main {
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'sidebar header'
+    'sidebar body'
+    'sidebar footer';
+}
+
+.aibot-header {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+}
+
+.aibot-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.aibot-header .aibot-header-toggle {
+  border: 0 none;
+  background: none;
+  padding: 2px 8px;
+  margin-right: 6px;
+  border-radius: 6px;
+  color: #666;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.aibot-header .aibot-header-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.aibot-footer {
+  grid-area: footer;
+  text-align: center;
+  padding: 6px 10px calc(10px + env(safe-area-inset-bottom)); /* 兼容 iPhone 底部安全区 */
+  font-size: 12px;
+  background-color: #fff;
+}
+
+/* 移入槽位的服务端页脚：重置全局 .page-footer 的 fixed 定位等属性 */
+.aibot-footer .page-footer {
+  position: static;
+  width: auto;
+  padding: 0;
+  background-color: transparent;
+}
+
+.chat-standalone {
+  grid-area: body;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chat-standalone .chat-messages {
+  height: auto;
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.chat-standalone .chat-messages > .chat-message,
+.chat-standalone .chat-messages > .chat-suggest {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.chat-standalone .chat-input-container {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  flex-shrink: 0;
+  align-self: center;
+  width: 100%;
+  max-width: 800px;
+  padding: 8px 0 12px;
+}
+
+/* 独立页侧栏 */
+
+.aibot-main > .chat-sidebar {
+  position: relative;
+  grid-area: sidebar;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  width: 264px;
+  border-left: 0 none;
+  border-right: 1px solid #e8e8e8;
+  box-shadow: none;
+  background-color: #f7f7f8;
+}
+
+/* 桌面端折叠时隐藏（grid 列宽 auto 自动收回） */
+
+@media (min-width: 901px) {
+  .aibot-main > .chat-sidebar:not(.show) {
+    display: none;
+  }
+}
+
+.aibot-main > .chat-sidebar .chat-list > ul {
+  padding-bottom: 10px;
+}
+
+/* 小屏响应式：侧栏改左侧抽屉 */
+
+@media (max-width: 900px) {
+  .aibot-main > .chat-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    transform: translateX(-100%);
+    transition: transform 0.2s;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .aibot-main > .chat-sidebar.show {
+    transform: translateX(0);
+  }
+
+  /* 小屏回补左右间距，避免内容贴边 */
+  .chat-standalone .chat-messages {
+    padding: 16px;
+  }
+
+  .chat-standalone .chat-input-container {
+    padding: 8px 16px 12px;
+  }
+}
+
+/* 暗黑模式（默认跟随系统，可手动切换；由 AiBotPage 计算生效状态后加 .chat-dark class）
+   色板采用 GitHub dark（与全局 .markdown-body[data-theme='dark'] 同源）：
+   底 #0d1117 / 面板 #151b23 / 正文 #f0f6fc / 次要 #9198a1 / 边框 #3d444d / 链接 #4493f8 */
+
+.aibot-page.chat-dark {
+  color-scheme: dark;
+  background-color: #0d1117;
+  color: #f0f6fc;
+}
+
+/* markdown dark 色板复用全局 `.markdown-body[data-theme='dark']`（属性由 AiBotPage 同步），
+   这里只把底色融入页面/气泡 */
+
+.aibot-page.chat-dark .chat-message .markdown-body {
+  background-color: transparent;
+}
+
+.aibot-page.chat-dark .aibot-header {
+  background-color: #010409;
+  border-bottom-color: #3d444d;
+}
+
+.aibot-page.chat-dark .aibot-header h3 {
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .aibot-header .aibot-header-toggle {
+  color: #9198a1;
+}
+
+.aibot-page.chat-dark .aibot-header .aibot-header-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .aibot-footer {
+  background-color: transparent;
+}
+
+.aibot-page.chat-dark .aibot-main > .chat-sidebar {
+  background-color: #010409;
+  border-right-color: #3d444d;
+}
+
+.aibot-page.chat-dark .chat-sidebar .chat-list > ul > li > div {
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .chat-sidebar .chat-list > ul > li:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.aibot-page.chat-dark .chat-sidebar .chat-list > ul > li.active {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.aibot-page.chat-dark .chat-sidebar .chat-list > ul > li > span > a {
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .chat-sidebar .chat-new a.btn {
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .chat,
+.aibot-page.chat-dark .chat-messages {
+  background-color: transparent;
+}
+
+.aibot-page.chat-dark .chat-message .msg-user > .msg-content {
+  background-color: #151b23;
+  border: 1px solid #3d444d;
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .chat-message .msg-user .markdown-body,
+.aibot-page.chat-dark .chat-message .msg-user .markdown-body a {
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .chat-message .msg-ai > .msg-content {
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .chat-message .msg-action > a {
+  color: #9198a1;
+}
+
+.aibot-page.chat-dark .chat-message .msg-error {
+  background-color: rgba(248, 81, 73, 0.15);
+  color: #f85149;
+}
+
+.aibot-page.chat-dark .chat-suggest .badge {
+  background-color: #151b23;
+  border-color: #3d444d;
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .chat-input {
+  background-color: #151b23;
+  border-color: #3d444d;
+}
+
+.aibot-page.chat-dark .chat-input .chat-input-input textarea {
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .chat-input .chat-input-input textarea::placeholder {
+  color: rgba(145, 152, 161, 0.6);
+}
+
+.aibot-page.chat-dark .chat-input .chat-input-action button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #9198a1;
+}
+
+.aibot-page.chat-dark .chat-input .chat-input-action button:disabled {
+  color: rgba(145, 152, 161, 0.4);
+}
+
+.aibot-page.chat-dark .chat-input .chat-input-action span > button {
+  background-color: transparent;
+}
+
+.aibot-page.chat-dark .chat-input .chat-input-attach > span {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #9198a1;
+}
+
+.aibot-page.chat-dark .chat-input .chat-input-attach > span > a.close {
+  color: #9198a1;
+}
+
+/* 图表保持浅底以保证可读性 */
+
+.aibot-page.chat-dark .chat-message .msg-text .mermaid,
+.aibot-page.chat-dark .chat-message .msg-text .mermaid-to-render,
+.aibot-page.chat-dark .chat-message .msg-text .echarts-to-render,
+.aibot-page.chat-dark .chat-message .msg-text .html-to-render {
+  background-color: #fff;
+}
+
+.aibot-page.chat-dark .chat-message .msg-text .echarts-to-render:not(.echarts-rendered) {
+  background-color: #151b23;
+  color: #9198a1;
+}
+
+.aibot-page.chat-dark .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-toggle {
+  color: #9198a1;
+}
+
+.aibot-page.chat-dark .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body {
+  border-left-color: #3d444d;
+}
+
+.aibot-page.chat-dark .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body,
+.aibot-page.chat-dark .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body > *,
+.aibot-page.chat-dark .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body .markdown-body * {
+  color: rgba(145, 152, 161, 0.85);
+}
+
+.aibot-page.chat-dark .wait-resp,
+.aibot-page.chat-dark .rb-loading {
+  color: #9198a1;
+}
+
+.aibot-page.chat-dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.aibot-page.chat-dark ::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+@media (max-width: 900px) {
+  .aibot-page.chat-dark .aibot-main > .chat-sidebar {
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.5);
+  }
+}
