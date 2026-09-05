@@ -351,6 +351,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
   min-width: 140px;
 }
 
+.chat-sidebar .chat-list > ul > li.chat-list-group {
+  cursor: default;
+  font-size: 12px;
+  color: #999;
+  padding: 10px 10px 2px;
+}
+
+.chat-sidebar .chat-list > ul > li.chat-list-group:hover {
+  background-color: transparent;
+}
+
 .aibot.modal.show {
   display: block;
 }

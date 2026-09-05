@@ -44,6 +44,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author devezhao
@@ -190,12 +194,40 @@ public class AiBot2Controller extends BaseController {
     @GetMapping("post/chat-list")
     public RespBody chatList(HttpServletRequest req) {
         Object[][] chats = Application.createQueryNoFilter(
-                "select chatId,subject,createdOn from AibotChat where createdBy = ? order by modifiedOn desc")
+                "select chatId,subject,modifiedOn from AibotChat where createdBy = ? order by modifiedOn desc")
                 .setParameter(1, getRequestUser(req))
                 .array();
 
-        return RespBody.ok(JSONUtils.toJSONObjectArray(
-                new String[]{"chatid", "subject", "createdOn"}, chats));
+        // 按日期分组：今天 / 最近一周 / 更早
+        long todayStart = org.apache.commons.lang3.time.DateUtils
+                .truncate(new Date(), Calendar.DAY_OF_MONTH).getTime();
+        long weekStart = todayStart - 7 * 24 * 60 * 60 * 1000L;
+
+        List<Object[]> today = new ArrayList<>();
+        List<Object[]> week = new ArrayList<>();
+        List<Object[]> earlier = new ArrayList<>();
+        for (Object[] c : chats) {
+            long t = ((Date) c[2]).getTime();
+            if (t >= todayStart) today.add(c);
+            else if (t >= weekStart) week.add(c);
+            else earlier.add(c);
+        }
+
+        JSONArray data = new JSONArray();
+        addChatGroup(data, "today", today);
+        addChatGroup(data, "week", week);
+        addChatGroup(data, "earlier", earlier);
+        return RespBody.ok(data);
+    }
+
+    private void addChatGroup(JSONArray data, String group, List<Object[]> items) {
+        if (items.isEmpty()) return;
+
+        data.add(JSONUtils.toJSONObject(
+                new String[]{"group", "items"},
+                new Object[]{group, JSONUtils.toJSONObjectArray(
+                        new String[]{"chatid", "subject", "modifiedOn"},
+                        items.toArray(new Object[0][]))}));
     }
 
     @PostMapping("post/chat-rename")

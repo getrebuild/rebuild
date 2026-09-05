@@ -961,9 +961,12 @@ class ChatSidebar extends React.Component {
 
   componentDidMount() {
     this._loadChatList()
+    $(this._$list).perfectScrollbar()
   }
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    $(this._$list).perfectScrollbar('destroy')
+  }
 
   componentDidUpdate(props, prevState) {
     if (prevState.current !== this.state.current) {
@@ -977,8 +980,8 @@ class ChatSidebar extends React.Component {
       this.setState({ list: data }, () => {})
 
       if (this.state.current) {
-        const delIf = data.find((x) => x.chatid === this.state.current)
-        if (!delIf) {
+        const exists = data.some((g) => g.items.some((x) => x.chatid === this.state.current))
+        if (!exists) {
           this.props._Chat.initChat()
           this.setState({ current: null })
         }
@@ -995,50 +998,62 @@ class ChatSidebar extends React.Component {
             onClick={() => {
               this.props._Chat.initChat()
               this.setState({ current: null })
-              // 弹窗/小屏抽屉模式下收起；独立页桌面端侧栏常驻不收起
               if (!this.props._Chat.props.standalone || window.innerWidth < 900) this.toggleShow(false)
             }}>
             <i className="mdi mdi-chat-plus-outline mr-1 icon" />
             {$L('新会话')}
           </a>
         </div>
-        <div className="chat-list" ref={(c) => (this._$list = c)}>
-          <ul className="list-unstyled m-0">
-            {this.state.list.map((item) => {
-              return (
-                <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
-                  <div
-                    className="text-ellipsis"
-                    title={item.subject}
-                    onClick={() => {
-                      this.props._Chat.initChat(item.chatid)
-                      this.setState({ current: item.chatid })
-                      // this.toggleShow(false)
-                    }}>
-                    {item.subject}
-                  </div>
-                  <span>
-                    <a data-toggle="dropdown">
-                      <i className="icon zmdi zmdi-more fs-18" />
-                    </a>
-                    <div className="dropdown-menu dropdown-menu-right">
-                      <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
-                        {$L('删除')}
-                      </a>
-                      <a className="dropdown-item" onClick={() => this.handleRename(item)}>
-                        {$L('重命名')}
-                      </a>
-                      <a className="dropdown-item" href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`} target="_blank">
-                        {$L('新窗口打开')}
-                      </a>
-                    </div>
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
+        <div className="chat-list auto-scroller" ref={(c) => (this._$list = c)}>
+          <ul className="list-unstyled m-0">{this._renderGroupedList()}</ul>
         </div>
       </div>
+    )
+  }
+
+  _renderGroupedList() {
+    const labels = { today: $L('今天'), week: $L('最近一周'), earlier: $L('更早') }
+    const ret = this.state.list.map((g) => {
+      if (!g.items || g.items.length === 0) return null
+      return (
+        <React.Fragment key={g.group}>
+          <li className="chat-list-group">{labels[g.group] || g.group}</li>
+          {g.items.map((item) => this._renderItem(item))}
+        </React.Fragment>
+      )
+    })
+
+    $(this._$list).perfectScrollbar('update')
+    return ret
+  }
+
+  _renderItem(item) {
+    return (
+      <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
+        <div
+          className="text-ellipsis"
+          title={item.subject}
+          onClick={() => {
+            this.props._Chat.initChat(item.chatid)
+            this.setState({ current: item.chatid })
+            // this.toggleShow(false)
+          }}>
+          {item.subject}
+        </div>
+        <span>
+          <a data-toggle="dropdown">
+            <i className="icon zmdi zmdi-more fs-18" />
+          </a>
+          <div className="dropdown-menu dropdown-menu-right">
+            <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
+              {$L('删除')}
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleRename(item)}>
+              {$L('重命名')}
+            </a>
+          </div>
+        </span>
+      </li>
     )
   }
 

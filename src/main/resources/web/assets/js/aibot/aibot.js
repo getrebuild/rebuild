@@ -24,14 +24,21 @@ class AiBot extends React.Component {
             <div className="modal-header">
               <i className="icon mdi mdi-shimmer" />
               <h3 className="modal-title">{rb._aibotName || $L('AI 助手')}</h3>
-              <button className="close" type="button" onClick={() => this.newChat()} title={$L('新会话')}>
-                <span className="mdi mdi-chat-plus-outline" />
-              </button>
-              <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('会话列表')}>
-                <span className="mdi mdi-segment" />
+              <button
+                className="close fs-19"
+                type="button"
+                onClick={() => {
+                  window.open(`${rb.baseUrl}/aibot/chat${this.state.chatid ? '#chatid=' + this.state.chatid : ''}`, '_blank')
+                  // this.hide()
+                }}
+                title={$L('新窗口打开')}>
+                <span className="mdi mdi-open-in-new" />
               </button>
               <button className="close dock-toggle" type="button" onClick={() => this.toggleDockMode()} title={dockMode ? $L('浮动模式') : $L('侧栏模式')}>
                 <span className={`mdi ${dockMode ? 'mdi-dock-window' : 'mdi-dock-right'}`} />
+              </button>
+              <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('会话列表')}>
+                <span className="mdi mdi-menu" />
               </button>
               <button className="close hide2" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="mdi mdi-close" />
@@ -111,10 +118,6 @@ class AiBot extends React.Component {
         }
       }
     })
-  }
-
-  newChat() {
-    this._Chat.initChat()
   }
 
   hide() {
