@@ -215,7 +215,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #9198a1;
 }
 
+.aibot-page.chat-dark .chat-sidebar .chat-list > ul > li.chat-list-group:hover {
+  background-color: transparent;
+}
+
 .aibot-page.chat-dark .chat-sidebar .chat-new a.btn {
+  background-color: #151b23;
+  border: 1px solid #3d444d;
   color: #f0f6fc;
 }
 
@@ -226,13 +232,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .aibot-page.chat-dark .chat-message .msg-user > .msg-content {
   background-color: #151b23;
-  border: 1px solid #3d444d;
   color: #f0f6fc;
 }
 
 .aibot-page.chat-dark .chat-message .msg-user .markdown-body,
 .aibot-page.chat-dark .chat-message .msg-user .markdown-body a {
   color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .chat-message .msg-user > .msg-attach > a {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #9198a1;
+}
+
+.aibot-page.chat-dark .chat-message .msg-user > .msg-attach > a[href]:hover {
+  color: var(--rb-theme-color);
 }
 
 .aibot-page.chat-dark .chat-message .msg-ai > .msg-content {
@@ -252,6 +266,27 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #151b23;
   border-color: #3d444d;
   color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .dropdown-menu {
+  background-color: #151b23;
+  border-color: #3d444d;
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+.aibot-page.chat-dark .dropdown-item {
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .dropdown-item.active,
+.aibot-page.chat-dark .dropdown-item:active {
+  background-color: var(--rb-theme-color);
+  color: #fff;
 }
 
 .aibot-page.chat-dark .chat-input {
