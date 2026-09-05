@@ -154,6 +154,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   .chat-standalone .chat-input-container {
     padding: 8px 16px 12px;
   }
+
+  .aibot-footer {
+    display: none;
+  }
 }
 
 .aibot-nologin {
