@@ -40,8 +40,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.51rem;
 }
 
-.aibot-header i.mdi-shimmer {
-  font-size: 2rem;
+.aibot-header .icon {
+  font-size: 1.9rem;
 }
 
 .aibot-header .aibot-header-toggle {

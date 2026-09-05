@@ -25,7 +25,7 @@ class AiBotPage extends React.Component {
             <button type="button" className="aibot-header-toggle" onClick={() => this._toggleSidebar()} title={$L('会话列表')}>
               <i className="mdi mdi-menu" />
             </button>
-            <i className="mdi mdi-shimmer ai-color mr-1" />
+            <i className="mdi mdi-shimmer ai-color icon mr-1" />
             <h3>{rb._aibotName || $L('REBUILD AI 助手')}</h3>
             <div className="ml-auto">
               <button type="button" className="aibot-header-toggle" onClick={() => this._toggleDark()} title={this.state.dark ? $L('浅色模式') : $L('深色模式')}>
