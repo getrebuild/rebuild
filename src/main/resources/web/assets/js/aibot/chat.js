@@ -1044,16 +1044,17 @@ class ChatSidebar extends React.Component {
   _renderItem(item) {
     return (
       <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
-        <div
+        <a
           className="text-ellipsis"
           title={item.subject}
-          onClick={() => {
+          href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`}
+          onClick={(e) => {
+            $stopEvent(e, true)
             this.props._Chat.initChat(item.chatid)
             this.setState({ current: item.chatid })
-            // this.toggleShow(false)
           }}>
           {item.subject}
-        </div>
+        </a>
         <span>
           <a data-toggle="dropdown">
             <i className="icon zmdi zmdi-more fs-18" />
