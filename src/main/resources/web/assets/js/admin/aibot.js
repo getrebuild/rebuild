@@ -30,7 +30,6 @@ useEditComp = function (name) {
 
         const baseUrl = ($('input[name="AibotDSUrl"]').val() || '').trim()
         const apiKey = ($('input[name="AibotDSSecret"]').val() || '').trim()
-        // 秘钥未改动时为脱敏值，不传由后端回退到已保存秘钥
         const origKey = ($('td[data-id="AibotDSSecret"]').data('value') || '').trim()
 
         const params = []
