@@ -18,11 +18,43 @@ class AiBotPage extends React.Component {
   }
 
   render() {
+    const canChat = rb.commercial >= 1 && rb.currentUser
+    let chatBody
+    if (rb.commercial < 1) {
+      chatBody = (
+        <div className="aibot-nologin">
+          <i className="mdi mdi-lock-outline" />
+          <h4>{WrapHtml($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))}</h4>
+        </div>
+      )
+    } else if (canChat) {
+      chatBody = (
+        <Chat
+          standalone
+          chatid={this.props.chatid}
+          onChatidChanged={(id) => {
+            location.hash = 'chatid=' + (id || '')
+          }}
+          ref={(c) => (this._Chat = c)}
+        />
+      )
+    } else {
+      chatBody = (
+        <div className="aibot-nologin">
+          <i className="mdi mdi-account-circle-outline" />
+          <h4>{$L('请登录后使用')}</h4>
+          <a className="btn btn-primary" href={`${rb.baseUrl}/user/login?nexturl=${encodeURIComponent(location.pathname + location.search)}`}>
+            {$L('去登录')}
+          </a>
+        </div>
+      )
+    }
+
     return (
       <div className={`aibot-page ${this.state.dark ? 'chat-dark' : ''}`} ref={(c) => (this._$page = c)}>
         <div className="aibot-main">
           <div className="aibot-header">
-            {rb.currentUser && (
+            {canChat && (
               <button type="button" className="aibot-header-toggle" onClick={() => this._toggleSidebar()} title={$L('会话列表')}>
                 <i className="mdi mdi-menu" />
               </button>
@@ -36,24 +68,7 @@ class AiBotPage extends React.Component {
             </div>
           </div>
 
-          {rb.currentUser ? (
-            <Chat
-              standalone
-              chatid={this.props.chatid}
-              onChatidChanged={(id) => {
-                location.hash = 'chatid=' + (id || '')
-              }}
-              ref={(c) => (this._Chat = c)}
-            />
-          ) : (
-            <div className="aibot-nologin">
-              <i className="mdi mdi-account-circle-outline" />
-              <h4>{$L('请登录后继续使用')}</h4>
-              <a className="btn btn-primary" href={`${rb.baseUrl}/user/login?nexturl=${encodeURIComponent(location.pathname + location.search)}`}>
-                {$L('去登录')}
-              </a>
-            </div>
-          )}
+          {chatBody}
 
           <div className="aibot-footer" ref={(c) => (this._$footer = c)} />
         </div>
