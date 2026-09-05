@@ -140,7 +140,6 @@ public enum ConfigurationItem {
     PortalBaiduMapAk,
     PortalUploadMaxSize(200),
     MobileNavStyle(34),
-    PageMourningMode(false),
 
     LoginBulletinBoard("# _REBUILD_\n### 零代码、开源免费的企业管理系统"),
 
