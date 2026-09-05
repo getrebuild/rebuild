@@ -174,7 +174,7 @@ class Chat extends React.Component {
           $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload`, JSON.stringify(data), (res) => {
             if (res._chatid) {
               this.setState({ chatid: res._chatid })
-              this._ChatSidebar.setState({ current: res._chatid })
+              this._ChatSidebar && this._ChatSidebar.setState({ current: res._chatid })
             }
             typeof onChunk === 'function' && onChunk({ ...res })
             typeof onChunk === 'function' && onChunk({ type: '_done' })
@@ -199,7 +199,7 @@ class Chat extends React.Component {
             `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`,
             data,
             (chunk) => {
-              if (chunk && chunk.type === '_chatid') this._ChatSidebar._loadChatList()
+              if (chunk && chunk.type === '_chatid') this._ChatSidebar && this._ChatSidebar._loadChatList()
               typeof onChunk === 'function' && onChunk(chunk)
             },
             () => {
@@ -999,6 +999,9 @@ class ChatSidebar extends React.Component {
     if (prevState.current !== this.state.current) {
       $storage.set('__AiBotLastChatId', this.state.current)
     }
+    if (prevState.list !== this.state.list) {
+      $(this._$list).perfectScrollbar('update')
+    }
   }
 
   _loadChatList() {
@@ -1050,7 +1053,6 @@ class ChatSidebar extends React.Component {
       )
     })
 
-    $(this._$list).perfectScrollbar('update')
     return ret
   }
 

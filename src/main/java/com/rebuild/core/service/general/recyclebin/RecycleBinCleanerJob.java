@@ -94,7 +94,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                 }
             }
 
-            cleanExpiredChatFiles(commonFrom);
+            cleanExpiredChatFiles(commonFrom, entity);
 
             String delSql = "delete " + commonFrom;
             dels.add(delSql);
@@ -183,9 +183,13 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
      * 清理过期 AI 会话的物理文件
      *
      * @param commonFrom
+     * @param recycleBinEntity
      */
-    private void cleanExpiredChatFiles(String commonFrom) {
-        String sql = "select recordId " + commonFrom + " and `belongEntity` = 'AibotChat'";
+    private void cleanExpiredChatFiles(String commonFrom, Entity recycleBinEntity) {
+        String recordIdPhys = recycleBinEntity.getField("recordId").getPhysicalName();
+        String belongEntityPhys = recycleBinEntity.getField("belongEntity").getPhysicalName();
+        String sql = "select " + recordIdPhys + " " + commonFrom
+                + " and `" + belongEntityPhys + "` = 'AibotChat'";
         Object[][] array = Application.getQueryFactory().createNativeQuery(sql).array();
         for (Object[] o : array) {
             AibotChatService.cleanChatFiles((ID) o[0]);

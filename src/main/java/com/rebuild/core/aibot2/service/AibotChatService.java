@@ -18,6 +18,8 @@ import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,14 +65,14 @@ public class AibotChatService extends ObservableService {
      * @param chatid
      */
     public static void cleanChatFiles(ID chatid) {
-        try {
-            Object[][] attaches = Application.createQueryNoFilter(
-                    "select content from AibotChatAttach where chatId = ?")
-                    .setParameter(1, chatid)
-                    .array();
+        Object[][] attaches = Application.createQueryNoFilter(
+                "select content from AibotChatAttach where chatId = ?")
+                .setParameter(1, chatid)
+                .array();
 
-            for (Object[] attach : attaches) {
-                if (attach[0] == null) continue;
+        for (Object[] attach : attaches) {
+            if (attach[0] == null || JSONUtils.wellFormat(attach[0].toString())) continue;
+            try {
                 JSONArray attachArray = JSON.parseArray((String) attach[0]);
                 if (attachArray == null) continue;
 
@@ -90,10 +92,9 @@ public class AibotChatService extends ObservableService {
                         log.warn("Failed to delete chat file : {}", fp, ex);
                     }
                 }
+            } catch (Exception ex) {
+                log.warn("Failed to parse attach content for chat {}, skipped", chatid, ex);
             }
-
-        } catch (Exception ex) {
-            log.warn("Failed to clean chat files for {}", chatid, ex);
         }
     }
 
