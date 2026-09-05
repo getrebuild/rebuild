@@ -5,6 +5,8 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+const __MODELS = ['qwen3.8-max', 'glm-5.2', 'deepseek-v4-flash', 'gpt-5']
+
 // eslint-disable-next-line no-undef, react/display-name
 useEditComp = function (name) {
   if ('AibotBasePrompt' === name) {
@@ -14,7 +16,7 @@ useEditComp = function (name) {
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
       let option = {
-        options: 'qwen3.8-max glm-5.2 deepseek-v4-flash gpt-5'.split(' '),
+        options: __MODELS,
         onSelect: (v) => {
           // eslint-disable-next-line no-undef
           changeValue({ target: { value: v, name: 'AibotBaseDefModel' } })
@@ -38,8 +40,10 @@ useEditComp = function (name) {
         const qs = params.length > 0 ? `?${params.join('&')}` : ''
 
         $.get(`./aibot/models${qs}`, (res) => {
-          if (res.error_code === 0 && res.data && res.data.length > 0) {
+          if (res.error_code === 0 && res.data && res.data.length) {
             option.options = res.data.map((m) => m.id)
+          } else {
+            option.options = [...__MODELS]
           }
         }).always(() => (fetching = false))
       }

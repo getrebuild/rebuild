@@ -511,6 +511,21 @@ public class ToolHelper {
     }
 
     /**
+     * 尝试将文本解析为 JSON，失败时原样返回字符串；空文本返回 null
+     *
+     * @param text
+     * @return
+     */
+    public static Object parseJsonOrRaw(String text) {
+        if (StringUtils.isBlank(text)) return null;
+        try {
+            return JSONUtils.parseSafe(text);
+        } catch (Exception ex) {
+            return text;
+        }
+    }
+
+    /**
      * JSON 压缩为单行紧凑格式
      *
      * @param text

@@ -77,7 +77,7 @@
                           class="position-relative"
                           data-id="AibotBaseDefModel"
                           th:data-value="${AibotBaseDefModel ?:''}"
-                          th:data-form-text="${bundle.L('请正确填写模型名称，如 %s 等', 'deepseek-v4-flash qwen3.8 gpt-5 gemini-2.5-pro')}"
+                          th:data-form-text="${bundle.L('请正确填写模型名称。填写API 地址、秘钥后可自动获取可用模型列表')}"
                         >
                           [[${AibotBaseDefModel ?:bundle.L('未配置')}]]
                         </td>
