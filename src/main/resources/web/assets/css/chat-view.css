@@ -179,8 +179,8 @@ html.theme-dark2 {
 }
 
 html.theme-dark2 .aibot-page {
-  background-color: #0d1117;
-  color: #e6edf3;
+  background-color: var(--rb-dark-bg);
+  color: var(--rb-dark-text);
 }
 
 html.theme-dark2 .chat-message .markdown-body {
@@ -189,7 +189,7 @@ html.theme-dark2 .chat-message .markdown-body {
 
 html.theme-dark2 .aibot-header {
   background-color: #010409;
-  border-bottom-color: #3d444d;
+  border-bottom-color: var(--rb-dark-border);
 }
 
 html.theme-dark2 .aibot-header h3 {
@@ -197,7 +197,7 @@ html.theme-dark2 .aibot-header h3 {
 }
 
 html.theme-dark2 .aibot-header .aibot-header-toggle {
-  color: #9198a1;
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 .aibot-header .aibot-header-toggle:hover {
@@ -206,7 +206,7 @@ html.theme-dark2 .aibot-header .aibot-header-toggle:hover {
 }
 
 html.theme-dark2 .aibot-nologin > .mdi {
-  color: #3d444d;
+  color: var(--rb-dark-border);
 }
 
 html.theme-dark2 .aibot-footer {
@@ -215,11 +215,11 @@ html.theme-dark2 .aibot-footer {
 
 html.theme-dark2 .aibot-main > .chat-sidebar {
   background-color: #010409;
-  border-right-color: #3d444d;
+  border-right-color: var(--rb-dark-border);
 }
 
 html.theme-dark2 .chat-sidebar .chat-list > ul > li > a {
-  color: #e6edf3;
+  color: var(--rb-dark-text);
 }
 
 html.theme-dark2 .chat-sidebar .chat-list > ul > li:hover {
@@ -231,11 +231,11 @@ html.theme-dark2 .chat-sidebar .chat-list > ul > li.active {
 }
 
 html.theme-dark2 .chat-sidebar .chat-list > ul > li > span > a {
-  color: #e6edf3;
+  color: var(--rb-dark-text);
 }
 
 html.theme-dark2 .chat-sidebar .chat-list > ul > li.chat-list-group {
-  color: #9198a1;
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 .chat-sidebar .chat-list > ul > li.chat-list-group:hover {
@@ -243,9 +243,9 @@ html.theme-dark2 .chat-sidebar .chat-list > ul > li.chat-list-group:hover {
 }
 
 html.theme-dark2 .chat-sidebar .chat-new a.btn {
-  background-color: #151b23;
-  border: 1px solid #3d444d;
-  color: #e6edf3;
+  background-color: var(--rb-dark-panel);
+  border: 1px solid var(--rb-dark-border);
+  color: var(--rb-dark-text);
 }
 
 html.theme-dark2 .chat,
@@ -254,18 +254,18 @@ html.theme-dark2 .chat-messages {
 }
 
 html.theme-dark2 .chat-message .msg-user > .msg-content {
-  background-color: #151b23;
-  color: #e6edf3;
+  background-color: var(--rb-dark-panel);
+  color: var(--rb-dark-text);
 }
 
 html.theme-dark2 .chat-message .msg-user .markdown-body,
 html.theme-dark2 .chat-message .msg-user .markdown-body a {
-  color: #e6edf3;
+  color: var(--rb-dark-text);
 }
 
 html.theme-dark2 .chat-message .msg-user > .msg-attach > a {
   background-color: rgba(255, 255, 255, 0.1);
-  color: #9198a1;
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 .chat-message .msg-user > .msg-attach > a[href]:hover {
@@ -273,11 +273,11 @@ html.theme-dark2 .chat-message .msg-user > .msg-attach > a[href]:hover {
 }
 
 html.theme-dark2 .chat-message .msg-ai > .msg-content {
-  color: #e6edf3;
+  color: var(--rb-dark-text);
 }
 
 html.theme-dark2 .chat-message .msg-action > a {
-  color: #9198a1;
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 .chat-message .msg-error {
@@ -286,18 +286,18 @@ html.theme-dark2 .chat-message .msg-error {
 }
 
 html.theme-dark2 .chat-suggest .badge {
-  background-color: #151b23;
-  border-color: #3d444d;
-  color: #e6edf3;
+  background-color: var(--rb-dark-panel);
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
 }
 
 html.theme-dark2 .chat-input {
-  background-color: #151b23;
-  border-color: #3d444d;
+  background-color: var(--rb-dark-panel);
+  border-color: var(--rb-dark-border);
 }
 
 html.theme-dark2 .chat-input .chat-input-input textarea {
-  color: #e6edf3;
+  color: var(--rb-dark-text);
 }
 
 html.theme-dark2 .chat-input .chat-input-input textarea::placeholder {
@@ -306,7 +306,7 @@ html.theme-dark2 .chat-input .chat-input-input textarea::placeholder {
 
 html.theme-dark2 .chat-input .chat-input-action button {
   background-color: rgba(255, 255, 255, 0.1);
-  color: #9198a1;
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 .chat-input .chat-input-action button:disabled {
@@ -319,11 +319,11 @@ html.theme-dark2 .chat-input .chat-input-action span > button {
 
 html.theme-dark2 .chat-input .chat-input-attach > span {
   background-color: rgba(255, 255, 255, 0.12);
-  color: #9198a1;
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 .chat-input .chat-input-attach > span > a.close {
-  color: #9198a1;
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 .chat-message .msg-text .mermaid,
@@ -334,16 +334,16 @@ html.theme-dark2 .chat-message .msg-text .html-to-render {
 }
 
 html.theme-dark2 .chat-message .msg-text .echarts-to-render:not(.echarts-rendered) {
-  background-color: #151b23;
-  color: #9198a1;
+  background-color: var(--rb-dark-panel);
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-toggle {
-  color: #9198a1;
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body {
-  border-left-color: #3d444d;
+  border-left-color: var(--rb-dark-border);
 }
 
 html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body,
@@ -354,7 +354,7 @@ html.theme-dark2 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-
 
 html.theme-dark2 .wait-resp,
 html.theme-dark2 .rb-loading {
-  color: #9198a1;
+  color: var(--rb-dark-muted);
 }
 
 html.theme-dark2 ::-webkit-scrollbar-thumb {
