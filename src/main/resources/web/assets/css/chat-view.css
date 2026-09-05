@@ -177,7 +177,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .aibot-page.chat-dark {
   color-scheme: dark;
   background-color: #0d1117;
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .chat-message .markdown-body {
@@ -216,7 +216,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .aibot-page.chat-dark .chat-sidebar .chat-list > ul > li > a {
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .chat-sidebar .chat-list > ul > li:hover {
@@ -228,7 +228,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .aibot-page.chat-dark .chat-sidebar .chat-list > ul > li > span > a {
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .chat-sidebar .chat-list > ul > li.chat-list-group {
@@ -242,7 +242,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .aibot-page.chat-dark .chat-sidebar .chat-new a.btn {
   background-color: #151b23;
   border: 1px solid #3d444d;
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .chat,
@@ -252,12 +252,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .aibot-page.chat-dark .chat-message .msg-user > .msg-content {
   background-color: #151b23;
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .chat-message .msg-user .markdown-body,
 .aibot-page.chat-dark .chat-message .msg-user .markdown-body a {
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .chat-message .msg-user > .msg-attach > a {
@@ -270,7 +270,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .aibot-page.chat-dark .chat-message .msg-ai > .msg-content {
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .chat-message .msg-action > a {
@@ -285,7 +285,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .aibot-page.chat-dark .chat-suggest .badge {
   background-color: #151b23;
   border-color: #3d444d;
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .dropdown-menu {
@@ -295,12 +295,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .aibot-page.chat-dark .dropdown-item {
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .dropdown-item:hover {
   background-color: rgba(255, 255, 255, 0.08);
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .dropdown-item.active,
@@ -315,7 +315,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .aibot-page.chat-dark .chat-input .chat-input-input textarea {
-  color: #f0f6fc;
+  color: #e6edf3;
 }
 
 .aibot-page.chat-dark .chat-input .chat-input-input textarea::placeholder {
