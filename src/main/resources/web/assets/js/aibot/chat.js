@@ -314,9 +314,11 @@ class ChatInput extends React.Component {
                 <a className="dropdown-item" onClick={() => this.attachRecord()}>
                   {$L('选择记录')}
                 </a>
-                <a className="dropdown-item" onClick={() => this.attachPageData()}>
-                  {$L('选择当前页数据')}
-                </a>
+                {window.attachAibotPageData && (
+                  <a className="dropdown-item" onClick={() => this.attachPageData()}>
+                    {$L('选择当前页数据')}
+                  </a>
+                )}
               </div>
             </span>
             <button

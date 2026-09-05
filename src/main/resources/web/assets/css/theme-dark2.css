@@ -1,0 +1,128 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+html.theme-dark2 .modal .modal-content {
+  background-color: #151b23;
+  border-color: #3d444d;
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.5);
+  color: #e6edf3;
+}
+
+html.theme-dark2 .modal .modal-header .close {
+  color: #9198a1;
+  text-shadow: none;
+}
+
+html.theme-dark2 .modal.rbmodal.use-white .modal-header {
+  background-color: transparent;
+  border-bottom-color: #3d444d;
+}
+
+html.theme-dark2 .form-control {
+  background-color: #0d1117;
+  border-color: #3d444d;
+  color: #e6edf3;
+}
+
+html.theme-dark2 .form-group label {
+  color: #e6edf3;
+}
+
+html.theme-dark2 .text-dark {
+  color: #e6edf3 !important;
+}
+
+html.theme-dark2 .select2-container .select2-selection--single,
+html.theme-dark2 .select2-container .select2-selection--multiple {
+  background-color: #0d1117;
+  border-color: #3d444d;
+}
+
+html.theme-dark2 .select2-container .select2-selection__rendered {
+  color: #e6edf3;
+}
+
+html.theme-dark2 .select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #3d444d;
+  color: #e6edf3;
+}
+
+html.theme-dark2 .select2-container--default .select2-dropdown {
+  background-color: #151b23;
+  border-color: #3d444d;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+html.theme-dark2 .select2-container--default .select2-dropdown--above {
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.5);
+}
+
+html.theme-dark2 .select2-container--default .select2-search--dropdown {
+  background-color: #151b23;
+  border-bottom-color: #3d444d;
+}
+
+html.theme-dark2 .select2-container--default .select2-search--dropdown .select2-search__field {
+  background-color: transparent;
+  color: #e6edf3;
+}
+
+html.theme-dark2 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+  color: #e6edf3;
+}
+
+html.theme-dark2 .select2-container--default .select2-results__option {
+  color: #e6edf3;
+}
+
+html.theme-dark2 .select2-container--default .select2-results__option[aria-selected='true'] {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+html.theme-dark2 .dropdown-menu {
+  background-color: #151b23;
+  border-color: #3d444d;
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+html.theme-dark2 .dropdown-item {
+  color: #e6edf3;
+}
+
+html.theme-dark2 .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #e6edf3;
+}
+
+html.theme-dark2 .dropdown-item.active,
+html.theme-dark2 .dropdown-item:active {
+  background-color: var(--rb-theme-color);
+  color: #fff;
+}
+
+html.theme-dark2 .btn-secondary {
+  background-color: #151b23;
+  border-color: #3d444d;
+  color: #9198a1;
+}
+
+html.theme-dark2 .btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #e6edf3;
+}
+
+html.theme-dark2 .btn-secondary:focus,
+html.theme-dark2 .btn-secondary.active,
+html.theme-dark2 .btn-secondary:active,
+html.theme-dark2 .btn-secondary:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn-secondary:not([disabled]):not(.disabled):active,
+html.theme-dark2 .show > .btn-secondary.dropdown-toggle {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: #3d444d;
+  color: #e6edf3;
+}

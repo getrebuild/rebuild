@@ -6,15 +6,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global Chat */
 
-// 独立聊天页（双栏布局：左侧会话列表 + 右侧聊天区）
+const _darkPref = () => (document.cookie.match(/(?:^|;\s*)rb\.ThemeDark2=(dark|light)/) || [])[1] || ''
+
 class AiBotPage extends React.Component {
   constructor(props) {
     super(props)
-
-    let pref = $storage.get('__AiBotPageDark') || ''
-    if (pref === 'true') pref = 'dark'
-    if (pref === 'false') pref = 'light'
-    this.state = { dark: this._isDark(pref) }
+    this.state = { dark: this._isDark(_darkPref()) }
   }
 
   render() {
@@ -51,7 +48,7 @@ class AiBotPage extends React.Component {
     }
 
     return (
-      <div className={`aibot-page ${this.state.dark ? 'chat-dark' : ''}`} ref={(c) => (this._$page = c)}>
+      <div className="aibot-page" ref={(c) => (this._$page = c)}>
         <div className="aibot-main">
           <div className="aibot-header">
             {canChat && (
@@ -77,28 +74,23 @@ class AiBotPage extends React.Component {
   }
 
   componentDidMount() {
-    // 服务端渲染的页脚移入布局槽位（参与 grid 定位）
     const footer = document.querySelector('.page-footer')
     if (footer && this._$footer) this._$footer.appendChild(footer)
 
-    // 桌面端默认展开侧栏（记忆折叠状态；小屏为抽屉模式，默认收起）
     if (this._Chat && window.innerWidth >= 900 && $storage.get('__AiBotSidebarCollapsed') !== 'true') {
       this._Chat._ChatSidebar.toggleShow(true)
     }
 
-    // 跟随系统时，系统偏好变化即时同步（手动切换后不再跟随）
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if ($storage.get('__AiBotPageDark')) return
+      if (_darkPref()) return
       this.setState({ dark: e.matches }, () => this._syncMdTheme())
     })
 
-    // markdown 正文同步 dark 色板（复用全局 .markdown-body[data-theme='dark']），含动态新增的消息
     this._syncMdTheme()
     this._mdObserver = new MutationObserver(() => this._syncMdTheme())
     this._mdObserver.observe(this._$page, { childList: true, subtree: true })
   }
 
-  // 偏好为 '' 时跟随系统，否则以偏好为准
   _isDark(pref) {
     return pref ? pref === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
   }
@@ -106,11 +98,12 @@ class AiBotPage extends React.Component {
   _toggleDark() {
     const dark = !this.state.dark
     this.setState({ dark }, () => this._syncMdTheme())
-    $storage.set('__AiBotPageDark', dark ? 'dark' : 'light')
+    document.cookie = 'rb.ThemeDark2=' + (dark ? 'dark' : 'light') + ';path=/;max-age=31536000'
   }
 
   _syncMdTheme() {
     const theme = this.state.dark ? 'dark' : null
+    document.documentElement.classList.toggle('theme-dark2', this.state.dark)
     this._$page.querySelectorAll('.markdown-body').forEach((el) => {
       if (theme) el.setAttribute('data-theme', theme)
       else el.removeAttribute('data-theme')
@@ -121,7 +114,6 @@ class AiBotPage extends React.Component {
     const _Sidebar = this._Chat._ChatSidebar
     const show = !_Sidebar.state.show
     _Sidebar.toggleShow(show)
-    // 仅桌面端记忆折叠状态（小屏抽屉不持久化）
     if (window.innerWidth >= 900) $storage.set('__AiBotSidebarCollapsed', show ? 'false' : 'true')
   }
 }
