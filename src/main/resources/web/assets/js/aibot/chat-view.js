@@ -10,7 +10,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class AiBotPage extends React.Component {
   constructor(props) {
     super(props)
-    // 明暗偏好：'' 跟随系统 | 'light' | 'dark'
+
     let pref = $storage.get('__AiBotPageDark') || ''
     if (pref === 'true') pref = 'dark'
     if (pref === 'false') pref = 'light'
@@ -22,9 +22,11 @@ class AiBotPage extends React.Component {
       <div className={`aibot-page ${this.state.dark ? 'chat-dark' : ''}`} ref={(c) => (this._$page = c)}>
         <div className="aibot-main">
           <div className="aibot-header">
-            <button type="button" className="aibot-header-toggle" onClick={() => this._toggleSidebar()} title={$L('会话列表')}>
-              <i className="mdi mdi-menu" />
-            </button>
+            {rb.currentUser && (
+              <button type="button" className="aibot-header-toggle" onClick={() => this._toggleSidebar()} title={$L('会话列表')}>
+                <i className="mdi mdi-menu" />
+              </button>
+            )}
             <i className="mdi mdi-shimmer ai-color icon mr-1" />
             <h3>{rb._aibotName || $L('REBUILD AI 助手')}</h3>
             <div className="ml-auto">
@@ -34,14 +36,24 @@ class AiBotPage extends React.Component {
             </div>
           </div>
 
-          <Chat
-            standalone
-            chatid={this.props.chatid}
-            onChatidChanged={(id) => {
-              location.hash = 'chatid=' + (id || '')
-            }}
-            ref={(c) => (this._Chat = c)}
-          />
+          {rb.currentUser ? (
+            <Chat
+              standalone
+              chatid={this.props.chatid}
+              onChatidChanged={(id) => {
+                location.hash = 'chatid=' + (id || '')
+              }}
+              ref={(c) => (this._Chat = c)}
+            />
+          ) : (
+            <div className="aibot-nologin">
+              <i className="mdi mdi-account-circle-outline" />
+              <h4>{$L('请登录后继续使用')}</h4>
+              <a className="btn btn-primary" href={`${rb.baseUrl}/user/login?nexturl=${encodeURIComponent(location.pathname + location.search)}`}>
+                {$L('去登录')}
+              </a>
+            </div>
+          )}
 
           <div className="aibot-footer" ref={(c) => (this._$footer = c)} />
         </div>
@@ -55,7 +67,7 @@ class AiBotPage extends React.Component {
     if (footer && this._$footer) this._$footer.appendChild(footer)
 
     // 桌面端默认展开侧栏（记忆折叠状态；小屏为抽屉模式，默认收起）
-    if (window.innerWidth >= 900 && $storage.get('__AiBotSidebarCollapsed') !== 'true') {
+    if (this._Chat && window.innerWidth >= 900 && $storage.get('__AiBotSidebarCollapsed') !== 'true') {
       this._Chat._ChatSidebar.toggleShow(true)
     }
 

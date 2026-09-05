@@ -156,6 +156,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
   }
 }
 
+.aibot-nologin {
+  grid-area: body;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  min-width: 0;
+}
+
+.aibot-nologin > .mdi {
+  font-size: 56px;
+  color: #bbb;
+}
+
 /* 暗黑模式 */
 
 .aibot-page.chat-dark {
@@ -184,6 +200,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .aibot-page.chat-dark .aibot-header .aibot-header-toggle:hover {
   background-color: rgba(255, 255, 255, 0.1);
   color: #f0f6fc;
+}
+
+.aibot-page.chat-dark .aibot-nologin > .mdi {
+  color: #3d444d;
 }
 
 .aibot-page.chat-dark .aibot-footer {
