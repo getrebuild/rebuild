@@ -58,10 +58,27 @@ class AiBotPage extends React.Component {
             )}
             <i className="mdi mdi-shimmer ai-color icon mr-1" />
             <h3>{rb._aibotName || $L('REBUILD AI 助手')}</h3>
-            <div className="ml-auto">
+            <div className="ml-auto d-flex align-items-center">
               <button type="button" className="aibot-header-toggle" onClick={() => this._toggleDark()} title={this.state.dark ? $L('浅色模式') : $L('深色模式')}>
                 <i className={`mdi ${this.state.dark ? 'mdi-white-balance-sunny' : 'mdi-weather-night'}`} />
               </button>
+              {rb.currentUser && (
+                <div className="dropdown aibot-header-user">
+                  <a data-toggle="dropdown" title={rb.currentUserFullname}>
+                    <img src={`${rb.baseUrl}/account/user-avatar/${rb.currentUser}?w=100`} alt="Avatar" />
+                  </a>
+                  <div className="dropdown-menu dropdown-menu-right">
+                    <h6 className="dropdown-header m-0 text-dark" style={{ padding: '10px 20px', fontSize: '1rem' }}>
+                      {rb.currentUserFullname}
+                    </h6>
+                    <div className="dropdown-divider" />
+                    <a className="dropdown-item" onClick={() => this._logout()}>
+                      <i className="icon zmdi zmdi-power" />
+                      {$L('退出')}
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -115,6 +132,10 @@ class AiBotPage extends React.Component {
     const show = !_Sidebar.state.show
     _Sidebar.toggleShow(show)
     if (window.innerWidth >= 900) $storage.set('__AiBotSidebarCollapsed', show ? 'false' : 'true')
+  }
+
+  _logout() {
+    $.get('/user/logout').always(() => location.replace(location.pathname))
   }
 }
 

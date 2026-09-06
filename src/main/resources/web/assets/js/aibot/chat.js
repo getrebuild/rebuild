@@ -1321,15 +1321,14 @@ class RecordSelectorModal2 extends RecordSelectorModal {
   }
 }
 
-// AI 输出偶发丢失块级结构边界处的换行（表格行粘连、标题/列表粘在正文后），
-// marked 等解析器只解析合法 GFM 语法，需在渲染前还原。入口为 FixMd.blocks(md)。
 const FixMd = {
-  // 行中块标记前导门控：空白或标点，宁可漏修不误伤正文（注意 - 在字符类首位）
   GATE: '[\\s。！？；：，、!?:,\\-]',
   RE_FENCE: /^\s*(`{3,}|~{3,})/,
   RE_HEADING: /^#{1,6}\s/,
   RE_LIST: /^(?:[-*+]|\d{1,3}\.)\s/,
   RE_SEP_PART: /\|(?:\s*:?-{3,}:?\s*\|)+/,
+  RE_FENCE_MERMAID: /^\s*(?:`{3,}|~{3,})\s*mermaid\b/i,
+  RE_MERMAID_SPLIT: /(\]|\)|\})[ \t]+(?=[A-Za-z_]\w*(?:[ \t]*[\[({][^\])}]*[\])}])?[ \t]*(?:-->|---|-.->|-.-|<-->|==>|===|--x|--o|~~~))/g,
 
   // 修复 AI 回复中常见的 MD 语法问题
   fix(md) {
@@ -1356,28 +1355,22 @@ const FixMd = {
     return (s.match(/\|/g) || []).length
   },
 
-  // 整行是否为表格分隔行（| --- | --- |，允许对齐冒号）
   isSepLine(line) {
     return /^\s*\|(?:\s*:?-{3,}:?\s*\|)+\s*$/.test(String(line || ''))
   },
 
-  // 表格行修复：|| 连行拆分，或按列数（以分隔行为准）重组单管道连行；无法确认时保持原文
   tableLine(line, nextLine) {
     const t = line.trim()
     if (!/^\|.+\|$/.test(t)) return line
 
-    // 保护转义管道 \|
     const PH = '\u0001'
     let s = t.replace(/\\\|/g, PH)
     if (FixMd.pipeCount(s) < 3) return line
 
-    // 行粘连：|| 几乎必然是行边界（相邻空列极少见）
     if (s.indexOf('||') !== -1) {
       return s.replace(/\|\|/g, '|\n|').split('\u0001').join('\\|')
     }
 
-    // 单管道多行粘连：按列数重组。列数取自行内分隔行片段，其次取下一行分隔行；
-    // 重组结果必须含分隔行才生效，避免误伤数据行（如 | - | x |）
     const sepPart = s.match(/\|(?:\s*:?-{3,}:?\s*\|)+/)
     let cols = 0
     if (sepPart) cols = FixMd.pipeCount(sepPart[0]) - 1
@@ -1393,27 +1386,27 @@ const FixMd = {
     return line
   },
 
-  // 块边界还原：行中块标记拆行、表格行修复、块结构前补空行（防被 marked 段落吞并）
   blocks(md) {
     const lines = md.split(/\r?\n/)
     const fixed = []
     let inFence = false
+    let inMermaid = false
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
 
-      // 围栏感知：代码块内不做任何改动（行首内联代码除外，不识别）
       if (FixMd.RE_FENCE.test(line)) {
+        inMermaid = !inFence && FixMd.RE_FENCE_MERMAID.test(line)
         inFence = !inFence
         fixed.push(line)
         continue
       }
       if (inFence) {
-        fixed.push(line)
+        if (inMermaid) fixed.push(...line.replace(FixMd.RE_MERMAID_SPLIT, '$1\n').split('\n'))
+        else fixed.push(line)
         continue
       }
 
-      // 行中表格粘连：正文后紧跟表格起点，且本行或下一行能找到分隔行才拆，避免误伤普通含 | 的句子
       let segs = [line]
       const firstPipe = line.indexOf('|')
       if (firstPipe > 0) {
@@ -1425,18 +1418,15 @@ const FixMd = {
       }
 
       for (const seg of segs) {
-        // 表格行修复（可能拆出多行）
         const segLines = FixMd.tableLine(seg, lines[i + 1]).split('\n')
 
         for (const s0 of segLines) {
           let s = s0
-          // 行中标题/列表粘连（跳过表格行，避免拆散单元格文本）
           if (!s.trim().startsWith('|')) {
             s = s
               .replace(new RegExp('(' + FixMd.GATE + ')(#{1,6}\\s+\\S)', 'g'), '$1\n$2')
               .replace(new RegExp('(' + FixMd.GATE + ')([-*+]\\s{1,4}\\S)', 'g'), '$1\n$2')
               .replace(new RegExp('(' + FixMd.GATE + ')(\\d{1,3}\\.\\s{1,4}\\S)', 'g'), '$1\n$2')
-            // **加粗** 闭合后紧跟字母/数字时补空格（CommonMark 强调闭合规则限制）
             s = s.replace(/(\*\*[^*\n]+?\*\*)(?=[A-Za-z0-9])/g, '$1 ')
           }
           fixed.push(...s.split('\n'))
@@ -1444,8 +1434,6 @@ const FixMd = {
       }
     }
 
-    // 块结构前补空行：表格/标题/列表首行紧跟正文时，marked 会将其吞进段落；
-    // 已有空行或前一行是同类块（表格行、列表项）时不重复插入，避免表格被空行截断或列表变松散
     const final = []
     inFence = false
     for (let i = 0; i < fixed.length; i++) {

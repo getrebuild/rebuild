@@ -103,7 +103,15 @@ html.theme-dark2 .dropdown-menu {
   box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.5);
 }
 
+html.theme-dark2 .dropdown-header {
+  color: var(--rb-dark-muted);
+}
+
 html.theme-dark2 .dropdown-item {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .dropdown-menu > .dropdown-item .icon {
   color: var(--rb-dark-text);
 }
 
@@ -116,6 +124,10 @@ html.theme-dark2 .dropdown-item.active,
 html.theme-dark2 .dropdown-item:active {
   background-color: var(--rb-theme-color);
   color: #fff;
+}
+
+html.theme-dark2 .dropdown-menu .dropdown-divider {
+  border-color: var(--rb-dark-border);
 }
 
 html.theme-dark2 .btn-secondary {
