@@ -179,7 +179,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 @media (min-height: 800px) and (min-width: 1200px) {
-  body:not(.rb-navless40) .main-content.fixed {
+  .main-content.fixed {
     padding: 0;
     position: fixed;
     top: 50%;
@@ -211,12 +211,4 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .rb-navless40 .rb-bgimg,
 .rb-navless40 .announcement-wrapper {
   display: none;
-}
-
-.rb-navless40 .main-content.fixed {
-  padding: 0;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
