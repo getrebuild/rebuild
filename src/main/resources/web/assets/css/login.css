@@ -1,0 +1,212 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.rb-bgimg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  background: url(../assets/img/bg.jpg) no-repeat 0 0;
+  background-image: url(../commons/theme/use-bgimg);
+  background-size: cover;
+  opacity: 1;
+}
+
+.rb-bgimg::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.splash-footer *,
+.copyright,
+.copyright * {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 1px 1px #555;
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.vcode-row {
+  height: 41px;
+  max-width: 100%;
+}
+
+.vcode-row img {
+  cursor: pointer;
+}
+
+.passwd-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 1.25rem;
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s;
+}
+
+#passwd {
+  padding-right: 40px;
+}
+
+.h5-mobile .icon {
+  background-color: #fc9a00;
+  color: #fff;
+  border-radius: 6px;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  font-size: 1.2rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+.h5-mobile.pwa .icon {
+  line-height: 26px;
+}
+
+.h5-mobile span {
+  float: right;
+  color: rgb(64, 64, 64);
+  margin-left: 6px;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.h5-mobile.dropup .dropdown-menu {
+  min-width: 0;
+  width: 160px;
+  padding: 6px;
+}
+
+.h5-mobile.dropup:hover .dropdown-menu {
+  display: block;
+  margin-top: 0; /* remove the gap so it doesn't close */
+}
+
+.login-with {
+  text-align: center;
+  border-top: 1px solid #ebebeb;
+  position: relative;
+  padding-top: 25px;
+  margin: 25px 0;
+}
+
+.login-with > span {
+  position: absolute;
+  font-size: 13px;
+  color: #777;
+  background-color: #fff;
+  top: -9px;
+  width: 88px;
+  left: 50%;
+  margin-left: -44px;
+}
+
+.login-with > a {
+  display: inline-block;
+  margin: 0 8px;
+}
+
+.login-with > a > img {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: #eee;
+}
+
+.splash-container {
+  width: 860px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.splash-footer {
+  margin-top: 30px;
+}
+
+.main-content {
+  padding: 50px 0 45px;
+}
+
+.login-form {
+  padding: 40px;
+  background-color: rgba(255, 255, 255, 1);
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.login-form .logo-img {
+  margin: 1rem auto 3rem;
+}
+
+.bulletin-board,
+.bulletin-board > div {
+  background-color: #4285f4;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bulletin-board > div {
+  padding: 25px;
+  text-align: left;
+  overflow: hidden;
+  position: relative;
+}
+
+@media (max-width: 767.98px) {
+  .splash-container {
+    width: 430px;
+  }
+  .login-form {
+    border-radius: 3px !important;
+  }
+  .bulletin-board {
+    display: none;
+  }
+}
+
+@media (min-height: 800px) and (min-width: 1200px) {
+  body:not(.rb-navless40) .main-content.fixed {
+    padding: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.rb-navless40 .splash-container {
+  width: 430px;
+}
+
+.rb-navless40 .splash-container .col-12 {
+  flex: auto;
+  max-width: 100%;
+}
+
+.rb-navless40 .login-form {
+  border-radius: 3px !important;
+}
+
+.rb-navless40 .bulletin-board {
+  display: none;
+}
+
+.rb-navless40 .login-meta,
+.rb-navless40 .page-footer,
+.rb-navless40 .rb-bgimg {
+  display: none;
+}

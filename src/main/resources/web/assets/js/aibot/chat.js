@@ -136,6 +136,7 @@ class Chat extends React.Component {
         }
 
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
+        scrollToBottom(true, 400)
 
         if (_preset) {
           let newState = {}
@@ -894,7 +895,7 @@ class RichContent extends React.Component {
   }
 }
 
-function scrollToBottom(forceScroll) {
+function scrollToBottom(forceScroll, delay) {
   if (forceScroll) __evt_ScrollToBottomStop = false
   if (__evt_ScrollToBottomStop) return
 
@@ -904,7 +905,7 @@ function scrollToBottom(forceScroll) {
       if ($el.length === 0) return
       $el.scrollTop($el[0].scrollHeight + 20)
     },
-    40,
+    delay || 100,
     'chat-scrollToBottom',
   )
 }
