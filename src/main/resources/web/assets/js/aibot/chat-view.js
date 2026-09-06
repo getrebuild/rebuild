@@ -40,7 +40,7 @@ class AiBotPage extends React.Component {
         <div className="aibot-nologin">
           <i className="mdi mdi-account-circle-outline" />
           <h4>{$L('请登录后使用')}</h4>
-          <a className="btn btn-primary" href={`${rb.baseUrl}/user/login?nexturl=${encodeURIComponent(location.pathname + location.search)}`}>
+          <a className="btn btn-primary" href={`${rb.baseUrl}/user/login?frame=1&nexturl=${encodeURIComponent(location.pathname + location.search)}`}>
             {$L('去登录')}
           </a>
         </div>

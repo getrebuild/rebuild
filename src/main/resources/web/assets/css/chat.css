@@ -150,6 +150,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chat-message .msg-action {
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
+  min-height: 24px;
 }
 
 .chat-message:hover .msg-action {
@@ -582,7 +583,6 @@ body:has(.preview-modal.rich-preview) {
 
 .preview-modal.rich-preview .preview-body {
   background-color: #f5f5f5;
-  padding: 20px;
 }
 
 .preview-modal.rich-preview .preview-body .echarts-rendered,
