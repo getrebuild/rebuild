@@ -5,6 +5,7 @@
     <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/login.css}" />
     <th:block th:if="${param.frame != null && param.frame[0] == '1'}">
+      <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2-base.css}" />
       <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2.css}" />
     </th:block>
     <title>[[${bundle.L('用户登录')}]]</title>
