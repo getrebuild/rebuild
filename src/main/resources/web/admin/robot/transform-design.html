@@ -122,7 +122,13 @@
                 <div class="form-group row footer">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
                   <div class="col-md-12 col-xl-9 col-lg-8">
-                    <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+                    <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('保存')}]]</button>
+                    <button class="btn btn-light btn-space w-auto dropdown-toggle" type="button" data-toggle="dropdown" th:title="${bundle.L('更多操作')}">
+                      <i class="icon zmdi zmdi-more fs-18"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item J_auto-map">[[${bundle.L('自动映射')}]]</a>
+                    </div>
                   </div>
                 </div>
               </form>
