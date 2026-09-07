@@ -615,6 +615,129 @@ html.theme-dark2 .page-footer {
   mix-blend-mode: normal;
 }
 
-html.theme-dark2 .ps-scrollbar-y-rail .ps-scrollbar-y {
+html.theme-dark2 .ps-scrollbar-y-rail .ps-scrollbar-y,
+html.theme-dark2 .ps-scrollbar-x-rail .ps-scrollbar-x {
   background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* DataList (dataTables_wrapper) */
+
+html.theme-dark2 .data-list {
+  background-color: transparent;
+}
+
+/* header */
+
+html.theme-dark2 .rb-datatable-header {
+  border-bottom-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .dataTables_wrapper .rb-datatable-header.header-fixed {
+  background-color: var(--rb-dark-panel);
+}
+
+html.theme-dark2 div.dataTables_wrapper div.dataTables_filter label,
+html.theme-dark2 div.dataTables_wrapper div.dataTables_oper label {
+  color: var(--rb-dark-muted);
+}
+
+/* footer */
+
+html.theme-dark2 .rb-datatable-footer {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-top-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 div.dataTables_wrapper div.dataTables_info,
+html.theme-dark2 .dataTables_info .stat-item::before {
+  color: var(--rb-dark-muted);
+}
+
+/* 表头与固定列为 sticky，需不透明背景遮挡滚动内容 */
+
+html.theme-dark2 .data-list .table thead th,
+html.theme-dark2 .data-list .table thead th > div {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .data-list .table thead th {
+  background-color: var(--rb-dark-panel);
+}
+
+html.theme-dark2 .data-list .table thead th.sortable:active {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+html.theme-dark2 .data-list .table thead th > div > i.dividing {
+  border-right-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .data-list .table tr:last-child td,
+html.theme-dark2 .data-list .table.table-bordered42 td,
+html.theme-dark2 .data-list .table.table-bordered42 th {
+  border-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .data-list .table tbody tr.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-dark2 .column-fixed {
+  background-color: var(--rb-dark-panel);
+}
+
+html.theme-dark2 .column-fixed::before,
+html.theme-dark2 th.column-fixed::before,
+html.theme-dark2 .table.table-header-fixed thead > tr > th::before {
+  border-bottom-color: var(--rb-dark-border);
+}
+
+/* 固定列条纹/hover/选中态取 panel 叠加对应白百分比的不透明等效值 */
+
+html.theme-dark2 .table-striped tbody tr:nth-of-type(odd) td.column-fixed {
+  background-color: #1e242c;
+}
+
+html.theme-dark2 .table-hover tbody tr:hover td.column-fixed {
+  background-color: #282d35;
+}
+
+html.theme-dark2 .data-list .table tbody tr.active td.column-fixed {
+  background-color: #31363d;
+}
+
+html.theme-dark2 .column-fixed.col-action .btn.btn-sm:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+html.theme-dark2 .column-fixed.col-action .btn.btn-sm:active {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* 单元格辅助元素 */
+
+html.theme-dark2 .column-lineno,
+html.theme-dark2 .column-nopriv {
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .column-multi .badge {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .column-multi a.badge,
+html.theme-dark2 .column-multi span.badge {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: transparent;
+}
+
+html.theme-dark2 .data-list .table tr td .progress {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-dark2 .list-nodata .zmdi,
+html.theme-dark2 .list-nodata .mdi,
+html.theme-dark2 .list-nodata p {
+  color: var(--rb-dark-muted);
 }
