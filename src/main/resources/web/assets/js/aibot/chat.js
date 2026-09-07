@@ -1039,7 +1039,7 @@ class ChatSidebar extends React.Component {
   }
 
   _renderGroupedList() {
-    const labels = { today: $L('今天'), recent3d: $L('近三天'), week: $L('最近一周'), earlier: $L('更早') }
+    const labels = { today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
     const ret = this.state.list.map((g) => {
       if (!g.items || g.items.length === 0) return null
       return (
