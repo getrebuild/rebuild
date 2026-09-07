@@ -12,6 +12,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.EasyDecimal;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.RbAssert;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Arrays;
@@ -30,6 +32,8 @@ public class RankChart extends LineChart {
 
     @Override
     public JSON build() {
+        RbAssert.isCommercial(Language.L("免费版不支持此图表"));
+
         JSONObject res = (JSONObject) super.build();
 
         JSONArray xAxis = res.getJSONArray("xAxis");
