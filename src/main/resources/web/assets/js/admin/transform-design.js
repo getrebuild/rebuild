@@ -554,7 +554,7 @@ class FieldsMapping extends React.Component {
             matchSource = sf
             break
           }
-          if (sf.label && sf.label === targetField.label) {
+          if (sf.label && targetField.label && sf.label.toLowerCase() === targetField.label.toLowerCase()) {
             matchSource = sf
             break
           }
