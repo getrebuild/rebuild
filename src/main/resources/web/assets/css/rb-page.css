@@ -37,6 +37,14 @@ html.admin .admin-show.row {
   display: flex;
 }
 
+html.env-desktop5 {
+}
+
+html.env-desktop5 .view-header .J_newpage,
+html.env-desktop5 .login-meta .pwa {
+  display: none !important;
+}
+
 html,
 body {
   min-width: 360px;
