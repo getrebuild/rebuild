@@ -23,15 +23,13 @@ html.theme-dark2 body {
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 a {
+html.theme-dark2 a:where(:not(.btn)) {
   color: var(--rb-dark-link);
 }
 
-html.theme-dark2 a:hover {
+html.theme-dark2 a:where(:not(.btn)):hover {
   color: #539bf5;
 }
-
-/* 渐变文字依赖 transparent 色，不能被通用链接色覆盖 */
 
 html.theme-dark2 a.ai-color,
 html.theme-dark2 a.ai-color:hover {
@@ -335,6 +333,11 @@ html.theme-dark2 .btn-outline-light:not([disabled]):not(.disabled):active {
 
 html.theme-dark2 .btn-link {
   color: var(--rb-dark-link);
+}
+
+html.theme-dark2 .btn-link:hover,
+html.theme-dark2 .btn-link:focus {
+  color: #539bf5;
 }
 
 html.theme-dark2 .table {
