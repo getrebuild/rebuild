@@ -118,8 +118,11 @@ public class FileListController extends BaseController {
             } else if (useEntity > 1) {
                 Entity entityMeta = MetadataHelper.getEntity(useEntity);
                 if (entityMeta.getDetailEntity() != null) {
-                    sqlWhere.add(String.format(
-                            "(belongEntity = %d or belongEntity = %d)", useEntity, entityMeta.getDetailEntity().getEntityCode()));
+                    List<String> s = new ArrayList<>();
+                    for (Entity de : entityMeta.getDetialEntities()) {
+                        s.add(String.format("belongEntity = %d", de.getEntityCode()));
+                    }
+                    sqlWhere.add("(" + StringUtils.join(s, " or ") + ")");
                 } else {
                     sqlWhere.add("belongEntity = " + useEntity);
                 }
