@@ -325,15 +325,26 @@ public class FilesHelper {
         final ID recordId = (ID) file[1];
         if (recordId == null) return null;
 
+        return isRecordReadable(recordId, user) ? (String) file[0] : null;
+    }
+
+    /**
+     * 检查附件所属记录是否对指定用户可读
+     *
+     * @param recordId 附件所属记录 ID
+     * @param user
+     * @return
+     */
+    public static boolean isRecordReadable(ID recordId, ID user) {
+        if (UserHelper.isAdmin(user)) return true;
+
         int entityCode = recordId.getEntityCode();
-        boolean readable;
         if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
-            readable = FeedsHelper.checkReadable(recordId, user);
+            return FeedsHelper.checkReadable(recordId, user);
         } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
-            readable = ProjectHelper.checkReadable(recordId, user);
+            return ProjectHelper.checkReadable(recordId, user);
         } else {
-            readable = Application.getPrivilegesManager().allowRead(user, recordId);
+            return Application.getPrivilegesManager().allowRead(user, recordId);
         }
-        return readable ? (String) file[0] : null;
     }
 }

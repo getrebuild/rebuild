@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -74,7 +75,7 @@ public class FileListController extends BaseController {
     }
 
     @GetMapping("list-file")
-    public JSON listFile(HttpServletRequest request) {
+    public RespBody listFile(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 100);
@@ -180,13 +181,22 @@ public class FileListController extends BaseController {
             sql += " order by createdOn asc";
         } else if (sort != null && sort.startsWith("name:")) {
             sql += " order by fileName " + (sort.endsWith(":desc") ? "desc" : "asc");
-        }  else {
+        } else {
             sql += " order by modifiedOn desc";
         }
 
-        Object[][] array = Application.createQueryNoFilter(sql)
-                .setLimit(pageSize, pageNo * pageSize - pageSize)
-                .array();
+        Object[][] array;
+        int nextOffset = -1;
+        if (!UserHelper.isAdmin(user) && related == null && useEntity > 0) {
+            int offset = getIntParameter(request, "offset", -1);
+            Object[] result = queryAttachmentsWithPermission(sql, user, pageNo, pageSize, offset);
+            array = (Object[][]) result[0];
+            nextOffset = (int) result[1];
+        } else {
+            array = Application.createQueryNoFilter(sql)
+                    .setLimit(pageSize, pageNo * pageSize - pageSize)
+                    .array();
+        }
 
         JSONArray files = new JSONArray();
         for (Object[] o : array) {
@@ -210,7 +220,10 @@ public class FileListController extends BaseController {
 
             files.add(item);
         }
-        return files;
+
+        RespBody res = RespBody.ok(files);
+        if (nextOffset >= 0) res.putExtra("next_offset", nextOffset);
+        return res;
     }
 
     // 文档树（目录）
@@ -258,11 +271,62 @@ public class FileListController extends BaseController {
 
     private JSONObject formatEntityJson(Entity entity) {
         return JSONUtils.toJSONObject(
-                new String[] { "id", "text", "icon" },
-                new Object[] { entity.getEntityCode(), Language.L(entity), EasyMetaFactory.valueOf(entity).getIcon() });
+                new String[]{"id", "text", "icon"},
+                new Object[]{entity.getEntityCode(), Language.L(entity), EasyMetaFactory.valueOf(entity).getIcon()});
     }
 
     private boolean hasAttachmentFields(Entity entity) {
         return MetadataSorter.sortFields(entity, DisplayType.FILE, DisplayType.IMAGE).length > 0;
+    }
+
+    // 带记录级权限过滤的附件查询
+    // offset>=0 时从 offset 继续查（接续分页），否则从 0 查起收集 pageNo*pageSize 条后切片
+    // 返回 Object[]{Object[][] result, int nextOffset}
+    private Object[] queryAttachmentsWithPermission(String sql, ID user, int pageNo, int pageSize, int offset) {
+        List<Object[]> filtered = new ArrayList<>();
+        int queryOffset = Math.max(0, offset);
+        final int batchSize = pageSize * 3;
+        final int needed = offset >= 0 ? pageSize : pageNo * pageSize;
+        int maxLoops = 50;
+        int nextOffset = -1;
+
+        outer:
+        while (filtered.size() < needed && maxLoops-- > 0) {
+            Object[][] batch = Application.createQueryNoFilter(sql)
+                    .setLimit(batchSize, queryOffset)
+                    .array();
+            if (batch.length == 0) break;
+
+            for (int i = 0; i < batch.length; i++) {
+                ID relatedRecord = (ID) batch[i][7];
+                if (relatedRecord != null && FilesHelper.isRecordReadable(relatedRecord, user)) {
+                    filtered.add(batch[i]);
+                    if (filtered.size() >= needed) {
+                        nextOffset = queryOffset + i + 1;
+                        break outer;
+                    }
+                }
+            }
+
+            queryOffset += batch.length;
+            if (batch.length < batchSize) break;
+        }
+
+        if (nextOffset < 0) nextOffset = queryOffset;
+
+        Object[][] result;
+        if (offset >= 0) {
+            result = filtered.toArray(new Object[0][]);
+        } else {
+            int start = (pageNo - 1) * pageSize;
+            if (start >= filtered.size()) {
+                result = new Object[0][];
+            } else {
+                int end = Math.min(start + pageSize, filtered.size());
+                result = filtered.subList(start, end).toArray(new Object[0][]);
+            }
+        }
+
+        return new Object[]{result, nextOffset};
     }
 }
