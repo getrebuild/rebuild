@@ -73,8 +73,16 @@ public class RbvMissingController extends BaseController {
         return errorUnsupported(L("用户配置"));
     }
 
-    private ModelAndView errorUnsupported(String featName) {
-        String error = L("免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)", featName);
+    /**
+     * @param featName
+     * @return
+     * @see ErrorPageView#createErrorPage(String) 
+     */
+    public static ModelAndView errorUnsupported(String featName) {
+        String error = featName == null
+                ? L("免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)")
+                : L("免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)", featName);
+
         ModelAndView mv = ErrorPageView.createErrorPage(error);
         mv.getModelMap().put(WebConstants.$BUNDLE, Language.getCurrentBundle());
         return mv;

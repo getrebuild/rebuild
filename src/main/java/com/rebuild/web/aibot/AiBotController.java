@@ -10,9 +10,11 @@ package com.rebuild.web.aibot;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.commons.RbvMissingController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +38,10 @@ public class AiBotController extends BaseController {
 
     @GetMapping("chat")
     public ModelAndView chatIndex(HttpServletRequest request) {
+        if (!License.isCommercial()) {
+            return RbvMissingController.errorUnsupported(null);
+        }
+
         ID user = AppUtils.getRequestUser(request);
         String authToken;
         // exchange
