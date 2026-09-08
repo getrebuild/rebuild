@@ -33,7 +33,9 @@
               </h5>
               <ul class="list-unstyled fields">
                 <th:block th:each="field : ${availableFields}">
-                  <li th:class="${field[2]}"><a th:title="${field[1]}" th:data-field="${field[0]}" th:data-type="${field[2]}" th:data-pinyin="${field[3]}">[[${field[1]}]]</a></li>
+                  <li th:class="${field[2]}">
+                    <a th:title="${field[1]}" th:data-field="${field[0]}" th:data-type="${field[2]}" th:data-type45="${field[4]}" th:data-pinyin="${field[3]}">[[${field[1]}]]</a>
+                  </li>
                 </th:block>
               </ul>
             </div>
@@ -192,7 +194,7 @@
                     <a class="default" th:title="${bundle.L('默认')}"></a>
                   </div>
                 </div>
-                <div class="hide J_opt-DATALIST2 J_opt-TABLE J_opt-RANK">
+                <div class="hide J_opt-DATALIST2 J_opt-TABLE J_opt-RANK J_opt-DOLOR">
                   <label class="line-style mr-1">[[${bundle.L('最大显示条数')}]]</label>
                   <input type="text" data-name="pageSize" th:placeholder="${bundle.L('默认')}" maxlength="4" />
                 </div>

@@ -18,7 +18,9 @@ import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
@@ -41,6 +43,8 @@ public class DolorChart extends ChartData {
 
     @Override
     public JSON build() {
+        RbAssert.isCommercial(Language.L("免费版不支持此图表"));
+
         Dimension[] dims = getDimensions();
         Dimension dim1 = dims[0];
         DisplayType dimType = EasyMetaFactory.getDisplayType(dim1.getField());
@@ -105,17 +109,21 @@ public class DolorChart extends ChartData {
         List<Map.Entry<String, Long>> sortedCounts = new ArrayList<>(counts.entrySet());
         sortedCounts.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
 
+        JSONObject renderOption = config.getJSONObject("option");
+        if (renderOption == null) renderOption = new JSONObject();
+
+        int pageSize = renderOption.getIntValue("pageSize");
+        if (pageSize <= 0) pageSize = 20;
+        if (pageSize > 200) pageSize = 200;
+
         JSONArray data = new JSONArray();
-        for (int i = 0; i < Math.min(200, sortedCounts.size()); i++) {
+        for (int i = 0; i < Math.min(pageSize, sortedCounts.size()); i++) {
             Map.Entry<String, Long> e = sortedCounts.get(i);
             if (StringUtils.isBlank(e.getKey())) continue;
             data.add(JSONUtils.toJSONObject(
                     new String[]{"name", "value"},
                     new Object[]{e.getKey(), e.getValue()}));
         }
-
-        JSONObject renderOption = config.getJSONObject("option");
-        if (renderOption == null) renderOption = new JSONObject();
 
         return JSONUtils.toJSONObject(
                 new String[]{"data", "_renderOption"},

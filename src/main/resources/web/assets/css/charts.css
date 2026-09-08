@@ -33,6 +33,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-top: 20px;
 }
 
+.chart-box.RANK .chart-body {
+  margin-top: 0;
+  padding-top: 0;
+}
+
 .chart-box .chart-head {
   position: relative;
   margin: 0;

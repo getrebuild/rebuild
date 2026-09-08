@@ -45,6 +45,9 @@ public class TableChart extends ChartData {
             if (option.containsKey("mergeCell")) this.mergeCell = option.getBooleanValue("mergeCell");
             if (option.containsKey("pageSize")) this.pageSize = option.getIntValue("pageSize");
         }
+
+        if (pageSize <= 0) pageSize = 200;
+        if (pageSize >= 2000) pageSize = 2000;
     }
 
     @Override

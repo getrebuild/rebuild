@@ -114,12 +114,14 @@ class FilesList extends React.Component {
   loadData(entry, pageNo) {
     this._lastEntry = entry || this._lastEntry
     this._pageNo = pageNo || 1
-    const url = `/files/list-file?entry=${this._lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
+    let url = `/files/list-file?entry=${this._lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
+    if (this._lastOffset) url += `&offset=${this._lastOffset}`
     $.get(url, (res) => {
       const current = res.data || []
       let files = this._pageNo === 1 ? [] : this.state.files
       files = [].concat(files, current)
       this.setState({ files: files, currentSize: current.length, currentActive: [] })
+      this._lastOffset = res.next_offset || -1
     })
   }
 

@@ -777,7 +777,6 @@ class ChartRank extends ChartBar {
       return
     }
 
-    // 后端已处理排序、单系列截取、pageSize 限制
     super.renderChart({
       ...data,
       _renderOption: {
@@ -785,6 +784,20 @@ class ChartRank extends ChartBar {
         showHorizontal: true,
       },
     })
+
+    $setTimeout(() => this._initRankScroll(), 200, `rank-scroll-${this.state.id || 'id'}`)
+  }
+
+  _initRankScroll() {
+    const $body = $(this._$body)
+    if ($body.find('.chart').length === 0) return
+    $body.perfectScrollbar('destroy')
+    $body.perfectScrollbar()
+  }
+
+  resize() {
+    super.resize()
+    $setTimeout(() => this._initRankScroll(), 400, `rank-scroll-${this.state.id || 'id'}`)
   }
 
   _renderChartBarBefore(option, data) {
@@ -795,18 +808,18 @@ class ChartRank extends ChartBar {
     const catGap = 8
     const bandH = barH + catGap * 2
 
-    let chartH = 0
-    const $chart = this._$body && this._$body.querySelector('.chart')
-    if ($chart) chartH = $chart.clientHeight
-    if (!chartH || chartH < 60) chartH = 320
     const gridTop = (option.grid && option.grid.top) || 30
     const gridBottom = (option.grid && option.grid.bottom) || 30
-    const availH = Math.max(bandH, chartH - gridTop - gridBottom)
 
-    const visibleItems = Math.max(1, Math.floor(availH / bandH))
-    const displayItems = Math.min(numItems, visibleItems)
+    // 按内容总高撑开图表
+    const $chart = this._$body && this._$body.querySelector('.chart')
+    if ($chart) {
+      let chartH = $chart.clientHeight
+      if (!chartH || chartH < 60) chartH = 320
+      $chart.style.height = Math.max(numItems * bandH + gridTop + gridBottom, chartH) + 'px'
+    }
 
-    option.grid.height = displayItems * bandH
+    option.grid.height = numItems * bandH
     option.grid.containLabel = true
     option.grid.left = 0
     option.yAxis.inverse = true
@@ -836,18 +849,6 @@ class ChartRank extends ChartBar {
         r1: { color: rankColors[1], fontWeight: 'bold' },
         r2: { color: rankColors[2], fontWeight: 'bold' },
       },
-    }
-
-    if (numItems > visibleItems) {
-      option.dataZoom = [
-        {
-          type: 'inside',
-          yAxisIndex: 0,
-          zoomLock: true,
-          start: 0,
-          end: (visibleItems / numItems) * 100,
-        },
-      ]
     }
 
     return option
@@ -1075,7 +1076,7 @@ class ChartDolor extends BaseChart {
     const MIN_FONT = 14
     const MAX_FONT = 52
 
-    const sorted = [...filtered].sort((a, b) => (parseFloat(b.value) || 0) - (parseFloat(a.value) || 0)).slice(0, 100)
+    const sorted = [...filtered].sort((a, b) => (parseFloat(b.value) || 0) - (parseFloat(a.value) || 0))
 
     const words = sorted.map((item, idx) => {
       const v = parseFloat(item.value) || 0

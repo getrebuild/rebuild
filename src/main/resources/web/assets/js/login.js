@@ -24,9 +24,6 @@ $(document).ready(() => {
   $('.h5-mobile.pwa>a').on('click', function () {
     if (!this.getAttribute('href')) return false
   })
-  if (navigator.userAgent.toUpperCase().includes('ELECTRON') || window.__TAURI__ || window.__TAURI_INTERNALS__) {
-    $('.h5-mobile.pwa').addClass('hide')
-  }
 
   setTimeout(function () {
     const $a = $('.h5-mobile>a:eq(0)')

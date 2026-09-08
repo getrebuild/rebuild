@@ -5,6 +5,7 @@
     <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/login.css}" />
     <th:block th:if="${param.frame != null && param.frame[0] == '1'}">
+      <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2-base.css}" />
       <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2.css}" />
     </th:block>
     <title>[[${bundle.L('用户登录')}]]</title>
@@ -65,23 +66,23 @@
                 </div>
                 <div class="login-with" th:if="${ssoDingtalk != null || ssoWxwork != null || ssoFeishu != null || ssoIdpaas != null}">
                   <span>[[${bundle.L('第三方登录')}]]</span>
-                  <a href="login/sso?protocol=dingtalk" th:if="${ssoDingtalk != null}" data-toggle="tooltip" th:title="${bundle.L('钉钉')}">
+                  <a href="login/sso?protocol=dingtalk" th:if="${ssoDingtalk != null}" data-toggle="tooltip" th:title="${bundle.L('钉钉')}" data-url-external="desktop">
                     <img th:src="@{/assets/img/dingtalk256.png}" alt="DingTalk" />
                   </a>
-                  <a href="login/sso?protocol=wxwork" th:if="${ssoWxwork != null}" data-toggle="tooltip" th:title="${bundle.L('企业微信')}">
+                  <a href="login/sso?protocol=wxwork" th:if="${ssoWxwork != null}" data-toggle="tooltip" th:title="${bundle.L('企业微信')}" data-url-external="desktop">
                     <img th:src="@{/assets/img/wxwork512.png}" alt="WeCom" />
                   </a>
-                  <a href="login/sso?protocol=feishu" th:if="${ssoFeishu != null}" data-toggle="tooltip" th:title="${bundle.L('飞书')}">
+                  <a href="login/sso?protocol=feishu" th:if="${ssoFeishu != null}" data-toggle="tooltip" th:title="${bundle.L('飞书')}" data-url-external="desktop">
                     <img th:src="@{/assets/img/feishu512.png}" alt="Feishu" />
                   </a>
-                  <a href="login/sso?protocol=idpaas" th:if="${ssoIdpaas != null}" data-toggle="tooltip" th:title="${bundle.L('SSO 登录')}">
+                  <a href="login/sso?protocol=idpaas" th:if="${ssoIdpaas != null}" data-toggle="tooltip" th:title="${bundle.L('SSO 登录')}" data-open-external="ignore">
                     <img th:src="@{/assets/img/icon-sso.png}" alt="SSO" />
                   </a>
                 </div>
                 <div class="row mt-6 login-meta">
                   <div class="col-8">
                     <div class="btn-group dropup h5-mobile fs-0">
-                      <a class="dropdown-toggle" data-toggle="dropdown" th:href="${mobileUrl}">
+                      <a class="dropdown-toggle" data-toggle="dropdown" th:href="${mobileUrl}" data-url-external="ignore">
                         <i class="icon zmdi zmdi-smartphone-iphone"></i>
                         <span class="up-1">[[${bundle.L('手机版')}]]</span>
                       </a>

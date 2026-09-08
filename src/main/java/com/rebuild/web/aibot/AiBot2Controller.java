@@ -198,23 +198,27 @@ public class AiBot2Controller extends BaseController {
                 .setParameter(1, getRequestUser(req))
                 .array();
 
-        // 按日期分组：今天 / 最近一周 / 更早
+        // 按日期分组：今天 / 近三天 / 最近一周 / 更早
         long todayStart = org.apache.commons.lang3.time.DateUtils
                 .truncate(new Date(), Calendar.DAY_OF_MONTH).getTime();
+        long threeDayStart = todayStart - 3 * 24 * 60 * 60 * 1000L;
         long weekStart = todayStart - 7 * 24 * 60 * 60 * 1000L;
 
         List<Object[]> today = new ArrayList<>();
+        List<Object[]> recent3d = new ArrayList<>();
         List<Object[]> week = new ArrayList<>();
         List<Object[]> earlier = new ArrayList<>();
         for (Object[] c : chats) {
             long t = ((Date) c[2]).getTime();
             if (t >= todayStart) today.add(c);
+            else if (t >= threeDayStart) recent3d.add(c);
             else if (t >= weekStart) week.add(c);
             else earlier.add(c);
         }
 
         JSONArray data = new JSONArray();
         addChatGroup(data, "today", today);
+        addChatGroup(data, "recent3d", recent3d);
         addChatGroup(data, "week", week);
         addChatGroup(data, "earlier", earlier);
         return RespBody.ok(data);
