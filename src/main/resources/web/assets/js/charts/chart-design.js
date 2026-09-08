@@ -347,6 +347,7 @@ function add_axis($target, axis) {
   let fieldName = null
   let fieldLabel = null
   let fieldType = null
+  let fieldType45 = null
   let calc = null
   let sort = 'NONE'
   let fkey = null
@@ -358,6 +359,7 @@ function add_axis($target, axis) {
     fieldName = axis.field
     fieldLabel = copyField.text()
     fieldType = copyField.data('type')
+    fieldType45 = copyField.data('type45')
     calc = axis.calc
     sort = axis.sort
     fkey = axis.fkey
@@ -369,6 +371,7 @@ function add_axis($target, axis) {
     fieldName = axis.data('field')
     fieldLabel = axis.text()
     fieldType = axis.data('type')
+    fieldType45 = axis.data('type45')
     if (isNumAxis) {
       calc = fieldType === 'num' ? 'SUM' : 'COUNT'
     } else if (fieldType === 'date') {
@@ -471,7 +474,7 @@ function add_axis($target, axis) {
   if (calc) $dd.find(`.dropdown-menu li[data-calc="${calc}"]`).addClass('check')
   if (sort) $dd.find(`.dropdown-menu li[data-sort="${sort}"]`).addClass('check')
 
-  $dd.attr({ 'data-type': fieldType, 'data-field': fieldName })
+  $dd.attr({ 'data-type': fieldType, 'data-type45': fieldType45, 'data-field': fieldName })
   $dd.find('span').html(fieldLabel + (calc ? ` (${CTs[calc]})` : ''))
   $dd.find('a.del').on('click', () => {
     $dd.remove()
