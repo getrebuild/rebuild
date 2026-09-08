@@ -25,9 +25,16 @@
         margin-top: 20px;
         margin-bottom: 16px;
       }
-      .shared-aibot-chat .chat-messages {
+      .chat-messages {
         height: auto;
         border-radius: 8px;
+        padding: 25px;
+      }
+      .chat-messages .chat-message {
+        margin-bottom: 25px;
+      }
+      .chat-message .msg-user > .msg-attach > a {
+        cursor: default;
       }
       @media (max-width: 800px) {
         .shared-aibot-chat {
@@ -43,10 +50,6 @@
         .rb-scroll-top.show {
           right: 16px;
         }
-      }
-      .chat-input .chat-input-attach > span,
-      .chat-message .msg-user > .msg-attach > a {
-        cursor: default;
       }
 
       html.theme-dark2 body {
