@@ -38,7 +38,7 @@ class AiBot extends React.Component {
                 <span className={`mdi ${dockMode ? 'mdi-dock-window' : 'mdi-dock-right'}`} />
               </button>
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('会话列表')}>
-                <span className="mdi mdi-menu" />
+                <span className="mdi mdi-segment" />
               </button>
               <button className="close hide2" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="mdi mdi-close" />
@@ -80,6 +80,26 @@ class AiBot extends React.Component {
         containment: false,
         keepPositionKey: '__AiBotLastChatModalPos',
       })
+
+      // dock 模式下拖动 header 自动切换为浮动模式
+      $modal.find('.modal-header').on('mousedown', (e) => {
+        if ($(e.target).closest('.close').length) return
+        if (!this.state.dockMode) return
+
+        const $dialog = $modal.find('.modal-dialog')
+        const offset = $dialog.offset()
+        $modal.removeClass('aibot-dock')
+        $dialog.css({
+          position: 'fixed',
+          left: offset.left - $(window).scrollLeft(),
+          top: offset.top - $(window).scrollTop(),
+          right: 'unset',
+          bottom: 'unset',
+        })
+        this.setState({ dockMode: false })
+        $storage.set('__AiBotDockMode', 'false')
+      })
+
       $(document).on('keydown.aibot-hide', null, 'esc', (e) => {
         if (e.isDefaultPrevented()) return
         this.hide()
@@ -88,7 +108,6 @@ class AiBot extends React.Component {
       if (this.state.dockMode) {
         $modal.addClass('aibot-dock')
         const $dialog = $modal.find('.modal-dialog')
-        $dialog.draggable('disable')
         $dialog.css({ left: '', top: '', right: '', bottom: '' })
       }
     }
@@ -107,10 +126,8 @@ class AiBot extends React.Component {
 
       const $dialog = $(this._$modal).find('.modal-dialog')
       if (dockMode) {
-        if (this.props.draggable) $dialog.draggable('disable')
         $dialog.css({ left: '', top: '', right: '', bottom: '' })
-      } else if (this.props.draggable) {
-        $dialog.draggable('enable')
+      } else {
         const last = $storage.get('__AiBotLastChatModalPos')
         if (last) {
           const [l, t] = last.split(',').map((v) => parseInt(v))
