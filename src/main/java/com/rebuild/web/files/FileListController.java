@@ -30,6 +30,7 @@ import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -50,6 +51,7 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/11/12
  */
+@Slf4j
 @RestController
 @RequestMapping("/files/")
 public class FileListController extends BaseController {
@@ -280,14 +282,12 @@ public class FileListController extends BaseController {
     }
 
     // 带记录级权限过滤的附件查询
-    // offset>=0 时从 offset 继续查（接续分页），否则从 0 查起收集 pageNo*pageSize 条后切片
-    // 返回 Object[]{Object[][] result, int nextOffset}
     private Object[] queryAttachmentsWithPermission(String sql, ID user, int pageNo, int pageSize, int offset) {
         List<Object[]> filtered = new ArrayList<>();
         int queryOffset = Math.max(0, offset);
-        final int batchSize = pageSize * 3;
+        final int batchSize = Math.max(pageSize * 3, 500);
         final int needed = offset >= 0 ? pageSize : pageNo * pageSize;
-        int maxLoops = 50;
+        int maxLoops = 100;
         int nextOffset = -1;
 
         outer:
@@ -310,6 +310,11 @@ public class FileListController extends BaseController {
 
             queryOffset += batch.length;
             if (batch.length < batchSize) break;
+        }
+
+        if (maxLoops < 0) {
+            log.warn("queryAttachmentsWithPermission reached maxLoops: filtered={}, needed={}, queryOffset={}",
+                    filtered.size(), needed, queryOffset);
         }
 
         if (nextOffset < 0) nextOffset = queryOffset;

@@ -6,7 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
 
-const PAGE_SIZE = 2
+const PAGE_SIZE = 40
 
 // ~ 文件列表
 class FilesList extends React.Component {
