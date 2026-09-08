@@ -159,7 +159,7 @@ public class ChartDesignController extends EntityController {
             String L42 = (parent == null ? "" : (EasyMetaFactory.getLabel(parent) + ".")) + easyField.getLabel();
             dest.add(new String[]{
                     (parent == null ? "" : (parent.getName() + ".")) + easyField.getName(),
-                    L42, type, QuickCodeReindexTask.generateQuickCode(L42)});
+                    L42, type, QuickCodeReindexTask.generateQuickCode(L42), dt.name()});
         }
     }
 
