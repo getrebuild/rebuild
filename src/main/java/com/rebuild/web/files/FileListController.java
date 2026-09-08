@@ -81,11 +81,11 @@ public class FileListController extends BaseController {
 
         String sort = getParameter(request, "sort");
         String q = StringUtils.trim(getParameter(request, "q"));
-        // 从相关记录
-        ID related = getIdParameter(request, "related");
 
-        // Entity(code) or Folder(ID/ALL)
+        // 文件列表 Entity(code) or Folder(ID/ALL)
         String entry = getParameter(request, "entry");
+        // 详情页 相关记录附件
+        ID related = getIdParameter(request, "related");
 
         int useEntity = 0;
         ID useFolder = null;
