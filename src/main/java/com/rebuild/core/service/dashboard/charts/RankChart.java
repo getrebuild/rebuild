@@ -42,6 +42,8 @@ public class RankChart extends LineChart {
 
         JSONObject renderOption = res.getJSONObject("_renderOption");
         int pageSize = renderOption != null ? renderOption.getIntValue("pageSize") : 0;
+        if (pageSize <= 0) pageSize = 20;
+        if (pageSize > 200) pageSize = 200;
 
         // 按第一个数值系列降序排序
         JSONObject firstSeries = yyyAxis.getJSONObject(0);

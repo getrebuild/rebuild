@@ -109,17 +109,21 @@ public class DolorChart extends ChartData {
         List<Map.Entry<String, Long>> sortedCounts = new ArrayList<>(counts.entrySet());
         sortedCounts.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
 
+        JSONObject renderOption = config.getJSONObject("option");
+        if (renderOption == null) renderOption = new JSONObject();
+
+        int pageSize = renderOption.getIntValue("pageSize");
+        if (pageSize <= 0) pageSize = 20;
+        if (pageSize > 200) pageSize = 200;
+
         JSONArray data = new JSONArray();
-        for (int i = 0; i < Math.min(200, sortedCounts.size()); i++) {
+        for (int i = 0; i < Math.min(pageSize, sortedCounts.size()); i++) {
             Map.Entry<String, Long> e = sortedCounts.get(i);
             if (StringUtils.isBlank(e.getKey())) continue;
             data.add(JSONUtils.toJSONObject(
                     new String[]{"name", "value"},
                     new Object[]{e.getKey(), e.getValue()}));
         }
-
-        JSONObject renderOption = config.getJSONObject("option");
-        if (renderOption == null) renderOption = new JSONObject();
 
         return JSONUtils.toJSONObject(
                 new String[]{"data", "_renderOption"},
