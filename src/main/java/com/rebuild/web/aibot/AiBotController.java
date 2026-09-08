@@ -10,10 +10,13 @@ package com.rebuild.web.aibot;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
+import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.WebConstants;
 import com.rebuild.web.commons.RbvMissingController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,8 +51,10 @@ public class AiBotController extends BaseController {
         if (user == null && (authToken = request.getParameter(URL_AUTHTOKEN)) != null) {
             user = AuthTokenManager.verifyToken(authToken, false, true);
             if (user != null) {
-                request.setAttribute(AUTH_TOKEN, AuthTokenManager.generateAccessToken(user));
+                UserContextHolder.setUser(user);
                 ServletUtils.setSessionAttribute(request, CURRENT_USER, user);
+                request.setAttribute(AUTH_TOKEN, authToken);
+                request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(user));
             }
         }
 
