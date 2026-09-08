@@ -60,9 +60,10 @@ const enableEditMode = function () {
     const value = $item.data('value')
     const optional = $item.data('optional')
     const formText = $item.data('form-text')
+    const inputType = $item.data('input-type')
 
     let c = useEditComp(name, value)
-    if (!c) c = <input type="text" className="form-control form-control-sm" />
+    if (!c) c = <input type={`${inputType || 'text'}`} className="form-control form-control-sm" />
 
     renderRbcomp(
       <RF>

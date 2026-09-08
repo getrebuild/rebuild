@@ -68,7 +68,7 @@
                         <td data-id="AibotDSUrl" th:data-value="${AibotDSUrl ?:''}">[[${AibotDSUrl ?:bundle.L('未配置')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('秘钥 (API Key)')}]]</td>
+                        <td>[[${bundle.L('秘钥')}]]</td>
                         <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未配置')}]]</td>
                       </tr>
                       <tr>
@@ -77,14 +77,38 @@
                           class="position-relative"
                           data-id="AibotBaseDefModel"
                           th:data-value="${AibotBaseDefModel ?:''}"
-                          th:data-form-text="${bundle.L('请正确填写模型名称。填写API 地址、秘钥后可自动获取可用模型列表')}"
+                          th:data-form-text="${bundle.L('请正确填写模型名称（填写 API 地址、秘钥后可自动获取可用模型列表）')}"
                         >
                           [[${AibotBaseDefModel ?:bundle.L('未配置')}]]
                         </td>
                       </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('上下文大小')}]]</td>
+                        <td data-id="AibotContextCompressThreshold" th:data-value="${AibotContextCompressThreshold ?:''}" data-optional="true" data-input-type="number">
+                          [[${AibotContextCompressThreshold ?:bundle.L('默认')}]]
+                        </td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('温度')}]]</td>
+                        <td data-id="AibotTemperature" th:data-value="${AibotTemperature ?:''}" data-optional="true" data-input-type="number">[[${AibotTemperature ?:bundle.L('默认')}]]</td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('最大 TOKEN 数')}]]</td>
+                        <td data-id="AibotMaxTokens" th:data-value="${AibotMaxTokens ?:''}" data-optional="true" data-input-type="number">[[${AibotMaxTokens ?:bundle.L('默认')}]]</td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('核采样')}]]</td>
+                        <td data-id="AibotTopP" th:data-value="${AibotTopP ?:''}" data-optional="true" data-input-type="number">[[${AibotTopP ?:bundle.L('默认')}]]</td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('随机种子')}]]</td>
+                        <td data-id="AibotSeed" th:data-value="${AibotSeed ?:''}" data-optional="true" data-input-type="number">[[${AibotSeed ?:bundle.L('默认')}]]</td>
+                      </tr>
                       <tr>
-                        <td>[[${bundle.L('默认提示词')}]]</td>
-                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
+                        <td>[[${bundle.L('系统提示词')}]]</td>
+                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true" th:data-form-text="${bundle.L('提示词用于用于设定 AI 身份、规范行为与输出')}">
+                          [[${AibotBasePrompt ?:bundle.L('无')}]]
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -117,7 +141,7 @@
                           style="white-space: pre-line"
                           th:data-value="${AibotSuggestQuestions ?:''}"
                           data-optional="true"
-                          th:data-form-text="${bundle.L('新会话时展示，每行一个问题')}"
+                          th:data-form-text="${bundle.L('新会话时展示的引导问题，每行一个问题')}"
                           th:text="${AibotSuggestQuestions ?:bundle.L('默认')}"
                         >
                           默认

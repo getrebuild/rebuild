@@ -14,16 +14,20 @@ import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.springframework.util.Assert;
 
 import java.time.Duration;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Zixin
  * @since 2025/6/8
  */
+@Slf4j
 public class Config {
 
     private static OpenAIClient CLIENT;
@@ -100,7 +104,35 @@ public class Config {
         ChatCompletionCreateParams.Builder b = ChatCompletionCreateParams.builder()
                 .model(model);
         if (StringUtils.isNotBlank(system)) b.addSystemMessage(system);
+
+        // 可选模型参数（空值或非法值跳过，使用模型/API 默认值）
+        applyParam(b, ConfigurationItem.AibotTemperature, Double::parseDouble, b::temperature);
+        applyParam(b, ConfigurationItem.AibotMaxTokens, Long::parseLong, b::maxTokens);
+        applyParam(b, ConfigurationItem.AibotTopP, Double::parseDouble, b::topP);
+        applyParam(b, ConfigurationItem.AibotSeed, Long::parseLong, b::seed);
+
         return b;
+    }
+
+    /**
+     * 读取并注入可选模型参数，空值或解析失败时跳过
+     *
+     * @param b
+     * @param item
+     * @param parser
+     * @param setter
+     * @param <T>
+     */
+    private static <T> void applyParam(ChatCompletionCreateParams.Builder b,
+                                       ConfigurationItem item, Function<String, T> parser,
+                                       Consumer<T> setter) {
+        String v = RebuildConfiguration.get(item);
+        if (StringUtils.isBlank(v)) return;
+        try {
+            setter.accept(parser.apply(v.trim()));
+        } catch (Exception ex) {
+            log.warn("Invalid AI param {} = {}, skipped", item.name(), v);
+        }
     }
 
     /**

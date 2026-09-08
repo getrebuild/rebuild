@@ -234,7 +234,7 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('登录密码过期时间')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}">
+                        <td th:data-id="${commercial > 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}" data-input-type="number">
                           <th:block th:if="${PasswordExpiredDays == '0'}">[[${bundle.L('不启用')}]]</th:block>
                           <th:block th:if="${PasswordExpiredDays != '0'}">[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]</th:block>
                         </td>
@@ -292,15 +292,15 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('备份保留时间')}]]</td>
-                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]</td>
+                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}" data-input-type="number">[[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('变更历史保留时间')}]]</td>
-                        <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">[[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]</td>
+                        <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}" data-input-type="number">[[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('回收站保留时间')}]]</td>
-                        <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
+                        <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}" data-input-type="number">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -355,7 +355,7 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('文件上传大小限制')}]]</td>
-                        <td data-id="PortalUploadMaxSize" th:data-value="${PortalUploadMaxSize}" data-optional="true">[[${PortalUploadMaxSize}]] MB</td>
+                        <td data-id="PortalUploadMaxSize" th:data-value="${PortalUploadMaxSize}" data-optional="true" data-input-type="number">[[${PortalUploadMaxSize}]] MB</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('百度地图 AK')}]]</td>
