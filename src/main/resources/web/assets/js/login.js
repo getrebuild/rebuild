@@ -39,7 +39,11 @@ $(document).ready(() => {
     } else {
       $('.h5-mobile img').attr('src', `${rb.baseUrl}/commons/barcode/render-qr?w=296&t=${$encode(h)}`)
     }
-  }, 200)
+
+    if ($('html').hasClass('env-desktop5')) {
+      $('#autoLogin').attr('checked', true)
+    }
+  }, 400)
 
   $.get('/user/live-wallpaper', (res) => {
     if (res.error_code !== 0 || !res.data) return
