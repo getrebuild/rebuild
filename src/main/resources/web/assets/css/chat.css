@@ -414,10 +414,6 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   box-shadow: -0.5rem 0 2rem rgba(0, 0, 0, 0.175) !important;
 }
 
-.aibot.aibot-dock .modal-header.ui-draggable-handle {
-  cursor: default;
-}
-
 .aibot .modal-content {
   margin: 0 auto;
   box-shadow: none !important;

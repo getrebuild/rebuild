@@ -36,6 +36,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-box.RANK .chart-body {
   margin-top: 0;
   padding-top: 0;
+  overflow: hidden;
 }
 
 .chart-box .chart-head {

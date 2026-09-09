@@ -3778,7 +3778,7 @@ a.user-show:not([href]) {
 }
 
 .preview-modal .preview-header .float-left > h5 {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
 }
 
@@ -6907,4 +6907,19 @@ input[type='password']::-ms-clear {
 
 .mix-color {
   mix-blend-mode: difference;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #d0d5dd;
+  border-top-color: #4285f4;
+  border-radius: 50%;
+  animation: spin45 0.8s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin45 {
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -348,7 +348,7 @@ public class QiniuCloud {
         OkHttpUtils.readBinary(url, dest, null);
     }
 
-    // --
+    // -- TOOLS
 
     /**
      * @param fileName
@@ -466,6 +466,29 @@ public class QiniuCloud {
 
         Application.getCommonsCache().putx("_StorageSize", size, CommonsCache.TS_HOUR);
         return size;
+    }
+
+    /**
+     * 读取文件实际大小（优先读取本地）
+     *
+     * @param filePath
+     * @return
+     */
+    public static long getFileSize(String filePath) {
+        if (StringUtils.isBlank(filePath) || CommonsUtils.isExternalUrl(filePath)) return 0;
+
+        try {
+            File local = RebuildConfiguration.getFileOfData(filePath);
+            if (local.exists()) return FileUtils.sizeOf(local);
+
+            if (QiniuCloud.instance().available()) {
+                FileInfo fi = QiniuCloud.instance().stat(filePath);
+                if (fi != null) return fi.fsize;
+            }
+        } catch (Exception ex) {
+            log.warn("Cannot get file size : {}", filePath, ex);
+        }
+        return 0;
     }
 
     /**

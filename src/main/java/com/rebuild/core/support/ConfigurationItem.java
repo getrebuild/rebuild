@@ -130,11 +130,15 @@ public enum ConfigurationItem {
     AibotDSUrl,
     AibotDSSecret,
     AibotBaseDefModel,
-    AibotContextCompressThreshold,
     AibotSuggestQuestions,
     AibotBasePrompt,
+    AibotContextCompressThreshold,
     AibotWelcome,
     AibotToolsDisabled,
+    AibotTemperature,
+    AibotMaxTokens,
+    AibotTopP,
+    AibotSeed,
 
     // PORTALs
     PortalBaiduMapAk,
