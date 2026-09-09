@@ -64,6 +64,41 @@ public class LoginAction extends BaseController {
     public static final String CK_PASSWD_GRANT = "PasswdExpiredGrant:";
 
     /**
+     * 写入自动登录 Cookie
+     *
+     * @param response
+     * @param altToken
+     */
+    public static void addAutoLoginCookie(HttpServletResponse response, String altToken) {
+        writeAutoLoginCookie(response, altToken, CommonsCache.TS_DAY * 14);
+    }
+
+    /**
+     * 移除自动登录 Cookie
+     *
+     * @param response
+     */
+    public static void removeAutoLoginCookie(HttpServletResponse response) {
+        writeAutoLoginCookie(response, "", 0);
+    }
+
+    /**
+     * 手拼 Set-Cookie 头写入
+     *
+     * @param response
+     * @param value
+     * @param maxAge 秒，0 表示删除
+     */
+    private static void writeAutoLoginCookie(HttpServletResponse response, String value, int maxAge) {
+        String sb = CK_AUTOLOGIN + '=' + CodecUtils.urlEncode(value) +
+                "; Path=/" +
+                "; Max-Age=" + maxAge +
+                "; HttpOnly" +
+                "; SameSite=Lax";
+        response.addHeader("Set-Cookie", sb);
+    }
+
+    /**
      * @param request
      * @param response
      * @param user
@@ -108,9 +143,9 @@ public class LoginAction extends BaseController {
         if (autoLogin) {
             final String altToken = CodecUtils.randomCode(60);
             Application.getCommonsCache().putx(PREFIX_ALT + altToken, user, CommonsCache.TS_DAY * 14);
-            ServletUtils.addCookie(response, CK_AUTOLOGIN, altToken);
+            addAutoLoginCookie(response, altToken);
         } else {
-            ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
+            removeAutoLoginCookie(response);
         }
 
         LoginChannel loginChannel = createLoginLog(request, user, fromH5);

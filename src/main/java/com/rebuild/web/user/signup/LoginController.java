@@ -251,14 +251,15 @@ public class LoginController extends LoginAction {
 
     @GetMapping("logout")
     public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
-        ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
+        ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);  // 兼容
+        removeAutoLoginCookie(response);
         ServletUtils.getSession(request).invalidate();
         return new ModelAndView("redirect:/user/login");
     }
 
     @GetMapping("login/temp-auth")
     public ModelAndView tempAuth(HttpServletRequest request, HttpServletResponse response) {
-        ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
+        removeAutoLoginCookie(response);
         ServletUtils.getSession(request).invalidate();
 
         String token = getParameterNotNull(request, "token");

@@ -150,7 +150,7 @@ public class UserSettingsController extends BaseController {
         RespBody res = savePasswd(user, newp);
         if (res.getErrorCode() == Controller.CODE_OK) {
             try {
-                ServletUtils.removeCookie(request, response, LoginAction.CK_AUTOLOGIN);
+                LoginAction.removeAutoLoginCookie(response);
                 request.getSession().invalidate();
             } catch (Exception ignored) {}
         }

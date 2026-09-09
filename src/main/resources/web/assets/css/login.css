@@ -12,7 +12,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   overflow: hidden;
   z-index: 1;
   background: url(../assets/img/bg.jpg) no-repeat 0 0;
-  background-image: url(../commons/theme/use-bgimg);
+  background-image: url(../../commons/theme/use-bgimg);
   background-size: cover;
   opacity: 1;
 }

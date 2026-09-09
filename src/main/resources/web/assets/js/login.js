@@ -43,7 +43,7 @@ $(document).ready(() => {
     if ($('html').hasClass('env-desktop5')) {
       $('#autoLogin').attr('checked', true)
     }
-  }, 400)
+  }, 200)
 
   $.get('/user/live-wallpaper', (res) => {
     if (res.error_code !== 0 || !res.data) return
@@ -132,6 +132,10 @@ $(document).ready(() => {
       })
     }, 500)
   }
+
+  // show
+  $('.rb-login-loading').remove()
+  $('.rb-login').show()
 })
 
 window.addEventListener('beforeinstallprompt', (e) => {
