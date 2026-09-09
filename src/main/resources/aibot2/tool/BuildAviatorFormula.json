@@ -18,7 +18,7 @@
         },
         "formula": {
           "type": "string",
-          "description": "公式内容（validate 时必填）。可以是简单公式如 {amount}+{tax}、日期公式如 {startDate}+1、函数公式如 DATEDIFF({d1},{d2},\"D\")、或高级公式（用 {{{{ }}}} 包裹的 AviatorScript 多语句）"
+          "description": "公式内容（validate 时必填）。可以是简单公式如 {amount}+{tax}、日期公式如 {startDate}+1、函数公式如 DATEDIFF({startDate},{endDate},\"D\")、或高级公式（用 {{{{ }}}} 包裹的 AviatorScript 多语句）。字段变量名需至少 3 个字符，短于此不会被识别"
         },
         "targetFieldType": {
           "type": "string",
