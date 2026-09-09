@@ -13,7 +13,6 @@ import com.openai.models.FunctionDefinition;
 import com.openai.models.FunctionParameters;
 import com.openai.models.chat.completions.ChatCompletionFunctionTool;
 import com.openai.models.chat.completions.ChatCompletionTool;
-import com.rebuild.core.support.Lab;
 import com.rebuild.utils.CommonsUtils;
 import org.springframework.util.Assert;
 
@@ -21,10 +20,9 @@ import org.springframework.util.Assert;
  * @author Zixin
  * @since 2025/4/19
  */
-@Lab
 public interface Tool {
 
-    boolean HIDDEN_SYSTEM = !true;
+    boolean HIDDEN_SYSTEM = true;
 
     /**
      * 定义

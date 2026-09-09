@@ -1322,7 +1322,7 @@ class RecordSelectorModal2 extends RecordSelectorModal {
 }
 
 const FixMd = {
-  GATE: '[\\s。！？；：，、!?:,\\-]',
+  GATE: '[。！？；：，、!?:,\\-]\\s*',
   RE_FENCE: /^\s*(`{3,}|~{3,})/,
   RE_HEADING: /^#{1,6}\s/,
   RE_LIST: /^(?:[-*+]|\d{1,3}\.)\s/,
