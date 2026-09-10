@@ -133,7 +133,9 @@ class ApprovalList extends React.Component {
     )
   }
 
-  componentDidMount = () => this.loadData()
+  componentDidMount() {
+    this.loadData()
+  }
 
   loadData(type, sort, pageNo) {
     type = type || this.state.type

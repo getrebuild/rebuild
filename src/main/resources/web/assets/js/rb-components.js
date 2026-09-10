@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /*!
 Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
@@ -5,7 +6,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
-/* global EasyMDE */
+/* global EasyMDE, autosize */
 
 // ~~ Modal 兼容子元素和 iFrame
 class RbModal extends React.Component {
@@ -26,8 +27,9 @@ class RbModal extends React.Component {
     }
 
     let modalClazz = props.useWhite ? 'modal rbmodal use-white' : `modal rbmodal colored-header colored-header-${props.colored || 'primary'}`
-    let modalDialogClazz42 = `modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''} ${this.state._maximize && 'modal-dialog-maximize'}`
-    if (props.useScrollable) modalDialogClazz42 += ' modal-dialog-scrollable'
+    let modalDialogClazz = `modal-dialog ${props.useWhite && 'modal-xl'} ${props.className || ''} ${this.state._maximize && 'modal-dialog-maximize'}`
+    if (props.useScrollable) modalDialogClazz += ' modal-dialog-scrollable'
+    if (props.centered) modalDialogClazz += ' modal-dialog-centered'
 
     return (
       <div
@@ -39,7 +41,7 @@ class RbModal extends React.Component {
           this._rbmodal = c
           this._element = c
         }}>
-        <div className={modalDialogClazz42} style={style2}>
+        <div className={modalDialogClazz} style={style2}>
           <div className="modal-content" style={style2}>
             <div
               className={`modal-header ${props.useWhite ? '' : 'modal-header-colored'}`}
@@ -97,7 +99,6 @@ class RbModal extends React.Component {
         keyboard: true,
       })
       .on('hidden.bs.modal', () => {
-        $keepModalOpen()
         if (this.props.disposeOnHide === true) {
           $root.modal('dispose')
           $unmount($root.parent(), 0, null, this.props.__root18)
@@ -250,6 +251,68 @@ class RbFormHandler extends RbModalHandler {
   }
 }
 
+// ~~ 列表选择弹窗
+// @see SelectReport
+class SelectList extends React.Component {
+  render() {
+    const props = this.props
+    return (
+      <div className={`modal select-list ${props.modalClazz || ''}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
+                <i className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body">
+              {props.title && <h5 className="mt-0 text-bold">{props.title}</h5>}
+              {props.children || this.renderList()}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  renderList() {
+    return (
+      <div>
+        <ul className="list-unstyled">{(this.props.data || []).map((item, idx) => this.renderItem(item, idx))}</ul>
+      </div>
+    )
+  }
+
+  renderItem(item, idx) {
+    return (
+      <li key={item.id || idx}>
+        <a className="text-truncate" onClick={() => this._handleClick(item)}>
+          {item.text || item.name}
+          <i className="zmdi zmdi-check" />
+        </a>
+      </li>
+    )
+  }
+
+  _handleClick = (item) => {
+    this.hide()
+    typeof this.props.call === 'function' && this.props.call(item)
+  }
+
+  componentDidMount() {
+    const $root = $(this._dlg).modal({ show: true, keyboard: true })
+    if (this.props.disposeOnHide === true) {
+      $root.on('hidden.bs.modal', () => {
+        $root.modal('dispose')
+        $unmount($root.parent())
+      })
+    }
+  }
+
+  hide = () => $(this._dlg).modal('hide')
+  show = () => $(this._dlg).modal('show')
+}
+
 // ~~ 提示框
 class RbAlert extends React.Component {
   constructor(props) {
@@ -260,7 +323,7 @@ class RbAlert extends React.Component {
   render() {
     const style1 = {}
     const style2 = {}
-    if (this.props.zIndex) style1.zIndex = this.props.zIndex
+    if (this.props.zIndex || this._zIndex) style1.zIndex = this.props.zIndex || this._zIndex
     if (this.props.width) style2.maxWidth = ~~this.props.width
 
     return (
@@ -323,18 +386,11 @@ class RbAlert extends React.Component {
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
       .on('hidden.bs.modal', function () {
-        $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
         // v4.2
         typeof that.props.onHide === 'function' && that.props.onHide()
       })
-
-    // z-index
-    setTimeout(() => {
-      const mb = $('.modal-backdrop.show')
-      if (mb.length > 1) $(mb[mb.length - 1]).addClass('rbalert')
-    }, 0)
 
     if (this.props.countdown > 0) {
       $countdownButton($(this._$btn), this.props.countdown)
@@ -1218,7 +1274,7 @@ class RecordSelectorModal extends RbAlert {
    * @param {*} props
    */
   static create(props) {
-    renderRbcomp(<RecordSelectorModal {...props} zIndex="1050" />)
+    renderRbcomp(<RecordSelectorModal {...props} />)
   }
 }
 
@@ -1368,6 +1424,8 @@ class Md2Html extends React.Component {
             })
           }
         })
+
+      $renderMermaid($(this._$md2html))
     })
   }
 }
@@ -1470,34 +1528,29 @@ class CodeViewport extends React.Component {
     return (
       <div className="code-viewport">
         <pre ref={(c) => (this._$code = c)}>LOADING</pre>
-        {window.ClipboardJS && (
-          <a className="copy" title={$L('复制')} ref={(c) => (this._$copy = c)}>
-            <i className="icon zmdi zmdi-copy" />
-          </a>
-        )}
+        <a
+          className="copy"
+          title={$L('复制')}
+          ref={(c) => (this._$copy = c)}
+          onClick={() => {
+            $clipboard($(this._$code).text())
+            $(this._$copy).addClass('copied-check')
+            setTimeout(() => $(this._$copy).removeClass('copied-check'), 1500)
+          }}>
+          <i className="icon mdi mdi-content-copy" />
+        </a>
       </div>
     )
   }
 
   componentDidMount() {
-    this._$code.innerHTML = $formatCode(this.props.code || '', this.props.type)
-
-    if (this._$copy) {
-      const that = this
-      const $copy = $(this._$copy).on('mouseenter', () => $(this._$copy).removeClass('copied-check'))
-      // eslint-disable-next-line no-undef
-      new ClipboardJS($copy[0], {
-        text: function () {
-          return $(that._$code).text()
-        },
-      }).on('success', () => $copy.addClass('copied-check'))
-    }
+    this._$code.innerText = $formatCode(this.props.code || '', this.props.type)
   }
 
   UNSAFE_componentWillReceiveProps(newProps) {
     // eslint-disable-next-line eqeqeq
     if (newProps.code && newProps.code != this.props.code) {
-      this._$code.innerHTML = $formatCode(newProps.code, this.props.type)
+      this._$code.innerText = $formatCode(newProps.code, this.props.type)
     }
   }
 }
@@ -1507,14 +1560,15 @@ class CodeEditor extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this._isCode = true
+    this._isCode = true // 是否使用 CodeMirror
   }
 
   render() {
     return (
-      <div className={`code-editor ${this.props.readonly && 'cm-readonly'}`} ref={(c) => (this._$element = c)}>
+      <div className={`code-editor ${this.props.readonly && 'cm-readonly'} ${this.props.heightAuto && 'cm-auto-height'}`} ref={(c) => (this._$element = c)}>
         <textarea
           className="form-control formula-code"
+          data-fix-autosize-height={this.props.heightAuto ? '37px' : null}
           spellCheck="false"
           defaultValue={this.props.value || ''}
           ref={(c) => (this._$content = c)}
@@ -1556,9 +1610,12 @@ class CodeEditor extends React.Component {
   }
 
   componentDidMount() {
-    if (window.CodeMirror && this._isCode) {
+    if (this._isCode && window.CodeMirror) {
       setTimeout(() => this.initCodeMirror(), 200)
+    } else if (this.props.heightAuto) {
+      autosize(this._$content)
     }
+
     this.props.autoFocus === true && setTimeout(() => this.focus(), 220)
   }
 
@@ -1597,6 +1654,15 @@ class CodeEditor extends React.Component {
     })
 
     this._CodeMirror = cm5
+
+    // 自动高度
+    if (this.props.heightAuto) {
+      $(cm5.getWrapperElement())
+        .find('.CodeMirror-scroll')
+        .each(function () {
+          this.style.setProperty('min-height', '37px', 'important')
+        })
+    }
   }
 
   componentWillUnmount() {
@@ -1607,13 +1673,19 @@ class CodeEditor extends React.Component {
     if (this._CodeMirror) {
       this._CodeMirror.toTextArea()
       this._CodeMirror = null
+    } else if (this.props.heightAuto) {
+      autosize.destroy(this._$content)
     }
   }
 
   val() {
     if (arguments.length) {
-      if (this._CodeMirror) this._CodeMirror.setValue(arguments[0])
-      else this._$content.value = arguments[0]
+      if (this._CodeMirror) {
+        this._CodeMirror.setValue(arguments[0])
+      } else {
+        this._$content.value = arguments[0]
+        if (this.props.heightAuto) autosize.update(this._$content)
+      }
     } else {
       if (this._CodeMirror) return this._CodeMirror.getValue()
       else return this._$content.value
@@ -2429,7 +2501,7 @@ class RbViewModal extends React.Component {
       .on('hidden.bs.modal', function () {
         $mc.css({ 'margin-right': -1500 })
         that.setState({ inLoad: true, isHide: true })
-        if (!$keepModalOpen()) location.hash = '!/View/'
+        if ($('.modal.rbview').length <= 1) location.hash = '!/View/'
 
         // SubView 子视图不保持
         if (that.state.disposeOnHide === true) {
@@ -2442,11 +2514,6 @@ class RbViewModal extends React.Component {
       })
       .on('shown.bs.modal', function () {
         $mc.css('margin-right', 0)
-        const $mcbd = $('body>.modal-backdrop.show')
-        if ($mcbd[0]) {
-          $mcbd.addClass('o')
-          $mcbd.eq(0).removeClass('o')
-        }
       })
     this.show()
   }

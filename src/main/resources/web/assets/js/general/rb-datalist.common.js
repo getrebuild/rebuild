@@ -2084,7 +2084,7 @@ const CellRenders = {
           onClick: (e) => {
             if (e.target.tagName === 'A' || $(e.target).closest('a').length) return // fix:4.2.3 链接不复制
             $stopEvent(e, true)
-            $clipboard2($(e.currentTarget).text(), true)
+            $clipboard($(e.currentTarget).text(), true)
           },
         })
       }

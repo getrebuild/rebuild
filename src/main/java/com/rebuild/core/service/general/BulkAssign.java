@@ -49,7 +49,7 @@ public class BulkAssign extends BulkOperator {
                 }
 
             } else {
-                log.warn("No have privileges to ASSIGN : {} < {}", id, context.getOpUser());
+                log.warn("No privileges to ASSIGN : {} < {}", id, context.getOpUser());
             }
             this.addCompleted();
         }

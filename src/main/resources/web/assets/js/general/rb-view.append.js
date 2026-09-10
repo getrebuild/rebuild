@@ -467,73 +467,58 @@ class LightAttachmentList extends RelatedList {
 
 // 选择报表
 // eslint-disable-next-line no-unused-vars
-class SelectReport extends React.Component {
+class SelectReport extends SelectList {
   state = { ...this.props }
 
-  render() {
+  componentDidMount() {
+    super.componentDidMount()
+    $.get(`/app/${this.props.entity}/report/available?record=${this.props.id || ''}`, (res) => this.setState({ reports: res.data }))
+  }
+
+  renderList() {
     return (
-      <div className="modal select-list report-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
-                <i className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <h5 className="mt-0 text-bold">{$L('选择报表')}</h5>
-              {this.state.reports && this.state.reports.length === 0 && (
-                <p className="text-muted">
-                  {$L('暂无报表')}
-                  {rb.isAdminUser && (
-                    <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates?new=${wpc.entity[0]}`}>
-                      <i className="zmdi zmdi-settings" /> {$L('点击添加')}
-                    </a>
-                  )}
-                </p>
-              )}
-              <div>
-                <ul className="list-unstyled">
-                  {(this.state.reports || []).map((item) => {
-                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
-                    const hidePdf = item.outputType && item.outputType.includes('html5')
-                    return (
-                      <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${hidePdf ? '' : 'has-pdf'}`}>
-                        <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
-                          {item.name}
-                          <i className="mdi mdi-download" />
-                        </a>
-                        <span>
-                          {!hidePdf && (
-                            <a target="_blank" className="preview" href={`${reportUrl}&output=pdf`} title="PDF">
-                              <i className="mdi mdi-file-pdf-box fs-18" />
-                            </a>
-                          )}
-                          {rb._officePreviewUrl && (
-                            <a target="_blank" className="preview" href={`${reportUrl}&output=preview`} title={$L('在线预览')}>
-                              <i className="mdi mdi-open-in-new" />
-                            </a>
-                          )}
-                        </span>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            </div>
-          </div>
+      <RF>
+        {this.state.reports && this.state.reports.length === 0 && (
+          <p className="text-muted">
+            {$L('暂无报表')}
+            {rb.isAdminUser && (
+              <a className="icon-link ml-2" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates?new=${wpc.entity[0]}`}>
+                <i className="zmdi zmdi-settings" /> {$L('点击添加')}
+              </a>
+            )}
+          </p>
+        )}
+        <div>
+          <ul className="list-unstyled">{(this.state.reports || []).map((item) => this.renderItem(item))}</ul>
         </div>
-      </div>
+      </RF>
     )
   }
 
-  componentDidMount() {
-    $.get(`/app/${this.props.entity}/report/available?record=${this.props.id || ''}`, (res) => this.setState({ reports: res.data }))
-    $(this._dlg).modal({ show: true, keyboard: true })
+  renderItem(item) {
+    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
+    const hidePdf = item.outputType && item.outputType.includes('html5')
+    return (
+      <li key={item.id} className={`${rb._officePreviewUrl && 'has-preview'} ${hidePdf ? '' : 'has-pdf'}`}>
+        <a target="_blank" href={reportUrl} className="text-truncate" title={$L('下载')}>
+          {item.name}
+          <i className="mdi mdi-download" />
+        </a>
+        <span>
+          {!hidePdf && (
+            <a target="_blank" className="preview" href={`${reportUrl}&output=pdf`} title="PDF">
+              <i className="mdi mdi-file-pdf-box fs-18" />
+            </a>
+          )}
+          {rb._officePreviewUrl && (
+            <a target="_blank" className="preview" href={`${reportUrl}&output=preview`} title={$L('在线预览')}>
+              <i className="mdi mdi-open-in-new" />
+            </a>
+          )}
+        </span>
+      </li>
+    )
   }
-
-  hide = () => $(this._dlg).modal('hide')
-  show = () => $(this._dlg).modal('show')
 
   /**
    * @param {*} entity
@@ -545,7 +530,7 @@ class SelectReport extends React.Component {
       return
     }
     const that = this
-    renderRbcomp(<SelectReport entity={entity} id={id} />, function () {
+    renderRbcomp(<SelectReport title={$L('选择报表')} modalClazz="report-list" entity={entity} id={id} />, function () {
       that.__cached = this
     })
   }

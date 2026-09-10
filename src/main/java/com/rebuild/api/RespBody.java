@@ -14,7 +14,11 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import lombok.Data;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 统一请求返回消息体
@@ -31,6 +35,8 @@ public class RespBody implements JSONable {
     private String errorMsg;
     private Object data;
 
+    private Map<String, Object> extraMap;
+
     public RespBody(int errorCode, String errorMsg, Object data) {
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
@@ -43,12 +49,22 @@ public class RespBody implements JSONable {
                 new String[]{"error_code", "error_msg"},
                 new Object[]{getErrorCode(), getErrorMsg()});
         if (getData() != null) res.put("data", getData());
+        if (MapUtils.isNotEmpty(getExtraMap())) res.putAll(getExtraMap());
         return res;
     }
 
     @Override
     public String toString() {
         return toJSONString();
+    }
+
+    /**
+     * @param key
+     * @param value
+     */
+    public void putExtra(String key, Object value) {
+        if (extraMap == null) extraMap = new HashMap<>();
+        extraMap.put(key, value);
     }
 
     // --

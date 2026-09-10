@@ -173,7 +173,7 @@ public class Field2Schema extends SetUser {
         } catch (Throwable ex) {
             // ?
             if (CommonsUtils.getRootMessage(ex).contains("exists")) {
-                log.warn("Column not exists? {}", ex.getLocalizedMessage());
+                log.warn("Column does not exist? {}", ex.getLocalizedMessage());
             } else {
                 log.error("DDL ERROR : \n{}", ddl, ex);
                 return false;

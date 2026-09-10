@@ -25,7 +25,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityOverview;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.CopyEntity;
@@ -36,7 +35,6 @@ import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaschemaExporter;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
-import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
@@ -274,25 +272,6 @@ public class MetaEntityController extends EntityController {
 
         } catch (Exception ex) {
             log.error("entity-drop", ex);
-            return RespBody.error(ex);
-        }
-    }
-
-    @RequestMapping("entity/entity-truncate")
-    public RespBody entityTruncate(HttpServletRequest request) {
-        final Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
-
-        try {
-            String dsql = String.format("TRUNCATE TABLE `%s`", entity.getPhysicalName());
-            Application.getSqlExecutor().execute(dsql);
-            // 置零
-            for (Field s : MetadataSorter.sortFields(entity, DisplayType.SERIES)) {
-                SeriesGeneratorFactory.zero(s);
-            }
-            return RespBody.ok();
-
-        } catch (Exception ex) {
-            log.error("entity-truncate", ex);
             return RespBody.error(ex);
         }
     }

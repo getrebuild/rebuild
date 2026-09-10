@@ -22,6 +22,7 @@ $(document).ready(() => {
     $stopEvent(e, true)
     post(__data)
   })
+
   $('.edit-footer .J_clear').on('click', (e) => {
     $stopEvent(e, true)
     RbAlert.create($L('确定要清空配置吗？'), {
@@ -32,7 +33,17 @@ $(document).ready(() => {
     })
   })
 
-  $('a[data-clipboard-text]').each((idx, item) => $clipboard($(item)))
+  $('a[data-clipboard-text]').each((idx, item) => $clipboard(item))
+
+  let rbam = 'https://getrebuild.com/js/_market/'
+  $getScript(rbam + 'rebuild-market.min.js?v=1.1', () => {
+    $('<link/>', {
+      rel: 'stylesheet',
+      type: 'text/css',
+      href: rbam + 'rebuild-market.min.css?v=1.1',
+    }).appendTo('head')
+    typeof window.evalMarket === 'function' && window.evalMarket($('a[data-sn]').data('sn'), { ...window.rb })
+  })
 })
 
 const __data = {}
@@ -49,9 +60,10 @@ const enableEditMode = function () {
     const value = $item.data('value')
     const optional = $item.data('optional')
     const formText = $item.data('form-text')
+    const inputType = $item.data('input-type')
 
     let c = useEditComp(name, value)
-    if (!c) c = <input type="text" className="form-control form-control-sm" />
+    if (!c) c = <input type={`${inputType || 'text'}`} className="form-control form-control-sm" />
 
     renderRbcomp(
       <RF>
@@ -85,7 +97,6 @@ const post = function (data) {
       return false
     }
   }
-
   if (!(data = postBefore(data))) return false
 
   const $btn = $('.edit-footer>.btn-primary, .card-header .J_save').button('loading')

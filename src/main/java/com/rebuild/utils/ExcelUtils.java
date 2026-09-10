@@ -205,7 +205,7 @@ public class ExcelUtils {
             }
 
         } catch (Exception ex) {
-            log.error("Re-save excel error : {}", path, ex);
+            log.error("Re-save Excel error : {}", path, ex);
             return false;
         }
         return true;

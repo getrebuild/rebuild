@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fixs timestamp to datetime
+ * Fixes timestamp to datetime
  *
  * @author Zixin (RB)
  * @since 12/28/2024

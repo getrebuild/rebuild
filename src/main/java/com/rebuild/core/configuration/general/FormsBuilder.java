@@ -133,7 +133,7 @@ public class FormsBuilder extends FormsManager {
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
         if (recordId != null) {
-            Assert.isTrue(entityMeta.getEntityCode().equals(recordId.getEntityCode()), "[entity] and [recordId] do not matchs");
+            Assert.isTrue(entityMeta.getEntityCode().equals(recordId.getEntityCode()), "[entity] and [recordId] do not match");
 
             if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, recordId)) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));
@@ -341,10 +341,10 @@ public class FormsBuilder extends FormsManager {
         if (readonlywMessage != null) model.set("readonlywMessage", readonlywMessage);
         else if (readonlyMessage != null) model.set("readonlyMessage", readonlyMessage);
 
-        // v3.4
-        String disabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
-                .getExtraAttr(EasyEntityConfigProps.DISABLED_VIEW_EDITABLE);
-        model.set("onViewEditable", !BooleanUtils.toBoolean(disabledViewEditable));
+        // v4.5 详情页单字段编辑默认不启用，需在实体配置中手动启用
+        String enabledViewEditable = EasyMetaFactory.valueOf(entityMeta)
+                .getExtraAttr(EasyEntityConfigProps.ENABLED_VIEW_EDITABLE);
+        model.set("onViewEditable", BooleanUtils.toBoolean(enabledViewEditable));
 
         // v3.7
         model.set("hadSop", License.isRbvAttached());
@@ -561,11 +561,12 @@ public class FormsBuilder extends FormsManager {
                 field.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
             } else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
                 Entity refEntity = fieldMeta.getReferenceEntity();
+                field.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
+
                 boolean quickNew = field.getBooleanValue(EasyFieldConfigProps.REFERENCE_QUICKNEW);
                 if (quickNew && refEntity.isCreatable() && refEntity.getMainEntity() == null) {
                     field.put(EasyFieldConfigProps.REFERENCE_QUICKNEW,
                             Application.getPrivilegesManager().allowCreate(user, refEntity.getEntityCode()));
-                    field.put("referenceEntity", EasyMetaFactory.toJSON(refEntity));
                 }
 
                 if (dt == DisplayType.REFERENCE && License.isRbvAttached()) {
@@ -949,7 +950,7 @@ public class FormsBuilder extends FormsManager {
     // 支持明细
     private JSONObject setFormInitialValue4Details39(Entity entity, JSONArray details) {
         final Entity defDetailEntity = entity.getDetailEntity();
-        Assert.notNull(defDetailEntity, "None detail-entity");
+        Assert.notNull(defDetailEntity, "No detail-entity");
 
         ID forceMainid = EntityHelper.UNSAVED_ID;
         FormsBuilderContextHolder.setMainIdOfDetail(forceMainid);
@@ -1039,7 +1040,7 @@ public class FormsBuilder extends FormsManager {
         // v3.1.1 父级已删除
         Entity entity = MetadataHelper.getEntity(record.getEntityCode());
         if (MetadataHelper.getLastJoinField(entity, fieldParent) == null) {
-            log.warn("Unknow field : {} in {}", fieldParent, entity.getName());
+            log.warn("Unknown field : {} in {}", fieldParent, entity.getName());
             return null;
         }
 

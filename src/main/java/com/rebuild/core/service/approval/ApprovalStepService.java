@@ -108,6 +108,9 @@ public class ApprovalStepService extends BaseService {
         if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalSubmitUser)) {
             recordOfMain.setID(EntityHelper.ApprovalSubmitUser, submitter);
         }
+        if (recordOfMain.getEntity().containsField(EntityHelper.ApprovalSubmitTime)) {
+            recordOfMain.setDate(EntityHelper.ApprovalSubmitTime, CalendarUtils.now());
+        }
         super.update(recordOfMain);
 
         final String approveMsg = ApprovalHelper.buildApproveMsg(recordOfMain.getEntity());

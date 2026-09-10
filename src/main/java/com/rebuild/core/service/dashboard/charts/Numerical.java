@@ -30,21 +30,11 @@ public class Numerical extends Axis {
     @Getter
     private int unit = 0;
     @Getter
+    private String color;
+    @Getter
     private String formatFormula;
 
-    /**
-     * @param fkey
-     * @param field
-     * @param sort
-     * @param calc
-     * @param label
-     * @param scale
-     * @param unit
-     * @param formula
-     * @param filter
-     * @param parentField
-     */
-    protected Numerical(String fkey, Field field, FormatSort sort, FormatCalc calc, String label, Integer scale, Integer unit,
+    protected Numerical(String fkey, Field field, FormatSort sort, FormatCalc calc, String label, Integer scale, Integer unit, String color,
                         String formula, JSONObject filter, Field parentField) {
         super(fkey, field, sort, calc, label, parentField);
         if (scale != null) this.scale = scale;
@@ -52,6 +42,7 @@ public class Numerical extends Axis {
         if (ParseHelper.validAdvFilter(filter)) this.filter = filter;
         // 有公式则使用计算公式
         this.formatFormula = StringUtils.defaultIfBlank(formula, null);
+        this.color = StringUtils.defaultIfBlank(color, null);
     }
 
     @Override

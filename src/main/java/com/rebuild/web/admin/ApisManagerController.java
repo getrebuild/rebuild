@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.RebuildApiService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
@@ -129,5 +130,58 @@ public class ApisManagerController extends BaseController {
         }
 
         return RespBody.ok(array);
+    }
+
+    // -- v4.5 for DataSubscribe
+
+    @GetMapping("apis-manager/subscribe")
+    public ModelAndView pageDataSubscribe() {
+        return createModelAndView("/admin/integration/data-subscribe-list");
+    }
+
+    @GetMapping("apis-manager/subscribe-push-logs")
+    public RespBody subscribePushLogs(HttpServletRequest request) {
+        ID source = getIdParameterNotNull(request, "id");
+        String q = getParameter(request, "q");
+        int pageNo = getIntParameter(request, "pn", 1);
+        int pageSize = 40;
+
+        String sql = "select logTime,logContent,status,logId from CommonsLog" +
+                " where type = ? and source = ? and logTime > ? and (1=1) order by logTime desc";
+        if (StringUtils.isNotBlank(q)) {
+            q = CommonsUtils.escapeSql(q);
+            sql = sql.replace("(1=1)", String.format("logContent like '%%%s%%'", q));
+        }
+
+        Object[][] array = Application.createQueryNoFilter(sql)
+                .setParameter(1, CommonsLog.TYPE_TRIGGER)
+                .setParameter(2, source)
+                .setParameter(3, CalendarUtils.addDay(-SHOW_DAYS))
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .array();
+
+        for (Object[] o : array) {
+            o[0] = I18nUtils.formatDate((Date) o[0]);
+        }
+        return RespBody.ok(array);
+    }
+
+    @GetMapping("apis-manager/subscribe-push-times")
+    public RespBody subscribePushTimes(HttpServletRequest request) {
+        final String ids = getParameterNotNull(request, "id");
+
+        Map<String, Object[]> times = new HashMap<>();
+        for (String id : ids.split("[,;]")) {
+            if (!ID.isId(id)) continue;
+            Object[] count = Application.createQueryNoFilter(
+                    "select count(logId),max(logTime) from CommonsLog where type = ? and source = ? and logTime > ?")
+                    .setParameter(1, CommonsLog.TYPE_TRIGGER)
+                    .setParameter(2, ID.valueOf(id))
+                    .setParameter(3, CalendarUtils.addDay(-SHOW_DAYS))
+                    .unique();
+            if (count[1] != null) count[1] = I18nUtils.formatDate((Date) count[1]);
+            times.put(id, count);
+        }
+        return RespBody.ok(times);
     }
 }

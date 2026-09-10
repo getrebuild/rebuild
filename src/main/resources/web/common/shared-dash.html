@@ -11,6 +11,10 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/dashboard.css}" />
     <meta name="rb.shareKey" th:content="${shareKey}" />
     <style>
+      body {
+        min-height: auto;
+        padding-bottom: 42px;
+      }
       .chart-grid {
         margin: 0;
         padding: 20px 15px;
@@ -20,12 +24,22 @@
       .J_mores {
         display: none !important;
       }
+      h1.subject {
+        font-size: 1.5rem;
+        margin: 0 20px;
+        margin-top: 16px;
+      }
     </style>
   </head>
   <body>
+    <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
     <div class="rb-loading rb-loading-active must-center J_load-page">
       <th:block th:replace="~{/_include/spinner}" />
     </div>
+    <h1 class="text-bold subject">
+      [[${dashName}]]
+      <small th:if="${shareByName != null}" class="text-muted ml-1">[[${bundle.L('由 %s 分享', shareByName)}]]</small>
+    </h1>
     <div class="chart-grid">
       <div class="grid-stack"></div>
     </div>
@@ -38,7 +52,6 @@
     <script th:src="@{/assets/js/charts/charts.mapstyle.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/charts/chart-settings.js}" type="text/babel"></script>
-
     <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/charts/dashboard.js}" type="text/babel"></script>
     <script>

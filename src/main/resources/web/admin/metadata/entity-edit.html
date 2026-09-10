@@ -7,7 +7,13 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/meta-edit.css}" />
     <style>
       .custom-control-label .support-plat2 {
-        margin-top: 1px;
+        margin-top: 1.5px;
+      }
+      .adv-group-title {
+        font-weight: bold;
+        margin: 0 0 0.6rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid #eee;
       }
     </style>
   </head>
@@ -97,27 +103,27 @@
                     <a href="javascript:;" class="adv-options-btn">[[${bundle.L('展开高级选项')}]] <i class="mdi mdi-chevron-double-down"></i> <sup class="rbv"></sup></a>
                     <div class="adv-options hide">
                       <div>
-                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline bosskey-show">
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="enabledListEditable" />
-                          <span class="custom-control-label">[[${bundle.L('启用列表页单字段编辑')}]] (LAB) <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+                          <span class="custom-control-label">[[${bundle.L('启用列表页快速编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
                       <div>
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                          <input class="custom-control-input" type="checkbox" id="hideViewAside" />
-                          <span class="custom-control-label">[[${bundle.L('隐藏详情页侧栏')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
-                        </label>
-                      </div>
-                      <div>
-                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                          <input class="custom-control-input" type="checkbox" id="disabledViewEditable" />
-                          <span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+                          <input class="custom-control-input" type="checkbox" id="enabledViewEditable" />
+                          <span class="custom-control-label">[[${bundle.L('启用详情页快速编辑')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
                       <div th:if="${currentEntity == mainEntity || detailEntity == null}">
                         <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                           <input class="custom-control-input" type="checkbox" id="enableRecordMerger" />
                           <span class="custom-control-label">[[${bundle.L('启用记录合并功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+                        </label>
+                      </div>
+                      <div>
+                        <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                          <input class="custom-control-input" type="checkbox" id="hideViewAside" />
+                          <span class="custom-control-label">[[${bundle.L('隐藏详情页侧栏')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
                         </label>
                       </div>
                       <div>
@@ -136,6 +142,7 @@
                         </label>
                       </div>
                       <th:block th:if="${currentEntity == detailEntity}">
+                        <div class="adv-group-title">[[${bundle.L('明细选项')}]]</div>
                         <div>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" id="detailsGlobalRepeat" />
@@ -171,8 +178,8 @@
                         </div>
                         <div>
                           <div class="row">
-                            <div class="col-5 pr-2">
-                              <label class="mb-1">[[${bundle.L('显示位置')}]]</label>
+                            <div class="col-4 pr-2">
+                              <label class="mb-1">[[${bundle.L('显示顺序')}]]</label>
                               <select class="form-control form-control-sm" id="detailsSeq">
                                 <option value="">[[${bundle.L('默认')}]]</option>
                                 <option value="1">1.</option>
@@ -186,7 +193,7 @@
                                 <option value="9">9.</option>
                               </select>
                             </div>
-                            <div class="col-5 pl-2 pr-2">
+                            <div class="col-4 pl-2">
                               <label class="mb-1">[[${bundle.L('是否隐藏')}]]</label>
                               <select class="form-control form-control-sm" id="detailsHide">
                                 <option value="">[[${bundle.L('默认')}]]</option>
@@ -201,6 +208,7 @@
                     </div>
                   </div>
                 </div>
+
                 <div class="form-group row footer">
                   <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
                     <div class="J_action hide">

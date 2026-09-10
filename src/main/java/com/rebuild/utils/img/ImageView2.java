@@ -77,7 +77,7 @@ public class ImageView2 {
         int wh = getWidth();
         BufferedImage bi = readSubsampled(img, wh);
         if (bi == null) {
-            log.debug("Unsupportted image type : {}", img);
+            log.debug("Unsupported image type : {}", img);
             return null;
         }
 
@@ -154,7 +154,7 @@ public class ImageView2 {
             File thumb = new ImageView2(width).thumb(img);
             return thumb != null && thumb.exists() ? thumb : img;
         } catch (Throwable ex) {
-            log.warn("Image thumb failed : {}", img, ex);
+            log.warn("Image thumbnail failed : {}", img, ex);
         }
         return img;
     }

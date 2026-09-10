@@ -17,7 +17,7 @@ class ContentAutoShare extends ActionContentSpec {
     const fields42 = this.state.relatedsFields
     return (
       <div className="auto-share">
-        <form className="simple">
+        <form className="simple" onSubmit={(e) => e.preventDefault()}>
           <div className="form-group row">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('共享给谁')}</label>
             <div className="col-12 col-lg-8">

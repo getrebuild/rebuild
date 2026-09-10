@@ -54,7 +54,7 @@ public class BulkShare extends BulkOperator {
                 }
 
             } else {
-                log.warn("No have privileges to SHARE : {} < {}", id, context.getOpUser());
+                log.warn("No privileges to SHARE : {} < {}", id, context.getOpUser());
             }
             this.addCompleted();
         }

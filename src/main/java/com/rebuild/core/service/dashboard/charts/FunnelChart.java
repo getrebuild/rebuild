@@ -36,6 +36,7 @@ public class FunnelChart extends ChartData {
 
         JSONArray dataArray = new JSONArray();
         List<String> dataFlags = new ArrayList<>();
+        List<String> dataColors = new ArrayList<>();
 
         // 0DIM + 2~9NUM
         if (nums.length > 1) {
@@ -48,6 +49,7 @@ public class FunnelChart extends ChartData {
                         new Object[]{num.getLabel(), wrapAxisValue(num, dataRaw[0])});
                 dataArray.add(d);
                 dataFlags.add(getNumericalFlag(num));
+                dataColors.add(num.getColor());
             }
         }
         // 1DIM + 1NUM
@@ -64,6 +66,7 @@ public class FunnelChart extends ChartData {
                         new Object[]{o[0] = wrapAxisValue(dim1, o[0]), wrapAxisValue(num1, o[1])});
                 dataArray.add(d);
                 dataFlags.add(valueFlag);
+                dataColors.add(num1.getColor());
             }
 
             if (dim1.getFormatSort() != FormatSort.NONE) {
@@ -82,6 +85,7 @@ public class FunnelChart extends ChartData {
         JSONObject renderOption = config.getJSONObject("option");
         if (renderOption == null) renderOption = new JSONObject();
         renderOption.put("dataFlags", dataFlags);
+        renderOption.put("dataColors", dataColors);
 
         // 转化率
         if (renderOption.getBooleanValue("showCvr")) {

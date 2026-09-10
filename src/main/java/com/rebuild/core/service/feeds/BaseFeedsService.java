@@ -13,13 +13,13 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.ChatManager;
+import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.TransactionManual;
-import com.rebuild.core.service.aibot2.ChatManager;
-import com.rebuild.core.service.aibot2.Config;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
@@ -93,7 +93,8 @@ public abstract class BaseFeedsService extends ObservableService {
         if (content == null || record.getID("feedsId") == null) return;
 
         // 已存在的
-        Set<ID> existsAtUsers = isNew ? Collections.emptySet() : this.awareMentionDelete(record.getPrimary(), true);
+        Set<ID> existsAtUsers = isNew ? Collections.emptySet()
+                : this.awareMentionDelete(record.getPrimary(), true);
 
         Set<ID> atUsers = this.awareMentionCreate(record);
         if (atUsers.isEmpty()) return;
@@ -108,6 +109,10 @@ public abstract class BaseFeedsService extends ObservableService {
             related = record.getID("feedsId");
         }
 
+        // @所有人展开前，记录 AI 助手是否被显式 @（@AI助手），
+        // 展开后 AIBOT_USER 也会出现在 atUsers 中，但不应触发 AI 回复
+        boolean aibotExplicitlyMentioned = atUsers.contains(AIBOT_USER);
+
         if (atUsers.contains(USER_ALLS) && !existsAtUsers.contains(USER_ALLS)) {
             atUsers.clear();
             for (User u : Application.getUserStore().getAllUsers()) {
@@ -115,14 +120,15 @@ public abstract class BaseFeedsService extends ObservableService {
             }
         }
 
-        if (atUsers.contains(AIBOT_USER) && !existsAtUsers.contains(AIBOT_USER)) {
+        if (aibotExplicitlyMentioned && !existsAtUsers.contains(AIBOT_USER)) {
             TransactionManual.registerAfterCommit(() -> {
                 String aiReply;
                 if (Config.availableAiBot()) {
+                    String userContent = "请直接、简洁的回答问题（不要MD格式）：\n" + content;
                     try {
-                        aiReply = ChatManager.ask("请直接、简洁的回答问题（不要MD格式）：\n" + content);
+                        aiReply = ChatManager.askAsUser(userContent, null, null, "BaseFeedsService", publishUser);
                     } catch (Exception ex) {
-                        log.error("AiBot error on ask", ex);
+                        log.error("AiBot error during ask", ex);
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
                     }
                 } else {
@@ -137,11 +143,11 @@ public abstract class BaseFeedsService extends ObservableService {
                         .add("content", aiReply)
                         .build(AIBOT_USER);
 
-                UserContextHolder.setUser(AIBOT_USER);
+                ID keepCurrentUser = UserContextHolder.setUser(AIBOT_USER);
                 try {
                     Application.getBean(FeedsCommentService.class).createOrUpdate(r);
                 } finally {
-                    UserContextHolder.clearUser();
+                    UserContextHolder.clearUser(keepCurrentUser);
                 }
             });
         }

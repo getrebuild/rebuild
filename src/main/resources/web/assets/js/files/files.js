@@ -107,17 +107,21 @@ class FilesList extends React.Component {
     return null
   }
 
-  componentDidMount = () => this.loadData()
+  componentDidMount() {
+    this.loadData()
+  }
 
   loadData(entry, pageNo) {
     this._lastEntry = entry || this._lastEntry
     this._pageNo = pageNo || 1
-    const url = `/files/list-file?entry=${this._lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
+    let url = `/files/list-file?entry=${this._lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this._pageNo}&pageSize=${PAGE_SIZE}`
+    if (this._lastOffset) url += `&offset=${this._lastOffset}`
     $.get(url, (res) => {
       const current = res.data || []
       let files = this._pageNo === 1 ? [] : this.state.files
       files = [].concat(files, current)
       this.setState({ files: files, currentSize: current.length, currentActive: [] })
+      this._lastOffset = res.next_offset || -1
     })
   }
 
@@ -153,7 +157,8 @@ class SharedFiles extends RbModalHandler {
                   this.state.data.map((item, idx) => {
                     let icon = <i className="file-icon" data-type={$fileExtName(item[1])} />
                     if (item[1].startsWith('024-')) icon = <i className="mdi mdi-folder up-2" style={{ color: '#54aeff', fontSize: 24 }} />
-                    if (item[1].startsWith('016-')) icon = <i className="zmdi zmdi-chart up-2" style={{ color: '#54aeff', fontSize: 24, marginLeft: 3 }} />
+                    if (item[1].startsWith('016-')) icon = <i className="zmdi zmdi-chart up-2" style={{ fontSize: 24, marginLeft: 3 }} />
+                    if (item[1].startsWith('096-')) icon = <i className="mdi mdi-shimmer up-2" style={{ fontSize: 22 }} />
 
                     return (
                       <tr key={idx}>
@@ -212,14 +217,7 @@ class SharedFiles extends RbModalHandler {
     $.get('/filex/all-make-share', (res) => {
       this.setState({ data: res.data || [] }, () => {
         const $tbody = $(this._$tbody)
-        const initCopy = function () {
-          $tbody.find('.J_copy').each((idx, item) => $clipboard($(item)))
-        }
-        if (window.ClipboardJS) {
-          initCopy()
-        } else {
-          $getScript('/assets/lib/clipboard.min.js', initCopy)
-        }
+        $tbody.find('.J_copy').each((idx, item) => $clipboard(item))
       })
     })
   }

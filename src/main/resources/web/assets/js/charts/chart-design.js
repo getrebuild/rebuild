@@ -347,6 +347,7 @@ function add_axis($target, axis) {
   let fieldName = null
   let fieldLabel = null
   let fieldType = null
+  let fieldType45 = null
   let calc = null
   let sort = 'NONE'
   let fkey = null
@@ -358,17 +359,19 @@ function add_axis($target, axis) {
     fieldName = axis.field
     fieldLabel = copyField.text()
     fieldType = copyField.data('type')
+    fieldType45 = copyField.data('type45')
     calc = axis.calc
     sort = axis.sort
     fkey = axis.fkey
     if (axis.filter) _axisAdvFilters__data[axis.fkey] = axis.filter
-    $dd.attr({ 'data-label': axis.label, 'data-scale': axis.scale, 'data-unit': axis.unit, 'data-formula': axis.formula })
+    $dd.attr({ 'data-label': axis.label, 'data-scale': axis.scale, 'data-unit': axis.unit, 'data-formula': axis.formula, 'data-color': axis.color })
   }
   // New
   else {
     fieldName = axis.data('field')
     fieldLabel = axis.text()
     fieldType = axis.data('type')
+    fieldType45 = axis.data('type45')
     if (isNumAxis) {
       calc = fieldType === 'num' ? 'SUM' : 'COUNT'
     } else if (fieldType === 'date') {
@@ -451,9 +454,10 @@ function add_axis($target, axis) {
         label: $dd.attr('data-label'),
         scale: $dd.attr('data-scale'),
         unit: $dd.attr('data-unit'),
+        color: $dd.attr('data-color'),
       }
       state.onConfirm = (s) => {
-        $dd.attr({ 'data-label': s.label, 'data-scale': s.scale, 'data-unit': s.unit })
+        $dd.attr({ 'data-label': s.label, 'data-scale': s.scale, 'data-unit': s.unit, 'data-color': s.color })
         render_preview()
       }
 
@@ -470,7 +474,7 @@ function add_axis($target, axis) {
   if (calc) $dd.find(`.dropdown-menu li[data-calc="${calc}"]`).addClass('check')
   if (sort) $dd.find(`.dropdown-menu li[data-sort="${sort}"]`).addClass('check')
 
-  $dd.attr({ 'data-type': fieldType, 'data-field': fieldName })
+  $dd.attr({ 'data-type': fieldType, 'data-type45': fieldType45, 'data-field': fieldName })
   $dd.find('span').html(fieldLabel + (calc ? ` (${CTs[calc]})` : ''))
   $dd.find('a.del').on('click', () => {
     $dd.remove()
@@ -569,15 +573,27 @@ function render_preview() {
         return
       }
 
-      if (!(conf.type === 'CNMAP' || conf.type === 'DATALIST2')) {
-        if ($('.axis-editor span[data-type="map"]')[0]) {
-          render_preview_error($L('选择的字段仅适用于“地图”、“数据列表”图表'))
-          return
-        }
-        if ($('.axis-editor span[data-type="list"]')[0]) {
-          render_preview_error($L('选择的字段仅适用于“数据列表”图表'))
-          return
-        }
+      let axisAllow = true
+      if (conf.type === 'DOLOR') {
+        const ts = ['TEXT', 'TAG', 'PICKLIST', 'MULTISELECT']
+        $('.axis-editor span[data-type]').each(function () {
+          if (!ts.includes($(this).data('type45'))) axisAllow = false
+        })
+      } else if (conf.type === 'CNMAP') {
+        $('.axis-editor span[data-type]').each(function () {
+          if ($(this).data('type') !== 'map') axisAllow = false
+        })
+      } else if (conf.type !== 'DATALIST2') {
+        $('.axis-editor span[data-type]').each(function () {
+          const ts = ['map', 'list']
+          $('.axis-editor span[data-type]').each(function () {
+            if (ts.includes($(this).data('type'))) axisAllow = false
+          })
+        })
+      }
+      if (!axisAllow) {
+        render_preview_error($L('选择的字段不适用于此图表'))
+        return
       }
 
       $('#chart-preview').empty()
@@ -601,16 +617,16 @@ function render_preview_error(err) {
 
 // 构造配置
 function build_config() {
-  const cfg = { entity: wpc.sourceEntity, title: $val('#chart-title') || $L('未命名图表') }
-  cfg.type = $('.chart-type>a.select').data('type')
-  if (!cfg.type) return
+  const conf = { entity: wpc.sourceEntity, title: $val('#chart-title') || $L('未命名图表') }
+  conf.type = $('.chart-type>a.select').data('type')
+  if (!conf.type) return
 
   const dims = []
   const nums = []
   $('.J_axis-dim>span').each((idx, item) => dims.push(_buildAxisItem(item, false)))
   $('.J_axis-num>span').each((idx, item) => nums.push(_buildAxisItem(item, true)))
   if (dims.length === 0 && nums.length === 0) return
-  cfg.axis = { dimension: dims, numerical: nums }
+  conf.axis = { dimension: dims, numerical: nums }
 
   const option = {}
   $('.chart-option input, .chart-option select').each(function () {
@@ -623,7 +639,7 @@ function build_config() {
   if (color[0]) color = color.parent().data('color') || ''
   else color = $('#useColor >input').val() || ''
   option.useColor = color === '#000000' ? null : color
-  cfg.option = option
+  conf.option = option
   // v4.2
   let bgcolor = $('#useBgcolor >a:eq(0)')
   if (bgcolor[0]) option.useBgcolor = bgcolor.attr('data-bgcolor')
@@ -636,28 +652,29 @@ function build_config() {
   // 排他
   $('input[data-name="showMutliYAxis"]').attr('disabled', option.showHorizontal === true)
 
-  if (dataFilter) cfg.filter = dataFilter
-  if (rb.env === 'dev') console.log(cfg)
-  return cfg
+  if (dataFilter) conf.filter = dataFilter
+  if (rb.env === 'dev') console.log(conf)
+  return conf
 }
 function _buildAxisItem(item, isNum) {
   item = $(item)
-  const x = {
+  const d = {
     field: item.data('field'),
     sort: item.attr('data-sort') || '',
     label: item.attr('data-label') || '',
     fkey: item.attr('data-fkey'),
   }
   if (isNum) {
-    x.calc = item.attr('data-calc')
-    x.scale = item.attr('data-scale')
-    x.unit = item.attr('data-unit')
-    x.filter = _axisAdvFilters__data[x.fkey] || null
-    x.formula = item.attr('data-formula') || '' // v4.3
+    d.calc = item.attr('data-calc')
+    d.scale = item.attr('data-scale')
+    d.unit = item.attr('data-unit')
+    d.color = item.attr('data-color')
+    d.filter = _axisAdvFilters__data[d.fkey] || null
+    d.formula = item.attr('data-formula') || '' // v4.3
   } else if (['date', 'time', 'clazz'].includes(item.data('type'))) {
-    x.calc = item.attr('data-calc')
+    d.calc = item.attr('data-calc')
   }
-  return x
+  return d
 }
 
 class DlgAxisProps extends RbFormHandler {
@@ -706,6 +723,22 @@ class DlgAxisProps extends RbFormHandler {
                   </select>
                 </div>
               </div>
+              <div className="form-group row pt-1 pb-0">
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('颜色')}</label>
+                <div className="col-sm-7">
+                  <div className="rbcolors mt-1">
+                    <a className="default" title={$L('默认')} onClick={() => this._setColor(null)}>
+                      {!this.state.color && <i className="zmdi zmdi-check" />}
+                    </a>
+                    {RBCOLORS.map((c) => (
+                      <a key={c} style={{ backgroundColor: c }} onClick={() => this._setColor(c)}>
+                        {this.state.color === c && <i className="zmdi zmdi-check" />}
+                      </a>
+                    ))}
+                    <input type="color" value={this.state.color || '#000000'} onChange={(e) => this._setColor(e.target.value === '#000000' ? null : e.target.value)} />
+                  </div>
+                </div>
+              </div>
             </RF>
           )}
           <div className="form-group row footer">
@@ -727,8 +760,13 @@ class DlgAxisProps extends RbFormHandler {
     // super.componentDidMount()
   }
 
+  _setColor(color) {
+    this.setState({ color })
+  }
+
   saveProps() {
     const data = { ...this.state }
+    if (data.color === '#000000') data.color = null
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
     this.hide()
   }

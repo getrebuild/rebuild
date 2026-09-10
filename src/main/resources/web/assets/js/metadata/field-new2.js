@@ -17,7 +17,16 @@ class FieldNew2 extends RbModalHandler {
   render() {
     const ftKeys = Object.keys(FIELD_TYPES)
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加字段')} disposeOnHide __root18={this.props.__root18}>
+      <RbModal
+        ref={(c) => (this._dlg = c)}
+        title={
+          <RF>
+            {$L('添加字段')}
+            <AiCreateButton preset={{ content: $L('我要创建一个字段') }} />
+          </RF>
+        }
+        disposeOnHide
+        __root18={this.props.__root18}>
         <div>
           <form>
             <div className="form-group row">
@@ -74,7 +83,7 @@ class FieldNew2 extends RbModalHandler {
             <div className={`form-group row ${this.state.fieldType === 'STATE' ? '' : 'hide'}`}>
               <label className="col-sm-3 col-form-label text-sm-right">{$L('状态类 (StateSpec)')}</label>
               <div className="col-sm-7">
-                <input className="form-control form-control-sm" type="text" placeholder="com.rebuild.core.support.state.HowtoState" ref={(c) => (this._$stateClass = c)} />
+                <input className="form-control form-control-sm code" type="text" placeholder="eg. com.rebuild.core.support.state.HowtoState" ref={(c) => (this._$stateClass = c)} />
               </div>
             </div>
             <div className="form-group row">

@@ -1129,6 +1129,20 @@ class ConditionBranchConfig extends StartNodeConfig {
   }
 }
 
+// 自由审批节点不允许有下级审批节点
+const checkFreeApprovalLoop = function (s) {
+  for (let i = 0; i < s.nodes.length; i++) {
+    const node = s.nodes[i]
+    if (node.type === 'approver' && node.data.freeApproval === true) {
+      for (let j = i + 1; j < s.nodes.length; j++) {
+        const nodeNext = s.nodes[j]
+        if (nodeNext.type === 'approver' || nodeNext.type === 'condition') return true
+      }
+    }
+  }
+  return false
+}
+
 // 画布
 class RbFlowCanvas extends NodeGroupSpec {
   render() {
@@ -1174,20 +1188,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       const s = this.serialize()
       if (!s) return
 
-      let freeApprovalLoop = false
-      for (let i = 0; i < s.nodes.length; i++) {
-        let node = s.nodes[i]
-        if (node.type === 'approver' && node.data.freeApproval === true) {
-          for (let j = i + 1; j < s.nodes.length; j++) {
-            let nodeNext = s.nodes[j]
-            if (nodeNext.type === 'approver' || nodeNext.type === 'condition') {
-              freeApprovalLoop = true
-              break
-            }
-          }
-        }
-      }
-      if (freeApprovalLoop) {
+      if (checkFreeApprovalLoop(s)) {
         RbHighbar.createl('自由审批节点不能添加下级审批节点')
         return
       }
@@ -1225,6 +1226,10 @@ class RbFlowCanvas extends NodeGroupSpec {
     $('.J_copy').on('click', () => {
       const s = this.serialize()
       if (!s) return
+      if (checkFreeApprovalLoop(s)) {
+        RbHighbar.createl('自由审批节点不能添加下级审批节点')
+        return
+      }
       renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled flowDefinition={s} />)
     })
   }

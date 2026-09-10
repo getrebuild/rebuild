@@ -56,7 +56,7 @@ $(document).ready(() => {
             <input className="custom-control-input" type="checkbox" defaultChecked />
             <span className="custom-control-label">
               {$L('发送邮件通知')}
-              {!$isTrue(window.__PageConfig.serviceMail) && <span className="fs-12 text-danger ml-1">({$L('不可用')})</span>}
+              {!$isTrue(window.__PageConfig.serviceMail) && <span className="fs-12 text-danger ml-1">({$L('未配置')})</span>}
             </span>
           </label>
         </div>
@@ -78,8 +78,8 @@ $(document).ready(() => {
         })
       },
       onRendered: function () {
-        const $b = $(this._element).find('.modal-body b').addClass('newpwd')
-        $clipboard($b, newpwd)
+        const $b = $(this._element).find('.modal-body b').addClass('newpwd').data('clipboard-text', newpwd)
+        $clipboard($b)
       },
     })
   })

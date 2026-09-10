@@ -102,9 +102,5 @@
     <th:block th:replace="~{/_include/forms}" />
     <script th:src="@{/assets/js/charts/dashboard.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/feeds/announcement.js}" type="text/babel"></script>
-    <th:block th:if="${session.showStartGuide}">
-      <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rebuild-tour.css}" />
-      <script th:src="@{/assets/js/rebuild-guide.js}" type="text/babel"></script>
-    </th:block>
   </body>
 </html>

@@ -266,6 +266,15 @@ $(document).ready(() => {
     })
   })
 
+  $('.J_auto-map').on('click', function () {
+    let count = 0
+    if (_FieldsMapping) count += _FieldsMapping.autoMapping()
+    for (let key in _FieldsMapping37) {
+      count += _FieldsMapping37[key].autoMapping()
+    }
+    RbHighbar.create(count > 0 ? $L('已自动映射 %d 个字段', count) : $L('未找到可自动映射的字段'))
+  })
+
   // init
   setTimeout(() => {
     _saveFilter(config.useFilter)
@@ -276,6 +285,15 @@ $(document).ready(() => {
     if (config.importsMode2Auto === 2 || config.importsMode2Auto === 3) $('#importsMode2Auto2').prop('checked', true)
     if (config.one2nMode) $('#one2nMode').trigger('click')
     if (config.one2nModeField) $('.J_one2nMode-fields select').val(config.one2nModeField)
+
+    if (!config.fieldsMapping || Object.keys(config.fieldsMapping).length === 0) {
+      RbAlert.create($L('当前未配置字段转换映射，是否根据字段名称自动映射？'), {
+        confirm: function () {
+          this.hide()
+          $('.J_auto-map').trigger('click')
+        },
+      })
+    }
   }, 100)
 })
 
@@ -507,6 +525,48 @@ class FieldsMapping extends React.Component {
     // v3.7
     mapping['_'] = { target: this.props.target.entity, source: this.props.source.entity, filter: this.state.filterData }
     return mapping
+  }
+
+  autoMapping(overwrite) {
+    const that = this
+    let count = 0
+
+    $(this._$fieldsMapping)
+      .find('select.J_mapping')
+      .each(function () {
+        const $this = $(this)
+        const targetFieldName = $this.data('field')
+        const currentValue = $this.val()
+
+        if (currentValue && !overwrite) return
+
+        const targetField = that.props.target.fields.find((x) => x.name === targetFieldName)
+        if (!targetField) return
+
+        let matchSource = null
+        for (const sf of that.props.source.fields) {
+          if (!$fieldIsCompatible(sf, targetField)) continue
+          if (sf.name === targetFieldName) {
+            matchSource = sf
+            break
+          }
+          if (sf.name.toLowerCase() === targetFieldName.toLowerCase()) {
+            matchSource = sf
+            break
+          }
+          if (sf.label && targetField.label && sf.label.toLowerCase() === targetField.label.toLowerCase()) {
+            matchSource = sf
+            break
+          }
+        }
+
+        if (matchSource) {
+          $this.val(matchSource.name).trigger('change')
+          count++
+        }
+      })
+
+    return count
   }
 
   _saveFilter() {

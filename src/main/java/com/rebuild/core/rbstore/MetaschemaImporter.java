@@ -175,7 +175,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
                 Application.getBean(PickListService.class).updateBatch(field, config);
             }
         } catch (Exception ex) {
-            log.warn("Importing PickList error : {}", ex.getLocalizedMessage());
+            log.warn("Error importing PickList : {}", ex.getLocalizedMessage());
         }
 
         setCompleted(100);

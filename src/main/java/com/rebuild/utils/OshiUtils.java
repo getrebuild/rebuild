@@ -150,7 +150,7 @@ public class OshiUtils {
                     return c.getTime();
                 }
             } catch (Exception ex) {
-                log.warn("Cannot fetch date from : {}", u, ex);
+                log.warn("Cannot fetch the date from : {}", u, ex);
             }
         }
 
@@ -215,7 +215,7 @@ public class OshiUtils {
             }
 
         } catch (Exception ex) {
-            log.warn("Cannot stats disks", ex);
+            log.warn("Cannot get disk stats", ex);
         }
         return disks;
     }

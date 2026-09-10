@@ -438,7 +438,7 @@ public class AutoFillinManager implements ConfigManager {
             EntityRecordCreator.setValueByLiteral(target, value.toString(), temp4Value, false);
             return temp4Value.getObjectValue(target.getName());
         } catch (Exception ex) {
-            log.error("Cannot conversion value of record : {} = {}", target.getName(), value);
+            log.error("Cannot convert value of record : {} = {}", target.getName(), value);
             return null;
         }
     }

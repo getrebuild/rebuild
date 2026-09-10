@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 130">
+  <defs>
+    <pattern id="cal" x="8" y="26" width="27" height="24" patternUnits="userSpaceOnUse">
+      <rect width="25" height="22" rx="2" fill="#f5f6f8" stroke="#e9ecef"/>
+    </pattern>
+  </defs>
+  <rect x=".5" y=".5" width="199" height="129" rx="2" fill="#fff" stroke="#e9ecef"/>
+  <rect x="8" y="8" width="184" height="14" rx="2" fill="#eef0f2"/>
+  <rect x="8" y="26" width="189" height="96" fill="url(#cal)"/>
+</svg>

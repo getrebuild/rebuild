@@ -79,7 +79,7 @@ public class CommandUtils {
                 throw new RuntimeException(code + "#" + echo);
             }
         } catch (InterruptedException ex) {
-            log.error("command interrupted");
+            log.error("Command interrupted");
             throw new RuntimeException("COMMAND INTERRUPTED");
         }
 

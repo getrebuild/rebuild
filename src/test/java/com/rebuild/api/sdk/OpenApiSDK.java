@@ -266,7 +266,7 @@ public class OpenApiSDK {
         String uploadKey = data.getString("upload_key");
         String uploadToken = data.getString("upload_token");
         if (uploadToken != null) {
-            LOG.info("Uploading file with qiniu token : " + uploadToken);
+            LOG.info("Uploading file with Qiniu token : " + uploadToken);
             if (qiniuUpload(file, uploadKey, uploadToken)) {
                 return uploadKey;
             }
@@ -294,7 +294,7 @@ public class OpenApiSDK {
                 res = JSON.parseObject(resp);
                 filePath = res.getString("data");
             } else {
-                LOG.error("Upload file error : " + file);
+                LOG.error("Failed to upload file : " + file);
             }
         }
         return filePath;

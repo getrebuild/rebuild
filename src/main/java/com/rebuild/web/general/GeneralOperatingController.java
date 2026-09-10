@@ -171,7 +171,7 @@ public class GeneralOperatingController extends BaseController {
             try {
                 new TransformerPreview37(previewid, user).fillback(record.getPrimary());
             } catch (Exception ex) {
-                log.error("Transforme with fillback fails : {}", previewid, ex);
+                log.error("Transform with fillback failed : {}", previewid, ex);
             }
         }
 

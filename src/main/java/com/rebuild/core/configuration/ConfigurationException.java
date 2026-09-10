@@ -10,7 +10,7 @@ package com.rebuild.core.configuration;
 import com.rebuild.core.RebuildException;
 
 /**
- * Exception when configuration unset or incorrect
+ * Exception when configuration is unset or incorrect
  *
  * @author devezhao
  * @since 2019/03/14

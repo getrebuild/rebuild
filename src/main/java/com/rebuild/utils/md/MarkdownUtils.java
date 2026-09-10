@@ -7,7 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils.md;
 
+import com.rebuild.api.user.AuthTokenManager;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
@@ -31,6 +34,9 @@ import java.util.regex.Pattern;
  * @since 2019/05/16
  */
 public class MarkdownUtils {
+
+    // markdown 中的文件下载链接，输出前重写补全 `_csrfToken`
+    private static final Pattern PATTERN_FILE_URL = Pattern.compile("\\]\\(([^)]*?/filex/download/[^)]*)\\)");
 
     private static final Parser PARSER;
     private static final HtmlRenderer RENDERER;
@@ -133,5 +139,38 @@ public class MarkdownUtils {
 
         String html = render(md, false, true);
         return Jsoup.parse(html).body().text();
+    }
+
+    /**
+     * 重写 markdown 中的文件下载链接
+     *
+     * @param md
+     * @return
+     * @see com.rebuild.web.commons.FileDownloader#checkUser(javax.servlet.http.HttpServletRequest)
+     */
+    public static String rewriteFileUrls(String md) {
+        if (md == null || !md.contains("/filex/download/")) return md;
+
+        Matcher m = PATTERN_FILE_URL.matcher(md);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            String url = m.group(1);
+
+            url = url.replaceAll("[?&](_csrfToken|_onceToken)=[^&)]*", "");
+            if (url.endsWith("?")) url = url.substring(0, url.length() - 1);
+
+            if (!url.startsWith("http")) {
+                if (!url.startsWith("/")) url = "/" + url;
+                url = RebuildConfiguration.getHomeUrl(url);
+            }
+
+            // 12H
+            url += (url.contains("?") ? "&" : "?")
+                    + AppUtils.URL_CSRFTOKEN + "=" + AuthTokenManager.generateCsrfToken(12 * 60 * 60);
+
+            m.appendReplacement(sb, Matcher.quoteReplacement("](" + url + ")"));
+        }
+        m.appendTail(sb);
+        return sb.toString();
     }
 }

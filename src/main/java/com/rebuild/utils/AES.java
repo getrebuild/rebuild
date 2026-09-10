@@ -48,7 +48,7 @@ public class AES {
             cipher.init(Cipher.ENCRYPT_MODE, skey);
             crypted = cipher.doFinal(input.getBytes(StandardCharsets.UTF_8));
         } catch (Exception ex) {
-            throw new RebuildException("Encrypting error : " + input, ex);
+            throw new RebuildException("Error encrypting : " + input, ex);
         }
         return new String(Base64.encodeBase64(crypted), StandardCharsets.UTF_8);
     }
@@ -92,7 +92,7 @@ public class AES {
             cipher.init(Cipher.DECRYPT_MODE, skey);
             output = cipher.doFinal(Base64.decodeBase64(input));
         } catch (Exception ex) {
-            throw new RebuildException("Decrypting error : " + input, ex);
+            throw new RebuildException("Error decrypting : " + input, ex);
         }
         return new String(output, StandardCharsets.UTF_8);
     }

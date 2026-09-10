@@ -76,9 +76,9 @@ public class StateHelper {
                 return stateEnum;
             }
         } catch (ClassNotFoundException ignored) {
-            throw new IllegalArgumentException("No class of state found: " + stateClass);
+            throw new IllegalArgumentException("No state class found: " + stateClass);
         }
-        throw new IllegalArgumentException("Bad class of state found: " + stateEnum);
+        throw new IllegalArgumentException("Bad state class found: " + stateEnum);
     }
 
     /**

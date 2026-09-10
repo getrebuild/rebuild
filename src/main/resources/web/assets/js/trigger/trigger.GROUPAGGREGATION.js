@@ -18,7 +18,7 @@ class ContentGroupAggregation extends ActionContentSpec {
   render() {
     return (
       <div className="field-aggregation group-aggregation">
-        <form className="simple">
+        <form className="simple" onSubmit={(e) => e.preventDefault()}>
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('目标实体')}</label>
             <div className="col-md-12 col-lg-9">

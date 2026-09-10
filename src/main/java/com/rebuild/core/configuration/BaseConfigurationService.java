@@ -44,8 +44,9 @@ public abstract class BaseConfigurationService extends InternalPersistService {
     @Override
     public Record update(Record record) {
         throwIfNotSelf(record.getPrimary());
+        record = super.update(putCreateBy4ShareTo(record));
         cleanCache(record.getPrimary());
-        return super.update(putCreateBy4ShareTo(record));
+        return record;
     }
 
     @Override

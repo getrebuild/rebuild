@@ -147,6 +147,8 @@ $(document).ready(() => {
   useExecManual()
 
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
+  if (rb.env === 'dev' && wpc.actionContent) console.log('CONF :', wpc.actionContent)
+
   // v4.3 延迟模式通用化
   if (wpc.actionContent && wpc.actionContent.asyncMode) {
     $('#asyncMode').prop('checked', true)
@@ -246,8 +248,7 @@ const saveFilter = function (res) {
 
 // 组件复写
 var renderContentComp = function (props) {
-  // eslint-disable-next-line no-console
-  if (rb.env === 'dev') console.log(props)
+  console.log('TODO:', props)
 }
 
 // 执行日志查看

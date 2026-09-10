@@ -152,6 +152,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #fff7c5;
 }
 
+.main-content {
+  min-height: calc(100vh - 61px);
+}
+
+.main-content.drop {
+  position: relative;
+}
+
+.main-content.drop::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000 !important;
+  background-color: rgba(255, 247, 197, 0.6);
+  outline: 2px dashed var(--rb-color);
+  outline-offset: -5px;
+  pointer-events: none;
+}
+
 .file-field.files .img-thumbnail {
   width: 100%;
   margin-right: 0;
@@ -194,7 +216,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .sharing-list .table th,
 .sharing-list .table td {
-  padding: 10px 6px;
+  padding: 8px 6px;
 }
 
 .sharing-list .table th {

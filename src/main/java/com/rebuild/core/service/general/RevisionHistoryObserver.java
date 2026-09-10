@@ -48,7 +48,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
         if (RecycleBinCleanerJob.isEnableRevisionHistory()) {
             super.updateByAction(ctx);
         } else if (ctx.getAction() != InternalPermission.DELETE_BEFORE) {
-            log.warn("RevisionHistory inactivated! {} {} by {}",
+            log.warn("RevisionHistory deactivated! {} {} by {}",
                     ctx.getAction().getName(), ctx.getAnyRecord().getPrimary(), ctx.getOperator());
         }
     }

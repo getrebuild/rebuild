@@ -213,7 +213,7 @@ public class AviatorUtils {
         if (value instanceof Collection) return ((Collection<Object>) value).iterator();
         if (value instanceof Sequence) return ((Sequence<Object>) value).iterator();
         if (value instanceof Iterator) return (Iterator<Object>) value;
-        throw new UnsupportedOperationException("Unsupport type : " + value);
+        throw new UnsupportedOperationException("Unsupported type : " + value);
     }
 
     /**

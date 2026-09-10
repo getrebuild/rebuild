@@ -1,0 +1,97 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-aibot" />
+    <title>[[${bundle.L('能力扩展')}]]</title>
+    <style>
+      .modal-body textarea.form-control {
+        min-height: 72px;
+      }
+      .init-models {
+        margin-left: -10px;
+        margin-right: -10px;
+      }
+      .init-models + .dialog-footer {
+        margin: 15px -35px 10px;
+        padding-top: 25px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='aibot-kits')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid syscfg">
+          <div class="row">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header pb-1">[[${bundle.L('能力扩展')}]]</div>
+                <div class="card-body">
+                  <h5>
+                    [[${bundle.L('技能 /Skills')}]]
+                    <a href="###" class="float-right J_addSkill"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+                  </h5>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="skillsList"></tbody>
+                  </table>
+                  <div class="J_skillsEmpty text-muted text-center mt-6 mb-6" style="display: none">[[${bundle.L('暂无技能')}]]</div>
+                  <h5>
+                    [[${bundle.L('知识库 /Knowledge')}]]
+                    <a href="###" class="float-right J_addKb"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+                  </h5>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="kbList"></tbody>
+                  </table>
+                  <div class="J_kbEmpty text-muted text-center mt-6 mb-6" style="display: none">[[${bundle.L('暂无知识库')}]]</div>
+                  <h5 class="mt-5">
+                    [[${bundle.L('工具 /Tools')}]]
+                    <a href="https://getrebuild.com/market/go/aitool" target="_blank" class="float-right"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+                  </h5>
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th width="40%">[[${bundle.L('名称')}]]</th>
+                        <th>[[${bundle.L('描述')}]]</th>
+                        <th width="80"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="toolsList"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-12 col-right-compact">
+              <div class="card">
+                <div class="card-header pb-1">[[${bundle.L('MCP 接入')}]]</div>
+                <div class="card-body">
+                  <p>[[${bundle.L('请复制以下 MCP 配置使用。通过 MCP 接入，你可以在 WorkBuddy、QoderWork 等支持 MCP 协议的 AI 客户端中直接操作系统数据。')}]]</p>
+                  <div class="J_mcpConfig" th:data-url="${_McpServerUrl}"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/aibot-kits.js}" type="text/babel"></script>
+  </body>
+</html>

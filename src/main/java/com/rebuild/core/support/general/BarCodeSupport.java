@@ -245,10 +245,10 @@ public class BarCodeSupport {
         float xScale = (float) ((double) regionWidth / fm.stringWidth(text));
         float yScale = (float) ((double) regionHeight / fm.getHeight());
 
-        // Determine which access to scale on...
+        // Determine which axis to scale on...
         float scale = Math.min(xScale, yScale);
 
-        // Create a new font using the scaling facter
+        // Create a new font using the scaling factor
         g2d.setFont(font.deriveFont(AffineTransform.getScaleInstance(scale, scale)));
         // Make it pretty
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

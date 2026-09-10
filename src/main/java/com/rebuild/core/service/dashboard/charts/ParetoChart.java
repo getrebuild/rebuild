@@ -75,10 +75,10 @@ public class ParetoChart extends Bar3Chart {
         Numerical ns0 = ns[0];
         // 固定排序
         Numerical n1 = new Numerical(ns0.getFkey(), ns0.getField(), FormatSort.DESC, ns0.getFormatCalc(),
-                ns0.getLabel(), ns0.getScale(), ns0.getUnit(), ns0.getFormatFormula(), ns0.getFilter(), ns0.getParentField());
+                ns0.getLabel(), ns0.getScale(), ns0.getUnit(), ns0.getColor(), ns0.getFormatFormula(), ns0.getFilter(), ns0.getParentField());
         // 累计占比
         Numerical n2 = new Numerical(ns0.getFkey() + "Copy", ns0.getField(), FormatSort.DESC, ns0.getFormatCalc(),
-                Language.L("累计占比"), 2, 0, null, ns0.getFilter(), ns0.getParentField());
+                Language.L("累计占比"), 2, 0, null, null, ns0.getFilter(), ns0.getParentField());
         return new Numerical[]{n1, n2};
     }
 }

@@ -274,7 +274,8 @@ public class MetadataHelper {
                 || EntityHelper.ApprovalLastUser.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalLastTime.equalsIgnoreCase(fieldName)
                 || EntityHelper.ApprovalLastRemark.equalsIgnoreCase(fieldName)
-                || EntityHelper.ApprovalSubmitUser.equalsIgnoreCase(fieldName);
+                || EntityHelper.ApprovalSubmitUser.equalsIgnoreCase(fieldName)
+                || EntityHelper.ApprovalSubmitTime.equalsIgnoreCase(fieldName);
     }
 
     /**
@@ -349,7 +350,7 @@ public class MetadataHelper {
      */
     public static Field getDetailToMainField(Entity detailEntity) {
         Entity main = detailEntity.getMainEntity();
-        Assert.isTrue(main != null, "None detail-entity");
+        Assert.isTrue(main != null, "Not a detail-entity");
 
         String mainForeign = main.getName() + "Id";
         if (detailEntity.containsField(mainForeign)) return detailEntity.getField(mainForeign);

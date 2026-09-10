@@ -241,7 +241,7 @@ public class CombinedRole extends Role {
     private String getDefinition(Privileges priv) {
         if (priv instanceof ZeroPrivileges) return ((ZeroPrivileges) priv).getDefinition();
         if (priv instanceof EntityPrivileges) return ((EntityPrivileges) priv).getDefinition();
-        throw new PrivilegesException("Unknow privileges class : " + priv);
+        throw new PrivilegesException("Unknown privileges class : " + priv);
     }
 
     private int mergeMaskValue(Integer a, Integer b) {

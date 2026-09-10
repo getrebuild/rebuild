@@ -21,6 +21,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.io.FileUtils;
@@ -32,7 +33,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import static com.rebuild.core.support.integration.QiniuCloud.getFileSize;
 
 /**
  * 文件、附件帮助类
@@ -41,6 +45,7 @@ import java.util.Set;
  * @since 2019/11/12
  * @see QiniuCloud
  */
+@Slf4j
 public class FilesHelper {
 
     // 公共
@@ -48,7 +53,7 @@ public class FilesHelper {
     // 私有
     public static final String SCOPE_SELF = "SELF";
 
-    private static final LRUMap<String, Long> FILESIZES = new LRUMap<>(2000);
+    private static final Map<String, Long> FILESIZES = Collections.synchronizedMap(new LRUMap<>(2000));
 
     /**
      * 暂存文件大小，以便在创建文件记录时使用
@@ -79,17 +84,20 @@ public class FilesHelper {
             attach.setString("fileType", CommonsUtils.maxstr(ext, 10));
         }
 
-        if (FILESIZES.containsKey(filePath)) {
-            attach.setLong("fileSize", FILESIZES.get(filePath));
-        } else {
+        Long cached = FILESIZES.get(filePath);
+        long fileSize = cached != null ? cached : 0;
+
+        if (fileSize < 1) {
             Object[] db = Application.createQueryNoFilter(
-                    "select fileSize from Attachment where filePath = ?")
+                    "select fileSize from Attachment where filePath = ? and fileSize > 0")
                     .setParameter(1, filePath)
                     .unique();
-            if (db != null) {
-                attach.setLong("fileSize", (Long) db[0]);
-            }
+            if (db != null && db[0] != null) fileSize = (Long) db[0];
         }
+
+        // 兜底：客户端上报可能丢失或迟到，直接读实际文件大小
+        if (fileSize < 1) fileSize = getFileSize(filePath);
+        if (fileSize > 0) attach.setLong("fileSize", fileSize);
 
         return attach;
     }
@@ -305,6 +313,10 @@ public class FilesHelper {
         if (fileId.getEntityCode() == EntityHelper.DashboardConfig) {
             return UserHelper.isSelf(user, fileId) ? fileId.toLiteral() : null;
         }
+        // v4.5 AI会话临时借用
+        if (fileId.getEntityCode() == EntityHelper.AibotChat) {
+            return UserHelper.isSelf(user, fileId) ? fileId.toLiteral() : null;
+        }
 
         Object[] file = Application.getQueryFactory().uniqueNoFilter(
                 fileId, "filePath,relatedRecord,belongEntity");
@@ -321,15 +333,26 @@ public class FilesHelper {
         final ID recordId = (ID) file[1];
         if (recordId == null) return null;
 
+        return isRecordReadable(recordId, user) ? (String) file[0] : null;
+    }
+
+    /**
+     * 检查附件所属记录是否对指定用户可读
+     *
+     * @param recordId 附件所属记录 ID
+     * @param user
+     * @return
+     */
+    public static boolean isRecordReadable(ID recordId, ID user) {
+        if (UserHelper.isAdmin(user)) return true;
+
         int entityCode = recordId.getEntityCode();
-        boolean readable;
         if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
-            readable = FeedsHelper.checkReadable(recordId, user);
+            return FeedsHelper.checkReadable(recordId, user);
         } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
-            readable = ProjectHelper.checkReadable(recordId, user);
+            return ProjectHelper.checkReadable(recordId, user);
         } else {
-            readable = Application.getPrivilegesManager().allowRead(user, recordId);
+            return Application.getPrivilegesManager().allowRead(user, recordId);
         }
-        return readable ? (String) file[0] : null;
     }
 }

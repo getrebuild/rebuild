@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang.StringUtils;
@@ -162,6 +163,22 @@ public class DataListCategory {
             Object id = cb.getID("id");
             if (dt == DisplayType.MULTISELECT) id = cb.getLong("mask");
             dataList.add(new Item(id, cb.getString("text")));
+        }
+        return dataList;
+    }
+
+    /**
+     * for STATE
+     *
+     * @param field
+     * @return
+     */
+    protected Collection<Item> datasState(Field field) {
+        Collection<Item> dataList = new LinkedHashSet<>();
+        JSONArray options = StateManager.instance.getStateOptions(field);
+        for (Object o : options) {
+            JSONObject item = (JSONObject) o;
+            dataList.add(new Item(item.getIntValue("id"), item.getString("text")));
         }
         return dataList;
     }

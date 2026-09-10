@@ -163,7 +163,7 @@ public class Entity2Schema extends Field2Schema {
             }
 
         } catch (Throwable ex) {
-            log.error("Error on create fields", ex);
+            log.error("Error creating fields", ex);
             Application.getCommonsService().delete(recordedMetaIds.toArray(new ID[0]));
 
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库 : %s", ex.getLocalizedMessage()));

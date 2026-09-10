@@ -67,11 +67,11 @@ public class ConfigBean implements Serializable, Cloneable, JSONable {
     }
 
     public Integer getInteger(String name) {
-        return ObjectUtils.defaultIfNull((Integer) data.get(name), 0);
+        return ObjectUtils.getIfNull((Integer) data.get(name), 0);
     }
 
     public Long getLong(String name) {
-        return ObjectUtils.defaultIfNull((Long) data.get(name), 0L);
+        return ObjectUtils.getIfNull((Long) data.get(name), 0L);
     }
 
     public JSON getJSON(String name) {

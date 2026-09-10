@@ -98,7 +98,7 @@ public class DataImportController extends BaseController {
             preview = parser.parse(101);
             count = parser.getRowsCount();
         } catch (Exception ex) {
-            log.error("Parse excel error : {}", file, ex);
+            log.error("Failed to parse Excel : {}", file, ex);
             return RespBody.error(Language.L("无法解析数据，请检查数据文件格式"));
         }
 

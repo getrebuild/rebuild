@@ -74,7 +74,7 @@
         conf.editable = false
         renderRbcomp(detectChart(conf, wpc.chartId), $('.chart-wrap'))
         // v4.4-b6
-        if (~~$urlp('head') === 1) $('.less-head').removeClass('less-head')
+        if (~~$urlp('head') === 1 || $urlp('frame') === '0') $('.less-head').removeClass('less-head')
       })
     </script>
   </body>

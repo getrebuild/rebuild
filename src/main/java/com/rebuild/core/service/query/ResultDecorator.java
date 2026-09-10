@@ -56,7 +56,7 @@ public class ResultDecorator extends AjqlResultImpl {
         }
 
         if (pkIndex == -1 && N2NIndexes.size() + TagIndexes.size() > 0) {
-            log.warn("No field of primary in select items, cannot provide n2n-value or tag-value");
+            log.warn("No primary field in select items, cannot provide n2n-value or tag-value");
         }
     }
 

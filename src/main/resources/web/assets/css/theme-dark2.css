@@ -1,0 +1,47 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+/* pages */
+
+html.theme-dark2 .file-share .expires ul li:not(.active) a {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--rb-dark-muted);
+}
+
+/* login */
+
+html.theme-dark2 a.select-lang {
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 a.select-lang:hover {
+  border-color: var(--rb-dark-border);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+html.theme-dark2 .login-form {
+  background-color: var(--rb-dark-panel);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .login-form .logo-img {
+  background-image: url(../../commons/theme/use-logo-white);
+}
+
+html.theme-dark2 .login-form .login-with {
+  border-top-color: var(--rb-dark-border);
+}
+
+html.theme-dark2 .login-form .login-with > span {
+  color: var(--rb-dark-muted);
+  background-color: var(--rb-dark-panel);
+}
+
+html.theme-dark2 .login-form .h5-mobile span {
+  color: var(--rb-dark-muted);
+}

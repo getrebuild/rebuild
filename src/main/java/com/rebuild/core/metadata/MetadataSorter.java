@@ -111,7 +111,7 @@ public class MetadataSorter {
      * @return
      */
     public static Entity[] sortDetailEntities(Entity mainEntity) {
-        Assert.notNull(mainEntity.getDetailEntity(), "None main entity : " + mainEntity);
+        Assert.notNull(mainEntity.getDetailEntity(), "Not a main-entity : " + mainEntity);
 
         List<BaseMeta> entities = new ArrayList<>();
         CollectionUtils.addAll(entities, mainEntity.getDetialEntities());
@@ -188,7 +188,8 @@ public class MetadataSorter {
         final String[] specSortsApproval = new String[] {
                 EntityHelper.ApprovalId, EntityHelper.ApprovalState,
                 EntityHelper.ApprovalStepNodeName, EntityHelper.ApprovalStepUsers, EntityHelper.ApprovalSubmitUser,
-                EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark
+                EntityHelper.ApprovalLastUser, EntityHelper.ApprovalLastTime, EntityHelper.ApprovalLastRemark,
+                EntityHelper.ApprovalSubmitTime
         };
         List<BaseMeta> approvalFields = new ArrayList<>();
         for (String s : specSortsApproval) {

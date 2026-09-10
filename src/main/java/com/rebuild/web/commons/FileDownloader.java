@@ -73,7 +73,7 @@ public class FileDownloader extends BaseController {
         if (imageView2 != null && imageView2.contains("imageView2/")) {
             imageView2 = "imageView2/" + imageView2.split("imageView2/")[1].split("&")[0];
 
-            // svg/webp does not support
+            // svg/webp are not supported
             if (filepath.toLowerCase().endsWith(".svg") || filepath.toLowerCase().endsWith(".webp")) {
                 imageView2 = null;
             }

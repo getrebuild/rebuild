@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -25,21 +25,21 @@
                     <tbody>
                       <tr>
                         <td width="40%">[[${bundle.L('访问域名')}]]</td>
-                        <td data-id="StorageURL" th:data-value="${storageAccount == null ? '' : storageAccount[3]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[3]}]]</td>
+                        <td data-id="StorageURL" th:data-value="${storageAccount == null ? '' : storageAccount[3]}">[[${storageAccount == null ? bundle.L('未配置') : storageAccount[3]}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('存储空间')}]]</td>
                         <td data-id="StorageBucket" th:data-value="${storageAccount == null ? '' : storageAccount[2]}" th:data-form-text="${bundle.L('存储空间变更需你自行迁移原有数据')}">
-                          [[${storageAccount == null ? bundle.L('未设置') : storageAccount[2]}]]
+                          [[${storageAccount == null ? bundle.L('未配置') : storageAccount[2]}]]
                         </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('密钥 AK')}]]</td>
-                        <td data-id="StorageApiKey" th:data-value="${storageAccount == null ? '' : storageAccount[0]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[0]}]]</td>
+                        <td data-id="StorageApiKey" th:data-value="${storageAccount == null ? '' : storageAccount[0]}">[[${storageAccount == null ? bundle.L('未配置') : storageAccount[0]}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('密钥 SK')}]]</td>
-                        <td data-id="StorageApiSecret" th:data-value="${storageAccount == null ? '' : storageAccount[1]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[1]}]]</td>
+                        <td data-id="StorageApiSecret" th:data-value="${storageAccount == null ? '' : storageAccount[1]}">[[${storageAccount == null ? bundle.L('未配置') : storageAccount[1]}]]</td>
                       </tr>
                     </tbody>
                   </table>

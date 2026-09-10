@@ -49,7 +49,7 @@ public class EasyMultiSelect extends EasyField implements MixValue, MultiValue {
             if (mv > 0) {
                 maskValue += mv;
             } else {
-                log.warn("Cannot found mask-value of EasyMultiSelect : {}", label);
+                log.warn("Cannot find mask-value of EasyMultiSelect : {}", label);
             }
         }
         return maskValue > 0 ? maskValue : null;

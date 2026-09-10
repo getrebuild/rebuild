@@ -20,6 +20,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.RoleService;
@@ -47,10 +48,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.rebuild.core.metadata.MetadataHelper.getEntity;
 
 /**
  * 导航渲染
@@ -86,6 +91,17 @@ public class NavBuilder extends NavManager {
     private static final int NAV_PROJECT__INDEX = 4;
 
     private static final Pattern PATT_LISTURL437 = Pattern.compile("/app/(\\w+)/(list|view|form)");
+
+    // 内建菜单默认图标
+    private static final Map<String, String> NAV_BUILTIN_ICONS = new HashMap<>();
+    static {
+        for (Object nav : NAVS_DEFAULT) {
+            JSONObject n = (JSONObject) nav;
+            NAV_BUILTIN_ICONS.put(n.getString("value"), n.getString("icon"));
+        }
+        NAV_BUILTIN_ICONS.put(NAV_DASHBOARD, "chart");
+        NAV_BUILTIN_ICONS.put(NAV_PARENT, "menu");
+    }
 
     /**
      * 获取指定用户的导航菜单
@@ -149,6 +165,14 @@ public class NavBuilder extends NavManager {
         if (config == null) {
             JSONArray useDefault = (JSONArray) JSONUtils.clone(NAVS_DEFAULT);
             ((JSONObject) useDefault.get(NAV_PROJECT__INDEX)).put("sub", buildAvailableProjects(user));
+
+            // v4.5 未配置时使用全部实体
+            for (Entity e : MetadataSorter.sortEntities(user, false, false)) {
+                EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
+                useDefault.add(JSONUtils.toJSONObject(
+                        new String[]{"icon", "text", "type", "value"},
+                        new Object[]{easyEntity.getIcon(), easyEntity.getLabel(), "ENTITY", easyEntity.getName()}));
+            }
             return useDefault;
         }
 
@@ -160,6 +184,8 @@ public class NavBuilder extends NavManager {
 
             // 父级菜单
             if (subNavs != null && !subNavs.isEmpty()) {
+                fixNavIcon(nav, nav.getString("value"));
+
                 for (Iterator<Object> subIter = subNavs.iterator(); subIter.hasNext(); ) {
                     JSONObject subNav = (JSONObject) subIter.next();
                     if (isFilterNavItem(subNav, user)) {
@@ -196,6 +222,8 @@ public class NavBuilder extends NavManager {
         String type = item.getString("type");
         String value = item.getString("value");
 
+        fixNavIcon(item, value);
+
         if ("ENTITY".equalsIgnoreCase(type)) {
             if (NAV_PARENT.equals(value)) {
                 return true;
@@ -212,18 +240,7 @@ public class NavBuilder extends NavManager {
                 return true;
             }
 
-            boolean filter = !Application.getPrivilegesManager().allowRead(
-                    user, MetadataHelper.getEntity(value).getEntityCode());
-            if (filter) return true;
-
-            // v4.0: 修订使用实体图标
-            String icon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
-            if ("texture".equals(icon)) {
-                icon = EasyMetaFactory.valueOf(value).getIcon();
-                if (!(StringUtils.isBlank(icon) || "texture".equals(icon))) item.put("icon", icon);
-            }
-
-            return false;
+            return !Application.getPrivilegesManager().allowRead(user, getEntity(value).getEntityCode());
 
         } else if ("URL".equals(type)) {
             value = PageTokenVerify.replacePageToken(value, user);
@@ -252,13 +269,30 @@ public class NavBuilder extends NavManager {
             if (bindEntity != null && MetadataHelper.containsEntity(bindEntity)) {
                 item.put("value", bindUrl);
 
-                Entity e = MetadataHelper.getEntity(bindEntity);
+                Entity e = getEntity(bindEntity);
                 if (e.getMainEntity() != null) e = e.getMainEntity();
                 return !Application.getPrivilegesManager().allowRead(user, e.getEntityCode());
             }
         }
 
         return false;
+    }
+
+    /**
+     * 菜单图标兜底
+     *
+     * @param item
+     * @param value
+     */
+    private static void fixNavIcon(JSONObject item, String value) {
+        String icon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
+        if (!"texture".equals(icon)) return;
+
+        String fix = NAV_BUILTIN_ICONS.get(value);
+        if (fix == null && MetadataHelper.containsEntity(value)) {
+            fix = EasyMetaFactory.valueOf(value).getIcon();
+        }
+        if (StringUtils.isNotBlank(fix) && !"texture".equals(fix)) item.put("icon", fix);
     }
 
     /**

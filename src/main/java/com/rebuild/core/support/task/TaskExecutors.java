@@ -164,7 +164,7 @@ public class TaskExecutors extends DistributedJobLock {
             try {
                 command.run();
             } catch (Throwable ex) {
-                log.error("Command run fails", ex);
+                log.error("Command run failed", ex);
             }
         }, delayInMs, TimeUnit.MILLISECONDS);
     }
@@ -183,7 +183,7 @@ public class TaskExecutors extends DistributedJobLock {
             try {
                 command.run();
             } catch (Throwable ex) {
-                log.error("Command run fails : {}", keyCancel, ex);
+                log.error("Command run failed : {}", keyCancel, ex);
             } finally {
                 SCHEDULED_CANCELS43.remove(keyCancel);
             }
@@ -207,7 +207,7 @@ public class TaskExecutors extends DistributedJobLock {
             try {
                 command.run();
             } catch (Throwable ex) {
-                log.error("Command run fails", ex);
+                log.error("Command run failed", ex);
             }
         }, delayInMs, periodInMs, TimeUnit.MILLISECONDS);
     }

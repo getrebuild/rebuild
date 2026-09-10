@@ -122,15 +122,11 @@ public class DataListManager extends BaseLayoutManager {
 
         // 默认配置
         if (config == null) {
+            // v4.5 无配置使用全部字段（名称字段置顶）
             columnList.add(formatField(namedField));
-
-            if (!StringUtils.equalsIgnoreCase(namedField.getName(), EntityHelper.CreatedBy)
-                    && entityMeta.containsField(EntityHelper.CreatedBy)) {
-                columnList.add(formatField(entityMeta.getField(EntityHelper.CreatedBy)));
-            }
-            if (!StringUtils.equalsIgnoreCase(namedField.getName(), EntityHelper.CreatedOn)
-                    && entityMeta.containsField(EntityHelper.CreatedOn)) {
-                columnList.add(formatField(entityMeta.getField(EntityHelper.CreatedOn)));
+            for (Field field : MetadataSorter.sortFields(entityMeta)) {
+                if (namedField.equals(field)) continue;
+                columnList.add(formatField(field));
             }
 
         } else {

@@ -1,0 +1,366 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>LOG VIEWER</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        background-color: #14171c;
+        color: #e6edf3;
+        overflow: hidden;
+      }
+      .rb-logview {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 14px 18px 10px;
+        position: relative;
+      }
+      .rb-logview .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        background-color: #1c2129;
+        border: 1px solid #2d333b;
+        border-radius: 8px;
+      }
+      .rb-logview .toolbar .form-control {
+        width: auto;
+        background-color: #22272e;
+        border-color: #373e47;
+        color: #e6edf3;
+        font-family: inherit;
+      }
+      .rb-logview .toolbar select.form-control,
+      .rb-logview .toolbar input.form-control {
+        min-width: 220px;
+      }
+      .rb-logview .toolbar label {
+        margin: 0;
+        padding: 4px 6px;
+        cursor: pointer;
+        user-select: none;
+        color: #9aa7b3;
+      }
+      .rb-logview .toolbar input[type='checkbox'] {
+        accent-color: #4c8dff;
+      }
+      .rb-logview .toolbar .meta {
+        margin-left: auto;
+        color: #8b949e;
+      }
+      .rb-logview .out {
+        flex: 1;
+        overflow: auto;
+        overflow-anchor: none;
+        margin-top: 10px;
+        padding: 8px 4px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        line-height: 1.6;
+        font-size: 12px;
+      }
+      .rb-logview .out::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .rb-logview .out::-webkit-scrollbar-thumb {
+        background-color: #30363d;
+        border-radius: 4px;
+      }
+      .rb-logview .out::-webkit-scrollbar-thumb:hover {
+        background-color: #3d444d;
+      }
+      .rb-logview .out::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+      .rb-logview .out div {
+        padding: 0 6px;
+        border-radius: 3px;
+      }
+      .rb-logview .out div:hover {
+        background-color: rgba(255, 255, 255, 0.06);
+      }
+      .rb-logview .out .lv-error {
+        color: #f85149;
+      }
+      .rb-logview .out .lv-warn {
+        color: #d29922;
+      }
+      .rb-logview .out .lv-info {
+        color: #58a6ff;
+      }
+      .rb-logview .out .lv-debug {
+        color: #8b949e;
+      }
+      .rb-logview .filemeta {
+        padding-top: 8px;
+        margin-top: 4px;
+        border-top: 1px solid #21262d;
+        color: #6e7681;
+      }
+      #logScrollTip {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 48px;
+        background-color: rgba(28, 33, 41, 0.92);
+        color: #e6edf3;
+        border: 1px solid #373e47;
+        padding: 5px 18px;
+        border-radius: 16px;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        transition: background-color 0.15s;
+        z-index: 10;
+      }
+      #logScrollTip:hover {
+        background-color: rgba(43, 49, 58, 0.95);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-logview">
+      <div class="toolbar">
+        <select id="logFileSelect" class="form-control form-control-sm"></select>
+        <select id="logLinesSelect" class="form-control form-control-sm">
+          <option value="500">tail: 500</option>
+          <option value="1000">tail: 1000</option>
+          <option value="2000">tail: 2000</option>
+          <option value="3000">tail: 3000</option>
+          <option value="5000">tail: 5000</option>
+        </select>
+        <select id="logLevelSelect" class="form-control form-control-sm">
+          <option value="">level: ALL</option>
+          <option value="DEBUG">level: DEBUG+</option>
+          <option value="INFO">level: INFO+</option>
+          <option value="WARN">level: WARN+</option>
+          <option value="ERROR">level: ERROR</option>
+        </select>
+        <input type="text" id="logKeyword" class="form-control form-control-sm" placeholder="Keyword filter ..." />
+        <button type="button" id="logSearchBtn" class="btn btn-success">SEARCH</button>
+        <button type="button" id="logRefreshBtn" class="btn btn-light">REFRESH</button>
+        <button type="button" id="logDownloadBtn" class="btn btn-light">DOWNLOAD</button>
+        <span class="meta">
+          <label><input type="checkbox" id="logAutoRefresh" class="mr-1 down-1" style="min-width: auto" /> Follow</label>
+          <span id="logMeta"></span>
+        </span>
+      </div>
+      <div class="out" id="logContent"></div>
+      <div id="logScrollTip" class="hide">AUTO-SCROLL PAUSED, CLICK TO BOTTOM</div>
+      <div class="filemeta" id="logFileMeta"></div>
+    </div>
+
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      let LOG_loaded = false
+      let LOG_autoScroll = true
+      let LOG_tailTimer = null
+      let LOG_pos = null
+      let LOG_tailing = false
+
+      function logFileSize(size) {
+        if (size >= 1024 * 1024 * 1024) return (size / 1024 / 1024 / 1024).toFixed(2) + ' GB'
+        if (size >= 1024 * 1024) return (size / 1024 / 1024).toFixed(2) + ' MB'
+        if (size >= 1024) return (size / 1024).toFixed(2) + ' KB'
+        return size + ' B'
+      }
+
+      function loadLogFiles(callback) {
+        $.get('admin-logview/files', function (res) {
+          if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+          const $select = $('#logFileSelect')
+          const current = $select.val()
+          $select.empty()
+          const files = res.data || []
+          files.forEach((f) => {
+            const label = `${f.name}  (${logFileSize(f.size)}, ${moment(f.modifiedOn).format('YYYY-MM-DD HH:mm:ss')})`
+            $select.append($('<option>').val(f.name).attr('data-meta', label).text(f.name))
+          })
+          if (files.length > 0) {
+            $select.val(files.some((f) => f.name === current) ? current : files[0].name)
+          }
+          typeof callback === 'function' && callback()
+        })
+      }
+
+      function levelClass(line) {
+        if (/(^|\s)(ERROR|FATAL)(\s|$)/.test(line)) return 'lv-error'
+        if (/(^|\s)WARN(\s|$)/.test(line)) return 'lv-warn'
+        if (/(^|\s)INFO(\s|$)/.test(line)) return 'lv-info'
+        if (/(^|\s)(DEBUG|TRACE)(\s|$)/.test(line)) return 'lv-debug'
+        return ''
+      }
+
+      function loadLogContent() {
+        const file = $('#logFileSelect').val()
+        if (!file) return
+
+        const params = {
+          file: file,
+          lines: $('#logLinesSelect').val(),
+          q: $('#logKeyword').val().trim(),
+          level: $('#logLevelSelect').val(),
+        }
+        $('#logMeta').text('loading ...')
+        $.get('admin-logview/content', params, function (res) {
+          if (res.error_code !== 0) {
+            $('#logMeta').text('')
+            return RbHighbar.error(res.error_msg)
+          }
+          const lines = res.data || []
+          const $content = $('#logContent')
+          $content.empty()
+          const frag = document.createDocumentFragment()
+          lines.forEach((line) => {
+            const div = document.createElement('div')
+            const clazz = levelClass(line)
+            if (clazz) div.className = clazz
+            div.textContent = line
+            frag.appendChild(div)
+          })
+          $content.append(frag)
+          if (lines.length === 0) {
+            $content.append($('<div class="lv-debug">').text('no matched logs'))
+          }
+          $('#logMeta').text(`${lines.length} lines`)
+          $('#logFileMeta').text($('#logFileSelect option:selected').attr('data-meta') || '')
+          LOG_autoScroll = true
+          $('#logScrollTip').addClass('hide')
+          const el = $content[0]
+          el.scrollTop = el.scrollHeight
+        })
+      }
+
+      function appendEntry(text) {
+        const el = document.getElementById('logContent')
+        const frag = document.createDocumentFragment()
+        text.split('\n').forEach((line) => {
+          const div = document.createElement('div')
+          const clazz = levelClass(line)
+          if (clazz) div.className = clazz
+          div.textContent = line
+          frag.appendChild(div)
+        })
+        el.appendChild(frag)
+        if (LOG_autoScroll) {
+          if (el.childElementCount > 3000) {
+            while (el.childElementCount > 2500) el.removeChild(el.firstElementChild)
+          }
+          el.scrollTop = el.scrollHeight
+        } else if (el.childElementCount > 20000) {
+          const heightBefore = el.scrollHeight
+          while (el.childElementCount > 15000) el.removeChild(el.firstElementChild)
+          el.scrollTop = Math.max(0, el.scrollTop - (heightBefore - el.scrollHeight))
+        }
+      }
+
+      // Incremental polling follow: fetch new logs since last pos every 1s
+      function pollTail() {
+        if (LOG_tailing) return // Previous request still pending, skip
+        const file = $('#logFileSelect').val()
+        if (!file) return
+
+        const params = {
+          file: file,
+          q: $('#logKeyword').val().trim(),
+          level: $('#logLevelSelect').val(),
+        }
+        if (LOG_pos != null) params.pos = LOG_pos
+
+        LOG_tailing = true
+        $.get('admin-logview/tail', params, function (res) {
+          if (res.error_code !== 0) {
+            $('#logMeta').text('follow error: ' + res.error_msg)
+            return
+          }
+          $('#logMeta').text('following ...')
+          LOG_pos = res.data.pos
+          const lines = res.data.lines || []
+          if (lines.length > 0) appendEntry(lines.join('\n'))
+        })
+          .fail(function () {
+            $('#logMeta').text('follow error: request failed')
+          })
+          .always(function () {
+            LOG_tailing = false
+          })
+      }
+
+      function openFollow() {
+        closeFollow()
+        const file = $('#logFileSelect').val()
+        if (!file) return
+        LOG_pos = null // First request gets current tail pos, then only fetch new data
+        $('#logMeta').text('connecting ...')
+        pollTail()
+        LOG_tailTimer = setInterval(pollTail, 1000)
+      }
+
+      function closeFollow() {
+        if (LOG_tailTimer) {
+          clearInterval(LOG_tailTimer)
+          LOG_tailTimer = null
+        }
+        LOG_pos = null
+      }
+
+      $(function () {
+        loadLogFiles(function () {
+          LOG_loaded = true
+          loadLogContent()
+          // Initial scroll to bottom
+          const el = $('#logContent')[0]
+          el.scrollTop = el.scrollHeight
+        })
+
+        $('#logSearchBtn').on('click', function () {
+          loadLogContent()
+          if ($('#logAutoRefresh').is(':checked')) openFollow()
+        })
+        $('#logRefreshBtn').on('click', function () {
+          loadLogFiles(function () {
+            loadLogContent()
+            if ($('#logAutoRefresh').is(':checked')) openFollow()
+          })
+        })
+        $('#logDownloadBtn').on('click', function () {
+          const file = $('#logFileSelect').val()
+          if (!file) return
+          window.open('admin-download?type=log&file=' + encodeURIComponent(file))
+        })
+        $('#logKeyword').on('keydown', function (e) {
+          if (e.key === 'Enter') $('#logSearchBtn').click()
+        })
+        $('#logFileSelect, #logLinesSelect, #logLevelSelect').on('change', function () {
+          if (!LOG_loaded) return
+          loadLogContent()
+          if ($('#logAutoRefresh').is(':checked')) openFollow()
+        })
+        $('#logAutoRefresh').on('change', function () {
+          if (this.checked) openFollow()
+          else closeFollow()
+        })
+
+        // Pause auto-scroll when scrolling up, resume when back to bottom
+        $('#logContent').on('scroll', function () {
+          const nearBottom = this.scrollHeight - this.scrollTop - this.clientHeight < 40
+          LOG_autoScroll = nearBottom
+          $('#logScrollTip').toggleClass('hide', nearBottom)
+        })
+        $('#logScrollTip').on('click', function () {
+          const el = $('#logContent')[0]
+          el.scrollTop = el.scrollHeight
+          LOG_autoScroll = true
+          $(this).addClass('hide')
+        })
+      })
+    </script>
+  </body>
+</html>

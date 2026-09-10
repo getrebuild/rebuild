@@ -305,7 +305,8 @@ const dlgShow = (t, props) => {
       dlgRefs[t] = this
     })
   } else if (t === 'DashSelect') {
-    renderRbcomp(<DashSelect {...props} />, function () {
+    const data = (props.dashList || []).map((item) => ({ id: item[0], text: item[4] }))
+    renderRbcomp(<SelectList title={$L('选择仪表盘')} data={data} call={(item) => (location.href = `?d=${item.id}`)} />, function () {
       dlgRefs[t] = this
     })
   }
@@ -612,45 +613,6 @@ class DlgDashAdd extends RbFormHandler {
       else RbHighbar.error(res.error_msg)
     })
   }
-}
-
-// 选择默认仪表盘
-class DashSelect extends React.Component {
-  render() {
-    return (
-      <div className="modal select-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <div>
-                <ul className="list-unstyled">
-                  {(this.props.dashList || []).map((item) => {
-                    return (
-                      <li key={item[0]}>
-                        <a href={`?d=${item[0]}`}>
-                          {item[4]}
-                          <i className="icon zmdi zmdi-arrow-right" />
-                        </a>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount = () => $(this._dlg).modal({ show: true, keyboard: true })
-  hide = () => $(this._dlg).modal('hide')
-  show = () => $(this._dlg).modal('show')
 }
 
 class AdvFilterWithEntity extends AdvFilter {

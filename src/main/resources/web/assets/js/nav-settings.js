@@ -72,7 +72,7 @@ $(document).ready(() => {
       $('.J_menuIcon>i').attr('class', use_icon(s))
       parent.RbModal.hide()
     }
-    parent.RbModal.create('/p/common/search-icon', $L('选择图标'), { zIndex: 1051 })
+    parent.RbModal.create('/p/common/search-icon', $L('选择图标'))
   })
 
   const $filter = $('.J_bindFilter>a').on('click', (e) => {

@@ -134,7 +134,7 @@ public class ApprovalHelper {
             String realFields = userField.split("\\$\\.")[1];
             Field lastField = MetadataHelper.getLastJoinField(MetadataHelper.getEntity(EntityHelper.User), realFields);
             if (lastField == null) {
-                log.warn("No field of virtual found : {}", userField);
+                log.warn("No virtual field found : {}", userField);
             }
             return lastField;
         }

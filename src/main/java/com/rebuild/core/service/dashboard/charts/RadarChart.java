@@ -43,9 +43,11 @@ public class RadarChart extends ChartData {
 
         Map<Numerical, Object[]> seriesRotate = new LinkedHashMap<>();
         List<String> dataFlags = new ArrayList<>();
+        List<String> dataColors = new ArrayList<>();
         for (Numerical n : nums) {
             seriesRotate.put(n, new Object[dataRaw.length]);
             dataFlags.add(getNumericalFlag(n));
+            dataColors.add(n.getColor());
         }
 
         JSONObject renderOption = config.getJSONObject("option");
@@ -77,6 +79,7 @@ public class RadarChart extends ChartData {
         }
 
         renderOption.put("dataFlags", dataFlags);
+        renderOption.put("dataColors", dataColors);
 
         return JSONUtils.toJSONObject(
                 new String[]{"indicator", "series", "_renderOption"},
