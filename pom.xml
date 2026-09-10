@@ -211,6 +211,7 @@
             <id>alimaven2</id>
             <name>public</name>
             <url>https://maven.aliyun.com/repository/public</url>
+            <releases><checksumPolicy>ignore</checksumPolicy></releases>
         </repository>
         <!-- Unpublished libs can be found on https://github.com/devezhao/ -->
         <repository>
