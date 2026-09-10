@@ -11,7 +11,7 @@
 [![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![Docker Image Version](https://img.shields.io/docker/v/getrebuild/rebuild?label=Docker%20Image)](https://www.getrebuild.com/learn/install-use-docker)
 
-[在线体验](https://nightly.getrebuild.com/) · [下载安装](https://getrebuild.com/download) · [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.4) · [更多介绍](https://getrebuild.com/learn/declaration)
+[在线体验](https://nightly.getrebuild.com/) · [下载安装](https://getrebuild.com/download) · [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.5) · [更多介绍](https://getrebuild.com/learn/declaration)
 
 </div>
 
@@ -119,18 +119,18 @@ REBUILD uses the GPL-3.0 open source license and commercial license dual license
 
 如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 REBUILD 可持续发展。除了可享有全部功能以外，还可以得到更高级别的技术支持服务。非常感谢！
 
-## V4.4 新特性
+## V4.5 新特性
 
 本次更新为你带来众多功能增强与优化。
 
-1. [新增] 记录锁定与提示功能
-2. [新增] 手机版支持自定义操作
-3. [新增] AI 助手支持文件上传分析、Token 用量统计等
-4. [新增] 审批中心功能
-5. [新增] 多个触发器计算公式函数
-6. [新增] 多个 FrontJS 函数
-7. [优化] 新版登录页
-8. [优化] 30+ 细节/BUG/安全性更新
+1. [新增] AI 助手架构全面升级，支持独立窗口模式
+2. [新增] AI 工具集，通过会话即可完成实体/字段管理、自动化、数据操作、流程管理、报表导出等 30+ 工具
+3. [新增] AI 支持自定义 Skill 技能与知识库问答（上传企业文档构建私有知识）
+4. [新增] AI 支持 MCP 协议，可作为 MCP 服务端供外部 AI 客户端调用
+5. [新增] 图表新增词云、排行榜，数值支持配色
+6. [新增] 业务实体表单图片/附件字段支持粘贴上传
+7. [新增] 记录转换支持字段自动映射
+8. [新增] 手机版集成 AI 助手、暗黑主题
 9. ...
 
-更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.4)
+更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.5)

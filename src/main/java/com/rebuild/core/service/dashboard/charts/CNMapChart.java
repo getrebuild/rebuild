@@ -40,7 +40,7 @@ public class CNMapChart extends ChartData {
         Field locationOrDqClazz = dim1.getField();
         EasyField easyField = EasyMetaFactory.valueOf(locationOrDqClazz);
         if (easyField.getDisplayType() != DisplayType.LOCATION) {
-            throw new DefinedException("“地图”仅支持位置字段");
+            throw new DefinedException(Language.L("选择的字段不适用于此图表"));
         }
 
         String sql = buildSql();
