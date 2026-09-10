@@ -454,6 +454,7 @@ class RbAlertFree43 extends RbAlert {
   }
 
   static create(message) {
+    if (!message) message = $L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')
     if (typeof message === 'string') message = WrapHtml(message)
     renderRbcomp(<RbAlertFree43 message={message} width="480" />)
   }

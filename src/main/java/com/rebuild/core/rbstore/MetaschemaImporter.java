@@ -39,7 +39,9 @@ import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,6 +67,9 @@ public class MetaschemaImporter extends HeavyTask<String> {
     private Map<Field, JSONObject> picklistHolders = new HashMap<>();
 
     private boolean needClearContextHolder = false;
+
+    @Setter
+    private String importTag;
 
     /**
      * @param data
@@ -196,18 +201,18 @@ public class MetaschemaImporter extends HeavyTask<String> {
 
     /**
      * @param schema
-     * @param mainEntity
+     * @param useMainEntity
      * @return
      * @throws MetadataModificationException
      */
-    private String performEntity(JSONObject schema, String mainEntity) throws MetadataModificationException {
+    private String performEntity(JSONObject schema, String useMainEntity) throws MetadataModificationException {
         final int entityCode = schema.getIntValue("entityCode");
         final String entityName = schema.getString("entity");
         final String entityLabel = schema.getString("entityLabel");
 
         Entity2Schema entity2Schema = new Entity2Schema(this.getUser(), entityCode);
         entity2Schema.createEntity(
-                entityName, entityLabel, schema.getString("comments"), mainEntity, Boolean.FALSE, Boolean.FALSE);
+                entityName, entityLabel, schema.getString("comments"), useMainEntity, Boolean.FALSE, Boolean.FALSE);
 
         Entity newEntity = MetadataHelper.getEntity(entityName);
         this.setCompleted((int) (this.getCompleted() * 1.5));
@@ -253,9 +258,17 @@ public class MetaschemaImporter extends HeavyTask<String> {
         if (entityIcon != null) {
             needUpdate.setString("icon", entityIcon);
         }
+
+        JSONObject extConfig = new JSONObject();
         String quickFields = schema.getString("quickFields");
         if (quickFields != null) {
-            needUpdate.setString("extConfig", JSONUtils.toJSONObject("quickFields", quickFields).toJSONString());
+            extConfig.put("quickFields", quickFields);
+        }
+        if (useMainEntity == null && StringUtils.isNotBlank(this.importTag)) {
+            extConfig.put("tags", this.importTag);
+        }
+        if (!extConfig.isEmpty()) {
+            needUpdate.setString("extConfig", extConfig.toJSONString());
         }
 
         if (needUpdate.getAvailableFieldIterator().hasNext()) {

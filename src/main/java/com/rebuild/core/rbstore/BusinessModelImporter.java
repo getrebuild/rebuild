@@ -14,6 +14,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.CommonsUtils;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -35,14 +36,12 @@ import java.util.Set;
 @Slf4j
 public class BusinessModelImporter extends HeavyTask<Integer> {
 
+    @Setter
     private String[] modelFiles;
     private List<String> createdEntity = new ArrayList<>();
 
     private JSONArray indexSchemas;
-
-    public void setModelFiles(String[] modelFiles) {
-        this.modelFiles = modelFiles;
-    }
+    private JSONObject indexTypes;
 
     @Override
     protected Integer exec() {
@@ -59,7 +58,9 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
                         ? (JSONObject) RBStore.fetchRemoteJson(fileUrl)
                         : (JSONObject) RBStore.fetchMetaschema(fileUrl);
 
-                String created = new MetaschemaImporter(data).exec();
+                MetaschemaImporter importer = new MetaschemaImporter(data);
+                importer.setImportTag(findTypeGroup(data.getString("entity")));
+                String created = importer.exec();
                 createdEntity.add(created);
                 log.info("Entity imported : {}", created);
                 this.addSucceeded();
@@ -101,6 +102,7 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
         if (indexSchemas == null) {
             JSONObject index = (JSONObject) RBStore.fetchMetaschema(null);
             this.indexSchemas = index.getJSONArray("schemas");
+            this.indexTypes = index.getJSONObject("types");
         }
 
         Set<String> refs = new HashSet<>();
@@ -152,6 +154,30 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
             }
         }
         throw new RebuildException("No metaschema found : " + key);
+    }
+
+    /**
+     * 查找实体在 RB 仓库索引中的分组名
+     *
+     * @param entityKey
+     * @return
+     */
+    private String findTypeGroup(String entityKey) {
+        if (indexTypes == null || entityKey == null) return null;
+
+        List<String> groups = new ArrayList<>();
+        for (Map.Entry<String, Object> e : indexTypes.entrySet()) {
+            Object v = e.getValue();
+            if (v instanceof JSONArray) {
+                for (Object o : (JSONArray) v) {
+                    if (entityKey.equalsIgnoreCase(String.valueOf(o))) {
+                        groups.add(e.getKey());
+                        break;
+                    }
+                }
+            }
+        }
+        return groups.isEmpty() ? null : String.join(",", groups);
     }
 
     /**
