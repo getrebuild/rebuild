@@ -73,8 +73,8 @@
           <small th:if="${shareByName != null}" class="text-muted fs-12"><b> · </b>[[${bundle.L('由 %s 分享', shareByName)}]]</small>
         </div>
       </h1>
-      <div class="rb-loading rb-loading-active must-center J_load-page">
-        <th:block th:replace="~{/_include/spinner}" />
+      <div class="must-center spinner-loading">
+        <div class="spinner"></div>
       </div>
       <div class="chat-messages J_content hide"></div>
     </div>
