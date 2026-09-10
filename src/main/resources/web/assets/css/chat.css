@@ -553,7 +553,8 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   position: relative;
 }
 
-.rich-fullscreen-btn {
+.rich-fullscreen-btn,
+.rich-download-btn {
   position: absolute;
   top: 4px;
   right: 4px;
@@ -568,9 +569,16 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   font-size: 16px;
 }
 
+.rich-download-btn {
+  right: 32px;
+}
+
 .chat-message .msg-text .echarts-rendered:hover .rich-fullscreen-btn,
+.chat-message .msg-text .echarts-rendered:hover .rich-download-btn,
 .chat-message .msg-text .mermaid:hover .rich-fullscreen-btn,
-.chat-message .msg-text .html-rendered:hover .rich-fullscreen-btn {
+.chat-message .msg-text .mermaid:hover .rich-download-btn,
+.chat-message .msg-text .html-rendered:hover .rich-fullscreen-btn,
+.chat-message .msg-text .html-rendered:hover .rich-download-btn {
   opacity: 1;
 }
 
@@ -609,7 +617,8 @@ body:has(.preview-modal.rich-preview) {
   max-height: 100%;
 }
 
-.preview-modal.rich-preview .preview-body .rich-fullscreen-btn {
+.preview-modal.rich-preview .preview-body .rich-fullscreen-btn,
+.preview-modal.rich-preview .preview-body .rich-download-btn {
   display: none;
 }
 

@@ -811,7 +811,7 @@ class RichContent extends React.Component {
         $setTimeout(
           () => {
             $el.find('.mermaid:not(.has-fs-btn)').each(function () {
-              self._attachFullscreenBtn($(this))
+              self._attachActionBtns($(this))
             })
           },
           300,
@@ -828,11 +828,11 @@ class RichContent extends React.Component {
     $nodes.each(function () {
       const $node = $(this)
       $node.addClass('html-rendered')
-      const html = $node.text() // textContent 自动解码 &lt; 等
+      const html = $node.text()
       const $iframe = $('<iframe></iframe>').attr({ sandbox: 'allow-scripts' })
       $node.empty().append($iframe)
       $iframe[0].srcdoc = html
-      self._attachFullscreenBtn($node)
+      self._attachActionBtns($node)
     })
   }
 
@@ -859,9 +859,10 @@ class RichContent extends React.Component {
         $node.addClass('echarts-rendered').empty()
         try {
           const chart = echarts.init($node[0])
+          option.color = RBCOLORS
           chart.setOption(option)
           $node.data('echarts-instance', chart)
-          self._attachFullscreenBtn($node)
+          self._attachActionBtns($node)
         } catch (err) {
           console.error('ECharts render error :', err)
           $node.removeClass('echarts-rendered')
@@ -870,16 +871,71 @@ class RichContent extends React.Component {
     })
   }
 
-  _attachFullscreenBtn($node) {
+  _attachActionBtns($node) {
     if (!$node || !$node.length || $node.hasClass('has-fs-btn')) return
     $node.addClass('has-fs-btn')
-    const $btn = $('<a class="rich-fullscreen-btn"><i class="mdi mdi-fullscreen"></i></a>')
+    const $btn = $('<a class="rich-fullscreen-btn"><i class="mdi mdi-fullscreen fs-17"></i></a>')
     $btn.attr('title', $L('全屏'))
     $node.append($btn)
     $btn.on('click', (e) => {
       $stopEvent(e, true)
       RbPreview.create($node)
     })
+
+    const $dl = $('<a class="rich-download-btn"><i class="mdi mdi-download"></i></a>')
+    $dl.attr('title', $L('下载'))
+    $node.append($dl)
+    $dl.on('click', (e) => {
+      $stopEvent(e, true)
+      this._downloadRich($node)
+    })
+  }
+
+  _downloadRich($node) {
+    const chart = $node.data('echarts-instance')
+    if (chart) {
+      const base64 = chart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' })
+      const $a = document.createElement('a')
+      $a.href = base64
+      $a.download = '图表.png'
+      $a.click()
+      return
+    }
+
+    const svg = $node.find('svg')[0]
+    if (svg) {
+      const xml = new XMLSerializer().serializeToString(svg)
+      const img = new Image()
+      img.onload = () => {
+        const rect = svg.getBoundingClientRect()
+        const w = (rect.width || 800) * 4
+        const h = (rect.height || 600) * 4
+        const canvas = document.createElement('canvas')
+        canvas.width = w
+        canvas.height = h
+        const ctx = canvas.getContext('2d')
+        ctx.fillStyle = '#fff'
+        ctx.fillRect(0, 0, w, h)
+        ctx.drawImage(img, 0, 0, w, h)
+        const $a = document.createElement('a')
+        $a.href = canvas.toDataURL('image/png')
+        $a.download = '图表.png'
+        $a.click()
+      }
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml)
+      return
+    }
+
+    const iframe = $node.find('iframe')[0]
+    if (iframe && iframe.srcdoc) {
+      const blob = new Blob([iframe.srcdoc], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      const $a = document.createElement('a')
+      $a.href = url
+      $a.download = '网页.html'
+      $a.click()
+      URL.revokeObjectURL(url)
+    }
   }
 
   _fallbackSource($node, lang) {
