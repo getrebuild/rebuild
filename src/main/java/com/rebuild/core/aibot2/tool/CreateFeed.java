@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.tool;
 
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -15,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.service.feeds.FeedsScope;
 import com.rebuild.core.service.feeds.FeedsService;
 import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.utils.CommonsUtils;
@@ -58,10 +60,7 @@ public class CreateFeed implements Tool {
         record.setInt("type", type);
         record.setString("content", content);
 
-        String scope = args.getString("scope");
-        if (StringUtils.isNotBlank(scope)) {
-            record.setString("scope", scope);
-        }
+        record.setString("scope", resolveScope(args.getString("scope")));
 
         // 图片（支持单个 fileKey 字符串或数组）
         String imagesStr = ToolHelper.resolveFileKeys(args.get("images"));
@@ -112,5 +111,44 @@ public class CreateFeed implements Tool {
                 new String[]{"status", "id", "message"},
                 new Object[]{"ok", record.getPrimary().toLiteral(),
                         String.format("已成功发布%s，ID: %s", typeName, record.getPrimary())});
+    }
+
+    /**
+     * 校验并规范化可见范围。scope 直接落库，非法值会让该条动态在后续读取（FeedsHelper.checkReadable）时抛异常
+     *
+     * @param scope
+     * @return
+     */
+    private String resolveScope(String scope) {
+        scope = StringUtils.trimToNull(scope);
+        if (scope == null) {
+            return FeedsScope.ALL.name();  // 与前端发布动态的默认可见范围一致
+        }
+
+        if (ID.isId(scope)) {
+            ID teamId = ID.valueOf(scope);
+            if (teamId.getEntityCode() != EntityHelper.Team) {
+                throw new KnownToolException("scope 为团队 ID 时必须是团队 (Team) 的 ID : " + scope);
+            }
+            if (!Application.getUserStore().existsAny(teamId)) {
+                throw new KnownToolException("团队不存在 : " + scope);
+            }
+            Team team = Application.getUserStore().getTeam(teamId);
+            if (!team.isMember(UserContextHolder.getUser())) {
+                throw new KnownToolException("你不是团队 [" + team.getName() + "] 的成员，无法向其发布动态");
+            }
+            return teamId.toLiteral();
+        }
+
+        String parsed;
+        try {
+            parsed = FeedsScope.parse(scope).name();
+        } catch (IllegalArgumentException ex) {
+            throw new KnownToolException("无效的可见范围 (scope) : " + scope + "，可用值: ALL(公开), SELF(私密), 或团队 ID");
+        }
+        if (FeedsScope.GROUP.name().equals(parsed)) {
+            throw new KnownToolException("scope 为团队可见时必须传团队 ID，而非 GROUP 字面值");
+        }
+        return parsed;
     }
 }

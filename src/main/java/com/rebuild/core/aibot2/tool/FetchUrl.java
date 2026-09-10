@@ -74,8 +74,11 @@ public class FetchUrl implements Tool {
             String body = args.getString("body");
             Object postData = ObjectUtils.getIfNull(ToolHelper.parseJsonOrRaw(body), "");
             result = OkHttpUtils.post(url, postData, headers, REQ_TIMEOUT);
-        } else {
+        } else if ("GET".equals(method)) {
             result = OkHttpUtils.get(url, headers, null, REQ_TIMEOUT);
+        } else {
+            // JSON 的 enum 已限定 GET/POST，此处为服务端兜底，不能把 PUT/DELETE 静默当 GET 发出
+            throw new KnownToolException("不支持的请求方法 (method) : " + method + "，可用值: GET, POST");
         }
 
         if (result.length() > MAX_LEN) {

@@ -60,6 +60,12 @@ public class SearchHelp implements Tool {
             throw new KnownToolException("无法访问帮助文档，请稍后重试");
         }
 
+        // parseObject 对空串与字面量 null 返回 null 而不抛异常，不能留给下方 resp.get 触发 NPE
+        if (resp == null) {
+            log.error("Empty help search response : {}", keyword);
+            throw new KnownToolException("无法访问帮助文档，请稍后重试，或直接访问 " + DOCS_HOME);
+        }
+
         // error 非 0 表示服务异常（如搜索服务暂不可用）
         Object error = resp.get("error");
         if (error != null && !"0".equals(String.valueOf(error))) {

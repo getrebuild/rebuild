@@ -162,7 +162,7 @@ public class UserMemory implements Tool {
      */
     private String update(ID user, Integer no, String oldContent, String content, Integer level) {
         if (StringUtils.isBlank(content)) {
-            return "更新失败：请提供新内容（content）";
+            throw new KnownToolException("更新失败：请提供新内容（content）");
         }
 
         ConfigBean[] memories = AibotConfigManager.instance.getUserMemoryConfigs(user);
@@ -170,7 +170,8 @@ public class UserMemory implements Tool {
         if (no != null) {
             target = byNo(memories, no);
             if (target == null) {
-                return String.format("序号 %d 无效（当前共 %d 条记忆），请先通过 list 查看", no, memories.length);
+                throw new KnownToolException(String.format(
+                        "序号 %d 无效（当前共 %d 条记忆），请先通过 list 查看", no, memories.length));
             }
         } else {
             for (ConfigBean cb : memories) {
@@ -181,7 +182,8 @@ public class UserMemory implements Tool {
             }
         }
         if (target == null) {
-            return String.format("未找到内容为「%s」的记忆，请先通过 list 查看当前记忆", oldContent);
+            throw new KnownToolException(String.format(
+                    "未找到内容为「%s」的记忆，请先通过 list 查看当前记忆", oldContent));
         }
 
         String newContent = CommonsUtils.maxstr(StringUtils.trim(content), MAX_CONTENT_LENGTH);
@@ -211,7 +213,8 @@ public class UserMemory implements Tool {
         if (no != null) {
             ConfigBean target = byNo(memories, no);
             if (target == null) {
-                return String.format("序号 %d 无效（当前共 %d 条记忆），请先通过 list 查看", no, memories.length);
+                throw new KnownToolException(String.format(
+                        "序号 %d 无效（当前共 %d 条记忆），请先通过 list 查看", no, memories.length));
             }
             Application.getBean(AibotConfigService.class).delete(target.getID("id"));
             return String.format("已删除记忆：%s", target.getString("content"));
@@ -225,7 +228,8 @@ public class UserMemory implements Tool {
             }
         }
         if (deleted == 0) {
-            return String.format("未找到内容为「%s」的记忆，请先通过 list 查看当前记忆", content);
+            throw new KnownToolException(String.format(
+                    "未找到内容为「%s」的记忆，请先通过 list 查看当前记忆", content));
         }
 
         return String.format("已删除记忆：%s", content);

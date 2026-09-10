@@ -25,7 +25,7 @@
         },
         "scope": {
           "type": "string",
-          "description": "可见范围: ALL=公开(默认), SELF=私密, 或传入团队ID表示仅团队可见"
+          "description": "可见范围：ALL=公开、SELF=私密、或团队 ID（团队可见）；不填默认 ALL"
         },
         "images": {
           "type": ["string", "array"],

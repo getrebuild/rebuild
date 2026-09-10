@@ -88,12 +88,20 @@ public class CreateProjectTask implements Tool {
             record.setString("description", description);
         }
 
+        String executorName = null;
         String executor = args.getString("executor");
         if (StringUtils.isNotBlank(executor)) {
             ID executorId = ToolHelper.resolveUser(executor);
-            if (executorId != null) {
-                record.setID("executor", executorId);
+            // 解析失败不能静默跳过，否则任务已创建但无执行人，而成功消息会让模型告知用户「已指派」
+            if (executorId == null) {
+                throw new KnownToolException("未找到执行人 : " + executor + "，请提供用户 ID 或用户全名");
             }
+            if (!members.contains(executorId)) {
+                throw new KnownToolException("执行人 " + executor + " 不是项目 ["
+                        + projectConfig.getString("projectName") + "] 的成员");
+            }
+            record.setID("executor", executorId);
+            executorName = Application.getUserStore().getUser(executorId).getFullName();
         }
 
         // 附件（支持单个 fileKey 字符串或数组）
@@ -111,8 +119,9 @@ public class CreateProjectTask implements Tool {
         return JSONUtils.toJSONObject(
                 new String[]{"status", "id", "taskNumber", "message"},
                 new Object[]{"ok", record.getPrimary().toLiteral(), taskNo,
-                        String.format("已成功创建任务 [%s]，编号: %s，项目: %s",
-                                taskName, taskNo, projectConfig.getString("projectName"))});
+                        String.format("已成功创建任务 [%s]，编号: %s，项目: %s%s",
+                                taskName, taskNo, projectConfig.getString("projectName"),
+                                executorName == null ? "" : "，执行人: " + executorName)});
     }
 
     /**
@@ -164,7 +173,12 @@ public class CreateProjectTask implements Tool {
         }
 
         if (ID.isId(planIdent)) {
-            return ID.valueOf(planIdent);
+            // 不校验归属会把任务挂到其他项目的面板上
+            ID planId = ID.valueOf(planIdent);
+            for (ConfigBean plan : plans) {
+                if (plan.getID("id").equals(planId)) return planId;
+            }
+            throw new KnownToolException("任务面板不属于该项目 : " + planIdent);
         }
 
         for (ConfigBean plan : plans) {

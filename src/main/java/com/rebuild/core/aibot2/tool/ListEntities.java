@@ -54,6 +54,11 @@ public class ListEntities implements Tool {
             throw new KnownToolException("未知实体 : " + entityIdent + ToolHelper.suggestEntity(entityIdent));
         }
 
+        // 口径与 listEntities 的过滤保持一致，否则非管理员可绕过列表直接取得组织实体的全部字段定义
+        if (!isEntityVisible(entity, UserHelper.isAdmin(UserContextHolder.getUser()))) {
+            throw new KnownToolException("实体 [" + entityIdent + "] 为系统/组织实体，仅管理员可查看其字段定义");
+        }
+
         JSONObject entityJson = EasyMetaFactory.toJSON(entity);
         entityJson.put("name", entity.getName());
         entityJson.put("label", EasyMetaFactory.getLabel(entity));
@@ -108,7 +113,7 @@ public class ListEntities implements Tool {
 
         JSONArray list = new JSONArray();
         for (Entity e : MetadataHelper.getEntities()) {
-            if (!MetadataHelper.isBusinessEntity(e) && !(isAdmin && MetadataHelper.isBizzEntity(e))) continue;
+            if (!isEntityVisible(e, isAdmin)) continue;
             if (e.getMainEntity() != null) continue;
 
             JSONObject item = new JSONObject();
@@ -134,5 +139,16 @@ public class ListEntities implements Tool {
         return JSONUtils.toJSONObject(
                 new String[]{"status", "entities"},
                 new Object[]{"ok", list});
+    }
+
+    /**
+     * 实体是否对当前用户可见。业务实体全部可见，用户/部门/角色/团队等组织实体仅管理员可见
+     *
+     * @param e
+     * @param isAdmin
+     * @return
+     */
+    private static boolean isEntityVisible(Entity e, boolean isAdmin) {
+        return MetadataHelper.isBusinessEntity(e) || (isAdmin && MetadataHelper.isBizzEntity(e));
     }
 }

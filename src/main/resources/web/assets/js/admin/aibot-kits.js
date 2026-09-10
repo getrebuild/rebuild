@@ -39,12 +39,12 @@ class KbList extends React.Component {
       let chunkBadge
       if (item.chunkCount > 0)
         chunkBadge = (
-          <span className="badge badge-light ml-1 up-1" title={$L('分片数量')}>
+          <span className="badge badge-light ml-1" title={$L('分片数量')}>
             {item.chunkCount}
           </span>
         )
-      else if (item.chunkCount === -1) chunkBadge = <span className="badge badge-warning ml-1 up-1">{$L('构建中')}</span>
-      else chunkBadge = <span className="badge badge-danger ml-1 up-1">{$L('构建失败')}</span>
+      else if (item.chunkCount === -1) chunkBadge = <span className="badge badge-warning ml-1">{$L('构建中')}</span>
+      else chunkBadge = <span className="badge badge-danger ml-1">{$L('构建失败')}</span>
 
       return (
         <tr key={item.id}>
@@ -552,11 +552,19 @@ class ToolList extends React.Component {
 
   render() {
     return this.props.data.map((item) => {
+      let desc = item.userDescription || item.description
+      const sysTool = desc && desc.includes('系统工具')
+      if (desc) {
+        desc = desc.replace('[系统工具]', '<span class="badge badge-dark">系统工具</span>')
+        desc = desc.replace('[商业工具]', '<span class="badge badge-warning">商业工具</span>')
+        desc = WrapHtml(desc)
+      }
+
       return (
         <tr key={item.name}>
           <td>{item.name}</td>
-          <td>{item.userDescription || item.description || <NoValue />}</td>
-          <td className="actions">{ShowEnable(item.disabled, item.name, (checked) => this._saveToolsDisabled(item.name, checked))}</td>
+          <td>{desc || <NoValue />}</td>
+          <td className="actions">{sysTool ? null : ShowEnable(item.disabled, item.name, (checked) => this._saveToolsDisabled(item.name, checked))}</td>
         </tr>
       )
     })

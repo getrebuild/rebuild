@@ -9,6 +9,7 @@ package com.rebuild.core.aibot2.tool;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
@@ -29,6 +30,8 @@ import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.ReportsFile;
 import com.rebuild.core.service.datareport.TemplateFile;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.support.CommonsLog;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -61,6 +64,11 @@ public class ExportReport implements Tool {
 
     // 内置数据导出（无报表模板，同系统列表页的数据导出）
     private static final String BUILTIN_DATA_EXPORT_ID = "DATA-EXPORT";
+
+    // 下载链接有效期。AI 对话中的链接会被记入会话历史，不宜过长（Web 端预览用一次性 token）
+    private static final int DOWNLOAD_TOKEN_EXPIRES = 30;
+
+    private static final String DOWNLOAD_HINT = "（链接 " + DOWNLOAD_TOKEN_EXPIRES + " 秒内有效，请尽快下载）";
 
     @Override
     public Object tool(String arguments) throws Exception {
@@ -108,7 +116,12 @@ public class ExportReport implements Tool {
         }
 
         if (ID.isId(record)) {
-            return exportReport(entity, reportId, tt, ID.valueOf(record));
+            ID rid = ID.valueOf(record);
+            if (rid.getEntityCode() != entity.getEntityCode()) {
+                throw new KnownToolException("记录 ID 与实体不匹配 : " + record
+                        + " 不属于 " + EasyMetaFactory.getLabel(entity));
+            }
+            return exportReport(entity, reportId, tt, rid);
         }
 
         return searchAndExport(entity, reportId, tt, record);
@@ -209,6 +222,11 @@ public class ExportReport implements Tool {
             throw new KnownToolException("无法输出报表，请检查报表模板是否有误");
         }
 
+        // 同 Web 端：写导出日志并累加导出次数（报表模板的 PH__EXPORTTIMES 占位符依赖该计数）
+        CommonsLog.createLog(CommonsLog.TYPE_REPORT, UserContextHolder.getUser(), reportId, recordId.toLiteral());
+        String timesKey = "REPORT-EXPORTTIMES:" + recordId + reportId;
+        KVStorage.setCustomValue(timesKey, ObjectUtils.toInt(KVStorage.getCustomValue(timesKey)) + 1);
+
         String fileName = DataReportManager.getPrettyReportName(reportId, recordId, output.getName());
         return buildDownloadResult(fileName, output);
     }
@@ -222,6 +240,11 @@ public class ExportReport implements Tool {
      * @return
      */
     private JSONObject exportListReport(Entity entity, ID reportId, String keyword, JSONArray filter, String equation) {
+        final ID user = UserContextHolder.getUser();
+        if (!Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport)) {
+            throw new KnownToolException("无数据导出权限");
+        }
+
         JSONObject queryData = buildListQueryData(entity, keyword, filter, equation);
 
         File output;
@@ -239,11 +262,22 @@ public class ExportReport implements Tool {
             throw new KnownToolException("无法输出报表，请检查报表模板是否有误");
         }
 
+        CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, reportId,
+                String.format("%s:%d", entity.getName(), exportCount));
+
         String fileName = DataReportManager.getPrettyReportName(reportId, entity.getName(), output.getName());
 
         JSONObject result = buildDownloadResult(fileName, output);
         result.put("exportCount", exportCount);
-        result.put("message", String.format("列表报表 [%s] 已生成，共导出 %d 条记录，[点击下载](%s)，请将此下载链接展示给用户", fileName, exportCount, result.getString("downloadUrl")));
+        // pageSize 即上限，达到时结果已被静默截断，必须显式告知模型
+        boolean truncated = exportCount >= MAX_LIST_EXPORT_ROWS;
+        if (truncated) result.put("truncated", true);
+        result.put("message", (truncated
+                ? String.format("列表报表 [%s] 已生成，已达单次导出上限 %d 条，结果可能不完整，请缩小过滤范围后分批导出，[点击下载](%s)，请将此下载链接展示给用户",
+                        fileName, MAX_LIST_EXPORT_ROWS, result.getString("downloadUrl"))
+                : String.format("列表报表 [%s] 已生成，共导出 %d 条记录，[点击下载](%s)，请将此下载链接展示给用户",
+                        fileName, exportCount, result.getString("downloadUrl")))
+                + DOWNLOAD_HINT);
         return result;
     }
 
@@ -300,6 +334,9 @@ public class ExportReport implements Tool {
             throw new KnownToolException("无法输出文件");
         }
 
+        CommonsLog.createLog(CommonsLog.TYPE_EXPORT, user, null,
+                String.format("%s:%d", entity.getName(), exportCount));
+
         String fileName = String.format("%s-%s.%s",
                 EasyMetaFactory.getLabel(entity),
                 CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
@@ -307,7 +344,14 @@ public class ExportReport implements Tool {
 
         JSONObject result = buildDownloadResult(fileName, output);
         result.put("exportCount", exportCount);
-        result.put("message", String.format("[%s] 数据导出已生成，共导出 %d 条记录，[点击下载](%s)，请将此下载链接展示给用户", EasyMetaFactory.getLabel(entity), exportCount, result.getString("downloadUrl")));
+        boolean truncated = exportCount >= MAX_LIST_EXPORT_ROWS;
+        if (truncated) result.put("truncated", true);
+        result.put("message", (truncated
+                ? String.format("[%s] 数据导出已生成，已达单次导出上限 %d 条，结果可能不完整，请缩小过滤范围后分批导出，[点击下载](%s)，请将此下载链接展示给用户",
+                        EasyMetaFactory.getLabel(entity), MAX_LIST_EXPORT_ROWS, result.getString("downloadUrl"))
+                : String.format("[%s] 数据导出已生成，共导出 %d 条记录，[点击下载](%s)，请将此下载链接展示给用户",
+                        EasyMetaFactory.getLabel(entity), exportCount, result.getString("downloadUrl")))
+                + DOWNLOAD_HINT);
         return result;
     }
 
@@ -380,7 +424,7 @@ public class ExportReport implements Tool {
 
         String fileUrl = String.format("/filex/download/%s?temp=yes&_csrfToken=%s&attname=%s",
                 CodecUtils.urlEncode(output.getName()),
-                AuthTokenManager.generateCsrfToken(90),
+                AuthTokenManager.generateCsrfToken(DOWNLOAD_TOKEN_EXPIRES),
                 CodecUtils.urlEncode(fileName));
         fileUrl = AppUtils.getContextPath(fileUrl);
 
@@ -388,7 +432,7 @@ public class ExportReport implements Tool {
         result.put("status", "ok");
         result.put("fileName", fileName);
         result.put("downloadUrl", fileUrl);
-        result.put("message", String.format("报表 [%s] 已生成，[点击下载](%s)，请将此下载链接展示给用户", fileName, fileUrl));
+        result.put("message", String.format("报表 [%s] 已生成，[点击下载](%s)，请将此下载链接展示给用户", fileName, fileUrl) + DOWNLOAD_HINT);
         return result;
     }
 }

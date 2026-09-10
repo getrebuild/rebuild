@@ -116,6 +116,10 @@ public class UpsertRecord implements Tool {
         ID userId = UserContextHolder.getUser();
 
         boolean isUpdate = StringUtils.isNotBlank(recordId) && ID.isId(recordId);
+        if (isUpdate && ID.valueOf(recordId).getEntityCode() != entity.getEntityCode()) {
+            throw new KnownToolException("记录 ID 与实体不匹配 : " + recordId
+                    + " 不属于 " + EasyMetaFactory.getLabel(entity));
+        }
         if (!isUpdate && !entity.isCreatable()) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许新建记录");
         }
@@ -165,7 +169,14 @@ public class UpsertRecord implements Tool {
                     detailMeta.put("entity", detailEntity.getName());
                 }
 
-                Entity detailEntity = MetadataHelper.getEntity(detailJson.getJSONObject("metadata").getString("entity"));
+                // 模型可能显式传入任意实体名，须校验其确为本主实体的明细
+                String detailEntityName = detailJson.getJSONObject("metadata").getString("entity");
+                Entity detailEntity = MetadataHelper.getEntity(detailEntityName);
+                if (detailEntity.getMainEntity() == null
+                        || !detailEntity.getMainEntity().getName().equals(entity.getName())) {
+                    throw new KnownToolException("明细实体 " + detailEntityName + " 不属于 "
+                            + EasyMetaFactory.getLabel(entity) + "，可用明细实体: " + listDetailEntityNames(entity));
+                }
                 JSONObject cleanedDetail = RecordDataCleaner.cleanPostData(detailEntity, detailJson);
                 detailsList.add(EntityHelper.parse(cleanedDetail, userId));
             }
@@ -210,7 +221,23 @@ public class UpsertRecord implements Tool {
                 }
             }
         }
-        return details[0];
+        // 多个明细且无法确定归属时不能默认取第一个，否则明细数据会静默写入错误的明细实体
+        throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(mainEntity) + "] 有多个明细实体，"
+                + "请在明细的 metadata.entity 中明确指定 : " + listDetailEntityNames(mainEntity));
+    }
+
+    /**
+     * 列出主实体的全部明细实体（名称与标签）
+     *
+     * @param mainEntity
+     * @return
+     */
+    private String listDetailEntityNames(Entity mainEntity) {
+        List<String> names = new ArrayList<>();
+        for (Entity de : MetadataSorter.sortDetailEntities(mainEntity)) {
+            names.add(de.getName() + "(" + EasyMetaFactory.getLabel(de) + ")");
+        }
+        return names.isEmpty() ? "无" : StringUtils.join(names, ", ");
     }
 
     private void ensureMetadata(JSONObject recordJson, Entity entity) {

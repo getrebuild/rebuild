@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
@@ -62,6 +63,23 @@ public class ToolHelper {
     public static ID resolveId(String idStr, String notNullParam) {
         if (ID.isId(idStr)) return ID.valueOf(idStr);
         throw new KnownToolException(notNullParam + " 不是有效的 ID: " + idStr);
+    }
+
+    /**
+     * 解析 ID 参数（必填）并校验实体类型。调用方已知目标实体类型时使用，避免将其他实体的记录 ID 当作目标写入
+     *
+     * @param idStr
+     * @param notNullParam
+     * @param entityCode
+     * @return
+     */
+    public static ID resolveId(String idStr, String notNullParam, int entityCode) {
+        ID id = resolveId(idStr, notNullParam);
+        if (id.getEntityCode() != entityCode) {
+            throw new KnownToolException(notNullParam + " 不是 "
+                    + EasyMetaFactory.getLabel(MetadataHelper.getEntity(entityCode)) + " 的记录 ID: " + idStr);
+        }
+        return id;
     }
 
     /**
@@ -216,7 +234,10 @@ public class ToolHelper {
         if (StringUtils.isBlank(userIdent)) return null;
 
         if (ID.isId(userIdent)) {
-            return ID.valueOf(userIdent);
+            // 不校验实体码会把 Account 记录、Team、Department 等 ID 当用户写入下游
+            ID id = ID.valueOf(userIdent);
+            if (id.getEntityCode() != EntityHelper.User) return null;
+            return Application.getUserStore().existsAny(id) ? id : null;
         }
 
         ID user = UserHelper.findUserByFullName(userIdent);

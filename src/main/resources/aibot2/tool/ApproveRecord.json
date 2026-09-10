@@ -13,6 +13,7 @@
         },
         "action": {
           "type": "string",
+          "enum": ["submit", "approve", "reject", "cancel", "revoke", "state"],
           "description": "审批操作类型（必填）: submit=提交审批, approve=同意, reject=驳回, cancel=撤回审批中记录, revoke=撤销已通过审批, state=查询审批状态"
         },
         "approvalId": {

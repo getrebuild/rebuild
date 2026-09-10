@@ -209,7 +209,7 @@ public class ScheduleTask implements Tool {
             }
             taskId = (ID) array[no - 1][0];
         } else {
-            taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId");
+            taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId", EntityHelper.AibotConfig);
         }
 
         Object[] task = Application.createQueryNoFilter(
@@ -319,21 +319,25 @@ public class ScheduleTask implements Tool {
     }
 
     /**
-     * 调度类型描述
+     * 调度类型描述。list 路径读的是历史 config，可能缺少部分键，因此需自防御避免 NPE / 数组越界
      */
     static String getScheduleTypeDesc(String scheduleType, String time, Integer dayOfWeek, Integer dayOfMonth) {
+        if (StringUtils.isBlank(scheduleType)) return "未知调度类型";
+        time = StringUtils.defaultIfBlank(time, "?");
         switch (scheduleType) {
             case "once":
                 return "一次性执行";
             case "daily":
                 return "每天 " + time + " 执行";
-            case "weekly":
+            case "weekly": {
                 String[] weekNames = {"", "周一", "周二", "周三", "周四", "周五", "周六", "周日"};
+                if (dayOfWeek == null || dayOfWeek < 1 || dayOfWeek > 7) return "每周 " + time + " 执行";
                 return "每" + weekNames[dayOfWeek] + " " + time + " 执行";
+            }
             case "monthly":
-                return "每月" + dayOfMonth + "日 " + time + " 执行";
+                return "每月" + (dayOfMonth == null ? "?" : dayOfMonth) + "日 " + time + " 执行";
             default:
-                return scheduleType;
+                return "未知调度类型 : " + scheduleType;
         }
     }
 }

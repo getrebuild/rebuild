@@ -28,7 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -51,6 +53,9 @@ public class BuildField implements Tool, AdminGuard {
             DisplayType.IMAGE, DisplayType.FILE,
             DisplayType.PICKLIST, DisplayType.MULTISELECT, DisplayType.CLASSIFICATION,
             DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
+
+    // 流水号重置周期（对应 SeriesZeroResetJob）
+    private static final Set<String> SERIES_ZEROS = new HashSet<>(Arrays.asList("D", "W", "M", "Y"));
 
     @Override
     public Object tool(String arguments) throws Exception {
@@ -76,6 +81,8 @@ public class BuildField implements Tool, AdminGuard {
         JSON extConfig = null;
         JSONArray options = null;
         String classificationName = null;
+        String seriesFormat = null;
+        String seriesZero = null;
 
         if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
             String refIdent = args.getString("refEntity");
@@ -100,16 +107,22 @@ public class BuildField implements Tool, AdminGuard {
             classificationName = getClassificationName(dataId);
 
         } else if (dt == DisplayType.SERIES) {
-            String seriesFormat = args.getString("seriesFormat");
-            if (StringUtils.isNotBlank(seriesFormat)) {
-                extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.SERIES_FORMAT, seriesFormat);
+            seriesFormat = StringUtils.trimToNull(args.getString("seriesFormat"));
+            seriesZero = StringUtils.trimToNull(args.getString("seriesZero"));
+            if (seriesZero != null && !SERIES_ZEROS.contains(seriesZero)) {
+                throw new KnownToolException("无效的流水号重置周期 (seriesZero) : " + seriesZero
+                        + "，可用值: D(每天), W(每周), M(每月), Y(每年)");
             }
+            JSONObject ext = new JSONObject(true);
+            if (seriesFormat != null) ext.put(EasyFieldConfigProps.SERIES_FORMAT, seriesFormat);
+            if (seriesZero != null) ext.put(EasyFieldConfigProps.SERIES_ZERO, seriesZero);
+            if (!ext.isEmpty()) extConfig = ext;
         }
 
         // 实体结构是系统核心，未确认时仅返回改动清单，须用户二次确认后才创建
         if (!args.getBooleanValue("confirmed")) {
             JSONObject changes = buildChanges(entity, fieldLabel, dt, refEntity,
-                    options, classificationName, args.getString("seriesFormat"), args.getString("comments"));
+                    options, classificationName, seriesFormat, seriesZero, args.getString("comments"));
             return JSONUtils.toJSONObject(
                     new String[]{"status", "needConfirm", "changes", "message"},
                     new Object[]{"ok", true, changes,
@@ -182,11 +195,13 @@ public class BuildField implements Tool, AdminGuard {
      * @param options
      * @param classificationName
      * @param seriesFormat
+     * @param seriesZero
      * @param comments
      * @return
      */
     private JSONObject buildChanges(Entity entity, String fieldLabel, DisplayType dt, String refEntity,
-                                    JSONArray options, String classificationName, String seriesFormat, String comments) {
+                                    JSONArray options, String classificationName, String seriesFormat,
+                                    String seriesZero, String comments) {
         JSONObject changes = new JSONObject(true);
         changes.put("操作", "新建字段");
         changes.put("所属实体", EasyMetaFactory.getLabel(entity));
@@ -204,7 +219,12 @@ public class BuildField implements Tool, AdminGuard {
         } else if (classificationName != null) {
             changes.put("分类数据", classificationName);
         }
-        if (StringUtils.isNotBlank(seriesFormat)) changes.put("编号规则", seriesFormat);
+        if (dt == DisplayType.SERIES) {
+            // 未指定编号规则时展示实际生效的默认值，避免用户误认为未配置
+            changes.put("编号规则", StringUtils.defaultIfBlank(seriesFormat, DisplayType.SERIES.getDefaultFormat())
+                    + (StringUtils.isBlank(seriesFormat) ? "（系统默认）" : ""));
+            if (StringUtils.isNotBlank(seriesZero)) changes.put("流水号重置周期", seriesZero);
+        }
         if (StringUtils.isNotBlank(comments)) changes.put("描述", comments);
 
         // 提示同名字段，避免用户误操作
