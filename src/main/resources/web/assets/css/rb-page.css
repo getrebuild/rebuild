@@ -3015,6 +3015,14 @@ form.simple {
   font-size: 22px !important;
 }
 
+.fs-md {
+  font-size: 93% !important;
+}
+
+.fs-sm {
+  font-size: 85% !important;
+}
+
 .btn.danger-hover:hover,
 .danger-hover:hover {
   color: #ea4335 !important;

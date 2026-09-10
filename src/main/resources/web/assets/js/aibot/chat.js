@@ -283,9 +283,9 @@ class ChatInput extends React.Component {
             {skills.length > 0 && (
               <span className="dropup">
                 <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
-                  <i className="mdi mdi-flash-outline" style={{ paddingTop: 3 }} />
+                  <i className="mdi mdi-flash-outline down-2" />
                 </button>
-                <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 300 }} ref={(c) => (this._$skills = c)}>
+                <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 250 }} ref={(c) => (this._$skills = c)}>
                   {skills.map((s, idx) => (
                     <a
                       key={idx}
@@ -294,7 +294,7 @@ class ChatInput extends React.Component {
                         this.setState({ activeSkill: s.name })
                       }}>
                       {s.name}
-                      {s.description && <div className="text-muted fs-12 text-break">{s.description}</div>}
+                      {s.description && <div className="text-muted fs-sm text-break">{s.description}</div>}
                     </a>
                   ))}
                 </div>
@@ -453,7 +453,7 @@ class ChatMessages extends React.Component {
         })}
         {showSuggest && (
           <div className="chat-suggest">
-            <div className="text-muted mb-1 fs-13">{$L('你可以问我')}</div>
+            <div className="text-muted mb-1 fs-md">{$L('你可以问我')}</div>
             <div className="d-flex flex-wrap">
               {this.state.suggestQuestions.map((q, idx) => (
                 <a key={idx} className="badge badge-pill" onClick={() => this._handleSuggestClick(q)}>
@@ -1044,7 +1044,7 @@ class ChatSidebar extends React.Component {
       if (!g.items || g.items.length === 0) return null
       return (
         <React.Fragment key={g.group}>
-          <li className="chat-list-group">{labels[g.group] || g.group}</li>
+          <li className="chat-list-group fs-md">{labels[g.group] || g.group}</li>
           {g.items.map((item) => this._renderItem(item))}
         </React.Fragment>
       )
