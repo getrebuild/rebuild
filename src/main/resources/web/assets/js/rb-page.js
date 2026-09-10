@@ -1328,11 +1328,25 @@ var $useEchart = function (cb) {
 
 // Mermaid 流程图
 var $useMermaid = function (cb) {
-  $useScript('/assets/lib/charts/mermaid.min.js?v=10.4.0', cb, {
-    check: function () {
-      return typeof mermaid !== 'undefined'
+  function _exposeMermaid() {
+    if (typeof mermaid === 'undefined' && typeof __esbuild_esm_mermaid_nm !== 'undefined') {
+      // eslint-disable-next-line no-undef
+      window.mermaid = __esbuild_esm_mermaid_nm.mermaid
+    }
+  }
+  $useScript(
+    '/assets/lib/charts/mermaid.min.js?v=11.17.2',
+    function () {
+      _exposeMermaid()
+      typeof cb === 'function' && cb()
     },
-  })
+    {
+      check: function () {
+        _exposeMermaid()
+        return typeof mermaid !== 'undefined'
+      },
+    },
+  )
 }
 
 // 剪切板
