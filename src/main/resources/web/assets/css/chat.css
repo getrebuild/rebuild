@@ -295,16 +295,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-sidebar .chat-new {
-  height: 68px;
-  padding: 16px 10px;
-  padding-bottom: 0;
+  padding: 12px;
 }
 
 .chat-sidebar .chat-list {
   flex: 1;
   overflow: auto;
   position: relative;
-  padding: 0 10px;
+  padding: 0 12px;
 }
 
 .chat-sidebar .chat-list > ul > li {
@@ -323,7 +321,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chat-sidebar .chat-list > ul > li > a {
   display: block;
-  padding: 8px 10px;
+  padding: 8px;
   padding-right: 24px;
   color: inherit;
   text-decoration: none;
