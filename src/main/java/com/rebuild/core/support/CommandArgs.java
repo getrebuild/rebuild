@@ -70,7 +70,6 @@ public class CommandArgs {
     // v4.5
     public static final String _AiBotDangersTool = "_AiBotDangersTool";
 
-
     /**
      * 内部消息同步发送短信
      */

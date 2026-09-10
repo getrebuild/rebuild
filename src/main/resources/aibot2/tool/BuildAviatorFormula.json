@@ -1,0 +1,42 @@
+{
+  "type": "function",
+  "userDescription": "辅助编写和校验 RB 计算公式（AviatorScript），包括查阅可用函数、校验公式语法、获取语法文档、根据描述推荐公式模板",
+  "function": {
+    "name": "BuildAviatorFormula",
+    "description": "辅助编写和校验 RB 计算公式（AviatorScript）。公式用于触发器的字段更新(FIELDWRITEBACK)、字段聚合(FIELDAGGREGATION)、数据校验(DATAVALIDATE)以及记录转换等场景。公式本质是 AviatorScript，但 RB 对字段变量有特殊处理：{字段名} 在执行时替换为真实值，{^字段名} 引用目标记录字段（仅字段更新），高级公式用 {{{{ }}}} 包裹。在调用 BuildTrigger 配置 FORMULA 类型的动作前，建议先用本工具的 list-functions 查阅可用函数、用 validate 校验公式语法、或用 build 获取公式编写辅助",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": ["list-functions", "validate", "help", "build"],
+          "description": "操作类型。list-functions=列出所有可用函数及签名说明；validate=校验公式语法与字段变量有效性；help=返回字段变量语法、高级公式等说明文档；build=根据描述推荐相关字段、匹配函数和公式模板"
+        },
+        "entity": {
+          "type": "string",
+          "description": "实体名称（validate 和 build 时必填）。公式中的字段变量将校验该实体是否存在对应字段"
+        },
+        "formula": {
+          "type": "string",
+          "description": "公式内容（validate 时必填）。可以是简单公式如 {amount}+{tax}、日期公式如 {startDate}+1、函数公式如 DATEDIFF({startDate},{endDate},\"D\")、或高级公式（用 {{{{ }}}} 包裹的 AviatorScript 多语句）。字段变量名需至少 3 个字符，短于此不会被识别"
+        },
+        "targetFieldType": {
+          "type": "string",
+          "enum": ["NUMBER", "DECIMAL", "DATE", "DATETIME", "TEXT", "BOOLEAN"],
+          "description": "目标字段类型（build 时可填），用于过滤与目标类型兼容的实体字段"
+        },
+        "context": {
+          "type": "string",
+          "enum": ["field-writeback", "field-aggregation", "data-validate", "record-transform"],
+          "description": "公式使用场景（可选）。field-writeback=字段更新、field-aggregation=字段聚合、data-validate=数据校验、record-transform=记录转换。不同场景下字段变量语法和返回值要求不同"
+        },
+        "description": {
+          "type": "string",
+          "description": "自然语言描述公式意图（build 时必填），如「计算两个日期的天数差」「字段A为空时使用默认值0」"
+        }
+      },
+      "required": ["action"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -3,7 +3,7 @@
   "userDescription": "构建记录转换配置，将源实体记录按字段映射转换为目标实体记录",
   "function": {
     "name": "BuildTransform",
-    "description": "新建记录转换配置。当用户希望把一条记录自动转换为另一条记录（如线索转客户、报价转订单）时使用——用户可能不会提到「记录转换」一词，典型表述如：把 A 实体的数据转到 B 实体、根据这条记录生成另一条记录等。调用前应先用 ListEntities 查询源/目标实体的真实字段名。解析失败会返回错误提示",
+    "description": "新建记录转换配置。当用户希望把一条记录自动转换为另一条记录（如线索转客户、报价转订单）时使用——用户可能不会提到「记录转换」一词，典型表述如：把 A 实体的数据转到 B 实体、根据这条记录生成另一条记录等。调用前应先用 ListEntities 查询源/目标实体的真实字段名。字段映射的取值支持源字段、固定值、计算公式三种；当某目标字段需要用计算公式取值时，先用 BuildAviatorFormula 查阅函数、编写并校验公式后再填入。解析失败会返回错误提示",
     "parameters": {
       "type": "object",
       "properties": {
@@ -21,7 +21,7 @@
         },
         "fieldsMapping": {
           "type": "object",
-          "description": "主记录字段映射，key 为目标字段名，value 为源字段名或固定值。固定值会原样写入目标字段。系统字段如 owningUser 可映射为源实体的用户字段名"
+          "description": "主记录字段映射，key 为目标字段名，value 为取值来源，支持三种形式：1) 字符串=源字段名（如 \"accountName\"，将源字段值映射到目标字段）；2) 对象 {\"type\":\"VFIXED\",\"value\":X}=固定值（X 原样写入目标字段）；3) 对象 {\"type\":\"VFORMULA\",\"value\":\"公式\"}=计算公式（公式字段变量用 {源字段名}，高级公式用 {{{{ }}}} 包裹，应先用 BuildAviatorFormula 编写并校验）。系统字段如 owningUser 可映射为源实体的用户字段名"
         },
         "fieldsMappingDetail": {
           "type": "array",
@@ -39,7 +39,7 @@
               },
               "fieldsMapping": {
                 "type": "object",
-                "description": "明细字段映射，格式与主记录 fieldsMapping 相同"
+                "description": "明细字段映射，格式与主记录 fieldsMapping 相同（value 支持源字段名字符串、{type:VFIXED,value}固定值、{type:VFORMULA,value}公式）"
               }
             },
             "required": ["source", "target", "fieldsMapping"]

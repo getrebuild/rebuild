@@ -69,13 +69,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border: 0 none;
   width: 32px;
   height: 32px;
-  padding-top: 4px;
-  padding-left: 6px;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.1);
   color: #4285f4;
   color: var(--rb-theme-color);
   min-width: 0 !important;
+  text-align: center;
+  line-height: 32px;
+  padding: 0;
+  padding-top: 2.5px;
 }
 
 .chat-input .chat-input-action button .mdi {

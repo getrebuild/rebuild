@@ -483,7 +483,7 @@ class FileShare extends RbAlert {
   renderContent() {
     return (
       <div className="file-share rbalert-form-sm">
-        <div class="form-group mb-2">
+        <div className="form-group mb-2">
           <label className="text-dark text-bold">{this.props.title || $L('分享链接')}</label>
           <div className="input-group input-group-sm">
             <input className="form-control form-control-sm bg-transparent" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
