@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.rebuild.core.support.ConfigurationItem.AibotContextCompressThreshold;
-import static com.rebuild.core.support.ConfigurationItem.AibotMaxTokens;
-import static com.rebuild.core.support.ConfigurationItem.AibotSeed;
 import static com.rebuild.core.support.ConfigurationItem.AibotTemperature;
 import static com.rebuild.core.support.ConfigurationItem.AibotTopP;
 import static com.rebuild.core.support.RebuildConfiguration.get;
@@ -72,17 +70,7 @@ public class AibotAgent implements Serializable {
     @Getter
     @Setter
     @Accessors(chain = true)
-    private Long maxTokens;
-
-    @Getter
-    @Setter
-    @Accessors(chain = true)
     private Double topP;
-
-    @Getter
-    @Setter
-    @Accessors(chain = true)
-    private Long seed;
 
     @Getter
     @Setter
@@ -106,19 +94,9 @@ public class AibotAgent implements Serializable {
         return (v != null && v >= 0 && v <= 2) ? v : null;
     }
 
-    public Long maxTokens() {
-        Long v = maxTokens != null ? maxTokens : parseLong(get(AibotMaxTokens), "maxTokens");
-        return (v != null && v > 0) ? v : null;
-    }
-
     public Double topP() {
         Double v = topP != null ? topP : parseDouble(get(AibotTopP), "topP");
         return (v != null && v >= 0 && v <= 1) ? v : null;
-    }
-
-    public Long seed() {
-        Long v = seed != null ? seed : parseLong(get(AibotSeed), "seed");
-        return (v != null && v >= 0) ? v : null;
     }
 
     public Long contextCompressThreshold() {

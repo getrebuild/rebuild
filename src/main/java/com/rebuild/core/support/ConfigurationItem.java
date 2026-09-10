@@ -136,9 +136,7 @@ public enum ConfigurationItem {
     AibotWelcome,
     AibotToolsDisabled,
     AibotTemperature,
-    AibotMaxTokens,
     AibotTopP,
-    AibotSeed,
 
     // PORTALs
     PortalBaiduMapAk,
