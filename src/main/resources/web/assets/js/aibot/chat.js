@@ -710,7 +710,7 @@ class ChatMessage extends React.Component {
               </div>
               {this.state.reasoningOpen && (
                 <div className="reasoning-body">
-                  <RichContent content={this.state.reasoning} ready={ready} />
+                  <RichContent content={this.state.reasoning} ready={ready} md={ready ? undefined : false} noRich />
                 </div>
               )}
             </div>
@@ -739,7 +739,7 @@ class RichContent extends React.Component {
   render() {
     const { content, md } = this.props
     if (!content) return null
-    if (md === false) return <div className="msg-text">{content}</div>
+    if (md === false) return <div className="msg-text msg-plaintext">{content}</div>
 
     return (
       <div className="msg-text" ref={(c) => (this._$el = c)}>
@@ -762,7 +762,7 @@ class RichContent extends React.Component {
 
   _renderRich() {
     const $el = this._$el && $(this._$el)
-    if (!$el || this.props.md === false) return
+    if (!$el || this.props.md === false || this.props.noRich) return
 
     const ready = this.props.ready !== false
     if (!this._rnd) this._rnd = $random('rc-', true)

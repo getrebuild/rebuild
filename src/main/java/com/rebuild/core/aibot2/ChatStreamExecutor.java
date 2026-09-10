@@ -31,8 +31,11 @@ import java.util.Map;
 
 import static com.rebuild.core.aibot2.ChatExecutor.MAX_TOOL_ROUNDS;
 import static com.rebuild.core.aibot2.ChatExecutor.ROUNDS_LIMIT_NOTICE;
+import static com.rebuild.core.aibot2.ChatExecutor.TRUNCATED_NOTICE;
 import static com.rebuild.core.aibot2.ChatExecutor.createChatStreaming;
 import static com.rebuild.core.aibot2.ChatExecutor.executeAndAppend;
+import static com.rebuild.core.aibot2.ChatExecutor.isLengthTruncated;
+import static com.rebuild.core.aibot2.ChatExecutor.logFinishReasonIfAbnormal;
 import static com.rebuild.core.aibot2.ChatExecutor.logToolCall;
 import static com.rebuild.core.aibot2.ChatExecutor.toolCallsText;
 
@@ -45,20 +48,27 @@ import static com.rebuild.core.aibot2.ChatExecutor.toolCallsText;
 @Slf4j
 public class ChatStreamExecutor {
 
+    // 思考内容推送上限。退化模型的思考可能极长且大量重复，超出后仅落库不再推送
+    static final int MAX_REASONING_ECHO_CHARS = 9000;
+
     private final Chat chat;
     private final ChatRequest chatRequest;
     private final ChatCompletionCreateParams.Builder builder;
 
     // 跨轮次状态
     private final StringBuilder fullReasoning = new StringBuilder();
-    private final ThinkTagParser thinkParser = new ThinkTagParser();
+    // 跨轮次正文，与前端累加展示的内容一致，落库时取此值
+    private final StringBuilder fullContentAll = new StringBuilder();
+    private ThinkTagParser thinkParser = new ThinkTagParser();
     private boolean reasoningFound;
+    private boolean reasoningEchoStopped;
 
     // 单轮次状态
     private final StringBuilder fullContent = new StringBuilder();
     private final Map<Integer, String[]> toolCallAccumulator = new LinkedHashMap<>();
     private boolean interrupted;
     private boolean clientGone;
+    private String finishReason;
 
     private PrintWriter writer;
 
@@ -112,6 +122,9 @@ public class ChatStreamExecutor {
         fullContent.setLength(0);
         toolCallAccumulator.clear();
         interrupted = false;
+        finishReason = null;
+        reasoningFound = false;
+        thinkParser = new ThinkTagParser();
 
         // API 调用前检查中断标志
         if (StreamEcho.isInterrupted(chatRequest.getChatid())) {
@@ -143,6 +156,7 @@ public class ChatStreamExecutor {
                         if (StringUtils.isNotBlank(content)) {
                             echoText(content);
                             fullContent.append(content);
+                            fullContentAll.append(content);
                         }
 
                         choice.delta().toolCalls().ifPresent(toolCalls -> {
@@ -150,6 +164,8 @@ public class ChatStreamExecutor {
                                 accumulateToolCall(tc);
                             }
                         });
+
+                        choice.finishReason().ifPresent(fr -> finishReason = fr.asString());
                     });
 
                     chunk.usage().ifPresent(u -> chat.addTokenUsage(u.totalTokens()));
@@ -165,6 +181,8 @@ public class ChatStreamExecutor {
                 if (!interrupted && !clientGone) throw e;
                 chatLogger().logEvent("Stream closed (interrupt or client disconnect)");
             }
+
+            logFinishReasonIfAbnormal(finishReason, chatLogger());
 
             if (interrupted || toolCallAccumulator.isEmpty() || maxRounds <= 0) {
                 this.finish(maxRounds);
@@ -190,16 +208,17 @@ public class ChatStreamExecutor {
      * @param maxRounds
      */
     private void finish(int maxRounds) {
-        // 流结束时 </think> 未闭合，冲刷尾部疑似闭合标签的缓冲
         String dangling = thinkParser.flushDangling();
-        if (StringUtils.isNotBlank(dangling)) fullReasoning.append(dangling);
+        if (StringUtils.isNotBlank(dangling)) echoReasoning(dangling);
 
-        String content = fullContent.toString();
+        String content = fullContentAll.toString();
 
-        // 达到轮次上限且仍有待执行的工具调用，提示用户继续而非静默截断
         if (!interrupted && maxRounds <= 0 && !toolCallAccumulator.isEmpty()) {
             echoText(ROUNDS_LIMIT_NOTICE);
             content += ROUNDS_LIMIT_NOTICE;
+        } else if (!interrupted && toolCallAccumulator.isEmpty() && isLengthTruncated(finishReason)) {
+            echoText(TRUNCATED_NOTICE);
+            content += TRUNCATED_NOTICE;
         }
 
         chat.completionAfter(content,
@@ -214,7 +233,6 @@ public class ChatStreamExecutor {
     private boolean appendToolMessages() {
         List<ChatCompletionMessageToolCall> assembledToolCalls = new ArrayList<>();
         for (String[] entry : toolCallAccumulator.values()) {
-            // 名称缺失无法定位工具，只能丢弃
             if (StringUtils.isBlank(entry[1])) {
                 String msg = "Malformed tool call dropped : " + Arrays.toString(entry);
                 log.warn(msg);
@@ -222,7 +240,6 @@ public class ChatStreamExecutor {
                 continue;
             }
 
-            // assistant 消息的 tool_calls[].id 与后续 tool 消息的 tool_call_id 由本端统一构造，保持一致即可
             String toolCallId = StringUtils.isBlank(entry[0])
                     ? "call_" + CommonsUtils.randomHex(true)
                     : entry[0];
@@ -260,7 +277,6 @@ public class ChatStreamExecutor {
         String[] entry = toolCallAccumulator.computeIfAbsent(idx, k -> new String[3]);
         tc.id().ifPresent(id -> entry[0] = id);
         tc.function().ifPresent(fn -> {
-            // 部分兼容网关会在后续分片重复下发空名称，忽略以免覆盖已累积的名称
             fn.name().ifPresent(name -> {
                 if (StringUtils.isNotBlank(name)) entry[1] = name;
             });
@@ -269,19 +285,30 @@ public class ChatStreamExecutor {
     }
 
     /**
-     * 推送思考内容（客户端断开后仅累积）
+     * 推送思考内容（客户端断开或超出推送上限后仅累积）
      *
      * @param reasoningDelta
      */
     private void echoReasoning(String reasoningDelta) {
         fullReasoning.append(reasoningDelta);
 
-        if (!clientGone) {
-            try {
-                StreamEcho.echo(reasoningDelta, writer, "_reasoning");
-            } catch (Exception e) {
-                clientGone = true;
-            }
+        if (reasoningEchoStopped || clientGone) return;
+        if (fullReasoning.length() > MAX_REASONING_ECHO_CHARS) {
+            reasoningEchoStopped = true;
+            chatLogger().logEvent("Reasoning echo stopped (over " + MAX_REASONING_ECHO_CHARS + " chars)");
+            return;
+        }
+
+        try {
+            StreamEcho.echo(reasoningDelta, writer, "_reasoning");
+        } catch (Exception e) {
+            clientGone = true;
+        }
+        if (!clientGone && writer.checkError()) {
+            clientGone = true;
+        }
+        if (clientGone) {
+            chatLogger().logEvent("Client disconnected, continuing stream");
         }
     }
 

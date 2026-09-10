@@ -38,12 +38,17 @@ import java.util.Map;
 @Slf4j
 public class ChatExecutor {
 
-    static final int MAX_TOOL_ROUNDS = 20;
+    static final int MAX_TOOL_ROUNDS = 30;
     static final String ROUNDS_LIMIT_NOTICE = "\n\n（本次对话的工具调用轮次已达上限，任务可能未完成。请发送\"继续\"以完成剩余步骤。）";
+    static final String TRUNCATED_NOTICE = "\n\n（本次回答因达到长度上限被截断，内容可能不完整。请发送\"继续\"以接着输出。）";
+
+    private static final String[] NORMAL_FINISH_REASONS = {"stop", "tool_calls", "function_call"};
 
     private final Chat chat;
     private final ChatRequest chatRequest;
     private final ChatCompletionCreateParams.Builder builder;
+
+    private String lastFinishReason;
 
     /**
      * @param chat
@@ -64,10 +69,13 @@ public class ChatExecutor {
     public Message run() {
         ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
         accumulateUsage(resp);
-        ChatCompletionMessage ai = resp.choices().get(0).message();
+        ChatCompletion.Choice choice = resp.choices().get(0);
+        ChatCompletionMessage ai = choice.message();
+        lastFinishReason = finishReasonOf(choice);
 
         String[] reasoningAcc = {ReasoningExtractor.fromProps(ai._additionalProperties())};
         ai = executeToolCalls(ai, reasoningAcc);
+        logFinishReasonIfAbnormal(lastFinishReason, chat.chatLogger());
 
         String reasoning = reasoningAcc[0];
         String content = ai.content().orElse("");
@@ -78,7 +86,7 @@ public class ChatExecutor {
             content = StringUtils.defaultIfBlank(fr.getContent(), "");
         }
 
-        content += roundsLimitNoticeIfNeed(ai);
+        content += roundsLimitNoticeIfNeed(ai) + truncatedNoticeIfNeed(ai);
         return chat.completionAfter(content, reasoning, chatRequest);
     }
 
@@ -90,10 +98,13 @@ public class ChatExecutor {
     public String runContent() {
         ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
         accumulateUsage(resp);
-        ChatCompletionMessage ai = resp.choices().get(0).message();
+        ChatCompletion.Choice choice = resp.choices().get(0);
+        ChatCompletionMessage ai = choice.message();
+        lastFinishReason = finishReasonOf(choice);
 
         ai = executeToolCalls(ai, new String[1]);
-        return ai.content().orElse("") + roundsLimitNoticeIfNeed(ai);
+        logFinishReasonIfAbnormal(lastFinishReason, chat.chatLogger());
+        return ai.content().orElse("") + roundsLimitNoticeIfNeed(ai) + truncatedNoticeIfNeed(ai);
     }
 
     /**
@@ -110,11 +121,61 @@ public class ChatExecutor {
     }
 
     /**
+     * 输出被长度上限截断且无工具调用时给出提示，避免半截回答被当作完整回答
+     *
+     * @param ai
+     * @return
+     */
+    private String truncatedNoticeIfNeed(ChatCompletionMessage ai) {
+        if (ai.toolCalls().isPresent() && !ai.toolCalls().get().isEmpty()) return "";
+        return isLengthTruncated(lastFinishReason) ? TRUNCATED_NOTICE : "";
+    }
+
+    /**
+     * @param finishReason
+     * @return
+     */
+    static boolean isLengthTruncated(String finishReason) {
+        return "length".equalsIgnoreCase(finishReason);
+    }
+
+    /**
+     * 取结束原因，统一转为字符串以免流式/非流式两处枚举类型不一致
+     *
+     * @param choice
+     * @return
+     */
+    private static String finishReasonOf(ChatCompletion.Choice choice) {
+        try {
+            return choice.finishReason().asString();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    /**
+     * 结束原因异常时记录（同时写入系统日志与会话日志），正常结束不记以免噪音
+     *
+     * @param finishReason
+     * @param chatLogger 可为 null
+     */
+    static void logFinishReasonIfAbnormal(String finishReason, ChatLogger chatLogger) {
+        if (StringUtils.isBlank(finishReason)) return;
+        for (String normal : NORMAL_FINISH_REASONS) {
+            if (normal.equalsIgnoreCase(finishReason)) return;
+        }
+
+        String msg = "Abnormal finish reason : " + finishReason;
+        log.warn(msg);
+        if (chatLogger != null) chatLogger.logEvent(msg);
+    }
+
+    /**
      * 执行工具调用循环
      *
      * @param ai
-     * @param reasoningAcc 思考内容累积器（单元素数组，跨轮次累积）
-     * @return 最终的 AI 消息
+     * @param reasoningAcc
+     * @return
      */
     private ChatCompletionMessage executeToolCalls(ChatCompletionMessage ai, String[] reasoningAcc) {
         List<ChatCompletionMessageToolCall> toolCalls = ai.toolCalls().orElse(null);
@@ -131,7 +192,9 @@ public class ChatExecutor {
 
             ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
             accumulateUsage(resp);
-            ai = resp.choices().get(0).message();
+            ChatCompletion.Choice choice = resp.choices().get(0);
+            ai = choice.message();
+            lastFinishReason = finishReasonOf(choice);
 
             String r = ReasoningExtractor.fromProps(ai._additionalProperties());
             if (StringUtils.isNotBlank(r)) {
@@ -268,11 +331,11 @@ public class ChatExecutor {
         }
     }
 
-
     /**
      * @param calls
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static String toolCallsText(Object calls) {
         if (calls instanceof List) {
             List<String> texts = new ArrayList<>();

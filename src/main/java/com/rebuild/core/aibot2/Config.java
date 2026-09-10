@@ -108,12 +108,8 @@ public class Config {
 
         Double temperature = agent.temperature();
         if (temperature != null) b.temperature(temperature);
-        Long maxTokens = agent.maxTokens();
-        if (maxTokens != null) b.maxTokens(maxTokens);
         Double topP = agent.topP();
         if (topP != null) b.topP(topP);
-        Long seed = agent.seed();
-        if (seed != null) b.seed(seed);
 
         return b;
     }

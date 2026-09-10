@@ -497,6 +497,11 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   color: #fff;
 }
 
+.chat-message .msg-text.msg-plaintext {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .chat-message .msg-text .mermaid,
 .chat-message .msg-text .mermaid-to-render,
 .chat-message .msg-text .echarts-to-render,

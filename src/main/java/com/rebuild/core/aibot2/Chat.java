@@ -171,9 +171,6 @@ public class Chat implements Serializable {
         builder.tools(agent.tools())
                 .toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO);
 
-        // 上下文超阈值时裁剪较早的历史消息，避免超出模型上下文窗口
-        ContextCompressor.compress(this, builder);
-
         return builder;
     }
 
