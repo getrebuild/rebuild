@@ -464,6 +464,9 @@ class ChatMessages extends React.Component {
             </div>
           </div>
         )}
+        <a className="chat-scroll-fab" ref={(c) => (this._$scrollFab = c)} onClick={() => this._scrollFabClick()}>
+          <i className="mdi mdi-chevron-down down-1" />
+        </a>
       </div>
     )
   }
@@ -493,6 +496,7 @@ class ChatMessages extends React.Component {
 
   componentDidMount() {
     let _lastScroll = 0
+    const self = this
 
     const $ms = $(this._$messages)
     $ms.perfectScrollbar()
@@ -513,7 +517,16 @@ class ChatMessages extends React.Component {
         }
       }
       _lastScroll = currentScroll
+
+      const $fab = $(self._$scrollFab)
+      $fab.css('top', currentScroll + $ms.innerHeight() - 50)
+      $fab.toggleClass('show', currentScroll + $ms.innerHeight() < $ms[0].scrollHeight - 150 && $ms[0].scrollHeight > $ms.innerHeight() + 20)
     })
+  }
+
+  _scrollFabClick() {
+    __evt_ScrollToBottomStop = false
+    $(this._$messages).animate({ scrollTop: $(this._$messages)[0].scrollHeight }, 300)
   }
 
   componentWillUnmount() {

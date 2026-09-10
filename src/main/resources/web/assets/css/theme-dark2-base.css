@@ -47,7 +47,8 @@ html.theme-dark2 samp {
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 pre {
+html.theme-dark2 pre,
+html.theme-dark2 pre code {
   background-color: var(--rb-dark-panel);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-text);
