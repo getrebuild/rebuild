@@ -1328,7 +1328,10 @@ const FixMd = {
   RE_LIST: /^(?:[-*+]|\d{1,3}\.)\s/,
   RE_SEP_PART: /\|(?:\s*:?-{3,}:?\s*\|)+/,
   RE_FENCE_MERMAID: /^\s*(?:`{3,}|~{3,})\s*mermaid\b/i,
-  RE_MERMAID_SPLIT: /(\]|\)|\})[ \t]+(?=[A-Za-z_]\w*(?:[ \t]*[\[({][^\])}]*[\])}])?[ \t]*(?:-->|---|-.->|-.-|<-->|==>|===|--x|--o|~~~))/g,
+  RE_MERMAID_SPLIT: /(\]|\)|\}|[A-Za-z_]\w*)[ \t]+(?=[A-Za-z_]\w*(?:[ \t]*[[({][^\])}]*[\])}])?[ \t]*(?:-->|---|-.->|-.-|<-->|==>|===|--x|--o|~~~))/g,
+  RE_MERMAID_SUBGRAPH_BEFORE: /(\S)[ \t]+(?=subgraph\b)/g,
+  RE_MERMAID_SUBGRAPH_AFTER: /(\bsubgraph)(?=[^\s[({])/g,
+  RE_MERMAID_COMMENT: /(\S)[ \t]+(%%.*)$/,
 
   // 修复 AI 回复中常见的 MD 语法问题
   fix(md) {
@@ -1402,8 +1405,14 @@ const FixMd = {
         continue
       }
       if (inFence) {
-        if (inMermaid) fixed.push(...line.replace(FixMd.RE_MERMAID_SPLIT, '$1\n').split('\n'))
-        else fixed.push(line)
+        if (inMermaid) {
+          const l = line
+            .replace(FixMd.RE_MERMAID_COMMENT, '$1\n$2')
+            .replace(FixMd.RE_MERMAID_SUBGRAPH_BEFORE, '$1\n')
+            .replace(FixMd.RE_MERMAID_SUBGRAPH_AFTER, '$1 ')
+            .replace(FixMd.RE_MERMAID_SPLIT, '$1\n')
+          fixed.push(...l.split('\n'))
+        } else fixed.push(line)
         continue
       }
 
