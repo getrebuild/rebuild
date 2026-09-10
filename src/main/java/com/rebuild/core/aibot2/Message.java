@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 
@@ -91,5 +92,13 @@ public class Message implements Serializable {
 
         d.put("_chatid", userReqChatid);
         return d;
+    }
+
+    /**
+     * @param error
+     * @return
+     */
+    public static JSON error(String error) {
+        return JSONUtils.toJSONObject("error", StringUtils.defaultIfBlank(error, "UnknowError"));
     }
 }

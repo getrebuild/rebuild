@@ -561,7 +561,11 @@ public class CommonsUtils {
         Throwable th = ExceptionUtils.getRootCause(ex);
         if (th != null) {
             msg = th.getMessage();
-            if (StringUtils.isBlank(msg)) msg = ClassUtils.getShortClassName(th, "");
+            if (StringUtils.isBlank(msg)) {
+                msg = ClassUtils.getShortClassName(th, "NULL");
+            } else if (msg.endsWith("null")) {
+                msg = msg.substring(0, msg.length() - 4) + ClassUtils.getShortClassName(th, "NULL");
+            }
         }
         return msg == null ? "" : msg;
     }
