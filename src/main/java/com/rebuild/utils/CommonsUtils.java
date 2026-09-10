@@ -563,7 +563,7 @@ public class CommonsUtils {
             msg = th.getMessage();
             if (StringUtils.isBlank(msg)) {
                 msg = ClassUtils.getShortClassName(th, "NULL");
-            } else if (msg.endsWith("null")) {
+            } else if (msg.length() < 20 && msg.endsWith("null")) {
                 msg = msg.substring(0, msg.length() - 4) + ClassUtils.getShortClassName(th, "NULL");
             }
         }

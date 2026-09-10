@@ -15,5 +15,5 @@ import com.rebuild.core.privileges.AdminGuard;
  * @author devezhao
  * @since 2026/9/10
  */
-public class BuildFrontjsCode extends RbvTool implements AdminGuard {
+public class BuildFrontJsCode extends RbvTool implements AdminGuard {
 }
