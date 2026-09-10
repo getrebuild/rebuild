@@ -19,9 +19,10 @@
             "dashboard-config",
             "transform-config",
             "adv-filter",
-            "user-selector"
+            "user-selector",
+            "frontjs-api"
           ],
-          "description": "Schema 名称。trigger-config=触发器、approval-config=审批流程、form-layout=表单布局、list-layout=列表布局、nav-menu=导航菜单、chart-config=图表、dashboard-config=仪表盘、transform-config=记录转换、adv-filter=高级过滤条件、user-selector=用户选择器（接收人/分配人等通用组件）"
+          "description": "Schema 名称。trigger-config=触发器、approval-config=审批流程、form-layout=表单布局、list-layout=列表布局、nav-menu=导航菜单、chart-config=图表、dashboard-config=仪表盘、transform-config=记录转换、adv-filter=高级过滤条件、user-selector=用户选择器（接收人/分配人等通用组件）、frontjs-api=FrontJS 前端扩展 API 参考（方法签名与代码示例）"
         }
       },
       "required": ["schema"],

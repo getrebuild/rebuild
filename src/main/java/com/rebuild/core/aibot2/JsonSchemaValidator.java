@@ -47,6 +47,7 @@ public class JsonSchemaValidator {
     public static final String CHART_CONFIG = "chart-config";
     public static final String DASHBOARD_CONFIG = "dashboard-config";
     public static final String USER_SELECTOR = "user-selector";
+    public static final String FRONTJS_API = "frontjs-api";
 
     private static final Map<String, String> SCHEMA_RES_MAP = new HashMap<>();
 
@@ -61,6 +62,7 @@ public class JsonSchemaValidator {
         SCHEMA_RES_MAP.put(CHART_CONFIG, "json-schema/chart-config-schema.json");
         SCHEMA_RES_MAP.put(DASHBOARD_CONFIG, "json-schema/dashboard-config-schema.json");
         SCHEMA_RES_MAP.put(USER_SELECTOR, "json-schema/user-selector-schema.json");
+        SCHEMA_RES_MAP.put(FRONTJS_API, "json-schema/frontjs-api-reference.md");
     }
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

@@ -1,0 +1,35 @@
+{
+  "type": "function",
+  "userDescription": "[商业工具] 构建 FrontJS 前端扩展代码，在表单、详情页、列表页注入自定义按钮、字段联动、样式等个性化逻辑",
+  "function": {
+    "name": "BuildFrontjsCode",
+    "description": "新建或更新 FrontJS 前端扩展代码。当用户希望个性化页面时使用——典型表述如：在列表页加按钮、表单字段联动、详情页加操作按钮、列表自定义单元格渲染、页面注入样式/提示等。调用前必须先用 GetConfigSchema(schema=frontjs-api) 获取 FrontJS API 参考文档（方法签名与代码示例），并用 ListEntities 查询目标实体的真实字段名。代码需在 FrontJS.ready(function(){ ... }) 中调用，根据页面类型使用 FrontJS.Form（表单）、FrontJS.View（详情）、FrontJS.DataList（列表）。代码发布时会经 Babel 编译，语法错误会返回提示。applyPath 匹配规则：* 或 / 匹配全部页面，其他值按路径包含匹配（如 /app/entity/list 匹配所有列表页），/h5app/ 和 /extforms/ 为严格相等匹配",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "FrontJS 代码名称，应简洁描述其用途，如「客户列表批量激活按钮」"
+        },
+        "applyPath": {
+          "type": "string",
+          "description": "匹配路径。* 或 / 匹配全部页面；/app/entity/list 匹配所有列表页；/app/entity/view 匹配所有详情页；/h5app/ 和 /extforms/ 为严格相等匹配。多个页面可用更通用的路径片段"
+        },
+        "code": {
+          "type": "string",
+          "description": "ES6/JSX 源代码。必须包裹在 FrontJS.ready(function(){ ... }) 中。先调用 GetConfigSchema(schema=frontjs-api) 获取 API 参考，用 ListEntities 获取真实字段名后再编写"
+        },
+        "codeId": {
+          "type": "string",
+          "description": "已有 FrontJS 代码 ID（可选）。提供时为更新模式，不提供时为新建模式"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
+        }
+      },
+      "required": ["name", "applyPath", "code"],
+      "additionalProperties": false
+    }
+  }
+}
