@@ -9,6 +9,7 @@ package com.rebuild.core.aibot2.knowledge;
 
 import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.rebuild.core.aibot2.AibotAgent;
 import com.rebuild.core.aibot2.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -71,7 +72,7 @@ public class KnowledgeKeywordEnricher {
     private static List<String> generateKeywords(String title, String content) {
         String input = StringUtils.isNotBlank(title) ? title + "\n\n" + content : content;
 
-        ChatCompletionCreateParams params = Config.createBuilder(SYSTEM_PROMPT, null)
+        ChatCompletionCreateParams params = Config.createBuilder(SYSTEM_PROMPT, AibotAgent.defaultAgent())
                 .addUserMessage(input)
                 .build();
         ChatCompletion resp = Config.getClient().chat().completions().create(params);

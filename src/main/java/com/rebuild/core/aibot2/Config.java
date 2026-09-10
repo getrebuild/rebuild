@@ -20,8 +20,6 @@ import org.apache.tika.Tika;
 import org.springframework.util.Assert;
 
 import java.time.Duration;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * @author Zixin
@@ -96,43 +94,28 @@ public class Config {
 
     /**
      * @param system
-     * @param model
+     * @param agent
      * @return
      */
-    public static ChatCompletionCreateParams.Builder createBuilder(String system, String model) {
+    public static ChatCompletionCreateParams.Builder createBuilder(String system, AibotAgent agent) {
+        if (agent == null) agent = AibotAgent.defaultAgent();
+        String model = agent.model();
         if (StringUtils.isBlank(model)) model = getDefModel();
+
         ChatCompletionCreateParams.Builder b = ChatCompletionCreateParams.builder()
                 .model(model);
         if (StringUtils.isNotBlank(system)) b.addSystemMessage(system);
 
-        // 可选模型参数（空值或非法值跳过，使用模型/API 默认值）
-        applyParam(b, ConfigurationItem.AibotTemperature, Double::parseDouble, b::temperature);
-        applyParam(b, ConfigurationItem.AibotMaxTokens, Long::parseLong, b::maxTokens);
-        applyParam(b, ConfigurationItem.AibotTopP, Double::parseDouble, b::topP);
-        applyParam(b, ConfigurationItem.AibotSeed, Long::parseLong, b::seed);
+        Double temperature = agent.temperature();
+        if (temperature != null) b.temperature(temperature);
+        Long maxTokens = agent.maxTokens();
+        if (maxTokens != null) b.maxTokens(maxTokens);
+        Double topP = agent.topP();
+        if (topP != null) b.topP(topP);
+        Long seed = agent.seed();
+        if (seed != null) b.seed(seed);
 
         return b;
-    }
-
-    /**
-     * 读取并注入可选模型参数，空值或解析失败时跳过
-     *
-     * @param b
-     * @param item
-     * @param parser
-     * @param setter
-     * @param <T>
-     */
-    private static <T> void applyParam(ChatCompletionCreateParams.Builder b,
-                                       ConfigurationItem item, Function<String, T> parser,
-                                       Consumer<T> setter) {
-        String v = RebuildConfiguration.get(item);
-        if (StringUtils.isBlank(v)) return;
-        try {
-            setter.accept(parser.apply(v.trim()));
-        } catch (Exception ex) {
-            log.warn("Invalid AI param {} = {}, skipped", item.name(), v);
-        }
     }
 
     /**

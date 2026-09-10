@@ -137,7 +137,7 @@ public class Chat implements Serializable {
         chatLogger().logSession(agent.model(), systemPrompt);
         chatLogger().log("USER", userMessage);
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent.model())
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent)
                 .addUserMessageOfArrayOfContentParts(parts);
         return new ChatExecutor(this, null, builder).runContent();
     }
@@ -161,7 +161,7 @@ public class Chat implements Serializable {
             chatLogger().log("USER", userMessage);
         }
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent.model());
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent);
         for (Message m : messages) {
             String content = m.getContent();
             if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);
@@ -170,6 +170,9 @@ public class Chat implements Serializable {
 
         builder.tools(agent.tools())
                 .toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO);
+
+        // 上下文超阈值时裁剪较早的历史消息，避免超出模型上下文窗口
+        ContextCompressor.compress(this, builder);
 
         return builder;
     }
