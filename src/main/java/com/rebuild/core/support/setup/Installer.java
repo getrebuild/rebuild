@@ -19,7 +19,6 @@ import com.rebuild.core.BootConfiguration;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.cache.BaseCacheTemplate;
 import com.rebuild.core.cache.RedisDriver;
-import com.rebuild.core.configuration.NavBuilder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.rbstore.ClassificationImporter;
@@ -164,9 +163,7 @@ public class Installer implements InstallState {
 
         try {
             // 导入实体
-            String[] created = this.installModel();
-            // 初始化菜单
-            if (created.length > 0) NavBuilder.instance.addInitNavOnInstall(created);
+            this.installModel();
 
         } catch (Exception ex) {
             log.error("Error installing business module", ex);

@@ -10,14 +10,12 @@ package com.rebuild.core.configuration;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.PageTokenVerify;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -25,12 +23,10 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.DashboardManager;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
-import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
@@ -353,38 +349,6 @@ public class NavBuilder extends NavManager {
             itemsOfNav.add(item);
         }
         return itemsOfNav;
-    }
-
-    /**
-     * 首次安装添加菜单
-     *
-     * @param initEntity
-     */
-    public void addInitNavOnInstall(String[] initEntity) {
-        JSONArray initNav = (JSONArray) JSONUtils.clone(NAVS_DEFAULT);
-
-        for (String e : initEntity) {
-            EasyEntity entity = EasyMetaFactory.valueOf(e);
-
-            JSONObject navItem = JSONUtils.toJSONObject(
-                    NAV_ITEM_PROPS,
-                    new String[] { entity.getIcon(), entity.getLabel(), "ENTITY", entity.getName() });
-            initNav.add(navItem);
-        }
-
-        Record record = RecordBuilder.builder(EntityHelper.LayoutConfig)
-                .add("belongEntity", "N")
-                .add("shareTo", SHARE_ALL)
-                .add("applyType", TYPE_NAV)
-                .add("config", initNav.toJSONString())
-                .build(UserService.SYSTEM_USER);
-
-        UserContextHolder.setUser(UserService.SYSTEM_USER);
-        try {
-            Application.getService(EntityHelper.LayoutConfig).create(record);
-        } finally {
-            UserContextHolder.clearUser();
-        }
     }
 
     /**
