@@ -859,15 +859,7 @@ class RichContent extends React.Component {
         $node.addClass('echarts-rendered').empty()
         try {
           const chart = echarts.init($node[0])
-          const base = { ...ECHART_BASE }
-          delete base.grid
-          const opt = { ...base, ...option }
-          opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
-          opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
-          if (opt.title) opt.title = { ...opt.title, top: 10 }
-          if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
-          opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
-          chart.setOption(opt)
+          chart.setOption(option)
           $node.data('echarts-instance', chart)
           self._attachFullscreenBtn($node)
         } catch (err) {
