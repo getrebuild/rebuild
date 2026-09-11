@@ -114,7 +114,7 @@ class Chat extends React.Component {
     }
 
     this.setState({ chatid: chatid || null })
-    this._ChatMessages.setMessages([], false, null)
+    this._ChatMessages.setMessages([], true, null)
     this._ChatInput.reset(true)
     const _preset = this._preset
     this._preset = null
@@ -492,7 +492,13 @@ class ChatMessages extends React.Component {
   setMessages(messages, forceScroll, suggestQuestions) {
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
+
     this.setState(state, () => {
+      const $el = $(this._$messages)
+      $el.perfectScrollbar('destroy')
+      $el.perfectScrollbar()
+      $el.perfectScrollbar('update')
+
       this.scrollToBottom(forceScroll)
     })
   }
@@ -503,9 +509,6 @@ class ChatMessages extends React.Component {
 
     const $ms = $(this._$messages)
     $ms.perfectScrollbar()
-    this._psObserver = new MutationObserver(() => this.updateScrollbar())
-    this._psObserver.observe(this._$messages, { childList: true, subtree: true, characterData: true })
-    $(window).on('resize.chat-ps', () => this.updateScrollbar())
 
     $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
@@ -531,41 +534,27 @@ class ChatMessages extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this._psObserver) this._psObserver.disconnect()
-    $(window).off('resize.chat-ps')
     $(this._$messages).perfectScrollbar('destroy')
   }
 
-  updateScrollbar(delay) {
-    this._updateScrollbarCalls = this._updateScrollbarCalls || 0
-    if (this._updateScrollbarCalls >= 20) {
-      delay = 1
-      this._updateScrollbarCalls = 0
-    }
-
-    delay = delay || 100
-    $setTimeout(() => $(this._$messages).perfectScrollbar('update'), delay, 'chat-updateScrollbar')
-  }
-
   scrollToBottom(forceScroll) {
-    if (forceScroll) __evt_ScrollToBottomStop = false
-
-    this._scrollToBottomCalls = this._scrollToBottomCalls || 0
-    let delay = 50
-    if (this._scrollToBottomCalls++ >= 20) {
-      delay = 1
-      this._scrollToBottomCalls = 0
+    if (forceScroll) {
+      __evt_ScrollToBottomStop = false
     }
 
-    const fn = () => {
+    const FN = () => {
       const $el = $(this._$messages)
       $el.perfectScrollbar('update')
-      if (__evt_ScrollToBottomStop) return
       $el.scrollTop($el[0].scrollHeight + 20)
     }
 
-    $setTimeout(fn, delay, 'chat-scrollToBottom')
-    $setTimeout(fn, 400, 'chat-scrollToBottom-safe')
+    this._scrollToBottomCalls = this._scrollToBottomCalls || 0
+    if (this._scrollToBottomCalls++ >= 20) {
+      this._scrollToBottomCalls = 0
+      FN()
+    }
+
+    $setTimeout(FN, 50, 'chat-scrollToBottom')
   }
 }
 
