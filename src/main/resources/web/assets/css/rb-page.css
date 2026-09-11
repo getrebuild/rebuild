@@ -6930,3 +6930,20 @@ input[type='password']::-ms-clear {
     transform: rotate(360deg);
   }
 }
+
+.os-theme-rb {
+  box-sizing: border-box;
+  --os-size: 6px;
+  --os-padding-perpendicular: 0;
+  --os-padding-axis: 2px;
+  --os-track-border-radius: 3px;
+  --os-track-bg: rgba(0, 0, 0, 0.1);
+  --os-track-bg-hover: rgba(0, 0, 0, 0.1);
+  --os-track-bg-active: rgba(0, 0, 0, 0.1);
+  --os-handle-border-radius: 3px;
+  --os-handle-bg: rgba(0, 0, 0, 0.25);
+  --os-handle-bg-hover: rgba(0, 0, 0, 0.4);
+  --os-handle-bg-active: rgba(0, 0, 0, 0.45);
+  --os-handle-min-size: 33px;
+  --os-handle-interactive-area-offset: 4px;
+}

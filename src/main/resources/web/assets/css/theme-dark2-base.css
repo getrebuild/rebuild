@@ -621,6 +621,15 @@ html.theme-dark2 .ps-scrollbar-x-rail .ps-scrollbar-x {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
+html.theme-dark2 .os-theme-rb {
+  --os-track-bg: rgba(255, 255, 255, 0.12);
+  --os-track-bg-hover: rgba(255, 255, 255, 0.12);
+  --os-track-bg-active: rgba(255, 255, 255, 0.12);
+  --os-handle-bg: rgba(255, 255, 255, 0.3);
+  --os-handle-bg-hover: rgba(255, 255, 255, 0.45);
+  --os-handle-bg-active: rgba(255, 255, 255, 0.5);
+}
+
 /* DataList (dataTables_wrapper) */
 
 html.theme-dark2 .data-list {

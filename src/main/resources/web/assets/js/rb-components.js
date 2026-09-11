@@ -622,6 +622,50 @@ function NoValue({ text }) {
   return <span className="text-muted">{text || $L('无')}</span>
 }
 
+// ~~ 自定义滚动条容器
+class RbScroller extends React.Component {
+  componentDidMount() {
+    const props = this.props
+    this._osInstance = window.OverlayScrollbarsGlobal.OverlayScrollbars(
+      {
+        target: this._$host,
+        elements: { viewport: this._$viewport, content: this._$viewport },
+      },
+      Object.assign({ scrollbars: { theme: 'os-theme-rb', clickScroll: 'instant' } }, props.options),
+      props.events,
+    )
+  }
+
+  componentWillUnmount() {
+    this._osInstance && this._osInstance.destroy()
+    this._osInstance = null
+  }
+
+  osInstance() {
+    return this._osInstance
+  }
+
+  viewport() {
+    return this._osInstance ? this._osInstance.elements().viewport : this._$viewport
+  }
+
+  update(force) {
+    this._osInstance && this._osInstance.update(force)
+  }
+
+  render() {
+    const props = this.props
+    return (
+      <div className={props.className} style={props.style} data-overlayscrollbars-initialize ref={(c) => (this._$host = c)}>
+        <div data-overlayscrollbars-contents ref={(c) => (this._$viewport = c)}>
+          {props.children}
+        </div>
+        {props.overlay}
+      </div>
+    )
+  }
+}
+
 // ~~ 用户选择器
 class UserSelector extends React.Component {
   constructor(props) {

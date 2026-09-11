@@ -448,7 +448,14 @@ class ChatMessages extends React.Component {
   render() {
     const showSuggest = this.state.suggestQuestions && this.state.suggestQuestions.length > 0 && !this._hasUserMessage()
     return (
-      <div className="chat-messages" ref={(c) => (this._$messages = c)}>
+      <RbScroller
+        className="chat-messages"
+        ref={(c) => (this._Scroller = c)}
+        overlay={
+          <a className="chat-scroll-fab" ref={(c) => (this._$scrollFab = c)} onClick={() => this._scrollFabClick()}>
+            <i className="mdi mdi-chevron-down down-1" />
+          </a>
+        }>
         {this.state.messages.map((item, idx) => {
           return <ChatMessage {...item} key={idx} _ChatMessages={this} />
         })}
@@ -465,10 +472,7 @@ class ChatMessages extends React.Component {
             </div>
           </div>
         )}
-        <a className="chat-scroll-fab" ref={(c) => (this._$scrollFab = c)} onClick={() => this._scrollFabClick()}>
-          <i className="mdi mdi-chevron-down down-1" />
-        </a>
-      </div>
+      </RbScroller>
     )
   }
 
@@ -494,11 +498,6 @@ class ChatMessages extends React.Component {
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
 
     this.setState(state, () => {
-      const $el = $(this._$messages)
-      $el.perfectScrollbar('destroy')
-      $el.perfectScrollbar()
-      $el.perfectScrollbar('update')
-
       this.scrollToBottom(forceScroll)
     })
   }
@@ -507,8 +506,9 @@ class ChatMessages extends React.Component {
     let _lastScroll = 0
     const self = this
 
+    // RbScroller 的 viewport 才是真正滚动的元素
+    this._$messages = this._Scroller.viewport()
     const $ms = $(this._$messages)
-    $ms.perfectScrollbar()
 
     $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
@@ -523,7 +523,6 @@ class ChatMessages extends React.Component {
       _lastScroll = currentScroll
 
       const $fab = $(self._$scrollFab)
-      $fab.css('top', currentScroll + $ms.innerHeight() - 50)
       $fab.toggleClass('show', currentScroll + $ms.innerHeight() < $ms[0].scrollHeight - 150 && $ms[0].scrollHeight > $ms.innerHeight() + 20)
     })
   }
@@ -533,18 +532,17 @@ class ChatMessages extends React.Component {
     $(this._$messages).animate({ scrollTop: $(this._$messages)[0].scrollHeight }, 300)
   }
 
-  componentWillUnmount() {
-    $(this._$messages).perfectScrollbar('destroy')
-  }
-
   scrollToBottom(forceScroll) {
     if (forceScroll) {
       __evt_ScrollToBottomStop = false
     }
 
     const FN = () => {
+      // 即使已停止自动滚到底，内容变长仍需重算滚动条
+      this._Scroller && this._Scroller.update(true)
+      if (__evt_ScrollToBottomStop) return
+
       const $el = $(this._$messages)
-      $el.perfectScrollbar('update')
       $el.scrollTop($el[0].scrollHeight + 20)
     }
 
