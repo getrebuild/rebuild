@@ -171,23 +171,21 @@ public class ToolDefs {
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
             Tool toolImpl = TOOL_MAP.get(toolName);
-            // 系统工具仅供 AI 使用，不对用户展示
             if (toolImpl.isSystem()) continue;
-            // 禁用工具仅在 includeDisabled 时返回（供管理页展示/重新启用）
             if (disabled.contains(toolName) && !includeDisabled) continue;
 
-            JSONObject json = getToolJson(toolName);
-            if (json == null) continue;
-            JSONObject funcJson = json.getJSONObject("function");
+            JSONObject toolJson = getToolJson(toolName);
+            if (toolJson == null) continue;
+            JSONObject funcJson = toolJson.getJSONObject("function");
 
-            JSONObject tool = new JSONObject(true);
-            tool.put("name", funcJson.getString("name"));
-            tool.put("description", funcJson.getString("description"));
-            tool.put("userDescription", funcJson.getString("userDescription"));
+            JSONObject d = new JSONObject(true);
+            d.put("name", funcJson.getString("name"));
+            d.put("description", funcJson.getString("description"));
+            d.put("userDescription", toolJson.getString("userDescription"));
 
-            if (includeDisabled) tool.put("disabled", disabled.contains(toolName));
-            if (includeSchema) tool.put("inputSchema", funcJson.getJSONObject("parameters"));
-            tools.add(tool);
+            if (includeDisabled) d.put("disabled", disabled.contains(toolName));
+            if (includeSchema) d.put("inputSchema", funcJson.getJSONObject("parameters"));
+            tools.add(d);
         }
         return tools;
     }
