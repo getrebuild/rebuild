@@ -198,14 +198,12 @@ public class ToolDefs {
      */
     static JSONObject getToolJson(String toolName) {
         if (!Application.devMode()) {
-            JSONObject cached = TOOL_JSON_CACHE.get(toolName);
-            if (cached != null) return cached;
+            JSONObject c = TOOL_JSON_CACHE.get(toolName);
+            if (c != null) return JSON.parseObject(c.toJSONString());
         }
 
         String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
-        JSONObject json = d == null ? null : JSONObject.parseObject(d);
-        if (json != null) TOOL_JSON_CACHE.put(toolName, json);
-        return json;
+        return d == null ? null : JSONObject.parseObject(d);
     }
 
     // 工具执行进度提示的兜底文案

@@ -35,8 +35,6 @@ public interface Tool {
         String toolName = getClass().getSimpleName();
         JSONObject json = ToolDefs.getToolJson(toolName);
         Assert.notNull(json, "Tool definition cannot be null");
-        // 深拷贝避免修改缓存中的共享对象
-        json = JSON.parseObject(json.toJSONString());
 
         JSONObject funcJson = json.getJSONObject("function");
         JSONObject paramsJson = funcJson.getJSONObject("parameters");
