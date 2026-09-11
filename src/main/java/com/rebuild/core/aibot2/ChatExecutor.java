@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * 非流式模型交互执行器（含工具调用循环与思考内容提取）
@@ -215,8 +216,25 @@ public class ChatExecutor {
      */
     static void executeAndAppend(ChatCompletionCreateParams.Builder builder,
                                  List<ChatCompletionMessageToolCall> toolCalls, ChatLogger chatLogger) {
+        executeAndAppend(builder, toolCalls, chatLogger, null);
+    }
+
+    /**
+     * 执行工具调用并将结果加入请求上下文（流式/非流式共用）
+     *
+     * @param builder
+     * @param toolCalls
+     * @param chatLogger
+     * @param hintEcho
+     */
+    static void executeAndAppend(ChatCompletionCreateParams.Builder builder,
+                                 List<ChatCompletionMessageToolCall> toolCalls, ChatLogger chatLogger,
+                                 Consumer<String> hintEcho) {
         for (ChatCompletionMessageToolCall tc : toolCalls) {
             ChatCompletionMessageFunctionToolCall fn = tc.asFunction();
+
+            if (hintEcho != null) hintEcho.accept(ToolDefs.userHint(fn.function().name()));
+
             String toolResult = ToolDefs.executeSafely(
                     fn.function().name(), fn.function().arguments(), chatLogger);
 

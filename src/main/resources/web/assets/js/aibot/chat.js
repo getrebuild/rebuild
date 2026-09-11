@@ -136,7 +136,11 @@ class Chat extends React.Component {
         }
 
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
-        scrollToBottom(true, 300)
+
+        setTimeout(() => {
+          this._ChatMessages.updateScrollbar(1)
+          scrollToBottom(true, 20)
+        }, 400)
 
         if (_preset) {
           let newState = {}
@@ -500,11 +504,9 @@ class ChatMessages extends React.Component {
 
     const $ms = $(this._$messages)
     $ms.perfectScrollbar()
-    this._psObserver = new MutationObserver(() => {
-      $setTimeout(() => $ms.perfectScrollbar('update'), 100, 'chat-ps-update')
-    })
+    this._psObserver = new MutationObserver(() => this.updateScrollbar())
     this._psObserver.observe(this._$messages, { childList: true, subtree: true, characterData: true })
-    $(window).on('resize.chat-ps', () => $setTimeout(() => $ms.perfectScrollbar('update'), 150, 'chat-ps-resize'))
+    $(window).on('resize.chat-ps', () => this.updateScrollbar())
 
     $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
@@ -534,6 +536,17 @@ class ChatMessages extends React.Component {
     $(window).off('resize.chat-ps')
     $(this._$messages).perfectScrollbar('destroy')
   }
+
+  updateScrollbar(delay) {
+    // 强制更新一次
+    this.updateScrollbar_calls = this.updateScrollbar_calls || 0
+    if (this.updateScrollbar_calls >= 20) {
+      delay = 1
+      this.updateScrollbar_calls = 0
+    }
+
+    $setTimeout(() => $(this._$messages).perfectScrollbar('update'), delay || 100, 'chat-updateScrollbar')
+  }
 }
 
 class ChatMessage extends React.Component {
@@ -549,7 +562,7 @@ class ChatMessage extends React.Component {
         data = data || {}
         if (data.type === '_done') {
           // 输出完成后自动收起思考过程
-          this.setState({ waitResp: -1, reasoningOpen: false })
+          this.setState({ waitResp: -1, reasoningOpen: false, toolHint: null })
           return
         }
         if (data.error) {
@@ -563,14 +576,21 @@ class ChatMessage extends React.Component {
           return
         }
 
+        // 工具执行中的进度提示，收到正文或思考内容后清除
+        if (data.type === '_tool') {
+          // waitResp 置 0 隐藏初始空转圈，避免与状态条重复
+          this.setState({ toolHint: data.content, waitResp: 0 })
+          return
+        }
+
         if (data.content) {
           if (data.type === '_reasoning') {
             data.reasoning = (this.state.reasoning || '') + data.content
             delete data.content
-            this.setState({ ...data, waitResp: 2 })
+            this.setState({ ...data, waitResp: 2, toolHint: null })
           } else {
             data.content = (this.state.content || '') + data.content
-            this.setState({ ...data, waitResp: 0 })
+            this.setState({ ...data, waitResp: 0, toolHint: null })
           }
         }
       })
@@ -726,6 +746,14 @@ class ChatMessage extends React.Component {
                   <RichContent content={this.state.reasoning} ready={ready} md={ready ? undefined : false} noRich />
                 </div>
               )}
+            </div>
+          )}
+          {this.state.toolHint && (
+            <div className="reasoning">
+              <div className="reasoning-toggle cursor-default">
+                <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />
+                <span>{this.state.toolHint}</span>
+              </div>
             </div>
           )}
           <RichContent content={this.state.content} ready={ready} />

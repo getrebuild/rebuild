@@ -263,7 +263,7 @@ public class ChatStreamExecutor {
                 .build();
         builder.addMessage(assistantMsg);
 
-        executeAndAppend(builder, assembledToolCalls, chatLogger());
+        executeAndAppend(builder, assembledToolCalls, chatLogger(), this::echoTool);
         return true;
     }
 
@@ -322,6 +322,27 @@ public class ChatStreamExecutor {
 
         try {
             StreamEcho.text(content, writer);
+        } catch (Exception e) {
+            clientGone = true;
+        }
+        if (!clientGone && writer.checkError()) {
+            clientGone = true;
+        }
+        if (clientGone) {
+            chatLogger().logEvent("Client disconnected, continuing stream");
+        }
+    }
+
+    /**
+     * 推送工具执行进度（客户端断开后忽略）
+     *
+     * @param hint
+     */
+    private void echoTool(String hint) {
+        if (clientGone) return;
+
+        try {
+            StreamEcho.echo(hint, writer, "_tool");
         } catch (Exception e) {
             clientGone = true;
         }
