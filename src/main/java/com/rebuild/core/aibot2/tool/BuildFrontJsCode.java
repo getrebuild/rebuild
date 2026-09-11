@@ -10,7 +10,7 @@ package com.rebuild.core.aibot2.tool;
 import com.rebuild.core.privileges.AdminGuard;
 
 /**
- * 新建/更新 FrontJS 前端扩展代码
+ * 新建 FrontJS 前端扩展代码（不支持更新）
  *
  * @author devezhao
  * @since 2026/9/10

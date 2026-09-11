@@ -208,6 +208,29 @@ public class ToolDefs {
         return json;
     }
 
+    // 工具执行进度提示的兜底文案
+    private static final String TOOL_HINT_DEFAULT = "正在处理...";
+
+    /**
+     * 工具执行中的用户可见提示。取 userDescription 首句，
+     * 系统工具与描述缺失时回退兜底文案，避免内部工具名外泄到用户对话。
+     *
+     * @param toolName
+     * @return
+     */
+    public static String userHint(String toolName) {
+        Tool tool = TOOL_MAP.get(toolName);
+        if (tool == null || tool.isSystem()) return TOOL_HINT_DEFAULT;
+
+        JSONObject json = getToolJson(toolName);
+        String desc = json == null ? null : json.getString("userDescription");
+        if (StringUtils.isBlank(desc)) return TOOL_HINT_DEFAULT;
+
+        desc = StringUtils.substringBefore(desc, "。").trim();
+        if (desc.length() > 24) desc = CommonsUtils.maxstr(desc, 24) + "...";
+        return StringUtils.defaultIfBlank(desc, TOOL_HINT_DEFAULT);
+    }
+
     /**
      * 工具是否被禁用
      *
