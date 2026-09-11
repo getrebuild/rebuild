@@ -1329,10 +1329,13 @@ var $useEchart = function (cb) {
 // Mermaid 流程图
 var $useMermaid = function (cb) {
   function _exposeMermaid() {
-    if (typeof mermaid === 'undefined' && typeof __esbuild_esm_mermaid_nm !== 'undefined') {
+    if (typeof mermaid !== 'undefined') return
+    if (typeof __esbuild_esm_mermaid_nm !== 'undefined') {
       // eslint-disable-next-line no-undef
       window.mermaid = __esbuild_esm_mermaid_nm.mermaid
+      return
     }
+    console.error('[Mermaid] Failed to load: mermaid is undefined after script load')
   }
   $useScript(
     '/assets/lib/charts/mermaid.min.js?v=11.17.2',
