@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletionTool;
+import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.AibotAgent;
@@ -33,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.rebuild.core.aibot2.tool.ToolHelper.compactJson;
@@ -43,6 +45,8 @@ import static com.rebuild.core.aibot2.tool.ToolHelper.compactJson;
  */
 @Slf4j
 public class ToolDefs {
+
+    private static final Map<String, JSONObject> TOOL_JSON_CACHE = new ConcurrentHashMap<>();
 
     private static final Map<String, Tool> TOOL_MAP = new LinkedHashMap<>();
     static {
@@ -172,23 +176,38 @@ public class ToolDefs {
             // 禁用工具仅在 includeDisabled 时返回（供管理页展示/重新启用）
             if (disabled.contains(toolName) && !includeDisabled) continue;
 
-            String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
-            if (d == null) continue;
-
-            JSONObject json = JSONObject.parseObject(d);
+            JSONObject json = getToolJson(toolName);
+            if (json == null) continue;
             JSONObject funcJson = json.getJSONObject("function");
 
             JSONObject tool = new JSONObject(true);
             tool.put("name", funcJson.getString("name"));
             tool.put("description", funcJson.getString("description"));
-            // 用户描述独立于模型描述，未配置时回退到模型描述
-            String userDescription = json.getString("userDescription");
-            if (StringUtils.isNotBlank(userDescription)) tool.put("userDescription", userDescription);
+            tool.put("userDescription", funcJson.getString("userDescription"));
+
             if (includeDisabled) tool.put("disabled", disabled.contains(toolName));
             if (includeSchema) tool.put("inputSchema", funcJson.getJSONObject("parameters"));
             tools.add(tool);
         }
         return tools;
+    }
+
+    /**
+     * 获取并缓存工具定义 JSON
+     *
+     * @param toolName
+     * @return
+     */
+    static JSONObject getToolJson(String toolName) {
+        if (!Application.devMode()) {
+            JSONObject cached = TOOL_JSON_CACHE.get(toolName);
+            if (cached != null) return cached;
+        }
+
+        String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
+        JSONObject json = d == null ? null : JSONObject.parseObject(d);
+        if (json != null) TOOL_JSON_CACHE.put(toolName, json);
+        return json;
     }
 
     /**

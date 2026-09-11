@@ -15,7 +15,6 @@ import com.openai.models.chat.completions.ChatCompletionFunctionTool;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.CommandArgs;
-import com.rebuild.utils.CommonsUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -33,10 +32,9 @@ public interface Tool {
      */
     default ChatCompletionTool def() {
         String toolName = getClass().getSimpleName();
-        String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
-        Assert.notNull(d, "Tool definition cannot be null");
+        JSONObject json = ToolDefs.getToolJson(toolName);
+        Assert.notNull(json, "Tool definition cannot be null");
 
-        JSONObject json = JSONObject.parseObject(d);
         JSONObject funcJson = json.getJSONObject("function");
         JSONObject paramsJson = funcJson.getJSONObject("parameters");
 
