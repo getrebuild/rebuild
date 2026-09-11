@@ -137,10 +137,7 @@ class Chat extends React.Component {
 
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
 
-        setTimeout(() => {
-          this._ChatMessages.updateScrollbar(1)
-          scrollToBottom(true, 20)
-        }, 400)
+        this._ChatMessages.scrollToBottom(true)
 
         if (_preset) {
           let newState = {}
@@ -165,7 +162,7 @@ class Chat extends React.Component {
 
   send(data, onDone) {
     this._stopPendingPoll()
-    scrollToBottom(true)
+    this._ChatMessages.scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
 
     setTimeout(() => {
@@ -189,7 +186,7 @@ class Chat extends React.Component {
 
   sendStream(data, onDone) {
     this._stopPendingPoll()
-    scrollToBottom(true)
+    this._ChatMessages.scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
 
     setTimeout(() => {
@@ -495,7 +492,9 @@ class ChatMessages extends React.Component {
   setMessages(messages, forceScroll, suggestQuestions) {
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
-    this.setState(state, () => scrollToBottom(forceScroll))
+    this.setState(state, () => {
+      this.scrollToBottom(forceScroll)
+    })
   }
 
   componentDidMount() {
@@ -538,14 +537,35 @@ class ChatMessages extends React.Component {
   }
 
   updateScrollbar(delay) {
-    // 强制更新一次
-    this.updateScrollbar_calls = this.updateScrollbar_calls || 0
-    if (this.updateScrollbar_calls >= 20) {
+    this._updateScrollbarCalls = this._updateScrollbarCalls || 0
+    if (this._updateScrollbarCalls >= 20) {
       delay = 1
-      this.updateScrollbar_calls = 0
+      this._updateScrollbarCalls = 0
     }
 
-    $setTimeout(() => $(this._$messages).perfectScrollbar('update'), delay || 100, 'chat-updateScrollbar')
+    delay = delay || 100
+    $setTimeout(() => $(this._$messages).perfectScrollbar('update'), delay, 'chat-updateScrollbar')
+  }
+
+  scrollToBottom(forceScroll) {
+    if (forceScroll) __evt_ScrollToBottomStop = false
+
+    this._scrollToBottomCalls = this._scrollToBottomCalls || 0
+    let delay = 50
+    if (this._scrollToBottomCalls++ >= 20) {
+      delay = 1
+      this._scrollToBottomCalls = 0
+    }
+
+    const fn = () => {
+      const $el = $(this._$messages)
+      $el.perfectScrollbar('update')
+      if (__evt_ScrollToBottomStop) return
+      $el.scrollTop($el[0].scrollHeight + 20)
+    }
+
+    $setTimeout(fn, delay, 'chat-scrollToBottom')
+    $setTimeout(fn, 400, 'chat-scrollToBottom-safe')
   }
 }
 
@@ -609,7 +629,7 @@ class ChatMessage extends React.Component {
     }
 
     const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning
-    if (contentChanged) scrollToBottom()
+    if (contentChanged) this.props._ChatMessages.scrollToBottom()
   }
 
   _feedbackable() {
@@ -982,28 +1002,6 @@ class RichContent extends React.Component {
       if (chart && typeof chart.dispose === 'function') chart.dispose()
     })
   }
-}
-
-let scrollToBottom_calls = 0
-function scrollToBottom(forceScroll, delay) {
-  if (forceScroll) __evt_ScrollToBottomStop = false
-  if (__evt_ScrollToBottomStop) return
-
-  // 强制更新一次
-  if (scrollToBottom_calls++ >= 20) {
-    delay = 1
-    scrollToBottom_calls = 0
-  }
-
-  $setTimeout(
-    () => {
-      const $el = $('.chat-messages')
-      if ($el.length === 0) return
-      $el.scrollTop($el[0].scrollHeight + 20)
-    },
-    delay || 50,
-    'chat-scrollToBottom',
-  )
 }
 
 function fetchStream(url, data, onChunk, onDone) {
