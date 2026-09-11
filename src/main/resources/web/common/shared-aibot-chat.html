@@ -20,33 +20,41 @@
         margin-left: auto;
         margin-right: auto;
       }
-      .shared-aibot-chat h1 {
-        font-size: 1.5rem;
-        margin-top: 20px;
+      .shared-aibot-chat .chat-subject {
+        margin: 20px 0;
         margin-bottom: 16px;
-        line-height: 1.2;
       }
-      .chat-messages {
+      .shared-aibot-chat .chat-subject h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        line-height: 1.4;
+        margin-bottom: 5px;
+      }
+      .shared-aibot-chat .chat-messages {
         height: auto;
         border-radius: 8px;
         padding: 25px;
       }
-      .chat-messages .chat-message {
+      .shared-aibot-chat .chat-messages .chat-message {
         margin-bottom: 25px;
       }
-      .chat-message .msg-user > .msg-attach > a {
+      .shared-aibot-chat .chat-message .msg-user > .msg-attach > a {
         cursor: default;
       }
       @media (max-width: 800px) {
+        html {
+          font-size: 15px;
+        }
         .shared-aibot-chat {
           width: 100%;
         }
-        .shared-aibot-chat h1 {
-          margin: 20px 16px;
+        .shared-aibot-chat .chat-subject {
+          margin-left: 16px;
+          margin-right: 16px;
         }
         .shared-aibot-chat .chat-messages {
-          border-radius: 0;
           padding: 20px 16px;
+          border-radius: 0;
         }
         .rb-scroll-top.show {
           right: 16px;
@@ -64,16 +72,15 @@
   <body>
     <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
     <div class="shared-aibot-chat">
-      <h1 class="text-bold">
-        [[${subject}]]
-        <div class="chat-meta">
-          <small class="text-muted fs-12">
-            <i class="icon mdi mdi-information-outline"></i>
-            [[${bundle.L('内容由 AI 生成')}]]
-          </small>
-          <small th:if="${shareByName != null}" class="text-muted fs-12"><b> · </b>[[${bundle.L('由 %s 分享', shareByName)}]]</small>
+      <div class="chat-subject">
+        <h1 class="text-bold">[[${subject}]]</h1>
+        <div class="text-muted fs-md">
+          <i class="icon mdi mdi-information-outline"></i>
+          [[${bundle.L('内容由 AI 生成')}]]
+          <span th:if="${shareByName != null}"><b> · </b>[[${bundle.L('由 %s 分享', shareByName)}]]</span>
         </div>
-      </h1>
+      </div>
+
       <div class="must-center spinner-loading">
         <div class="spinner"></div>
       </div>
