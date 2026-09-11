@@ -1066,11 +1066,6 @@ class ChatSidebar extends React.Component {
 
   componentDidMount() {
     this._loadChatList()
-    $(this._$list).perfectScrollbar()
-  }
-
-  componentWillUnmount() {
-    $(this._$list).perfectScrollbar('destroy')
   }
 
   componentDidUpdate(props, prevState) {
@@ -1078,7 +1073,7 @@ class ChatSidebar extends React.Component {
       $storage.set('__AiBotLastChatId', this.state.current)
     }
     if (prevState.list !== this.state.list) {
-      $(this._$list).perfectScrollbar('update')
+      this._Scroller && this._Scroller.update(true)
     }
   }
 
@@ -1112,9 +1107,9 @@ class ChatSidebar extends React.Component {
             {$L('新会话')}
           </a>
         </div>
-        <div className="chat-list auto-scroller" ref={(c) => (this._$list = c)}>
+        <RbScroller className="chat-list auto-scroller" ref={(c) => (this._Scroller = c)}>
           <ul className="list-unstyled m-0">{this._renderGroupedList()}</ul>
-        </div>
+        </RbScroller>
       </div>
     )
   }

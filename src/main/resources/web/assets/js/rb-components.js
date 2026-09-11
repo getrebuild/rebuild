@@ -631,7 +631,7 @@ class RbScroller extends React.Component {
         target: this._$host,
         elements: { viewport: this._$viewport, content: this._$viewport },
       },
-      Object.assign({ scrollbars: { theme: 'os-theme-rb', clickScroll: 'instant' } }, props.options),
+      Object.assign({ scrollbars: { theme: 'os-theme-rb', clickScroll: 'instant', autoHide: 'leave' } }, props.options),
       props.events,
     )
   }
