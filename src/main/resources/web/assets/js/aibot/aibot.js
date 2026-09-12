@@ -32,7 +32,7 @@ class AiBot extends React.Component {
                   this.hide()
                 }}
                 title={$L('独立窗口')}>
-                <span className="mdi mdi-open-in-new" />
+                <span className="mdi mdi-open-in-new down-1" />
               </button>
               <button className="close" type="button" onClick={() => this._Chat.initChat()} title={$L('新会话')}>
                 <span className="mdi mdi-chat-plus-outline" />

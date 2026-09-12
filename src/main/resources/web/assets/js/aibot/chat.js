@@ -136,7 +136,6 @@ class Chat extends React.Component {
         }
 
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
-
         this._ChatMessages.scrollToBottom(true)
 
         if (_preset) {
@@ -151,7 +150,8 @@ class Chat extends React.Component {
           })
         }
       } else {
-        this._ChatMessages.setMessages([{ error: res.error_msg }])
+        this._ChatMessages.setMessages([{ error: res.error_msg }], true)
+        this._ChatMessages.scrollToBottom(true)
       }
     })
   }
@@ -506,7 +506,6 @@ class ChatMessages extends React.Component {
     let _lastScroll = 0
     const self = this
 
-    // RbScroller 的 viewport 才是真正滚动的元素
     this._$messages = this._Scroller.viewport()
     const $ms = $(this._$messages)
 
@@ -522,9 +521,16 @@ class ChatMessages extends React.Component {
       }
       _lastScroll = currentScroll
 
-      const $fab = $(self._$scrollFab)
-      $fab.toggleClass('show', currentScroll + $ms.innerHeight() < $ms[0].scrollHeight - 150 && $ms[0].scrollHeight > $ms.innerHeight() + 20)
+      self._updateScrollFab()
     })
+  }
+
+  _updateScrollFab() {
+    if (!this._$scrollFab || !this._$messages) return
+    const $ms = $(this._$messages)
+    const currentScroll = $ms.scrollTop()
+    const shouldShow = currentScroll + $ms.innerHeight() < $ms[0].scrollHeight - 150 && $ms[0].scrollHeight > $ms.innerHeight() + 20
+    $(this._$scrollFab).toggleClass('show', shouldShow)
   }
 
   _scrollFabClick() {
@@ -538,12 +544,12 @@ class ChatMessages extends React.Component {
     }
 
     const FN = () => {
-      // 即使已停止自动滚到底，内容变长仍需重算滚动条
       this._Scroller && this._Scroller.update(true)
-      if (__evt_ScrollToBottomStop) return
-
-      const $el = $(this._$messages)
-      $el.scrollTop($el[0].scrollHeight + 20)
+      if (!__evt_ScrollToBottomStop) {
+        const $el = $(this._$messages)
+        $el.scrollTop($el[0].scrollHeight + 20)
+      }
+      this._updateScrollFab()
     }
 
     this._scrollToBottomCalls = this._scrollToBottomCalls || 0
