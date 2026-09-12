@@ -250,7 +250,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         // 加载自定义实体
         log.info("Loading customized/business entities ...");
-        ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh();
+        ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refreshNow();
 
         // 实体对应的服务类
         _ESS = new HashMap<>();
