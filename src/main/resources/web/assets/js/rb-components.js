@@ -1442,8 +1442,10 @@ class Md2Html extends React.Component {
         .find('a')
         .each(function () {
           const $a = $(this)
+          const href = $a.attr('href') || ''
+          if (!/^https?:\/\//i.test(href)) return
           $a.attr({
-            href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent($a.attr('href'))}`,
+            href: `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent(href)}`,
             target: '_blank',
           }).on('click', (e) => {
             $stopEvent(e, false)
