@@ -560,11 +560,16 @@ class ToolList extends React.Component {
         desc = WrapHtml(desc)
       }
 
+      const _saveFn = (checked) => {
+        if (rb.commercial < 1) RbAlertFree43.create()
+        else this._saveToolsDisabled(item.name, checked)
+      }
+
       return (
         <tr key={item.name}>
           <td>{item.name}</td>
           <td>{desc || <NoValue />}</td>
-          <td className="actions">{sysTool ? null : ShowEnable(item.disabled, item.name, (checked) => this._saveToolsDisabled(item.name, checked))}</td>
+          <td className="actions">{sysTool ? null : ShowEnable(item.disabled, item.name, _saveFn)}</td>
         </tr>
       )
     })

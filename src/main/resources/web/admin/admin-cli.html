@@ -1,80 +1,341 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" class="theme-dark2">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2-base.css}" />
     <title>ADMIN CLI</title>
     <style>
       html,
-      body,
-      input,
-      .rb-console .out {
-        background-color: #222;
-        color: #f1f1f1;
+      body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
         font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-        line-height: 1.5;
-        font-size: 12px;
+        font-size: 13px;
+        line-height: 1.6;
       }
       .rb-console {
-        padding: 20px;
-      }
-      .rb-console input {
-        width: 100%;
-        padding: 6px 2px;
-        border: 0 none;
-        appearance: none;
-        -webkit-appearance: none;
-        outline: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 12px 16px 10px;
       }
       .rb-console .out {
-        margin-top: 20px;
+        flex: 1;
+        overflow-y: auto;
+        overflow-anchor: none;
+        padding: 4px 2px;
       }
-      .rb-console .out div.cm::before {
-        content: '#';
-        width: 16px;
-        display: inline-block;
-        animation: flash 1s infinite;
+      .rb-console .out::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
       }
-      .rb-console .out div.cm.ok::before {
-        animation: none;
+      .rb-console .out::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+      }
+      .rb-console .out::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(255, 255, 255, 0.45);
+      }
+      .rb-console .out::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+      .rb-console .out > div {
+        padding: 1px 8px;
+        border-radius: 3px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .rb-console .out > div:hover {
+        background-color: rgba(255, 255, 255, 0.04);
+      }
+
+      .line-banner {
+        color: var(--rb-dark-link);
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .line-info {
+        color: var(--rb-dark-muted);
+      }
+      .line-cmd {
+        color: var(--rb-dark-text);
+      }
+      .line-cmd::before {
+        content: '# ';
+        color: var(--rb-dark-link);
+        font-weight: 600;
+      }
+      .line-out {
+        color: var(--rb-dark-text);
+      }
+      .line-ok {
+        color: #56d364;
+      }
+      .line-warn {
+        color: #d29922;
+      }
+      .line-err {
+        color: #f85149;
+      }
+      .line-loading {
+        color: var(--rb-dark-muted);
+      }
+      .line-loading::after {
+        content: '';
+        animation: cli-dots 1.2s steps(4, end) infinite;
+      }
+      @keyframes cli-dots {
+        0% {
+          content: '';
+        }
+        25% {
+          content: '.';
+        }
+        50% {
+          content: '..';
+        }
+        75% {
+          content: '...';
+        }
+        100% {
+          content: '';
+        }
+      }
+
+      .rb-console .in {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background-color: var(--rb-dark-panel);
+        border: 1px solid var(--rb-dark-border);
+        border-radius: 8px;
+        flex-shrink: 0;
+        margin-top: 10px;
+      }
+      .rb-console .in .prompt {
+        color: var(--rb-dark-link);
+        font-weight: 600;
+        margin-right: 8px;
+        user-select: none;
+      }
+      .rb-console .in input {
+        flex: 1;
+        background: transparent;
+        border: 0;
+        outline: none;
+        color: var(--rb-dark-text);
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 1.6;
+        padding: 0;
+      }
+      .rb-console .in input::placeholder {
+        color: #484f58;
+      }
+      .rb-console .in .busy {
+        color: #d29922;
+        margin-left: 8px;
+        animation: cli-pulse 1s ease-in-out infinite;
+        user-select: none;
+      }
+      @keyframes cli-pulse {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 1;
+        }
       }
     </style>
   </head>
   <body>
     <div class="rb-console">
+      <div class="out" id="cliOut"></div>
       <div class="in">
-        <input type="text" placeholder="# enter command ... eg: help" />
+        <span class="prompt">#</span>
+        <input type="text" id="cliInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="enter command ... eg: help" />
+        <span class="busy hide" id="cliBusy">&#9679;</span>
       </div>
-      <div class="out"></div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
-    <script type="text/babel">
-      function _print(c, o) {
-        const $c = $(`<div class="${o ? '' : 'cm'}">${c.replace(/\n/g, '<br>')}</div>`)
-        $('.out').prepend($c)
-        return $c
-      }
+    <script>
+      $(function () {
+        const $out = $('#cliOut')
+        const $input = $('#cliInput')
+        const $busy = $('#cliBusy')
+        const outEl = $out[0]
 
-      $(document).ready(() => {
-        const $in = $('.in>input').keydown((event) => {
-          if (event.which === 13 && $in.val()) {
-            const c = $in.val().trim()
-            $in.val('')
-            if (c === 'clean') {
-              $('.out').empty()
-              return
-            }
+        const MAX_ENTRIES = 500
+        const STORAGE_KEY = 'rb.adminCli.history'
 
-            const $c = _print(c)
-            $.post('/admin/admin-cli/exec', c, (o) => {
-              $c.addClass('ok')
-              if (o && o.data) _print(o.data, true)
-              else if (o && o.error_msg) _print(`ERROR: ${o.error_msg}`, true)
+        let history = []
+        try {
+          history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') || []
+        } catch (ignored) {}
+        let historyIdx = history.length
+        let historyDraft = ''
+        let busy = false
+
+        function appendLine(text, className) {
+          const div = document.createElement('div')
+          if (className) div.className = className
+          div.textContent = text
+          outEl.appendChild(div)
+          trimEntries()
+          scrollToBottom()
+          return div
+        }
+
+        function appendOutput(text) {
+          const cls = classifyOutput(text)
+          return appendLine(text, cls)
+        }
+
+        function classifyOutput(text) {
+          if (!text) return 'line-out'
+          if (text === 'OK') return 'line-ok'
+          if (text.startsWith('WRAN:') || text.startsWith('WARN:')) return 'line-warn'
+          if (text.startsWith('ERROR:') || text.startsWith('ERR:')) return 'line-err'
+          return 'line-out'
+        }
+
+        function scrollToBottom() {
+          outEl.scrollTop = outEl.scrollHeight
+        }
+
+        function trimEntries() {
+          while (outEl.childElementCount > MAX_ENTRIES) {
+            outEl.removeChild(outEl.firstElementChild)
+          }
+        }
+
+        function showWelcome() {
+          const ver = rb.ver || ''
+          const env = rb.env || ''
+          appendLine('REBUILD ADMIN CLI' + (ver ? ' v' + ver : '') + (env ? ' [' + env + ']' : ''), 'line-banner')
+          appendLine('Type `help` for available commands. Super admin only.', 'line-info')
+          appendLine('', 'line-info')
+        }
+
+        function setBusy(v) {
+          busy = v
+          $busy.toggleClass('hide', !v)
+        }
+
+        function execCommand(cmd) {
+          // Echo the command line
+          appendLine(cmd, 'line-cmd')
+
+          // Loading placeholder
+          const loadDiv = appendLine('', 'line-loading')
+          setBusy(true)
+
+          $.post('/admin/admin-cli/exec', cmd)
+            .done(function (res) {
+              loadDiv.remove()
+              if (res && res.error_code === 0) {
+                const data = res.data
+                if (data == null || data === '') appendLine('(no output)', 'line-info')
+                else appendOutput(String(data))
+              } else {
+                appendLine('ERROR: ' + ((res && res.error_msg) || 'unknown error'), 'line-err')
+              }
             })
+            .fail(function (xhr, status, err) {
+              loadDiv.remove()
+              const detail = err || status || 'HTTP ' + xhr.status
+              appendLine('ERROR: request failed - ' + detail, 'line-err')
+            })
+            .always(function () {
+              setBusy(false)
+              $input.focus()
+            })
+        }
+
+        function pushHistory(cmd) {
+          // De-dup consecutive repeats
+          if (history[history.length - 1] === cmd) {
+            historyIdx = history.length
+            return
+          }
+          history.push(cmd)
+          if (history.length > 100) history.shift()
+          historyIdx = history.length
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history))
+          } catch (ignored) {}
+        }
+
+        $input.on('keydown', function (e) {
+          // Enter: submit
+          if (e.key === 'Enter') {
+            e.preventDefault()
+            if (busy) return
+            const cmd = $input.val().trim()
+            if (!cmd) return
+            pushHistory(cmd)
+            historyDraft = ''
+            $input.val('')
+            execCommand(cmd)
+            return
+          }
+
+          // Up/Down: history
+          if (e.key === 'ArrowUp') {
+            e.preventDefault()
+            if (history.length === 0) return
+            if (historyIdx === history.length) historyDraft = $input.val()
+            if (historyIdx > 0) {
+              historyIdx--
+              $input.val(history[historyIdx])
+            }
+            return
+          }
+          if (e.key === 'ArrowDown') {
+            e.preventDefault()
+            if (historyIdx < history.length - 1) {
+              historyIdx++
+              $input.val(history[historyIdx])
+            } else {
+              historyIdx = history.length
+              $input.val(historyDraft)
+            }
+            return
+          }
+
+          // Ctrl+C: cancel input
+          if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+            if ($input.val()) {
+              e.preventDefault()
+              $input.val('')
+            }
+            return
           }
         })
-        $in.focus()
-        $in.val($urlp('i') || '')
+
+        $out.on('click', function () {
+          if (!busy) $input.focus()
+        })
+
+        showWelcome()
+        $input.focus()
+
+        // ?i= prefill (and auto-run with &run=1)
+        const initCmd = $urlp('i')
+        if (initCmd) {
+          let decoded = initCmd.replace(/\+/g, ' ')
+          try {
+            decoded = decodeURIComponent(decoded)
+          } catch (ignored) {}
+          $input.val(decoded)
+          if ($urlp('run') === '1') {
+            $input.val('')
+            pushHistory(decoded)
+            execCommand(decoded)
+          }
+        }
       })
     </script>
   </body>

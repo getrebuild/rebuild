@@ -90,7 +90,7 @@ public class RbSystemImporter extends HeavyTask<Integer> {
             RebuildConfiguration.get(item, true);
         }
         // 加载自定义实体
-        ((DynamicMetadataFactory) Application.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh();
+        ((DynamicMetadataFactory) Application.getBean(PersistManagerFactory.class).getMetadataFactory()).refreshNow();
         // 字段还原
         field_READY.set(null, true);
         field_READY.setAccessible(false);

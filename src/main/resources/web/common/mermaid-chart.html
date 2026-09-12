@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -44,7 +44,16 @@
       </a>
     </div>
     <th:block th:replace="~{/_include/footer}" />
-    <script th:src="@{/assets/lib/charts/mermaid.min.js?v=10.4.0}"></script>
+    <script th:src="@{/assets/lib/charts/mermaid.min.js?v=11.17.2}"></script>
+    <script>
+      if (typeof mermaid !== 'undefined') {
+        // already loaded
+      } else if (typeof __esbuild_esm_mermaid_nm !== 'undefined') {
+        window.mermaid = __esbuild_esm_mermaid_nm.mermaid
+      } else {
+        console.error('[Mermaid] Failed to load: mermaid is undefined after script load')
+      }
+    </script>
     <script type="text/babel">
       $(document).ready(() => {
         const $node = $('.mermaid')

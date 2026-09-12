@@ -31,6 +31,9 @@ const startTour123 = function () {
     } else if ($('.datalist-mode3')[0]) {
       stepName = 'TourEnd-RecordList3'
       steps = StepDataList3()
+    } else if ($('.datalist-mode4')[0]) {
+      stepName = 'TourEnd-RecordList4'
+      steps = StepDataList4()
     } else {
       stepName = 'TourEnd-RecordList'
       steps = StepDataList()
@@ -140,6 +143,12 @@ const StepRebuild = () => {
       rbBottom: -10,
     },
     {
+      element: '.aibot-show',
+      title: $L('AI 助手'),
+      intro: $L('点击打开 AI 助手，它可以回答你的问题、协助你完成工作，快捷键 Shift+/'),
+      rbLeft: 12,
+    },
+    {
       element: '.global-search2',
       title: $L('全局搜索'),
       intro: $L('全局搜索可以帮助你快速查询需要的数据'),
@@ -154,13 +163,13 @@ const StepRebuild = () => {
     {
       element: '.admin-settings',
       title: $L('管理中心'),
-      intro: $L('REBUILD 拥有强大的配置管理中心，你可以根据需求自由搭建系统'),
+      intro: $L('REBUILD 拥有强大的配置管理中心，可以根据需求自由搭建系统'),
       rbLeft: 5,
     },
     {
       element: '.page-help',
       title: $L('帮助中心'),
-      intro: $L('使用遇到问题可以查阅帮助文档，你也可以通过阅读文档 GET 更多技能'),
+      intro: $L('使用遇到问题可以查阅帮助文档，通过文档 GET 更多技巧'),
       rbLeft: 4,
     },
     {
@@ -172,7 +181,7 @@ const StepRebuild = () => {
     {
       element: '.J_top-user',
       title: $L('个人设置'),
-      intro: $L('点击此处设置你的个人信息，或选择界面主题等'),
+      intro: $L('设置你的个人信息、修改登录密码，或选择界面主题等'),
       rbRight: 11,
     },
   ]
@@ -201,7 +210,7 @@ const StepDataList = () => {
     {
       element: '.widgets',
       title: $L('侧栏工具'),
-      intro: $L('侧栏工具帮助你快速切换常用查询，或查看图表'),
+      intro: $L('侧栏工具帮助你快速切换常用查询，或查看数据分组、相关图表'),
       rbTop: 20,
     },
     {
@@ -213,13 +222,13 @@ const StepDataList = () => {
     {
       element: '.adv-search',
       title: $L('高级查询'),
-      intro: $L('高级查询是强大数据检索工具，你可以将查询保存起来方便下次使用'),
+      intro: $L('强大数据查询工具，你可以将查询保存起来方便下次使用'),
       rbLeft: 5,
     },
     {
       element: '.input-search',
       title: $L('快速查询'),
-      intro: $L('快速查询可以快速检索数据，并把结果展示在数据列表中'),
+      intro: $L('快速查询可快速筛选数据，使用便捷'),
       rbLeft: 5,
     },
     {
@@ -237,19 +246,19 @@ const StepDataList = () => {
     {
       element: '.J_new',
       title: $L('新建记录'),
-      intro: $L('新建一条业务记录'),
+      intro: $L('新建业务记录'),
       rbLeft: 5,
     },
     {
       element: '.J_action',
       title: $L('更多操作'),
-      intro: $L('你还可以导出数据报表、批量修改等操作'),
+      intro: $L('还可以导出数据报表、设置列表显示、批量修改等'),
       rbRight: 5,
     },
     {
       element: '.dataTables_info',
       title: $L('列表统计'),
-      intro: $L('此处显示列表的统计数据，统计项可由管理员自定义设置'),
+      intro: $L('显示列表的统计数据，统计项可由管理员自定义配置'),
       position: 'top',
       rbLeft: -10,
     },
@@ -268,7 +277,7 @@ const StepDataList2 = () => {
     {
       element: '.datalist-scroll',
       title: $L('数据列表'),
-      intro: $L('数据列表用于快速查看记录基本信息，点击列表项可打开记录详情'),
+      intro: $L('数据列表用于快速查看记录基本信息，点击列表项可查看记录详情'),
       rbTop: 20,
       rbLeft: -5,
     },
@@ -284,27 +293,33 @@ const StepDataList2 = () => {
       rbLeft: 5,
     },
     {
-      element: '.adv-search',
-      title: $L('高级查询'),
-      intro: $L('高级查询是强大数据检索工具，你可以将查询保存起来方便下次使用'),
+      element: '.input-search',
+      title: $L('快速查询'),
+      intro: $L('快速查询可快速筛选数据，使用便捷'),
       rbLeft: 5,
     },
     {
-      element: '.input-search',
-      title: $L('快速查询'),
-      intro: $L('快速查询可以快速检索数据，并把结果展示在数据列表中'),
+      element: '.btn-sort',
+      title: $L('排序'),
+      intro: $L('点击选择排序字段和排序方式'),
+      rbLeft: 15,
+    },
+    {
+      element: '.adv-search',
+      title: $L('高级查询'),
+      intro: $L('强大数据查询工具，你可以将查询保存起来方便下次使用'),
       rbLeft: 5,
     },
     {
       element: '.J_new',
       title: $L('新建记录'),
-      intro: $L('新建一条业务记录'),
+      intro: $L('新建业务记录'),
       rbLeft: 5,
     },
     {
       element: '.J_action',
       title: $L('更多操作'),
-      intro: $L('你还可以导出数据报表、批量修改等操作'),
+      intro: $L('还可以导出数据报表、批量修改等'),
       rbRight: 5,
     },
   ]
@@ -315,7 +330,7 @@ const StepDataList3 = () => {
     {
       element: '.widgets',
       title: $L('侧栏工具'),
-      intro: $L('侧栏工具帮助你快速切换常用查询'),
+      intro: $L('侧栏工具帮助你快速切换常用查询，或查看数据分组、相关图表'),
       rbTop: 20,
     },
     {
@@ -327,26 +342,67 @@ const StepDataList3 = () => {
     {
       element: '.adv-search',
       title: $L('高级查询'),
-      intro: $L('高级查询是强大数据检索工具，你可以将查询保存起来方便下次使用'),
+      intro: $L('强大数据查询工具，你可以将查询保存起来方便下次使用'),
       rbLeft: 5,
     },
     {
       element: '.input-search',
       title: $L('快速查询'),
-      intro: $L('快速查询可以快速检索数据，并把结果展示在数据列表中'),
+      intro: $L('快速查询可快速筛选数据，使用便捷'),
       rbLeft: 5,
     },
     {
       element: '.J_new',
       title: $L('新建记录'),
-      intro: $L('新建一条业务记录'),
+      intro: $L('新建业务记录'),
       rbLeft: 5,
     },
     {
       element: '.J_action',
       title: $L('更多操作'),
-      intro: $L('你还可以导出数据报表、批量修改等操作'),
+      intro: $L('还可以导出数据报表、批量修改等'),
       rbRight: 5,
+    },
+    {
+      element: '.dataTables_oper .J_sort',
+      title: $L('排序'),
+      intro: $L('点击选择排序方式'),
+      rbLeft: 5,
+    },
+  ]
+}
+
+const StepDataList4 = () => {
+  return [
+    {
+      element: '.fc-header-toolbar',
+      title: $L('日历列表'),
+      intro: $L('以日历形式展示记录，可按日期直观地查看和管理数据'),
+      position: 'bottom',
+    },
+    {
+      element: '.fc-dayGridMonth-button',
+      title: $L('切换视图'),
+      intro: $L('在月、周、日等视图之间切换显示'),
+      position: 'bottom',
+    },
+    {
+      element: '.fc-cbQuery-button',
+      title: $L('高级查询'),
+      intro: $L('强大数据查询工具，你可以将查询保存起来方便下次使用'),
+      position: 'bottom',
+    },
+    {
+      element: '.fc-cbNew-button',
+      title: $L('新建记录'),
+      intro: $L('新建业务记录'),
+      position: 'bottom',
+    },
+    {
+      element: '.fc-event',
+      title: $L('打开记录'),
+      intro: $L('点击日历中的事件打开记录详情，长按拖拽可调整日期'),
+      position: 'top',
     },
   ]
 }
@@ -362,7 +418,7 @@ const StepView = () => {
     {
       element: '.view-action',
       title: $L('操作'),
-      intro: $L('对当前记录进行相关操作'),
+      intro: $L('对当前记录进行操作，如编辑、删除、打印或导出报表等'),
       position: 'left',
       rbTop: 6,
     },

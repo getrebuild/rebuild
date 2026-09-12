@@ -293,7 +293,7 @@ public class UserStore implements Initialization, UseDistributed {
         }
 
         store(newUser);
-        this.datasChanged();
+        this.notifyRefresh();
     }
 
     /**
@@ -329,7 +329,7 @@ public class UserStore implements Initialization, UseDistributed {
             }
         }
         USERS.remove(userId);
-        this.datasChanged();
+        this.notifyRefresh();
     }
 
     /**
@@ -362,7 +362,7 @@ public class UserStore implements Initialization, UseDistributed {
 
         ROLES.put(roleId, newRole);
         refreshRoleAppends(roleId);
-        this.datasChanged();
+        this.notifyRefresh();
     }
 
     /**
@@ -387,7 +387,7 @@ public class UserStore implements Initialization, UseDistributed {
 
         ROLES.remove(roleId);
         refreshRoleAppends(roleId);
-        this.datasChanged();
+        this.notifyRefresh();
     }
 
     /**
@@ -442,7 +442,7 @@ public class UserStore implements Initialization, UseDistributed {
         }
 
         DEPTS.put(deptId, newDept);
-        this.datasChanged();
+        this.notifyRefresh();
     }
 
     /**
@@ -468,7 +468,7 @@ public class UserStore implements Initialization, UseDistributed {
             dept.removeMember(u);
         }
         DEPTS.remove(deptId);
-        this.datasChanged();
+        this.notifyRefresh();
     }
 
     /**
@@ -502,7 +502,7 @@ public class UserStore implements Initialization, UseDistributed {
         }
 
         TEAMS.put(teamId, newTeam);
-        this.datasChanged();
+        this.notifyRefresh();
     }
 
     /**
@@ -516,7 +516,7 @@ public class UserStore implements Initialization, UseDistributed {
             team.removeMember(u);
         }
         TEAMS.remove(teamId);
-        this.datasChanged();
+        this.notifyRefresh();
     }
 
     /**
@@ -566,7 +566,6 @@ public class UserStore implements Initialization, UseDistributed {
 
     @Override
     public void init() {
-
         // 用户
 
         Object[][] array = aPMFactory.createQuery("select " + USER_FS + " from User").array();
@@ -627,6 +626,7 @@ public class UserStore implements Initialization, UseDistributed {
         log.info("Loaded [ {} ] teams.", TEAMS.size());
 
         isLoaded = true;
+        this.notifyRefresh();
     }
 
     /**
@@ -672,7 +672,7 @@ public class UserStore implements Initialization, UseDistributed {
     }
 
     @Override
-    public Object refresh() {
+    public void refresh() {
         USERS.clear();
         DEPTS.clear();
         ROLES.clear();
@@ -681,13 +681,6 @@ public class UserStore implements Initialization, UseDistributed {
         USERS_MAIL2ID.clear();
 
         isLoaded = false;
-        init();
-        return USERS.size();
-    }
-
-    @Override
-    public void datasChanged() {
-        if (!isLoaded) return;
-        UseDistributed.super.datasChanged();
+        this.init();
     }
 }

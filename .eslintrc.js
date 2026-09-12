@@ -184,5 +184,6 @@ module.exports = {
     $useSignPad: true,
     AiCreateButton: true,
     AiBot: true,
+    RbScroller: true,
   },
 }

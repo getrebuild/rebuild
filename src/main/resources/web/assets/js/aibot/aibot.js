@@ -32,13 +32,16 @@ class AiBot extends React.Component {
                   this.hide()
                 }}
                 title={$L('独立窗口')}>
-                <span className="mdi mdi-open-in-new" />
+                <span className="mdi mdi-open-in-new down-1" />
               </button>
-              <button className="close dock-toggle" type="button" onClick={() => this.toggleDockMode()} title={dockMode ? $L('浮动模式') : $L('侧栏模式')}>
-                <span className={`mdi ${dockMode ? 'mdi-dock-window' : 'mdi-dock-right'}`} />
+              <button className="close" type="button" onClick={() => this._Chat.initChat()} title={$L('新会话')}>
+                <span className="mdi mdi-chat-plus-outline" />
               </button>
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('会话列表')}>
                 <span className="mdi mdi-segment" />
+              </button>
+              <button className="close dock-toggle" type="button" onClick={() => this.toggleDockMode()} title={dockMode ? $L('浮动模式') : $L('侧栏模式')}>
+                <span className={`mdi ${dockMode ? 'mdi-dock-window' : 'mdi-dock-right'}`} />
               </button>
               <button className="close hide2" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="mdi mdi-close" />

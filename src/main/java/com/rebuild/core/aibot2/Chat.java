@@ -137,7 +137,7 @@ public class Chat implements Serializable {
         chatLogger().logSession(agent.model(), systemPrompt);
         chatLogger().log("USER", userMessage);
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent.model())
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent)
                 .addUserMessageOfArrayOfContentParts(parts);
         return new ChatExecutor(this, null, builder).runContent();
     }
@@ -161,7 +161,7 @@ public class Chat implements Serializable {
             chatLogger().log("USER", userMessage);
         }
 
-        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent.model());
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent);
         for (Message m : messages) {
             String content = m.getContent();
             if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);

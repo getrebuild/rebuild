@@ -78,11 +78,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "4.5.0-beta1";
+    public static final String VER = "4.5.0-beta2";
     /**
      * Rebuild Build [MAJOR]{1}[MINOR]{2}[PATCH]{2}[BUILD]{2}
      */
-    public static final int BUILD = 4050000;
+    public static final int BUILD = 4050001;
 
     static {
         // Driver for DB
@@ -249,8 +249,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
 
         // 加载自定义实体
-        log.info("Loading customized/business entities ...");
-        ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh();
+        ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refreshNow();
 
         // 实体对应的服务类
         _ESS = new HashMap<>();

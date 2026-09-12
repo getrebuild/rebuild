@@ -25,6 +25,7 @@ import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.StreamEcho;
 import com.rebuild.core.aibot2.SuggestQuestions;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseSupport;
@@ -59,13 +60,21 @@ import java.util.List;
 public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat")
-    public void chat(HttpServletRequest req, HttpServletResponse resp) {
+    public void chat(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (!Config.availableAiBot()) {
+            String errorMsg = UserHelper.isAdmin(getRequestUser(req))
+                    ? Language.L("请配置 [AI 助手](/admin/integration/aibot) 后使用")
+                    : Language.L("请联系管理员配置 AI 助手后使用");
+            ServletUtils.writeJson(resp, Message.error(errorMsg).toJSONString());
+            return;
+        }
+
         ChatRequest chatRequest = buildChatRequest(req);
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
 
         if (!chat.tryBeginRun()) {
-            JSONObject error = JSONUtils.toJSONObject("error", Language.L("会话正在处理中，请稍后再试"));
-            ServletUtils.writeJson(resp, error.toJSONString());
+            ServletUtils.writeJson(resp,
+                    Message.error(Language.L("会话正在处理中，请稍后再试")).toJSONString());
             return;
         }
 
@@ -74,9 +83,8 @@ public class AiBot2Controller extends BaseController {
             ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
         } catch (Throwable ex) {
             log.error("chat-post", ex);
-            String errorMsg = "请求错误:" + CommonsUtils.getRootMessage(ex);
-            JSONObject error = JSONUtils.toJSONObject("error", errorMsg);
-            ServletUtils.writeJson(resp, error.toJSONString());
+            String errorMsg = Language.L("请求错误") + ":" + CommonsUtils.getRootMessage(ex);
+            ServletUtils.writeJson(resp, Message.error(errorMsg).toJSONString());
 
             // 错误落库
             try {
@@ -92,7 +100,10 @@ public class AiBot2Controller extends BaseController {
     @PostMapping("post/chat-stream")
     public void chatStream(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (!Config.availableAiBot()) {
-            StreamEcho.error(Language.L("请联系管理员配置 AI 助手后使用"), resp.getWriter());
+            String errorMsg = UserHelper.isAdmin(getRequestUser(req))
+                    ? Language.L("请配置 [AI 助手](/admin/integration/aibot) 后使用")
+                    : Language.L("请联系管理员配置 AI 助手后使用");
+            StreamEcho.error(errorMsg, resp.getWriter());
             return;
         }
 
@@ -108,7 +119,7 @@ public class AiBot2Controller extends BaseController {
             chat.stream(chatRequest, resp);
         } catch (Throwable ex) {
             log.error("chat-stream", ex);
-            String errorMsg = "请求错误:" + CommonsUtils.getRootMessage(ex);
+            String errorMsg = Language.L("请求错误") + ":" + CommonsUtils.getRootMessage(ex);
             try {
                 StreamEcho.error(errorMsg, resp.getWriter());
             } catch (Exception ignored) {

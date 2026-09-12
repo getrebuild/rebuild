@@ -64,23 +64,12 @@ public class Field2Schema extends SetUser {
 
     final protected Set<ID> recordedMetaIds = new HashSet<>();
 
-    private boolean noRefresh43 = false;
-
     public Field2Schema() {
         super();
     }
 
     public Field2Schema(ID user) {
         super.setUser(user);
-    }
-
-    /**
-     * @param user
-     * @param noRefresh
-     */
-    public Field2Schema(ID user, boolean noRefresh) {
-        super.setUser(user);
-        this.noRefresh43 = noRefresh;
     }
 
     /**
@@ -135,11 +124,7 @@ public class Field2Schema extends SetUser {
             throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
-        if (noRefresh43) {
-            // 批量添加时不要刷新
-        } else {
-            MetadataHelper.getMetadataFactory().refresh();
-        }
+        MetadataHelper.getMetadataFactory().refresh();
         return fieldName;
     }
 

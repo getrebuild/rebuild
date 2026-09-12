@@ -90,8 +90,7 @@ public class Field2SchemaFixer extends Field2Schema {
         Application.getCommonsService().update(fieldMeta, false);
 
         // 类型生效
-        DynamicMetadataContextHolder.setSkipLanguageRefresh();
-        MetadataHelper.getMetadataFactory().refresh();
+        MetadataHelper.getMetadataFactory().refreshNow();
         field = MetadataHelper.getField(field.getOwnEntity().getName(), field.getName());
 
         // 去除默认值
@@ -135,7 +134,6 @@ public class Field2SchemaFixer extends Field2Schema {
 
         } finally {
             MetadataHelper.getMetadataFactory().refresh();
-            DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
         }
 
         return true;
@@ -192,19 +190,16 @@ public class Field2SchemaFixer extends Field2Schema {
 
     /**
      * @param entity
-     * @param refreshMeta
      * @return
      */
-    public boolean addCreatedDeptField(Entity entity, boolean refreshMeta) {
+    public boolean addCreatedDeptField(Entity entity) {
         if (entity.containsField(EntityHelper._CreatedDept)) return false;
 
         Field cdField = createUnsafeField(entity, EntityHelper._CreatedDept, "创建部门", DisplayType.REFERENCE,
                 false, false, false, true, true, null, "Department", null, null, null);
         schema2Database(entity, new Field[]{cdField});
 
-        if (refreshMeta) {
-            MetadataHelper.getMetadataFactory().refresh();
-        }
+        MetadataHelper.getMetadataFactory().refresh();
         return true;
     }
 

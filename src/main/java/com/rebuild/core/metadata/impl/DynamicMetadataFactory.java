@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.impl;
 
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
@@ -18,6 +19,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.support.distributed.UseDistributed;
+import com.rebuild.utils.Debouncer;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -38,26 +40,57 @@ import static com.rebuild.core.metadata.MetadataHelper.SPLITER_RE;
 public class DynamicMetadataFactory extends ConfigurationMetadataFactory implements UseDistributed {
     private static final long serialVersionUID = -5709281079615412347L;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    private static final long REFRESH_DEBOUNCE_MS = 500;
+    private final Debouncer refreshDebouncer = new Debouncer(() -> {
+        synchronized (DynamicMetadataFactory.this) {
+            doRefreshImmediate(false, true);
+        }
+    }, REFRESH_DEBOUNCE_MS);
+
     public DynamicMetadataFactory(String configLocation, Dialect dialect) {
         super(configLocation, dialect);
     }
 
     @Override
-    public Object refresh() {
-        refresh(false);
-        this.datasChanged();
-        return getEntities().length;
+    public void refresh() {
+        this.refresh(false);
     }
 
     @Override
     synchronized
     public void refresh(boolean initState) {
+        if (initState) {
+            doRefreshImmediate(true, false);
+            return;
+        }
+        refreshDebouncer.run();
+    }
+
+    /**
+     * 立即刷新（跳过防抖）
+     */
+    public void refreshNow() {
+        refreshDebouncer.cancel();
+        doRefreshImmediate(false, false);
+    }
+
+    /**
+     * @param initState
+     * @param asyncLanguage
+     */
+    private void doRefreshImmediate(boolean initState, boolean asyncLanguage) {
+        log.info("Loading {} entities ...", initState ? "system" : "customized/business");
         super.refresh(initState);
 
-        if (!initState && !DynamicMetadataContextHolder.isSkipLanguageRefresh(false)) {
-            Application.getLanguage().refresh();
+        if (!initState) {
+            if (asyncLanguage) {
+                ThreadPool.exec(() -> Application.getLanguage().refresh());
+            } else {
+                Application.getLanguage().refresh();
+            }
         }
+
+        this.notifyRefresh();
     }
 
     @Override

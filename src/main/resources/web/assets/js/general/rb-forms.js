@@ -681,7 +681,7 @@ class RbForm extends React.Component {
   componentDidMount() {
     if (!this.props.readonly) {
       const $modal = $(this._$form).closest('.modal')
-      this._$pasteBindTo = $modal.length > 0 ? $modal : $(this._$form)
+      this._$pasteBindTo = $modal.length > 0 ? $modal : $(this._$form).parent()
       this._$pasteBindTo.off('paste.file').on('paste.file', (e) => this._onPasteUpload(e))
     }
 
@@ -735,8 +735,13 @@ class RbForm extends React.Component {
     const data = (e.originalEvent && e.originalEvent.clipboardData) || e.clipboardData
     if (!data || !data.files || data.files.length === 0) return
 
-    // 可用的图片/文件字段
-    const $fields = $(this._$form)
+    let $scope = $(this._$form)
+    if ($(e.target).closest('.detail-form-table').length > 0) {
+      $scope = $(e.target).closest('tr[data-key]')
+      if ($scope.length === 0) return
+    }
+
+    const $fields = $scope
       .find('.form-group.type-IMAGE, .form-group.type-FILE')
       .filter(function () {
         if ($(this).hasClass('hide')) return false
@@ -749,12 +754,10 @@ class RbForm extends React.Component {
     const files = []
     for (let i = 0; i < data.files.length; i++) files.push(data.files[i])
 
-    // 将粘贴文件提交到指定字段的上传组件
     function _routePasteFiles($field, files) {
       const $input = $field.find('input.inputfile').first()
       if ($input.length === 0) return
 
-      // 图片字段仅接受图片
       if ($input.attr('accept') === 'image/*') {
         files = files.filter((f) => (f.type || '').startsWith('image/'))
         if (files.length === 0) {

@@ -47,7 +47,8 @@ html.theme-dark2 samp {
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 pre {
+html.theme-dark2 pre,
+html.theme-dark2 pre code {
   background-color: var(--rb-dark-panel);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-text);
@@ -274,70 +275,71 @@ html.theme-dark2 .dropdown-menu .dropdown-divider {
   border-color: var(--rb-dark-border);
 }
 
-html.theme-dark2 .btn-secondary {
+html.theme-dark2 .btn.btn-secondary {
   background-color: var(--rb-dark-panel);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-muted);
 }
 
-html.theme-dark2 .btn-secondary:hover {
+html.theme-dark2 .btn.btn-secondary:hover {
   background-color: rgba(255, 255, 255, 0.08);
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 .btn-secondary:focus,
-html.theme-dark2 .btn-secondary.active,
-html.theme-dark2 .btn-secondary:active,
-html.theme-dark2 .btn-secondary:not([disabled]):not(.disabled).active,
-html.theme-dark2 .btn-secondary:not([disabled]):not(.disabled):active,
-html.theme-dark2 .show > .btn-secondary.dropdown-toggle {
+html.theme-dark2 .btn.btn-secondary:focus,
+html.theme-dark2 .btn.btn-secondary.active,
+html.theme-dark2 .btn.btn-secondary:active,
+html.theme-dark2 .btn.btn-secondary:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn.btn-secondary:not([disabled]):not(.disabled):active,
+html.theme-dark2 .show > .btn.btn-secondary.dropdown-toggle {
   background-color: rgba(255, 255, 255, 0.12);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 .btn-light {
+html.theme-dark2 .btn.btn-light {
   background-color: var(--rb-dark-panel);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 .btn-light:hover,
-html.theme-dark2 .btn-light:focus,
-html.theme-dark2 .btn-light:not([disabled]):not(.disabled).active,
-html.theme-dark2 .btn-light:not([disabled]):not(.disabled):active,
-html.theme-dark2 .show > .btn-light.dropdown-toggle {
+html.theme-dark2 .btn.btn-light:hover,
+html.theme-dark2 .btn.btn-light:focus,
+html.theme-dark2 .btn.btn-light:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn.btn-light:not([disabled]):not(.disabled):active,
+html.theme-dark2 .show > .btn.btn-light.dropdown-toggle {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--rb-dark-border);
+  border-bottom-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .btn.btn-outline-secondary,
+html.theme-dark2 .btn.btn-outline-light {
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .btn.btn-outline-secondary:hover,
+html.theme-dark2 .btn.btn-outline-secondary:focus,
+html.theme-dark2 .btn.btn-outline-secondary:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn.btn-outline-secondary:not([disabled]):not(.disabled):active,
+html.theme-dark2 .btn.btn-outline-light:hover,
+html.theme-dark2 .btn.btn-outline-light:focus,
+html.theme-dark2 .btn.btn-outline-light:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn.btn-outline-light:not([disabled]):not(.disabled):active {
   background-color: rgba(255, 255, 255, 0.12);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 .btn-outline-secondary,
-html.theme-dark2 .btn-outline-light {
-  border-color: var(--rb-dark-border);
-  color: var(--rb-dark-text);
+html.theme-dark2 .btn.btn-link {
+  color: var(--rb-dark-link) !important;
 }
 
-html.theme-dark2 .btn-outline-secondary:hover,
-html.theme-dark2 .btn-outline-secondary:focus,
-html.theme-dark2 .btn-outline-secondary:not([disabled]):not(.disabled).active,
-html.theme-dark2 .btn-outline-secondary:not([disabled]):not(.disabled):active,
-html.theme-dark2 .btn-outline-light:hover,
-html.theme-dark2 .btn-outline-light:focus,
-html.theme-dark2 .btn-outline-light:not([disabled]):not(.disabled).active,
-html.theme-dark2 .btn-outline-light:not([disabled]):not(.disabled):active {
-  background-color: rgba(255, 255, 255, 0.12);
-  border-color: var(--rb-dark-border);
-  color: var(--rb-dark-text);
-}
-
-html.theme-dark2 .btn-link {
-  color: var(--rb-dark-link);
-}
-
-html.theme-dark2 .btn-link:hover,
-html.theme-dark2 .btn-link:focus {
-  color: #539bf5;
+html.theme-dark2 .btn.btn-link:hover,
+html.theme-dark2 .btn.btn-link:focus {
+  color: #539bf5 !important;
 }
 
 html.theme-dark2 .table {
@@ -618,6 +620,15 @@ html.theme-dark2 .page-footer {
 html.theme-dark2 .ps-scrollbar-y-rail .ps-scrollbar-y,
 html.theme-dark2 .ps-scrollbar-x-rail .ps-scrollbar-x {
   background-color: rgba(255, 255, 255, 0.3);
+}
+
+html.theme-dark2 .os-theme-rb {
+  --os-track-bg: rgba(255, 255, 255, 0.12);
+  --os-track-bg-hover: rgba(255, 255, 255, 0.12);
+  --os-track-bg-active: rgba(255, 255, 255, 0.12);
+  --os-handle-bg: rgba(255, 255, 255, 0.3);
+  --os-handle-bg-hover: rgba(255, 255, 255, 0.45);
+  --os-handle-bg-active: rgba(255, 255, 255, 0.5);
 }
 
 /* DataList (dataTables_wrapper) */

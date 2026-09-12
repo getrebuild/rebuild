@@ -114,7 +114,7 @@ class Chat extends React.Component {
     }
 
     this.setState({ chatid: chatid || null })
-    this._ChatMessages.setMessages([], false, null)
+    this._ChatMessages.setMessages([], true, null)
     this._ChatInput.reset(true)
     const _preset = this._preset
     this._preset = null
@@ -136,7 +136,7 @@ class Chat extends React.Component {
         }
 
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
-        scrollToBottom(true, 400)
+        this._ChatMessages.scrollToBottom(true)
 
         if (_preset) {
           let newState = {}
@@ -150,7 +150,8 @@ class Chat extends React.Component {
           })
         }
       } else {
-        this._ChatMessages.setMessages([{ error: res.error_msg }])
+        this._ChatMessages.setMessages([{ error: res.error_msg }], true)
+        this._ChatMessages.scrollToBottom(true)
       }
     })
   }
@@ -161,7 +162,7 @@ class Chat extends React.Component {
 
   send(data, onDone) {
     this._stopPendingPoll()
-    scrollToBottom(true)
+    this._ChatMessages.scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
 
     setTimeout(() => {
@@ -185,7 +186,7 @@ class Chat extends React.Component {
 
   sendStream(data, onDone) {
     this._stopPendingPoll()
-    scrollToBottom(true)
+    this._ChatMessages.scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
 
     setTimeout(() => {
@@ -447,7 +448,14 @@ class ChatMessages extends React.Component {
   render() {
     const showSuggest = this.state.suggestQuestions && this.state.suggestQuestions.length > 0 && !this._hasUserMessage()
     return (
-      <div className="chat-messages" ref={(c) => (this._$messages = c)}>
+      <RbScroller
+        className="chat-messages"
+        ref={(c) => (this._Scroller = c)}
+        overlay={
+          <a className="chat-scroll-fab" ref={(c) => (this._$scrollFab = c)} onClick={() => this._scrollFabClick()}>
+            <i className="mdi mdi-chevron-down down-1" />
+          </a>
+        }>
         {this.state.messages.map((item, idx) => {
           return <ChatMessage {...item} key={idx} _ChatMessages={this} />
         })}
@@ -464,7 +472,7 @@ class ChatMessages extends React.Component {
             </div>
           </div>
         )}
-      </div>
+      </RbScroller>
     )
   }
 
@@ -488,19 +496,18 @@ class ChatMessages extends React.Component {
   setMessages(messages, forceScroll, suggestQuestions) {
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
-    this.setState(state, () => scrollToBottom(forceScroll))
+
+    this.setState(state, () => {
+      this.scrollToBottom(forceScroll)
+    })
   }
 
   componentDidMount() {
     let _lastScroll = 0
+    const self = this
 
+    this._$messages = this._Scroller.viewport()
     const $ms = $(this._$messages)
-    $ms.perfectScrollbar()
-    this._psObserver = new MutationObserver(() => {
-      $setTimeout(() => $ms.perfectScrollbar('update'), 100, 'chat-ps-update')
-    })
-    this._psObserver.observe(this._$messages, { childList: true, subtree: true, characterData: true })
-    $(window).on('resize.chat-ps', () => $setTimeout(() => $ms.perfectScrollbar('update'), 150, 'chat-ps-resize'))
 
     $ms.on('scroll', function () {
       let currentScroll = $(this).scrollTop()
@@ -513,13 +520,45 @@ class ChatMessages extends React.Component {
         }
       }
       _lastScroll = currentScroll
+
+      self._updateScrollFab()
     })
   }
 
-  componentWillUnmount() {
-    if (this._psObserver) this._psObserver.disconnect()
-    $(window).off('resize.chat-ps')
-    $(this._$messages).perfectScrollbar('destroy')
+  _updateScrollFab() {
+    if (!this._$scrollFab || !this._$messages) return
+    const $ms = $(this._$messages)
+    const currentScroll = $ms.scrollTop()
+    const shouldShow = currentScroll + $ms.innerHeight() < $ms[0].scrollHeight - 150 && $ms[0].scrollHeight > $ms.innerHeight() + 20
+    $(this._$scrollFab).toggleClass('show', shouldShow)
+  }
+
+  _scrollFabClick() {
+    __evt_ScrollToBottomStop = false
+    $(this._$messages).animate({ scrollTop: $(this._$messages)[0].scrollHeight }, 300)
+  }
+
+  scrollToBottom(forceScroll) {
+    if (forceScroll) {
+      __evt_ScrollToBottomStop = false
+    }
+
+    const FN = () => {
+      this._Scroller && this._Scroller.update(true)
+      if (!__evt_ScrollToBottomStop) {
+        const $el = $(this._$messages)
+        $el.scrollTop($el[0].scrollHeight + 20)
+      }
+      this._updateScrollFab()
+    }
+
+    this._scrollToBottomCalls = this._scrollToBottomCalls || 0
+    if (this._scrollToBottomCalls++ >= 20) {
+      this._scrollToBottomCalls = 0
+      FN()
+    }
+
+    $setTimeout(FN, 50, 'chat-scrollToBottom')
   }
 }
 
@@ -536,7 +575,7 @@ class ChatMessage extends React.Component {
         data = data || {}
         if (data.type === '_done') {
           // 输出完成后自动收起思考过程
-          this.setState({ waitResp: -1, reasoningOpen: false })
+          this.setState({ waitResp: -1, reasoningOpen: false, toolHint: null })
           return
         }
         if (data.error) {
@@ -550,14 +589,21 @@ class ChatMessage extends React.Component {
           return
         }
 
+        // 工具执行中的进度提示，收到正文或思考内容后清除
+        if (data.type === '_tool') {
+          // waitResp 置 0 隐藏初始空转圈，避免与状态条重复
+          this.setState({ toolHint: data.content, waitResp: 0 })
+          return
+        }
+
         if (data.content) {
           if (data.type === '_reasoning') {
             data.reasoning = (this.state.reasoning || '') + data.content
             delete data.content
-            this.setState({ ...data, waitResp: 2 })
+            this.setState({ ...data, waitResp: 2, toolHint: null })
           } else {
             data.content = (this.state.content || '') + data.content
-            this.setState({ ...data, waitResp: 0 })
+            this.setState({ ...data, waitResp: 0, toolHint: null })
           }
         }
       })
@@ -576,7 +622,7 @@ class ChatMessage extends React.Component {
     }
 
     const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning
-    if (contentChanged) scrollToBottom()
+    if (contentChanged) this.props._ChatMessages.scrollToBottom()
   }
 
   _feedbackable() {
@@ -710,9 +756,17 @@ class ChatMessage extends React.Component {
               </div>
               {this.state.reasoningOpen && (
                 <div className="reasoning-body">
-                  <RichContent content={this.state.reasoning} ready={ready} />
+                  <RichContent content={this.state.reasoning} ready={ready} md={ready ? undefined : false} noRich />
                 </div>
               )}
+            </div>
+          )}
+          {this.state.toolHint && (
+            <div className="reasoning">
+              <div className="reasoning-toggle cursor-default">
+                <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />
+                <span>{this.state.toolHint}</span>
+              </div>
             </div>
           )}
           <RichContent content={this.state.content} ready={ready} />
@@ -739,7 +793,7 @@ class RichContent extends React.Component {
   render() {
     const { content, md } = this.props
     if (!content) return null
-    if (md === false) return <div className="msg-text">{content}</div>
+    if (md === false) return <div className="msg-text msg-plaintext">{content}</div>
 
     return (
       <div className="msg-text" ref={(c) => (this._$el = c)}>
@@ -762,7 +816,7 @@ class RichContent extends React.Component {
 
   _renderRich() {
     const $el = this._$el && $(this._$el)
-    if (!$el || this.props.md === false) return
+    if (!$el || this.props.md === false || this.props.noRich) return
 
     const ready = this.props.ready !== false
     if (!this._rnd) this._rnd = $random('rc-', true)
@@ -798,7 +852,7 @@ class RichContent extends React.Component {
         $setTimeout(
           () => {
             $el.find('.mermaid:not(.has-fs-btn)').each(function () {
-              self._attachFullscreenBtn($(this))
+              self._attachActionBtns($(this))
             })
           },
           300,
@@ -815,11 +869,11 @@ class RichContent extends React.Component {
     $nodes.each(function () {
       const $node = $(this)
       $node.addClass('html-rendered')
-      const html = $node.text() // textContent 自动解码 &lt; 等
+      const html = $node.text()
       const $iframe = $('<iframe></iframe>').attr({ sandbox: 'allow-scripts' })
       $node.empty().append($iframe)
       $iframe[0].srcdoc = html
-      self._attachFullscreenBtn($node)
+      self._attachActionBtns($node)
     })
   }
 
@@ -846,17 +900,10 @@ class RichContent extends React.Component {
         $node.addClass('echarts-rendered').empty()
         try {
           const chart = echarts.init($node[0])
-          const base = { ...ECHART_BASE }
-          delete base.grid
-          const opt = { ...base, ...option }
-          opt.tooltip = { ...base.tooltip, ...(option.tooltip || {}) }
-          opt.textStyle = { ...base.textStyle, ...(option.textStyle || {}) }
-          if (opt.title) opt.title = { ...opt.title, top: 10 }
-          if (opt.legend) opt.legend = { ...opt.legend, top: opt.title ? 40 : 10 }
-          opt.grid = { ...(opt.grid || {}), top: opt.title ? 80 : opt.legend ? 50 : 40, bottom: 50 }
-          chart.setOption(opt)
+          option.color = RBCOLORS
+          chart.setOption(option)
           $node.data('echarts-instance', chart)
-          self._attachFullscreenBtn($node)
+          self._attachActionBtns($node)
         } catch (err) {
           console.error('ECharts render error :', err)
           $node.removeClass('echarts-rendered')
@@ -865,16 +912,71 @@ class RichContent extends React.Component {
     })
   }
 
-  _attachFullscreenBtn($node) {
+  _attachActionBtns($node) {
     if (!$node || !$node.length || $node.hasClass('has-fs-btn')) return
     $node.addClass('has-fs-btn')
-    const $btn = $('<a class="rich-fullscreen-btn"><i class="mdi mdi-fullscreen"></i></a>')
+    const $btn = $('<a class="rich-fullscreen-btn"><i class="mdi mdi-fullscreen fs-17"></i></a>')
     $btn.attr('title', $L('全屏'))
     $node.append($btn)
     $btn.on('click', (e) => {
       $stopEvent(e, true)
       RbPreview.create($node)
     })
+
+    const $dl = $('<a class="rich-download-btn"><i class="mdi mdi-download"></i></a>')
+    $dl.attr('title', $L('下载'))
+    $node.append($dl)
+    $dl.on('click', (e) => {
+      $stopEvent(e, true)
+      this._downloadRich($node)
+    })
+  }
+
+  _downloadRich($node) {
+    const chart = $node.data('echarts-instance')
+    if (chart) {
+      const base64 = chart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' })
+      const $a = document.createElement('a')
+      $a.href = base64
+      $a.download = '图表.png'
+      $a.click()
+      return
+    }
+
+    const svg = $node.find('svg')[0]
+    if (svg) {
+      const xml = new XMLSerializer().serializeToString(svg)
+      const img = new Image()
+      img.onload = () => {
+        const rect = svg.getBoundingClientRect()
+        const w = (rect.width || 800) * 4
+        const h = (rect.height || 600) * 4
+        const canvas = document.createElement('canvas')
+        canvas.width = w
+        canvas.height = h
+        const ctx = canvas.getContext('2d')
+        ctx.fillStyle = '#fff'
+        ctx.fillRect(0, 0, w, h)
+        ctx.drawImage(img, 0, 0, w, h)
+        const $a = document.createElement('a')
+        $a.href = canvas.toDataURL('image/png')
+        $a.download = '图表.png'
+        $a.click()
+      }
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml)
+      return
+    }
+
+    const iframe = $node.find('iframe')[0]
+    if (iframe && iframe.srcdoc) {
+      const blob = new Blob([iframe.srcdoc], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      const $a = document.createElement('a')
+      $a.href = url
+      $a.download = '网页.html'
+      $a.click()
+      URL.revokeObjectURL(url)
+    }
   }
 
   _fallbackSource($node, lang) {
@@ -893,21 +995,6 @@ class RichContent extends React.Component {
       if (chart && typeof chart.dispose === 'function') chart.dispose()
     })
   }
-}
-
-function scrollToBottom(forceScroll, delay) {
-  if (forceScroll) __evt_ScrollToBottomStop = false
-  if (__evt_ScrollToBottomStop) return
-
-  $setTimeout(
-    () => {
-      const $el = $('.chat-messages')
-      if ($el.length === 0) return
-      $el.scrollTop($el[0].scrollHeight + 20)
-    },
-    delay || 100,
-    'chat-scrollToBottom',
-  )
 }
 
 function fetchStream(url, data, onChunk, onDone) {
@@ -985,11 +1072,6 @@ class ChatSidebar extends React.Component {
 
   componentDidMount() {
     this._loadChatList()
-    $(this._$list).perfectScrollbar()
-  }
-
-  componentWillUnmount() {
-    $(this._$list).perfectScrollbar('destroy')
   }
 
   componentDidUpdate(props, prevState) {
@@ -997,7 +1079,7 @@ class ChatSidebar extends React.Component {
       $storage.set('__AiBotLastChatId', this.state.current)
     }
     if (prevState.list !== this.state.list) {
-      $(this._$list).perfectScrollbar('update')
+      this._Scroller && this._Scroller.update(true)
     }
   }
 
@@ -1031,9 +1113,9 @@ class ChatSidebar extends React.Component {
             {$L('新会话')}
           </a>
         </div>
-        <div className="chat-list auto-scroller" ref={(c) => (this._$list = c)}>
+        <RbScroller className="chat-list auto-scroller" ref={(c) => (this._Scroller = c)}>
           <ul className="list-unstyled m-0">{this._renderGroupedList()}</ul>
-        </div>
+        </RbScroller>
       </div>
     )
   }
@@ -1328,7 +1410,10 @@ const FixMd = {
   RE_LIST: /^(?:[-*+]|\d{1,3}\.)\s/,
   RE_SEP_PART: /\|(?:\s*:?-{3,}:?\s*\|)+/,
   RE_FENCE_MERMAID: /^\s*(?:`{3,}|~{3,})\s*mermaid\b/i,
-  RE_MERMAID_SPLIT: /(\]|\)|\})[ \t]+(?=[A-Za-z_]\w*(?:[ \t]*[\[({][^\])}]*[\])}])?[ \t]*(?:-->|---|-.->|-.-|<-->|==>|===|--x|--o|~~~))/g,
+  RE_MERMAID_SPLIT: /(\]|\)|\}|[A-Za-z_]\w*)[ \t]+(?=[A-Za-z_]\w*(?:[ \t]*[[({][^\])}]*[\])}])?[ \t]*(?:-->|---|-.->|-.-|<-->|==>|===|--x|--o|~~~))/g,
+  RE_MERMAID_SUBGRAPH_BEFORE: /(\S)[ \t]+(?=subgraph\b)/g,
+  RE_MERMAID_SUBGRAPH_AFTER: /(\bsubgraph)(?=[^\s[({])/g,
+  RE_MERMAID_COMMENT: /(\S)[ \t]+(%%.*)$/,
 
   // 修复 AI 回复中常见的 MD 语法问题
   fix(md) {
@@ -1402,8 +1487,14 @@ const FixMd = {
         continue
       }
       if (inFence) {
-        if (inMermaid) fixed.push(...line.replace(FixMd.RE_MERMAID_SPLIT, '$1\n').split('\n'))
-        else fixed.push(line)
+        if (inMermaid) {
+          const l = line
+            .replace(FixMd.RE_MERMAID_COMMENT, '$1\n$2')
+            .replace(FixMd.RE_MERMAID_SUBGRAPH_BEFORE, '$1\n')
+            .replace(FixMd.RE_MERMAID_SUBGRAPH_AFTER, '$1 ')
+            .replace(FixMd.RE_MERMAID_SPLIT, '$1\n')
+          fixed.push(...l.split('\n'))
+        } else fixed.push(line)
         continue
       }
 
