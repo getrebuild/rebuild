@@ -18,6 +18,8 @@ import java.util.concurrent.locks.Lock;
 
 /**
  * 分布式支持
+ * <p>namespace 建议使用静态字符串。实现类不会主动清理已注册的 namespace，
+ * 若使用含记录 ID、时间戳等动态拼接的 namespace，会造成内存或 Redis key 累积。
  *
  * @author devezhao
  * @since 2020/9/27
