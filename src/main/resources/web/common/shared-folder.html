@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2-base.css}" />
     <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
     <meta http-equiv="refresh" content="3600" />
     <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
@@ -60,6 +61,16 @@
       }
       .file-icon::before {
         border-color: #fff #fff rgba(255, 255, 255, 0.35) rgba(255, 255, 255, 0.35);
+      }
+      html.theme-dark2 .preview-modal .preview-header {
+        background-color: var(--rb-dark-panel);
+        border-bottom: 1px solid var(--rb-dark-border);
+      }
+      html.theme-dark2 .file-list td a {
+        color: var(--rb-dark-text);
+      }
+      html.theme-dark2 .file-icon::before {
+        border-color: var(--rb-dark-panel) var(--rb-dark-panel) rgba(0, 0, 0, 0.35) rgba(0, 0, 0, 0.35);
       }
     </style>
   </head>

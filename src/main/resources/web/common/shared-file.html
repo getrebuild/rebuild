@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2-base.css}" />
     <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
     <meta http-equiv="refresh" content="3600" />
     <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
@@ -14,22 +15,25 @@
       .preview-modal .preview-header {
         background-color: #28a745;
       }
-      .sharebox .zmdi {
-        color: #aaa;
-        font-size: 81px;
-      }
       @media (max-width: 767.98px) {
         .unsupports {
           margin-left: 12px !important;
           margin-right: 12px !important;
         }
       }
+      html.theme-dark2 .preview-modal .preview-header {
+        background-color: var(--rb-dark-panel);
+        border-bottom: 1px solid var(--rb-dark-border);
+      }
+      html.theme-dark2 .preview-modal .preview-body .iframe {
+        background: var(--rb-dark-bg);
+      }
     </style>
   </head>
   <body>
     <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
     <div class="sharebox must-center">
-      <i class="zmdi zmdi-share animated flash infinite slow"></i>
+      <div class="spinner"></div>
     </div>
     <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
     <th:block th:replace="~{/_include/footer}" />
