@@ -734,7 +734,7 @@ var _initGlobalSearch = function () {
 
   // v4.2: hotkey `/`
   $(document).on('keydown', null, '/', function (e) {
-    if (e.target && e.target.tagName === 'INPUT') return
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return
     $stopEvent(e, true)
     $('.global-search2>a').trigger('click')
   })

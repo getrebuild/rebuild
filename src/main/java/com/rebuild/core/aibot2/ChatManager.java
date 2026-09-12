@@ -121,8 +121,25 @@ public abstract class ChatManager {
      * @return
      */
     public static String ask(String userContent, String prompt, List<File> files, String source) {
+        return ask(userContent, prompt, files, source, null)[0];
+    }
+
+    /**
+     * 直接提问/回答（支持提示词、图片视觉识别、上下文连接）
+     * 内部调用，落库归属 AI 助手
+     *
+     * @param userContent
+     * @param prompt
+     * @param files
+     * @param source
+     * @param chatid 可选，传入已有会话 ID 可连接上下文进行多轮对话
+     * @return [0]=AI 回答，[1]=chatid 字面量
+     */
+    public static String[] ask(String userContent, String prompt, List<File> files, String source, ID chatid) {
         String subject = "ASK:" + (StringUtils.isBlank(source) ? "N" : source) + ":" + userContent;
-        ID chatid = initChat(UserService.AIBOT_USER, subject);
+        if (chatid == null) {
+            chatid = initChat(UserService.AIBOT_USER, subject);
+        }
         Chat chat = new Chat(chatid, null, prompt);
 
         String result;
@@ -166,7 +183,7 @@ public abstract class ChatManager {
 
         // 补充 AI 消息后落库
         chat.completionAfter(result, null, null);
-        return result;
+        return new String[]{result, chatid.toLiteral()};
     }
 
     /**
