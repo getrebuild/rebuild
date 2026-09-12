@@ -206,7 +206,7 @@ public class MetaFieldController extends BaseController {
         }
 
         try {
-            String fieldName = new Field2Schema(getRequestUser(request), getBoolParameter(request, "noRefresh"))
+            String fieldName = new Field2Schema(getRequestUser(request))
                     .createField(entity, label, name, dt, comments, refEntity, extConfig);
             return RespBody.ok(fieldName);
 

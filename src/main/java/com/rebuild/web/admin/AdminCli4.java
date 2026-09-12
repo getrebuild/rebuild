@@ -393,9 +393,8 @@ public class AdminCli4 {
                 if (!MetadataHelper.isBusinessEntity(e)) continue;
                 if (e.containsField(EntityHelper._CreatedDept)) continue;
 
-                new Field2SchemaFixer().addCreatedDeptField(e, false);
+                new Field2SchemaFixer().addCreatedDeptField(e);
             }
-            MetadataHelper.getMetadataFactory().refresh();
 
             return "OK";
         } catch (Exception ex) {
