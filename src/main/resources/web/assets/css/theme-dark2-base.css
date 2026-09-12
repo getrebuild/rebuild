@@ -275,70 +275,71 @@ html.theme-dark2 .dropdown-menu .dropdown-divider {
   border-color: var(--rb-dark-border);
 }
 
-html.theme-dark2 .btn-secondary {
+html.theme-dark2 .btn.btn-secondary {
   background-color: var(--rb-dark-panel);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-muted);
 }
 
-html.theme-dark2 .btn-secondary:hover {
+html.theme-dark2 .btn.btn-secondary:hover {
   background-color: rgba(255, 255, 255, 0.08);
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 .btn-secondary:focus,
-html.theme-dark2 .btn-secondary.active,
-html.theme-dark2 .btn-secondary:active,
-html.theme-dark2 .btn-secondary:not([disabled]):not(.disabled).active,
-html.theme-dark2 .btn-secondary:not([disabled]):not(.disabled):active,
-html.theme-dark2 .show > .btn-secondary.dropdown-toggle {
+html.theme-dark2 .btn.btn-secondary:focus,
+html.theme-dark2 .btn.btn-secondary.active,
+html.theme-dark2 .btn.btn-secondary:active,
+html.theme-dark2 .btn.btn-secondary:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn.btn-secondary:not([disabled]):not(.disabled):active,
+html.theme-dark2 .show > .btn.btn-secondary.dropdown-toggle {
   background-color: rgba(255, 255, 255, 0.12);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 .btn-light {
+html.theme-dark2 .btn.btn-light {
   background-color: var(--rb-dark-panel);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 .btn-light:hover,
-html.theme-dark2 .btn-light:focus,
-html.theme-dark2 .btn-light:not([disabled]):not(.disabled).active,
-html.theme-dark2 .btn-light:not([disabled]):not(.disabled):active,
-html.theme-dark2 .show > .btn-light.dropdown-toggle {
+html.theme-dark2 .btn.btn-light:hover,
+html.theme-dark2 .btn.btn-light:focus,
+html.theme-dark2 .btn.btn-light:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn.btn-light:not([disabled]):not(.disabled):active,
+html.theme-dark2 .show > .btn.btn-light.dropdown-toggle {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--rb-dark-border);
+  border-bottom-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .btn.btn-outline-secondary,
+html.theme-dark2 .btn.btn-outline-light {
+  border-color: var(--rb-dark-border);
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .btn.btn-outline-secondary:hover,
+html.theme-dark2 .btn.btn-outline-secondary:focus,
+html.theme-dark2 .btn.btn-outline-secondary:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn.btn-outline-secondary:not([disabled]):not(.disabled):active,
+html.theme-dark2 .btn.btn-outline-light:hover,
+html.theme-dark2 .btn.btn-outline-light:focus,
+html.theme-dark2 .btn.btn-outline-light:not([disabled]):not(.disabled).active,
+html.theme-dark2 .btn.btn-outline-light:not([disabled]):not(.disabled):active {
   background-color: rgba(255, 255, 255, 0.12);
   border-color: var(--rb-dark-border);
   color: var(--rb-dark-text);
 }
 
-html.theme-dark2 .btn-outline-secondary,
-html.theme-dark2 .btn-outline-light {
-  border-color: var(--rb-dark-border);
-  color: var(--rb-dark-text);
+html.theme-dark2 .btn.btn-link {
+  color: var(--rb-dark-link) !important;
 }
 
-html.theme-dark2 .btn-outline-secondary:hover,
-html.theme-dark2 .btn-outline-secondary:focus,
-html.theme-dark2 .btn-outline-secondary:not([disabled]):not(.disabled).active,
-html.theme-dark2 .btn-outline-secondary:not([disabled]):not(.disabled):active,
-html.theme-dark2 .btn-outline-light:hover,
-html.theme-dark2 .btn-outline-light:focus,
-html.theme-dark2 .btn-outline-light:not([disabled]):not(.disabled).active,
-html.theme-dark2 .btn-outline-light:not([disabled]):not(.disabled):active {
-  background-color: rgba(255, 255, 255, 0.12);
-  border-color: var(--rb-dark-border);
-  color: var(--rb-dark-text);
-}
-
-html.theme-dark2 .btn-link {
-  color: var(--rb-dark-link);
-}
-
-html.theme-dark2 .btn-link:hover,
-html.theme-dark2 .btn-link:focus {
-  color: #539bf5;
+html.theme-dark2 .btn.btn-link:hover,
+html.theme-dark2 .btn.btn-link:focus {
+  color: #539bf5 !important;
 }
 
 html.theme-dark2 .table {

@@ -1,14 +1,13 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" class="theme-dark2">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>LOG VIEWER</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2-base.css}" />
+    <title>ADMIN LOGVIEWER</title>
     <style>
       html,
       body {
         height: 100%;
-        background-color: #14171c;
-        color: #e6edf3;
         overflow: hidden;
       }
       .rb-logview {
@@ -24,15 +23,15 @@
         align-items: center;
         gap: 8px;
         padding: 10px 12px;
-        background-color: #1c2129;
-        border: 1px solid #2d333b;
+        background-color: var(--rb-dark-panel);
+        border: 1px solid var(--rb-dark-border);
         border-radius: 8px;
       }
       .rb-logview .toolbar .form-control {
         width: auto;
-        background-color: #22272e;
-        border-color: #373e47;
-        color: #e6edf3;
+        background-color: var(--rb-dark-bg);
+        border-color: var(--rb-dark-border);
+        color: var(--rb-dark-text);
         font-family: inherit;
       }
       .rb-logview .toolbar select.form-control,
@@ -44,14 +43,14 @@
         padding: 4px 6px;
         cursor: pointer;
         user-select: none;
-        color: #9aa7b3;
+        color: var(--rb-dark-muted);
       }
       .rb-logview .toolbar input[type='checkbox'] {
-        accent-color: #4c8dff;
+        accent-color: var(--rb-dark-link);
       }
       .rb-logview .toolbar .meta {
         margin-left: auto;
-        color: #8b949e;
+        color: var(--rb-dark-muted);
       }
       .rb-logview .out {
         flex: 1;
@@ -70,11 +69,11 @@
         height: 8px;
       }
       .rb-logview .out::-webkit-scrollbar-thumb {
-        background-color: #30363d;
+        background-color: rgba(255, 255, 255, 0.3);
         border-radius: 4px;
       }
       .rb-logview .out::-webkit-scrollbar-thumb:hover {
-        background-color: #3d444d;
+        background-color: rgba(255, 255, 255, 0.45);
       }
       .rb-logview .out::-webkit-scrollbar-track {
         background-color: transparent;
@@ -93,25 +92,25 @@
         color: #d29922;
       }
       .rb-logview .out .lv-info {
-        color: #58a6ff;
+        color: var(--rb-dark-link);
       }
       .rb-logview .out .lv-debug {
-        color: #8b949e;
+        color: var(--rb-dark-muted);
       }
       .rb-logview .filemeta {
         padding-top: 8px;
         margin-top: 4px;
-        border-top: 1px solid #21262d;
-        color: #6e7681;
+        border-top: 1px solid var(--rb-dark-border);
+        color: var(--rb-dark-muted);
       }
       #logScrollTip {
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
         bottom: 48px;
-        background-color: rgba(28, 33, 41, 0.92);
-        color: #e6edf3;
-        border: 1px solid #373e47;
+        background-color: rgba(21, 27, 35, 0.92);
+        color: var(--rb-dark-text);
+        border: 1px solid var(--rb-dark-border);
         padding: 5px 18px;
         border-radius: 16px;
         cursor: pointer;
@@ -121,7 +120,7 @@
         z-index: 10;
       }
       #logScrollTip:hover {
-        background-color: rgba(43, 49, 58, 0.95);
+        background-color: rgba(30, 37, 47, 0.95);
       }
     </style>
   </head>
