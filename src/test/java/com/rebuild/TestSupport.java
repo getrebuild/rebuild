@@ -17,7 +17,6 @@ import com.rebuild.core.BootApplication;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.MetaschemaImporter;
@@ -55,10 +54,7 @@ public class TestSupport {
             BootApplication.main(new String[0]);
             RebuildReady = true;
 
-            DynamicMetadataContextHolder.setSkipLanguageRefresh();
-            if (addTestEntities(false)) {
-                DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
-            }
+            addTestEntities(false);
 
         } catch (Exception ex) {
             _log.error("TESTING Setup failed!", ex);

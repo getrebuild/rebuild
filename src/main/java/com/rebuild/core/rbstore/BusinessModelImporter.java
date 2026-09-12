@@ -48,7 +48,6 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
         Assert.notNull(modelFiles, "[modelFiles] cannot be null");
 
         DynamicMetadataContextHolder.setSkipRefentityCheck();
-        DynamicMetadataContextHolder.setSkipLanguageRefresh();
         this.setTotal(modelFiles.length);
 
         for (String fileUrl : modelFiles) {
@@ -87,7 +86,6 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
         super.completedAfter();
 
         DynamicMetadataContextHolder.isSkipRefentityCheck(true);
-        DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
 
         MetadataHelper.getMetadataFactory().refreshNow();
     }

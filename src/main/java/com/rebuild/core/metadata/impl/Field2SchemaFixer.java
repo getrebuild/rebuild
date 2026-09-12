@@ -90,7 +90,6 @@ public class Field2SchemaFixer extends Field2Schema {
         Application.getCommonsService().update(fieldMeta, false);
 
         // 类型生效
-        DynamicMetadataContextHolder.setSkipLanguageRefresh();
         MetadataHelper.getMetadataFactory().refreshNow();
         field = MetadataHelper.getField(field.getOwnEntity().getName(), field.getName());
 
@@ -135,7 +134,6 @@ public class Field2SchemaFixer extends Field2Schema {
 
         } finally {
             MetadataHelper.getMetadataFactory().refresh();
-            DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
         }
 
         return true;

@@ -28,7 +28,6 @@ import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
@@ -65,8 +64,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
     private JSONObject data;
 
     private Map<Field, JSONObject> picklistHolders = new HashMap<>();
-
-    private boolean needClearContextHolder = false;
 
     @Setter
     private String importTag;
@@ -129,11 +126,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
     protected String exec() {
         setTotal(100);
 
-        if (!DynamicMetadataContextHolder.isSkipLanguageRefresh(false)) {
-            DynamicMetadataContextHolder.setSkipLanguageRefresh();
-            needClearContextHolder = true;
-        }
-
         String entityName = performEntity(data, null);
         Entity createdEntity = MetadataHelper.getEntity(entityName);
         setCompleted(45);
@@ -188,15 +180,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
         if (threadUser == null) UserContextHolder.clearUser();
 
         return entityName;
-    }
-
-    @Override
-    protected void completedAfter() {
-        super.completedAfter();
-
-        if (needClearContextHolder) {
-            DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
-        }
     }
 
     /**

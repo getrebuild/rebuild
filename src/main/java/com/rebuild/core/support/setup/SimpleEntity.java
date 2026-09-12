@@ -16,7 +16,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.UserService;
@@ -41,12 +40,7 @@ public class SimpleEntity {
      * @return
      */
     public boolean create(boolean dropExists, boolean includeBuiltin, boolean addPrivileges) {
-        try {
-            DynamicMetadataContextHolder.setSkipLanguageRefresh();
-            return this.createInternal(dropExists, includeBuiltin, addPrivileges);
-        } finally {
-            DynamicMetadataContextHolder.setSkipLanguageRefresh();
-        }
+        return this.createInternal(dropExists, includeBuiltin, addPrivileges);
     }
 
     private boolean createInternal(boolean dropExists, boolean includeBuiltin, boolean addPrivileges) {

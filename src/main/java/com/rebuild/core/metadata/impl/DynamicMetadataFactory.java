@@ -40,7 +40,7 @@ import static com.rebuild.core.metadata.MetadataHelper.SPLITER_RE;
 public class DynamicMetadataFactory extends ConfigurationMetadataFactory implements UseDistributed {
     private static final long serialVersionUID = -5709281079615412347L;
 
-    private static final long REFRESH_DEBOUNCE_MS = 200;
+    private static final long REFRESH_DEBOUNCE_MS = 500;
     private final Debouncer refreshDebouncer = new Debouncer(() -> {
         synchronized (DynamicMetadataFactory.this) {
             doRefreshImmediate(false, true);
@@ -79,10 +79,10 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory impleme
      * @param asyncLanguage
      */
     private void doRefreshImmediate(boolean initState, boolean asyncLanguage) {
+        log.info("Loading {} entities ...", initState ? "system" : "customized/business");
         super.refresh(initState);
 
-        boolean skipLanguage = initState || DynamicMetadataContextHolder.isSkipLanguageRefresh(false);
-        if (!skipLanguage) {
+        if (!initState) {
             if (asyncLanguage) {
                 ThreadPool.exec(() -> Application.getLanguage().refresh());
             } else {
