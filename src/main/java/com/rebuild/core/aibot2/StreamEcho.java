@@ -44,7 +44,7 @@ public class StreamEcho {
     /**
      * @param content
      * @param writer
-     * @param type `_reasoning` `_chatid`
+     * @param type `_reasoning` `_chatid` `_tool` 前端有对应渲染逻辑
      */
     public static void echo(String content, PrintWriter writer, String type) {
         echo(content, writer, type, false);
