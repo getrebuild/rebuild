@@ -139,15 +139,7 @@ class Chat extends React.Component {
         this._ChatMessages.scrollToBottom(true)
 
         if (_preset) {
-          let newState = {}
-          if (_preset.content) newState.content = _preset.content
-          if (_preset.attach) newState.attach = _preset.attach
-          if (_preset.skill) newState.activeSkill = _preset.skill
-          this._ChatInput.setState(newState, () => {
-            if (_preset.autoSend && this._ChatInput.state.content) {
-              this._ChatInput.hanldeSend()
-            }
-          })
+          this._ChatInput.applyPreset(_preset)
         }
       } else {
         this._ChatMessages.setMessages([{ error: res.error_msg }], true)
@@ -263,10 +255,11 @@ class ChatInput extends React.Component {
                 </RF>
               )}
             </div>
-            <textarea
-              rows="2"
-              value={this.state.content}
-              onInput={(e) => this.setState({ content: e.target.value })}
+            <div
+              contentEditable
+              suppressContentEditableWarning
+              className="chat-input-editable"
+              onInput={(e) => this.setState({ content: e.target.innerText })}
               onKeyDown={(e) => {
                 if (e.keyCode === 13 && !e.shiftKey) {
                   $stopEvent(e, true)
@@ -275,9 +268,9 @@ class ChatInput extends React.Component {
               }}
               onBlur={() => this.setState({ active: false })}
               onFocus={() => this.setState({ active: true })}
-              placeholder={$L('输入问题')}
+              data-placeholder={$L('输入问题')}
               autoFocus
-              ref={(c) => (this._$textarea = c)}
+              ref={(c) => (this._$editable = c)}
             />
           </div>
           <div className="chat-input-action">
@@ -369,10 +362,23 @@ class ChatInput extends React.Component {
     }
   }
 
-  reset(autoFocus, presetContent) {
-    this.setState({ content: presetContent || '', attach: [], postState: 0, activeSkill: null }, () => {
-      if (autoFocus) this._$textarea.focus()
+  reset(autoFocus) {
+    if (this._$editable) this._$editable.innerHTML = ''
+    this.setState({ content: '', attach: [], postState: 0, activeSkill: null }, () => {
+      if (autoFocus) this._$editable && this._$editable.focus()
     })
+  }
+
+  applyPreset(preset) {
+    if (preset.content && this._$editable) {
+      this._$editable.innerText = preset.content
+    }
+    this.setState(
+      { content: preset.content || '', attach: preset.attach || [], activeSkill: preset.skill || null },
+      () => {
+        if (preset.autoSend && this.state.content) this.hanldeSend()
+      },
+    )
   }
 
   removeAttach(id) {

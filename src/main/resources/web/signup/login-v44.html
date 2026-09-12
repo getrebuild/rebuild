@@ -1,7 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
-    <th:block th:replace="~{/_include/header}" />
+    <th:block th:replace="~{/_include/header}" dark2="auto" />
     <meta name="og:image" content="https://getrebuild.com/img/logo256.png" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/login.css}" />
     <th:block th:if="${param.frame != null && param.frame[0] == '1'}">
