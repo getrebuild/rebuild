@@ -566,7 +566,6 @@ public class UserStore implements Initialization, UseDistributed {
 
     @Override
     public void init() {
-
         // 用户
 
         Object[][] array = aPMFactory.createQuery("select " + USER_FS + " from User").array();
@@ -627,6 +626,7 @@ public class UserStore implements Initialization, UseDistributed {
         log.info("Loaded [ {} ] teams.", TEAMS.size());
 
         isLoaded = true;
+        this.notifyRefresh();
     }
 
     /**
@@ -681,12 +681,6 @@ public class UserStore implements Initialization, UseDistributed {
         USERS_MAIL2ID.clear();
 
         isLoaded = false;
-        init();
-    }
-
-    @Override
-    public void notifyRefresh() {
-        if (!isLoaded) return;
-        UseDistributed.super.notifyRefresh();
+        this.init();
     }
 }

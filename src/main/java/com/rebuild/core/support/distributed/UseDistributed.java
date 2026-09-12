@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
+import com.rebuild.core.Application;
 import com.rebuild.core.support.Lab;
 import com.rebuild.core.support.RbvFunction;
 
@@ -18,14 +19,16 @@ import com.rebuild.core.support.RbvFunction;
 public interface UseDistributed {
 
     /**
-     * 收到远端节点的刷新通知后，重载本节点缓存。
+     * 收到远端节点的刷新通知后，重载本节点缓存
      */
     void refresh();
 
     /**
-     * 本节点数据变更后，广播通知其他节点刷新。
+     * 本节点数据变更后，广播通知其他节点刷新
      */
     default void notifyRefresh() {
-        RbvFunction.call().refreshAllNodes();
+        if (Application.isStateLoaded()) {
+            RbvFunction.call().refreshAllNodes();
+        }
     }
 }

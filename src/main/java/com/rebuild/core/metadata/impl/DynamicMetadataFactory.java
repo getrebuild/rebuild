@@ -45,7 +45,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory impleme
 
     @Override
     public void refresh() {
-        refresh(false);
+        this.refresh(false);
     }
 
     @Override
@@ -56,6 +56,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory impleme
         if (!initState && !DynamicMetadataContextHolder.isSkipLanguageRefresh(false)) {
             Application.getLanguage().refresh();
         }
+
+        this.notifyRefresh();
     }
 
     @Override
