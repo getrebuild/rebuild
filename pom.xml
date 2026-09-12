@@ -386,7 +386,7 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.21.2</version>
+            <version>1.23.1</version>
         </dependency>
         <dependency>
             <groupId>com.hankcs</groupId>
@@ -551,7 +551,7 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
-            <version>2.9.4</version>
+            <version>3.2.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
@@ -598,7 +598,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.135.Final</version>
+            <version>4.1.137.Final</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
