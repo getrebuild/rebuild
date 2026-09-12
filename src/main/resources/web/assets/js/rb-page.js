@@ -1862,9 +1862,18 @@ var _mermaidCodeRenderer = function (token) {
   if (lang === 'mermaid') return '<div class="mermaid-to-render">' + text + '</div>'
   return false
 }
-// 全局注册 mermaid 代码块 renderer，所有 marked.parse() 自动处理
+// 全局注册 mermaid 代码块 + heading id renderer，所有 marked.parse() 自动处理
 if (typeof marked !== 'undefined') {
-  marked.use({ renderer: { code: _mermaidCodeRenderer } })
+  marked.use({
+    renderer: {
+      code: _mermaidCodeRenderer,
+      heading({ tokens, depth }) {
+        const text = this.parser.parseInline(tokens)
+        const id = text.replace(/<[^>]+>/g, '').trim().replace(/\s+/g, '-')
+        return `<h${depth} id="${id}">${text}</h${depth}>`
+      },
+    },
+  })
 }
 
 // 懒加载 mermaid 并渲染
