@@ -7,27 +7,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
+import com.rebuild.core.support.Lab;
 import com.rebuild.core.support.RbvFunction;
 
 /**
- * 标记接口. 支持分布式
- *
  * @author devezhao
  * @since 2026/4/7
  */
+@Lab
 public interface UseDistributed {
 
     /**
-     * 数据改变后，被动通知刷新
-     *
-     * @return
+     * 收到远端节点的刷新通知后，重载本节点缓存。
      */
-    Object refresh();
+    void refresh();
 
     /**
-     * 数据改变
+     * 本节点数据变更后，广播通知其他节点刷新。
      */
-    default void datasChanged() {
+    default void notifyRefresh() {
         RbvFunction.call().refreshAllNodes();
     }
 }

@@ -44,10 +44,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory impleme
     }
 
     @Override
-    public Object refresh() {
+    public void refresh() {
         refresh(false);
-        this.datasChanged();
-        return getEntities().length;
     }
 
     @Override

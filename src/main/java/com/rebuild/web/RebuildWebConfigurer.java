@@ -80,9 +80,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     private static String pageFooterHtml;
 
     @Override
-    public Object refresh() {
+    public void refresh() {
         this.init();
-        return null;
     }
 
     @Override
@@ -129,7 +128,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         // 清理缓存
         thymeleafViewResolver.clearCache();
 
-        this.datasChanged();
+        this.notifyRefresh();
     }
 
     private void setStaticVariable(ConfigurationItem item) {

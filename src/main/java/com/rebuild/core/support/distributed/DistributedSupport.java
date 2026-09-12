@@ -9,6 +9,7 @@ package com.rebuild.core.support.distributed;
 
 import com.rebuild.core.Application;
 import com.rebuild.core.support.CommandArgs;
+import com.rebuild.core.support.Lab;
 
 import java.util.List;
 import java.util.Set;
@@ -21,6 +22,7 @@ import java.util.concurrent.locks.Lock;
  * @author devezhao
  * @since 2020/9/27
  */
+@Lab
 public interface DistributedSupport {
 
     /**
