@@ -1567,14 +1567,12 @@ a.link.link-icon::after {
   max-width: 680px;
 }
 
-@media (max-width: 440px) {
-  .rbhighbar {
-    padding: 0 10px;
-  }
-
+@media (max-width: 480px) {
   .rbhighbar > .alert {
+    width: 100%;
     max-width: 100%;
     min-width: 100%;
+    border-radius: 0 !important;
   }
 }
 
