@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.vector.FileData;
 import com.rebuild.core.aibot2.vector.ListData;
+import com.rebuild.core.aibot2.vector.RefChatData;
 import com.rebuild.core.aibot2.vector.RecordData;
 import com.rebuild.core.aibot2.vector.VectorData;
 import com.rebuild.core.aibot2.vector.VectorDataChunk;
@@ -106,12 +107,15 @@ public class ChatRequest {
             String record = item.getString("record");
             String orListFilter = item.getString("listFilter");
             String orFile = item.getString("file");
+            String refChat = item.getString("refChat");
             if (ID.isId(record)) {
                 vdc.addVectorData(new RecordData(ID.valueOf(record)));
             } else if (JSONUtils.wellFormat(orListFilter)) {
                 vdc.addVectorData(new ListData(JSONObject.parseObject(orListFilter)));
             } else if (StringUtils.isNotBlank(orFile)) {
                 vdc.addVectorData(new FileData(orFile));
+            } else if (ID.isId(refChat)) {
+                vdc.addVectorData(new RefChatData(ID.valueOf(refChat)));
             }
         }
 
