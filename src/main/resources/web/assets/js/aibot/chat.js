@@ -1279,7 +1279,7 @@ class Attach extends React.Component {
       this.setState({
         name: (
           <RF>
-            <i className="mdi mdi-flash-outline" />
+            <i className="mdi mdi-flash-outline" style={{ marginRight: 1 }} />
             <span>{props.skill + ''}</span>
           </RF>
         ),
@@ -1288,10 +1288,11 @@ class Attach extends React.Component {
       this.setState({
         name: (
           <RF>
-            <i className="mdi mdi-comment-text-outline" />
+            <i className="mdi mdi-comment-text-outline" style={{ marginRight: 3 }} />
             <span>{$L('引用会话')}</span>
           </RF>
         ),
+        viewUrl: `${rb.baseUrl}/aibot/chat#chatid=${props.refChat}`,
       })
     }
   }
