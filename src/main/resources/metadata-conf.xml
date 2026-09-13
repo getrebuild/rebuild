@@ -682,7 +682,7 @@
         <field name="vectorData" type="ntext" description="附件内容"/>
         <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
         <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
-        <index field-list="chatId,createdOn,createdBy"/>
+        <index field-list="chatId,content"/>
     </entity>
 
     <entity name="AibotConfig" type-code="094" name-field="name" description="AI 通用配置" queryable="false">

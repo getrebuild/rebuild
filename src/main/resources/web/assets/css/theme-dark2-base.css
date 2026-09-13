@@ -703,8 +703,6 @@ html.theme-dark2 .table.table-header-fixed thead > tr > th::before {
   border-bottom-color: var(--rb-dark-border);
 }
 
-/* 固定列条纹/hover/选中态取 panel 叠加对应白百分比的不透明等效值 */
-
 html.theme-dark2 .table-striped tbody tr:nth-of-type(odd) td.column-fixed {
   background-color: #1e242c;
 }

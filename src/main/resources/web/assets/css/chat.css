@@ -49,14 +49,23 @@ See LICENSE and COMMERCIAL in the project root for license information.
   line-height: 1;
 }
 
-.chat-input .chat-input-input textarea {
+.chat-input .chat-input-input .chat-input-editable {
   width: 100%;
   border: 0 none;
-  resize: none;
   outline: none;
-  height: 40px;
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
   line-height: 20px;
   background-color: transparent;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-input .chat-input-editable:empty:before {
+  content: attr(data-placeholder);
+  color: #aaa;
+  pointer-events: none;
 }
 
 .chat-input .chat-input-action {
@@ -100,6 +109,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: none;
 }
 
+.chat-input .chat-input-attach {
+  margin-bottom: 3px;
+}
+
 .chat-input .chat-input-attach > span,
 .chat-message .msg-user > .msg-attach > a {
   background-color: rgba(0, 0, 0, 0.1);
@@ -109,13 +122,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: inline-block;
   font-size: 12px;
   max-width: 501px;
-  margin-bottom: 4px;
   line-height: 1.5;
-}
-
-.chat-input .chat-input-attach > span + span,
-.chat-message .msg-user > .msg-attach > a + a {
-  margin-left: 4px;
+  margin-top: 3px;
+  margin-right: 4px;
 }
 
 .chat-input .chat-input-attach > span > a.close {
@@ -123,6 +132,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   text-shadow: none;
   margin-left: 4px;
   max-height: 18px;
+  transform: translateY(-1px);
 }
 
 .chat-messages {
