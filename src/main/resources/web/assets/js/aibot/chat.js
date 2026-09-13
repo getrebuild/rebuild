@@ -1154,8 +1154,13 @@ class ChatSidebar extends React.Component {
   }
 
   _renderGroupedList() {
+    const list = this.state.list || []
+    if (list.length === 0) {
+      return <li className="text-muted text-center fs-md m-3">{$L('暂无会话')}</li>
+    }
+
     const labels = { today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
-    const ret = this.state.list.map((g) => {
+    const ret = list.map((g) => {
       if (!g.items || g.items.length === 0) return null
       return (
         <React.Fragment key={g.group}>

@@ -302,7 +302,7 @@ a.link.inline {
 }
 
 .btn {
-  min-height: 2.8rem;
+  min-height: 37px;
   min-width: 88px;
 }
 
@@ -325,7 +325,7 @@ a.btn {
 .input-group .btn,
 .input-group-sm .btn {
   width: auto;
-  min-width: 2.8rem;
+  min-width: 37px;
 }
 
 .btn-lg {
@@ -812,6 +812,12 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .modal.rbalert .modal-dialog {
   max-width: 551px;
+}
+
+@media (max-width: 767.98px) {
+  .modal.rbalert .modal-dialog {
+    margin: 16px;
+  }
 }
 
 .modal-body.iframe {
