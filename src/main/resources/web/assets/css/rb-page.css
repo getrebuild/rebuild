@@ -6951,3 +6951,37 @@ input[type='password']::-ms-clear {
   --os-handle-min-size: 33px;
   --os-handle-interactive-area-offset: 4px;
 }
+
+.rb-fireworks {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.rb-firework-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: rb-firework-fly 1.2s cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
+}
+@keyframes rb-firework-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  10% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3);
+    opacity: 0;
+  }
+}

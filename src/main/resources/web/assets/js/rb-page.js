@@ -1869,7 +1869,10 @@ if (typeof marked !== 'undefined') {
       code: _mermaidCodeRenderer,
       heading({ tokens, depth }) {
         const text = this.parser.parseInline(tokens)
-        const id = text.replace(/<[^>]+>/g, '').trim().replace(/\s+/g, '-')
+        const id = text
+          .replace(/<[^>]+>/g, '')
+          .trim()
+          .replace(/\s+/g, '-')
         return `<h${depth} id="${id}">${text}</h${depth}>`
       },
     },
@@ -1917,4 +1920,39 @@ function $saltText(text) {
   const _salt = 'iloverb' + _d.getFullYear() + ('0' + (_d.getMonth() + 1)).slice(-2) + ('0' + _d.getDate()).slice(-2)
   // eslint-disable-next-line no-undef
   return sha256(sha256(text) + _salt)
+}
+
+function $showFireworks() {
+  var container = document.createElement('div')
+  container.className = 'rb-fireworks'
+  document.body.appendChild(container)
+
+  var colors = ['#fe5281', '#a928bf', '#474efe', '#4285f4', '#ffc107', '#4caf50', '#ff5722']
+  var burstCount = 3
+  var particlesPerBurst = 24
+
+  for (let b = 0; b < burstCount; b++) {
+    var cx = 20 + Math.random() * 60
+    var cy = 15 + Math.random() * 50
+    var delay = b * 200
+
+    setTimeout(() => {
+      for (let i = 0; i < particlesPerBurst; i++) {
+        var p = document.createElement('div')
+        p.className = 'rb-firework-spark'
+        var angle = (Math.PI * 2 * i) / particlesPerBurst + (Math.random() - 0.5) * 0.3
+        var dist = 50 + Math.random() * 90
+        var color = colors[Math.floor(Math.random() * colors.length)]
+        p.style.left = cx + '%'
+        p.style.top = cy + '%'
+        p.style.setProperty('--dx', Math.cos(angle) * dist + 'px')
+        p.style.setProperty('--dy', Math.sin(angle) * dist + 'px')
+        p.style.backgroundColor = color
+        p.style.boxShadow = `0 0 6px ${color}`
+        container.appendChild(p)
+      }
+    }, delay)
+  }
+
+  setTimeout(() => container.remove(), 1800)
 }
