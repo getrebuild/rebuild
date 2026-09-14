@@ -44,9 +44,10 @@ public class SystemPromptBuilder {
      * @param agentPrompt
      * @param skillName
      * @param planMode
+     * @param planConfirmed
      * @return
      */
-    public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode) {
+    public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode, boolean planConfirmed) {
         StringBuilder systemPrompt = new StringBuilder();
 
         // 基础要求（管理中心配置）
@@ -107,6 +108,14 @@ public class SystemPromptBuilder {
                     .append("3. 预期结果\n")
                     .append("用户确认后会发送确认消息触发实际执行。")
                     .append("\n</plan_mode>");
+        }
+
+        // 计划确认（用户已在计划模式中确认方案，写操作工具可直接执行）
+        if (planConfirmed) {
+            if (systemPrompt.length() > 0) systemPrompt.append(NN);
+            systemPrompt.append("<plan_confirmed>\n")
+                    .append("用户已在计划模式中确认了执行方案。调用写操作类工具时，请直接设置 confirmed=true 参数执行，无需再次征求用户确认。\n")
+                    .append("\n</plan_confirmed>");
         }
 
         // 技能（用户指定，冲突时优先）

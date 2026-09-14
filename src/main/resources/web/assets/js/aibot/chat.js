@@ -254,7 +254,7 @@ class Chat extends React.Component {
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [], skills: [], activeSkill: null, planMode: false }
+    this.state = { postState: 0, attach: [], skills: [], activeSkill: null, planMode: false, planConfirmed: false }
   }
 
   render() {
@@ -388,6 +388,7 @@ class ChatInput extends React.Component {
       attach: this.state.attach,
       skill: this.state.activeSkill,
       planMode,
+      planConfirmed: this.state.planConfirmed || false,
       sendTime: Date.now(),
     }
     const onDone = () => {
@@ -415,7 +416,7 @@ class ChatInput extends React.Component {
 
   reset(autoFocus) {
     if (this._$editable) this._$editable.innerHTML = ''
-    this.setState({ content: '', attach: [], postState: 0, activeSkill: null }, () => {
+    this.setState({ content: '', attach: [], postState: 0, activeSkill: null, planConfirmed: false }, () => {
       if (autoFocus) this._$editable && this._$editable.focus()
     })
   }
@@ -427,7 +428,7 @@ class ChatInput extends React.Component {
       cancelText: $L('修改需求'),
       onConfirm: () => {
         _Chat.hideConfirm()
-        this.setState({ planMode: false }, () => {
+        this.setState({ planMode: false, planConfirmed: true }, () => {
           if (this._$editable) this._$editable.innerText = $L('确认执行上述方案')
           this.setState({ content: $L('确认执行上述方案') }, () => this.hanldeSend())
         })
