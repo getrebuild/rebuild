@@ -139,12 +139,18 @@ class Chat extends React.Component {
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
         this._ChatMessages.scrollToBottom(true)
 
-        // 恢复计划模式确认卡片：最后一条用户消息带 planMode 且 AI 已回复完成
+        // 最后一条用户消息带 planMode 且未确认执行时，恢复 planMode 状态
+        const lastUserMsg = messages.filter((m) => m.role === 'user').pop()
+        if (lastUserMsg && lastUserMsg.planMode && !lastUserMsg.planConfirmed) {
+          this._ChatInput.setState({ planMode: true })
+        }
+        // 最后一条用户消息带 planMode 且 AI 已回复完成，且回复中包含 PLAN_READY 标记
         if (messages.length >= 2) {
           const last = messages[messages.length - 1]
           const prev = messages[messages.length - 2]
           if (prev.role === 'user' && prev.planMode && (last.role === 'assistant' || last.role === 'ai') && !last.pending) {
-            this._ChatInput._showPlanConfirm()
+            const content = last.content || ''
+            if (content.includes('<!-- PLAN_READY -->')) this._ChatInput._showPlanConfirm()
           }
         }
 
@@ -368,7 +374,10 @@ class ChatInput extends React.Component {
       this.reset()
       return
     }
-    if (cmd === 'plan') planMode = true
+    if (cmd === 'plan') {
+      planMode = true
+      this.setState({ planMode: true })
+    }
 
     const refChatid = cmd === 'ref' ? _Chat.state.chatid : null
     if (refChatid) attach = [...attach, { refChat: refChatid, id: $random('attach-', true) }]
@@ -393,7 +402,13 @@ class ChatInput extends React.Component {
     }
     const onDone = () => {
       this.setState({ postState: 0 })
-      if (planMode) this._showPlanConfirm()
+      if (planMode) {
+        // 仅当 AI 输出了 PLAN_READY 标记时才弹出确认（排除问题补充等非方案回复）
+        const messages = _Chat._ChatMessages.state.messages
+        const lastMsg = messages[messages.length - 1]
+        const content = (lastMsg && lastMsg.content) || ''
+        if (content.includes('<!-- PLAN_READY -->')) this._showPlanConfirm()
+      }
     }
     _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
 
@@ -417,8 +432,18 @@ class ChatInput extends React.Component {
   reset(autoFocus) {
     if (this._$editable) this._$editable.innerHTML = ''
     this.setState({ content: '', attach: [], postState: 0, activeSkill: null, planConfirmed: false }, () => {
-      if (autoFocus) this._$editable && this._$editable.focus()
+      if (autoFocus) this.focus()
     })
+  }
+
+  focus() {
+    this._$editable && this._$editable.focus()
+  }
+
+  val(value) {
+    if (value === undefined) return this._$editable ? this._$editable.innerText : this.state.content || ''
+    if (this._$editable) this._$editable.innerText = value
+    this.setState({ content: value })
   }
 
   _showPlanConfirm() {
@@ -849,14 +874,20 @@ class ChatMessage extends React.Component {
           )}
           <RichContent content={this.state.content} ready={ready} />
           {this.props.confirmAction && (
-            <div className="card mt-2 mb-1">
-              <div className="card-body p-3">
-                <span className="d-block text-bold mb-2">{this.props.confirmAction.message}</span>
+            <div className="card">
+              <div className="card-body">
+                <p className="text-bold mb-2">{this.props.confirmAction.message}</p>
                 <div className="d-flex align-items-center">
                   <button type="button" className="btn btn-sm btn-primary" onClick={() => this.props.confirmAction.onConfirm()}>
                     {this.props.confirmAction.confirmText || $L('确认')}
                   </button>
-                  <a className="btn btn-sm btn-link ml-2" onClick={() => this.props._ChatMessages.props._Chat.hideConfirm()}>
+                  <a
+                    className="btn btn-sm btn-link ml-2"
+                    onClick={() => {
+                      const _Chat = this.props._ChatMessages.props._Chat
+                      _Chat.hideConfirm()
+                      _Chat._ChatInput && _Chat._ChatInput.focus()
+                    }}>
                     {this.props.confirmAction.cancelText || $L('取消')}
                   </a>
                 </div>
@@ -1621,11 +1652,14 @@ const FixMd = {
 
         for (const s0 of segLines) {
           let s = s0
-          if (!s.trim().startsWith('|')) {
+          if (!s.trim().startsWith('|') && !s.trim().startsWith('<!--')) {
+            // 保护 HTML 注释，避免 <!-- 中的 -- 被 GATE+列表正则拆分
+            s = s.replace(/<!--/g, '\u0002')
             s = s
               .replace(new RegExp('(' + FixMd.GATE + ')(#{1,6}\\s+\\S)', 'g'), '$1\n$2')
               .replace(new RegExp('(' + FixMd.GATE + ')([-*+]\\s{1,4}\\S)', 'g'), '$1\n$2')
               .replace(new RegExp('(' + FixMd.GATE + ')(\\d{1,3}\\.\\s{1,4}\\S)', 'g'), '$1\n$2')
+            s = s.replace(/\u0002/g, '<!--')
             s = s.replace(/(\*\*[^*\n]+?\*\*)(?=[A-Za-z0-9])/g, '$1 ')
           }
           fixed.push(...s.split('\n'))
