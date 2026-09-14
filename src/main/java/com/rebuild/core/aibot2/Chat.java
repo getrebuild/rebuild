@@ -133,7 +133,7 @@ public class Chat implements Serializable {
         Message message = new Message(ROLE_USER, userMessage, null, null, null);
         messages.add(message);
 
-        String systemPrompt = agent.buildSystemPrompt(null);
+        String systemPrompt = agent.buildSystemPrompt(null, false);
         chatLogger().logSession(agent.model(), systemPrompt);
         chatLogger().log("USER", userMessage);
 
@@ -150,8 +150,9 @@ public class Chat implements Serializable {
      * @return
      */
     private ChatCompletionCreateParams.Builder requestParams(String userMessage, ChatRequest chatRequest) {
+        boolean planMode = chatRequest != null && chatRequest.getPlanMode();
         String systemPrompt = agent.buildSystemPrompt(
-                chatRequest == null ? null : chatRequest.getSkill());
+                chatRequest == null ? null : chatRequest.getSkill(), planMode);
         chatLogger().logSession(agent.model(), systemPrompt);
 
         if (userMessage != null) {

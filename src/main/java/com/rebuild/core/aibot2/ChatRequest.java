@@ -62,6 +62,13 @@ public class ChatRequest {
     }
 
     /**
+     * 是否为计划模式（AI 先输出方案，用户确认后再执行）
+     */
+    public boolean getPlanMode() {
+        return reqJson.getBooleanValue("planMode");
+    }
+
+    /**
      * 获取用户消息内容（含附加数据注入），仅用于当前会话请求，不用于历史消息恢复
      */
     public String getUserContent() {

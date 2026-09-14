@@ -60,6 +60,7 @@ class Chat extends React.Component {
     this.state = {
       ...props,
       messages: [],
+      confirmAction: null,
     }
     this._preset = props.preset
   }
@@ -68,7 +69,7 @@ class Chat extends React.Component {
     return (
       <RF>
         <div className={`chat ${this.props.standalone ? 'chat-standalone' : ''}`} ref={(c) => (this._$chat = c)}>
-          <ChatMessages _Chat={this} ref={(c) => (this._ChatMessages = c)} />
+          <ChatMessages _Chat={this} confirmAction={this.state.confirmAction} ref={(c) => (this._ChatMessages = c)} />
           <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
         </div>
         <ChatSidebar _Chat={this} ref={(c) => (this._ChatSidebar = c)} />
@@ -113,7 +114,7 @@ class Chat extends React.Component {
       }
     }
 
-    this.setState({ chatid: chatid || null })
+    this.setState({ chatid: chatid || null, confirmAction: null })
     this._ChatMessages.setMessages([], true, null)
     this._ChatInput.reset(true)
     const _preset = this._preset
@@ -137,6 +138,15 @@ class Chat extends React.Component {
 
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
         this._ChatMessages.scrollToBottom(true)
+
+        // 恢复计划模式确认卡片：最后一条用户消息带 planMode 且 AI 已回复完成
+        if (messages.length >= 2) {
+          const last = messages[messages.length - 1]
+          const prev = messages[messages.length - 2]
+          if (prev.role === 'user' && prev.planMode && (last.role === 'assistant' || last.role === 'ai') && !last.pending) {
+            this._ChatInput._showPlanConfirm()
+          }
+        }
 
         if (_preset) {
           this._ChatInput.applyPreset(_preset)
@@ -231,12 +241,20 @@ class Chat extends React.Component {
     }
     this._pendingChatid = null
   }
+
+  showConfirm(action) {
+    this.setState({ confirmAction: action })
+  }
+
+  hideConfirm() {
+    this.setState({ confirmAction: null })
+  }
 }
 
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [], skills: [], activeSkill: null }
+    this.state = { postState: 0, attach: [], skills: [], activeSkill: null, planMode: false }
   }
 
   render() {
@@ -364,14 +382,44 @@ class ChatInput extends React.Component {
       return
     }
 
+    if (content === '/plan' || content.startsWith('/plan ')) {
+      const remaining = content.replace(/^\/plan\s*/, '')
+      if (remaining) {
+        const data = {
+          role: 'user',
+          content: remaining,
+          attach: this.state.attach,
+          skill: this.state.activeSkill,
+          planMode: true,
+          sendTime: Date.now(),
+        }
+        const onDone = () => {
+          this.setState({ postState: 0 })
+          this._showPlanConfirm()
+        }
+        const _Chat = this.props._Chat
+        _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
+        this.reset()
+        this.setState({ postState: 1 })
+      } else {
+        this.setState({ planMode: !this.state.planMode })
+        this.reset()
+      }
+      return
+    }
+
     const data = {
       role: 'user',
       content: this.state.content,
       attach: this.state.attach,
       skill: this.state.activeSkill,
+      planMode: this.state.planMode,
       sendTime: Date.now(),
     }
-    const onDone = () => this.setState({ postState: 0 })
+    const onDone = () => {
+      this.setState({ postState: 0 })
+      if (this.state.planMode) this._showPlanConfirm()
+    }
     const _Chat = this.props._Chat
     _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
 
@@ -396,6 +444,21 @@ class ChatInput extends React.Component {
     if (this._$editable) this._$editable.innerHTML = ''
     this.setState({ content: '', attach: [], postState: 0, activeSkill: null }, () => {
       if (autoFocus) this._$editable && this._$editable.focus()
+    })
+  }
+
+  _showPlanConfirm() {
+    const _Chat = this.props._Chat
+    _Chat.showConfirm({
+      message: $L('方案已生成，是否确认执行？'),
+      cancelText: $L('修改需求'),
+      onConfirm: () => {
+        _Chat.hideConfirm()
+        this.setState({ planMode: false }, () => {
+          if (this._$editable) this._$editable.innerText = $L('确认执行上述方案')
+          this.setState({ content: $L('确认执行上述方案') }, () => this.hanldeSend())
+        })
+      },
     })
   }
 
@@ -490,7 +553,9 @@ class ChatMessages extends React.Component {
           </a>
         }>
         {this.state.messages.map((item, idx) => {
-          return <ChatMessage {...item} key={idx} _ChatMessages={this} />
+          const isLast = idx === this.state.messages.length - 1
+          const isAi = item.role === 'assistant' || item.role === 'ai'
+          return <ChatMessage {...item} key={idx} _ChatMessages={this} confirmAction={isLast && isAi ? this.props.confirmAction : null} />
         })}
         {showSuggest && (
           <div className="chat-suggest">
@@ -533,6 +598,12 @@ class ChatMessages extends React.Component {
     this.setState(state, () => {
       this.scrollToBottom(forceScroll)
     })
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.confirmAction !== prevProps.confirmAction) {
+      this.scrollToBottom(true)
+    }
   }
 
   componentDidMount() {
@@ -803,6 +874,21 @@ class ChatMessage extends React.Component {
             </div>
           )}
           <RichContent content={this.state.content} ready={ready} />
+          {this.props.confirmAction && (
+            <div className="card mt-2 mb-1">
+              <div className="card-body p-3">
+                <span className="d-block text-bold mb-2">{this.props.confirmAction.message}</span>
+                <div className="d-flex align-items-center">
+                  <button type="button" className="btn btn-sm btn-primary" onClick={() => this.props.confirmAction.onConfirm()}>
+                    {this.props.confirmAction.confirmText || $L('确认')}
+                  </button>
+                  <a className="btn btn-sm btn-link ml-2" onClick={() => this.props._ChatMessages.props._Chat.hideConfirm()}>
+                    {this.props.confirmAction.cancelText || $L('取消')}
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
