@@ -353,74 +353,47 @@ class ChatInput extends React.Component {
     if ($empty(this.state.content)) return
 
     const content = this.state.content.trim()
+    const _Chat = this.props._Chat
 
-    // /new 新建会话
-    if (content === '/new' || content.startsWith('/new ')) {
-      const remaining = content.replace(/^\/new\s*/, '')
-      const _Chat = this.props._Chat
-      if (remaining) _Chat._preset = { content: remaining, attach: this.state.attach, skill: this.state.activeSkill, autoSend: true }
-      _Chat.initChat()
+    // /new /ref /plan
+    const m = content.match(/^\/(new|ref|plan)(?:\s+([\s\S]*))?$/)
+    const cmd = m ? m[1] : null
+    const remaining = m ? m[2] || '' : content
+
+    let planMode = this.state.planMode
+    let attach = this.state.attach
+
+    if (cmd === 'plan' && !remaining) {
+      this.setState({ planMode: !planMode })
       this.reset()
       return
     }
+    if (cmd === 'plan') planMode = true
 
-    // /ref 引用当前会话（压缩后作为 attach）
-    if (content === '/ref' || content.startsWith('/ref ')) {
-      const remaining = content.replace(/^\/ref\s*/, '')
-      const _Chat = this.props._Chat
-      const refChatid = _Chat.state.chatid
-      const prevAttach = this.state.attach
+    const refChatid = cmd === 'ref' ? _Chat.state.chatid : null
+    if (refChatid) attach = [...attach, { refChat: refChatid, id: $random('attach-', true) }]
 
-      if (refChatid) {
-        const attach = [...prevAttach, { refChat: refChatid, id: $random('attach-', true) }]
-        _Chat._preset = { content: remaining || '', attach, skill: this.state.activeSkill, autoSend: !!remaining }
-      } else {
-        if (remaining) _Chat._preset = { content: remaining, attach: this.state.attach, skill: this.state.activeSkill, autoSend: true }
+    if (cmd === 'new' || cmd === 'ref') {
+      if (remaining || refChatid) {
+        _Chat._preset = { content: remaining, attach, skill: this.state.activeSkill, autoSend: !!remaining }
       }
       _Chat.initChat()
       this.reset()
-      return
-    }
-
-    if (content === '/plan' || content.startsWith('/plan ')) {
-      const remaining = content.replace(/^\/plan\s*/, '')
-      if (remaining) {
-        const data = {
-          role: 'user',
-          content: remaining,
-          attach: this.state.attach,
-          skill: this.state.activeSkill,
-          planMode: true,
-          sendTime: Date.now(),
-        }
-        const onDone = () => {
-          this.setState({ postState: 0 })
-          this._showPlanConfirm()
-        }
-        const _Chat = this.props._Chat
-        _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
-        this.reset()
-        this.setState({ postState: 1 })
-      } else {
-        this.setState({ planMode: !this.state.planMode })
-        this.reset()
-      }
       return
     }
 
     const data = {
       role: 'user',
-      content: this.state.content,
+      content: remaining,
       attach: this.state.attach,
       skill: this.state.activeSkill,
-      planMode: this.state.planMode,
+      planMode,
       sendTime: Date.now(),
     }
     const onDone = () => {
       this.setState({ postState: 0 })
-      if (this.state.planMode) this._showPlanConfirm()
+      if (planMode) this._showPlanConfirm()
     }
-    const _Chat = this.props._Chat
     _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
 
     this.reset()
