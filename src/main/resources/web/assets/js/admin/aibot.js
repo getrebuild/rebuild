@@ -63,12 +63,46 @@ useEditComp = function (name) {
   }
 }
 
+// eslint-disable-next-line no-undef
+class AiBotUserRank extends ChartRank {
+  componentDidMount() {
+    const users = (this.props.users || []).slice(0, 10)
+    if (users.length === 0) {
+      this.renderError($L('暂无数据'))
+      return
+    }
+    this.renderChart({
+      xAxis: users.map((u) => u[1]),
+      yyyAxis: [{ data: users.map((u) => u[2]), name: $L('万/Token') }],
+      _renderOption: { showNumerical: true, dataFlags: [] },
+    })
+  }
+
+  render() {
+    return (
+      <div ref={(c) => (this._$body = c)} className="chart-body" style={{ minHeight: 320 }}>
+        {this.state.chartdata || <div className="text-muted text-center pt-4">{$L('加载中...')}</div>}
+      </div>
+    )
+  }
+
+  _initRankScroll() {}
+
+  _renderChartBarBefore(option, data) {
+    option.grid.top = 8
+    option.grid.bottom = 8
+    super._renderChartBarBefore(option, data)
+    option.grid.right = 10
+    return option
+  }
+}
+
 $(document).ready(() => {
   $.get('./aibot/stats', (res) => {
     let $el = $('.J_stats-aibot')
     $el.find('strong').text(res.data.aibotCount || 0)
     _renderStats(res.data.aibot, $el)
-    _renderUserStats(res.data.aibotUsers || [])
+    renderRbcomp(<AiBotUserRank id="aibot-rank" users={res.data.aibotUsers || []} />, $('.J_stats-users')[0])
   })
 })
 
@@ -144,28 +178,4 @@ const _renderStats = function (data, $el) {
 
   const c = echarts.init($el.find('span')[0])
   c.setOption(option)
-}
-
-const _renderUserStats = function (users) {
-  const $ct = $('.J_stats-users')
-  $ct.empty()
-
-  if (!users || users.length === 0) {
-    $ct.html(`<p class="text-muted m-0 text-center">${$L('暂无数据')}</p>`)
-    return
-  }
-
-  // 进度条基准取第一名的值
-  const maxVal = users[0][2] || 1
-  const top10 = users.slice(0, 10)
-  top10.forEach((u) => {
-    const name = u[1]
-    const pct = Math.round((u[2] / maxVal) * 100)
-    $ct.append(
-      `<div class="user-row">
-        <span class="name" title="${name}">${name}</span>
-        <div class="progress"><div class="progress-bar" style="width:${pct}%" title="${u[2]}"></div></div>
-      </div>`,
-    )
-  })
 }
