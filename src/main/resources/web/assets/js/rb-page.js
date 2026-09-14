@@ -1922,10 +1922,11 @@ function $saltText(text) {
   return sha256(sha256(text) + _salt)
 }
 
-function $showFireworks() {
+function $showFireworks(c) {
   var container = document.createElement('div')
   container.className = 'rb-fireworks'
-  document.body.appendChild(container)
+  c = c || document.body
+  c.appendChild(container)
 
   var colors = ['#fe5281', '#a928bf', '#474efe', '#4285f4', '#ffc107', '#4caf50', '#ff5722']
   var burstCount = 3

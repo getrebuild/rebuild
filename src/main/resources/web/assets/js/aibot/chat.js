@@ -367,7 +367,7 @@ class ChatInput extends React.Component {
     const remaining = m ? m[2] || '' : content
 
     // eslint-disable-next-line no-undef
-    if (cmd) $showFireworks()
+    if (cmd) $showFireworks(_Chat._$chat)
 
     let planMode = this.state.planMode
     let attach = this.state.attach

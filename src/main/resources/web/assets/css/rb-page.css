@@ -6955,7 +6955,7 @@ input[type='password']::-ms-clear {
 .rb-fireworks {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 9999;
   pointer-events: none;
   overflow: hidden;
 }
