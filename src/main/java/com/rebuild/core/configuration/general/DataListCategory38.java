@@ -139,8 +139,8 @@ public class DataListCategory38 {
             String sql;
             if (dt == DisplayType.N2NREFERENCE) {
                 sql = String.format(
-                        "select distinct referenceId from NreferenceItem where belongEntity = '%s' and belongField = '%s'",
-                        entity.getName(), useField);
+                        "select distinct referenceId from NreferenceItem where belongEntity = '%s' and belongField = '%s' and recordId in (select %s from %s)",
+                        entity.getName(), useField, entity.getPrimaryField().getName(), entity.getName());
                 // N级
                 if (parentValues != null) {
                     String nestSql = String.format("select %s from %s where %s",
