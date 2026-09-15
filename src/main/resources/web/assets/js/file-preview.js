@@ -493,7 +493,7 @@ class FileShare extends RbAlert {
               </button>
             </span>
             <span className="input-group-append">
-              <button type="button" className="btn btn-secondary" title={$L('二维码')} data-toggle="dropdown">
+              <button type="button" className="btn btn-secondary dropdown-toggle" title={$L('二维码')} data-toggle="dropdown">
                 <i className="icon zmdi zmdi-mdi-qrcode" />
               </button>
               <div className="dropdown-menu dropdown-menu-right p-0">

@@ -11,14 +11,17 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.NotFoundException;
 import com.google.zxing.Result;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.oned.Code128Writer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
@@ -268,16 +271,47 @@ public class BarCodeSupport {
     public static String decode(File image) {
         try {
             BufferedImage bufferedImage = ImageIO.read(image);
-            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(bufferedImage)));
-            MultiFormatReader reader = new MultiFormatReader();
-
-            Result result = reader.decode(bitmap);
-            bufferedImage.flush();
-            return result.getText();
-
+            return decode(bufferedImage);
         } catch (Exception e) {
             log.error("Cannot decode image : {}", image);
             return null;
         }
+    }
+
+    /**
+     * 识别。支持条码与二维码
+     *
+     * @param bufferedImage
+     * @return 识别结果，无法识别返回 null
+     */
+    public static String decode(BufferedImage bufferedImage) {
+        BufferedImageLuminanceSource source = new BufferedImageLuminanceSource(bufferedImage);
+        Map<DecodeHintType, Object> hints = new HashMap<>();
+        hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+        MultiFormatReader reader = new MultiFormatReader();
+        reader.setHints(hints);
+
+        try {
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+            Result result = reader.decode(bitmap);
+            bufferedImage.flush();
+            return result.getText();
+        } catch (NotFoundException notFound) {
+            try {
+                BinaryBitmap bitmap = new BinaryBitmap(new GlobalHistogramBinarizer(source));
+                Result result = reader.decode(bitmap);
+                bufferedImage.flush();
+                return result.getText();
+            } catch (NotFoundException ignored) {
+            } catch (Exception ex) {
+                log.warn("Cannot decode image", ex);
+            }
+
+        } catch (Exception ex) {
+            log.warn("Cannot decode image", ex);
+        }
+
+        bufferedImage.flush();
+        return null;
     }
 }

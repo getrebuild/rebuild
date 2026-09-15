@@ -155,7 +155,7 @@ public class RbvFunction {
 
     // -- DISTR
 
-    public void refreshAllNodes() {
+    public void refreshAllNodes(String... targets) {
         log.debug("No RbvFunction : refreshAllNodes");
     }
 }

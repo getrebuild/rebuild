@@ -43,9 +43,11 @@ public class SystemPromptBuilder {
      * @param basePrompt
      * @param agentPrompt
      * @param skillName
+     * @param planMode
+     * @param planConfirmed
      * @return
      */
-    public static String build(String basePrompt, String agentPrompt, String skillName) {
+    public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode, boolean planConfirmed) {
         StringBuilder systemPrompt = new StringBuilder();
 
         // 基础要求（管理中心配置）
@@ -93,6 +95,28 @@ public class SystemPromptBuilder {
                 systemPrompt.append("\n\n以下为当前用户的个性化记忆，仅供参考，不要主动向用户复述这些内容。\n").append(memoryPrompt);
             }
             systemPrompt.append("\n</user_memory>");
+        }
+
+        // 计划模式（在技能之前注入，优先级低于技能）
+        if (planMode) {
+            if (systemPrompt.length() > 0) systemPrompt.append(NN);
+            systemPrompt.append("<plan_mode>\n")
+                    .append("用户已启用计划模式。你可以使用查询类工具收集信息（如查看现有实体、搜索记录等），但禁止执行任何写操作（创建、修改、删除等）。\n")
+                    .append("请基于收集到的信息，输出执行方案，包括：\n")
+                    .append("1. 将要调用的工具及参数\n")
+                    .append("2. 具体操作步骤\n")
+                    .append("3. 预期结果\n")
+                    .append("只要方案中包含可执行的具体步骤或工具参数，就必须在方案末尾另起一行添加标记 <!-- PLAN_READY -->。前端检测到该标记后会自动弹出确认对话框，用户确认后发送确认消息触发实际执行，无需在正文中另行询问用户是否确认。\n")
+                    .append("仅当信息不足以提出任何具体方案时，才直接向用户提问以获取所需信息，此时不要输出方案格式，也不要添加 PLAN_READY 标记。")
+                    .append("\n</plan_mode>");
+        }
+
+        // 计划确认（用户已在计划模式中确认方案，写操作工具可直接执行）
+        if (planConfirmed) {
+            if (systemPrompt.length() > 0) systemPrompt.append(NN);
+            systemPrompt.append("<plan_confirmed>\n")
+                    .append("用户已在计划模式中确认了执行方案。调用写操作类工具时，请直接设置 confirmed=true 参数执行，无需再次征求用户确认。\n")
+                    .append("\n</plan_confirmed>");
         }
 
         // 技能（用户指定，冲突时优先）

@@ -11,18 +11,23 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.google.zxing.BarcodeFormat;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.BarCodeSupport;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
@@ -32,7 +37,7 @@ import java.io.IOException;
  * @since 2020/6/5
  */
 @Slf4j
-@Controller
+@RestController
 public class BarCodeGeneratorController extends BaseController {
 
     @GetMapping("/commons/barcode/generate")
@@ -98,5 +103,29 @@ public class BarCodeGeneratorController extends BaseController {
     private void writeTo(BufferedImage image, HttpServletResponse response) throws IOException {
         response.setContentType("image/png");
         ImageIO.write(image, "PNG", response.getOutputStream());
+    }
+
+    @PostMapping("/commons/barcode/decode")
+    public RespBody decode(HttpServletRequest request) throws IOException {
+        String data = ServletUtils.getRequestString(request);
+        // 去掉 data:image/...;base64, 前缀
+        if (data != null && data.contains("base64,")) {
+            data = data.substring(data.indexOf("base64,") + 7);
+        }
+        if (StringUtils.isBlank(data)) {
+            return RespBody.errorl("无效的图片数据");
+        }
+
+        byte[] bytes = Base64.decodeBase64(data);
+        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(bytes));
+        if (bufferedImage == null) {
+            return RespBody.errorl("无法解析图片");
+        }
+
+        String result = BarCodeSupport.decode(bufferedImage);
+        if (result == null) {
+            return RespBody.errorl("无法识别");
+        }
+        return RespBody.ok(result);
     }
 }

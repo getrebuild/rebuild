@@ -259,6 +259,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 12px;
 }
 
+.chat-message .msg-content .card {
+  background-color: #eee;
+  border-radius: 10px !important;
+  padding: 16px 20px;
+  margin: 0;
+  margin: 10px 0;
+}
+
+.chat-message .msg-content .card .card-body {
+  padding: 0;
+}
+
 .chat-message .msg-error {
   width: 80%;
   margin: 0 auto;
