@@ -30,7 +30,7 @@ public class IfNullFunction extends AbstractFunction {
         Object $default = arg2.getValue(env);
 
         boolean is = IsNullFunction.isNull($any);
-        return AviatorUtils.wrapReturn(is ? $any : $default);
+        return AviatorUtils.wrapReturn(is ? $default : $any);
     }
 
     @Override
