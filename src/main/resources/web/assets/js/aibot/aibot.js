@@ -28,7 +28,7 @@ class AiBot extends React.Component {
                 className="close fs-19"
                 type="button"
                 onClick={() => {
-                  window.open(`${rb.baseUrl}/aibot/chat${this.state.chatid ? '#chatid=' + this.state.chatid : ''}`, '_blank')
+                  window.open(`${rb.baseUrl}/aibot/chat#chatid=${this.state.chatid || ''}`, '_blank')
                   this.hide()
                 }}
                 title={$L('独立窗口')}>
