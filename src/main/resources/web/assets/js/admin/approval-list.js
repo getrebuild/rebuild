@@ -11,6 +11,7 @@ $(document).ready(() => {
 
   $('.J_add').on('click', () => renderRbcomp(<ApprovalEdit />))
   $('.J_referral').on('click', () => renderRbcomp(<ApprovalReferral />))
+  $('.J_referral_record').on('click', () => renderRbcomp(<ApprovalReferralRecord />))
   if ($urlp('new')) setTimeout(() => $('.J_add').trigger('click'), 500)
 })
 
@@ -278,7 +279,80 @@ class ApprovalReferral extends RbModalHandler {
           $mp.end()
 
           if (res.error_code === 0) {
-            RbHighbar.success(res.data > 0 ? $L('已转审 %d 条审批记录', res.data) : $L('批量转审完成'))
+            RbHighbar.success(res.data > 0 ? $L('已转审 %d 条审批记录', res.data) : $L('转审完成'))
+            setTimeout(() => that.hide(), 1500)
+          } else {
+            RbHighbar.error(res.error_msg)
+            $btn.button('reset')
+          }
+        })
+      },
+    })
+  }
+}
+
+// 记录转审
+// v4.5 管理员选定记录转审
+class ApprovalReferralRecord extends RbModalHandler {
+  render() {
+    const title = (
+      <RF>
+        {$L('记录转审')}
+        <sup className="rbv" />
+      </RF>
+    )
+
+    return (
+      <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide>
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('选择记录')}</label>
+            <div className="col-sm-7">
+              <AnyRecordSelector ref={(c) => (this._AnyRecordSelector = c)} allowMultiple onlyApproval />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('转审给谁')}</label>
+            <div className="col-sm-7">
+              <UserSelector hideDepartment hideRole hideTeam multiple={false} ref={(c) => (this._UserSelector = c)} />
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={() => this.start()} ref={(c) => (this._$btn = c)}>
+                {$L('开始转审')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  start() {
+    if (rb.commercial < 1) {
+      RbAlertFree43.create($L('免费版不支持记录转审功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+      return
+    }
+
+    let records = this._AnyRecordSelector.val()
+    if (records && !Array.isArray(records)) records = [records]
+    const newUser = (this._UserSelector.val() || [])[0]
+    if (!records || records.length === 0) return RbHighbar.create($L('请选择要转审的记录'))
+    if (!newUser) return RbHighbar.create($L('请选择转审给谁'))
+
+    const post = { records, newUser }
+    const that = this
+    RbAlert.create($L('确定转审选定记录吗？', records.length), {
+      onConfirm: function () {
+        this.hide()
+        const $btn = $(that._$btn).button('loading')
+        $.post('/admin/robot/approval/referral-records', JSON.stringify(post), (res) => {
+          if (res.error_code === 0) {
+            RbHighbar.success(res.data > 0 ? $L('已转审 %d 条审批记录', res.data) : $L('转审完成'))
             setTimeout(() => that.hide(), 1500)
           } else {
             RbHighbar.error(res.error_msg)

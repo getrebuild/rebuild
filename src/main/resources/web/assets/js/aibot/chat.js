@@ -60,6 +60,7 @@ class Chat extends React.Component {
     this.state = {
       ...props,
       messages: [],
+      confirmAction: null,
     }
     this._preset = props.preset
   }
@@ -68,7 +69,7 @@ class Chat extends React.Component {
     return (
       <RF>
         <div className={`chat ${this.props.standalone ? 'chat-standalone' : ''}`} ref={(c) => (this._$chat = c)}>
-          <ChatMessages _Chat={this} ref={(c) => (this._ChatMessages = c)} />
+          <ChatMessages _Chat={this} confirmAction={this.state.confirmAction} ref={(c) => (this._ChatMessages = c)} />
           <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
         </div>
         <ChatSidebar _Chat={this} ref={(c) => (this._ChatSidebar = c)} />
@@ -113,7 +114,7 @@ class Chat extends React.Component {
       }
     }
 
-    this.setState({ chatid: chatid || null })
+    this.setState({ chatid: chatid || null, confirmAction: null })
     this._ChatMessages.setMessages([], true, null)
     this._ChatInput.reset(true)
     const _preset = this._preset
@@ -137,6 +138,21 @@ class Chat extends React.Component {
 
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
         this._ChatMessages.scrollToBottom(true)
+
+        // 最后一条用户消息带 planMode 且未确认执行时，恢复 planMode 状态
+        const lastUserMsg = messages.filter((m) => m.role === 'user').pop()
+        if (lastUserMsg && lastUserMsg.planMode && !lastUserMsg.planConfirmed) {
+          this._ChatInput.setState({ planMode: true })
+        }
+        // 最后一条用户消息带 planMode 且 AI 已回复完成，且回复中包含 PLAN_READY 标记
+        if (messages.length >= 2) {
+          const last = messages[messages.length - 1]
+          const prev = messages[messages.length - 2]
+          if (prev.role === 'user' && prev.planMode && (last.role === 'assistant' || last.role === 'ai') && !last.pending) {
+            const content = last.content || ''
+            if (content.includes('<!-- PLAN_READY -->')) this._ChatInput._showPlanConfirm()
+          }
+        }
 
         if (_preset) {
           this._ChatInput.applyPreset(_preset)
@@ -231,12 +247,20 @@ class Chat extends React.Component {
     }
     this._pendingChatid = null
   }
+
+  showConfirm(action) {
+    this.setState({ confirmAction: action })
+  }
+
+  hideConfirm() {
+    this.setState({ confirmAction: null })
+  }
 }
 
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [], skills: [], activeSkill: null }
+    this.state = { postState: 0, attach: [], skills: [], activeSkill: null, planMode: false, planConfirmed: false }
   }
 
   render() {
@@ -335,29 +359,35 @@ class ChatInput extends React.Component {
     if ($empty(this.state.content)) return
 
     const content = this.state.content.trim()
+    const _Chat = this.props._Chat
 
-    // /new 新建会话
-    if (content === '/new' || content.startsWith('/new ')) {
-      const remaining = content.replace(/^\/new\s*/, '')
-      const _Chat = this.props._Chat
-      if (remaining) _Chat._preset = { content: remaining, attach: this.state.attach, skill: this.state.activeSkill, autoSend: true }
-      _Chat.initChat()
+    // /new /ref /plan
+    const m = content.match(/^\/(new|ref|plan)(?:\s+([\s\S]*))?$/)
+    const cmd = m ? m[1] : null
+    const remaining = m ? m[2] || '' : content
+
+    // eslint-disable-next-line no-undef
+    if (cmd) $showFireworks(_Chat._$chat)
+
+    let planMode = this.state.planMode
+    let attach = this.state.attach
+
+    if (cmd === 'plan' && !remaining) {
+      this.setState({ planMode: !planMode })
       this.reset()
       return
     }
+    if (cmd === 'plan') {
+      planMode = true
+      this.setState({ planMode: true })
+    }
 
-    // /ref 引用当前会话（压缩后作为 attach）
-    if (content === '/ref' || content.startsWith('/ref ')) {
-      const remaining = content.replace(/^\/ref\s*/, '')
-      const _Chat = this.props._Chat
-      const refChatid = _Chat.state.chatid
-      const prevAttach = this.state.attach
+    const refChatid = cmd === 'ref' ? _Chat.state.chatid : null
+    if (refChatid) attach = [...attach, { refChat: refChatid, id: $random('attach-', true) }]
 
-      if (refChatid) {
-        const attach = [...prevAttach, { refChat: refChatid, id: $random('attach-', true) }]
-        _Chat._preset = { content: remaining || '', attach, skill: this.state.activeSkill, autoSend: !!remaining }
-      } else {
-        if (remaining) _Chat._preset = { content: remaining, attach: this.state.attach, skill: this.state.activeSkill, autoSend: true }
+    if (cmd === 'new' || cmd === 'ref') {
+      if (remaining || refChatid) {
+        _Chat._preset = { content: remaining, attach, skill: this.state.activeSkill, autoSend: !!remaining }
       }
       _Chat.initChat()
       this.reset()
@@ -366,13 +396,23 @@ class ChatInput extends React.Component {
 
     const data = {
       role: 'user',
-      content: this.state.content,
+      content: remaining,
       attach: this.state.attach,
       skill: this.state.activeSkill,
+      planMode,
+      planConfirmed: this.state.planConfirmed || false,
       sendTime: Date.now(),
     }
-    const onDone = () => this.setState({ postState: 0 })
-    const _Chat = this.props._Chat
+    const onDone = () => {
+      this.setState({ postState: 0 })
+      if (planMode) {
+        // 仅当 AI 输出了 PLAN_READY 标记时才弹出确认（排除问题补充等非方案回复）
+        const messages = _Chat._ChatMessages.state.messages
+        const lastMsg = messages[messages.length - 1]
+        const content = (lastMsg && lastMsg.content) || ''
+        if (content.includes('<!-- PLAN_READY -->')) this._showPlanConfirm()
+      }
+    }
     _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
 
     this.reset()
@@ -394,8 +434,33 @@ class ChatInput extends React.Component {
 
   reset(autoFocus) {
     if (this._$editable) this._$editable.innerHTML = ''
-    this.setState({ content: '', attach: [], postState: 0, activeSkill: null }, () => {
-      if (autoFocus) this._$editable && this._$editable.focus()
+    this.setState({ content: '', attach: [], postState: 0, activeSkill: null, planConfirmed: false }, () => {
+      if (autoFocus) this.focus()
+    })
+  }
+
+  focus() {
+    this._$editable && this._$editable.focus()
+  }
+
+  val(value) {
+    if (value === undefined) return this._$editable ? this._$editable.innerText : this.state.content || ''
+    if (this._$editable) this._$editable.innerText = value
+    this.setState({ content: value })
+  }
+
+  _showPlanConfirm() {
+    const _Chat = this.props._Chat
+    _Chat.showConfirm({
+      message: $L('方案已生成，是否确认执行？'),
+      cancelText: $L('修改需求'),
+      onConfirm: () => {
+        _Chat.hideConfirm()
+        this.setState({ planMode: false, planConfirmed: true }, () => {
+          if (this._$editable) this._$editable.innerText = $L('确认执行上述方案')
+          this.setState({ content: $L('确认执行上述方案') }, () => this.hanldeSend())
+        })
+      },
     })
   }
 
@@ -490,7 +555,9 @@ class ChatMessages extends React.Component {
           </a>
         }>
         {this.state.messages.map((item, idx) => {
-          return <ChatMessage {...item} key={idx} _ChatMessages={this} />
+          const isLast = idx === this.state.messages.length - 1
+          const isAi = item.role === 'assistant' || item.role === 'ai'
+          return <ChatMessage {...item} key={idx} _ChatMessages={this} confirmAction={isLast && isAi ? this.props.confirmAction : null} />
         })}
         {showSuggest && (
           <div className="chat-suggest">
@@ -533,6 +600,12 @@ class ChatMessages extends React.Component {
     this.setState(state, () => {
       this.scrollToBottom(forceScroll)
     })
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.confirmAction !== prevProps.confirmAction) {
+      this.scrollToBottom(true)
+    }
   }
 
   componentDidMount() {
@@ -803,6 +876,27 @@ class ChatMessage extends React.Component {
             </div>
           )}
           <RichContent content={this.state.content} ready={ready} />
+          {this.props.confirmAction && (
+            <div className="card">
+              <div className="card-body">
+                <p className="text-bold mb-2">{this.props.confirmAction.message}</p>
+                <div className="d-flex align-items-center">
+                  <button type="button" className="btn btn-sm btn-primary" onClick={() => this.props.confirmAction.onConfirm()}>
+                    {this.props.confirmAction.confirmText || $L('确认')}
+                  </button>
+                  <a
+                    className="btn btn-sm btn-link ml-2"
+                    onClick={() => {
+                      const _Chat = this.props._ChatMessages.props._Chat
+                      _Chat.hideConfirm()
+                      _Chat._ChatInput && _Chat._ChatInput.focus()
+                    }}>
+                    {this.props.confirmAction.cancelText || $L('取消')}
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -1154,8 +1248,13 @@ class ChatSidebar extends React.Component {
   }
 
   _renderGroupedList() {
+    const list = this.state.list || []
+    if (list.length === 0) {
+      return <li className="text-muted text-center fs-md m-3">{$L('暂无会话')}</li>
+    }
+
     const labels = { today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
-    const ret = this.state.list.map((g) => {
+    const ret = list.map((g) => {
       if (!g.items || g.items.length === 0) return null
       return (
         <React.Fragment key={g.group}>
@@ -1556,11 +1655,14 @@ const FixMd = {
 
         for (const s0 of segLines) {
           let s = s0
-          if (!s.trim().startsWith('|')) {
+          if (!s.trim().startsWith('|') && !s.trim().startsWith('<!--')) {
+            // 保护 HTML 注释，避免 <!-- 中的 -- 被 GATE+列表正则拆分
+            s = s.replace(/<!--/g, '\u0002')
             s = s
               .replace(new RegExp('(' + FixMd.GATE + ')(#{1,6}\\s+\\S)', 'g'), '$1\n$2')
               .replace(new RegExp('(' + FixMd.GATE + ')([-*+]\\s{1,4}\\S)', 'g'), '$1\n$2')
               .replace(new RegExp('(' + FixMd.GATE + ')(\\d{1,3}\\.\\s{1,4}\\S)', 'g'), '$1\n$2')
+            s = s.replace(/\u0002/g, '<!--')
             s = s.replace(/(\*\*[^*\n]+?\*\*)(?=[A-Za-z0-9])/g, '$1 ')
           }
           fixed.push(...s.split('\n'))

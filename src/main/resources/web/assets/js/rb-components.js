@@ -1214,7 +1214,9 @@ class AnyRecordSelector extends RecordSelector {
   componentDidMount() {
     super.componentDidMount()
 
-    $.get(`/commons/metadata/entities?detail=true&bizz=${this.props.allowBizz || false}`, (res) => {
+    let url = `/commons/metadata/entities?detail=${this.props.allowDetail !== false ? true : false}&bizz=${this.props.allowBizz || false}`
+    if (this.props.onlyApproval) url += '&approval=true'
+    $.get(url, (res) => {
       let entities = res.data || []
       if (this.props.allowEntities && this.props.allowEntities.length > 0) {
         entities = entities.filter((item) => this.props.allowEntities.includes(item.name))

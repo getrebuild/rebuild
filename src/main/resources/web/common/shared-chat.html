@@ -5,7 +5,7 @@
     <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-size=1,user-scalable=no" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chat-view.css}" />
-    <title>[[${subject ?: bundle.L('AI 会话分享')}]]</title>
+    <title>[[${chatName ?: bundle.L('AI 会话分享')}]]</title>
     <style>
       html {
         font-size: 14px;
@@ -96,6 +96,6 @@
         messages: [(${messages ?:'null'})],
       }
     </script>
-    <script th:src="@{/assets/js/shared-aibot-chat.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/shared-chat.js}" type="text/babel"></script>
   </body>
 </html>

@@ -1753,14 +1753,14 @@ function $modalDraggable($modal, option) {
         })
       },
       stop: function (event, ui) {
-        const left = ui.position.left
-        const top = ui.position.top
+        var left = ui.position.left
+        var top = ui.position.top
         if (option.keepPositionKey) $storage.set(option.keepPositionKey, left + ',' + top)
       },
     })
 
   if (option.keepPositionKey) {
-    let last = $storage.get(option.keepPositionKey)
+    var last = $storage.get(option.keepPositionKey)
     if (last) {
       last = last.split(',').map((v) => parseInt(v))
       $($modal)
@@ -1789,7 +1789,7 @@ function $autoComplete($el, fieldKey, option) {
       },
       events: {
         searchPost: function (res) {
-          const results = []
+          var results = []
           res.data &&
             res.data.forEach((item) => {
               var text = typeof item === 'string' ? item : item.text || item.name
@@ -1862,14 +1862,17 @@ var _mermaidCodeRenderer = function (token) {
   if (lang === 'mermaid') return '<div class="mermaid-to-render">' + text + '</div>'
   return false
 }
-// 全局注册 mermaid 代码块 + heading id renderer，所有 marked.parse() 自动处理
 if (typeof marked !== 'undefined') {
   marked.use({
     renderer: {
       code: _mermaidCodeRenderer,
       heading({ tokens, depth }) {
-        const text = this.parser.parseInline(tokens)
-        const id = text.replace(/<[^>]+>/g, '').trim().replace(/\s+/g, '-')
+        var text = this.parser.parseInline(tokens)
+        var id = text
+          .replace(/<[^>]+>/g, '')
+          .replace(/[^\w\u4e00-\u9fa5\s-]/g, '')
+          .trim()
+          .replace(/[\s-]+/g, '-')
         return `<h${depth} id="${id}">${text}</h${depth}>`
       },
     },
@@ -1913,8 +1916,48 @@ function $renderMermaid($container) {
 }
 
 function $saltText(text) {
-  const _d = new Date()
-  const _salt = 'iloverb' + _d.getFullYear() + ('0' + (_d.getMonth() + 1)).slice(-2) + ('0' + _d.getDate()).slice(-2)
+  var _d = new Date()
+  var _salt = 'iloverb' + _d.getFullYear() + ('0' + (_d.getMonth() + 1)).slice(-2) + ('0' + _d.getDate()).slice(-2)
   // eslint-disable-next-line no-undef
   return sha256(sha256(text) + _salt)
+}
+
+function $showFireworks(c) {
+  var container = document.createElement('div')
+  container.className = 'rb-fireworks'
+  c = c || document.body
+  c.appendChild(container)
+
+  var colors = ['#fe5281', '#a928bf', '#474efe', '#4285f4', '#ffc107', '#4caf50', '#ff5722']
+  var burstCount = 3
+  var particlesPerBurst = 24
+
+  for (var b = 0; b < burstCount; b++) {
+    ;(function (b) {
+      var cx = 20 + Math.random() * 60
+      var cy = 15 + Math.random() * 50
+      var delay = b * 200
+
+      setTimeout(function () {
+        for (var i = 0; i < particlesPerBurst; i++) {
+          var p = document.createElement('div')
+          p.className = 'rb-firework-spark'
+          var angle = (Math.PI * 2 * i) / particlesPerBurst + (Math.random() - 0.5) * 0.3
+          var dist = 50 + Math.random() * 90
+          var color = colors[Math.floor(Math.random() * colors.length)]
+          p.style.left = cx + '%'
+          p.style.top = cy + '%'
+          p.style.setProperty('--dx', Math.cos(angle) * dist + 'px')
+          p.style.setProperty('--dy', Math.sin(angle) * dist + 'px')
+          p.style.backgroundColor = color
+          p.style.boxShadow = '0 0 6px ' + color
+          container.appendChild(p)
+        }
+      }, delay)
+    })(b)
+  }
+
+  setTimeout(function () {
+    container.remove()
+  }, 1800)
 }

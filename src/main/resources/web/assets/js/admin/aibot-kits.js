@@ -19,6 +19,35 @@ $(document).ready(() => {
     renderRbcomp(<DlgKbEdit title={$L('添加知识库')} />)
   })
 
+  $('.J_batchUploadKb').on('click', (e) => {
+    $stopEvent(e, true)
+
+    const $file = $('<input type="file" multiple />').appendTo('body').hide()
+
+    $multipleUploader($file[0], (res) => {
+      const data = {
+        name: res.file.name.replace(/\.[^.]+$/, ''),
+        type: 'KNOWLEDGE',
+        config: JSON.stringify({
+          sourceType: 'FILE',
+          sourceConfig: JSON.stringify({ file: res.key }),
+          chunkCount: 0,
+        }),
+        metadata: { entity: 'AibotConfig', id: null },
+      }
+      $.post('/app/entity/common-save', JSON.stringify(data), (saveRes) => {
+        if (saveRes.error_code === 0) {
+          $.post(`./aibot/kb-build?id=${saveRes.data.id}`)
+          $setTimeout(() => KbList.load(), 2000, 'KbList.load')
+        } else {
+          RbHighbar.error(saveRes.error_msg)
+        }
+      })
+    })
+
+    setTimeout(() => $file.click(), 20)
+  })
+
   _renderMcpConfig()
 })
 
@@ -120,7 +149,7 @@ class DlgKbEdit extends RbModalHandler {
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
               <div className="col-sm-7">
-                <input className="form-control form-control-sm" type="text" maxLength="500" ref={(c) => (this._$desc = c)} defaultValue={item.description || ''} />
+                <input className="form-control form-control-sm" type="text" maxLength="500" ref={(c) => (this._$desc = c)} defaultValue={item.description || ''} placeholder={$L('选填')} />
               </div>
             </div>
             <div className="form-group row">
@@ -139,8 +168,12 @@ class DlgKbEdit extends RbModalHandler {
                     </a>
                   )}
                 </div>
-                <textarea className="form-control form-control-sm" ref={(c) => (this._$text = c)} defaultValue={!isFile ? this._getSourceConfig('text', item.sourceConfig) : ''} />
-                <p className="form-text">{WrapHtml($L('输入内容，或上传文件自动解析'))}</p>
+                <textarea
+                  className="form-control form-control-sm"
+                  ref={(c) => (this._$text = c)}
+                  defaultValue={!isFile ? this._getSourceConfig('text', item.sourceConfig) : ''}
+                  placeholder={$L('输入内容，或上传文件自动解析')}
+                />
               </div>
             </div>
             <div className="form-group row footer">
@@ -429,7 +462,7 @@ class DlgSkillEdit extends RbModalHandler {
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
           <div className="col-sm-7">
-            <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} />
+            <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} placeholder={$L('选填')} />
           </div>
         </div>
         <div className="form-group row">
@@ -553,10 +586,10 @@ class ToolList extends React.Component {
   render() {
     return this.props.data.map((item) => {
       let desc = item.userDescription || item.description
-      const sysTool = desc && desc.includes('系统工具')
+      const sysTool = desc && desc.includes('[系统工具]')
       if (desc) {
-        desc = desc.replace('[系统工具]', '<span class="badge badge-dark">系统工具</span>')
-        desc = desc.replace('[商业工具]', '<span class="badge badge-warning">商业工具</span>')
+        desc = desc.replace('[系统工具]', `<span class="badge badge-dark">${$L('系统工具')}</span>`)
+        desc = desc.replace('[商业工具]', `<span class="badge badge-warning">${$L('商业工具')}</span>`)
         desc = WrapHtml(desc)
       }
 
@@ -604,7 +637,7 @@ const _renderMcpConfig = function () {
 
   renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0], function () {
     const $pre = $mcp.find('pre')
-    const $a = $('<a>', { href: '../../settings/user#secure', target: '_blank', text: `<${$L('你的个人秘钥')}>` })
+    const $a = $('<a>', { href: '../../settings/user#secure', target: '_blank', text: `<${$L('个人秘钥')}>` })
     $pre.html($pre.html().replace('Bearer', 'Bearer ' + $a[0].outerHTML))
   })
 }

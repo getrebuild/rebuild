@@ -14,8 +14,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.vector.FileData;
 import com.rebuild.core.aibot2.vector.ListData;
-import com.rebuild.core.aibot2.vector.RefChatData;
 import com.rebuild.core.aibot2.vector.RecordData;
+import com.rebuild.core.aibot2.vector.RefChatData;
 import com.rebuild.core.aibot2.vector.VectorData;
 import com.rebuild.core.aibot2.vector.VectorDataChunk;
 import com.rebuild.core.metadata.EntityHelper;
@@ -59,6 +59,20 @@ public class ChatRequest {
      */
     public String getSkill() {
         return reqJson.getString("skill");
+    }
+
+    /**
+     * 是否为计划模式（AI 先输出方案，用户确认后再执行）
+     */
+    public boolean getPlanMode() {
+        return reqJson.getBooleanValue("planMode");
+    }
+
+    /**
+     * 是否为计划确认后执行（用户已在计划模式中确认方案，写操作工具可直接执行）
+     */
+    public boolean getPlanConfirmed() {
+        return reqJson.getBooleanValue("planConfirmed");
     }
 
     /**

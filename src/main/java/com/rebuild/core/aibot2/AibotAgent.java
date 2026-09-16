@@ -109,8 +109,8 @@ public class AibotAgent implements Serializable {
         return ToolDefs.tools(this);
     }
 
-    public String buildSystemPrompt(String skillName) {
-        return SystemPromptBuilder.build(Config.getBasePrompt(), prompt, skillName);
+    public String buildSystemPrompt(String skillName, boolean planMode, boolean planConfirmed) {
+        return SystemPromptBuilder.build(Config.getBasePrompt(), prompt, skillName, planMode, planConfirmed);
     }
 
     // 解析系统配置的字符串参数，解析失败时告警并返回 null

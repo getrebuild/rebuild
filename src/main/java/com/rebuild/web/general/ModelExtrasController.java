@@ -127,7 +127,7 @@ public class ModelExtrasController extends BaseController {
             }
 
             if (ex instanceof RepeatedRecordsException) {
-                errorMsg = Language.L("存在重复记录");
+                errorMsg = RepeatedRecordsException.buildRepeatedMessage(((RepeatedRecordsException) ex).getRepeatedRecords());
             }
             return RespBody.errorl("记录转换失败 (%s)", errorMsg);
 

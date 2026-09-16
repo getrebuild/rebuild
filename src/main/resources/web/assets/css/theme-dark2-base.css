@@ -16,6 +16,21 @@ html.theme-dark2 {
   --rb-dark-link: #4493f8;
 }
 
+/* SIZE */
+
+.alert .icon {
+  font-size: 24px;
+}
+
+.alert .message {
+  padding: 18px 42px;
+  padding-left: 0;
+}
+
+.alert .close {
+  padding: 18px 0;
+}
+
 /* Base */
 
 html.theme-dark2 body {
@@ -496,26 +511,26 @@ html.theme-dark2 .alert-secondary {
 }
 
 html.theme-dark2 .alert-info {
-  background-color: rgba(56, 139, 253, 0.15);
-  border-color: rgba(56, 139, 253, 0.4);
+  background-color: rgba(56, 139, 253, 0.5);
+  border-color: rgba(56, 139, 253, 0.6);
   color: #79c0ff;
 }
 
 html.theme-dark2 .alert-success {
-  background-color: rgba(63, 185, 80, 0.15);
-  border-color: rgba(63, 185, 80, 0.4);
+  background-color: rgba(63, 185, 80, 0.5);
+  border-color: rgba(63, 185, 80, 0.6);
   color: #7ee787;
 }
 
 html.theme-dark2 .alert-warning {
-  background-color: rgba(187, 128, 9, 0.15);
-  border-color: rgba(187, 128, 9, 0.4);
+  background-color: rgba(187, 128, 9, 0.5);
+  border-color: rgba(187, 128, 9, 0.6);
   color: #e3b341;
 }
 
 html.theme-dark2 .alert-danger {
-  background-color: rgba(248, 81, 73, 0.15);
-  border-color: rgba(248, 81, 73, 0.4);
+  background-color: rgba(248, 81, 73, 0.5);
+  border-color: rgba(248, 81, 73, 0.6);
   color: #ff7b72;
 }
 
