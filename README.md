@@ -35,20 +35,25 @@ REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模
 
 ## 功能预览
 
-1. **实体设计器**
-   ![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/entity-design.png)
+**实体设计器**
 
-2. **审批流程配置**
-   ![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/approval-design.png)
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/entity-design.png)
 
-3. **数据看板**
-   ![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/dash-home.png)
+**审批流程配置**
 
-4. **AI 助手**
-   ![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/aibot.png)
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/approval-design.png)
 
-5. **手机版** — 展示手机版列表或详情页面
-   ![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/h5-mobile.png)
+**数据看板**
+
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/dash-home.png)
+
+**AI 助手**
+
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/aibot.png)
+
+**手机版**
+
+<img src="https://www.qn-cdn2.getrebuild.com/pub/images/readme/h5-mobile.png" width="360"/>
 
 ## 适用场景
 

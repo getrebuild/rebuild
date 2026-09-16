@@ -87,11 +87,14 @@ public class FormulaCellWriteHandler implements CellWriteHandler {
                         int col = xssfCell.getColumnIndex();
                         list.removeIf(r -> r.isInRange(row, col));
                     }
+
+                    // 再次尝试
+                    cell.setCellFormula(cellFormula);
+
                 } catch (Exception ex) {
                     log.warn("Failed to clear stale array formula cache", ex);
                 }
             }
-            cell.setCellFormula(cellFormula);
         }
     }
 }
