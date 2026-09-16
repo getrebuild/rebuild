@@ -309,7 +309,6 @@ public class AdvFilterParser extends SetUser {
         final boolean isN2NUsers = dt == DisplayType.N2NREFERENCE
                 && lastFieldMeta.getReferenceEntity().getEntityCode() == EntityHelper.User;
 
-
         // v3.9 区间兼容
         if (ParseHelper.BW.equals(op)) {
             String valueBegin = item.getString("value");
@@ -977,10 +976,13 @@ public class AdvFilterParser extends SetUser {
         final String fieldName = value.substring(2, value.length() - 1);
 
         Object useValue = null;
+        boolean isCurrent = false;
 
         // {@CURRENT} for DATE,TIME and Ref:User,Department
         if (CURRENT_ANY.equals(fieldName) || CURRENT_DATE.equals(fieldName)) {
+            isCurrent = true;
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
+
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
                 useValue = dt == DisplayType.TIME ? LocalTime.now() : CalendarUtils.now();
 
@@ -1037,7 +1039,12 @@ public class AdvFilterParser extends SetUser {
         }
 
         if (useValue instanceof Date) {
-            useValue = CalendarUtils.getUTCDateFormat().format(useValue);
+            // fix:4.4.11 非 yyyy-MM-dd 则使用传入的值（含时分秒）
+            if (queryField.getType() == FieldType.TIMESTAMP && (value.length() > 10 || isCurrent)) {
+                useValue = CalendarUtils.getUTCDateTimeFormat().format(useValue);
+            } else {
+                useValue = CalendarUtils.getUTCDateFormat().format(useValue);
+            }
         } else if (useValue instanceof TemporalAccessor) {
             useValue = DateTimeFormatter.ofPattern(DisplayType.TIME.getDefaultFormat()).format((TemporalAccessor) useValue);
         } else if (useValue instanceof BigDecimal) {
