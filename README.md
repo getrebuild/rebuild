@@ -17,9 +17,9 @@
 
 ## 项目简介
 
-相较于同类产品，REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。
+REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模板。「开放式设计」是核心设计理念，通过对企业日常各类需求的可配置化管理，全图形化零代码搭建，所见即所得。
 
-「开放式设计」是 REBUILD 的重要设计理念。得益于团队成熟的企业管理系统经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
+支持多端使用，电脑、手机或嵌入企业微信/钉钉/飞书，无缝衔接日常工作。经过数年积累与数百家企业用户验证，系统日益稳定。
 
 **核心能力**
 
@@ -33,11 +33,29 @@
 | 开放集成   | OpenAPI 对接外部系统，支持 Java/SpringBoot 二次开发 |
 | 极简部署   | 一个安装包即开即用，支持 Docker / 私有云 / 本地部署 |
 
-## 为什么需要 REBUILD
+## 功能预览
 
-相较于传统软件系统，REBUILD 提供了绝佳的灵活性与可控性，可以完全按照企业需求进行量身打造。同时，当系统投入使用一段时间后会遇到业务变化或需求变更，通过 REBUILD 提供的高度可配置化能力，可快速完成需求变更而无需额外投入。
+**实体设计器**
 
-## REBUILD 适合哪类用户
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/entity-design.png)
+
+**审批流程配置**
+
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/approval-design.png)
+
+**数据看板**
+
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/dash-home.png)
+
+**AI 助手**
+
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/aibot.png)
+
+**手机版**
+
+<img src="https://www.qn-cdn2.getrebuild.com/pub/images/readme/h5-mobile.png" width="360"/>
+
+## 适用场景
 
 | 用户类型     | 典型场景                                                    | 优势                                           |
 | ------------ | ----------------------------------------------------------- | ---------------------------------------------- |
@@ -49,7 +67,7 @@
 
 ## 开始使用
 
-开始使用 REBUILD 非常简单，无需配置复杂的运行环境，零依赖快速部署！如只想快速了解，也可直接 [在线体验](https://nightly.getrebuild.com/)（默认超级管理员用户名密码为 `admin` `admin`）。
+无需配置复杂的运行环境，零依赖快速部署。如只想快速了解，可直接 [在线体验](https://nightly.getrebuild.com/)（默认超级管理员用户名密码为 `admin` / `admin`）。新用户建议先阅读 [快速上手指南](https://getrebuild.com/learn/quick-start) 了解基本概念。
 
 ### 1. 使用 Docker
 
@@ -119,7 +137,7 @@ REBUILD uses the GPL-3.0 open source license and commercial license dual license
 
 如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 REBUILD 可持续发展。除了可享有全部功能以外，还可以得到更高级别的技术支持服务。非常感谢！
 
-## V4.4 新特性
+## V4.5 新特性
 
 本次更新为你带来众多功能增强与优化。
 
@@ -133,4 +151,4 @@ REBUILD uses the GPL-3.0 open source license and commercial license dual license
 8. [优化] 30+ 细节/BUG/安全性更新
 9. ...
 
-更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.4)
+更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.5)
