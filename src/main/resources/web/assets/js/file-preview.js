@@ -22,7 +22,11 @@ const HIDE_ONCLICK = false
 class RbPreview extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { currentIndex: props.currentIndex || 0, inLoad: true, fullwidth: props.fullwidth }
+    this.state = { currentIndex: props.currentIndex || 0, inLoad: true }
+
+    let init = $storage.get('rb-preview-fullwidth')
+    if (init) this.state.fullwidth = init === 'true'
+    else this.state.fullwidth = props.fullwidth || false
   }
 
   render() {
@@ -78,7 +82,10 @@ class RbPreview extends React.Component {
             </div>
             <div className="float-right">
               {(xdoc433 || md433 || pdf433) && (
-                <a title={$L('适应屏幕')} className="d-none d-sm-inline-block" onClick={() => this.setState({ fullwidth: !this.state.fullwidth })}>
+                <a
+                  title={$L('适应屏幕')}
+                  className="d-none d-sm-inline-block"
+                  onClick={() => this.setState({ fullwidth: !this.state.fullwidth }, () => $storage.set('rb-preview-fullwidth', this.state.fullwidth))}>
                   <i className="mdi mdi-fit-to-screen-outline fs-19" />
                 </a>
               )}

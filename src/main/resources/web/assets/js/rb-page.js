@@ -1862,7 +1862,6 @@ var _mermaidCodeRenderer = function (token) {
   if (lang === 'mermaid') return '<div class="mermaid-to-render">' + text + '</div>'
   return false
 }
-// 全局注册 mermaid 代码块 + heading id renderer，所有 marked.parse() 自动处理
 if (typeof marked !== 'undefined') {
   marked.use({
     renderer: {
@@ -1871,8 +1870,9 @@ if (typeof marked !== 'undefined') {
         var text = this.parser.parseInline(tokens)
         var id = text
           .replace(/<[^>]+>/g, '')
+          .replace(/[^\w\u4e00-\u9fa5\s-]/g, '')
           .trim()
-          .replace(/\s+/g, '-')
+          .replace(/[\s-]+/g, '-')
         return `<h${depth} id="${id}">${text}</h${depth}>`
       },
     },
