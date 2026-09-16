@@ -91,7 +91,7 @@ public class RepeatedRecordsException extends DefinedException {
 
         String fieldsStr = StringUtils.join(parts.toArray(), "、");
         if (repeatedRecords.size() > 1) {
-            return Language.L("%s 重复（共 %d 条）", fieldsStr, repeatedRecords.size());
+            return Language.L("%s 重复 %d 条", fieldsStr, repeatedRecords.size());
         }
         return Language.L("%s 重复", fieldsStr);
     }
