@@ -6,7 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global RichContent, $enableScrollTop */
 
-const SharedAibotChat = function ({ messages }) {
+const SharedChat = function ({ messages }) {
   return messages.map((m, idx) => {
     if (m.role === 'user') {
       return (
@@ -42,7 +42,7 @@ const SharedAibotChat = function ({ messages }) {
 
 $(document).ready(() => {
   const messages = (window.__PageConfig && window.__PageConfig.messages) || []
-  renderRbcomp(<SharedAibotChat messages={messages} />, $('.J_content')[0], function () {
+  renderRbcomp(<SharedChat messages={messages} />, $('.J_content')[0], function () {
     $('.spinner-loading').remove()
     $('.J_content').removeClass('hide')
     $enableScrollTop()

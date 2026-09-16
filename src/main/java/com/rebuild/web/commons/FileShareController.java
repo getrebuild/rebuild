@@ -129,12 +129,6 @@ public class FileShareController extends BaseController {
                 response.sendError(403, Language.L("分享不存在"));
                 return null;
             }
-
-            if (sharer == null || !sharer[0].equals(chat[2])) {
-                response.sendError(403, Language.L("分享不存在"));
-                return null;
-            }
-
             JSONArray contents = JSON.parseArray((String) chat[1]);
             if (contents == null || contents.isEmpty()) {
                 response.sendError(403, Language.L("分享不存在"));
@@ -182,11 +176,11 @@ public class FileShareController extends BaseController {
             }
 
             Map<String, Object> map = new HashMap<>();
-            map.put("subject", chat[0]);
+            map.put("chatName", chat[0]);
             map.put("messages", msgs.toJSONString().replace("</", "<\\/"));
             map.put("pageFooter", "由 REBUILD AI 助手强力驱动");
             map.put("shareByName", shareByName);
-            return createModelAndView("/common/shared-aibot-chat", map);
+            return createModelAndView("/common/shared-chat", map);
         }
 
         // 分享仪表盘
@@ -255,6 +249,16 @@ public class FileShareController extends BaseController {
                 .setParameter(1, fileUrl).unique();
         if (e == null) {
             response.sendError(403, Language.L("分享的文件不存在"));
+            return null;
+        }
+
+        // v4.5-b3 指定 attname 则直接下载而非预览
+        // 注意 URL 需编码
+        String attname = getParameter(request, "attname");
+        if (StringUtils.isNotBlank(attname)) {
+            String publicUrl = makePublicUrl(fileUrl, null);
+            publicUrl += (publicUrl.contains("?") ? "&" : "?") + "attname=" + CodecUtils.urlEncode(attname);
+            response.sendRedirect(publicUrl);
             return null;
         }
 
