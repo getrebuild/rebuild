@@ -184,7 +184,7 @@ class Chat extends React.Component {
             }
             typeof onChunk === 'function' && onChunk({ ...res })
             typeof onChunk === 'function' && onChunk({ type: '_done' })
-            typeof onDone === 'function' && onDone()
+            typeof onDone === 'function' && onDone(res.content || '')
             this._ChatSidebar && this._ChatSidebar._loadChatList()
           })
         },
@@ -201,16 +201,19 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
+          // 累加正文内容，完成后交由调用方判断
+          let fullContent = ''
           fetchStream(
             `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`,
             data,
             (chunk) => {
               if (chunk && chunk.type === '_chatid') this._ChatSidebar && this._ChatSidebar._loadChatList()
+              if (chunk && chunk.content && !chunk.type) fullContent += chunk.content
               typeof onChunk === 'function' && onChunk(chunk)
             },
             () => {
               typeof onChunk === 'function' && onChunk({ type: '_done' })
-              typeof onDone === 'function' && onDone()
+              typeof onDone === 'function' && onDone(fullContent)
               this._ChatSidebar && this._ChatSidebar._loadChatList()
             },
           )
@@ -379,6 +382,7 @@ class ChatInput extends React.Component {
 
     if (cmd === 'plan' && !remaining) {
       this.setState({ planMode: !planMode })
+      _Chat.hideConfirm()
       this.reset()
       return
     }
@@ -408,16 +412,13 @@ class ChatInput extends React.Component {
       planConfirmed: this.state.planConfirmed || false,
       sendTime: Date.now(),
     }
-    const onDone = () => {
+
+    const onDone = (aiContent) => {
       this.setState({ postState: 0 })
-      if (planMode) {
-        // 仅当 AI 输出了 PLAN_READY 标记时才弹出确认（排除问题补充等非方案回复）
-        const messages = _Chat._ChatMessages.state.messages
-        const lastMsg = messages[messages.length - 1]
-        const content = (lastMsg && lastMsg.content) || ''
-        if (content.includes('<!-- PLAN_READY -->')) this._showPlanConfirm()
-      }
+      if (planMode && (aiContent || '').includes('<!-- PLAN_READY -->')) this._showPlanConfirm()
     }
+
+    _Chat && _Chat.hideConfirm()
     _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
 
     this.reset()
