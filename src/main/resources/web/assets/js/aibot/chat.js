@@ -284,6 +284,11 @@ class ChatInput extends React.Component {
               suppressContentEditableWarning
               className="chat-input-editable"
               onInput={(e) => this.setState({ content: e.target.innerText })}
+              onPaste={(e) => {
+                e.preventDefault()
+                const text = (e.clipboardData || window.clipboardData).getData('text/plain')
+                document.execCommand('insertText', false, text)
+              }}
               onKeyDown={(e) => {
                 if (e.keyCode === 13 && !e.shiftKey) {
                   $stopEvent(e, true)
