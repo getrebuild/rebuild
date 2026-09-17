@@ -20,6 +20,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -71,7 +72,7 @@ public class Entity2Schema extends Field2Schema {
      * @return Returns 实体名称
      */
     public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField, boolean haveSeriesField) {
-        if (!License.isRbvAttached() && MetadataHelper.getEntities().length >= 150) {
+        if (!License.isRbvAttached() && MetadataSorter.sortEntities(null, false, true).length >= 50) {
             throw new NeedRbvException(Language.L("实体数量超出免费版限制"));
         }
 

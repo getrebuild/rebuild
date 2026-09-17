@@ -2,9 +2,9 @@
 
 <img src="https://getrebuild.com/img/logo256.png" alt="REBUILD" width="128" />
 
-# REBUILD
+## REBUILD
 
-**高度可配置化的企业管理系统**
+### **AI 驱动的智能业务平台**
 
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://getrebuild.com/legal/service-terms)
 [![License 商业授权](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
@@ -23,15 +23,15 @@ REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模
 
 **核心能力**
 
-| 能力       | 说明                                                |
-| ---------- | --------------------------------------------------- |
+| 能力    | 说明                                                |
+|-------| --------------------------------------------------- |
+| AI 搭建 | 内置 AI 助手，轻松构建企业专属智能体                |
 | 零代码建模 | 全图形化设计业务实体、字段、布局，所见即所得        |
 | 流程自动化 | 触发器、审批流程、任务计划，业务规则随需配置        |
 | 精细化权限 | 团队、角色、部门多维度权限控制                      |
-| AI 助手    | 内置 AI 助手，轻松构建企业专属智能体                |
-| 多端体验   | WEB 端 + 手机版，随时随地处理业务                   |
-| 开放集成   | OpenAPI 对接外部系统，支持 Java/SpringBoot 二次开发 |
-| 极简部署   | 一个安装包即开即用，支持 Docker / 私有云 / 本地部署 |
+| 多端体验  | WEB 端 + 手机版，随时随地处理业务                   |
+| 开放集成  | OpenAPI 对接外部系统，支持 Java/SpringBoot 二次开发 |
+| 极简部署  | 一个安装包即开即用，支持 Docker / 私有云 / 本地部署 |
 
 ## 功能预览
 
@@ -142,7 +142,7 @@ REBUILD uses the GPL-3.0 open source license and commercial license dual license
 本次更新为你带来众多功能增强与优化。
 
 1. [新增] AI 助手架构全面升级，支持独立窗口模式
-2. [新增] AI 工具集，通过会话即可完成实体/字段管理、自动化、数据操作、流程管理、报表导出等 30+ 工具
+2. [新增] AI 工具集，通过会话即可完成数据操作、流程管理、报表导出等 30+ 工具
 3. [新增] AI 支持自定义 Skill 技能与知识库问答（上传企业文档构建私有知识）
 4. [新增] AI 支持 MCP 协议，可作为 MCP 服务端供外部 AI 客户端调用
 5. [新增] 图表新增词云、排行榜，数值支持配色
