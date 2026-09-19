@@ -501,7 +501,8 @@
         <field name="content" type="text" nullable="false" description="内容"/>
         <field name="images" type="string" max-length="701" description="图片" extra-attrs="{displayType:'IMAGE'}"/>
         <field name="attachments" type="string" max-length="701" description="附件" extra-attrs="{displayType:'FILE'}"/>
-        <index field-list="feedsId"/>
+        <field name="replyTo" type="reference" ref-entity="FeedsComment" updatable="false" description="回复评论"/>
+        <index field-list="feedsId,replyTo"/>
     </entity>
 
     <entity name="FeedsLike" type-code="042" description="动态点赞" parent="false" queryable="false">
