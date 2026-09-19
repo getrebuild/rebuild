@@ -409,8 +409,11 @@ public class ApprovalController extends BaseController {
 
     @RequestMapping("referral")
     public RespBody doReferral(@IdParam(name = "record") ID recordId, @IdParam(name = "to") ID toUser, HttpServletRequest request) {
+        JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
+        String remark = post == null ? null : post.getString("remark");
+        String remarkAttachments = post == null ? null : post.getString("remarkAttachments");
         try {
-            new ApprovalProcessor(recordId).referral(getRequestUser(request), toUser);
+            new ApprovalProcessor(recordId).referral(getRequestUser(request), toUser, new Object[]{remark, remarkAttachments});
             return RespBody.ok();
 
         } catch (ApprovalException ex) {
@@ -421,8 +424,11 @@ public class ApprovalController extends BaseController {
     @RequestMapping("countersign")
     public RespBody doCountersign(@IdParam(name = "record") ID recordId, HttpServletRequest request) {
         ID[] toUsers = getIdArrayParameter(request, "to");
+        JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
+        String remark = post == null ? null : post.getString("remark");
+        String remarkAttachments = post == null ? null : post.getString("remarkAttachments");
         try {
-            new ApprovalProcessor(recordId).countersign(getRequestUser(request), toUsers);
+            new ApprovalProcessor(recordId).countersign(getRequestUser(request), toUsers, new Object[]{remark, remarkAttachments});
             return RespBody.ok();
 
         } catch (ApprovalException ex) {
