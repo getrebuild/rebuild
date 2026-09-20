@@ -13,7 +13,7 @@ const _INSTALL_STATES = {
 }
 
 class Setup extends React.Component {
-  state = { ...this.props, stepNo: 10, installState: 10 }
+  state = { ...this.props, stepNo: 0, installState: 10 }
 
   render() {
     const state = _INSTALL_STATES[this.state.installState]
