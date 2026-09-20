@@ -249,7 +249,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
 
         // 加载自定义实体
-        ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refreshNow();
+        ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh();
 
         // 实体对应的服务类
         _ESS = new HashMap<>();

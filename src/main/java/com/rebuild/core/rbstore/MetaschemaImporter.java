@@ -259,7 +259,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 刷新元数据
-        MetadataHelper.getMetadataFactory().refreshNow();
+        MetadataHelper.getMetadataFactory().refresh();
 
         // 表单回填
         JSONArray fillins = schema.getJSONArray(MetaschemaExporter.CFG_FILLINS);
