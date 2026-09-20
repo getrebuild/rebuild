@@ -13,7 +13,7 @@ const _INSTALL_STATES = {
 }
 
 class Setup extends React.Component {
-  state = { ...this.props, stepNo: 0, installState: 10 }
+  state = { ...this.props, stepNo: 10, installState: 10 }
 
   render() {
     const state = _INSTALL_STATES[this.state.installState]
@@ -53,7 +53,7 @@ class Setup extends React.Component {
               {(this.state.installState === 10 || this.state.installState === 11) && (
                 <div className="quick-tip animated fadeIn delay-1s link mt-4">
                   <a href="https://getrebuild.com/learn/quick-start" target="_blank">
-                    {$L('首次使用？强烈建议阅读5分钟快速上手')}
+                    {$L('首次使用？5 分钟搭出你的第一个应用')}
                   </a>
                 </div>
               )}
