@@ -100,13 +100,6 @@ public class EasyDateTime extends EasyField {
      * @return
      */
     public static String clearFlaged(String dateString) {
-        if (StringUtils.isBlank(dateString)) return null;
-
-        Date d = CommonsUtils.parseDate(dateString);
-        if (d == null) {
-            log.warn("Cannot parse date from : {}", dateString);
-            return null;
-        }
-        return CalendarUtils.getUTCDateTimeFormat().format(d);
+        return CommonsUtils.toUTCDateTime(dateString);
     }
 }
