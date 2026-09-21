@@ -151,7 +151,8 @@ public class UseThemeController extends BaseController {
         }
 
         if (is == null) {
-            is = CommonsUtils.getStreamOfRes("web/assets/img/bg.jpg");
+            is = CommonsUtils.getStreamOfRes("web/assets/img/bg-v45.svg");
+            response.setContentType("image/svg+xml");
         }
 
         try {
