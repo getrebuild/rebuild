@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.impl;
 
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
@@ -40,12 +39,7 @@ import static com.rebuild.core.metadata.MetadataHelper.SPLITER_RE;
 public class DynamicMetadataFactory extends ConfigurationMetadataFactory implements UseDistributed {
     private static final long serialVersionUID = -5709281079615412347L;
 
-    private static final long REFRESH_DEBOUNCE_MS = 500;
-    private final Debouncer refreshDebouncer = new Debouncer(() -> {
-        synchronized (DynamicMetadataFactory.this) {
-            doRefreshImmediate(false, true);
-        }
-    }, REFRESH_DEBOUNCE_MS);
+    private final Debouncer refreshDebouncer = new Debouncer(() -> doRefresh(false), 500);
 
     public DynamicMetadataFactory(String configLocation, Dialect dialect) {
         super(configLocation, dialect);
@@ -57,37 +51,34 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory impleme
     }
 
     @Override
-    synchronized
     public void refresh(boolean initState) {
         if (initState) {
-            doRefreshImmediate(true, false);
+            doRefresh(true);
             return;
         }
+
+        // 须在实例锁外调用，避免与防抖任务的执行形成死锁
+        refreshDebouncer.cancel();
+
+        doRefresh(false);
+    }
+
+    /**
+     * 防抖异步刷新（不适用于立即返回的场景）
+     */
+    public void refreshAsync() {
         refreshDebouncer.run();
     }
 
     /**
-     * 立即刷新（跳过防抖）
-     */
-    public void refreshNow() {
-        refreshDebouncer.cancel();
-        doRefreshImmediate(false, false);
-    }
-
-    /**
      * @param initState
-     * @param asyncLanguage
      */
-    private void doRefreshImmediate(boolean initState, boolean asyncLanguage) {
+    private synchronized void doRefresh(boolean initState) {
         log.info("Loading {} entities ...", initState ? "system" : "customized/business");
         super.refresh(initState);
 
         if (!initState) {
-            if (asyncLanguage) {
-                ThreadPool.exec(() -> Application.getLanguage().refresh());
-            } else {
-                Application.getLanguage().refresh();
-            }
+            Application.getLanguage().refresh();
         }
 
         this.notifyRefresh();

@@ -219,7 +219,7 @@ class AiBot extends React.Component {
 class AiCreateButton extends React.Component {
   render() {
     return (
-      <a href="javascript:;" onClick={(e) => this._handleClick(e)} className="ai-create-btn hover-opacity">
+      <a role="button" tabIndex="0" onClick={(e) => this._handleClick(e)} className="ai-create-btn hover-opacity">
         <i className="mdi mdi-shimmer mr-1 fs-14" />
         {$L('用 AI 创建')}
       </a>

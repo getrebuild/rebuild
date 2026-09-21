@@ -65,8 +65,6 @@ public class CopyEntity extends Entity2Schema {
             throw new RebuildException(hasError);
         }
 
-        // TODO 保留审批字段？
-
         return uniqueEntityName;
     }
 

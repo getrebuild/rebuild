@@ -451,6 +451,32 @@ public class CommonsUtils {
     }
 
     /**
+     * @param source
+     * @return yyyy-MM-dd
+     */
+    public static String toUTCDate(String source) {
+        Date d = parseDate(source);
+        if (d == null) {
+            log.warn("Cannot parse date from : {}", source);
+            return null;
+        }
+        return CalendarUtils.getUTCDateFormat().format(d);
+    }
+
+    /**
+     * @param source
+     * @return yyyy-MM-dd HH:mm:ss
+     */
+    public static String toUTCDateTime(String source) {
+        Date d = parseDate(source);
+        if (d == null) {
+            log.warn("Cannot parse date from : {}", source);
+            return null;
+        }
+        return CalendarUtils.getUTCDateTimeFormat().format(d);
+    }
+
+    /**
      * 转为数组
      *
      * @param o

@@ -84,7 +84,8 @@ public class UserService extends BaseService {
      * @return
      */
     private Record create(Record record, boolean notifyUser) {
-        if (Application.getUserStore().getAllUsers().length >= 50) {
+        // 排除系统用户（SYSTEM_USER/AIBOT_USER）
+        if (Application.getUserStore().getAllUsers().length - 2 >= 50) {
             if (!License.isRbvAttached()) throw new NeedRbvException(Language.L("用户数量超出免费版限制"));
         }
 
