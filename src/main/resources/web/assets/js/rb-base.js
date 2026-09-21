@@ -204,7 +204,7 @@ window.datetimepicker_clearDate41 = function (i) {
     i = i.replace(/ \([^)]*\)/g, '').trim()
   }
   if (i.indexOf('-') > -1) return $trim(i)
-  return i.replace(/[年月]/g, '-').replace('日', '')
+  return i.replace(/[年月\\/]/g, '-').replace('日', '')
 }
 
 var $setTimeout__timers = {}

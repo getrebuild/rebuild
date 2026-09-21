@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
-import java.util.regex.Matcher;
 
 /**
  * @author devezhao
@@ -93,9 +92,9 @@ public class EasyDateTime extends EasyField {
         return CalendarUtils.getDateFormat(format).format(value);
     }
 
+    // --
+
     /**
-     * 清除周
-     *
      * @param dateString
      * @return
      */

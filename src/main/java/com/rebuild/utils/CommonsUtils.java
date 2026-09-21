@@ -451,11 +451,8 @@ public class CommonsUtils {
     }
 
     /**
-     * 将任意格式的日期字符串转为标准 yyyy-MM-dd 格式
-     * 支持 yyyy-MM-dd / yyyy/MM/dd / yyyy年MM月dd日 / 含时分秒 / 含(周E) 等格式
-     *
-     * @param source 任意格式的日期字符串
-     * @return yyyy-MM-dd 格式字符串，解析失败返回 null
+     * @param source
+     * @return yyyy-MM-dd
      */
     public static String toUTCDate(String source) {
         Date d = parseDate(source);
@@ -467,10 +464,8 @@ public class CommonsUtils {
     }
 
     /**
-     * 将任意格式的日期时间字符串转为标准 yyyy-MM-dd HH:mm:ss 格式
-     *
-     * @param source 任意格式的日期时间字符串
-     * @return yyyy-MM-dd HH:mm:ss 格式字符串，解析失败返回 null
+     * @param source
+     * @return yyyy-MM-dd HH:mm:ss
      */
     public static String toUTCDateTime(String source) {
         Date d = parseDate(source);
