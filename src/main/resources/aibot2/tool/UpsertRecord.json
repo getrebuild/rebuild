@@ -9,7 +9,7 @@
       "properties": {
         "file": {
           "type": "string",
-          "description": "文件路径或标识（支持系统内标识、本地路径、外部URL）。与 content 二选一"
+          "description": "文件路径或标识（支持系统内标识、本地路径、外部URL）。用户在聊天中上传的文件可直接使用消息内容中标注的 fileKey。与 content 二选一"
         },
         "content": {
           "type": "string",

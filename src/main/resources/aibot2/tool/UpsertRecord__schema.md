@@ -52,6 +52,7 @@
 - Field1、Field2 是字段标识（name），xxx 是字段值
 - PICKLIST、REFERENCE、N2NREFERENCE、CLASSIFICATION 的值由系统按文本自动匹配，匹配不到时视为空值，不得自行编造或改写值去凑匹配
 - REFERENCE 匹配引用实体的名称字段；用户实体按全名、登录名或邮箱匹配
+- 若用户要求将上传的文件保存为记录附件，请将文件内容中标注的 fileKey 填入用户指定的 FILE/IMAGE 字段；用户未要求时不要填写
 
 ### 实体元数据
 
