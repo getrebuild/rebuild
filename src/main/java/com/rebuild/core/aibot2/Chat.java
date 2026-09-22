@@ -209,6 +209,23 @@ public class Chat implements Serializable {
     }
 
     /**
+     * 完成后存储错误消息（带 error 标志，重新加载时仍渲染错误样式）
+     *
+     * @param errorMsg
+     * @param chatRequest
+     * @return
+     */
+    public Message completionError(String errorMsg, ChatRequest chatRequest) {
+        Message message = new Message(ROLE_AI, errorMsg, null, errorMsg, chatRequest);
+        messages.add(message);
+
+        chatLogger().log("ASSISTANT", errorMsg);
+
+        this.store();
+        return message;
+    }
+
+    /**
      * 持久化
      */
     public void store() {
@@ -239,7 +256,8 @@ public class Chat implements Serializable {
                 messages.add(new Message(role, content, null, null, getChatid(), msgJson));
             } else if (ROLE_AI.equals(role)) {
                 String reasoning = msgJson.getString("reasoning");
-                messages.add(new Message(role, content, reasoning, null, getChatid(), msgJson));
+                String error = msgJson.getString("error");
+                messages.add(new Message(role, content, reasoning, error, getChatid(), msgJson));
             }
         }
     }

@@ -53,6 +53,9 @@ let __evt_ScrollToBottomStop = false
 let __evt_StreamCancel = false
 let __streamController = null
 
+// 错误消息渲染为红色 + 警告图标（实时与历史消息共用）
+const __errorHtml = (error) => `<span class="text-danger"><i class="mdi mdi-alert-circle-outline fs-14 down-1 mr-1"></i>${error}</span>`
+
 // eslint-disable-next-line no-unused-vars
 class Chat extends React.Component {
   constructor(props) {
@@ -623,6 +626,14 @@ class ChatMessages extends React.Component {
   }
 
   setMessages(messages, forceScroll, suggestQuestions) {
+    // 历史错误消息渲染为红色（与实时错误提示一致）
+    if (messages) {
+      messages = messages.map((m) => {
+        if (m.error && m.content) return { ...m, content: __errorHtml(m.error) }
+        return m
+      })
+    }
+
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
 
@@ -714,7 +725,7 @@ class ChatMessage extends React.Component {
           return
         }
         if (data.error) {
-          data.content = `<span class="text-danger">${data.error}</span>`
+          data.content = __errorHtml(data.error)
         }
 
         if (data.type === '_chatid') {
