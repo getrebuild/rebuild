@@ -355,7 +355,7 @@ class ChatInput extends React.Component {
               type="button"
               className="btn btn-sm ml-1"
               title={this.state.postState === 0 ? $L('发送') : this.state.postState === 2 ? $L('中断中') : $L('停止')}
-              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content))}
+              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill)}
               onClick={() => {
                 if (this.state.postState === 0) this.hanldeSend()
                 else if (this.state.postState === 1) this.handleCancel()
@@ -371,7 +371,8 @@ class ChatInput extends React.Component {
 
   hanldeSend() {
     if (this.state.postState !== 0) return
-    if ($empty(this.state.content)) return
+    // 无文字但有附件（文件/记录等）或技能时允许发送
+    if ($empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill) return
 
     const content = this.state.content.trim()
     const _Chat = this.props._Chat
@@ -840,9 +841,11 @@ class ChatMessage extends React.Component {
   renderUser() {
     return (
       <div className="msg-user">
-        <div className="msg-content">
-          <RichContent content={this.state.content} md={false} />
-        </div>
+        {!$empty(this.state.content) && (
+          <div className="msg-content">
+            <RichContent content={this.state.content} md={false} />
+          </div>
+        )}
         {this.state.skill && (
           <div className="msg-attach">
             <Attach skill={this.state.skill} _chatid={this.props._chatid} />

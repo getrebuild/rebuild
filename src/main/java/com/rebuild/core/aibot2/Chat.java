@@ -178,7 +178,8 @@ public class Chat implements Serializable {
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent);
         for (Message m : messages) {
             String content = m.getContent();
-            if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);
+            // 空内容消息（如仅附件或技能触发）发送给 AI 时需兑底文案，避免部分 AI 端拒绝空消息
+            if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(StringUtils.defaultIfBlank(content, "请开始"));
             else if (ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(content);
         }
 
