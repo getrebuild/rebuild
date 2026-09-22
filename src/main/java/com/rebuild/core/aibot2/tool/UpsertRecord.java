@@ -116,9 +116,8 @@ public class UpsertRecord implements Tool {
         ID userId = UserContextHolder.getUser();
 
         boolean isUpdate = StringUtils.isNotBlank(recordId) && ID.isId(recordId);
-        if (isUpdate && ID.valueOf(recordId).getEntityCode() != entity.getEntityCode()) {
-            throw new KnownToolException("记录 ID 与实体不匹配 : " + recordId
-                    + " 不属于 " + EasyMetaFactory.getLabel(entity));
+        if (isUpdate) {
+            ToolHelper.checkRecordEntity(ID.valueOf(recordId), entity);
         }
         if (!isUpdate && !entity.isCreatable()) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不允许新建记录");
@@ -178,6 +177,15 @@ public class UpsertRecord implements Tool {
                             + EasyMetaFactory.getLabel(entity) + "，可用明细实体: " + listDetailEntityNames(entity));
                 }
                 JSONObject cleanedDetail = RecordDataCleaner.cleanPostData(detailEntity, detailJson);
+
+                // DTF（明细关联主记录）字段由框架保存时自动填充，新建明细预置占位值
+                // 以通过 EntityHelper.parse 的必填校验（与 Web 表单行为一致）
+                String detailId = cleanedDetail.getJSONObject("metadata") == null
+                        ? null : cleanedDetail.getJSONObject("metadata").getString("id");
+                String dtfName = MetadataHelper.getDetailToMainField(detailEntity).getName();
+                if (StringUtils.isBlank(detailId) && StringUtils.isBlank(cleanedDetail.getString(dtfName))) {
+                    cleanedDetail.put(dtfName, isUpdate ? recordId : EntityHelper.UNSAVED_ID.toString());
+                }
                 detailsList.add(EntityHelper.parse(cleanedDetail, userId));
             }
             if (!detailsList.isEmpty()) {

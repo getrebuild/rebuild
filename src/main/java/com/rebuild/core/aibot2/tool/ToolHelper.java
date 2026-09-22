@@ -83,6 +83,20 @@ public class ToolHelper {
     }
 
     /**
+     * 校验记录 ID 与目标实体匹配，不匹配时抛出异常（实体类型为运行时解析时使用，区别于按实体码校验的 resolveId）
+     *
+     * @param recordId
+     * @param entity
+     */
+    public static void checkRecordEntity(ID recordId, Entity entity) {
+        if ((int) recordId.getEntityCode() != entity.getEntityCode()) {
+            throw new KnownToolException("记录 ID 与实体不匹配 : " + recordId
+                    + " 不属于 " + EasyMetaFactory.getLabel(entity)
+                    + "，实际属于 " + EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode())));
+        }
+    }
+
+    /**
      * 解析文件 key 参数（支持单个字符串或数组）
      *
      * @param value
