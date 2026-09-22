@@ -288,8 +288,15 @@ class ChatInput extends React.Component {
               className="chat-input-editable"
               onInput={(e) => this.setState({ content: e.target.innerText })}
               onPaste={(e) => {
+                // 粘贴文件（含截图）时上传为附件
+                const cdata = e.clipboardData || window.clipboardData
+                if (cdata && cdata.files && cdata.files.length > 0) {
+                  $stopEvent(e, true)
+                  this._pasteUpload(cdata.files)
+                  return
+                }
                 e.preventDefault()
-                const text = (e.clipboardData || window.clipboardData).getData('text/plain')
+                const text = cdata.getData('text/plain')
                 document.execCommand('insertText', false, text)
               }}
               onKeyDown={(e) => {
@@ -506,6 +513,21 @@ class ChatInput extends React.Component {
 
   attachFile() {
     this._$file.click()
+  }
+
+  _pasteUpload(files) {
+    if (typeof DataTransfer === 'undefined') return
+    const dt = new DataTransfer()
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i]
+      if (!file.name || /^image\.(png|jpe?g|gif|bmp|webp)$/i.test(file.name)) {
+        const ext = (file.name || 'image.png').split('.').pop() || 'png'
+        file = new File([file], `screenshot-${$random()}.${ext}`, { type: file.type })
+      }
+      dt.items.add(file)
+    }
+    this._$file.files = dt.files
+    $(this._$file).trigger('change')
   }
 
   attachRecord() {
@@ -780,7 +802,7 @@ class ChatMessage extends React.Component {
               <a
                 title={$L('复制')}
                 onClick={(e) => {
-                  $clipboard(this.state.content || '')
+                  $clipboard(this.state.error || this.state.content || '')
                   const $a = $(e.currentTarget)
                   $a.addClass('copied-check')
                   setTimeout(() => $a.removeClass('copied-check'), 1500)

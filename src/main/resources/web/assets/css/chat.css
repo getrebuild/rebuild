@@ -121,7 +121,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 30px;
   display: inline-block;
   font-size: 12px;
-  max-width: 501px;
+  max-width: min(280px, 100%);
   line-height: 1.5;
   margin-top: 3px;
   margin-right: 4px;
