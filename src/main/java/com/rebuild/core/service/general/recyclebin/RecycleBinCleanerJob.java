@@ -8,20 +8,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general.recyclebin;
 
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.service.AibotChatService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.integration.QiniuCloud;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -157,22 +156,13 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
         }
         // 删文件
         for (String path : deletePaths42) {
-            Object[] o = Application.createQueryNoFilter(
-                    "select count(filePath) from Attachment where filePath = ?")
-                    .setParameter(1, path)
-                    .unique();
-            // 检查附件是否有其他字段使用（例如记录转换、触发器处理的）
-            if (o != null && ObjectUtils.toInt(o[0]) > 0) continue;
-
-            boolean s = false;
-            if (QiniuCloud.instance().available()) {
-                try {
-                    s = QiniuCloud.instance().delete(path);
-                } catch (Exception ignored) {}
-            } else {
-                s = FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData(path));
+            if (FilesHelper.fileHasCopy(path)) continue;
+            try {
+                int s = QiniuCloud.deleteFiles(path);
+                log.info("File/Attachment deleted : {} >> {}", path, s > 0);
+            } catch (Exception ex) {
+                log.warn("Cannot delete file : {}", path, ex);
             }
-            log.info("File/Attachment deleted : {} >> {}", path, s);
         }
 
         // 4.5 RebuildApiRequest

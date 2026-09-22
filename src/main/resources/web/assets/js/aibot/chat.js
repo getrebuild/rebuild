@@ -1362,8 +1362,8 @@ class Attach extends React.Component {
 
     if (this.props._ChatInput) {
       return (
-        <span className="text-ellipsis">
-          {this.state.name}
+        <span className="chat-attach-badge" title={typeof this.state.name === 'string' ? this.state.name : null}>
+          <span className="name">{this.state.name}</span>
           <a className="close" onClick={() => this.props._ChatInput.removeAttach(this.props.id)}>
             &times;
           </a>
@@ -1374,7 +1374,7 @@ class Attach extends React.Component {
     // View
     if (this.state.viewUrl) {
       return (
-        <a href={this.state.viewUrl} target="_blank" title={$L('查看')}>
+        <a href={this.state.viewUrl} target="_blank" title={typeof this.state.name === 'string' ? this.state.name : $L('查看')}>
           {this.state.name}
         </a>
       )

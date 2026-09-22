@@ -125,6 +125,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   line-height: 1.5;
   margin-top: 3px;
   margin-right: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chat-input .chat-input-attach > span > a.close {
@@ -133,6 +136,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 4px;
   max-height: 18px;
   transform: translateY(-1px);
+}
+
+.chat-input .chat-input-attach > span.chat-attach-badge {
+  display: inline-flex;
+  align-items: center;
+}
+
+.chat-input .chat-input-attach > span.chat-attach-badge > .name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-input .chat-input-attach > span.chat-attach-badge > a.close {
+  flex-shrink: 0;
 }
 
 .chat-messages {
