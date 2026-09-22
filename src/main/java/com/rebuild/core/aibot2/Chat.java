@@ -76,12 +76,23 @@ public class Chat implements Serializable {
     }
 
     /**
-     * 尝试开始执行，已在执行中返回 false
+     * 尝试开始执行，已在执行中则等待释放（用于停止后立即发送的场景）
      *
      * @return
      */
     public synchronized boolean tryBeginRun() {
-        if (running) return false;
+        long deadline = System.currentTimeMillis() + (10 * 1000);
+        while (running) {
+            long remains = deadline - System.currentTimeMillis();
+            if (remains <= 0) return false;
+            try {
+                wait(remains);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+
         running = true;
         return true;
     }
@@ -91,6 +102,7 @@ public class Chat implements Serializable {
      */
     public synchronized void endRun() {
         running = false;
+        notifyAll();
     }
 
     /**
