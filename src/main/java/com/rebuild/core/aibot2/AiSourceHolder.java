@@ -11,20 +11,16 @@ import cn.devezhao.persist4j.engine.ID;
 import org.springframework.core.NamedThreadLocal;
 
 /**
- * AI 操作源标记（线程级）。用于在变更历史中标识由 AI 工具触发的数据操作。
- *
  * @author devezhao
  * @since 2026/9/22
  * @see com.rebuild.core.service.general.RevisionHistoryObserver
- * @see com.rebuild.core.service.trigger.RobotTriggerObserver.TriggerSource
+ * @see com.rebuild.core.service.trigger.RobotTriggerObserver
  */
 public class AiSourceHolder {
 
     private static final ThreadLocal<ID> AI_SOURCE = new NamedThreadLocal<>("AI source");
 
     /**
-     * 设置 AI 操作源（会话 ID），返回旧值用于恢复
-     *
      * @param chatid
      * @return
      */

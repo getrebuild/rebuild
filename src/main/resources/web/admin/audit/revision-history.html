@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
@@ -31,7 +31,11 @@
       .table tr.group-title > td > h5 * {
         color: #777;
         font-weight: normal;
-        line-height: 1;
+        line-height: 1.1;
+        font-size: 12px;
+      }
+      .table tr.group-title > td > h5 .badge {
+        color: #fff;
       }
     </style>
   </head>
