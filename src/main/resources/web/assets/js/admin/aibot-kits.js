@@ -589,7 +589,7 @@ class ToolList extends React.Component {
       const sysTool = desc && desc.includes('[系统工具]')
       if (desc) {
         desc = desc.replace('[系统工具]', `<span class="badge badge-dark">${$L('系统工具')}</span>`)
-        desc = desc.replace('[商业工具]', `<span class="badge badge-warning">${$L('商业工具')}</span>`)
+        desc = desc.replace('[商业工具]', `<sup class="rbv" title="${$L('商业工具')}"></sup>`)
         desc = WrapHtml(desc)
       }
 

@@ -43,7 +43,7 @@ import java.util.List;
  * @since 2026/9/23
  */
 @Slf4j
-public class UpsertRecord2 implements Tool {
+public class UpsertRecord implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
@@ -89,7 +89,7 @@ public class UpsertRecord2 implements Tool {
     }
 
     /**
-     * 拍平契约转为表单兼容结构（metadata + $DETAILS$），不修改传入的 recordData
+     * 模型契约（明细键 $DETAILS$，元素内 entity/id/delete 平铺）转为表单兼容结构（metadata 包裹），不修改传入的 recordData
      *
      * @param entity
      * @param recordData
@@ -101,14 +101,18 @@ public class UpsertRecord2 implements Tool {
 
         JSONObject copy = new JSONObject(true);
         copy.putAll(recordData);
-        Object details = copy.remove("details");
+        Object details = copy.remove(GeneralEntityService.HAS_DETAILS);
+        // 模型误用 details 键时给出明确指引（实体本身有 details 业务字段时不拦截）
+        if (copy.containsKey("details") && findField(entity, "details") == null) {
+            throw new KnownToolException("明细数据须放入 $DETAILS$ 数组，而不是 details");
+        }
         recordJson.putAll(copy);
 
         if (details instanceof JSONArray) {
             JSONArray formDetails = new JSONArray();
             for (Object d : (JSONArray) details) {
                 if (!(d instanceof JSONObject)) {
-                    throw new KnownToolException("details 中的明细元素必须是 JSON 对象");
+                    throw new KnownToolException("$DETAILS$ 中的明细元素必须是 JSON 对象");
                 }
                 formDetails.add(toFormDetail((JSONObject) d));
             }
@@ -116,7 +120,7 @@ public class UpsertRecord2 implements Tool {
                 recordJson.put(GeneralEntityService.HAS_DETAILS, formDetails);
             }
         } else if (details != null) {
-            throw new KnownToolException("details 必须是明细数组");
+            throw new KnownToolException("$DETAILS$ 必须是明细数组");
         }
         return recordJson;
     }

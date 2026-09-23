@@ -14,6 +14,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -114,6 +116,20 @@ public class ListEntities implements Tool {
             if (field.getType() == FieldType.REFERENCE || field.getType() == FieldType.REFERENCE_LIST) {
                 Entity refEntity = field.getReferenceEntity();
                 fieldJson.put("referenceEntity", refEntity.getName());
+            }
+
+            // 选项字段的可选值列表（PICKLIST 项含 id、MULTISELECT 项含 mask，均可直接用于保存）
+            if (dt == DisplayType.PICKLIST || dt == DisplayType.MULTISELECT) {
+                JSONArray options = new JSONArray();
+                for (ConfigBean e : PickListManager.instance.getPickListRaw(field, false)) {
+                    JSONObject option = new JSONObject(true);
+                    if (dt == DisplayType.PICKLIST) option.put("id", e.getID("id").toString());
+                    else option.put("mask", e.getLong("mask"));
+                    option.put("text", e.getString("text"));
+                    option.put("default", e.getBoolean("default"));
+                    options.add(option);
+                }
+                if (!options.isEmpty()) fieldJson.put("options", options);
             }
 
             fields.add(fieldJson);

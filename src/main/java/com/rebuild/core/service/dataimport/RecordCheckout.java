@@ -297,9 +297,19 @@ public class RecordCheckout {
     }
 
     protected Long checkoutMultiSelectValue(Field field, Cell cell) {
+        final String val = cell.asString();
+
         long mVal = 0;
-        for (String s : cell.asString().split(MVAL_SPLIT)) {
+        for (String s : val.split(MVAL_SPLIT)) {
             mVal += MultiSelectManager.instance.findMultiItemByLabel(s.trim(), field);
+        }
+
+        if (mVal == 0) {
+            try {
+                long maskValue = Long.parseLong(val.trim());
+                if (MultiSelectManager.instance.isValidMask(maskValue, field)) return maskValue;
+            } catch (NumberFormatException ignored) {
+            }
         }
         return mVal == 0 ? null : mVal;
     }
