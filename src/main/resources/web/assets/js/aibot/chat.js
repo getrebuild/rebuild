@@ -1367,6 +1367,7 @@ class Attach extends React.Component {
   render() {
     if (!this.state) return null
 
+    // 输入框
     if (this.props._ChatInput) {
       return (
         <span className="chat-attach-badge" title={typeof this.state.name === 'string' ? this.state.name : null}>

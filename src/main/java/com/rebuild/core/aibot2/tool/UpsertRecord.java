@@ -20,6 +20,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.vector.FileData;
+import com.rebuild.core.metadata.DeleteRecord;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -37,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -165,8 +167,24 @@ public class UpsertRecord implements Tool {
             List<Record> detailsList = new ArrayList<>();
             for (Object d : detailsJson) {
                 JSONObject detailJson = (JSONObject) d;
-
                 JSONObject detailMeta = detailJson.getJSONObject("metadata");
+
+                // 删除已有明细（与 Web 表单 metadata.delete 用法一致，仅更新已有主记录时有效）
+                if (detailMeta != null && detailMeta.getBooleanValue("delete")) {
+                    if (!isUpdate) {
+                        throw new KnownToolException("新建记录不支持删除明细");
+                    }
+                    ID deleteId = ToolHelper.resolveId(detailMeta.getString("id"), "删除明细 ID");
+                    Entity deleteEntity = MetadataHelper.getEntity(deleteId.getEntityCode());
+                    if (deleteEntity == null || deleteEntity.getMainEntity() == null
+                            || !deleteEntity.getMainEntity().getName().equals(entity.getName())) {
+                        throw new KnownToolException("记录 " + deleteId + " 不是 "
+                                + EasyMetaFactory.getLabel(entity) + " 的明细，无法删除");
+                    }
+                    detailsList.add(new DeleteRecord(deleteId, userId));
+                    continue;
+                }
+
                 if (detailMeta == null || StringUtils.isBlank(detailMeta.getString("entity"))) {
                     Entity detailEntity = getDetailEntity(entity,
                             detailMeta == null ? null : detailMeta.getString("entity"));
@@ -318,9 +336,10 @@ public class UpsertRecord implements Tool {
                 .append("（").append(EasyMetaFactory.getLabel(entity)).append("）\n");
         sb.append("字段列表:\n");
 
+        Set<String> autoReadonlyFields = EasyMetaFactory.getAutoReadonlyFields(entity.getName());
         for (Field field : entity.getFields()) {
             if (MetadataHelper.isSystemField(field)) continue;
-            appendFieldDesc(sb, field);
+            appendFieldDesc(sb, field, autoReadonlyFields);
         }
 
         if (entity.getDetailEntity() != null) {
@@ -329,10 +348,11 @@ public class UpsertRecord implements Tool {
                         .append("（").append(EasyMetaFactory.getLabel(de)).append("）\n");
                 sb.append("明细字段列表:\n");
 
+                Set<String> deAutoReadonlyFields = EasyMetaFactory.getAutoReadonlyFields(de.getName());
                 for (Field field : de.getFields()) {
                     if (MetadataHelper.isSystemField(field)) continue;
                     if (field.getType() == FieldType.REFERENCE && field.getReferenceEntity() == entity) continue;
-                    appendFieldDesc(sb, field);
+                    appendFieldDesc(sb, field, deAutoReadonlyFields);
                 }
             }
         }
@@ -340,7 +360,7 @@ public class UpsertRecord implements Tool {
         return sb.toString();
     }
 
-    private void appendFieldDesc(StringBuilder sb, Field field) {
+    private void appendFieldDesc(StringBuilder sb, Field field, Set<String> autoReadonlyFields) {
         DisplayType dt = EasyMetaFactory.getDisplayType(field);
 
         sb.append("  - ").append(field.getName())
@@ -351,6 +371,19 @@ public class UpsertRecord implements Tool {
             Entity refEntity = field.getReferenceEntity();
             sb.append(" 引用实体: ").append(refEntity.getName())
                     .append("（").append(EasyMetaFactory.getLabel(refEntity)).append("）");
+        }
+
+        // 必填判定与 EntityRecordCreator.verify 的非空校验范围一致
+        if (!field.isNullable() && dt != DisplayType.SERIES && dt != DisplayType.BARCODE
+                && !autoReadonlyFields.contains(field.getName())
+                && EasyMetaFactory.valueOf(field).exprDefaultValue() == null) {
+            sb.append("（必填）");
+        }
+
+        // 只读：字段本身不可写（传值会被保存校验移除）或由触发器/表单回填自动写入
+        if ((!field.isCreatable() && !field.isUpdatable())
+                || autoReadonlyFields.contains(field.getName())) {
+            sb.append("（只读）");
         }
         sb.append("\n");
     }
