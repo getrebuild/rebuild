@@ -1577,15 +1577,7 @@ class CodeViewport extends React.Component {
     return (
       <div className="code-viewport">
         <pre ref={(c) => (this._$code = c)}>LOADING</pre>
-        <a
-          className="copy"
-          title={$L('复制')}
-          ref={(c) => (this._$copy = c)}
-          onClick={() => {
-            $clipboard($(this._$code).text())
-            $(this._$copy).addClass('copied-check')
-            setTimeout(() => $(this._$copy).removeClass('copied-check'), 1500)
-          }}>
+        <a className="copy" title={$L('复制')} onClick={(e) => $clipboard2(e.currentTarget, $(this._$code).text())}>
           <i className="icon mdi mdi-content-copy" />
         </a>
       </div>

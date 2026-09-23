@@ -495,8 +495,8 @@ class FileShare extends RbAlert {
           <div className="input-group input-group-sm">
             <input className="form-control form-control-sm bg-transparent" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
-                <i className="icon zmdi zmdi-copy" />
+              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)} title={$L('复制')}>
+                <i className="icon mdi mdi-content-copy" />
               </button>
             </span>
             <span className="input-group-append">
@@ -553,9 +553,10 @@ class FileShare extends RbAlert {
       $.get(`/filex/make-share?url=${$encode(this._filePath)}&time=${t}&shareUrl=${$encode(this.__shareUrl)}`, (res) => {
         this.__shareUrl = (res.data || {}).shareUrl
         this.setState({ shareUrl: this.__shareUrl })
-        // copy
-        $(this._$copy).data('clipboard-text', this.__shareUrl)
-        $clipboard(this._$copy)
+
+        $(this._$copy)
+          .off('click')
+          .on('click', () => $clipboard2(this._$copy, this.__shareUrl))
       })
     })
   }

@@ -811,14 +811,7 @@ class ChatMessage extends React.Component {
           )}
           {this._feedbackable() && (
             <RF>
-              <a
-                title={$L('复制')}
-                onClick={(e) => {
-                  $clipboard(this.state.error || this.state.content || '')
-                  const $a = $(e.currentTarget)
-                  $a.addClass('copied-check')
-                  setTimeout(() => $a.removeClass('copied-check'), 1500)
-                }}>
+              <a title={$L('复制')} onClick={(e) => $clipboard2(e.currentTarget, this.state.error || this.state.content || '')}>
                 <i className="icon mdi mdi-content-copy" />
               </a>
               {(this.props.role === 'assistant' || this.props.role === 'ai') && (
