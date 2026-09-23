@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -97,7 +98,7 @@ public class ToolHelper {
     }
 
     /**
-     * 解析文件 key 参数（支持单个字符串或数组）
+     * 解析文件 key 参数（支持单个字符串或数组），并校验值域（rb/ 开头的系统内文件标识或 http(s) URL）
      *
      * @param value
      * @return
@@ -107,13 +108,29 @@ public class ToolHelper {
 
         if (value instanceof JSONArray) {
             JSONArray arr = (JSONArray) value;
-            return arr.isEmpty() ? null : arr.toJSONString();
+            if (arr.isEmpty()) return null;
+            for (Object o : arr) {
+                checkFileKey(o == null ? null : o.toString().trim());
+            }
+            return arr.toJSONString();
         }
 
         String str = value.toString().trim();
         if (str.isEmpty()) return null;
 
+        checkFileKey(str);
         return JSON.toJSONString(new String[]{str});
+    }
+
+    /**
+     * 校验文件 key 值域，非法值直接报错以便模型自我纠正
+     *
+     * @param fileKey
+     */
+    private static void checkFileKey(String fileKey) {
+        if (StringUtils.isNotBlank(fileKey)
+                && (fileKey.startsWith("rb/") || CommonsUtils.isExternalUrl(fileKey))) return;
+        throw new KnownToolException("不支持的文件标识（仅支持 rb/ 开头或 http(s) URL）: " + fileKey);
     }
 
     /**

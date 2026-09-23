@@ -9,7 +9,11 @@
       "properties": {
         "file": {
           "type": "string",
-          "description": "文件路径或标识（支持系统内标识、本地路径、外部URL）。用户在聊天中上传的文件可直接使用消息内容中标注的 fileKey。与 content 二选一"
+          "description": "rb/ 开头的系统内文件标识（用户在聊天中上传的文件可直接使用消息内容中标注的 fileKey），或 http(s):// 外部 URL。与 content 二选一"
+        },
+        "fileField": {
+          "type": "string",
+          "description": "将 file 参数指定文件的 fileKey 保存为该字段的附件值。用户要求把上传的文件存入记录的文件/图片字段时指定（FILE/IMAGE 类型字段标识，可通过 ListEntities 查询）。需配合 file 参数使用"
         },
         "content": {
           "type": "string",

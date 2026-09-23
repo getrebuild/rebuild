@@ -63,6 +63,7 @@ public class UpsertRecord implements Tool {
         String entityName = args.getString("entity");
         String recordId = args.getString("recordId");
         boolean confirmed = args.getBooleanValue("confirmed");
+        String fileField = args.getString("fileField");
 
         if (StringUtils.isBlank(file) && StringUtils.isBlank(content)) {
             throw new KnownToolException("文件或内容不能为空（需指定 file 或 content 参数之一）");
@@ -84,6 +85,14 @@ public class UpsertRecord implements Tool {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持此操作");
         }
 
+        Field attachField = null;
+        if (StringUtils.isNotBlank(fileField)) {
+            if (StringUtils.isBlank(file)) {
+                throw new KnownToolException("fileField 需配合 file 参数使用");
+            }
+            attachField = resolveAttachField(entity, fileField);
+        }
+
         String entityMetaDesc = buildEntityMetaDesc(entity);
         String prompt = Objects.requireNonNull(PROMPT_TEMPLATE).replace("{ENTITY_META_DESC}", entityMetaDesc);
 
@@ -95,6 +104,10 @@ public class UpsertRecord implements Tool {
         }
 
         ensureMetadata(recordJson, entity);
+
+        if (attachField != null) {
+            recordJson.put(attachField.getName(), ToolHelper.resolveFileKeys(file));
+        }
 
         if (!confirmed) {
             JSONObject changes = new JSONObject(true);
@@ -246,6 +259,19 @@ public class UpsertRecord implements Tool {
             names.add(de.getName() + "(" + EasyMetaFactory.getLabel(de) + ")");
         }
         return names.isEmpty() ? "无" : StringUtils.join(names, ", ");
+    }
+
+    private Field resolveAttachField(Entity entity, String name) {
+        for (Field f : entity.getFields()) {
+            if (f.getName().equalsIgnoreCase(name) || EasyMetaFactory.getLabel(f).equalsIgnoreCase(name)) {
+                DisplayType dt = EasyMetaFactory.getDisplayType(f);
+                if (dt != DisplayType.FILE && dt != DisplayType.IMAGE) {
+                    throw new KnownToolException("字段 [" + EasyMetaFactory.getLabel(f) + "] 不是 FILE/IMAGE 附件字段");
+                }
+                return f;
+            }
+        }
+        throw new KnownToolException("未知字段 : " + name + "，实体 [" + EasyMetaFactory.getLabel(entity) + "]");
     }
 
     private void ensureMetadata(JSONObject recordJson, Entity entity) {
