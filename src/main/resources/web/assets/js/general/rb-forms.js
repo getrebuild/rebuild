@@ -741,12 +741,10 @@ class RbForm extends React.Component {
       if ($scope.length === 0) return
     }
 
-    const $fields = $scope
-      .find('.form-group.type-IMAGE, .form-group.type-FILE')
-      .filter(function () {
-        if ($(this).hasClass('hide')) return false
-        return $(this).find('.img-field-btn:not(.hide), .file-select:not(.hide)').length > 0
-      })
+    const $fields = $scope.find('.form-group.type-IMAGE, .form-group.type-FILE').filter(function () {
+      if ($(this).hasClass('hide')) return false
+      return $(this).find('.img-field-btn:not(.hide), .file-select:not(.hide)').length > 0
+    })
     if ($fields.length === 0) return
 
     $stopEvent(e, true)
@@ -1660,7 +1658,7 @@ class RbFormNText extends RbFormElement {
   renderViewElementExtAction() {
     return (
       <div className="ntext-action">
-        <a title={$L('复制')} onClick={() => $clipboard(this.state.value)}>
+        <a title={$L('复制')} onClick={(e) => $clipboard2(e.currentTarget, this.state.value)}>
           <i className="mdi mdi-content-copy" />
         </a>
       </div>
