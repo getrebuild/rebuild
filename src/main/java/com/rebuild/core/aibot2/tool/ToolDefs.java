@@ -16,6 +16,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.AibotAgent;
+import com.rebuild.core.aibot2.AiSourceHolder;
 import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserHelper;
@@ -260,6 +261,10 @@ public class ToolDefs {
      */
     public static String execute(String toolName, String arguments, ChatLogger chatLogger) {
         ID user = UserContextHolder.getUser();
+        // v4.x 设置 AI 操作源
+        ID restoreAiSource = AiSourceHolder.set(
+                chatLogger != null ? chatLogger.getChatid() : null);
+        try {
 
         Tool tool = TOOL_MAP.get(toolName);
         if (tool == null) {
@@ -318,6 +323,9 @@ public class ToolDefs {
             String error = CommonsUtils.getRootMessage(ex);
             log.error("TOOL_ERROR {}\n{}", toolName, error, ex);
             throw new ToolException(error, ex);
+        }
+        } finally {
+            AiSourceHolder.clear(restoreAiSource);
         }
     }
 

@@ -19,6 +19,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.InternalPermission;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
+import com.rebuild.core.aibot2.AiSourceHolder;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerSource;
 import com.rebuild.utils.JSONUtils;
@@ -143,6 +144,12 @@ public class RevisionHistoryObserver extends OperatingObserver {
             record.setString("revisionContent", revisionContent.toJSONString());
         } else {
             record.setString("revisionContent", JSONUtils.EMPTY_ARRAY_STR);
+        }
+
+        // v4.x AI 操作源（归一化到 fromSource）
+        ID aiSource = AiSourceHolder.get();
+        if (aiSource != null) {
+            record.setID("fromSource", aiSource);
         }
 
         TriggerSource triggerSource = RobotTriggerObserver.getTriggerSource();
