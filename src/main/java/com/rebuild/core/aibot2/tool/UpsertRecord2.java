@@ -10,7 +10,6 @@ package com.rebuild.core.aibot2.tool;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -18,8 +17,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RecordDataCleaner;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.aibot2.ChatManager;
-import com.rebuild.core.aibot2.vector.FileData;
 import com.rebuild.core.metadata.DeleteRecord;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -29,6 +26,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
@@ -37,94 +35,241 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * 将文件或文本内容解析为实体记录 JSON 默认保存
+ * 新建/更新业务记录，字段数据由模型直接组装（纯执行器，不做 AI 解析）
  *
  * @author RB
- * @since 2026/6/11
+ * @since 2026/9/23
  */
 @Slf4j
-public class UpsertRecord implements Tool {
-
-    private static final Pattern JSON_CODE_BLOCK = Pattern.compile("```(?:json)?\\s*([\\s\\S]*?)```", Pattern.CASE_INSENSITIVE);
-    private static final Pattern JSON_OBJECT = Pattern.compile("\\{[\\s\\S]*}");
-
-    private static final String PROMPT_TEMPLATE = CommonsUtils.getStringOfRes("aibot2/tool/UpsertRecord__schema.md");
+public class UpsertRecord2 implements Tool {
 
     @Override
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
 
-        String file = args.getString("file");
-        String content = args.getString("content");
         String entityName = args.getString("entity");
         String recordId = args.getString("recordId");
         boolean confirmed = args.getBooleanValue("confirmed");
-        String fileField = args.getString("fileField");
+        JSONObject recordData = args.getJSONObject("recordData");
 
-        if (StringUtils.isBlank(file) && StringUtils.isBlank(content)) {
-            throw new KnownToolException("文件或内容不能为空（需指定 file 或 content 参数之一）");
-        }
         if (StringUtils.isBlank(entityName)) {
             throw new KnownToolException("实体名称不能为空");
         }
-
-        String fileContent = StringUtils.isNotBlank(content)
-                ? content
-                : new FileData(file).toVector();
+        if (recordData == null || recordData.isEmpty()) {
+            throw new KnownToolException("记录数据 recordData 不能为空");
+        }
 
         Entity entity = ToolHelper.resolveEntity(entityName);
         if (entity == null) {
             throw new KnownToolException("未知实体 : " + entityName + ToolHelper.suggestEntity(entityName));
         }
-
         if (!entity.isQueryable() || !MetadataHelper.isBusinessEntity(entity)) {
             throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(entity) + "] 不支持此操作");
         }
 
-        Field attachField = null;
-        if (StringUtils.isNotBlank(fileField)) {
-            if (StringUtils.isBlank(file)) {
-                throw new KnownToolException("fileField 需配合 file 参数使用");
-            }
-            attachField = resolveAttachField(entity, fileField);
-        }
-
-        String entityMetaDesc = buildEntityMetaDesc(entity);
-        String prompt = Objects.requireNonNull(PROMPT_TEMPLATE).replace("{ENTITY_META_DESC}", entityMetaDesc);
-
-        String aiResult = ChatManager.ask(fileContent, prompt, null, "UpsertRecord");
-
-        JSONObject recordJson = extractJson(aiResult);
-        if (recordJson == null) {
-            throw new KnownToolException("AI 解析失败，无法提取有效 JSON : " + CommonsUtils.maxstr(aiResult, 500));
-        }
-
-        ensureMetadata(recordJson, entity);
-
-        if (attachField != null) {
-            recordJson.put(attachField.getName(), ToolHelper.resolveFileKeys(file));
-        }
+        JSONObject recordJson = toFormJson(entity, recordData);
+        validateRecordData(entity, recordJson);
 
         if (!confirmed) {
             JSONObject changes = new JSONObject(true);
             changes.put("操作", StringUtils.isNotBlank(recordId) && ID.isId(recordId) ? "更新记录" : "新建记录");
             changes.put("目标实体", EasyMetaFactory.getLabel(entity));
-            changes.put("记录数据", recordJson);
+            changes.put("记录数据", recordData);
             return JSONUtils.toJSONObject(
                     new String[]{"status", "needConfirm", "changes", "message"},
                     new Object[]{"ok", true, changes,
-                            "本次操作尚未执行。保存记录会影响业务数据，请先将解析结果摘要（关键字段值与明细条数）完整转述给用户并征求确认，"
+                            "本次操作尚未执行。保存记录会影响业务数据，请先将记录数据摘要（关键字段值与明细条数）完整转述给用户并征求确认，"
                                     + "用户明确同意后再以相同参数并设置 confirmed=true 重新调用本工具执行保存。"
                                     + "用户未确认或要求调整时不得执行保存"});
         }
 
         return saveRecord(recordJson, entity, recordId);
+    }
+
+    /**
+     * 拍平契约转为表单兼容结构（metadata + $DETAILS$），不修改传入的 recordData
+     *
+     * @param entity
+     * @param recordData
+     * @return
+     */
+    private JSONObject toFormJson(Entity entity, JSONObject recordData) {
+        JSONObject recordJson = new JSONObject(true);
+        recordJson.put("metadata", JSONUtils.toJSONObject("entity", entity.getName()));
+
+        JSONObject copy = new JSONObject(true);
+        copy.putAll(recordData);
+        Object details = copy.remove("details");
+        recordJson.putAll(copy);
+
+        if (details instanceof JSONArray) {
+            JSONArray formDetails = new JSONArray();
+            for (Object d : (JSONArray) details) {
+                if (!(d instanceof JSONObject)) {
+                    throw new KnownToolException("details 中的明细元素必须是 JSON 对象");
+                }
+                formDetails.add(toFormDetail((JSONObject) d));
+            }
+            if (!formDetails.isEmpty()) {
+                recordJson.put(GeneralEntityService.HAS_DETAILS, formDetails);
+            }
+        } else if (details != null) {
+            throw new KnownToolException("details 必须是明细数组");
+        }
+        return recordJson;
+    }
+
+    private JSONObject toFormDetail(JSONObject detail) {
+        JSONObject formDetail = new JSONObject(true);
+        JSONObject metadata = new JSONObject(true);
+
+        String detailEntity = detail.getString("entity");
+        if (StringUtils.isNotBlank(detailEntity)) metadata.put("entity", detailEntity);
+
+        String detailId = detail.getString("id");
+        if (StringUtils.isNotBlank(detailId)) metadata.put("id", detailId);
+
+        if (detail.getBooleanValue("delete")) metadata.put("delete", true);
+
+        formDetail.put("metadata", metadata);
+
+        for (String key : detail.keySet()) {
+            if ("entity".equalsIgnoreCase(key) || "id".equalsIgnoreCase(key) || "delete".equalsIgnoreCase(key)) continue;
+            formDetail.put(key, detail.get(key));
+        }
+        return formDetail;
+    }
+
+    /**
+     * 预检：字段名归一化与存在性校验、引用 ID 有效性校验（清洗层对未知字段与无效引用会静默丢弃，须在保存前拦截）
+     *
+     * @param entity
+     * @param recordJson
+     */
+    private void validateRecordData(Entity entity, JSONObject recordJson) {
+        normalizeFields(entity, recordJson);
+
+        JSONArray details = recordJson.getJSONArray(GeneralEntityService.HAS_DETAILS);
+        if (details == null) return;
+
+        for (Object d : details) {
+            JSONObject detail = (JSONObject) d;
+            JSONObject metadata = detail.getJSONObject("metadata");
+
+            if (metadata != null && metadata.getBooleanValue("delete")) {
+                validateDetailDelete(entity, metadata.getString("id"));
+                continue;
+            }
+
+            Entity detailEntity = getDetailEntity(entity, metadata == null ? null : metadata.getString("entity"));
+            if (detailEntity == null) continue;
+
+            if (metadata == null) {
+                metadata = new JSONObject();
+                detail.put("metadata", metadata);
+            }
+            metadata.put("entity", detailEntity.getName());
+
+            normalizeFields(detailEntity, detail);
+        }
+    }
+
+    /**
+     * 字段名按内部名归一化（忽略大小写差异），未知字段与无效引用值直接报错
+     *
+     * @param entity
+     * @param data
+     */
+    private void normalizeFields(Entity entity, JSONObject data) {
+        List<String> unknownFields = new ArrayList<>();
+        List<String> invalidRefs = new ArrayList<>();
+
+        for (String key : data.keySet().toArray(new String[0])) {
+            if ("metadata".equals(key) || GeneralEntityService.HAS_DETAILS.equals(key)) continue;
+
+            Field field = findField(entity, key);
+            if (field == null) {
+                unknownFields.add(key);
+                continue;
+            }
+
+            if (!field.getName().equals(key)) {
+                data.put(field.getName(), data.remove(key));
+            }
+
+            Object value = data.get(field.getName());
+            if (value == null || (value instanceof String && StringUtils.isBlank((String) value))) continue;
+
+            DisplayType dt = EasyMetaFactory.getDisplayType(field);
+
+            if (dt == DisplayType.REFERENCE) {
+                if (!(value instanceof String) || !isValidRefId(field, (String) value)) {
+                    invalidRefs.add(EasyMetaFactory.getLabel(field) + "=" + CommonsUtils.maxstr(String.valueOf(value), 100));
+                }
+            } else if (dt == DisplayType.N2NREFERENCE) {
+                if (!(value instanceof JSONArray)) {
+                    invalidRefs.add(EasyMetaFactory.getLabel(field) + "（值须为记录 ID 数组）");
+                } else {
+                    for (Object v : (JSONArray) value) {
+                        if (!(v instanceof String) || !isValidRefId(field, (String) v)) {
+                            invalidRefs.add(EasyMetaFactory.getLabel(field) + "=" + CommonsUtils.maxstr(String.valueOf(v), 100));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!unknownFields.isEmpty()) {
+            throw new KnownToolException("字段 " + StringUtils.join(unknownFields, ", ")
+                    + " 不存在于实体 [" + EasyMetaFactory.getLabel(entity) + "]，可用字段 : " + listFieldNames(entity));
+        }
+        if (!invalidRefs.isEmpty()) {
+            throw new KnownToolException("引用字段 " + StringUtils.join(invalidRefs, "; ")
+                    + " 的值无效，必须为已存在的记录 ID。请使用 QueryRecords 工具查询引用记录获取 ID，"
+                    + "记录不存在时须经用户确认后先创建该记录再填入其 ID，不得使用名称或其他文本");
+        }
+    }
+
+    private boolean isValidRefId(Field field, String value) {
+        if (!ID.isId(value)) return false;
+        ID id = ID.valueOf(value);
+        ToolHelper.checkRecordEntity(id, field.getReferenceEntity());
+        return QueryHelper.exists(id);
+    }
+
+    private void validateDetailDelete(Entity mainEntity, String detailId) {
+        if (StringUtils.isBlank(detailId) || !ID.isId(detailId)) {
+            throw new KnownToolException("删除明细须提供有效的明细记录 ID");
+        }
+        ID id = ID.valueOf(detailId);
+        Entity detailEntity = MetadataHelper.getEntity(id.getEntityCode());
+        if (detailEntity == null || detailEntity.getMainEntity() == null
+                || !detailEntity.getMainEntity().getName().equals(mainEntity.getName())) {
+            throw new KnownToolException("记录 " + detailId + " 不是 "
+                    + EasyMetaFactory.getLabel(mainEntity) + " 的明细，无法删除");
+        }
+        if (!QueryHelper.exists(id)) {
+            throw new KnownToolException("待删除的明细 " + detailId + " 不存在或已被删除");
+        }
+    }
+
+    private Field findField(Entity entity, String name) {
+        for (Field f : entity.getFields()) {
+            if (f.getName().equalsIgnoreCase(name)) return f;
+        }
+        return null;
+    }
+
+    private String listFieldNames(Entity entity) {
+        List<String> names = new ArrayList<>();
+        for (Field f : entity.getFields()) {
+            if (MetadataHelper.isSystemField(f)) continue;
+            names.add(f.getName() + "(" + EasyMetaFactory.getLabel(f) + ")");
+        }
+        return CommonsUtils.maxstr(StringUtils.join(names, ", "), 1000);
     }
 
     private JSONObject saveRecord(JSONObject recordJson, Entity entity, String recordId) {
@@ -262,7 +407,7 @@ public class UpsertRecord implements Tool {
         }
         // 多个明细且无法确定归属时不能默认取第一个，否则明细数据会静默写入错误的明细实体
         throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(mainEntity) + "] 有多个明细实体，"
-                + "请在明细的 metadata.entity 中明确指定 : " + listDetailEntityNames(mainEntity));
+                + "请在明细的 entity 中明确指定 : " + listDetailEntityNames(mainEntity));
     }
 
     /**
@@ -277,114 +422,5 @@ public class UpsertRecord implements Tool {
             names.add(de.getName() + "(" + EasyMetaFactory.getLabel(de) + ")");
         }
         return names.isEmpty() ? "无" : StringUtils.join(names, ", ");
-    }
-
-    private Field resolveAttachField(Entity entity, String name) {
-        for (Field f : entity.getFields()) {
-            if (f.getName().equalsIgnoreCase(name) || EasyMetaFactory.getLabel(f).equalsIgnoreCase(name)) {
-                DisplayType dt = EasyMetaFactory.getDisplayType(f);
-                if (dt != DisplayType.FILE && dt != DisplayType.IMAGE) {
-                    throw new KnownToolException("字段 [" + EasyMetaFactory.getLabel(f) + "] 不是 FILE/IMAGE 附件字段");
-                }
-                return f;
-            }
-        }
-        throw new KnownToolException("未知字段 : " + name + "，实体 [" + EasyMetaFactory.getLabel(entity) + "]");
-    }
-
-    private void ensureMetadata(JSONObject recordJson, Entity entity) {
-        JSONObject metadata = recordJson.getJSONObject("metadata");
-        if (metadata == null) {
-            metadata = new JSONObject();
-            recordJson.put("metadata", metadata);
-        }
-        if (StringUtils.isBlank(metadata.getString("entity"))) {
-            metadata.put("entity", entity.getName());
-        }
-    }
-
-    private JSONObject extractJson(String aiResult) {
-        if (StringUtils.isBlank(aiResult)) return null;
-
-        Matcher m = JSON_CODE_BLOCK.matcher(aiResult);
-        if (m.find()) {
-            try {
-                return JSON.parseObject(m.group(1).trim());
-            } catch (Exception ignored) {
-            }
-        }
-
-        try {
-            return JSON.parseObject(aiResult.trim());
-        } catch (Exception ignored) {
-        }
-
-        m = JSON_OBJECT.matcher(aiResult);
-        if (m.find()) {
-            try {
-                return JSON.parseObject(m.group());
-            } catch (Exception ignored) {
-            }
-        }
-
-        return null;
-    }
-
-    private String buildEntityMetaDesc(Entity entity) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("实体: ").append(entity.getName())
-                .append("（").append(EasyMetaFactory.getLabel(entity)).append("）\n");
-        sb.append("字段列表:\n");
-
-        Set<String> autoReadonlyFields = EasyMetaFactory.getAutoReadonlyFields(entity.getName());
-        for (Field field : entity.getFields()) {
-            if (MetadataHelper.isSystemField(field)) continue;
-            appendFieldDesc(sb, field, autoReadonlyFields);
-        }
-
-        if (entity.getDetailEntity() != null) {
-            for (Entity de : MetadataSorter.sortDetailEntities(entity)) {
-                sb.append("\n明细实体: ").append(de.getName())
-                        .append("（").append(EasyMetaFactory.getLabel(de)).append("）\n");
-                sb.append("明细字段列表:\n");
-
-                Set<String> deAutoReadonlyFields = EasyMetaFactory.getAutoReadonlyFields(de.getName());
-                for (Field field : de.getFields()) {
-                    if (MetadataHelper.isSystemField(field)) continue;
-                    if (field.getType() == FieldType.REFERENCE && field.getReferenceEntity() == entity) continue;
-                    appendFieldDesc(sb, field, deAutoReadonlyFields);
-                }
-            }
-        }
-
-        return sb.toString();
-    }
-
-    private void appendFieldDesc(StringBuilder sb, Field field, Set<String> autoReadonlyFields) {
-        DisplayType dt = EasyMetaFactory.getDisplayType(field);
-
-        sb.append("  - ").append(field.getName())
-                .append("（").append(EasyMetaFactory.getLabel(field)).append("）");
-        sb.append(" 类型: ").append(dt.name());
-
-        if (field.getType() == FieldType.REFERENCE || field.getType() == FieldType.REFERENCE_LIST) {
-            Entity refEntity = field.getReferenceEntity();
-            sb.append(" 引用实体: ").append(refEntity.getName())
-                    .append("（").append(EasyMetaFactory.getLabel(refEntity)).append("）");
-        }
-
-        // 必填判定与 EntityRecordCreator.verify 的非空校验范围一致
-        if (!field.isNullable() && dt != DisplayType.SERIES && dt != DisplayType.BARCODE
-                && !autoReadonlyFields.contains(field.getName())
-                && EasyMetaFactory.valueOf(field).exprDefaultValue() == null) {
-            sb.append("（必填）");
-        }
-
-        // 只读：字段本身不可写（传值会被保存校验移除）或由触发器/表单回填自动写入
-        if ((!field.isCreatable() && !field.isUpdatable())
-                || autoReadonlyFields.contains(field.getName())) {
-            sb.append("（只读）");
-        }
-        sb.append("\n");
     }
 }

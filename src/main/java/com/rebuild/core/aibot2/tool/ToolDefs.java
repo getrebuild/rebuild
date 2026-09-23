@@ -60,7 +60,7 @@ public class ToolDefs {
         register(new QueryRecords());
         register(new GetRecord());
         register(new StatisticsData());
-        register(new UpsertRecord());
+        register(new UpsertRecord2());
         register(new CreateFeed());
         register(new CreateProjectTask());
         register(new ExportReport());

@@ -71,7 +71,10 @@ public class CreateProjectTask implements Tool {
         record.setString("taskName", taskName);
 
         Integer priority = args.getInteger("priority");
-        if (priority != null && priority >= 0 && priority <= 3) {
+        if (priority != null) {
+            if (priority < 0 || priority > 3) {
+                throw new KnownToolException("无效的优先级 (priority) : " + priority + "，可用值: 0=较低, 1=普通, 2=紧急, 3=非常紧急");
+            }
             record.setInt("priority", priority);
         }
 
