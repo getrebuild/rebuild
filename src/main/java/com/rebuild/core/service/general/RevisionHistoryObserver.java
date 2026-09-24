@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AiSourceHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
@@ -145,12 +146,15 @@ public class RevisionHistoryObserver extends OperatingObserver {
             record.setString("revisionContent", JSONUtils.EMPTY_ARRAY_STR);
         }
 
+        ID aiSource = AiSourceHolder.get();
+        if (aiSource != null) {
+            record.setID("fromSource", aiSource);
+        }
+
         TriggerSource triggerSource = RobotTriggerObserver.getTriggerSource();
         if (triggerSource != null) {
             record.setID("channelWith", triggerSource.getOrigin().getFixedRecordId());
-            // v3.5 统一为系统用户
             record.setID("revisionBy", UserService.SYSTEM_USER);
-            // v4.3 触发器
             record.setID("fromSource", triggerSource.getCurrentTriggerId());
         }
 

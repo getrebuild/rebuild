@@ -1,0 +1,31 @@
+{
+  "type": "function",
+  "userDescription": "搜索分类数据项 [系统工具]",
+  "function": {
+    "name": "QueryClassification",
+    "description": "搜索分类字段的分类数据项。当需要为 CLASSIFICATION 字段取值（如 UpsertRecord 保存记录时）或查询分类项 ID 时使用。传入实体与分类字段名，用 keyword 模糊匹配分类项名称（fullName 含父级路径，如 \"信息技术/互联网\"，用名称或路径片段均可命中）。不传 keyword 时返回该字段可选级别的前 N 条分类项供浏览。返回 items 中的 id 可直接填入 CLASSIFICATION 字段，也可填 name 文本。total 大于返回条数时应细化关键词后再搜索",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "实体名称（可通过 ListEntities 工具查询）"
+        },
+        "field": {
+          "type": "string",
+          "description": "分类字段名称（CLASSIFICATION 类型字段，支持内部名或中文标签）"
+        },
+        "keyword": {
+          "type": "string",
+          "description": "搜索关键词，模糊匹配分类项名称及其父级路径。不传时返回前 N 条供浏览"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "返回条数上限，默认 20，最大 100"
+        }
+      },
+      "required": ["entity", "field"],
+      "additionalProperties": false
+    }
+  }
+}

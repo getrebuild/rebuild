@@ -53,6 +53,9 @@ let __evt_ScrollToBottomStop = false
 let __evt_StreamCancel = false
 let __streamController = null
 
+// 错误消息渲染为红色 + 警告图标（实时与历史消息共用）
+const __errorHtml = (error) => `<span class="text-danger"><i class="mdi mdi-alert-circle-outline fs-14 down-1 mr-1"></i>${error}</span>`
+
 // eslint-disable-next-line no-unused-vars
 class Chat extends React.Component {
   constructor(props) {
@@ -60,6 +63,7 @@ class Chat extends React.Component {
     this.state = {
       ...props,
       messages: [],
+      confirmAction: null,
     }
     this._preset = props.preset
   }
@@ -68,7 +72,7 @@ class Chat extends React.Component {
     return (
       <RF>
         <div className={`chat ${this.props.standalone ? 'chat-standalone' : ''}`} ref={(c) => (this._$chat = c)}>
-          <ChatMessages _Chat={this} ref={(c) => (this._ChatMessages = c)} />
+          <ChatMessages _Chat={this} confirmAction={this.state.confirmAction} ref={(c) => (this._ChatMessages = c)} />
           <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
         </div>
         <ChatSidebar _Chat={this} ref={(c) => (this._ChatSidebar = c)} />
@@ -113,7 +117,7 @@ class Chat extends React.Component {
       }
     }
 
-    this.setState({ chatid: chatid || null })
+    this.setState({ chatid: chatid || null, confirmAction: null })
     this._ChatMessages.setMessages([], true, null)
     this._ChatInput.reset(true)
     const _preset = this._preset
@@ -138,16 +142,23 @@ class Chat extends React.Component {
         this._ChatMessages.setMessages(messages, true, d.suggestQuestions || null)
         this._ChatMessages.scrollToBottom(true)
 
+        // 最后一条用户消息带 planMode 且未确认执行时，恢复 planMode 状态
+        const lastUserMsg = messages.filter((m) => m.role === 'user').pop()
+        if (lastUserMsg && lastUserMsg.planMode && !lastUserMsg.planConfirmed) {
+          this._ChatInput.setState({ planMode: true })
+        }
+        // 最后一条用户消息带 planMode 且 AI 已回复完成，且回复中包含 PLAN_READY 标记
+        if (messages.length >= 2) {
+          const last = messages[messages.length - 1]
+          const prev = messages[messages.length - 2]
+          if (prev.role === 'user' && prev.planMode && (last.role === 'assistant' || last.role === 'ai') && !last.pending) {
+            const content = last.content || ''
+            if (content.includes('<!-- PLAN_READY -->')) this._ChatInput._showPlanConfirm()
+          }
+        }
+
         if (_preset) {
-          let newState = {}
-          if (_preset.content) newState.content = _preset.content
-          if (_preset.attach) newState.attach = _preset.attach
-          if (_preset.skill) newState.activeSkill = _preset.skill
-          this._ChatInput.setState(newState, () => {
-            if (_preset.autoSend && this._ChatInput.state.content) {
-              this._ChatInput.hanldeSend()
-            }
-          })
+          this._ChatInput.applyPreset(_preset)
         }
       } else {
         this._ChatMessages.setMessages([{ error: res.error_msg }], true)
@@ -176,7 +187,7 @@ class Chat extends React.Component {
             }
             typeof onChunk === 'function' && onChunk({ ...res })
             typeof onChunk === 'function' && onChunk({ type: '_done' })
-            typeof onDone === 'function' && onDone()
+            typeof onDone === 'function' && onDone(res.content || '')
             this._ChatSidebar && this._ChatSidebar._loadChatList()
           })
         },
@@ -193,16 +204,19 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
+          // 累加正文内容，完成后交由调用方判断
+          let fullContent = ''
           fetchStream(
             `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`,
             data,
             (chunk) => {
               if (chunk && chunk.type === '_chatid') this._ChatSidebar && this._ChatSidebar._loadChatList()
+              if (chunk && chunk.content && !chunk.type) fullContent += chunk.content
               typeof onChunk === 'function' && onChunk(chunk)
             },
             () => {
               typeof onChunk === 'function' && onChunk({ type: '_done' })
-              typeof onDone === 'function' && onDone()
+              typeof onDone === 'function' && onDone(fullContent)
               this._ChatSidebar && this._ChatSidebar._loadChatList()
             },
           )
@@ -239,12 +253,20 @@ class Chat extends React.Component {
     }
     this._pendingChatid = null
   }
+
+  showConfirm(action) {
+    this.setState({ confirmAction: action })
+  }
+
+  hideConfirm() {
+    this.setState({ confirmAction: null })
+  }
 }
 
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [], skills: [], activeSkill: null }
+    this.state = { postState: 0, attach: [], skills: [], activeSkill: null, planMode: false, planConfirmed: false }
   }
 
   render() {
@@ -263,10 +285,23 @@ class ChatInput extends React.Component {
                 </RF>
               )}
             </div>
-            <textarea
-              rows="2"
-              value={this.state.content}
-              onInput={(e) => this.setState({ content: e.target.value })}
+            <div
+              contentEditable
+              suppressContentEditableWarning
+              className="chat-input-editable"
+              onInput={(e) => this.setState({ content: e.target.innerText })}
+              onPaste={(e) => {
+                // 粘贴文件（含截图）时上传为附件
+                const cdata = e.clipboardData || window.clipboardData
+                if (cdata && cdata.files && cdata.files.length > 0) {
+                  $stopEvent(e, true)
+                  this._pasteUpload(cdata.files)
+                  return
+                }
+                e.preventDefault()
+                const text = cdata.getData('text/plain')
+                document.execCommand('insertText', false, text)
+              }}
               onKeyDown={(e) => {
                 if (e.keyCode === 13 && !e.shiftKey) {
                   $stopEvent(e, true)
@@ -275,9 +310,9 @@ class ChatInput extends React.Component {
               }}
               onBlur={() => this.setState({ active: false })}
               onFocus={() => this.setState({ active: true })}
-              placeholder={$L('输入问题')}
+              data-placeholder={$L('输入问题')}
               autoFocus
-              ref={(c) => (this._$textarea = c)}
+              ref={(c) => (this._$editable = c)}
             />
           </div>
           <div className="chat-input-action">
@@ -323,7 +358,7 @@ class ChatInput extends React.Component {
               type="button"
               className="btn btn-sm ml-1"
               title={this.state.postState === 0 ? $L('发送') : this.state.postState === 2 ? $L('中断中') : $L('停止')}
-              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content))}
+              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill)}
               onClick={() => {
                 if (this.state.postState === 0) this.hanldeSend()
                 else if (this.state.postState === 1) this.handleCancel()
@@ -339,17 +374,62 @@ class ChatInput extends React.Component {
 
   hanldeSend() {
     if (this.state.postState !== 0) return
-    if ($empty(this.state.content)) return
+    // 无文字但有附件（文件/记录等）或技能时允许发送
+    if ($empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill) return
+
+    const content = this.state.content.trim()
+    const _Chat = this.props._Chat
+
+    // /new /ref /plan
+    const m = content.match(/^\/(new|ref|plan)(?:\s+([\s\S]*))?$/)
+    const cmd = m ? m[1] : null
+    const remaining = m ? m[2] || '' : content
+
+    // eslint-disable-next-line no-undef
+    if (cmd) $showFireworks(_Chat._$chat)
+
+    let planMode = this.state.planMode
+    let attach = this.state.attach
+
+    if (cmd === 'plan' && !remaining) {
+      this.setState({ planMode: !planMode })
+      _Chat.hideConfirm()
+      this.reset()
+      return
+    }
+    if (cmd === 'plan') {
+      planMode = true
+      this.setState({ planMode: true })
+    }
+
+    const refChatid = cmd === 'ref' ? _Chat.state.chatid : null
+    if (refChatid) attach = [...attach, { refChat: refChatid, id: $random('attach-', true) }]
+
+    if (cmd === 'new' || cmd === 'ref') {
+      if (remaining || refChatid) {
+        _Chat._preset = { content: remaining, attach, skill: this.state.activeSkill, autoSend: !!remaining }
+      }
+      _Chat.initChat()
+      this.reset()
+      return
+    }
 
     const data = {
       role: 'user',
-      content: this.state.content,
+      content: remaining,
       attach: this.state.attach,
       skill: this.state.activeSkill,
+      planMode,
+      planConfirmed: this.state.planConfirmed || false,
       sendTime: Date.now(),
     }
-    const onDone = () => this.setState({ postState: 0 })
-    const _Chat = this.props._Chat
+
+    const onDone = (aiContent) => {
+      this.setState({ postState: 0 })
+      if (planMode && (aiContent || '').includes('<!-- PLAN_READY -->')) this._showPlanConfirm()
+    }
+
+    _Chat && _Chat.hideConfirm()
     _Chat && (_Chat.props.sendMode === 'post' ? _Chat.send(data, onDone) : _Chat.sendStream(data, onDone))
 
     this.reset()
@@ -369,9 +449,44 @@ class ChatInput extends React.Component {
     }
   }
 
-  reset(autoFocus, presetContent) {
-    this.setState({ content: presetContent || '', attach: [], postState: 0, activeSkill: null }, () => {
-      if (autoFocus) this._$textarea.focus()
+  reset(autoFocus) {
+    if (this._$editable) this._$editable.innerHTML = ''
+    this.setState({ content: '', attach: [], postState: 0, activeSkill: null, planConfirmed: false }, () => {
+      if (autoFocus) this.focus()
+    })
+  }
+
+  focus() {
+    this._$editable && this._$editable.focus()
+  }
+
+  val(value) {
+    if (value === undefined) return this._$editable ? this._$editable.innerText : this.state.content || ''
+    if (this._$editable) this._$editable.innerText = value
+    this.setState({ content: value })
+  }
+
+  _showPlanConfirm() {
+    const _Chat = this.props._Chat
+    _Chat.showConfirm({
+      message: $L('方案已生成，是否确认执行？'),
+      cancelText: $L('修改需求'),
+      onConfirm: () => {
+        _Chat.hideConfirm()
+        this.setState({ planMode: false, planConfirmed: true }, () => {
+          if (this._$editable) this._$editable.innerText = $L('确认执行上述方案')
+          this.setState({ content: $L('确认执行上述方案') }, () => this.hanldeSend())
+        })
+      },
+    })
+  }
+
+  applyPreset(preset) {
+    if (preset.content && this._$editable) {
+      this._$editable.innerText = preset.content
+    }
+    this.setState({ content: preset.content || '', attach: preset.attach || [], activeSkill: preset.skill || null }, () => {
+      if (preset.autoSend && this.state.content) this.hanldeSend()
     })
   }
 
@@ -402,6 +517,21 @@ class ChatInput extends React.Component {
 
   attachFile() {
     this._$file.click()
+  }
+
+  _pasteUpload(files) {
+    if (typeof DataTransfer === 'undefined') return
+    const dt = new DataTransfer()
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i]
+      if (!file.name || /^image\.(png|jpe?g|gif|bmp|webp)$/i.test(file.name)) {
+        const ext = (file.name || 'image.png').split('.').pop() || 'png'
+        file = new File([file], `screenshot-${$random()}.${ext}`, { type: file.type })
+      }
+      dt.items.add(file)
+    }
+    this._$file.files = dt.files
+    $(this._$file).trigger('change')
   }
 
   attachRecord() {
@@ -457,7 +587,9 @@ class ChatMessages extends React.Component {
           </a>
         }>
         {this.state.messages.map((item, idx) => {
-          return <ChatMessage {...item} key={idx} _ChatMessages={this} />
+          const isLast = idx === this.state.messages.length - 1
+          const isAi = item.role === 'assistant' || item.role === 'ai'
+          return <ChatMessage {...item} key={idx} _ChatMessages={this} confirmAction={isLast && isAi ? this.props.confirmAction : null} />
         })}
         {showSuggest && (
           <div className="chat-suggest">
@@ -494,12 +626,26 @@ class ChatMessages extends React.Component {
   }
 
   setMessages(messages, forceScroll, suggestQuestions) {
+    // 历史错误消息渲染为红色（与实时错误提示一致）
+    if (messages) {
+      messages = messages.map((m) => {
+        if (m.error && m.content) return { ...m, content: __errorHtml(m.error) }
+        return m
+      })
+    }
+
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
 
     this.setState(state, () => {
       this.scrollToBottom(forceScroll)
     })
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.confirmAction !== prevProps.confirmAction) {
+      this.scrollToBottom(true)
+    }
   }
 
   componentDidMount() {
@@ -579,7 +725,7 @@ class ChatMessage extends React.Component {
           return
         }
         if (data.error) {
-          data.content = `<span class="text-danger">${data.error}</span>`
+          data.content = __errorHtml(data.error)
         }
 
         if (data.type === '_chatid') {
@@ -665,14 +811,7 @@ class ChatMessage extends React.Component {
           )}
           {this._feedbackable() && (
             <RF>
-              <a
-                title={$L('复制')}
-                onClick={(e) => {
-                  $clipboard(this.state.content || '')
-                  const $a = $(e.currentTarget)
-                  $a.addClass('copied-check')
-                  setTimeout(() => $a.removeClass('copied-check'), 1500)
-                }}>
+              <a title={$L('复制')} onClick={(e) => $clipboard2(e.currentTarget, this.state.error || this.state.content || '')}>
                 <i className="icon mdi mdi-content-copy" />
               </a>
               {(this.props.role === 'assistant' || this.props.role === 'ai') && (
@@ -706,9 +845,11 @@ class ChatMessage extends React.Component {
   renderUser() {
     return (
       <div className="msg-user">
-        <div className="msg-content">
-          <RichContent content={this.state.content} md={false} />
-        </div>
+        {!$empty(this.state.content) && (
+          <div className="msg-content">
+            <RichContent content={this.state.content} md={false} />
+          </div>
+        )}
         {this.state.skill && (
           <div className="msg-attach">
             <Attach skill={this.state.skill} _chatid={this.props._chatid} />
@@ -770,6 +911,27 @@ class ChatMessage extends React.Component {
             </div>
           )}
           <RichContent content={this.state.content} ready={ready} />
+          {this.props.confirmAction && (
+            <div className="card">
+              <div className="card-body">
+                <p className="text-bold mb-2">{this.props.confirmAction.message}</p>
+                <div className="d-flex align-items-center">
+                  <button type="button" className="btn btn-sm btn-primary" onClick={() => this.props.confirmAction.onConfirm()}>
+                    {this.props.confirmAction.confirmText || $L('确认')}
+                  </button>
+                  <a
+                    className="btn btn-sm btn-link ml-2"
+                    onClick={() => {
+                      const _Chat = this.props._ChatMessages.props._Chat
+                      _Chat.hideConfirm()
+                      _Chat._ChatInput && _Chat._ChatInput.focus()
+                    }}>
+                    {this.props.confirmAction.cancelText || $L('取消')}
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -1121,8 +1283,13 @@ class ChatSidebar extends React.Component {
   }
 
   _renderGroupedList() {
+    const list = this.state.list || []
+    if (list.length === 0) {
+      return <li className="text-muted text-center fs-md m-3">{$L('暂无会话')}</li>
+    }
+
     const labels = { today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
-    const ret = this.state.list.map((g) => {
+    const ret = list.map((g) => {
       if (!g.items || g.items.length === 0) return null
       return (
         <React.Fragment key={g.group}>
@@ -1200,10 +1367,11 @@ class Attach extends React.Component {
   render() {
     if (!this.state) return null
 
+    // 输入框
     if (this.props._ChatInput) {
       return (
-        <span className="text-ellipsis">
-          {this.state.name}
+        <span className="chat-attach-badge" title={typeof this.state.name === 'string' ? this.state.name : null}>
+          <span className="name">{this.state.name}</span>
           <a className="close" onClick={() => this.props._ChatInput.removeAttach(this.props.id)}>
             &times;
           </a>
@@ -1214,7 +1382,7 @@ class Attach extends React.Component {
     // View
     if (this.state.viewUrl) {
       return (
-        <a href={this.state.viewUrl} target="_blank" title={$L('查看')}>
+        <a href={this.state.viewUrl} target="_blank" title={typeof this.state.name === 'string' ? this.state.name : $L('查看')}>
           {this.state.name}
         </a>
       )
@@ -1246,10 +1414,20 @@ class Attach extends React.Component {
       this.setState({
         name: (
           <RF>
-            <i className="mdi mdi-flash-outline" />
+            <i className="mdi mdi-flash-outline" style={{ marginRight: 1 }} />
             <span>{props.skill + ''}</span>
           </RF>
         ),
+      })
+    } else if (props.refChat) {
+      this.setState({
+        name: (
+          <RF>
+            <i className="mdi mdi-comment-text-outline" style={{ marginRight: 3 }} />
+            <span>{$L('引用会话')}</span>
+          </RF>
+        ),
+        viewUrl: `${rb.baseUrl}/aibot/chat#chatid=${props.refChat}`,
       })
     }
   }
@@ -1405,153 +1583,200 @@ class RecordSelectorModal2 extends RecordSelectorModal {
 
 const FixMd = {
   GATE: '[。！？；：，、!?:,\\-]\\s*',
+  FENCE_LANGS:
+    'javascript|typescript|dockerfile|powershell|plaintext|makefile|markdown|mermaid|echarts|golang|python|kotlin|script|shell|swift|bash|html|java|json|yaml|xml|css|scss|less|ruby|rust|php|vue|jsx|tsx|sql|toml|diff|text|ini|htm|cpp|py|js|ts|cs|go|rb|sh|md',
   RE_FENCE: /^\s*(`{3,}|~{3,})/,
+  RE_FENCE_MERMAID: /^\s*(?:`{3,}|~{3,})\s*mermaid\b/i,
   RE_HEADING: /^#{1,6}\s/,
   RE_LIST: /^(?:[-*+]|\d{1,3}\.)\s/,
+  RE_TABLE_LINE: /^\|.+\|$/,
   RE_SEP_PART: /\|(?:\s*:?-{3,}:?\s*\|)+/,
-  RE_FENCE_MERMAID: /^\s*(?:`{3,}|~{3,})\s*mermaid\b/i,
   RE_MERMAID_SPLIT: /(\]|\)|\}|[A-Za-z_]\w*)[ \t]+(?=[A-Za-z_]\w*(?:[ \t]*[[({][^\])}]*[\])}])?[ \t]*(?:-->|---|-.->|-.-|<-->|==>|===|--x|--o|~~~))/g,
+  RE_MERMAID_NODE: /([^>\-~|\s])[ \t]+(?=[A-Za-z_]\w*[ \t]*[[({])/g,
+  RE_MERMAID_END: /([^>\-~|\s])[ \t]+(?=end\b)/g,
+  RE_MERMAID_EDGE_TAIL: /(?:-{2,}>|-\.->|={2,}>|<-->|-\.-|--x|--o|==x|==o|~~~|---)\s*$|\|[^|\n]*\|\s*$/,
+  RE_MERMAID_ARROW_HEAD: /^\s*(?:-{2,}>|-\.->|={2,}>|<-->|-\.-|--x|--o|==x|==o|~~~|---)/,
   RE_MERMAID_SUBGRAPH_BEFORE: /(\S)[ \t]+(?=subgraph\b)/g,
   RE_MERMAID_SUBGRAPH_AFTER: /(\bsubgraph)(?=[^\s[({])/g,
   RE_MERMAID_COMMENT: /(\S)[ \t]+(%%.*)$/,
 
-  // 修复 AI 回复中常见的 MD 语法问题
   fix(md) {
     if (!md) return md
-    const mdOrigin = md
+    const origin = md
+    md = FixMd.unstickFenceLang(md)
 
-    const FENCE_LANGS =
-      'javascript|typescript|dockerfile|powershell|plaintext|makefile|markdown|mermaid|echarts|golang|python|kotlin|script|shell|swift|bash|html|java|json|yaml|xml|css|scss|less|ruby|rust|php|vue|jsx|tsx|sql|toml|diff|text|ini|htm|cpp|py|js|ts|cs|go|rb|sh|md'
-    md = md.replace(new RegExp('(`{3,}|~{3,})(?=(' + FENCE_LANGS + '))\\2(\\S)', 'gi'), (m, fence, lang, next) => fence + lang.toLowerCase() + '\n' + next)
-    md = FixMd.blocks(md)
+    const out = []
+    for (const seg of FixMd.splitFence(md.split(/\r?\n/))) {
+      if (seg.fence) out.push(...FixMd.fixMermaid(seg.lines))
+      else out.push(...FixMd.ensureBlank(FixMd.unstickTable(FixMd.unstickInline(seg.lines))))
+    }
+    md = out.join('\n')
 
-    $setTimeout(
-      () => {
-        // eslint-disable-next-line eqeqeq
-        if (md != mdOrigin) console.log('\n==== Origin ====\n', mdOrigin, '\n==== Fixed ====\n', md)
-      },
-      1000,
-      'FixMd-log',
-    )
+    if (md !== origin) $setTimeout(() => console.log('\n==== Origin ====\n', origin, '\n==== Fixed ====\n', md), 1000, 'FixMd-log')
     return md
   },
 
-  pipeCount(s) {
-    return (s.match(/\|/g) || []).length
+  unstickFenceLang(md) {
+    return md.replace(new RegExp('(`{3,}|~{3,})(?=(' + FixMd.FENCE_LANGS + '))\\2[ \\t]*(\\S)', 'gi'), (m, fence, lang, next) => fence + lang.toLowerCase() + '\n' + next)
   },
 
-  isSepLine(line) {
-    return /^\s*\|(?:\s*:?-{3,}:?\s*\|)+\s*$/.test(String(line || ''))
-  },
-
-  tableLine(line, nextLine) {
-    const t = line.trim()
-    if (!/^\|.+\|$/.test(t)) return line
-
-    const PH = '\u0001'
-    let s = t.replace(/\\\|/g, PH)
-    if (FixMd.pipeCount(s) < 3) return line
-
-    if (s.indexOf('||') !== -1) {
-      return s.replace(/\|\|/g, '|\n|').split('\u0001').join('\\|')
-    }
-
-    const sepPart = s.match(/\|(?:\s*:?-{3,}:?\s*\|)+/)
-    let cols = 0
-    if (sepPart) cols = FixMd.pipeCount(sepPart[0]) - 1
-    else if (nextLine && FixMd.isSepLine(nextLine)) cols = FixMd.pipeCount(nextLine) - 1
-    if (cols > 0) {
-      const cells = s.split('|').slice(1, -1)
-      if (cells.length > cols && cells.length % cols === 0) {
-        const rows = []
-        for (let k = 0; k < cells.length; k += cols) rows.push('|' + cells.slice(k, k + cols).join('|') + '|')
-        if (rows.some(FixMd.isSepLine)) return rows.join('\n').split('\u0001').join('\\|')
+  splitFence(lines) {
+    const segs = []
+    let cur = { fence: false, lines: [] }
+    let inFence = false
+    for (const line of lines) {
+      if (FixMd.RE_FENCE.test(line)) {
+        if (inFence) {
+          cur.lines.push(line)
+          segs.push(cur)
+          cur = { fence: false, lines: [] }
+          inFence = false
+        } else {
+          if (cur.lines.length) segs.push(cur)
+          cur = { fence: true, lines: [line] }
+          inFence = true
+        }
+      } else {
+        cur.lines.push(line)
       }
     }
-    return line
+    if (cur.lines.length) segs.push(cur)
+    return segs
   },
 
-  blocks(md) {
-    const lines = md.split(/\r?\n/)
-    const fixed = []
-    let inFence = false
-    let inMermaid = false
-
+  unstickInline(lines) {
+    const out = []
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
-
-      if (FixMd.RE_FENCE.test(line)) {
-        inMermaid = !inFence && FixMd.RE_FENCE_MERMAID.test(line)
-        inFence = !inFence
-        fixed.push(line)
-        continue
-      }
-      if (inFence) {
-        if (inMermaid) {
-          const l = line
-            .replace(FixMd.RE_MERMAID_COMMENT, '$1\n$2')
-            .replace(FixMd.RE_MERMAID_SUBGRAPH_BEFORE, '$1\n')
-            .replace(FixMd.RE_MERMAID_SUBGRAPH_AFTER, '$1 ')
-            .replace(FixMd.RE_MERMAID_SPLIT, '$1\n')
-          fixed.push(...l.split('\n'))
-        } else fixed.push(line)
-        continue
-      }
 
       let segs = [line]
       const firstPipe = line.indexOf('|')
       if (firstPipe > 0) {
         const prefix = line.substring(0, firstPipe)
         const rest = line.substring(firstPipe)
-        if (prefix.trim() && FixMd.pipeCount(rest) >= 2 && (FixMd.RE_SEP_PART.test(rest) || FixMd.isSepLine(lines[i + 1] || ''))) {
+        if (prefix.trim() && FixMd.pipeCount(rest) >= 2 && (FixMd.RE_SEP_PART.test(rest) || FixMd.isSepLine(lines[i + 1]))) {
           segs = [prefix.replace(/\s+$/, ''), rest]
         }
       }
 
       for (const seg of segs) {
-        const segLines = FixMd.tableLine(seg, lines[i + 1]).split('\n')
-
-        for (const s0 of segLines) {
-          let s = s0
-          if (!s.trim().startsWith('|')) {
-            s = s
-              .replace(new RegExp('(' + FixMd.GATE + ')(#{1,6}\\s+\\S)', 'g'), '$1\n$2')
-              .replace(new RegExp('(' + FixMd.GATE + ')([-*+]\\s{1,4}\\S)', 'g'), '$1\n$2')
-              .replace(new RegExp('(' + FixMd.GATE + ')(\\d{1,3}\\.\\s{1,4}\\S)', 'g'), '$1\n$2')
-            s = s.replace(/(\*\*[^*\n]+?\*\*)(?=[A-Za-z0-9])/g, '$1 ')
-          }
-          fixed.push(...s.split('\n'))
+        if (seg.trim().startsWith('|') || seg.includes('<!--')) {
+          out.push(seg)
+          continue
         }
+        let s = seg
+          .replace(/^(#{1,6})(?=[A-Za-z\u4e00-\u9fa5])/, '$1 ')
+          .replace(new RegExp('(' + FixMd.GATE + ')(#{1,6})[ \\t]+(\\S)', 'g'), '$1\n$2 $3')
+          .replace(new RegExp('(' + FixMd.GATE + ')(#{1,6})([A-Za-z\\u4e00-\\u9fa5])', 'g'), '$1\n$2 $3')
+          .replace(new RegExp('(' + FixMd.GATE + ')([-*+]\\s{1,4}\\S)', 'g'), '$1\n$2')
+          .replace(new RegExp('(' + FixMd.GATE + ')(\\d{1,3}\\.\\s{1,4}\\S)', 'g'), '$1\n$2')
+        out.push(...s.split('\n'))
       }
     }
+    return out
+  },
 
-    const final = []
-    inFence = false
-    for (let i = 0; i < fixed.length; i++) {
-      const line = fixed[i]
+  unstickTable(lines) {
+    const out = []
+    for (let i = 0; i < lines.length; i++) out.push(...FixMd.tableLine(lines[i], lines[i + 1]).split('\n'))
+    return out
+  },
 
-      if (FixMd.RE_FENCE.test(line)) {
-        inFence = !inFence
-        final.push(line)
-        continue
+  tableLine(line, nextLine) {
+    const t = String(line || '').trim()
+    if (!FixMd.RE_TABLE_LINE.test(t) || t.includes('<!--')) return line
+
+    const PH = '\u0001'
+    const s = t.replace(/\\\|/g, PH)
+    if (FixMd.pipeCount(s) < 3) return line
+
+    if (s.indexOf('||') !== -1) {
+      const rows = s.split('||').map((r, k, arr) => {
+        let row = r
+        if (k > 0 && !row.startsWith('|')) row = '|' + row
+        if (k < arr.length - 1 && !row.endsWith('|')) row += '|'
+        return row
+      })
+      if (rows.some(FixMd.isSepLine) || FixMd.RE_SEP_PART.test(s)) {
+        return rows.join('\n').split(PH).join('\\|')
       }
+      return line
+    }
 
-      if (!inFence && final.length > 0) {
+    const sepPart = s.match(FixMd.RE_SEP_PART)
+    let cols = 0
+    if (sepPart) cols = FixMd.pipeCount(sepPart[0]) - 1
+    else if (FixMd.isSepLine(nextLine)) cols = FixMd.pipeCount(nextLine) - 1
+    if (cols > 0) {
+      const cells = s.split('|').slice(1, -1)
+      if (cells.length > cols && cells.length % cols === 0) {
+        const rows = []
+        for (let k = 0; k < cells.length; k += cols) rows.push('|' + cells.slice(k, k + cols).join('|') + '|')
+        if (rows.some(FixMd.isSepLine)) return rows.join('\n').split(PH).join('\\|')
+      }
+    }
+    return line
+  },
+
+  joinBrokenEdge(lines) {
+    const out = []
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i]
+      while (i + 1 < lines.length) {
         const t = line.trim()
-        let blockStart = FixMd.RE_HEADING.test(t) || FixMd.RE_LIST.test(t)
-        if (!blockStart && /^\|.+\|$/.test(t)) {
-          blockStart = FixMd.isSepLine(t) || FixMd.isSepLine(fixed[i + 1] || '')
-        }
-
-        const prev = final[final.length - 1].trim()
-        if (blockStart && prev !== '') {
-          const sameKind = (t.startsWith('|') && prev.startsWith('|')) || (FixMd.RE_LIST.test(t) && FixMd.RE_LIST.test(prev)) || (FixMd.RE_HEADING.test(t) && FixMd.RE_HEADING.test(prev))
-          if (!sameKind) final.push('')
-        }
+        const next = lines[i + 1].trim()
+        if (!t || !next || next.startsWith('%%')) break
+        if (!FixMd.RE_MERMAID_EDGE_TAIL.test(t) && !FixMd.RE_MERMAID_ARROW_HEAD.test(next)) break
+        line = t + ' ' + next
+        i++
       }
-      final.push(line)
+      out.push(line)
     }
+    return out
+  },
 
-    return final.join('\n')
+  fixMermaid(lines) {
+    if (!lines.length || !FixMd.RE_FENCE_MERMAID.test(lines[0])) return lines
+    lines = FixMd.joinBrokenEdge(lines)
+    const out = [lines[0]]
+    for (let i = 1; i < lines.length; i++) {
+      const l = lines[i]
+        .replace(FixMd.RE_MERMAID_COMMENT, '$1\n$2')
+        .replace(FixMd.RE_MERMAID_SUBGRAPH_BEFORE, '$1\n')
+        .replace(FixMd.RE_MERMAID_SUBGRAPH_AFTER, '$1 ')
+        .replace(FixMd.RE_MERMAID_SPLIT, '$1\n')
+        .replace(FixMd.RE_MERMAID_NODE, '$1\n')
+        .replace(FixMd.RE_MERMAID_END, '$1\n')
+      out.push(...l.split('\n'))
+    }
+    return out
+  },
+
+  ensureBlank(lines) {
+    const out = []
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const t = line.trim()
+      if (out.length > 0 && t !== '' && FixMd.isBlockStart(t, lines[i + 1])) {
+        const prev = out[out.length - 1].trim()
+        const sameKind = (t.startsWith('|') && prev.startsWith('|')) || (FixMd.RE_LIST.test(t) && FixMd.RE_LIST.test(prev)) || (FixMd.RE_HEADING.test(t) && FixMd.RE_HEADING.test(prev))
+        if (prev !== '' && !sameKind) out.push('')
+      }
+      out.push(line)
+    }
+    return out
+  },
+
+  isBlockStart(t, nextLine) {
+    if (FixMd.RE_HEADING.test(t) || FixMd.RE_LIST.test(t)) return true
+    return FixMd.RE_TABLE_LINE.test(t) && !FixMd.isSepLine(t) && FixMd.isSepLine(nextLine)
+  },
+
+  pipeCount(s) {
+    return (String(s || '').match(/\|/g) || []).length
+  },
+
+  isSepLine(line) {
+    return /^\s*\|(?:\s*:?-{3,}:?\s*\|)+\s*$/.test(String(line || ''))
   },
 }

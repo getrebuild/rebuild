@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.vector.FileData;
 import com.rebuild.core.aibot2.vector.ListData;
 import com.rebuild.core.aibot2.vector.RecordData;
+import com.rebuild.core.aibot2.vector.RefChatData;
 import com.rebuild.core.aibot2.vector.VectorData;
 import com.rebuild.core.aibot2.vector.VectorDataChunk;
 import com.rebuild.core.metadata.EntityHelper;
@@ -58,6 +59,20 @@ public class ChatRequest {
      */
     public String getSkill() {
         return reqJson.getString("skill");
+    }
+
+    /**
+     * 是否为计划模式（AI 先输出方案，用户确认后再执行）
+     */
+    public boolean getPlanMode() {
+        return reqJson.getBooleanValue("planMode");
+    }
+
+    /**
+     * 是否为计划确认后执行（用户已在计划模式中确认方案，写操作工具可直接执行）
+     */
+    public boolean getPlanConfirmed() {
+        return reqJson.getBooleanValue("planConfirmed");
     }
 
     /**
@@ -106,12 +121,15 @@ public class ChatRequest {
             String record = item.getString("record");
             String orListFilter = item.getString("listFilter");
             String orFile = item.getString("file");
+            String refChat = item.getString("refChat");
             if (ID.isId(record)) {
                 vdc.addVectorData(new RecordData(ID.valueOf(record)));
             } else if (JSONUtils.wellFormat(orListFilter)) {
                 vdc.addVectorData(new ListData(JSONObject.parseObject(orListFilter)));
             } else if (StringUtils.isNotBlank(orFile)) {
                 vdc.addVectorData(new FileData(orFile));
+            } else if (ID.isId(refChat)) {
+                vdc.addVectorData(new RefChatData(ID.valueOf(refChat)));
             }
         }
 

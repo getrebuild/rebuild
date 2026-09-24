@@ -55,6 +55,15 @@ public class ChatLogger {
     }
 
     /**
+     * 获取会话 ID
+     *
+     * @return
+     */
+    public ID getChatid() {
+        return chatid;
+    }
+
+    /**
      * 是否启用（仅开发模式有效）
      *
      * @return

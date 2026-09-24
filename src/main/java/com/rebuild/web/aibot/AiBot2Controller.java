@@ -88,7 +88,7 @@ public class AiBot2Controller extends BaseController {
 
             // 错误落库
             try {
-                chat.completionAfter(errorMsg, null, chatRequest);
+                chat.completionError(errorMsg, chatRequest);
             } catch (Exception e) {
                 log.warn("Failed to save error message for chat", e);
             }
@@ -128,7 +128,7 @@ public class AiBot2Controller extends BaseController {
 
             // 错误落库
             try {
-                chat.completionAfter(errorMsg, null, chatRequest);
+                chat.completionError(errorMsg, chatRequest);
             } catch (Exception e) {
                 log.warn("Failed to save error message for chat", e);
             }

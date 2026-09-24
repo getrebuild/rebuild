@@ -497,7 +497,7 @@ public class QiniuCloud {
      * @param filepath
      * @return
      * @throws IOException
-     * @throws RebuildException If cannot read/download
+     * @throws RebuildException If you cannot read/download
      */
     public static File downloadFile(String filepath) throws IOException, RebuildException {
         File file = null;

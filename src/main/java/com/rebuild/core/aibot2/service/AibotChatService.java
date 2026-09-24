@@ -14,13 +14,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +58,7 @@ public class AibotChatService extends ObservableService {
     }
 
     /**
-     * 清理会话关联的物理文件
+     * 清理会话关联的物理文件（已被业务引用的文件除外）
      *
      * @param chatid
      */
@@ -70,7 +69,7 @@ public class AibotChatService extends ObservableService {
                 .array();
 
         for (Object[] attach : attaches) {
-            if (JSONUtils.wellFormat(attach[0])) continue;
+            if (!JSONUtils.wellFormat(attach[0])) continue;
             try {
                 JSONArray attachArray = JSON.parseArray((String) attach[0]);
                 if (attachArray == null) continue;
@@ -79,13 +78,10 @@ public class AibotChatService extends ObservableService {
                     JSONObject item = attachArray.getJSONObject(i);
                     String fp = item.getString("file");
                     if (StringUtils.isBlank(fp)) continue;
+                    if (FilesHelper.fileHasCopy(fp)) continue;
 
                     try {
-                        if (QiniuCloud.instance().available()) {
-                            QiniuCloud.instance().delete(fp);
-                        } else {
-                            FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData(fp));
-                        }
+                        QiniuCloud.deleteFiles(fp);
                         log.info("Deleted chat file : {}", fp);
                     } catch (Exception ex) {
                         log.warn("Failed to delete chat file : {}", fp, ex);

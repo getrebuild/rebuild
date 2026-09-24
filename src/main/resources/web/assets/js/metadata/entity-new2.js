@@ -239,6 +239,7 @@ class EntityNew2 extends RbModalHandler {
             const found = this.state.entities.find((x) => x.entityName === val)
             this.setState({ copyHasDetail: found && !!found.detailEntity })
           })
+          .trigger('change')
       })
     })
 

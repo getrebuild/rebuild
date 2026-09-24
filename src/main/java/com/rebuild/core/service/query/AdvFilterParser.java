@@ -9,7 +9,6 @@ package com.rebuild.core.service.query;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -17,6 +16,7 @@ import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.query.compiler.QueryCompiler;
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -56,6 +56,9 @@ import java.util.Set;
 
 import static cn.devezhao.commons.CalendarUtils.addDay;
 import static cn.devezhao.commons.CalendarUtils.addMonth;
+import static com.rebuild.core.service.query.Moment2.beginOfDate;
+import static com.rebuild.core.service.query.Moment2.endOfDate;
+import static com.rebuild.core.service.query.Moment2.offsetDate;
 
 /**
  * 高级查询解析器
@@ -324,7 +327,6 @@ public class AdvFilterParser extends SetUser {
         final boolean isN2NUsers = dt == DisplayType.N2NREFERENCE
                 && lastFieldMeta.getReferenceEntity().getEntityCode() == EntityHelper.User;
 
-
         // v3.9 区间兼容
         if (ParseHelper.BW.equals(op)) {
             String valueBegin = item.getString("value");
@@ -544,10 +546,10 @@ public class AdvFilterParser extends SetUser {
                 String unit = op.substring(2);
                 int amount = op.startsWith("P") ? -1 : (op.startsWith("N") ? 1 : 0);
 
-                Date begin = Moment.moment().startOf(op.substring(2)).add(amount, unit).date();
+                Date begin = offsetDate(beginOfDate(unit), unit, amount);
                 value = formatDate(begin, 0);
 
-                Date end = Moment.moment(begin).endOf(unit).date();
+                Date end = endOfDate(begin, unit);
                 valueEnd = formatDate(end, 0);
 
                 if (isDatetime) {
@@ -606,8 +608,7 @@ public class AdvFilterParser extends SetUser {
                     now.add(Calendar.MONTH, xValue);
 
                     value = CalendarUtils.getUTCDateFormat().format(now.getTime());
-                    Moment last = Moment.moment(now.getTime()).endOf(Moment.UNIT_MONTH);
-                    valueEnd = CalendarUtils.getUTCDateFormat().format(last.date());
+                    valueEnd = CalendarUtils.getUTCDateFormat().format(DateUtil.endOfMonth(now.getTime()));
                 }
                 op = ParseHelper.BW;
             }
@@ -1006,10 +1007,13 @@ public class AdvFilterParser extends SetUser {
         final String fieldName = value.substring(2, value.length() - 1);
 
         Object useValue = null;
+        boolean isCurrent = false;
 
         // {@CURRENT} for DATE,TIME and Ref:User,Department
         if (CURRENT_ANY.equals(fieldName) || CURRENT_DATE.equals(fieldName)) {
+            isCurrent = true;
             DisplayType dt = EasyMetaFactory.getDisplayType(queryField);
+
             if (dt == DisplayType.DATE || dt == DisplayType.DATETIME || dt == DisplayType.TIME) {
                 useValue = dt == DisplayType.TIME ? LocalTime.now() : CalendarUtils.now();
 
@@ -1066,7 +1070,12 @@ public class AdvFilterParser extends SetUser {
         }
 
         if (useValue instanceof Date) {
-            useValue = CalendarUtils.getUTCDateFormat().format(useValue);
+            // fix:4.4.11 非 yyyy-MM-dd 则使用传入的值（含时分秒）
+            if (queryField.getType() == FieldType.TIMESTAMP && (value.length() > 10 || isCurrent)) {
+                useValue = CalendarUtils.getUTCDateTimeFormat().format(useValue);
+            } else {
+                useValue = CalendarUtils.getUTCDateFormat().format(useValue);
+            }
         } else if (useValue instanceof TemporalAccessor) {
             useValue = DateTimeFormatter.ofPattern(DisplayType.TIME.getDefaultFormat()).format((TemporalAccessor) useValue);
         } else if (useValue instanceof BigDecimal) {

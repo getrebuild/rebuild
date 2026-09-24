@@ -22,7 +22,11 @@ const HIDE_ONCLICK = false
 class RbPreview extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { currentIndex: props.currentIndex || 0, inLoad: true, fullwidth: props.fullwidth }
+    this.state = { currentIndex: props.currentIndex || 0, inLoad: true }
+
+    let init = $storage.get('rb-preview-fullwidth')
+    if (init) this.state.fullwidth = init === 'true'
+    else this.state.fullwidth = props.fullwidth || false
   }
 
   render() {
@@ -78,7 +82,10 @@ class RbPreview extends React.Component {
             </div>
             <div className="float-right">
               {(xdoc433 || md433 || pdf433) && (
-                <a title={$L('适应屏幕')} className="d-none d-sm-inline-block" onClick={() => this.setState({ fullwidth: !this.state.fullwidth })}>
+                <a
+                  title={$L('适应屏幕')}
+                  className="d-none d-sm-inline-block"
+                  onClick={() => this.setState({ fullwidth: !this.state.fullwidth }, () => $storage.set('rb-preview-fullwidth', this.state.fullwidth))}>
                   <i className="mdi mdi-fit-to-screen-outline fs-19" />
                 </a>
               )}
@@ -488,12 +495,12 @@ class FileShare extends RbAlert {
           <div className="input-group input-group-sm">
             <input className="form-control form-control-sm bg-transparent" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
-                <i className="icon zmdi zmdi-copy" />
+              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)} title={$L('复制')}>
+                <i className="icon mdi mdi-content-copy" />
               </button>
             </span>
             <span className="input-group-append">
-              <button type="button" className="btn btn-secondary" title={$L('二维码')} data-toggle="dropdown">
+              <button type="button" className="btn btn-secondary dropdown-toggle" title={$L('二维码')} data-toggle="dropdown">
                 <i className="icon zmdi zmdi-mdi-qrcode" />
               </button>
               <div className="dropdown-menu dropdown-menu-right p-0">
@@ -546,9 +553,10 @@ class FileShare extends RbAlert {
       $.get(`/filex/make-share?url=${$encode(this._filePath)}&time=${t}&shareUrl=${$encode(this.__shareUrl)}`, (res) => {
         this.__shareUrl = (res.data || {}).shareUrl
         this.setState({ shareUrl: this.__shareUrl })
-        // copy
-        $(this._$copy).data('clipboard-text', this.__shareUrl)
-        $clipboard(this._$copy)
+
+        $(this._$copy)
+          .off('click')
+          .on('click', () => $clipboard2(this._$copy, this.__shareUrl))
       })
     })
   }

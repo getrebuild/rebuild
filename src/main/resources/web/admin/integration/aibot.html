@@ -15,30 +15,6 @@
         font-weight: bold;
         cursor: pointer;
       }
-      .J_stats-users .user-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-        font-size: 13px;
-      }
-      .J_stats-users .user-row .name {
-        width: 80px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        flex-shrink: 0;
-        text-align: right;
-      }
-      .J_stats-users .user-row .progress {
-        flex: 1;
-        margin: 0;
-        margin-left: 10px;
-        height: 8px;
-        border-radius: 4px;
-      }
-      .J_stats-users .user-row .progress-bar {
-        border-radius: 4px;
-      }
     </style>
   </head>
   <body>
@@ -165,7 +141,7 @@
                     </div>
                     <div class="col-4">
                       <strong class="fs-18">0</strong>
-                      <p class="text-muted m-0">[[${bundle.L('万')}]]/Token</p>
+                      <p class="text-muted m-0">[[${bundle.L('万/Token')}]]</p>
                     </div>
                   </div>
                 </div>
@@ -185,6 +161,7 @@
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
     <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
     <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/aibot.js}" type="text/babel"></script>
   </body>
 </html>

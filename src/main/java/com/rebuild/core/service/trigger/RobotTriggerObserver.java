@@ -298,7 +298,9 @@ public class RobotTriggerObserver extends OperatingObserver {
             } else {
                 String errMsg = KnownExceptionConverter.convert2ErrorMsg(ex);
                 if (errMsg == null) errMsg = ex.getLocalizedMessage();
-                if (ex instanceof RepeatedRecordsException) errMsg = Language.L("存在重复记录");
+                if (ex instanceof RepeatedRecordsException) {
+                    errMsg = RepeatedRecordsException.buildRepeatedMessage(((RepeatedRecordsException) ex).getRepeatedRecords());
+                }
                 if (StringUtils.isBlank(errMsg)) errMsg = ex.getClass().getSimpleName().toUpperCase();
 
                 errMsg = Language.L("触发器执行失败 : %s", errMsg);

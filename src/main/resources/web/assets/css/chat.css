@@ -49,14 +49,23 @@ See LICENSE and COMMERCIAL in the project root for license information.
   line-height: 1;
 }
 
-.chat-input .chat-input-input textarea {
+.chat-input .chat-input-input .chat-input-editable {
   width: 100%;
   border: 0 none;
-  resize: none;
   outline: none;
-  height: 40px;
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
   line-height: 20px;
   background-color: transparent;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-input .chat-input-editable:empty:before {
+  content: attr(data-placeholder);
+  color: #aaa;
+  pointer-events: none;
 }
 
 .chat-input .chat-input-action {
@@ -100,6 +109,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: none;
 }
 
+.chat-input .chat-input-attach {
+  margin-bottom: 3px;
+}
+
 .chat-input .chat-input-attach > span,
 .chat-message .msg-user > .msg-attach > a {
   background-color: rgba(0, 0, 0, 0.1);
@@ -108,14 +121,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 30px;
   display: inline-block;
   font-size: 12px;
-  max-width: 501px;
-  margin-bottom: 4px;
+  max-width: min(280px, 100%);
   line-height: 1.5;
-}
-
-.chat-input .chat-input-attach > span + span,
-.chat-message .msg-user > .msg-attach > a + a {
-  margin-left: 4px;
+  margin-top: 3px;
+  margin-right: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chat-input .chat-input-attach > span > a.close {
@@ -123,6 +135,23 @@ See LICENSE and COMMERCIAL in the project root for license information.
   text-shadow: none;
   margin-left: 4px;
   max-height: 18px;
+  transform: translateY(-1px);
+}
+
+.chat-input .chat-input-attach > span.chat-attach-badge {
+  display: inline-flex;
+  align-items: center;
+}
+
+.chat-input .chat-input-attach > span.chat-attach-badge > .name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-input .chat-input-attach > span.chat-attach-badge > a.close {
+  flex-shrink: 0;
 }
 
 .chat-messages {
@@ -195,6 +224,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 5px;
 }
 
+.chat-message .msg-user > .msg-attach + .msg-attach,
+.chat-message .msg-user > .msg-attach:first-child {
+  margin-top: 0;
+}
+
 .chat-message .msg-user > .msg-attach > a[href]:hover {
   color: var(--rb-theme-color);
 }
@@ -247,6 +281,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chat-message .msg-ai > .msg-content > .reasoning > .reasoning-body .markdown-body * {
   color: #666;
   font-size: 12px;
+}
+
+.chat-message .msg-content .card {
+  background-color: #eee;
+  border-radius: 10px !important;
+  padding: 18px 20px;
+  margin: 0;
+  margin: 10px 0;
+}
+
+.chat-message .msg-content .card .card-body {
+  padding: 0;
 }
 
 .chat-message .msg-error {
@@ -674,4 +720,10 @@ body:has(.preview-modal.rich-preview) {
 
 .chat-scroll-fab .mdi {
   font-size: 1.6rem;
+}
+
+/* dark2 */
+
+html.theme-dark2 .preview-modal.rich-preview .preview-body {
+  background-color: var(--rb-dark-panel);
 }

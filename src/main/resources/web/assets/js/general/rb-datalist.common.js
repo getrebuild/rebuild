@@ -1263,6 +1263,7 @@ const wpc = window.__PageConfig || {}
 const _DL_COLUMN_MIN_WIDTH = 30
 const _DL_COLUMN_MAX_WIDTH = 500
 const _DL_COLUMN_DEF_WIDTH = 130
+const _DL_COLUMN_DEF_WIDTHS = { AVATAR: 60, BOOL: 60, NUMBER: 80, DECIMAL: 80 }
 
 // eslint-disable-next-line no-unused-vars
 class RbList extends React.Component {
@@ -1355,7 +1356,7 @@ class RbList extends React.Component {
                       </th>
                     )}
                     {this.state.fields.map((item, idx) => {
-                      const cWidth = item.width || this.__defaultColumnWidth
+                      const cWidth = item.width || _DL_COLUMN_DEF_WIDTHS[item.type] || this.__defaultColumnWidth
                       const style2 = { width: cWidth }
                       const clazz = `unselect sortable ${idx === 0 && 'column-fixed column-fixed-last'}`
                       return (
@@ -1601,7 +1602,7 @@ class RbList extends React.Component {
     if (!field) return null
 
     const cellKey = `row-${primaryKey.id}-${index}`
-    const width = this.state.fields[index].width || this.__defaultColumnWidth
+    const width = field.width || _DL_COLUMN_DEF_WIDTHS[field.type] || this.__defaultColumnWidth
     let type = field.type
     if (cellVal === '$NOPRIVILEGES$') {
       type = cellVal

@@ -218,9 +218,14 @@ class HistoryViewport extends React.Component {
                   <td colSpan="3">
                     <h5>
                       {WrapHtml($L('**%s** 由 %s %s', item[2].split(' UTC')[0], item[3], RevTypes[item[1]]))}
-                      {item[4] && (
-                        <a href={`../robot/trigger/${item[4]}`} target="_blank" className="ml-2 light-link" title={$L('由触发器变更')}>
-                          (T)
+                      {item[4] && String(item[4]).startsWith('027-') && (
+                        <a href={`../robot/trigger/${item[4]}`} target="_blank" className="ml-2 badge badge-warning badge-arrow3 badge-pill up-1" title={$L('由触发器变更')}>
+                          TR
+                        </a>
+                      )}
+                      {item[4] && String(item[4]).startsWith('096-') && (
+                        <a href="../integration/aibot" target="_blank" className="ml-2 badge badge-warning badge-arrow3 badge-pill up-1" title={$L('由 AI 助手变更')}>
+                          AI
                         </a>
                       )}
                     </h5>

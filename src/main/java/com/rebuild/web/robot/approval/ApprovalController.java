@@ -40,6 +40,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
+import com.rebuild.core.service.general.RepeatedRecordsException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.transaction.UnexpectedRollbackException;
@@ -321,10 +322,10 @@ public class ApprovalController extends BaseController {
 
             if (addedRecord != null) {
                 // fix:4.1.8 主+明细
-                boolean checkRepeated = checkRepeated418(addedRecord);
-                if (checkRepeated) return RespBody.errorl("存在重复记录");
-                checkRepeated = checkRepeated418(details.toArray(new Record[0]));
-                if (checkRepeated) return RespBody.errorl("存在重复记录");
+                String repeatedMsg = checkRepeated418(addedRecord);
+                if (repeatedMsg != null) return RespBody.error(repeatedMsg);
+                repeatedMsg = checkRepeated418(details.toArray(new Record[0]));
+                if (repeatedMsg != null) return RespBody.error(repeatedMsg);
 
                 if (weakMode != null) RbvFunction.call().setWeakMode(weakMode);
             }
@@ -354,13 +355,14 @@ public class ApprovalController extends BaseController {
         }
     }
 
-    private boolean checkRepeated418(Record... records) {
+    private String checkRepeated418(Record... records) {
         for (Record r : records) {
-            if (!Application.getEntityService(r.getEntity().getEntityCode()).getAndCheckRepeated(r, 1).isEmpty()) {
-                return true;
+            List<Record> repeated = Application.getEntityService(r.getEntity().getEntityCode()).getAndCheckRepeated(r, 1);
+            if (!repeated.isEmpty()) {
+                return RepeatedRecordsException.buildRepeatedMessage(repeated);
             }
         }
-        return false;
+        return null;
     }
 
     @RequestMapping("cancel")

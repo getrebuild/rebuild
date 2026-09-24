@@ -12,9 +12,13 @@ import com.alibaba.excel.write.handler.context.CellWriteHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,8 +41,12 @@ public class FormulaCellWriteHandler implements CellWriteHandler {
 
     private void setCellFormula(CellWriteHandlerContext context) {
         final Cell cell = context.getCell();
-        if (cell.getCellType() != CellType.STRING) return;
-        final String cellValue = cell.getStringCellValue();
+        String cellValue;
+        try {
+            cellValue = cell.getStringCellValue();
+        } catch (Exception e) {
+            return;
+        }
         // {.__KEEP:(=B2>1000)}
         if (StringUtils.isBlank(cellValue) || !(cellValue.startsWith("(=") && cellValue.endsWith(")"))) return;
 
@@ -62,6 +70,31 @@ public class FormulaCellWriteHandler implements CellWriteHandler {
             cellFormula = cellFormula.replace(cellNo, cellNoNew);
         }
 
-        cell.setCellFormula(cellFormula);
+        try {
+            cell.setCellFormula(cellFormula);
+        } catch (NullPointerException e) {
+            // POI 的 arrayFormulas 缓存在 shiftRows 后不更新，导致 setCellFormula/
+            // removeArrayFormula/setBlank 均 NPE，通过反射清除过期缓存条目
+            if (cell instanceof XSSFCell) {
+                XSSFCell xssfCell = (XSSFCell) cell;
+                try {
+                    Field f = XSSFSheet.class.getDeclaredField("arrayFormulas");
+                    f.setAccessible(true);
+                    @SuppressWarnings("unchecked")
+                    List<CellRangeAddress> list = (List<CellRangeAddress>) f.get(xssfCell.getSheet());
+                    if (list != null) {
+                        int row = xssfCell.getRowIndex();
+                        int col = xssfCell.getColumnIndex();
+                        list.removeIf(r -> r.isInRange(row, col));
+                    }
+
+                    // 再次尝试
+                    cell.setCellFormula(cellFormula);
+
+                } catch (Exception ex) {
+                    log.warn("Failed to clear stale array formula cache", ex);
+                }
+            }
+        }
     }
 }

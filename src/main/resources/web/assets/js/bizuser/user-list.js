@@ -95,8 +95,9 @@ $(document).ready(() => {
       )
     }
   })
+
   if (rb.commercial < 1) {
-    $('.J_batch2, .J_delete2')
+    $('.J_batch2, .J_delete2, .J_resign')
       .off('click')
       .on('click', () => RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')))
   }
