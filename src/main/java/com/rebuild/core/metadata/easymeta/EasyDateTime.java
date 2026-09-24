@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
-import java.util.regex.Matcher;
 
 /**
  * @author devezhao
@@ -93,20 +92,13 @@ public class EasyDateTime extends EasyField {
         return CalendarUtils.getDateFormat(format).format(value);
     }
 
+    // --
+
     /**
-     * 清除周
-     *
      * @param dateString
      * @return
      */
     public static String clearFlaged(String dateString) {
-        if (StringUtils.isBlank(dateString)) return null;
-
-        Date d = CommonsUtils.parseDate(dateString);
-        if (d == null) {
-            log.warn("Cannot parse date from : {}", dateString);
-            return null;
-        }
-        return CalendarUtils.getUTCDateTimeFormat().format(d);
+        return CommonsUtils.toUTCDateTime(dateString);
     }
 }

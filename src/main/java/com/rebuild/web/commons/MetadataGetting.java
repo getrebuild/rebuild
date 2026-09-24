@@ -58,7 +58,7 @@ public class MetadataGetting extends BaseController {
         boolean usesDetail = getBoolParameter(request, "detail", false);
         // v3.8 返回全部，否则只返回有权限的
         boolean usesNopriv = getBoolParameter(request, "nopriv", false);
-        // v4.4 返回审批的
+        // v4.4 仅返回审批的
         boolean usesApproval = getBoolParameter(request, "approval", false);
 
         JSONArray res = new JSONArray();

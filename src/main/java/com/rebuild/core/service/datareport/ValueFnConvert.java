@@ -149,7 +149,7 @@ public class ValueFnConvert {
                 }
 
             } else if (theFn.startsWith(PICKAT_4CLASS_DATE) && type != DisplayType.TIME) {
-                String[] m = value.toString().replace(" ", "-").split("[-:]");
+                String[] m = value.toString().replace(" ", "-").split("[-/:年月日]");
                 int pickIndex = ObjectUtils.toInt(extractFnValue(theFn)) - 1;
 
                 if (pickIndex < 0) return m[0];

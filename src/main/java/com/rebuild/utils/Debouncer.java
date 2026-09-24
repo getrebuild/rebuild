@@ -45,7 +45,7 @@ public class Debouncer {
     }
 
     /**
-     * 防抖执行：取消上一个待执行任务，重新计时
+     * 防抖执行（取消上一个待执行任务，重新计时）
      */
     public synchronized void run() {
         if (pending != null) {
@@ -64,7 +64,7 @@ public class Debouncer {
     }
 
     /**
-     * 立即执行（取消待执行任务）
+     * 立即执行
      */
     public synchronized void runNow() {
         if (pending != null) {
@@ -75,7 +75,7 @@ public class Debouncer {
     }
 
     /**
-     * 取消待执行任务（不执行）
+     * 取消待执行任务
      */
     public synchronized void cancel() {
         if (pending != null) {

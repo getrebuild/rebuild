@@ -44,33 +44,44 @@ public class RBStore {
     /**
      * for Metaschema
      *
-     * @param fileUri
+     * @param file
      * @return
      */
-    public static JSON fetchMetaschema(String fileUri) {
+    public static JSON fetchMetaschema(String file) {
         return fetchRemoteJson("metaschemas/" +
-                StringUtils.defaultIfBlank(fileUri, "index-3.7.json"));
+                StringUtils.defaultIfBlank(file, "index-3.7.json"));
     }
 
     /**
-     * for Skills
+     * for Aibot skills
      * 
-     * @param fileUri
+     * @param file
      * @return
      */
-    public static JSON fetchSkills(String fileUri) {
-        return fetchRemoteJson("skills/" +
-                StringUtils.defaultIfBlank(fileUri, "index.json"));
+    public static JSON fetchAibotSkills(String file) {
+        return fetchRemoteJson("aibot2/skills/" +
+                StringUtils.defaultIfBlank(file, "index.json"));
+    }
+
+    /**
+     * for Aibot model context windows
+     *
+     * @param file
+     * @return
+     */
+    public static JSON fetchAibotModelContext(String file) {
+        return fetchRemoteJson("aibot2/" +
+                StringUtils.defaultIfBlank(file, "model-context-windows.json"));
     }
 
     /**
      * for Holidays
      *
-     * @param fileUri
+     * @param file
      * @return
      */
-    public static JSON fetchHolidays(String fileUri) {
-        return fetchRemoteJson("holidays/" + fileUri);
+    public static JSON fetchHolidays(String file) {
+        return fetchRemoteJson("holidays/" + file);
     }
 
     /**

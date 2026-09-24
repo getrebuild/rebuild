@@ -117,10 +117,7 @@ public class ExportReport implements Tool {
 
         if (ID.isId(record)) {
             ID rid = ID.valueOf(record);
-            if (rid.getEntityCode() != entity.getEntityCode()) {
-                throw new KnownToolException("记录 ID 与实体不匹配 : " + record
-                        + " 不属于 " + EasyMetaFactory.getLabel(entity));
-            }
+            ToolHelper.checkRecordEntity(rid, entity);
             return exportReport(entity, reportId, tt, rid);
         }
 

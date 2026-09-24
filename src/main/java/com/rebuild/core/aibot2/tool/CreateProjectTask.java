@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.service.project.ProjectPlanConfigService;
 import com.rebuild.core.service.project.ProjectTaskService;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +71,10 @@ public class CreateProjectTask implements Tool {
         record.setString("taskName", taskName);
 
         Integer priority = args.getInteger("priority");
-        if (priority != null && priority >= 0 && priority <= 3) {
+        if (priority != null) {
+            if (priority < 0 || priority > 3) {
+                throw new KnownToolException("无效的优先级 (priority) : " + priority + "，可用值: 0=较低, 1=普通, 2=紧急, 3=非常紧急");
+            }
             record.setInt("priority", priority);
         }
 
@@ -116,12 +120,13 @@ public class CreateProjectTask implements Tool {
         String projectCode = projectConfig.getString("projectCode");
         String taskNo = String.format("%s-%s", projectCode, taskNumber != null ? taskNumber[0] : "?");
 
+        String url = AppUtils.getContextPath("/app/redirect?id=" + record.getPrimary());
         return JSONUtils.toJSONObject(
-                new String[]{"status", "id", "taskNumber", "message"},
-                new Object[]{"ok", record.getPrimary().toLiteral(), taskNo,
-                        String.format("已成功创建任务 [%s]，编号: %s，项目: %s%s",
+                new String[]{"status", "id", "taskNumber", "url", "message"},
+                new Object[]{"ok", record.getPrimary().toLiteral(), taskNo, url,
+                        String.format("已成功创建任务 [%s]，编号: %s，项目: %s%s，[点击查看](%s)，请将此链接展示给用户",
                                 taskName, taskNo, projectConfig.getString("projectName"),
-                                executorName == null ? "" : "，执行人: " + executorName)});
+                                executorName == null ? "" : "，执行人: " + executorName, url)});
     }
 
     /**

@@ -1,12 +1,11 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
-    <th:block th:replace="~{/_include/header}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2-base.css}" />
+    <th:block th:replace="~{/_include/header(style='dark2')}" />
+    <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-size=1,user-scalable=no" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-dark2.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chat-view.css}" />
-    <meta name="viewport" content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-size=1,user-scalable=no" />
-    <title>[[${subject ?: bundle.L('AI 会话分享')}]]</title>
+    <title>[[${chatName ?: bundle.L('AI 会话分享')}]]</title>
     <style>
       html {
         font-size: 14px;
@@ -73,7 +72,7 @@
     <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
     <div class="shared-aibot-chat">
       <div class="chat-subject">
-        <h1 class="text-bold">[[${subject}]]</h1>
+        <h1 class="text-bold">[[${chatName}]]</h1>
         <div class="text-muted fs-md">
           <i class="icon mdi mdi-information-outline"></i>
           [[${bundle.L('内容由 AI 生成')}]]
@@ -97,6 +96,6 @@
         messages: [(${messages ?:'null'})],
       }
     </script>
-    <script th:src="@{/assets/js/shared-aibot-chat.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/shared-chat.js}" type="text/babel"></script>
   </body>
 </html>

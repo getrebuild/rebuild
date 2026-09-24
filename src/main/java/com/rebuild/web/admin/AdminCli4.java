@@ -99,7 +99,7 @@ public class AdminCli4 {
                         "\nclean-approval ENTITY" +
                         "\nadd-testentity" +
                         "\nchk-schemas" +
-                        "\nfix-entity ENTITY[.FIELD] [DATETIME40|UPLOADNUMBER41|ADDSEQ42]" +
+                        "\nfix-entity ENTITY[.FIELD] [DATETIME40|UPLOADNUMBER41|ADDSEQ42|TEXT45]" +
                         "\nfix-index [ENTITY]";
                 break;
             }
@@ -360,6 +360,11 @@ public class AdminCli4 {
         }
         if ("ADDSEQ42".equalsIgnoreCase(commands[2])) {
             boolean s = new Field2SchemaFixer().addSeqField(entity);
+            return s ? "OK" : "WRAN: Cannot";
+        }
+        if ("TEXT45".equalsIgnoreCase(commands[2])) {
+            if (field == null) return "WRAN: FIELD cannot be null";
+            boolean s = new Field2SchemaFixer().changeColumn2Text(field);
             return s ? "OK" : "WRAN: Cannot";
         }
         return "OK";

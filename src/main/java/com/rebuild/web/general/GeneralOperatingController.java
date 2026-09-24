@@ -123,7 +123,7 @@ public class GeneralOperatingController extends BaseController {
         // 检查重复值
         List<Record> repeated = ies.getAndCheckRepeated(record, 20);
         if (!repeated.isEmpty()) {
-            return new RespBody(DefinedException.CODE_RECORDS_REPEATED, Language.L("存在重复记录"),
+            return new RespBody(DefinedException.CODE_RECORDS_REPEATED, RepeatedRecordsException.buildRepeatedMessage(repeated),
                     buildRepeatedData(repeated));
         }
 
@@ -147,7 +147,7 @@ public class GeneralOperatingController extends BaseController {
             record = ies.createOrUpdate(record);
 
         } catch (RepeatedRecordsException know) {
-            return new RespBody(DefinedException.CODE_RECORDS_REPEATED, Language.L("存在重复记录"),
+            return new RespBody(DefinedException.CODE_RECORDS_REPEATED, RepeatedRecordsException.buildRepeatedMessage(know.getRepeatedRecords()),
                     buildRepeatedData(know.getRepeatedRecords()));
 
         } catch (AccessDeniedException | DataSpecificationException | UnexpectedRollbackException | JdbcException known) {

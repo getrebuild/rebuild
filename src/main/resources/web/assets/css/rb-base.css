@@ -23387,6 +23387,7 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   --fgColor-accent: Highlight;
 }
 
+html.theme-dark2 .markdown-body,
 .markdown-body[data-theme='dark'] {
   /*dark */
   color-scheme: dark;

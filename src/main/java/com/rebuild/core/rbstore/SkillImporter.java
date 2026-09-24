@@ -34,7 +34,7 @@ public class SkillImporter extends HeavyTask<Integer> {
     protected Integer exec() throws Exception {
         Assert.notNull(skillNames, "[skillNames] cannot be null");
 
-        JSONArray schemas = (JSONArray) RBStore.fetchSkills(null);
+        JSONArray schemas = (JSONArray) RBStore.fetchAibotSkills(null);
         if (schemas == null || schemas.isEmpty()) {
             this.errorMessage = Language.L("暂无可用技能");
             return 0;
@@ -53,7 +53,7 @@ public class SkillImporter extends HeavyTask<Integer> {
 
                 String skillName = skillIndex.getString("name");
 
-                JSONObject skill = (JSONObject) RBStore.fetchSkills(skillIndex.getString("file"));
+                JSONObject skill = (JSONObject) RBStore.fetchAibotSkills(skillIndex.getString("file"));
 
                 Record record = EntityHelper.forNew(EntityHelper.AibotConfig);
                 record.setString("type", AibotConfigManager.TYPE_SKILL);

@@ -45,7 +45,7 @@ public class AiBotController extends LoginAction {
     @GetMapping("chat")
     public ModelAndView chatIndex(HttpServletRequest request, HttpServletResponse response) {
         if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(null);
+            return RbvMissingController.errorUnsupported(" AI 独立窗口");
         }
 
         ID user = AppUtils.getRequestUser(request);

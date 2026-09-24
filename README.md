@@ -2,9 +2,9 @@
 
 <img src="https://getrebuild.com/img/logo256.png" alt="REBUILD" width="128" />
 
-# REBUILD
+## REBUILD
 
-**高度可配置化的企业管理系统**
+### **AI 驱动的智能业务平台**
 
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://getrebuild.com/legal/service-terms)
 [![License 商业授权](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
@@ -17,27 +17,45 @@
 
 ## 项目简介
 
-相较于同类产品，REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。
+REBUILD 侧重于业务需求实现，而非基础技术框架或项目启动模板。「开放式设计」是核心设计理念，通过对企业日常各类需求的可配置化管理，全图形化零代码搭建，所见即所得。
 
-「开放式设计」是 REBUILD 的重要设计理念。得益于团队成熟的企业管理系统经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
+支持多端使用，电脑、手机或嵌入企业微信/钉钉/飞书，无缝衔接日常工作。经过数年积累与数百家企业用户验证，系统日益稳定。
 
 **核心能力**
 
-| 能力       | 说明                                                |
-| ---------- | --------------------------------------------------- |
+| 能力    | 说明                                                |
+|-------| --------------------------------------------------- |
+| AI 搭建 | 内置 AI 助手，轻松构建企业专属智能体                |
 | 零代码建模 | 全图形化设计业务实体、字段、布局，所见即所得        |
 | 流程自动化 | 触发器、审批流程、任务计划，业务规则随需配置        |
 | 精细化权限 | 团队、角色、部门多维度权限控制                      |
-| AI 助手    | 内置 AI 助手，轻松构建企业专属智能体                |
-| 多端体验   | WEB 端 + 手机版，随时随地处理业务                   |
-| 开放集成   | OpenAPI 对接外部系统，支持 Java/SpringBoot 二次开发 |
-| 极简部署   | 一个安装包即开即用，支持 Docker / 私有云 / 本地部署 |
+| 多端体验  | WEB 端 + 手机版，随时随地处理业务                   |
+| 开放集成  | OpenAPI 对接外部系统，支持 Java/SpringBoot 二次开发 |
+| 极简部署  | 一个安装包即开即用，支持 Docker / 私有云 / 本地部署 |
 
-## 为什么需要 REBUILD
+## 功能预览
 
-相较于传统软件系统，REBUILD 提供了绝佳的灵活性与可控性，可以完全按照企业需求进行量身打造。同时，当系统投入使用一段时间后会遇到业务变化或需求变更，通过 REBUILD 提供的高度可配置化能力，可快速完成需求变更而无需额外投入。
+**实体设计器**
 
-## REBUILD 适合哪类用户
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/entity-design.png)
+
+**审批流程配置**
+
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/approval-design.png)
+
+**数据看板**
+
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/dash-home.png)
+
+**AI 助手**
+
+![](https://www.qn-cdn2.getrebuild.com/pub/images/readme/aibot.png)
+
+**手机版**
+
+<img src="https://www.qn-cdn2.getrebuild.com/pub/images/readme/h5-mobile.png" width="360"/>
+
+## 适用场景
 
 | 用户类型     | 典型场景                                                    | 优势                                           |
 | ------------ | ----------------------------------------------------------- | ---------------------------------------------- |
@@ -49,7 +67,7 @@
 
 ## 开始使用
 
-开始使用 REBUILD 非常简单，无需配置复杂的运行环境，零依赖快速部署！如只想快速了解，也可直接 [在线体验](https://nightly.getrebuild.com/)（默认超级管理员用户名密码为 `admin` `admin`）。
+无需配置复杂的运行环境，零依赖快速部署。如只想快速了解，可直接 [在线体验](https://nightly.getrebuild.com/)（默认超级管理员用户名密码为 `admin` / `admin`）。新用户建议先阅读 [快速上手指南](https://getrebuild.com/learn/quick-start) 了解基本概念。
 
 ### 1. 使用 Docker
 
@@ -124,7 +142,7 @@ REBUILD uses the GPL-3.0 open source license and commercial license dual license
 本次更新为你带来众多功能增强与优化。
 
 1. [新增] AI 助手架构全面升级，支持独立窗口模式
-2. [新增] AI 工具集，通过会话即可完成实体/字段管理、自动化、数据操作、流程管理、报表导出等 30+ 工具
+2. [新增] AI 工具集，通过会话即可完成数据操作、流程管理、报表导出等 30+ 工具
 3. [新增] AI 支持自定义 Skill 技能与知识库问答（上传企业文档构建私有知识）
 4. [新增] AI 支持 MCP 协议，可作为 MCP 服务端供外部 AI 客户端调用
 5. [新增] 图表新增词云、排行榜，数值支持配色

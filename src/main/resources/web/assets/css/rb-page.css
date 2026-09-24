@@ -302,7 +302,7 @@ a.link.inline {
 }
 
 .btn {
-  min-height: 2.8rem;
+  min-height: 37px;
   min-width: 88px;
 }
 
@@ -325,7 +325,7 @@ a.btn {
 .input-group .btn,
 .input-group-sm .btn {
   width: auto;
-  min-width: 2.8rem;
+  min-width: 37px;
 }
 
 .btn-lg {
@@ -812,6 +812,12 @@ div.dataTables_filter .filter-badge:hover .close {
 
 .modal.rbalert .modal-dialog {
   max-width: 551px;
+}
+
+@media (max-width: 767.98px) {
+  .modal.rbalert .modal-dialog {
+    margin: 16px;
+  }
 }
 
 .modal-body.iframe {
@@ -1561,14 +1567,12 @@ a.link.link-icon::after {
   max-width: 680px;
 }
 
-@media (max-width: 440px) {
-  .rbhighbar {
-    padding: 0 10px;
-  }
-
+@media (max-width: 480px) {
   .rbhighbar > .alert {
+    width: 100%;
     max-width: 100%;
     min-width: 100%;
+    border-radius: 0 !important;
   }
 }
 
@@ -6946,4 +6950,38 @@ input[type='password']::-ms-clear {
   --os-handle-bg-active: rgba(0, 0, 0, 0.45);
   --os-handle-min-size: 33px;
   --os-handle-interactive-area-offset: 4px;
+}
+
+.rb-fireworks {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.rb-firework-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: rb-firework-fly 1.2s cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
+}
+@keyframes rb-firework-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  10% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3);
+    opacity: 0;
+  }
 }

@@ -76,12 +76,23 @@ public class Chat implements Serializable {
     }
 
     /**
-     * 尝试开始执行，已在执行中返回 false
+     * 尝试开始执行，已在执行中则等待释放（用于停止后立即发送的场景）
      *
      * @return
      */
     public synchronized boolean tryBeginRun() {
-        if (running) return false;
+        long deadline = System.currentTimeMillis() + (10 * 1000);
+        while (running) {
+            long remains = deadline - System.currentTimeMillis();
+            if (remains <= 0) return false;
+            try {
+                wait(remains);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+
         running = true;
         return true;
     }
@@ -91,6 +102,7 @@ public class Chat implements Serializable {
      */
     public synchronized void endRun() {
         running = false;
+        notifyAll();
     }
 
     /**
@@ -133,7 +145,7 @@ public class Chat implements Serializable {
         Message message = new Message(ROLE_USER, userMessage, null, null, null);
         messages.add(message);
 
-        String systemPrompt = agent.buildSystemPrompt(null);
+        String systemPrompt = agent.buildSystemPrompt(null, false, false);
         chatLogger().logSession(agent.model(), systemPrompt);
         chatLogger().log("USER", userMessage);
 
@@ -150,8 +162,10 @@ public class Chat implements Serializable {
      * @return
      */
     private ChatCompletionCreateParams.Builder requestParams(String userMessage, ChatRequest chatRequest) {
+        boolean planMode = chatRequest != null && chatRequest.getPlanMode();
+        boolean planConfirmed = chatRequest != null && chatRequest.getPlanConfirmed();
         String systemPrompt = agent.buildSystemPrompt(
-                chatRequest == null ? null : chatRequest.getSkill());
+                chatRequest == null ? null : chatRequest.getSkill(), planMode, planConfirmed);
         chatLogger().logSession(agent.model(), systemPrompt);
 
         if (userMessage != null) {
@@ -164,7 +178,8 @@ public class Chat implements Serializable {
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent);
         for (Message m : messages) {
             String content = m.getContent();
-            if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(content);
+            // 空内容消息（如仅附件或技能触发）发送给 AI 时需兑底文案，避免部分 AI 端拒绝空消息
+            if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(StringUtils.defaultIfBlank(content, "请开始"));
             else if (ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(content);
         }
 
@@ -188,6 +203,23 @@ public class Chat implements Serializable {
 
         if (StringUtils.isNotBlank(reasoning)) chatLogger().log("REASONING", reasoning);
         chatLogger().log("ASSISTANT", aiMessage);
+
+        this.store();
+        return message;
+    }
+
+    /**
+     * 完成后存储错误消息（带 error 标志，重新加载时仍渲染错误样式）
+     *
+     * @param errorMsg
+     * @param chatRequest
+     * @return
+     */
+    public Message completionError(String errorMsg, ChatRequest chatRequest) {
+        Message message = new Message(ROLE_AI, errorMsg, null, errorMsg, chatRequest);
+        messages.add(message);
+
+        chatLogger().log("ASSISTANT", errorMsg);
 
         this.store();
         return message;
@@ -224,7 +256,8 @@ public class Chat implements Serializable {
                 messages.add(new Message(role, content, null, null, getChatid(), msgJson));
             } else if (ROLE_AI.equals(role)) {
                 String reasoning = msgJson.getString("reasoning");
-                messages.add(new Message(role, content, reasoning, null, getChatid(), msgJson));
+                String error = msgJson.getString("error");
+                messages.add(new Message(role, content, reasoning, error, getChatid(), msgJson));
             }
         }
     }

@@ -122,9 +122,9 @@ public class FileData implements VectorData {
         }
 
         String name = QiniuCloud.parseFileName(filePath);
-        String res = String.format("文件（%s）内容如下：", name)
+        String res = String.format("文件（%s，fileKey=%s）内容如下：", name, filePath)
                 + NN + content + NN +
-                String.format("文件（%s）内容结束", name);
+                String.format("文件（%s，fileKey=%s）内容结束", name, filePath);
         Application.getCommonsCache().put(fileKey, res);
         return res;
     }

@@ -17,10 +17,12 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,6 +58,7 @@ public class FetchUrl implements Tool {
         method = method.toUpperCase();
 
         Map<String, String> headers = null;
+        List<String> ignoredHeaders = null;
         JSONObject headersJson = args.getJSONObject("headers");
         if (MapUtils.isNotEmpty(headersJson)) {
             headers = new HashMap<>();
@@ -63,6 +66,8 @@ public class FetchUrl implements Tool {
                 String hName = e.getKey();
                 if (BLOCKED_HEADERS.contains(hName.toLowerCase())) {
                     log.warn("Blocked unsafe header : {}", hName);
+                    if (ignoredHeaders == null) ignoredHeaders = new ArrayList<>();
+                    ignoredHeaders.add(hName);
                     continue;
                 }
                 headers.put(hName, e.getValue() == null ? "" : e.getValue().toString());
@@ -85,9 +90,13 @@ public class FetchUrl implements Tool {
             result = result.substring(0, MAX_LEN) + "\n\n... (truncated, total " + result.length() + " chars)";
         }
 
-        return JSONUtils.toJSONObject(
+        JSONObject ret = JSONUtils.toJSONObject(
                 new String[]{"status", "response"},
                 new Object[]{"ok", result});
+        if (ignoredHeaders != null) {
+            ret.put("ignoredHeaders", ignoredHeaders);
+        }
+        return ret;
     }
 
     @Override

@@ -284,11 +284,6 @@
         </dependency>
         <dependency>
             <groupId>com.github.devezhao</groupId>
-            <artifactId>momentjava</artifactId>
-            <version>0.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.devezhao</groupId>
             <artifactId>commons</artifactId>
             <version>1.3.13</version>
             <exclusions>
