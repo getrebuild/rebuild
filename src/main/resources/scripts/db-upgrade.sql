@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #79 (v4.6)
+alter table `feeds_comment`
+  add column `REPLY_TO` char(20) comment '回复评论';
+
 -- #78 (v4.5)
 -- ************ Entity [AibotKnowledgeChunk] DDL ************
 create table if not exists `aibot_knowledge_chunk` (

@@ -781,9 +781,13 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         tips={$L('请选择转审给谁')}
         onConfirm={(s, _alert) => {
           _alert.disabled(true)
-          $.post(`/app/entity/approval/referral?record=${this.props.id}&to=${s[0]}`, (res) => {
-            _alert.disabled()
 
+          const d = {
+            remark: this.state.remark || null,
+            remarkAttachments: this.state.remarkAttachments || null,
+          }
+          $.post(`/app/entity/approval/referral?record=${this.props.id}&to=${s[0]}`, JSON.stringify(d), (res) => {
+            _alert.disabled()
             if (res.error_code === 0) {
               _alert.hide()
               _reloadAndTips(this, $L('已转审'))
@@ -805,9 +809,13 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         tips={$L('请选择加签哪些用户')}
         onConfirm={(s, _alert) => {
           _alert.disabled(true)
-          $.post(`/app/entity/approval/countersign?record=${this.props.id}&to=${s.join(',')}`, (res) => {
-            _alert.disabled()
 
+          const d = {
+            remark: this.state.remark || null,
+            remarkAttachments: this.state.remarkAttachments || null,
+          }
+          $.post(`/app/entity/approval/countersign?record=${this.props.id}&to=${s.join(',')}`, JSON.stringify(d), (res) => {
+            _alert.disabled()
             if (res.error_code === 0) {
               _alert.hide()
               _reloadAndTips(this, $L('已加签'))
@@ -1011,13 +1019,27 @@ class ApprovalStepViewer extends React.Component {
                   <p className="text-wrap">{item.remark}</p>
                 </blockquote>
               )}
-              {item.remarkAttachments && item.remarkAttachments.length > 0 && (
+              {(item.remarkAttachments || []).length > 0 && (
                 <div className="file-field mt-1 ml-1">
                   {item.remarkAttachments.map((item) => (
                     <FileShow file={item} key={item} />
                   ))}
                 </div>
               )}
+
+              {(item.referralRemark || item.countersignRemark) && (
+                <blockquote className="blockquote timeline-blockquote mb-0">
+                  <p className="text-wrap">{item.referralRemark || item.countersignRemark}</p>
+                </blockquote>
+              )}
+              {(item.referralAttachments || item.countersignAttachments || []).length > 0 && (
+                <div className="file-field mt-1 ml-1">
+                  {(item.referralAttachments || item.countersignAttachments).map((item) => (
+                    <FileShow file={item} key={item} />
+                  ))}
+                </div>
+              )}
+
               {item.state >= 10 && (item.ccUsers || []).length + (item.ccAccounts || []).length > 0 && (
                 <blockquote className="blockquote timeline-blockquote mb-0 cc">
                   <p className="text-wrap">

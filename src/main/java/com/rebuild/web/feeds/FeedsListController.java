@@ -174,7 +174,7 @@ public class FeedsListController extends BaseController {
         }
 
         return RespBody.ok(JSONUtils.toJSONObject(
-                new String[] { "total", "data" }, new Object[] { count, list }));
+                new String[]{"total", "data"}, new Object[]{count, list}));
     }
 
     private Object[][] add2Top(Object[] topFeed, Object[][] array) {
@@ -318,7 +318,7 @@ public class FeedsListController extends BaseController {
             }
         }
 
-        String sql = "select commentId,createdBy,createdOn,modifiedOn,content,images,attachments" +
+        String sql = "select commentId,createdBy,createdOn,modifiedOn,content,images,attachments,replyTo" +
                 " from FeedsComment where " + sqlWhere + " order by createdOn desc";
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
@@ -330,8 +330,30 @@ public class FeedsListController extends BaseController {
             list.add(item);
         }
 
+        Set<ID> pageIds = new HashSet<>();
+        for (Object[] o : array) pageIds.add((ID) o[0]);
+
+        // 悬空评论
+        Set<ID> orphans = new HashSet<>();
+        for (Object[] o : array) {
+            if (o[7] != null && !pageIds.contains((ID) o[7])) orphans.add((ID) o[7]);
+        }
+
+        if (!orphans.isEmpty()) {
+            Object[][] exists = Application.createQueryNoFilter(
+                    "select commentId from FeedsComment where commentId in ('" + StringUtils.join(orphans, "','") + "')").array();
+            for (Object[] e : exists) orphans.remove((ID) e[0]);
+
+            for (JSON json : list) {
+                JSONObject item = (JSONObject) json;
+                if (item.get("replyTo") != null && orphans.contains((ID) item.get("replyTo"))) {
+                    item.put("replyDeleted", true);
+                }
+            }
+        }
+
         return RespBody.ok(JSONUtils.toJSONObject(
-                new String[] { "total", "data" }, new Object[] { count, list }));
+                new String[]{"total", "data"}, new Object[]{count, list}));
     }
 
     private JSONObject formatBase(Object[] o, ID user) {
@@ -342,18 +364,14 @@ public class FeedsListController extends BaseController {
         item.put("createdOn", I18nUtils.formatDate((Date) o[2]));
         item.put("modifiedOn", I18nUtils.formatDate((Date) o[3]));
         item.put("content", FeedsHelper.formatContent((String) o[4]));
-        if (o[5] != null) {
-            item.put("images", JSON.parse((String) o[5]));
-        }
-        if (o[6] != null) {
-            item.put("attachments", JSON.parse((String) o[6]));
-        }
+        if (o[5] != null) item.put("images", JSON.parse((String) o[5]));
+        if (o[6] != null) item.put("attachments", JSON.parse((String) o[6]));
+        if (o[7] != null) item.put("replyTo", o[7]);
 
         int numLike = FeedsHelper.getNumOfLike((ID) o[0]);
         item.put("numLike", numLike);
-        if (numLike > 0) {
-            item.put("myLike", FeedsHelper.isMyLike((ID) o[0], user));
-        }
+        if (numLike > 0) item.put("myLike", FeedsHelper.isMyLike((ID) o[0], user));
+
         return item;
     }
 }
