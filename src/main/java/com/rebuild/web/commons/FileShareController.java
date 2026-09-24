@@ -141,7 +141,6 @@ public class FileShareController extends BaseController {
                 JSONObject msg = contents.getJSONObject(i);
                 String role = msg.getString("role");
                 if (!("user".equals(role) || "assistant".equals(role) || "ai".equals(role))) continue;
-                if (StringUtils.isBlank(msg.getString("content"))) continue;
 
                 JSONObject m = JSONUtils.toJSONObject(
                         new String[]{"role", "content"},
@@ -172,6 +171,8 @@ public class FileShareController extends BaseController {
                     if (!attachNames.isEmpty()) m.put("attach", attachNames);
                 }
 
+                // 空内容（如仅附件或技能触发）且无附件标签时跳过
+                if (StringUtils.isBlank(msg.getString("content")) && m.getString("attach") == null) continue;
                 msgs.add(m);
             }
 

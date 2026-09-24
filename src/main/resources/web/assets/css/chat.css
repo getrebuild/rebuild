@@ -121,10 +121,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 30px;
   display: inline-block;
   font-size: 12px;
-  max-width: 501px;
+  max-width: min(280px, 100%);
   line-height: 1.5;
   margin-top: 3px;
   margin-right: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chat-input .chat-input-attach > span > a.close {
@@ -133,6 +136,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 4px;
   max-height: 18px;
   transform: translateY(-1px);
+}
+
+.chat-input .chat-input-attach > span.chat-attach-badge {
+  display: inline-flex;
+  align-items: center;
+}
+
+.chat-input .chat-input-attach > span.chat-attach-badge > .name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-input .chat-input-attach > span.chat-attach-badge > a.close {
+  flex-shrink: 0;
 }
 
 .chat-messages {
@@ -203,6 +222,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chat-message .msg-user > .msg-attach {
   margin-top: 5px;
+}
+
+.chat-message .msg-user > .msg-attach + .msg-attach,
+.chat-message .msg-user > .msg-attach:first-child {
+  margin-top: 0;
 }
 
 .chat-message .msg-user > .msg-attach > a[href]:hover {

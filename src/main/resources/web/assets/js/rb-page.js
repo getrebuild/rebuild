@@ -1543,6 +1543,17 @@ function $clipboard(target, tips) {
     })
 }
 
+function $clipboard2(target, text) {
+  var $el = $(target)
+  text = text || $el.data('clipboard-text') || $el.text() || ''
+
+  $clipboard(text)
+  $el.addClass('copied-check')
+  setTimeout(function () {
+    $el.removeClass('copied-check')
+  }, 1500)
+}
+
 // select2
 function $select2OpenTemplateResult(res) {
   var $span = $('<span class="code-append"></span>').attr('title', res.text).text(res.text)

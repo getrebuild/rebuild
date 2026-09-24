@@ -12,7 +12,7 @@ const SharedChat = function ({ messages }) {
       return (
         <div className="chat-message" key={idx}>
           <div className="msg-user">
-            <div className="msg-content">{m.content || ''}</div>
+            {!$empty(m.content) && <div className="msg-content">{m.content}</div>}
             {m.attach && m.attach.length > 0 && (
               <div className="msg-attach">
                 {m.attach.map((name, i) => (

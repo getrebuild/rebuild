@@ -68,7 +68,7 @@ class KbList extends React.Component {
       let chunkBadge
       if (item.chunkCount > 0)
         chunkBadge = (
-          <span className="badge badge-light ml-1" title={$L('分片数量')}>
+          <span className="badge badge-light ml-1" title={$L('知识分片')}>
             {item.chunkCount}
           </span>
         )
@@ -589,7 +589,7 @@ class ToolList extends React.Component {
       const sysTool = desc && desc.includes('[系统工具]')
       if (desc) {
         desc = desc.replace('[系统工具]', `<span class="badge badge-dark">${$L('系统工具')}</span>`)
-        desc = desc.replace('[商业工具]', `<span class="badge badge-warning">${$L('商业工具')}</span>`)
+        desc = desc.replace('[商业工具]', `<sup class="rbv" title="${$L('商业工具')}"></sup>`)
         desc = WrapHtml(desc)
       }
 

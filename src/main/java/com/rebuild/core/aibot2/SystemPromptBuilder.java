@@ -124,7 +124,9 @@ public class SystemPromptBuilder {
         if (skillPrompt != null) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<current_skill>\n")
-                    .append("以下是用户为本次会话指定的技能要求，与前述要求冲突时以本节为准。\n\n")
+                    .append("以下是用户为本次会话指定的技能要求，与前述要求冲突时以本节为准。")
+                    .append("用户已明确选择该技能，视为已同意执行技能所需的写操作，")
+                    .append("调用写操作类工具时请直接设置 confirmed=true 参数执行，无需再次征求用户确认。\n\n")
                     .append(skillPrompt.trim())
                     .append("\n</current_skill>");
         }

@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>4.5.0-beta4</version>
+    <version>4.5.0-beta5</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
@@ -281,11 +281,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.github.devezhao</groupId>
-            <artifactId>momentjava</artifactId>
-            <version>0.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.devezhao</groupId>

@@ -53,6 +53,9 @@ let __evt_ScrollToBottomStop = false
 let __evt_StreamCancel = false
 let __streamController = null
 
+// 错误消息渲染为红色 + 警告图标（实时与历史消息共用）
+const __errorHtml = (error) => `<span class="text-danger"><i class="mdi mdi-alert-circle-outline fs-14 down-1 mr-1"></i>${error}</span>`
+
 // eslint-disable-next-line no-unused-vars
 class Chat extends React.Component {
   constructor(props) {
@@ -288,8 +291,15 @@ class ChatInput extends React.Component {
               className="chat-input-editable"
               onInput={(e) => this.setState({ content: e.target.innerText })}
               onPaste={(e) => {
+                // 粘贴文件（含截图）时上传为附件
+                const cdata = e.clipboardData || window.clipboardData
+                if (cdata && cdata.files && cdata.files.length > 0) {
+                  $stopEvent(e, true)
+                  this._pasteUpload(cdata.files)
+                  return
+                }
                 e.preventDefault()
-                const text = (e.clipboardData || window.clipboardData).getData('text/plain')
+                const text = cdata.getData('text/plain')
                 document.execCommand('insertText', false, text)
               }}
               onKeyDown={(e) => {
@@ -348,7 +358,7 @@ class ChatInput extends React.Component {
               type="button"
               className="btn btn-sm ml-1"
               title={this.state.postState === 0 ? $L('发送') : this.state.postState === 2 ? $L('中断中') : $L('停止')}
-              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content))}
+              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill)}
               onClick={() => {
                 if (this.state.postState === 0) this.hanldeSend()
                 else if (this.state.postState === 1) this.handleCancel()
@@ -364,7 +374,8 @@ class ChatInput extends React.Component {
 
   hanldeSend() {
     if (this.state.postState !== 0) return
-    if ($empty(this.state.content)) return
+    // 无文字但有附件（文件/记录等）或技能时允许发送
+    if ($empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill) return
 
     const content = this.state.content.trim()
     const _Chat = this.props._Chat
@@ -508,6 +519,21 @@ class ChatInput extends React.Component {
     this._$file.click()
   }
 
+  _pasteUpload(files) {
+    if (typeof DataTransfer === 'undefined') return
+    const dt = new DataTransfer()
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i]
+      if (!file.name || /^image\.(png|jpe?g|gif|bmp|webp)$/i.test(file.name)) {
+        const ext = (file.name || 'image.png').split('.').pop() || 'png'
+        file = new File([file], `screenshot-${$random()}.${ext}`, { type: file.type })
+      }
+      dt.items.add(file)
+    }
+    this._$file.files = dt.files
+    $(this._$file).trigger('change')
+  }
+
   attachRecord() {
     const ps = {
       onConfirm: (v) => {
@@ -600,6 +626,14 @@ class ChatMessages extends React.Component {
   }
 
   setMessages(messages, forceScroll, suggestQuestions) {
+    // 历史错误消息渲染为红色（与实时错误提示一致）
+    if (messages) {
+      messages = messages.map((m) => {
+        if (m.error && m.content) return { ...m, content: __errorHtml(m.error) }
+        return m
+      })
+    }
+
     const state = { messages: messages }
     if (suggestQuestions !== undefined) state.suggestQuestions = suggestQuestions
 
@@ -691,7 +725,7 @@ class ChatMessage extends React.Component {
           return
         }
         if (data.error) {
-          data.content = `<span class="text-danger">${data.error}</span>`
+          data.content = __errorHtml(data.error)
         }
 
         if (data.type === '_chatid') {
@@ -777,14 +811,7 @@ class ChatMessage extends React.Component {
           )}
           {this._feedbackable() && (
             <RF>
-              <a
-                title={$L('复制')}
-                onClick={(e) => {
-                  $clipboard(this.state.content || '')
-                  const $a = $(e.currentTarget)
-                  $a.addClass('copied-check')
-                  setTimeout(() => $a.removeClass('copied-check'), 1500)
-                }}>
+              <a title={$L('复制')} onClick={(e) => $clipboard2(e.currentTarget, this.state.error || this.state.content || '')}>
                 <i className="icon mdi mdi-content-copy" />
               </a>
               {(this.props.role === 'assistant' || this.props.role === 'ai') && (
@@ -818,9 +845,11 @@ class ChatMessage extends React.Component {
   renderUser() {
     return (
       <div className="msg-user">
-        <div className="msg-content">
-          <RichContent content={this.state.content} md={false} />
-        </div>
+        {!$empty(this.state.content) && (
+          <div className="msg-content">
+            <RichContent content={this.state.content} md={false} />
+          </div>
+        )}
         {this.state.skill && (
           <div className="msg-attach">
             <Attach skill={this.state.skill} _chatid={this.props._chatid} />
@@ -1338,10 +1367,11 @@ class Attach extends React.Component {
   render() {
     if (!this.state) return null
 
+    // 输入框
     if (this.props._ChatInput) {
       return (
-        <span className="text-ellipsis">
-          {this.state.name}
+        <span className="chat-attach-badge" title={typeof this.state.name === 'string' ? this.state.name : null}>
+          <span className="name">{this.state.name}</span>
           <a className="close" onClick={() => this.props._ChatInput.removeAttach(this.props.id)}>
             &times;
           </a>
@@ -1352,7 +1382,7 @@ class Attach extends React.Component {
     // View
     if (this.state.viewUrl) {
       return (
-        <a href={this.state.viewUrl} target="_blank" title={$L('查看')}>
+        <a href={this.state.viewUrl} target="_blank" title={typeof this.state.name === 'string' ? this.state.name : $L('查看')}>
           {this.state.name}
         </a>
       )

@@ -7,11 +7,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.query;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import org.junit.jupiter.api.Test;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author devezhao
@@ -113,5 +122,56 @@ public class AdvFilterParserTest extends TestSupport {
 
         items.add(JSON.parseObject("{ op:'REP', field:'TestAllFieldsName', value:2 }"));
         System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
+    }
+
+    @Test
+    void testUnitOperators() {
+        Date now = CalendarUtils.now();
+        Map<String, Date> begins = new HashMap<>();
+        begins.put("CUW", DateUtil.beginOfWeek(now));
+        begins.put("CUM", DateUtil.beginOfMonth(now));
+        begins.put("CUQ", DateUtil.beginOfQuarter(now));
+        begins.put("CUY", DateUtil.beginOfYear(now));
+        begins.put("PUQ", DateUtil.offsetMonth(DateUtil.beginOfQuarter(now), -3));
+        begins.put("NUY", DateUtil.offsetMonth(DateUtil.beginOfYear(now), 12));
+
+        JSONObject filterExp = new JSONObject();
+        filterExp.put("entity", TestAllFields);
+        JSONArray items = new JSONArray();
+        filterExp.put("items", items);
+
+        for (Map.Entry<String, Date> e : begins.entrySet()) {
+            items.clear();
+            items.add(JSON.parseObject("{ op:'" + e.getKey() + "', field:'date1' }"));
+            String where = new AdvFilterParser(filterExp).toSqlWhere();
+            System.out.println(where);
+
+            assertTrue(where.contains(CalendarUtils.getUTCDateFormat().format(e.getValue())));
+        }
+    }
+
+    @Test
+    void testYyyMmm() {
+        JSONObject filterExp = new JSONObject();
+        filterExp.put("entity", TestAllFields);
+        JSONArray items = new JSONArray();
+        filterExp.put("items", items);
+
+        // 上一年 / 上一月
+        items.add(JSON.parseObject("{ op:'YYY', field:'date1', value:'-1' }"));
+        items.add(JSON.parseObject("{ op:'MMM', field:'date1', value:'-1' }"));
+        String where = new AdvFilterParser(filterExp).toSqlWhere();
+        System.out.println(where);
+
+        Calendar now = CalendarUtils.getInstance();
+        now.add(Calendar.YEAR, -1);
+        assertTrue(where.contains(now.get(Calendar.YEAR) + "-01-01"));
+        assertTrue(where.contains(now.get(Calendar.YEAR) + "-12-31"));
+
+        now = CalendarUtils.getInstance();
+        now.set(Calendar.DAY_OF_MONTH, 1);
+        now.add(Calendar.MONTH, -1);
+        assertTrue(where.contains(CalendarUtils.getUTCDateFormat().format(now.getTime())));
+        assertTrue(where.contains(CalendarUtils.getUTCDateFormat().format(DateUtil.endOfMonth(now.getTime()))));
     }
 }

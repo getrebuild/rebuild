@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.feeds.FeedsScope;
 import com.rebuild.core.service.feeds.FeedsService;
 import com.rebuild.core.service.feeds.FeedsType;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -107,10 +108,11 @@ public class CreateFeed implements Tool {
         record = Application.getBean(FeedsService.class).create(record);
 
         String typeName = FeedsType.parse(type).getName();
+        String url = AppUtils.getContextPath("/app/redirect?id=" + record.getPrimary());
         return JSONUtils.toJSONObject(
-                new String[]{"status", "id", "message"},
-                new Object[]{"ok", record.getPrimary().toLiteral(),
-                        String.format("已成功发布%s，ID: %s", typeName, record.getPrimary())});
+                new String[]{"status", "id", "url", "message"},
+                new Object[]{"ok", record.getPrimary().toLiteral(), url,
+                        String.format("已成功发布%s，[点击查看](%s)，请将此链接展示给用户", typeName, url)});
     }
 
     /**

@@ -22,7 +22,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.Executor2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -333,12 +333,19 @@ public class CommonsUtils {
      */
     @SuppressWarnings("unchecked")
     public static boolean isSame(Object a, Object b) {
-        if (a == null && b != null) return false;
-        if (a != null && b == null) return false;
+        if (NullValue.isNull(a) && NullValue.isNull(b)) return true;
+        if (NullValue.isNull(a) || NullValue.isNull(b)) return false;
         if (Objects.equals(a, b)) return true;
 
         // 数字
         if (a instanceof Number && b instanceof Number) {
+            if (isInteger(a) && isInteger(b)) {
+                return ((Number) a).longValue() == ((Number) b).longValue();
+            }
+            if (a instanceof BigDecimal && b instanceof BigDecimal) {
+                return ((BigDecimal) a).compareTo((BigDecimal) b) == 0;
+            }
+
             BigDecimal d1 = BigDecimal.valueOf(ObjectUtils.toDouble(a)).setScale(8, RoundingMode.HALF_UP);
             BigDecimal d2 = BigDecimal.valueOf(ObjectUtils.toDouble(b)).setScale(8, RoundingMode.HALF_UP);
             return d1.equals(d2);
@@ -355,12 +362,20 @@ public class CommonsUtils {
 
             if (aColl.size() != bColl.size()) return false;
             if (aColl.isEmpty()) return true;
-            return CollectionUtils.containsAll(aColl, bColl) && CollectionUtils.containsAll(bColl, aColl);
+            for (Object o : aColl) {
+                if (IterableUtils.frequency(aColl, o) != IterableUtils.frequency(bColl, o)) return false;
+            }
+            return true;
         }
 
         // 其他
         // FIXME 完善不同值类型的比较
         return StringUtils.equals(a.toString(), b.toString());
+    }
+
+    // 是否整型数字
+    private static boolean isInteger(Object v) {
+        return v instanceof Byte || v instanceof Short || v instanceof Integer || v instanceof Long;
     }
 
     /**

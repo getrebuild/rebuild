@@ -100,6 +100,23 @@ public class MultiSelectManager extends PickListManager {
         return 0;
     }
 
+    /**
+     * mask 值的各个位是否均为该字段的合法选项位（用于数字直传校验）
+     *
+     * @param maskValue
+     * @param field
+     * @return
+     */
+    public boolean isValidMask(long maskValue, Field field) {
+        if (maskValue <= 0) return false;
+
+        long valid = 0;
+        for (ConfigBean e : getPickListRaw(field, true)) {
+            valid |= e.get("mask", Long.class);
+        }
+        return (maskValue & ~valid) == 0;
+    }
+
     @Override
     public void clean(Object idOrField) {
         if (idOrField instanceof ID) {

@@ -25,6 +25,8 @@
         },
         "priority": {
           "type": "integer",
+          "minimum": 0,
+          "maximum": 3,
           "description": "优先级: 0=较低, 1=普通(默认), 2=紧急, 3=非常紧急"
         },
         "deadline": {
