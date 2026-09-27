@@ -53,7 +53,7 @@ public class RobotApprovalManager implements ConfigManager {
 
         // 记录的
         if (recordId != null) {
-            if (!recordId.getEntityCode().equals(entity.getEntityCode())) {
+            if (recordId.getEntityCode() != entity.getEntityCode()) {
                 log.warn("Entity and Record/ID mismatch : {}, {}", entity, recordId);
                 CommonsUtils.printStackTrace();
                 return null;

@@ -90,7 +90,7 @@ public class ToolHelper {
      * @param entity
      */
     public static void checkRecordEntity(ID recordId, Entity entity) {
-        if ((int) recordId.getEntityCode() != entity.getEntityCode()) {
+        if (recordId.getEntityCode() != entity.getEntityCode()) {
             throw new KnownToolException("记录 ID 与实体不匹配 : " + recordId
                     + " 不属于 " + EasyMetaFactory.getLabel(entity)
                     + "，实际属于 " + EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode())));

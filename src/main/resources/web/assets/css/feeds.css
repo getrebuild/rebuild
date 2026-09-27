@@ -380,6 +380,34 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 8px;
 }
 
+.comment-list .comment-nested {
+  margin-left: 46px;
+  padding-left: 14px;
+  border-left: 2px solid #eee;
+  margin-top: 4px;
+}
+
+.comment-list .comment-nested.flat {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: 0 none;
+}
+
+.comment-list .comment-nested > div {
+  padding: 6px 0 2px;
+}
+
+.comment-list .comment-deleted {
+  padding: 6px 0 2px;
+}
+
+.comment-list .comment-deleted > span {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f5f5f5;
+  border-radius: 3px;
+}
+
 .comments .feeds-pages {
   margin-bottom: 15px;
 }

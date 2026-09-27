@@ -13,7 +13,6 @@ import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimit
 import org.springframework.util.Assert;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,9 +30,7 @@ public class RateLimiters {
      * @return
      */
     public static RequestRateLimiter createRateLimiter(int seconds, int limit) {
-        Set<RequestLimitRule> rules = Collections.singleton(
-                RequestLimitRule.of(Duration.ofSeconds(seconds), limit));
-        return new InMemorySlidingWindowRequestRateLimiter(rules);
+        return createRateLimiter(new int[]{seconds}, new int[]{limit});
     }
 
     /**

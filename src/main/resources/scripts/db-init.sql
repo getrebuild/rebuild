@@ -649,12 +649,13 @@ create table if not exists `feeds_comment` (
   `CONTENT`            text(65535) not null comment '内容',
   `IMAGES`             varchar(701) comment '图片',
   `ATTACHMENTS`        varchar(701) comment '附件',
+  `REPLY_TO`           char(20) comment '回复评论',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   primary key  (`COMMENT_ID`),
-  index IX0_feeds_comment (`FEEDS_ID`)
+  index IX0_feeds_comment (`FEEDS_ID`, `REPLY_TO`)
 )Engine=InnoDB;
 
 -- ************ Entity [FeedsLike] DDL ************
@@ -1047,4 +1048,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 78);
+  values ('021-9000000000000001', 'DBVer', 79);

@@ -345,74 +345,87 @@ class FeedsComments extends React.Component {
         </div>
 
         <div className="feeds-list comment-list" ref={(c) => (this._$commentsList = c)}>
-          {(this.state.data || []).map((item) => {
-            if (item.deleted) return null
-
-            const id = `comment-${item.id}`
-            return (
-              <div key={id} id={id}>
-                <div className="feeds">
-                  <div className="user">
-                    <a className="user-show">
-                      <div className="avatar">
-                        <img src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} alt="Avatar" />
-                      </div>
-                    </a>
-                  </div>
-                  <div className="content">
-                    <div className="meta">
-                      <a>{item.createdBy[1]}</a>
-                    </div>
-                    {_renderRichContent(item)}
-                    <div className="actions">
-                      <div className="float-left text-muted fs-12 time">
-                        <DateShow date={item.createdOn} />
-                      </div>
-                      <ul className="list-unstyled m-0">
-                        {item.self && (
-                          <li className="list-inline-item mr-3">
-                            <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
-                              <i className="zmdi zmdi-more text-bold" />
-                              &nbsp;
-                            </a>
-                            <div className="dropdown-menu dropdown-menu-right">
-                              <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}>
-                                <i className="icon zmdi zmdi-delete" />
-                                {$L('删除')}
-                              </a>
-                            </div>
-                          </li>
-                        )}
-                        <li className="list-inline-item mr-4">
-                          <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
-                            <i className="zmdi zmdi-thumb-up" /> {item.numLike > 0 && item.numLike} {$L('赞')}
-                          </a>
-                        </li>
-                        <li className="list-inline-item">
-                          <a href="#reply" onClick={() => this._toggleReply(item.id)} className={`fixed-icon ${item.shownReply && 'text-primary'}`}>
-                            <i className="zmdi zmdi-mail-reply" /> {$L('回复')}
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className={`comment-reply ${!item.shownReply && 'hide'}`}>
-                      {item.shownReplyReal && <FeedsEditor placeholder={$L('添加回复')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />}
-                      <div className="mt-2 text-right">
-                        <button type="button" onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">
-                          {$L('取消')}
-                        </button>
-                        <button type="button" className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post(item._editor)}>
-                          {$L('回复')}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
+          {(this.state.data || []).map((item) => this._renderComment(item, 0))}
         </div>
         <Pagination ref={(c) => (this._Pagination = c)} call={this.gotoPage} pageSize={20} comment={true} />
+      </div>
+    )
+  }
+
+  // 递归渲染评论（含嵌套回复）
+  _renderComment(item, depth) {
+    if (item.deleted) {
+      // 已删除：有子楼层则显示占位，否则直接隐藏
+      if (!item.children || item.children.length === 0) return null
+      return (
+        <div key={`comment-deleted-${item._ph || item.id}`} className="comment-deleted">
+          <span className="fs-12 text-muted">{$L('评论已删除')}</span>
+          <div className="comment-nested">{item.children.map((c) => this._renderComment(c, 0))}</div>
+        </div>
+      )
+    }
+
+    const id = `comment-${item.id}`
+    return (
+      <div key={id} id={id}>
+        <div className="feeds">
+          <div className="user">
+            <a className="user-show">
+              <div className="avatar">
+                <img src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} alt="Avatar" />
+              </div>
+            </a>
+          </div>
+          <div className="content">
+            <div className="meta">
+              <a>{item.createdBy[1]}</a>
+            </div>
+            {_renderRichContent(item)}
+            <div className="actions">
+              <div className="float-left text-muted fs-12 time">
+                <DateShow date={item.createdOn} />
+              </div>
+              <ul className="list-unstyled m-0">
+                {item.self && (
+                  <li className="list-inline-item mr-3">
+                    <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
+                      <i className="zmdi zmdi-more text-bold" />
+                      &nbsp;
+                    </a>
+                    <div className="dropdown-menu dropdown-menu-right">
+                      <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}>
+                        <i className="icon zmdi zmdi-delete" />
+                        {$L('删除')}
+                      </a>
+                    </div>
+                  </li>
+                )}
+                <li className="list-inline-item mr-4">
+                  <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
+                    <i className="zmdi zmdi-thumb-up" /> {item.numLike > 0 && item.numLike} {$L('赞')}
+                  </a>
+                </li>
+                <li className="list-inline-item">
+                  <a href="#reply" onClick={() => this._toggleReply(item.id)} className={`fixed-icon ${item.shownReply && 'text-primary'}`}>
+                    <i className="zmdi zmdi-mail-reply" /> {$L('回复')}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className={`comment-reply ${!item.shownReply && 'hide'}`}>
+              {item.shownReplyReal && <FeedsEditor placeholder={$L('添加回复')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />}
+              <div className="mt-2 text-right">
+                <button type="button" onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">
+                  {$L('取消')}
+                </button>
+                <button type="button" className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post(item)}>
+                  {$L('回复')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {item.children && item.children.length > 0 && <div className={depth < 3 ? 'comment-nested' : 'comment-nested flat'}>{item.children.map((c) => this._renderComment(c, depth + 1))}</div>}
       </div>
     )
   }
@@ -425,7 +438,7 @@ class FeedsComments extends React.Component {
     $.get(`/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
       const _data = res.data || {}
       this.state.pageNo === 1 && this._Pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
-      this.setState({ data: _data.data }, () => {
+      this.setState({ data: this._groupComments(_data.data) }, () => {
         $(this._$commentsList)
           .find('.rich-content .texts a[data-uid]')
           .on('click', function () {
@@ -435,13 +448,43 @@ class FeedsComments extends React.Component {
     })
   }
 
-  _post = (whichEditor) => {
-    if (!whichEditor) whichEditor = this._FeedsEditor
+  // 组装嵌套树（父评论已删除的挂“评论已删除”占位，父评论不在本页的降级为顶级）
+  _groupComments(list) {
+    list = list || []
+    const map = {}
+    const tree = []
+    const phMap = {}
+    list.forEach((x) => {
+      x.children = []
+      map[x.id] = x
+    })
+    list.forEach((x) => {
+      const p = x.replyTo && map[x.replyTo] ? map[x.replyTo] : null
+      if (p) {
+        p.children.push(x)
+        return
+      }
+      if (x.replyDeleted) {
+        let ph = phMap[x.replyTo]
+        if (!ph) {
+          ph = { deleted: true, _ph: x.replyTo, children: [] }
+          phMap[x.replyTo] = ph
+          tree.push(ph)
+        }
+        ph.children.push(x)
+      } else tree.push(x)
+    })
+    return tree
+  }
+
+  _post = (item) => {
+    const whichEditor = item ? item._editor : this._FeedsEditor
 
     const _data = whichEditor.vals()
     if (!_data.content) return RbHighbar.create($L('请输入评论内容'))
     _data.feedsId = this.props.feeds
     _data.metadata = { entity: 'FeedsComment' }
+    if (item) _data.replyTo = item.id
 
     const $btn = $(this._$btn).button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
@@ -463,7 +506,7 @@ class FeedsComments extends React.Component {
   _toggleReply = (id, state) => {
     event.preventDefault()
     const _data = this.state.data
-    _data.forEach((item) => {
+    this._walkComments(_data, (item) => {
       if (id === item.id) {
         if (state !== undefined) item.shownReply = state
         else item.shownReply = !item.shownReply
@@ -472,6 +515,15 @@ class FeedsComments extends React.Component {
       }
     })
     this.setState({ data: _data })
+  }
+
+  // 深度遍历评论树
+  _walkComments(list, fn) {
+    list = list || []
+    list.forEach((item) => {
+      fn(item)
+      this._walkComments(item.children, fn)
+    })
   }
 
   _handleLike = (id) => _handleLike(id, this)
@@ -487,7 +539,7 @@ class FeedsComments extends React.Component {
           this.hide()
           $(`#comment-${id}`).animate({ opacity: 0 }, 600, () => {
             const _data = that.state.data || []
-            _data.forEach((item) => {
+            that._walkComments(_data, (item) => {
               if (id === item.id) item.deleted = true
             })
             that.setState({ data: _data })

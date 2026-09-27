@@ -133,7 +133,7 @@ public class FormsBuilder extends FormsManager {
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
         if (recordId != null) {
-            Assert.isTrue(entityMeta.getEntityCode().equals(recordId.getEntityCode()), "[entity] and [recordId] do not match");
+            Assert.isTrue(entityMeta.getEntityCode() == recordId.getEntityCode(), "[entity] and [recordId] do not match");
 
             if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, recordId)) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));

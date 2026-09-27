@@ -323,8 +323,9 @@ public class ApprovalProcessor extends SetUser {
      *
      * @param approver
      * @param toUser
+     * @param remarks
      */
-    public void referral(ID approver, ID toUser) {
+    public void referral(ID approver, ID toUser, Object[] remarks) {
         final Object[] stepApprover = findProcessingStepApprover(approver);
         if (toUser.equals(stepApprover[2])) {
             throw new ApprovalException(Language.L("不能转审给自己"));
@@ -340,8 +341,8 @@ public class ApprovalProcessor extends SetUser {
         if (instepApprover != null) {
             throw new ApprovalException(Language.L("审批人已在当前审批步骤中"));
         }
-        
-        Application.getBean(ApprovalStepService.class).txReferral((ID) stepApprover[0], toUser);
+
+        Application.getBean(ApprovalStepService.class).txReferral((ID) stepApprover[0], toUser, remarks);
     }
 
     /**
@@ -349,10 +350,11 @@ public class ApprovalProcessor extends SetUser {
      *
      * @param approver
      * @param toUsers
+     * @param remarks
      */
-    public void countersign(ID approver, ID[] toUsers) {
+    public void countersign(ID approver, ID[] toUsers, Object[] remarks) {
         final Object[] stepApprover = findProcessingStepApprover(approver);
-        Application.getBean(ApprovalStepService.class).txCountersign((ID) stepApprover[0], toUsers);
+        Application.getBean(ApprovalStepService.class).txCountersign((ID) stepApprover[0], toUsers, remarks);
     }
 
     /**
@@ -743,9 +745,15 @@ public class ApprovalProcessor extends SetUser {
             // 转审
             String referralFrom = attrMored.getString("referralFrom");
             s.put("referralFrom", ID.isId(referralFrom) ? UserHelper.getName(ID.valueOf(referralFrom)) : null);
+            s.put("referralRemark", attrMored.getString("referralRemark"));
+            JSONArray referralAttachments = attrMored.getJSONArray("referralAttachments");
+            if (CollectionUtils.isNotEmpty(referralAttachments)) s.put("referralAttachments", referralAttachments);
             // 加签
             String countersignFrom = attrMored.getString("countersignFrom");
             s.put("countersignFrom", ID.isId(countersignFrom) ? UserHelper.getName(ID.valueOf(countersignFrom)) : null);
+            s.put("countersignRemark", attrMored.getString("countersignRemark"));
+            JSONArray countersignAttachments = attrMored.getJSONArray("countersignAttachments");
+            if (CollectionUtils.isNotEmpty(countersignAttachments)) s.put("countersignAttachments", countersignAttachments);
             // 批量
             String batchMode = attrMored.getString("batchMode");
             s.put("batchMode", batchMode != null);
