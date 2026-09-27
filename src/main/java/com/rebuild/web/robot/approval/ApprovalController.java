@@ -34,13 +34,13 @@ import com.rebuild.core.service.approval.FlowNode;
 import com.rebuild.core.service.approval.FlowNodeGroup;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
+import com.rebuild.core.service.general.RepeatedRecordsException;
 import com.rebuild.core.service.trigger.DataValidateException;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
-import com.rebuild.core.service.general.RepeatedRecordsException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.transaction.UnexpectedRollbackException;
@@ -304,7 +304,7 @@ public class ApprovalController extends BaseController {
                     JSONObject aform = (JSONObject) o;
                     if (aform.size() > 1) {
                         Record a = EntityHelper.parse((JSONObject) o, approver);
-                        if (a.getEntity().getEntityCode().equals(recordId.getEntityCode())) addedRecord = a;
+                        if (a.getEntity().getEntityCode() == recordId.getEntityCode()) addedRecord = a;
                         else details.add(a);
                         changed = true;
                     }

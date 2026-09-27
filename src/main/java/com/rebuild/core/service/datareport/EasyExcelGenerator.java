@@ -599,8 +599,9 @@ public class EasyExcelGenerator extends SetUser {
                 query.setParameter(1, recordId);
 
                 // 多个占位参数
-                Map<String, ParameterItem> params = ((AjqlQuery) query).getQueryCompiler().getInParameters();
-                for (String fieldName : params.keySet()) {
+                List<ParameterItem> params = ((AjqlQuery) query).getQueryCompiler().getInParameters();
+                for (ParameterItem item : params) {
+                    String fieldName = item.getNamed();
                     if (fieldName.startsWith(":")) {
                         fieldName = fieldName.substring(1);
                         Object v = QueryHelper.queryFieldValue(recordId, fieldName);
