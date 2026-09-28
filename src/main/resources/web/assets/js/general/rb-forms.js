@@ -398,10 +398,19 @@ class RbForm extends React.Component {
       _disableAutoFillin: this.props._disableAutoFillin,
     }
 
-    if (window._CustomizedForms) {
-      _ProTable = window._CustomizedForms.useProTable(dProps)
-      if (_ProTable === false) return null // 不显示
+    // v4.5 FrontJS 复写 ProTable
+    if (window.FrontJS) {
+      _ProTable = window.FrontJS.Form.__proTables[detailMeta.entity]
+      if (_ProTable === false) {
+        return null // 不显示
+      } else if (_ProTable) {
+        _ProTable = <_ProTable {...dProps} />
+      }
     }
+    // if (!_ProTable && window._CustomizedForms) {
+    //   _ProTable = window._CustomizedForms.useProTable(dProps)
+    //   if (_ProTable === false) return null // 不显示
+    // }
 
     function _addNew(n = 1) {
       for (let i = 0; i < n; i++) {
@@ -3992,11 +4001,16 @@ var detectElement = function (item, entity) {
   if (entity) {
     item.entity = entity
   }
-  // 复写的字段组件
-  if (entity && window._CustomizedForms) {
-    const c = window._CustomizedForms.useFormElement(entity, item)
-    if (c) return c
+  // v4.5 FrontJS 复写字段组件
+  if (window.FrontJS && item.entity) {
+    const _Comp = window.FrontJS.Form.__formElements[`${item.entity}.${item.field}`]
+    if (_Comp) return <_Comp {...item} />
   }
+  // // 复写的字段组件
+  // if (entity && window._CustomizedForms) {
+  //   const c = window._CustomizedForms.useFormElement(entity, item)
+  //   if (c) return c
+  // }
 
   if (item.unreadable === true) {
     return <RbFormUnreadable {...item} />
