@@ -1047,10 +1047,10 @@ class RbForm extends React.Component {
 
   // 保存前调用（返回 false 则不继续保存）
   // eslint-disable-next-line no-unused-vars
-  static postBefore(data, formObject) {}
+  static postBefore(postData, formObject) {}
   // 保存后调用
   // eslint-disable-next-line no-unused-vars
-  static postAfter(data, next, formObject) {}
+  static postAfter(postData, nextAction, formObject) {}
   // 组件渲染后调用
   // eslint-disable-next-line no-unused-vars
   static renderAfter(formObject) {}
