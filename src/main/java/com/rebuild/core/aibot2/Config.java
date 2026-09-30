@@ -20,6 +20,8 @@ import org.apache.tika.Tika;
 import org.springframework.util.Assert;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Zixin
@@ -29,6 +31,8 @@ import java.time.Duration;
 public class Config {
 
     private static OpenAIClient CLIENT;
+
+    private static final Map<String, OpenAIClient> OWN_CLIENTS = new ConcurrentHashMap<>();
 
     private static volatile String SYSTEM_PROMPT_CACHE;
 
@@ -52,25 +56,43 @@ public class Config {
      * @return
      */
     public static OpenAIClient getClient(boolean reset) {
-        if (reset && CLIENT != null) {
-            CLIENT.close();
-            CLIENT = null;
-        }
+        if (reset) resetClients();
 
         if (CLIENT != null) return CLIENT;
 
-        CLIENT = getClient(getServerUrl(null), getSecret());
+        CLIENT = createClient(getServerUrl(null), getSecret());
         return CLIENT;
     }
 
+    public static void resetClients() {
+        if (CLIENT != null) {
+            CLIENT.close();
+            CLIENT = null;
+        }
+        for (OpenAIClient c : OWN_CLIENTS.values()) c.close();
+        OWN_CLIENTS.clear();
+    }
+
     /**
-     * 创建临时客户端（使用指定参数，不从已保存配置读取）
-     *
      * @param baseUrl
      * @param apiKey
      * @return
      */
     public static OpenAIClient getClient(String baseUrl, String apiKey) {
+        Assert.notNull(baseUrl, "[baseUrl] is not set");
+        Assert.notNull(apiKey, "[apiKey] is not set");
+
+        return OWN_CLIENTS.computeIfAbsent(baseUrl + "|" + apiKey, k -> createClient(baseUrl, apiKey));
+    }
+
+    /**
+     * 创建客户端（使用指定参数，不从已保存配置读取）
+     *
+     * @param baseUrl
+     * @param apiKey
+     * @return
+     */
+    public static OpenAIClient createClient(String baseUrl, String apiKey) {
         Assert.notNull(baseUrl, "[baseUrl] is not set");
         Assert.notNull(apiKey, "[apiKey] is not set");
 

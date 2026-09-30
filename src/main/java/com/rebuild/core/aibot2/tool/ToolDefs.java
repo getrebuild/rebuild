@@ -15,8 +15,8 @@ import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.aibot2.AiSourceHolder;
 import com.rebuild.core.aibot2.AibotAgent;
+import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserHelper;
@@ -112,7 +112,8 @@ public class ToolDefs {
      */
     public static List<ChatCompletionTool> tools(AibotAgent agent) {
         // 管理员专属工具不提供给非管理员
-        boolean isAdmin = UserContextHolder.getUser(true) != null
+        boolean isAdmin = !AibotContextHolder.isAnonymous()
+                && UserContextHolder.getUser(true) != null
                 && UserHelper.isAdmin(UserContextHolder.getUser());
 
         Set<String> disabled = getDisabledTools();
@@ -263,7 +264,7 @@ public class ToolDefs {
      */
     public static String execute(String toolName, String arguments, ChatLogger chatLogger) {
         ID user = UserContextHolder.getUser();
-        ID restoreAiSource = AiSourceHolder.set(chatLogger != null ? chatLogger.getChatid() : null);
+        ID restoreAiSource = AibotContextHolder.setSource(chatLogger != null ? chatLogger.getChatid() : null);
 
         try {
             Tool tool = TOOL_MAP.get(toolName);
@@ -277,7 +278,7 @@ public class ToolDefs {
                 throw new KnownToolException("Tool disabled: " + toolName);
             }
 
-            if (tool instanceof AdminGuard && !UserHelper.isAdmin(user)) {
+            if (tool instanceof AdminGuard && (AibotContextHolder.isAnonymous() || !UserHelper.isAdmin(user))) {
                 log.warn("Tool requires admin : {} by {}", toolName, user);
                 throw new KnownToolException("此操作仅限管理员使用");
             }
@@ -323,7 +324,7 @@ public class ToolDefs {
             }
 
         } finally {
-            AiSourceHolder.clear(restoreAiSource);
+            AibotContextHolder.clearSource(restoreAiSource);
         }
     }
 

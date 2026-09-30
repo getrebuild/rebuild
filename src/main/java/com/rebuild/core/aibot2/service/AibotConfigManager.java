@@ -28,6 +28,7 @@ public class AibotConfigManager implements ConfigManager {
 
     public static final String TYPE_KNOWLEDGE = "KNOWLEDGE";
     public static final String TYPE_SKILL = "SKILL";
+    public static final String TYPE_AGENT = "AGENT";
     public static final String TYPE_AIBOT_SCHEDULE = "AIBOT_SCHEDULE";
     public static final String TYPE_AIBOT_USERMEMORY = "AIBOT_USERMEMORY";
 
@@ -52,6 +53,15 @@ public class AibotConfigManager implements ConfigManager {
      */
     public ConfigBean[] getSkillConfigs() {
         return getConfig(TYPE_SKILL);
+    }
+
+    /**
+     * 获取 Agent 配置列表
+     *
+     * @return
+     */
+    public ConfigBean[] getAgentConfigs() {
+        return getConfig(TYPE_AGENT);
     }
 
     /**

@@ -16,36 +16,65 @@ import org.springframework.core.NamedThreadLocal;
  * @see com.rebuild.core.service.general.RevisionHistoryObserver
  * @see com.rebuild.core.service.trigger.RobotTriggerObserver
  */
-public class AiSourceHolder {
+public class AibotContextHolder {
 
     private static final ThreadLocal<ID> AI_SOURCE = new NamedThreadLocal<>("AI source");
+
+    private static final ThreadLocal<AibotAgent> AGENT = new NamedThreadLocal<>("AI agent");
+
+    private static final ThreadLocal<Boolean> ANONYMOUS = new NamedThreadLocal<>("AI anonymous");
 
     /**
      * @param chatid
      * @return
      */
-    public static ID set(ID chatid) {
+    public static ID setSource(ID chatid) {
         ID old = AI_SOURCE.get();
         AI_SOURCE.set(chatid);
         return old;
     }
 
     /**
-     * 获取 AI 操作源
-     *
      * @return
      */
-    public static ID get() {
+    public static ID getSource() {
         return AI_SOURCE.get();
     }
 
     /**
-     * 清理/恢复 AI 操作源
-     *
      * @param restore 传 null 则清理，否则恢复为指定值
      */
-    public static void clear(ID restore) {
+    public static void clearSource(ID restore) {
         if (restore == null) AI_SOURCE.remove();
         else AI_SOURCE.set(restore);
+    }
+
+    /**
+     * @param agent
+     * @param anonymous
+     */
+    public static void setAgent(AibotAgent agent, boolean anonymous) {
+        AGENT.set(agent);
+        ANONYMOUS.set(anonymous);
+    }
+
+    /**
+     * @return
+     */
+    public static AibotAgent getAgent() {
+        return AGENT.get();
+    }
+
+    /**
+     * @return
+     */
+    public static boolean isAnonymous() {
+        return Boolean.TRUE.equals(ANONYMOUS.get());
+    }
+
+    public static void clear() {
+        AI_SOURCE.remove();
+        AGENT.remove();
+        ANONYMOUS.remove();
     }
 }

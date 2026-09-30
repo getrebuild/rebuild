@@ -37,7 +37,7 @@ public class Chat implements Serializable {
     @Getter
     private ID chatid;
     @Getter
-    private AibotAgent agent;
+    private volatile AibotAgent agent;
     @Getter
     private List<Message> messages = new ArrayList<>();
     @Getter
@@ -52,8 +52,9 @@ public class Chat implements Serializable {
 
     public Chat(ID chatid, AibotAgent agent) {
         this.chatid = chatid;
-        this.agent = agent != null ? agent : AibotAgent.defaultAgent();
+        this.agent = agent;
         this.restoreIfNeed();
+        if (this.agent == null) this.agent = AibotAgent.defaultAgent();
     }
 
     protected Chat(ID chatid, String model, String prompt) {
@@ -73,6 +74,13 @@ public class Chat implements Serializable {
     public synchronized ChatLogger chatLogger() {
         if (chatLogger == null) chatLogger = new ChatLogger(chatid);
         return chatLogger;
+    }
+
+    /**
+     * @param agent
+     */
+    public synchronized void refreshAgent(AibotAgent agent) {
+        if (agent != null) this.agent = agent;
     }
 
     /**
@@ -236,6 +244,12 @@ public class Chat implements Serializable {
      * 恢复会话内容
      */
     protected void restoreIfNeed() {
+        if (this.agent == null) {
+            Object a = QueryHelper.queryFieldValue(getChatid(), "agentId");
+            AibotAgent agent = a == null ? null : AgentDefs.getAgent((ID) a);
+            if (agent != null) this.agent = agent;
+        }
+
         Object t = QueryHelper.queryFieldValue(getChatid(), "token");
         if (t != null) this.tokenUsage = Long.parseLong(t.toString());
 

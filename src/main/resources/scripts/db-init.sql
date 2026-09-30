@@ -943,6 +943,7 @@ create table if not exists `aibot_chat` (
   `SUBJECT`            varchar(100) comment '主题',
   `CONTENTS`           longtext comment '会话内容',
   `TOKEN`              bigint(20) comment '词元用量',
+  `AGENT_ID`           char(20) comment '使用的智能体',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',

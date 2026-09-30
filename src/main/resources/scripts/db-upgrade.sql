@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #80 (v4.6)
+alter table `aibot_chat`
+  add column `AGENT_ID` char(20) comment '使用的智能体';
+
 -- #79 (v4.6)
 alter table `feeds_comment`
   add column `REPLY_TO` char(20) comment '回复评论';
