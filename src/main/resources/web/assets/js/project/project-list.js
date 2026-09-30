@@ -17,10 +17,10 @@ class GridList extends React.Component {
     const ps = this.state.list || []
 
     return (
-      <div className="card-list row">
+      <div className="card-list card-grid">
         {ps.map((item) => {
           return (
-            <div key={`item-${item[0]}`} className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+            <div key={`item-${item[0]}`}>
               <div className="card">
                 <div className="card-body">
                   <a className="text-truncate" href={`project/${item[0]}`}>
