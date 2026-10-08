@@ -49,7 +49,7 @@ public class RBStore {
      */
     public static JSON fetchMetaschema(String file) {
         return fetchRemoteJson("metaschemas/" +
-                StringUtils.defaultIfBlank(file, "index-3.7.json"));
+                StringUtils.defaultIfBlank(file, "index-4.5.json"));
     }
 
     /**

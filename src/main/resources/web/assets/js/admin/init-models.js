@@ -71,6 +71,25 @@ class InitModels extends React.Component {
             </fieldset>
           )
         })}
+
+        {this.state.data.apps && this.state.data.apps.length > 0 && (
+          <fieldset>
+            <legend>
+              <strong>行业方案</strong>
+            </legend>
+            <form>
+              {this.state.data.apps.map((item) => (
+                <div key={item.url}>
+                  <a className="d-block" href={item.url} target="_blank" rel="noopener noreferrer" title={item.desc}>
+                    <strong>{item.name}</strong>
+                    <p>{item.desc}</p>
+                  </a>
+                </div>
+              ))}
+            </form>
+            <div className="clearfix" />
+          </fieldset>
+        )}
       </div>
     )
   }
