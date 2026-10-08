@@ -194,15 +194,15 @@ public class FileDownloader extends BaseController {
 
     @GetMapping(value = "read-raw")
     public void readRawText(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String filepath = getParameterNotNull(request, "url");
+        String filePath = getParameterNotNull(request, "url");
         final String charset = getParameter(request, "charset", AppUtils.UTF8);
         final int cut = getIntParameter(request, "cut");  // MB
 
-        if (CommonsUtils.isExternalUrl(filepath)) {
+        if (CommonsUtils.isExternalUrl(filePath)) {
             String text;
-            if (filepath.startsWith(RebuildConfiguration.getHomeUrl())) {
+            if (filePath.startsWith(RebuildConfiguration.getHomeUrl())) {
                 try {
-                    text = OkHttpUtils.get(filepath, null, charset);
+                    text = OkHttpUtils.get(filePath, null, charset);
                 } catch (Exception ex) {
                     text = "ERROR:" + CommonsUtils.getRootMessage(ex);
                 }
@@ -220,19 +220,19 @@ public class FileDownloader extends BaseController {
 
         String text;
         if (QiniuCloud.instance().available()) {
-            FileInfo fi = QiniuCloud.instance().stat(filepath);
+            FileInfo fi = QiniuCloud.instance().stat(filePath);
             if (fi == null) {
                 text = "ERROR:FILE_NOT_EXISTS";
             } else if (cut > 0 && fi.fsize / 1024 / 1024 > cut) {
                 text = "ERROR:FILE_TOO_LARGE";
             } else {
-                text = OkHttpUtils.get(QiniuCloud.instance().makeUrl(filepath), null, charset);
+                text = OkHttpUtils.get(QiniuCloud.instance().makeUrl(filePath), null, charset);
             }
 
         } else {
             // Local storage
-            filepath = checkSafeFilePath(filepath);
-            File file = RebuildConfiguration.getFileOfData(filepath);
+            filePath = checkSafeFilePath(filePath);
+            File file = RebuildConfiguration.getFileOfData(filePath);
 
             if (!file.exists()) {
                 text = "ERROR:FILE_NOT_EXISTS";

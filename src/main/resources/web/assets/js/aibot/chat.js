@@ -1408,7 +1408,7 @@ class Attach extends React.Component {
     } else if (props.file) {
       this.setState({
         name: `[${$L('文件')}] ${$fileCutName(props.file)}`,
-        viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(`/temp/${props.file}`),
+        viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(props.file),
       })
     } else if (props.skill) {
       this.setState({
