@@ -918,6 +918,7 @@ create table if not exists `aibot_config` (
   `NAME`               varchar(200) comment '名称',
   `CONFIG`             longtext comment '配置内容 (JSON)',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `SHARE_TO`           varchar(4001) default 'SELF' comment '共享给谁 (ALL/SELF/$MemberID)',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -1049,4 +1050,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 79);
+  values ('021-9000000000000001', 'DBVer', 81);

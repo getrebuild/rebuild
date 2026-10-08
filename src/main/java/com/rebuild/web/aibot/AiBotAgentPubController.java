@@ -127,8 +127,12 @@ public class AiBotAgentPubController extends BaseController {
             return;
         }
 
-        // 权限代理：优先绑定用户，未绑定使用 AI 助手系统用户
+        // 权限代理：公开访问必须绑定有效用户，不回退系统用户（权限过大）
         ID bindUser = AgentDefs.getBindUser(id);
+        if (bindUser == null) {
+            StreamEcho.error(Language.L("请联系管理员为该 Agent 绑定用户后使用"), resp.getWriter());
+            return;
+        }
 
         JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(req);
         reqJson.remove("skill");
@@ -137,7 +141,7 @@ public class AiBotAgentPubController extends BaseController {
 
         ID chatid = getOwnedChatId(req, id);
 
-        ID keepUser = UserContextHolder.setUser(bindUser != null ? bindUser : UserService.AIBOT_USER);
+        ID keepUser = UserContextHolder.setUser(bindUser);
         AibotContextHolder.setAgent(agent, true);
 
         try {

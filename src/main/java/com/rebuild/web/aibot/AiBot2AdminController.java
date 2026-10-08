@@ -21,6 +21,7 @@ import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
 import com.rebuild.core.aibot2.tool.ToolDefs;
+import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.rbstore.RBStore;
@@ -234,7 +235,7 @@ public class AiBot2AdminController extends BaseController {
         }
 
         Object[] agent = Application.createQueryNoFilter(
-                "select name,config,isDisabled from AibotConfig where configId = ? and type = 'AGENT'")
+                "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'AGENT'")
                 .setParameter(1, agentId2)
                 .unique();
         if (agent == null) {
@@ -250,7 +251,7 @@ public class AiBot2AdminController extends BaseController {
         mv.getModelMap().put("agentName", StringUtils.trimToEmpty((String) agent[0]));
         JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) agent[1]);
         mv.getModelMap().put("agentConfig", conf != null ? conf.toJSONString() : null);
-        mv.getModelMap().put("isDisabled", Boolean.TRUE.equals(agent[2]));
+        mv.getModelMap().put("agentShareTo", StringUtils.defaultIfBlank((String) agent[3], ShareToManager.SHARE_SELF));
         return mv;
     }
 
