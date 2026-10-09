@@ -6787,6 +6787,11 @@ div.formula-code {
   display: inline !important;
 }
 
+.EasyMDEContainer .CodeMirror.cm-readonly {
+  background-color: #eee;
+  border-radius: 2px;
+}
+
 .editor-toolbar.fullscreen,
 .CodeMirror-fullscreen {
   z-index: 1002;
