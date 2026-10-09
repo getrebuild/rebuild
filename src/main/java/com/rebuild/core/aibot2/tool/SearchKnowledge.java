@@ -7,9 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.tool;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.aibot2.AibotAgent;
+import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.knowledge.KnowledgeChunk;
 import com.rebuild.core.aibot2.knowledge.KnowledgeRetriever;
 import com.rebuild.core.aibot2.service.AibotConfigManager;
@@ -19,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 搜索系统知识库，获取与查询相关的知识片段
@@ -41,8 +45,17 @@ public class SearchKnowledge implements Tool {
             throw new KnownToolException("搜索查询语句不能为空");
         }
 
+        AibotAgent agent = AibotContextHolder.getAgent();
+        Set<ID> scope = agent != null ? agent.getKnowledgeBases() : null;
+
+        if (scope != null && scope.isEmpty()) {
+            return JSONUtils.toJSONObject(
+                    new String[]{"status", "message"},
+                    new Object[]{"ok", "当前智能体未绑定知识库，请如实告知用户暂无知识库可搜索，不要编造内容"});
+        }
+
         // 未配置可用知识库时直接告知，与「有知识库但未匹配」区分开
-        if (!hasEnabledKnowledge()) {
+        if (!hasEnabledKnowledge(scope)) {
             return JSONUtils.toJSONObject(
                     new String[]{"status", "message"},
                     new Object[]{"ok", "系统未配置知识库（或知识库均已禁用），请如实告知用户当前无知识库可搜索，不要编造内容"});
@@ -52,7 +65,7 @@ public class SearchKnowledge implements Tool {
         if (topK < 1) topK = DEFAULT_TOP_K;
         if (topK > MAX_TOP_K) topK = MAX_TOP_K;
 
-        List<KnowledgeChunk> chunks = KnowledgeRetriever.retrieve(query, topK);
+        List<KnowledgeChunk> chunks = KnowledgeRetriever.retrieve(query, topK, scope);
 
         // 空结果附带引导，避免模型编造答案或盲目重试
         if (chunks.isEmpty()) {
@@ -82,11 +95,13 @@ public class SearchKnowledge implements Tool {
     /**
      * 是否存在已启用（未禁用）的知识库
      *
+     * @param scope
      * @return
      */
-    private boolean hasEnabledKnowledge() {
+    private boolean hasEnabledKnowledge(Set<ID> scope) {
         for (ConfigBean kb : AibotConfigManager.instance.getKnowledgeConfigs()) {
-            if (!kb.getBoolean("isDisabled")) return true;
+            if (Boolean.TRUE.equals(kb.getBoolean("isDisabled"))) continue;
+            if (scope == null || scope.contains(kb.getID("id"))) return true;
         }
         return false;
     }

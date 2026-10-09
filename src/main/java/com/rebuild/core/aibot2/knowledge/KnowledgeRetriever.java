@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 从知识库中检索与用户查询最相关的片段
@@ -41,17 +42,23 @@ public class KnowledgeRetriever {
     private static final int MIN_QUERY_LENGTH = 2;
     private static final int MAX_KEYWORDS = 5;
 
+    public static List<KnowledgeChunk> retrieve(String query, int topK) {
+        return retrieve(query, topK, null);
+    }
+
     /**
      * 检索与查询最相关的知识片段
      *
      * @param query
      * @param topK
+     * @param scope
      * @return
      */
-    public static List<KnowledgeChunk> retrieve(String query, int topK) {
+    public static List<KnowledgeChunk> retrieve(String query, int topK, Set<ID> scope) {
         if (StringUtils.isBlank(query) || query.trim().length() < MIN_QUERY_LENGTH) {
             return new ArrayList<>();
         }
+        if (scope != null && scope.isEmpty()) return new ArrayList<>();
         if (topK <= 0) topK = DEFAULT_TOP_K;
 
         List<String> keywords = TextChunkStrategy.extractKeywords(query);
@@ -62,7 +69,7 @@ public class KnowledgeRetriever {
             keywords = keywords.subList(0, MAX_KEYWORDS);
         }
 
-        Map<ID, KnowledgeChunk> matched = queryChunks(keywords);
+        Map<ID, KnowledgeChunk> matched = queryChunks(keywords, scope);
 
         attachKnowledgeName(matched);
 
@@ -85,9 +92,10 @@ public class KnowledgeRetriever {
      * 单次查询所有关键词匹配的片段，使用 Map 去重并累加分数
      *
      * @param keywords
+     * @param scope
      * @return
      */
-    private static Map<ID, KnowledgeChunk> queryChunks(List<String> keywords) {
+    private static Map<ID, KnowledgeChunk> queryChunks(List<String> keywords, Set<ID> scope) {
         List<String> validKeywords = new ArrayList<>();
         for (String kw : keywords) {
             if (kw.length() >= MIN_QUERY_LENGTH) validKeywords.add(CommonsUtils.escapeSql(kw));
@@ -107,9 +115,17 @@ public class KnowledgeRetriever {
             where = likes.substring(0, likes.length() - 4) + ")";
         }
 
+        String scopeFilter = "";
+        if (scope != null) {
+            List<String> ids = new ArrayList<>();
+            for (ID id : scope) ids.add("'" + id.toLiteral() + "'");
+            scopeFilter = " and configId in (" + StringUtils.join(ids, ",") + ")";
+        }
+
         String sql = "select chunkId,knowledgeId,content,chunkIndex,keywords" +
                 " from AibotKnowledgeChunk where knowledgeId in" +
-                " (select configId from AibotConfig where isDisabled = 'F' and type = 'KNOWLEDGE') and " + where;
+                " (select configId from AibotConfig where isDisabled = 'F' and type = 'KNOWLEDGE'" +
+                scopeFilter + ") and " + where;
         Object[][] res = Application.createQueryNoFilter(sql).array();
 
         Map<ID, KnowledgeChunk> matched = new LinkedHashMap<>();

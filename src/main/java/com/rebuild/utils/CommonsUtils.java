@@ -368,8 +368,6 @@ public class CommonsUtils {
             return true;
         }
 
-        // 其他
-        // FIXME 完善不同值类型的比较
         return StringUtils.equals(a.toString(), b.toString());
     }
 

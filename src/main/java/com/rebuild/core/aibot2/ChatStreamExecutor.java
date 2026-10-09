@@ -133,7 +133,7 @@ public class ChatStreamExecutor {
             return;
         }
 
-        try (StreamResponse<ChatCompletionChunk> resp = createChatStreaming(builder.build(), chatLogger())) {
+        try (StreamResponse<ChatCompletionChunk> resp = createChatStreaming(builder.build(), chatLogger(), chat.getAgent())) {
             try {
                 resp.stream().forEach(chunk -> {
                     chunk.choices().forEach(choice -> {

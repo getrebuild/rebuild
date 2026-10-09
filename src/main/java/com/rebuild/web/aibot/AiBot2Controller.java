@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.Chat;
 import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.aibot2.ChatManager;
@@ -26,6 +27,7 @@ import com.rebuild.core.aibot2.StreamEcho;
 import com.rebuild.core.aibot2.SuggestQuestions;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseSupport;
@@ -34,6 +36,7 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.InvalidParameterException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,6 +74,7 @@ public class AiBot2Controller extends BaseController {
 
         ChatRequest chatRequest = buildChatRequest(req);
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
+        AibotContextHolder.setAgent(chat.getAgent(), false);
 
         if (!chat.tryBeginRun()) {
             ServletUtils.writeJson(resp,
@@ -109,6 +113,7 @@ public class AiBot2Controller extends BaseController {
 
         ChatRequest chatRequest = buildChatRequest(req);
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
+        AibotContextHolder.setAgent(chat.getAgent(), false);
 
         if (!chat.tryBeginRun()) {
             StreamEcho.error(Language.L("会话正在处理中，请稍后再试"), resp.getWriter());
@@ -139,7 +144,7 @@ public class AiBot2Controller extends BaseController {
 
     private ChatRequest buildChatRequest(HttpServletRequest req) {
         JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(req);
-        ID chatid = getIdParameter(req, "chatid");
+        ID chatid = getOwnedChatId(req);
         if (chatid == null) {
             String s = reqJson.getString("content");
             chatid = ChatManager.initChat(getRequestUser(req), s);
@@ -148,16 +153,30 @@ public class AiBot2Controller extends BaseController {
         return new ChatRequest(reqJson, chatid);
     }
 
+    private ID getOwnedChatId(HttpServletRequest req) {
+        ID chatid = getIdParameter(req, "chatid");
+        if (chatid == null) return null;
+
+        Object createdBy = QueryHelper.queryFieldValue(chatid, "createdBy");
+        return getRequestUser(req).equals(createdBy) ? chatid : null;
+    }
+
+    private ID getOwnedChatIdNotNull(HttpServletRequest req) {
+        ID chatid = getOwnedChatId(req);
+        if (chatid == null) throw new InvalidParameterException(Language.L("会话不存在或无权访问"));
+        return chatid;
+    }
+
     @PostMapping("post/chat-stream-stop")
     public RespBody chatStreamStop(HttpServletRequest req) {
-        ID chatid = getIdParameterNotNull(req, "chatid");
+        ID chatid = getOwnedChatIdNotNull(req);
         StreamEcho.setInterrupt(chatid);
         return RespBody.ok();
     }
 
     @GetMapping("post/chat-init")
     public RespBody chatInit(HttpServletRequest req) {
-        ID chatid = getIdParameter(req, "chatid");
+        ID chatid = getOwnedChatId(req);
 
         JSONArray messages = new JSONArray();
         JSONArray suggestQuestions = null;
@@ -198,7 +217,7 @@ public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat-delete")
     public RespBody chatDelete(HttpServletRequest req) {
-        ChatManager.deleteChat(getIdParameterNotNull(req, "chatid"));
+        ChatManager.deleteChat(getOwnedChatIdNotNull(req));
         return RespBody.ok();
     }
 
@@ -247,7 +266,7 @@ public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat-rename")
     public RespBody chatRename(HttpServletRequest req) {
-        ID chatid = getIdParameterNotNull(req, "chatid");
+        ID chatid = getOwnedChatIdNotNull(req);
         String subject = getParameterNotNull(req, "s");
 
         Record r = EntityHelper.forUpdate(chatid, getRequestUser(req));
@@ -259,7 +278,7 @@ public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat-feedback")
     public RespBody chatFeedback(HttpServletRequest req) {
-        ID chatid = getIdParameterNotNull(req, "chatid");
+        ID chatid = getOwnedChatIdNotNull(req);
         String type = getParameterNotNull(req, "type");
         String comment = getParameter(req, "comment");
 

@@ -68,7 +68,7 @@ public class ChatExecutor {
      * @return
      */
     public Message run() {
-        ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
+        ChatCompletion resp = createChat(builder.build(), chat.chatLogger(), chat.getAgent());
         accumulateUsage(resp);
         ChatCompletion.Choice choice = resp.choices().get(0);
         ChatCompletionMessage ai = choice.message();
@@ -97,7 +97,7 @@ public class ChatExecutor {
      * @return
      */
     public String runContent() {
-        ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
+        ChatCompletion resp = createChat(builder.build(), chat.chatLogger(), chat.getAgent());
         accumulateUsage(resp);
         ChatCompletion.Choice choice = resp.choices().get(0);
         ChatCompletionMessage ai = choice.message();
@@ -191,7 +191,7 @@ public class ChatExecutor {
 
             executeAndAppend(builder, toolCalls, chat.chatLogger());
 
-            ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
+            ChatCompletion resp = createChat(builder.build(), chat.chatLogger(), chat.getAgent());
             accumulateUsage(resp);
             ChatCompletion.Choice choice = resp.choices().get(0);
             ai = choice.message();
@@ -284,10 +284,11 @@ public class ChatExecutor {
     }
 
     /**
+     * @param agent 可为 null（使用全局连接）
      * @return
      */
-    static ChatCompletionService completions() {
-        return Config.getClient().chat().completions();
+    static ChatCompletionService completions(AibotAgent agent) {
+        return agent == null ? Config.getClient().chat().completions() : agent.client().chat().completions();
     }
 
     /**
@@ -295,11 +296,12 @@ public class ChatExecutor {
      *
      * @param params
      * @param chatLogger 可为 null
+     * @param agent 可为 null（使用全局连接）
      * @return
      */
-    static ChatCompletion createChat(ChatCompletionCreateParams params, ChatLogger chatLogger) {
+    static ChatCompletion createChat(ChatCompletionCreateParams params, ChatLogger chatLogger, AibotAgent agent) {
         try {
-            return completions().create(params);
+            return completions(agent).create(params);
         } catch (OpenAIServiceException ex) {
             logError(ex, params, chatLogger);
             throw ex;
@@ -311,11 +313,12 @@ public class ChatExecutor {
      *
      * @param params
      * @param chatLogger 可为 null
+     * @param agent 可为 null（使用全局连接）
      * @return
      */
-    static StreamResponse<ChatCompletionChunk> createChatStreaming(ChatCompletionCreateParams params, ChatLogger chatLogger) {
+    static StreamResponse<ChatCompletionChunk> createChatStreaming(ChatCompletionCreateParams params, ChatLogger chatLogger, AibotAgent agent) {
         try {
-            return completions().createStreaming(params);
+            return completions(agent).createStreaming(params);
         } catch (OpenAIServiceException ex) {
             logError(ex, params, chatLogger);
             throw ex;

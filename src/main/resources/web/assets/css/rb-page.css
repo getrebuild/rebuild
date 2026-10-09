@@ -3420,6 +3420,26 @@ a.user-show:not([href]) {
   border: 0 none;
 }
 
+.card-list.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin: 0;
+}
+
+.card-list.card-grid > div {
+  padding: 0;
+}
+
+.card-list.card-grid .card {
+  margin-bottom: 0;
+}
+
+.card-list.card-grid .card.ph {
+  width: auto;
+  margin-top: 0;
+}
+
 .page-head-title .sub-title {
   color: #5e5e5e;
   font-size: 1.077rem;

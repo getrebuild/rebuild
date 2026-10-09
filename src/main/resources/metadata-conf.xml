@@ -673,6 +673,7 @@
         <field name="subject" type="string" max-length="100" description="主题"/>
         <field name="contents" type="ntext" description="会话内容"/>
         <field name="token" type="long" description="词元用量"/>
+        <field name="agentId" type="reference" ref-entity="AibotConfig" cascade="ignore" description="使用的智能体"/>
         <index field-list="createdBy,modifiedOn,createdOn"/>
     </entity>
 
@@ -692,6 +693,7 @@
         <field name="name" type="string" max-length="200" description="名称"/>
         <field name="config" type="ntext" description="配置内容 (JSON)"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
+        <field name="shareTo" type="string" max-length="4001" default-value="SELF" description="共享给谁 (ALL/SELF/$MemberID)"/>
     </entity>
 
     <entity name="AibotKnowledgeChunk" type-code="093" description="AI 知识库分片" queryable="false" parent="false">

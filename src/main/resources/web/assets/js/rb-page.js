@@ -1545,7 +1545,7 @@ function $clipboard(target, tips) {
 
 function $clipboard2(target, text) {
   var $el = $(target)
-  text = text || $el.data('clipboard-text') || $el.text() || ''
+  text = text || $el.data('clipboard-text') || $el.val() || $el.text() || ''
 
   $clipboard(text)
   $el.addClass('copied-check')

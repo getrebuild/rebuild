@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
@@ -267,6 +268,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         // 清理用户
         UserContextHolder.clear();
+        AibotContextHolder.clear();
     }
 
     private String detectLocale(HttpServletRequest request, HttpServletResponse response) {
@@ -335,6 +337,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/commons/file-preview")
                 || requestUri.endsWith("/commons/file-editor-save")
                 || requestUri.endsWith("/dashboard/chart-data")
+                || requestUri.startsWith("/aibot/pub/")
                 || requestUri.equals("/aibot/chat")
                 ;
     }

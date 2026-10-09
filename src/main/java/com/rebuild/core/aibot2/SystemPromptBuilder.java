@@ -78,7 +78,7 @@ public class SystemPromptBuilder {
 
         // 会话上下文（系统信息 + 当前用户信息）
         ID user = UserContextHolder.getUser(true);
-        boolean isRealUser = user != null && !UserHelper.isSystemUser(user);
+        boolean isRealUser = user != null && !UserHelper.isSystemUser(user) && !AibotContextHolder.isAnonymous();
 
         if (isRealUser) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);

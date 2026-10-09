@@ -27,7 +27,6 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,11 +44,22 @@ public abstract class ChatManager {
      * @return
      */
     public static ID initChat(ID user, String subject) {
+        return initChat(user, subject, null);
+    }
+
+    /**
+     * @param user
+     * @param subject
+     * @param agentId 使用的智能体（空为默认）
+     * @return
+     */
+    public static ID initChat(ID user, String subject, ID agentId) {
         Record chat = EntityHelper.forNew(AibotChat, user);
 
         if (StringUtils.isBlank(subject)) subject = "新会话";
         else subject = CommonsUtils.maxstr(subject, 40);
         chat.setString("subject", subject);
+        if (agentId != null) chat.setID("agentId", agentId);
 
         chat = Application.getCommonsService().createOrUpdate(chat);
         return chat.getPrimary();
@@ -61,12 +71,37 @@ public abstract class ChatManager {
      */
     public static Chat getChat(ID chatid) {
         String ckey = "chat2-" + chatid;
-        Serializable chat = Application.getCommonsCache().getx(ckey);
+        Chat chat = (Chat) Application.getCommonsCache().getx(ckey);
         if (chat == null) {
             chat = new Chat(chatid);
             Application.getCommonsCache().putx(ckey, chat);
+        } else {
+            ID agentId = chat.getAgent().getAgentId();
+            if (agentId != null) {
+                AibotAgent agent = AgentDefs.getAgent(agentId);
+                chat.refreshAgent(agent != null ? agent : AibotAgent.defaultAgent());
+            }
         }
-        return (Chat) chat;
+        return chat;
+    }
+
+    /**
+     * 指定 Agent 的会话
+     *
+     * @param chatid
+     * @param agent
+     * @return
+     */
+    public static Chat getChat(ID chatid, AibotAgent agent) {
+        String ckey = "chat2-" + chatid;
+        Chat chat = (Chat) Application.getCommonsCache().getx(ckey);
+        if (chat == null) {
+            chat = new Chat(chatid, agent);
+            Application.getCommonsCache().putx(ckey, chat);
+        } else {
+            chat.refreshAgent(agent);
+        }
+        return chat;
     }
 
     /**
@@ -84,6 +119,9 @@ public abstract class ChatManager {
 
         String contents2s = contents.toJSONString();
         r.setString("contents", contents2s);
+
+        // 归属 Agent（默认的不落库，即空为默认）
+        if (chat.getAgent().getAgentId() != null) r.setID("agentId", chat.getAgent().getAgentId());
 
         long tokenUsage = chat.getTokenUsage();
         r.setLong("token", tokenUsage > 0 ? tokenUsage : contents2s.length());

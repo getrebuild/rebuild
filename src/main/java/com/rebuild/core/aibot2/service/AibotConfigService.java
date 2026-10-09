@@ -15,6 +15,7 @@ import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,11 +43,28 @@ public class AibotConfigService extends BaseConfigurationService {
         return super.create(record);
     }
 
-    // SKILL/KNOWLEDGE 仅管理员可创建
+    @Override
+    public Record update(Record record) {
+        checkTypeGuard(record.getString("type"));
+        return super.update(record);
+    }
+
+    @Override
+    protected void throwIfNotSelf(ID cfgid) throws DataSpecificationException {
+        if (!UserHelper.isAdmin(UserContextHolder.getUser())) {
+            Object type = QueryHelper.queryFieldValue(cfgid, "type");
+            checkTypeGuard(type == null ? null : type.toString());
+        }
+        super.throwIfNotSelf(cfgid);
+    }
+
+    // SKILL/KNOWLEDGE/AGENT 仅管理员可操作
     private void checkTypeGuard(String type) {
         if (UserHelper.isAdmin(UserContextHolder.getUser())) return;
 
-        if (AibotConfigManager.TYPE_SKILL.equals(type) || AibotConfigManager.TYPE_KNOWLEDGE.equals(type)) {
+        if (AibotConfigManager.TYPE_SKILL.equals(type)
+                || AibotConfigManager.TYPE_KNOWLEDGE.equals(type)
+                || AibotConfigManager.TYPE_AGENT.equals(type)) {
             throw new DataSpecificationException(Language.L("权限不足，访问被阻止"));
         }
     }

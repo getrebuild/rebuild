@@ -18,21 +18,27 @@ import com.openai.models.models.ModelListPage;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.Config;
+import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
 import com.rebuild.core.aibot2.tool.ToolDefs;
+import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.rbstore.RBStore;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
 import com.rebuild.web.admin.ConfigurationController;
+import com.rebuild.web.commons.RbvMissingController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +46,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -146,7 +154,7 @@ public class AiBot2AdminController extends BaseController {
                 if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
                 apiKey = Config.getSecret();
             }
-            client = Config.getClient(baseUrl, apiKey);
+            client = Config.createClient(baseUrl, apiKey);
         } else {
             if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
             client = Config.getClient();
@@ -186,7 +194,65 @@ public class AiBot2AdminController extends BaseController {
 
     @GetMapping("aibot-agents")
     public ModelAndView pageIntegrationAibotAgents() {
+        if (!License.isCommercial()) {
+            return RbvMissingController.errorUnsupported(Language.L("专属智能体"));
+        }
+
         return createModelAndView("/admin/integration/aibot-agents");
+    }
+
+    @GetMapping("aibot/agent-list")
+    public RespBody agentList() {
+        Object[][] array = Application.createQueryNoFilter(
+                "select configId,name,config,isDisabled from AibotConfig where type = 'AGENT' order by modifiedOn desc")
+                .array();
+
+        List<JSONObject> list = new ArrayList<>();
+        for (Object[] o : array) {
+            JSONObject item = new JSONObject(true);
+            item.put("id", o[0]);
+            item.put("name", StringUtils.isBlank((String) o[1]) ? RebuildConfiguration.get(ConfigurationItem.AibotName) : o[1]);
+            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[2]);
+            if (conf == null) conf = new JSONObject();
+            conf.remove("AibotDSSecret");
+            item.put("config", conf);
+            item.put("isDisabled", o[3]);
+            list.add(item);
+        }
+        return RespBody.ok(list);
+    }
+
+    @GetMapping("aibot-agent/{agentId}")
+    public ModelAndView pageAibotAgent(@PathVariable String agentId, HttpServletResponse response) throws IOException {
+        if (!License.isCommercial()) {
+            return RbvMissingController.errorUnsupported(Language.L("专属智能体"));
+        }
+
+        ID agentId2 = ID.isId(agentId) ? ID.valueOf(agentId) : null;
+        if (agentId2 == null) {
+            response.sendError(404);
+            return null;
+        }
+
+        Object[] agent = Application.createQueryNoFilter(
+                "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'AGENT'")
+                .setParameter(1, agentId2)
+                .unique();
+        if (agent == null) {
+            response.sendError(404);
+            return null;
+        }
+
+        ModelAndView mv = createModelAndView("/admin/integration/aibot-agent-editor");
+        mv.getModelMap().put("agentDisplayName",
+                StringUtils.defaultIfBlank((String) agent[0], RebuildConfiguration.get(ConfigurationItem.AibotName)));
+        mv.getModelMap().put("agentId", agentId2);
+        mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("/aibot/pub/" + agentId2));
+        mv.getModelMap().put("agentName", StringUtils.trimToEmpty((String) agent[0]));
+        JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) agent[1]);
+        mv.getModelMap().put("agentConfig", conf != null ? conf.toJSONString() : null);
+        mv.getModelMap().put("agentShareTo", StringUtils.defaultIfBlank((String) agent[3], ShareToManager.SHARE_SELF));
+        return mv;
     }
 
     @GetMapping("aibot/tools")
@@ -211,6 +277,11 @@ public class AiBot2AdminController extends BaseController {
             list.add(item);
         }
         return RespBody.ok(list);
+    }
+
+    @GetMapping("aibot/skills")
+    public RespBody skills() {
+        return RespBody.ok(SkillDefs.listSkills());
     }
 
     @GetMapping("aibot/kb-list")

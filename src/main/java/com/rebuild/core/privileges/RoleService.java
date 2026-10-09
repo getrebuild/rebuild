@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * for Role
@@ -140,31 +141,60 @@ public class RoleService extends BaseService implements AdminGuard {
     /**
      * @param fromRole
      * @param toRoles
+     * @param entities 为 null 表示全部复制（含扩展权限），否则仅复制指定实体（entityCode）
      */
-    public void updateWithCopyTo(ID fromRole, ID[] toRoles) {
+    public void updateWithCopyTo(ID fromRole, ID[] toRoles, Set<String> entities) {
         List<Record> fromPrivileges = Application.createQuery(
                 "select definition,entity,zeroKey from RolePrivileges where roleId = ?")
                 .setParameter(1, fromRole)
                 .list();
 
+        final ID user = UserContextHolder.getUser();
         final PersistManager pm = getPersistManagerFactory().createPersistManager();
 
         for (ID to : toRoles) {
             if (fromRole.equals(to)) continue;
 
-            // 1.清空
-            String dsql = String.format("delete from `role_privileges` where `ROLE_ID` = '%s'", to);
-            Application.getSqlExecutor().execute(dsql);
+            if (entities == null || entities.isEmpty()) {
+                // 1.清空
+                String dsql = String.format("delete from `role_privileges` where `ROLE_ID` = '%s'", to);
+                Application.getSqlExecutor().execute(dsql);
 
-            // 2.复制
-            Record base = EntityHelper.forNew(EntityHelper.RolePrivileges, UserContextHolder.getUser());
-            base.setID("roleId", to);
-            for (Record p : fromPrivileges) {
-                Record c = base.clone();
-                c.setString("definition", p.getString("definition"));
-                c.setInt("entity", p.getInt("entity"));
-                c.setString("zeroKey", p.getString("zeroKey"));
-                pm.save(c);
+                // 2.复制
+                Record base = EntityHelper.forNew(EntityHelper.RolePrivileges, user);
+                base.setID("roleId", to);
+                for (Record p : fromPrivileges) {
+                    Record c = base.clone();
+                    c.setString("definition", p.getString("definition"));
+                    c.setInt("entity", p.getInt("entity"));
+                    c.setString("zeroKey", p.getString("zeroKey"));
+                    pm.save(c);
+                }
+            } else {
+                Object[][] array = Application.createQuery(
+                        "select privilegesId,entity from RolePrivileges where roleId = ?")
+                        .setParameter(1, to)
+                        .array();
+                Map<Integer, ID> exists = new HashMap<>();
+                for (Object[] o : array) {
+                    exists.put((int) o[1], (ID) o[0]);
+                }
+
+                for (Record p : fromPrivileges) {
+                    if (!entities.contains(String.valueOf(p.getInt("entity")))) continue;
+
+                    if (exists.containsKey(p.getInt("entity"))) {
+                        Record up = EntityHelper.forUpdate(exists.get(p.getInt("entity")), user);
+                        up.setString("definition", p.getString("definition"));
+                        super.update(up);
+                    } else {
+                        Record c = EntityHelper.forNew(EntityHelper.RolePrivileges, user);
+                        c.setID("roleId", to);
+                        c.setInt("entity", p.getInt("entity"));
+                        c.setString("definition", p.getString("definition"));
+                        super.create(c);
+                    }
+                }
             }
 
             // 3.刷新

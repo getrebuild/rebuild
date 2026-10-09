@@ -355,6 +355,12 @@ const updatePrivileges = function (newId) {
 // 复制角色
 class CopyRoleTo extends RbModalHandler {
   render() {
+    const entities = []
+    $('#priv-entity tbody td.name>a').each(function () {
+      const $a = $(this)
+      entities.push({ code: $a.data('name'), label: $trim($a.text()) })
+    })
+
     return (
       <RbModal title={$L('复制角色')} ref={(c) => (this._dlg = c)} disposeOnHide>
         <div className="form">
@@ -363,6 +369,18 @@ class CopyRoleTo extends RbModalHandler {
             <div className="col-sm-7">
               <UserSelector hideDepartment hideUser hideTeam ref={(c) => (this._UserSelector = c)} />
               <p className="form-text">{$L('将当前角色权限复制到选择的角色中')}</p>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('复制哪些实体')}</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" multiple ref={(c) => (this._$copyEntities = c)}>
+                {entities.map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
@@ -380,6 +398,13 @@ class CopyRoleTo extends RbModalHandler {
     )
   }
 
+  componentDidMount() {
+    $(this._$copyEntities).select2({
+      placeholder: $L('全部'),
+      allowClear: true,
+    })
+  }
+
   submit() {
     const post = {
       from: this.props.roleId,
@@ -387,8 +412,12 @@ class CopyRoleTo extends RbModalHandler {
     }
     if ((post.copyTo || []).length === 0) return RbHighbar.create($L('请选择复制到哪些角色'))
 
+    const entities = $(this._$copyEntities).val() || []
+    if (entities.length > 0 && entities.length < $(this._$copyEntities).find('option').length) post.entities = entities
+
+    const tip = post.entities ? $L('所选实体权限将覆盖到选择的角色，其他权限保持不变。确定复制吗？') : $L('选择角色的原有权限会被完全覆盖。确定复制吗？')
     const that = this
-    RbAlert.create($L('选择角色的原有权限会被完全覆盖。确定复制吗？'), {
+    RbAlert.create(tip, {
       onConfirm: function () {
         this.hide()
 
