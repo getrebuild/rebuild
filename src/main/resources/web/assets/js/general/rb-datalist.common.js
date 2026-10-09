@@ -370,29 +370,37 @@ class BatchOperator extends RbFormHandler {
             <label className="text-bold">{$L('选择数据范围')}</label>
             <div>
               {selectedRows > 0 && (
-                <label className="custom-control custom-control-sm custom-radio mb-2">
-                  <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 1} value="1" onChange={this.handleChange} />
+                <div>
+                  <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                    <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 1} value="1" onChange={this.handleChange} />
+                    <span className="custom-control-label">
+                      {$L('选中的记录')} ({$L('共 %d 条', selectedRows)})
+                    </span>
+                  </label>
+                </div>
+              )}
+              <div>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                  <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 2} value="2" onChange={this.handleChange} />
                   <span className="custom-control-label">
-                    {$L('选中的记录')} ({$L('共 %d 条', selectedRows)})
+                    {$L('当前页的记录')} ({$L('共 %d 条', pageRows)})
                   </span>
                 </label>
-              )}
-              <label className="custom-control custom-control-sm custom-radio mb-2">
-                <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 2} value="2" onChange={this.handleChange} />
-                <span className="custom-control-label">
-                  {$L('当前页的记录')} ({$L('共 %d 条', pageRows)})
-                </span>
-              </label>
-              <label className="custom-control custom-control-sm custom-radio mb-2">
-                <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 3} value="3" onChange={this.handleChange} />
-                <span className="custom-control-label">
-                  {$L('查询后的记录')} ({$L('共 %d 条', queryRows)})
-                </span>
-              </label>
-              <label className="custom-control custom-control-sm custom-radio mb-1">
-                <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 10} value="10" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('全部数据')}</span>
-              </label>
+              </div>
+              <div>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                  <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 3} value="3" onChange={this.handleChange} />
+                  <span className="custom-control-label">
+                    {$L('查询后的记录')} ({$L('共 %d 条', queryRows)})
+                  </span>
+                </label>
+              </div>
+              <div>
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
+                  <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 10} value="10" onChange={this.handleChange} />
+                  <span className="custom-control-label">{$L('全部数据')}</span>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -882,6 +890,10 @@ class BatchApprove extends BatchOperator {
               <input className="custom-control-input" type="radio" name="approveState" value="1" onClick={this.handleChange} />
               <span className="custom-control-label">{$L('提交')}</span>
             </label>
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-0 bosskey-show">
+              <input className="custom-control-input" type="radio" name="approveState" value="13" onClick={this.handleChange} />
+              <span className="custom-control-label">{$L('撤销')} (LAB)</span>
+            </label>
           </div>
         </div>
 
@@ -894,7 +906,7 @@ class BatchApprove extends BatchOperator {
           <select className="form-control form-control-sm" ref={(c) => (this._$useApproval = c)} />
         </div>
 
-        <RbAlertBox message={$L('仅允许你审批或提交的记录，才能审批成功')} type="info" className="mb-0" />
+        <RbAlertBox message={approveState === 1 ? $L('仅允许你提交的记录，才能提交成功') : $L('仅允许你审批的记录，才能审批成功')} type="info" className="mb-0" />
       </div>
     )
   }
@@ -918,6 +930,7 @@ class BatchApprove extends BatchOperator {
         10: $L('通过'),
         11: $L('驳回'),
         1: $L('提交'),
+        13: $L('撤销'),
       }
       $(this._btns)
         .find('.btn-primary')
