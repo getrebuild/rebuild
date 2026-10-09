@@ -221,17 +221,19 @@ public class CommonOperatingController extends BaseController {
     @GetMapping("filter-badge")
     public RespBody filterBadge(HttpServletRequest request) {
         ID filterId = getIdParameterNotNull(request, "filter");
-        String countSql;
+        Object[] c;
         try {
             if (filterId.equals(ApprovalHubController.FILTER_BADGE)) {
-                countSql = "select count(hubId) from RobotApprovalHub where ";
-                countSql += ApprovalHubController.buildFilterSql(1, getRequestUser(request));
+                String cs = "select count(hubId) from RobotApprovalHub where ";
+                cs += ApprovalHubController.buildFilterSql(1, getRequestUser(request));
+                c = Application.getQueryFactory().uniqueNoFilter(cs);
 
             } else {
                 ConfigBean cb = AdvFilterManager.instance.getAdvFilter(filterId);
                 String sqlWhere = new AdvFilterParser((JSONObject) cb.getJSON("filter")).toSqlWhere();
-                countSql = MessageFormat.format(
+                String cs = MessageFormat.format(
                         "select count({0}Id) from {0} where {1}", cb.getString("entity"), sqlWhere);
+                c = Application.getQueryFactory().unique(cs);
             }
 
         } catch (ConfigurationException miss) {
@@ -239,7 +241,6 @@ public class CommonOperatingController extends BaseController {
             return RespBody.error(miss.getMessage());
         }
 
-        Object[] c = Application.getQueryFactory().uniqueNoFilter(countSql);
         return RespBody.ok(c == null ? 0 : c[0]);
     }
 }
