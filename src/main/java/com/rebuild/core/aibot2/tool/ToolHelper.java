@@ -26,8 +26,10 @@ import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -276,6 +278,101 @@ public class ToolHelper {
             user = Application.getUserStore().getUser(userIdent).getId();
         }
         return user;
+    }
+
+    /**
+     * 解析记录 ID 列表参数（支持数组或字符串，字符串支持逗号分隔），去重
+     *
+     * @param value
+     * @param max 一次最多处理的记录数
+     * @return
+     */
+    public static List<ID> resolveRecordIds(Object value, int max) {
+        Set<ID> result = new LinkedHashSet<>();
+
+        for (String s : splitItems(value)) {
+            if (StringUtils.isBlank(s)) continue;
+
+            if (!ID.isId(s)) {
+                throw new KnownToolException("无效的记录 ID : " + s + "，请使用 QueryRecords 工具查询获取");
+            }
+            result.add(ID.valueOf(s));
+        }
+
+        if (result.isEmpty()) {
+            throw new KnownToolException("记录 ID (recordIds) 不能为空");
+        }
+        if (result.size() > max) {
+            throw new KnownToolException("一次最多处理 " + max + " 条记录，当前 " + result.size() + " 条");
+        }
+        return new ArrayList<>(result);
+    }
+
+    /**
+     * 解析用户列表参数（支持数组或字符串，字符串支持逗号分隔），去重。值为空时返回空列表
+     *
+     * @param value
+     * @return
+     */
+    public static List<ID> resolveUsers(Object value) {
+        Set<ID> result = new LinkedHashSet<>();
+
+        for (String s : splitItems(value)) {
+            if (StringUtils.isBlank(s)) continue;
+
+            ID user = resolveUser(s);
+            if (user == null) {
+                throw new KnownToolException("未找到用户 : " + s + "，请填写用户全名或用户 ID");
+            }
+            result.add(user);
+        }
+        return new ArrayList<>(result);
+    }
+
+    /**
+     * 解析级联实体参数（数组，元素为实体名称或标签），返回内部实体名数组
+     *
+     * @param cascades
+     * @return
+     */
+    public static String[] resolveCascades(JSONArray cascades) {
+        if (cascades == null || cascades.isEmpty()) return new String[0];
+
+        Set<String> result = new LinkedHashSet<>();
+        for (Object o : cascades) {
+            if (o == null) continue;
+
+            String s = o.toString().trim();
+            if (StringUtils.isBlank(s)) continue;
+
+            Entity entity = resolveEntity(s);
+            if (entity == null) {
+                throw new KnownToolException("相关实体不存在 : " + s + suggestEntity(s));
+            }
+            result.add(entity.getName());
+        }
+        return result.toArray(new String[0]);
+    }
+
+    /**
+     * 参数值归一化为字符串列表（数组逐项，字符串按逗号分隔），均做 trim 处理
+     *
+     * @param value
+     * @return
+     */
+    private static List<String> splitItems(Object value) {
+        List<String> items = new ArrayList<>();
+        if (value instanceof JSONArray) {
+            for (Object o : (JSONArray) value) {
+                if (o == null) continue;
+                items.add(o.toString().trim());
+            }
+        } else if (value != null) {
+            for (String s : value.toString().split(",")) {
+                items.add(s.trim());
+            }
+        }
+        return items;
     }
 
     // ----------------------------------------------------------------
@@ -543,6 +640,49 @@ public class ToolHelper {
      */
     public static Object wrapFieldValue(Object value, Field field) {
         return FieldValueHelper.wrapFieldValue(value, field, true);
+    }
+
+    /**
+     * 查询记录显示名列表（用于确认摘要），最多返回 max 条，按传入 ids 顺序；查不到时以记录 ID 兜底
+     *
+     * @param entity
+     * @param ids
+     * @param max
+     * @return
+     */
+    public static List<String> recordNames(Entity entity, List<ID> ids, int max) {
+        List<String> names = new ArrayList<>();
+        if (ids == null || ids.isEmpty()) return names;
+
+        List<ID> use = ids.size() > max ? ids.subList(0, max) : ids;
+
+        Field primaryField = entity.getPrimaryField();
+        Field nameField = entity.getNameField();
+
+        // 无名称字段时无法取名称，直接以记录 ID 代替
+        if (nameField == null || nameField.getName().equals(primaryField.getName())) {
+            for (ID id : use) names.add(id.toString());
+            return names;
+        }
+
+        // 一次聚合查询取回名称，避免逐条查询
+        String sql = String.format("select %s,%s from %s where %s in ('%s')",
+                primaryField.getName(), nameField.getName(), entity.getName(),
+                primaryField.getName(), StringUtils.join(use, "','"));
+
+        Map<String, String> nameMap = new LinkedHashMap<>();
+        for (Object[] o : Application.createQueryNoFilter(sql).array()) {
+            if (o[0] == null) continue;
+
+            Object nameValue = FieldValueHelper.wrapFieldValue(o[1], nameField, true);
+            nameMap.put(o[0].toString(), nameValue == null ? null : String.valueOf(nameValue));
+        }
+
+        for (ID id : use) {
+            String name = nameMap.get(id.toString());
+            names.add(StringUtils.isBlank(name) ? id.toString() : name);
+        }
+        return names;
     }
 
     // ----------------------------------------------------------------

@@ -1,0 +1,38 @@
+{
+  "type": "function",
+  "userDescription": "将业务记录共享给指定用户。支持读取或可编辑权限，支持单条或批量",
+  "function": {
+    "name": "ShareRecord",
+    "description": "将业务记录共享给一个或多个用户，使其获得记录访问权限。当用户要求把记录「共享给 / 开放给某人查看」时使用。recordIds 可通过 QueryRecords 查询获取；共享用户须为本系统用户，填写用户全名或用户 ID。默认仅共享读取权限，withUpdate=true 时同时共享编辑权限（若不满足权限条件系统会自动降级为只读）。多条记录须属于同一实体，一次最多 100 条。首次调用将返回待执行摘要，用户明确确认后再以相同参数并设置 confirmed=true 重新调用执行。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "recordIds": {
+          "type": ["string", "array"],
+          "items": { "type": "string" },
+          "description": "要共享的业务记录 ID（必填），支持数组或单个 ID。多条记录须属于同一实体，可通过 QueryRecords 查询获取"
+        },
+        "toUsers": {
+          "type": ["string", "array"],
+          "items": { "type": "string" },
+          "description": "共享给哪些用户（必填），填写用户全名或用户 ID，支持数组或单个"
+        },
+        "withUpdate": {
+          "type": "boolean",
+          "description": "是否允许编辑（可选，默认 false 仅共享读取权限）"
+        },
+        "cascades": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "需要同时共享的相关实体名称数组（可选）。仅在用户明确要求同时共享相关记录时传入，不传则仅处理所选记录"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回待执行摘要供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行共享"
+        }
+      },
+      "required": ["recordIds", "toUsers"],
+      "additionalProperties": false
+    }
+  }
+}
