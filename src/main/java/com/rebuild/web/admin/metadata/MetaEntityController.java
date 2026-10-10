@@ -366,17 +366,21 @@ public class MetaEntityController extends EntityController {
         JSONArray res = new JSONArray();
         for (Entity e : MetadataSorter.sortEntities()) {
             String name = e.getName();
+            String name2 = e.getPhysicalName();
             String label = EasyMetaFactory.getLabel(e);
             String quickCode = QuickCodeReindexTask.generateQuickCode(label);
-            if (CI.contains(name, q) || CI.contains(label, q) || CI.contains(quickCode, q)) {
+            if (CI.contains(name, q) || CI.contains(name2, q)
+                    || CI.contains(label, q) || CI.contains(quickCode, q)) {
                 res.add(JSONUtils.toJSONObject(new String[]{"name", "label"}, new Object[]{name, label}));
             }
 
             for (Field f : MetadataSorter.sortFields(e)) {
                 String fName = f.getName();
+                String fName2 = f.getPhysicalName();
                 String fLabel = EasyMetaFactory.getLabel(f);
                 String fQuickCode = QuickCodeReindexTask.generateQuickCode(fLabel);
-                if (CI.contains(fName, q) || CI.contains(fLabel, q) || CI.contains(fQuickCode, q)) {
+                if (CI.contains(fName, q) || CI.contains(fName2, q)
+                        || CI.contains(fLabel, q) || CI.contains(fQuickCode, q)) {
                     res.add(JSONUtils.toJSONObject(
                             new String[]{"name", "label", "entity"}, new Object[]{fName, label + "." + fLabel, name}));
                 }
