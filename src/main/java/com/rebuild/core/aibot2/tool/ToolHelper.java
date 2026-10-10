@@ -86,13 +86,26 @@ public class ToolHelper {
     }
 
     /**
+     * 记录是否属于指定实体。注意 getEntityCode() 返回 Integer，必须数值比较；
+     * 直接使用 != 是引用比较，超出 -128~127 缓存的实体编码（如用户自定义实体 990+）会误判
+     *
+     * @param recordId
+     * @param entity
+     * @return
+     */
+    public static boolean isSameEntity(ID recordId, Entity entity) {
+        // Note: getEntityCode() 返回 Integer，必须数值比较 — 见 .agents/notes/implemented/bug-fix/2026-10-10-integer-boxing-entitycode-compare.md
+        return (int) recordId.getEntityCode() == (int) entity.getEntityCode();
+    }
+
+    /**
      * 校验记录 ID 与目标实体匹配，不匹配时抛出异常（实体类型为运行时解析时使用，区别于按实体码校验的 resolveId）
      *
      * @param recordId
      * @param entity
      */
     public static void checkRecordEntity(ID recordId, Entity entity) {
-        if ((int) recordId.getEntityCode() != entity.getEntityCode()) {
+        if (!isSameEntity(recordId, entity)) {
             throw new KnownToolException("记录 ID 与实体不匹配 : " + recordId
                     + " 不属于 " + EasyMetaFactory.getLabel(entity)
                     + "，实际属于 " + EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode())));

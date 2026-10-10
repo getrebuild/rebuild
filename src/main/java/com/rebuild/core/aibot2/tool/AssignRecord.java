@@ -44,7 +44,7 @@ public class AssignRecord implements Tool {
 
         Entity entity = MetadataHelper.getEntity(records.get(0).getEntityCode());
         for (ID id : records) {
-            if (id.getEntityCode() != entity.getEntityCode()) {
+            if (!ToolHelper.isSameEntity(id, entity)) {
                 throw new KnownToolException("只能处理同一实体的记录，记录 " + id + " 属于其他实体");
             }
         }

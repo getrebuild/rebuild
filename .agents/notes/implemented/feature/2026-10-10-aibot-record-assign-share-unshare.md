@@ -60,3 +60,4 @@ AI 助手（`com.rebuild.core.aibot2.tool`）此前只能触达审批类记录�
 - `src/test/java/com/rebuild/core/aibot2/tool/RecordOpToolsJsonTest.java`：不继承 `TestSupport`、不依赖数据库，用 `getClass().getResourceAsStream("/aibot2/tool/<name>.json")` 读取并断言 `type=function`、`function.name` 与文件名一致、`required`、`additionalProperties=false`、两个描述非空。
 - `./mvnw -o compile -Dexec.skip=true` → BUILD SUCCESS；`./mvnw -o test -Dtest=RecordOpToolsJsonTest -DskipTests=false -Dexec.skip=true` → `Tests run: 1, Failures: 0, Errors: 0`（pom 默认 `<skipTests>true</skipTests>`，必须显式覆盖）。
 - 尚未覆盖、需联调环境人工确认：真实权限下的端到端确认流、分配通知与 `BulkShare` 的 `NotificationOnce` 合并、`withUpdate` 在权限不足时自动降级为只读、管理中心「能力扩展」开关、Agent 工具白名单。
+- 修复记录：初版「同实体校验」曾因 `Integer` 装箱引用比较对用户自定义实体误报，修复与证据见 [bug-fix: Integer 引用比较](../bug-fix/2026-10-10-integer-boxing-entitycode-compare.md)。
