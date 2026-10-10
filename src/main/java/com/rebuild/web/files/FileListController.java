@@ -122,6 +122,7 @@ public class FileListController extends BaseController {
                 Entity entityMeta = MetadataHelper.getEntity(useEntity);
                 if (entityMeta.getDetailEntity() != null) {
                     List<String> s = new ArrayList<>();
+                    s.add("belongEntity = " + useEntity);
                     for (Entity de : entityMeta.getDetialEntities()) {
                         s.add(String.format("belongEntity = %d", de.getEntityCode()));
                     }
