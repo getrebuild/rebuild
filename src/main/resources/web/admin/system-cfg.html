@@ -323,6 +323,27 @@
                       </tr>
                     </tbody>
                   </table>
+                  <h5>[[${bundle.L('其他')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.L('在详情页显示修改历史')}]]</td>
+                        <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${ShowViewHistory ? bundle.L('是') : bundle.L('否')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('文件上传大小限制')}]]</td>
+                        <td data-id="PortalUploadMaxSize" th:data-value="${PortalUploadMaxSize}" data-optional="true" data-input-type="number">[[${PortalUploadMaxSize}]] MB</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('百度地图 AK')}]]</td>
+                        <td th:data-id="PortalBaiduMapAk" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true" id="_MobileNavStyle">[[${MobileNavStyle}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
                   <h5>[[${bundle.L('应用下载')}]]</h5>
                   <table class="table">
                     <tbody>
@@ -343,27 +364,6 @@
                           <button class="btn btn-light btn-sm J_DesktopAppPath-del w-auto hide" type="button" th:title="${bundle.L('删除')}"><i class="icon mdi mdi-delete"></i></button>
                           <input type="file" class="hide J_DesktopAppPath" accept=".exe,.dmg" />
                         </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <h5>[[${bundle.L('其他')}]]</h5>
-                  <table class="table">
-                    <tbody>
-                      <tr>
-                        <td width="40%">[[${bundle.L('在详情页显示修改历史')}]]</td>
-                        <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${ShowViewHistory ? bundle.L('是') : bundle.L('否')}]]</td>
-                      </tr>
-                      <tr>
-                        <td>[[${bundle.L('文件上传大小限制')}]]</td>
-                        <td data-id="PortalUploadMaxSize" th:data-value="${PortalUploadMaxSize}" data-optional="true" data-input-type="number">[[${PortalUploadMaxSize}]] MB</td>
-                      </tr>
-                      <tr>
-                        <td>[[${bundle.L('百度地图 AK')}]]</td>
-                        <td th:data-id="PortalBaiduMapAk" th:data-value="${PortalBaiduMapAk}" data-optional="true">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
-                      </tr>
-                      <tr>
-                        <td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}" data-optional="true" id="_MobileNavStyle">[[${MobileNavStyle}]]</td>
                       </tr>
                     </tbody>
                   </table>

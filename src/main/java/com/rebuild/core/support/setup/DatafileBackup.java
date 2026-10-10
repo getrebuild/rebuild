@@ -26,13 +26,12 @@ import java.io.IOException;
 public class DatafileBackup extends DatabaseBackup {
 
     @Override
-    public File backup(File backups) throws IOException {
-        File rbdata = RebuildConfiguration.getFileOfData("");
-
+    public File backup(File backupd) throws IOException {
+        File rbd = RebuildConfiguration.getFileOfData("");
         String destName = "backup_datafile." + CalendarUtils.getPlainDateTimeFormat().format(CalendarUtils.now()) + ".zip";
-        File destZip = new File(backups, destName);
+        File destZip = new File(backupd, destName);
 
-        CompressUtils.forceZip(destZip, rbdata, pathname -> {
+        CompressUtils.forceZip(destZip, rbd, pathname -> {
             String name = pathname.getName();
             return !("_backups".equals(name) || "_log".equals(name) || "temp".equals(name) || "rebuild.pid".equals(name));
         });

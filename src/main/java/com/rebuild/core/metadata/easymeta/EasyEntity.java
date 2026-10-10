@@ -10,6 +10,7 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Entity;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -47,11 +48,16 @@ public class EasyEntity extends BaseEasyMeta<Entity> {
     @Override
     public JSON toJSON() {
         JSONObject o = JSONUtils.toJSONObject(
-                new String[] { "entity", "entityLabel", "entityCode", "icon" },
-                new Object[] { getName(), getLabel(), getRawMeta().getEntityCode(), getIcon() });
+                new String[]{"entity", "entityLabel", "entityCode", "icon"},
+                new Object[]{getName(), getLabel(), getRawMeta().getEntityCode(), getIcon()});
 
-        if (getRawMeta().getMainEntity() != null) o.put("mainEntity", getRawMeta().getMainEntity().getName());
-        if (getRawMeta().getDetailEntity() != null) o.put("detailEntity", getRawMeta().getDetailEntity().getName());
+        if (getRawMeta().getMainEntity() != null) {
+            o.put("mainEntity", getRawMeta().getMainEntity().getName());
+            o.put("mainEntityLabel", Language.L(getRawMeta().getMainEntity()));
+        } else if (getRawMeta().getDetailEntity() != null) {
+            o.put("detailEntity", getRawMeta().getDetailEntity().getName());
+            o.put("detailEntityLabel", Language.L(getRawMeta().getDetailEntity()));
+        }
 
         return o;
     }

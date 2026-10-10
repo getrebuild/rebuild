@@ -1635,7 +1635,7 @@ class RbFormNText extends RbFormElement {
           </a>
         )}
 
-        {props.useMdedit && !_readonly37 && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
+        {props.useMdedit && <input type="file" className="hide" accept="image/*" data-noname="true" ref={(c) => (this._fieldValue__upload = c)} />}
       </RF>
     )
   }
@@ -1697,7 +1697,7 @@ class RbFormNText extends RbFormElement {
     }
   }
 
-  onEditModeChanged(destroy) {
+  onEditModeChanged(destroy, fromReadonly41) {
     if (this.props.onView && this._fieldValue) {
       if (destroy) {
         $(this._fieldValue).perfectScrollbar()
@@ -1747,6 +1747,8 @@ class RbFormNText extends RbFormElement {
           </div>,
         )
       }
+    } else if (fromReadonly41 && this._EasyMDE) {
+      this._initEasyMDE()
     }
   }
 
@@ -1813,6 +1815,7 @@ class RbFormNText extends RbFormElement {
 
     if (_readonly37) {
       mde.codemirror.setOption('readOnly', true)
+      $(mde.codemirror.getWrapperElement()).addClass('cm-readonly')
     } else {
       $createUploader(this._fieldValue__upload, null, (res) => this._mdeInsert(`![](${rb.baseUrl}/filex/img/${res.key})`))
       if (this.props.onView) this._mdeFocus()
