@@ -136,78 +136,62 @@ class FilesList extends React.Component {
 // ~~ 共享列表
 class SharedFiles extends RbModalHandler {
   render() {
+    const files = this.state.data || []
+
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('分享列表')} disposeOnHide>
-        <div className="sharing-list ml-1 mr-1">
-          {this.state.data && this.state.data.length === 0 ? (
+        <div className="file-list file-list-striped sharing-list" ref={(c) => (this._$list = c)}>
+          {files.length === 0 ? (
             <div className="list-nodata pt-4">
               <i className="zmdi zmdi-share" />
               <p>{$L('没有分享文件')}</p>
             </div>
           ) : (
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th colSpan="2">{$L('分享文件')}</th>
-                  <th className="text-right">{$L('过期时间')}</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody ref={(c) => (this._$tbody = c)}>
-                {this.state.data &&
-                  this.state.data.map((item, idx) => {
-                    let icon = <i className="file-icon" data-type={$fileExtName(item[1])} />
-                    if (item[1].startsWith('024-')) icon = <i className="mdi mdi-folder up-2" style={{ color: '#54aeff', fontSize: 24 }} />
-                    if (item[1].startsWith('016-')) icon = <i className="zmdi zmdi-chart up-2" style={{ fontSize: 24, marginLeft: 3 }} />
-                    if (item[1].startsWith('096-')) icon = <i className="mdi mdi-shimmer up-2" style={{ fontSize: 22 }} />
+            files.map((item, idx) => {
+              let icon = <i className="file-icon" data-type={$fileExtName(item[1])} />
+              if (item[1].startsWith('024-')) icon = <i className="mdi mdi-folder up-2" style={{ color: '#54aeff', fontSize: 24 }} />
+              if (item[1].startsWith('016-')) icon = <i className="zmdi zmdi-chart up-2" style={{ fontSize: 24, marginLeft: 3 }} />
+              if (item[1].startsWith('096-')) icon = <i className="mdi mdi-shimmer up-2" style={{ fontSize: 22 }} />
 
-                    return (
-                      <tr key={idx}>
-                        <td width="36" className="pt-1 pb-0">
-                          {icon}
-                        </td>
-                        <td>
-                          <a href={item[0]} target="_blank" className="link">
-                            {$fileCutName(item[1])}
-                          </a>
-                        </td>
-                        <td width="180" className="text-right pr-0">
-                          <div className="fs-12">
-                            <span title={item[2]}>{item[2] ? $fromNow(item[2]) : <span className="text-warning">{$L('永久有效')}</span>}</span>
-                            <div className="text-muted" title={item[3]}>
-                              {rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}
-                            </div>
-                          </div>
-                        </td>
-                        <td width="70" className="text-right pr-0">
-                          <div className="fop-action" style={{ display: 'inline-block', position: 'static' }}>
-                            <a className="J_copy" data-clipboard-text={item[0]} title={$L('复制分享链接')}>
-                              <i className="icon zmdi zmdi-copy fs-15" />
-                            </a>
-                            <a
-                              className="danger-hover"
-                              title={$L('取消分享')}
-                              onClick={(e) => {
-                                const $tr = $(e.currentTarget).parents('tr')
-                                $.post(`/filex/del-make-share?id=${item[5]}`, (res) => {
-                                  if (res.error_code === 0) {
-                                    $tr.animate({ opacity: 0 }, 400)
-                                    setTimeout(() => $tr.remove(), 400)
-                                    RbHighbar.success($L('已取消分享'))
-                                  } else {
-                                    RbHighbar.error(res.error_msg)
-                                  }
-                                })
-                              }}>
-                              <i className="icon zmdi zmdi-delete fs-17" />
-                            </a>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-              </tbody>
-            </table>
+              return (
+                <div key={idx} className="file-list-item">
+                  <div className="type">{icon}</div>
+                  <div className="detail">
+                    <a href={item[0]} target="_blank" className="link">
+                      {$fileCutName(item[1])}
+                    </a>
+                    <div className="extras">
+                      <span title={item[3]}>{rb.isAdminUser ? $L('由 %s 分享于 %s', item[4], $fromNow(item[3])) : $L('分享于 %s', $fromNow(item[3]))}</span>
+                      <span title={item[2]}>{item[2] ? $fromNow(item[2]) : <span className="text-warning">{$L('永久有效')}</span>}</span>
+                    </div>
+                  </div>
+                  <div className="info position-relative">
+                    <div className="fop-action">
+                      <a className="J_copy" data-clipboard-text={item[0]} title={$L('复制分享链接')}>
+                        <i className="icon mdi mdi-content-copy fs-14 up-1" />
+                      </a>
+                      <a
+                        className="danger-hover"
+                        title={$L('取消分享')}
+                        onClick={(e) => {
+                          const $item = $(e.currentTarget).parents('.file-list-item')
+                          $.post(`/filex/del-make-share?id=${item[5]}`, (res) => {
+                            if (res.error_code === 0) {
+                              $item.animate({ opacity: 0 }, 400)
+                              setTimeout(() => $item.remove(), 400)
+                              RbHighbar.success($L('已取消分享'))
+                            } else {
+                              RbHighbar.error(res.error_msg)
+                            }
+                          })
+                        }}>
+                        <i className="icon zmdi zmdi-delete" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
           )}
         </div>
       </RbModal>
@@ -217,8 +201,11 @@ class SharedFiles extends RbModalHandler {
   componentDidMount() {
     $.get('/filex/all-make-share', (res) => {
       this.setState({ data: res.data || [] }, () => {
-        const $tbody = $(this._$tbody)
-        $tbody.find('.J_copy').each((idx, item) => $clipboard(item))
+        $(this._$list)
+          .find('.J_copy')
+          .on('click', function () {
+            $clipboard2(this)
+          })
       })
     })
   }

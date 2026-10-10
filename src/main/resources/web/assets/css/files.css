@@ -214,20 +214,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-right-color: #dee2e6;
 }
 
-.sharing-list .table th,
-.sharing-list .table td {
-  padding: 8px 6px;
-}
-
-.sharing-list .table th {
-  border-top: 0 none;
-  padding-top: 4px;
-}
-
-.sharing-list .table tbody {
-  border-bottom: 1px solid #dee2e6;
-}
-
 .fop-action {
   position: absolute;
   right: 0;
@@ -253,20 +239,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #0d5bdd !important;
 }
 
-.sharing-list .table tbody tr:hover > td > .fop-action,
 .file-list-item:hover > div.info > .fop-action {
   display: block;
 }
 
-.sharing-list .table tbody tr:hover > td > .fop-action {
-  top: 9px;
+.sharing-list .file-list-item {
+  padding: 7px;
+  padding-left: 14px;
 }
 
-.sharing-list .table tbody tr:hover > td > .fop-action a {
-  background-color: #f0f0f0;
-}
-
-.sharing-list .file-icon::before {
-  border-top-color: #fff;
-  border-right-color: #fff;
+.sharing-list .file-list-item a.danger-hover:hover {
+  color: #ea4335 !important;
 }
