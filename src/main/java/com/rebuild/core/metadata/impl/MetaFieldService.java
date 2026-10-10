@@ -93,9 +93,14 @@ public class MetaFieldService extends InternalPersistService implements AdminGua
             }
 
             Entity whichEntity = MetadataHelper.getEntity(who);
+            String entityIdent = "'" + field.getOwnEntity().getName() + "'";
+            // fix:4.5.1 附件是实体码
+            if ("Attachment".equals(who)) {
+                entityIdent = field.getOwnEntity().getEntityCode() + "";
+            }
             String dsql = String.format(
-                    "delete from `%s` where `BELONG_ENTITY` = '%s' and `BELONG_FIELD` = '%s'",
-                    whichEntity.getPhysicalName(), field.getOwnEntity().getName(), field.getName());
+                    "delete from `%s` where `BELONG_ENTITY` = %s and `BELONG_FIELD` = '%s'",
+                    whichEntity.getPhysicalName(), entityIdent, field.getName());
             int d = Application.getSqlExecutor().execute(dsql);
 
             if (d > 0) {
