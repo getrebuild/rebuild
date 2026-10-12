@@ -323,9 +323,14 @@ public class FormsBuilder extends FormsManager {
             model.set("hadApproval", approvalState.getState());
 
             // v3.4 无审批流程了
-            if (approvalState.getState() >= ApprovalState.REJECTED.getState()) {
-                boolean notHadApproval = !RobotApprovalManager.instance.hadApproval(hasMainEntity == null ? entityMeta : hasMainEntity);
-                if (notHadApproval) model.set("hadApproval", null);
+            if (approvalState.getState() >= ApprovalState.REJECTED.getState()
+                    && !RobotApprovalManager.instance.hadApproval(hasMainEntity == null ? entityMeta : hasMainEntity)) {
+                model.set("hadApproval", null);
+            }
+            // v4.6 无符合条件的流程
+            else if (recordId != null && approvalState == ApprovalState.DRAFT
+                    && !RobotApprovalManager.instance.hadApproval(recordId)) {
+                model.set("hadApproval", null);
             }
         }
 

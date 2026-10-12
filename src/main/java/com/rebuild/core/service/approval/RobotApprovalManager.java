@@ -91,6 +91,24 @@ public class RobotApprovalManager implements ConfigManager {
     }
 
     /**
+     * 获取记录是否有流程
+     *
+     * @param recordId
+     * @return
+     */
+    public boolean hadApproval(ID recordId) {
+        FlowDefinition[] defs = getFlowDefinitions(MetadataHelper.getEntity(recordId.getEntityCode()));
+        for (FlowDefinition def : defs) {
+            if (def.isDisabled() || !def.isWorkable()) continue;
+
+            FlowNode root = def.createFlowParser().getNode("ROOT");
+            JSONObject filter = root.getDataMap().getJSONObject("filter");
+            if (QueryHelper.isMatchAdvFilter(recordId, filter)) return true;
+        }
+        return false;
+    }
+
+    /**
      * @param approvalId
      * @return
      * @see #getFlowDefinition(Entity, ID)
