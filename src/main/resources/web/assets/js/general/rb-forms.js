@@ -2001,7 +2001,7 @@ class RbFormDateTime extends RbFormElement {
           minView: minView,
           startView: startView,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: window.__LAB_MINUTESTEP || 5,
+          minuteStep: ~~this.props.minuteStep || 5,
           todayBtn: true,
         })
         .on('changeDate', function () {
@@ -2050,7 +2050,7 @@ class RbFormTime extends RbFormDateTime {
           minView: minView,
           maxView: 1,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: window.__LAB_MINUTESTEP || 5,
+          minuteStep: ~~this.props.minuteStep || 5,
           title: $L('选择时间'),
           todayBtn: false,
         })

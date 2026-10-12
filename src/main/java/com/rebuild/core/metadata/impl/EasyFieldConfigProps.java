@@ -88,11 +88,19 @@ public class EasyFieldConfigProps {
      * 表单公式
      */
     public static final String DATETIME_CALCFORMULA = NUMBER_CALCFORMULA;
+    /**
+     * 分钟步长
+     */
+    public static final String DATETIME_MINUTESTEP = "minuteStep";
 
     /**
      * 时间格式
      */
     public static final String TIME_FORMAT = "timeFormat";
+    /**
+     * 分钟步长
+     */
+    public static final String TIME_MINUTESTEP = DATETIME_MINUTESTEP;
 
     /**
      * 允许上传数量 1,9
