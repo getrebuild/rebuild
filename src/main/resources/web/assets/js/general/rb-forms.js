@@ -1997,7 +1997,7 @@ class RbFormDateTime extends RbFormElement {
       const that = this
       this.__datetimepicker = $(this._fieldValue)
         .datetimepicker({
-          format: (format || 'yyyy-mm-dd hh:ii:ss').replace(':ss', ':00'),
+          format: format || 'yyyy-mm-dd hh:ii:ss',
           minView: minView,
           startView: startView,
           pickerPosition: this._getAutoPosition(),
@@ -2045,7 +2045,7 @@ class RbFormTime extends RbFormDateTime {
       const that = this
       this.__datetimepicker = $(this._fieldValue)
         .datetimepicker({
-          format: format.replace(':ss', ':00'),
+          format: format,
           startView: 1,
           minView: minView,
           maxView: 1,
