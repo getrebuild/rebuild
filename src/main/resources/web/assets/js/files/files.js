@@ -54,7 +54,7 @@ class FilesList extends React.Component {
                   {this.renderExtras(item)}
                 </div>
               </div>
-              {this.renderExtras34(item)}
+              {this.renderAction46(item)}
               <div className="info">
                 <DateShow date={item.uploadOn} />
               </div>
@@ -103,8 +103,55 @@ class FilesList extends React.Component {
     return null
   }
 
-  renderExtras34(item) {
-    return null
+  renderAction46(item) {
+    return (
+      <div className="info position-relative">
+        <span className="fop-action">
+          {!item.relatedRecord && (
+            <a title={$L('修改')} onClick={(e) => this._handleEdit(item, e)}>
+              <i className="icon mdi mdi-square-edit-outline" />
+            </a>
+          )}
+          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/files/download?id=${item.id}`} target="_blank">
+            <i className="icon zmdi zmdi-download" />
+          </a>
+          {rb.fileSharable && (
+            <a title={$L('分享')} onClick={(e) => this._handleShare(item, e)}>
+              <i className="icon zmdi zmdi-share fs-15 up-1" />
+            </a>
+          )}
+        </span>
+      </div>
+    )
+  }
+
+  _handleEdit(item, e) {
+    $stopEvent(e, true)
+    renderRbcomp(
+      <FileRename
+        fileId={item.id}
+        fileKey={item.fileName}
+        onConfirm={(newName, dlg) => {
+          if (!newName || !dlg) return
+          dlg.disabled(true)
+          $.post(`/files/file-edit?newName=${$encode(newName)}&id=${item.id}`, (res) => {
+            if (res.error_code === 0) {
+              dlg.hide()
+              filesList && filesList.loadData()
+            } else {
+              RbHighbar.error(res.error_msg)
+              dlg.disabled()
+            }
+          })
+        }}
+      />,
+    )
+  }
+
+  _handleShare(item, e) {
+    $stopEvent(e)
+    // eslint-disable-next-line react/jsx-no-undef
+    renderRbcomp(<FileShare file={item.id} />)
   }
 
   componentDidMount() {
@@ -248,6 +295,16 @@ $(document).ready(() => {
     } else {
       filesList.setState({ currentActive: [] })
     }
+  })
+
+  // 批量下载
+  $('a.J_dl, button.J_dl').on('click', () => {
+    const s = filesList.getSelected()
+    if (!s) return
+
+    const $form = $('form.J_dl')
+    $form.find('input').val(s.join(','))
+    $form[0].submit()
   })
 
   // 搜索
