@@ -75,6 +75,8 @@ public class BuildField implements Tool, AdminGuard {
             throw new KnownToolException("字段名称 (fieldLabel) 不能为空");
         }
 
+        String fieldName = StringUtils.trimToNull(args.getString("fieldName"));
+
         DisplayType dt = parseDisplayType(args.getString("type"));
 
         String refEntity = null;
@@ -121,7 +123,7 @@ public class BuildField implements Tool, AdminGuard {
 
         // 实体结构是系统核心，未确认时仅返回改动清单，须用户二次确认后才创建
         if (!args.getBooleanValue("confirmed")) {
-            JSONObject changes = buildChanges(entity, fieldLabel, dt, refEntity,
+            JSONObject changes = buildChanges(entity, fieldLabel, fieldName, dt, refEntity,
                     options, classificationName, seriesFormat, seriesZero, args.getString("comments"));
             return JSONUtils.toJSONObject(
                     new String[]{"status", "needConfirm", "changes", "message"},
@@ -131,8 +133,8 @@ public class BuildField implements Tool, AdminGuard {
                                     + "用户未确认或要求调整时不得执行创建"});
         }
 
-        String fieldName = new Field2Schema(UserContextHolder.getUser()).createField(
-                entity, fieldLabel, null, dt, args.getString("comments"), refEntity, extConfig);
+        fieldName = new Field2Schema(UserContextHolder.getUser()).createField(
+                entity, fieldLabel, fieldName, dt, args.getString("comments"), refEntity, extConfig);
 
         // 下拉列表/多选：字段创建后补充选项
         if (dt == DisplayType.PICKLIST || dt == DisplayType.MULTISELECT) {
@@ -190,6 +192,7 @@ public class BuildField implements Tool, AdminGuard {
      *
      * @param entity
      * @param fieldLabel
+     * @param fieldName
      * @param dt
      * @param refEntity
      * @param options
@@ -199,13 +202,14 @@ public class BuildField implements Tool, AdminGuard {
      * @param comments
      * @return
      */
-    private JSONObject buildChanges(Entity entity, String fieldLabel, DisplayType dt, String refEntity,
+    private JSONObject buildChanges(Entity entity, String fieldLabel, String fieldName, DisplayType dt, String refEntity,
                                     JSONArray options, String classificationName, String seriesFormat,
                                     String seriesZero, String comments) {
         JSONObject changes = new JSONObject(true);
         changes.put("操作", "新建字段");
         changes.put("所属实体", EasyMetaFactory.getLabel(entity));
         changes.put("字段名称", fieldLabel);
+        if (fieldName != null) changes.put("字段标识", fieldName);
         changes.put("字段类型", dt.getDisplayName());
         if (refEntity != null) {
             changes.put("引用实体", EasyMetaFactory.getLabel(MetadataHelper.getEntity(refEntity)));

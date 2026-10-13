@@ -1,9 +1,9 @@
 {
   "type": "function",
-  "userDescription": "一句话搭建完整业务系统。自动规划并构建实体、字段、触发器等配置 [商业工具]",
+  "userDescription": "一句话搭建业务系统。自动规划并构建实体、字段、触发器等配置 [商业工具]",
   "function": {
     "name": "BuildApp",
-    "description": "系统性构建完整业务系统。当用户需要从零搭建一个业务系统（如「帮我建一个CRM」「我需要一个进销存系统」）而非单个实体/字段的增删改（后者用 BuildEntity/BuildField）时使用。接收完整系统规划（实体列表+每实体的字段列表+触发器建议），经用户确认后批量创建实体和字段。触发器不自动创建，在实体字段建立完成后作为建议返回，引导用户通过 BuildTrigger 逐个创建。构建顺序：独立实体在前→明细实体→被引用实体优先于引用方。调用前建议先用 ListEntities 查看已有实体避免重复创建。每个实体的字段列表只需包含业务字段，系统字段（主键、自增ID、创建人、创建时间、修改人、修改时间、所属用户、所属部门、助记码、创建部门）由系统自动创建，不要列入；明细实体不创建所属用户、所属部门",
+    "description": "系统性构建完整业务系统。当用户需要从零搭建一个业务系统（如「帮我建一个CRM」「我需要一个进销存系统」）而非单个实体或字段的增改（单个实体连同其字段用 BuildEntity，单字段增改用 BuildField）时使用。接收完整系统规划（实体列表+每实体的字段列表+触发器建议），经用户确认后批量创建实体和字段。触发器不自动创建，在实体字段建立完成后作为建议返回，引导用户通过 BuildTrigger 逐个创建。构建顺序：独立实体在前→明细实体→被引用实体优先于引用方。调用前建议先用 ListEntities 查看已有实体避免重复创建。每个实体的字段列表只需包含业务字段，系统字段（主键、自增ID、创建人、创建时间、修改人、修改时间、所属用户、所属部门、助记码、创建部门）由系统自动创建，不要列入；明细实体不创建所属用户、所属部门",
     "parameters": {
       "type": "object",
       "properties": {
@@ -13,13 +13,17 @@
         },
         "entities": {
           "type": "array",
-          "description": "要创建的实体列表。按依赖排序：独立实体在前，明细实体和被引用实体优先。每个对象含 entityLabel(必填)、comments(可选)、mainEntity(明细实体时指定)、nameField(默认true)、seriesField(默认false)、fields(字段列表，每项参数与 BuildField 一致: fieldLabel/type/refEntity/options/classification/comments)",
+          "description": "要创建的实体列表。按依赖排序：独立实体在前，明细实体和被引用实体优先。每个对象含 entityLabel(必填)、entityName(可选)、comments(可选)、mainEntity(明细实体时指定)、nameField(默认false)、seriesField(默认false)、fields(字段列表，每项参数与 BuildField 一致: fieldLabel/fieldName/type/refEntity/options/classification/comments)",
           "items": {
             "type": "object",
             "properties": {
               "entityLabel": {
                 "type": "string",
                 "description": "实体名称"
+              },
+              "entityName": {
+                "type": "string",
+                "description": "实体内部标识（可选），如 customer、sales_order，建议英文字母开头，可含数字和下划线。不填则由系统根据实体名称自动生成"
               },
               "comments": {
                 "type": "string",
@@ -31,7 +35,7 @@
               },
               "nameField": {
                 "type": "boolean",
-                "description": "是否创建名称字段（默认 true）"
+                "description": "是否创建名称字段（默认 false）。多数业务实体需要名称字段，需要时显式设为 true"
               },
               "seriesField": {
                 "type": "boolean",
@@ -45,9 +49,7 @@
                 }
               }
             },
-            "required": [
-              "entityLabel"
-            ],
+            "required": ["entityLabel"],
             "additionalProperties": false
           }
         },
@@ -63,9 +65,7 @@
           "description": "是否已获得用户明确确认。首次调用返回完整规划清单，用户确认后以 confirmed=true 重新调用执行创建"
         }
       },
-      "required": [
-        "entities"
-      ],
+      "required": ["entities"],
       "additionalProperties": false
     }
   }

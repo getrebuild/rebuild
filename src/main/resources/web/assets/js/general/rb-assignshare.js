@@ -469,6 +469,7 @@ class DlgTransform extends RbModalHandler {
       existsRecord: this.state.transType === 1 ? this._existsRecord.val() || null : null,
       mainRecord: this.state.transType === 0 && this._mainRecord ? this._mainRecord.val() || null : null,
       preview: preview || false,
+      specLayout: props.specLayout || null,
     }
     // 单条兼容
     if (Array.isArray(_post.sourceRecord) && !this._isMuilt) _post.sourceRecord = _post.sourceRecord[0]
