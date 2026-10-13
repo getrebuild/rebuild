@@ -80,7 +80,7 @@ class InitModels extends React.Component {
             <form>
               {this.state.data.apps.map((item) => (
                 <div key={item.url}>
-                  <a className="d-block" href={item.url} target="_blank" rel="noopener noreferrer" title={item.desc}>
+                  <a className="d-block hover-opacity" href={item.url} target="_blank" rel="noopener noreferrer" title={item.desc}>
                     <strong>{item.name}</strong>
                     <p>{item.desc}</p>
                   </a>

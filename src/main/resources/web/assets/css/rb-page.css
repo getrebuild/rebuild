@@ -4738,10 +4738,6 @@ html.external-auth .auth-body.must-center .login {
   mask-image: linear-gradient(90deg, #000 calc(100% - 5em), #0000 calc(100% + 5em));
 }
 
-.init-models form > div > a p {
-  margin-bottom: 5px;
-}
-
 .btn.btn-light {
   box-shadow: none;
 }
@@ -6789,6 +6785,11 @@ div.formula-code {
 .EasyMDEContainer .CodeMirror .cm-formatting.cm-url,
 .EasyMDEContainer .CodeMirror .cm-formatting.cm-link {
   display: inline !important;
+}
+
+.EasyMDEContainer .CodeMirror.cm-readonly {
+  background-color: #eee;
+  border-radius: 2px;
 }
 
 .editor-toolbar.fullscreen,
