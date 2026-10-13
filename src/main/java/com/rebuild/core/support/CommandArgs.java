@@ -77,49 +77,13 @@ public class CommandArgs {
 
     // v4.5
     public static final String _AiBotDangersTool = "_AiBotDangersTool";
-
-    // v4.6
-    public static final String _DisabledRateLimiters = "_DisabledRateLimiters";
-
-    /**
-     * 内部消息同步发送短信
-     */
-    public static final String _SmsDistributor = "_SmsDistributor";
-    /**
-     * 内部消息同步发送邮件
-     */
-    public static final String _EmailDistributor = "_EmailDistributor";
-    /**
-     * FrontJS 在所有页面生效
-     */
-    public static final String _UseFrontJSAnywhere = "_UseFrontJSAnywhere";
-    /**
-     * 触发器级联执行深度
-     */
-    public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
-    /**
-     * 定时执行异步
-     */
-    public static final String _TriggerTimerAsync = "_TriggerTimerAsync";
-    /**
-     * 新版本检测
-     */
-    public static final String _NotCheckBuild = "_NotCheckBuild";
-    /**
-     * 图片启用压缩
-     */
-    public static final String _ImageBigThumb = "_ImageBigThumb";
-    /**
-     * 图片启用水印
-     */
-    public static final String _ImageWatermark = "_ImageWatermark";
-    /**
-     * v4.5 激活 AK 访问
-     */
     public static final String _EnableAkAccess = "_EnableAkAccess";
     public static final String _ApiRequestKeepingDays = "_ApiRequestKeepingDays";
     // v4.5.1
     public static final String _BackupDirectory = "_BackupDirectory";
+
+    // v4.6
+    public static final String _DisabledRateLimiters = "_DisabledRateLimiters";
 
     // --
 
