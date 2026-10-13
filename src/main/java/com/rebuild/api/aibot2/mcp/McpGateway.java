@@ -14,7 +14,6 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.RateLimiters;
-import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,9 +41,6 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/gw/mcp/")
 public class McpGateway {
 
-    private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
-            new int[]{600, 6000, 36000},
-            new int[]{30, 100, 500});
     private static final boolean RRL_DISABLED = true;
 
     private static final McpServer MCP_SERVER = new McpServer(
@@ -77,7 +73,7 @@ public class McpGateway {
             return;
         }
 
-        if (!RRL_DISABLED && RRL.overLimitWhenIncremented("mcp:" + user)) {
+        if (!RRL_DISABLED && RateLimiters.MCP_4USER.overLimitWhenIncremented("mcp:" + user)) {
             writeJson(response, HttpStatus.TOO_MANY_REQUESTS.value(), McpServer.errorBody(McpServer.ERR_RATE_LIMIT, "Rate limit exceeded"));
             return;
         }
