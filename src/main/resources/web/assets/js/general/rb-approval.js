@@ -405,17 +405,24 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
         <div className="form approval-form">
           <div className="form-group">
             <label>{$L('选择审批流程')}</label>
+            {approvals.length === 0 && (
+              <RbAlertBox
+                type="info"
+                unclose
+                message={
+                  <RF>
+                    {$L('无适用审批流程')}
+                    {rb.isAdminUser && (
+                      <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals?new=${(window.__PageConfig || {}).entity[0] || ''}`}>
+                        <i className="zmdi zmdi-settings" /> {$L('点击添加')}
+                      </a>
+                    )}
+                  </RF>
+                }
+              />
+            )}
+
             <div className="approval-list">
-              {!this.state.approvals && (
-                <p className="text-muted">
-                  {$L('无适用流程')}
-                  {rb.isAdminUser && (
-                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals?new=${(window.__PageConfig || {}).entity[0] || ''}`}>
-                      <i className="zmdi zmdi-settings" /> {$L('点击添加')}
-                    </a>
-                  )}
-                </p>
-              )}
               {approvals.map((item) => {
                 return (
                   <div key={item.id}>

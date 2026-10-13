@@ -115,6 +115,13 @@ $(document).ready(function () {
       if (k) extConfigNew[k] = $val(this)
     })
 
+    // 分钟步长
+    if (dt === 'DATETIME' || dt === 'TIME') {
+      const v = ~~extConfigNew['minuteStep']
+      if (v > 0 && v < 60) extConfigNew['minuteStep'] = v + ''
+      else delete extConfigNew['minuteStep']
+    }
+
     // 文件
     if (dt === 'FILE' && extConfigNew['fileSuffix']) {
       const fix = []

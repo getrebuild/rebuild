@@ -1997,11 +1997,11 @@ class RbFormDateTime extends RbFormElement {
       const that = this
       this.__datetimepicker = $(this._fieldValue)
         .datetimepicker({
-          format: (format || 'yyyy-mm-dd hh:ii:ss').replace(':ss', ':00'),
+          format: format || 'yyyy-mm-dd hh:ii:ss',
           minView: minView,
           startView: startView,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: window.__LAB_MINUTESTEP || 5,
+          minuteStep: ~~this.props.minuteStep || 5,
           todayBtn: true,
         })
         .on('changeDate', function () {
@@ -2045,12 +2045,12 @@ class RbFormTime extends RbFormDateTime {
       const that = this
       this.__datetimepicker = $(this._fieldValue)
         .datetimepicker({
-          format: format.replace(':ss', ':00'),
+          format: format,
           startView: 1,
           minView: minView,
           maxView: 1,
           pickerPosition: this._getAutoPosition(),
-          minuteStep: window.__LAB_MINUTESTEP || 5,
+          minuteStep: ~~this.props.minuteStep || 5,
           title: $L('选择时间'),
           todayBtn: false,
         })

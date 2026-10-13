@@ -27,6 +27,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RateLimiters;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.RbvMissingController;
 import lombok.extern.slf4j.Slf4j;
@@ -116,6 +117,11 @@ public class AiBotAgentPubController extends BaseController {
 
     @PostMapping("{agentId}/chat-stream")
     public void chatStream(@PathVariable String agentId, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (RateLimiters.AIBOT_PUB_4IP.overLimitWhenIncremented("ip:" + ServletUtils.getRemoteAddr(req))) {
+            StreamEcho.error(Language.L("请求过于频繁，请稍后再试"), resp.getWriter());
+            return;
+        }
+
         ID id = getAvailableAgent(agentId);
         if (id == null) {
             StreamEcho.error(Language.L("Agent 不存在或未发布"), resp.getWriter());
