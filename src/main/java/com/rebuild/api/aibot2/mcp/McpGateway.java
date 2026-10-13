@@ -41,8 +41,6 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/gw/mcp/")
 public class McpGateway {
 
-    private static final boolean RRL_DISABLED = true;
-
     private static final McpServer MCP_SERVER = new McpServer(
             () -> RebuildConfiguration.get(ConfigurationItem.AppName),
             () -> Application.VER);
@@ -73,7 +71,7 @@ public class McpGateway {
             return;
         }
 
-        if (!RRL_DISABLED && RateLimiters.MCP_4USER.overLimitWhenIncremented("mcp:" + user)) {
+        if (RateLimiters.MCP_4USER.overLimitWhenIncremented("mcp:" + user)) {
             writeJson(response, HttpStatus.TOO_MANY_REQUESTS.value(), McpServer.errorBody(McpServer.ERR_RATE_LIMIT, "Rate limit exceeded"));
             return;
         }

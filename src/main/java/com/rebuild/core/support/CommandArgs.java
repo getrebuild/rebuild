@@ -70,6 +70,9 @@ public class CommandArgs {
     // v4.5
     public static final String _AiBotDangersTool = "_AiBotDangersTool";
 
+    // v4.6
+    public static final String _DisabledRateLimiters = "_DisabledRateLimiters";
+
     /**
      * 内部消息同步发送短信
      */
