@@ -142,6 +142,16 @@ public class RebuildConfiguration extends KVStorage {
     }
 
     /**
+     * AI 助手账号
+     *
+     * @return returns [AibotDSUrl, AibotDSSecret, AibotBaseDefModel]
+     */
+    public static String[] getAibotAccount() {
+        return getsNoUnset(false,
+                ConfigurationItem.AibotDSUrl, ConfigurationItem.AibotDSSecret, ConfigurationItem.AibotBaseDefModel);
+    }
+
+    /**
      * 获取绝对 URL
      *
      * @return

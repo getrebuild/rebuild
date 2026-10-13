@@ -149,6 +149,12 @@ public class RecordTransfomer39 extends RecordTransfomer37 {
 
         JSON formModel;
         if (specLayoutId != null) FormsBuilderContextHolder.setSpecLayout(specLayoutId);
+
+        // fix:4.5.1 明细转换直接预览
+        if (specMainId == null && targetEntity.getMainEntity() != null && tansTargetRecord.getPrimary() == null) {
+            specMainId = EntityHelper.newUnsavedId(targetEntity.getEntityCode());
+        }
+
         try {
             formModel = UseFormsBuilder.buildFormWithRecord(targetEntity, tansTargetRecord, specMainId, getUser(), false);
         } finally {

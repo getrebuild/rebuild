@@ -150,13 +150,9 @@ public class AiBot2AdminController extends BaseController {
         OpenAIClient client;
         if (StringUtils.isNotBlank(baseUrl) || StringUtils.isNotBlank(apiKey)) {
             if (StringUtils.isBlank(baseUrl)) baseUrl = Config.getServerUrl(null);
-            if (StringUtils.isBlank(apiKey)) {
-                if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
-                apiKey = Config.getSecret();
-            }
-            client = Config.createClient(baseUrl, apiKey);
+            if (StringUtils.isBlank(apiKey)) apiKey = Config.getSecret();
+            client = Config.getClient(baseUrl, apiKey);
         } else {
-            if (!Config.availableAiBot()) return RespBody.errorl("AI 助手未配置");
             client = Config.getClient();
         }
 

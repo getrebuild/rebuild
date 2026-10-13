@@ -1237,7 +1237,7 @@ class ChatSidebar extends React.Component {
   }
 
   componentDidUpdate(props, prevState) {
-    if (prevState.current !== this.state.current) {
+    if (prevState.current !== this.state.current && this.state.current) {
       $storage.set('__AiBotLastChatId', this.state.current)
     }
     if (prevState.list !== this.state.list) {

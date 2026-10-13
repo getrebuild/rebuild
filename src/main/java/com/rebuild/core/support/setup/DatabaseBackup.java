@@ -9,6 +9,7 @@ package com.rebuild.core.support.setup;
 
 import cn.devezhao.commons.CalendarUtils;
 import com.rebuild.core.BootEnvironmentPostProcessor;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommandUtils;
@@ -53,17 +54,20 @@ public class DatabaseBackup {
      * @throws IOException
      */
     public File backup() throws IOException {
-        File backups = RebuildConfiguration.getFileOfData("_backups");
-        return backup(backups);
+        File backupd = RebuildConfiguration.getFileOfData("_backups");
+        String d451 = CommandArgs.getString(CommandArgs._BackupDirectory);
+        if (StringUtils.isNotBlank(d451)) backupd = new File(d451);
+
+        return backup(backupd);
     }
 
     /**
-     * @param backups
+     * @param backupd
      * @return
      * @throws IOException
      */
-    public File backup(File backups) throws IOException {
-        if (!backups.exists()) FileUtils.forceMkdir(backups);
+    public File backup(File backupd) throws IOException {
+        if (!backupd.exists()) FileUtils.forceMkdir(backupd);
 
         String url = BootEnvironmentPostProcessor.getProperty("db.url");
         String user = BootEnvironmentPostProcessor.getProperty("db.user");
@@ -75,7 +79,7 @@ public class DatabaseBackup {
         String dbname = url.split("/")[1];
 
         String destName = "backup_database." + CalendarUtils.getPlainDateTimeFormat().format(CalendarUtils.now()) + ".sql";
-        File dest = new File(backups, destName);
+        File dest = new File(backupd, destName);
 
         String mysqldump = RebuildConfiguration.get(ConfigurationItem.MysqldumpBin);
         if (StringUtils.isBlank(mysqldump)) mysqldump = SystemUtils.IS_OS_WINDOWS ? "mysqldump.exe" : "mysqldump";
@@ -104,7 +108,7 @@ public class DatabaseBackup {
         boolean isGotError = echo.contains("Got error");
         if (isGotError) throw new RuntimeException(echo);
 
-        File dest2Zip = new File(backups, destName.replace(".sql", ".zip"));
+        File dest2Zip = new File(backupd, destName.replace(".sql", ".zip"));
         try {
             CompressUtils.forceZip(dest2Zip, dest, null);
 

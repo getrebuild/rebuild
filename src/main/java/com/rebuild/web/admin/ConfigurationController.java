@@ -106,6 +106,7 @@ public class ConfigurationController extends BaseController {
         mv.getModel().put("SN", "***" + auth.getString("sn").substring(12));
         mv.getModel().put("VN", auth.getString("vn"));
         mv.getModel().put("VNExpires", auth.getIntValue("vnExpiresLeft") < 0);
+        if (auth.containsKey("vnExpires")) mv.getModel().put("VNExpiresTime", auth.getString("vnExpires"));
 
         return mv;
     }

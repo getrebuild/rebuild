@@ -142,7 +142,7 @@ public class Config {
      * @return
      */
     public static boolean availableAiBot() {
-        return RebuildConfiguration.get(ConfigurationItem.AibotDSSecret) != null;
+        return RebuildConfiguration.getAibotAccount() != null;
     }
 
     /**
@@ -170,6 +170,13 @@ public class Config {
     /**
      * @return
      */
+    public static String getDefModel() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
+    }
+
+    /**
+     * @return
+     */
     public static String getBasePrompt() {
         return RebuildConfiguration.get(ConfigurationItem.AibotBasePrompt);
     }
@@ -187,10 +194,4 @@ public class Config {
         return SYSTEM_PROMPT_CACHE == null ? "" : SYSTEM_PROMPT_CACHE;
     }
 
-    /**
-     * @return
-     */
-    public static String getDefModel() {
-        return RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
-    }
 }

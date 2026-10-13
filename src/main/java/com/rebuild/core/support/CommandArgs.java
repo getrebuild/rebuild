@@ -38,6 +38,14 @@ public class CommandArgs {
     public static final String _UniPush = "_UniPush";
     public static final String _UseDbFullText = "_UseDbFullText";
     public static final String _TriggerLessLog = "_TriggerLessLog";
+    public static final String _SmsDistributor = "_SmsDistributor";
+    public static final String _EmailDistributor = "_EmailDistributor";
+    public static final String _UseFrontJSAnywhere = "_UseFrontJSAnywhere";
+    public static final String _TriggerMaxDepth = "_TriggerMaxDepth";
+    public static final String _TriggerTimerAsync = "_TriggerTimerAsync";
+    public static final String _NotCheckBuild = "_NotCheckBuild";
+    public static final String _ImageBigThumb = "_ImageBigThumb";
+    public static final String _ImageWatermark = "_ImageWatermark";
 
     // v4.1
     public static final String _StartEntityTypeCode = "_StartEntityTypeCode";
@@ -109,10 +117,9 @@ public class CommandArgs {
      * v4.5 激活 AK 访问
      */
     public static final String _EnableAkAccess = "_EnableAkAccess";
-    /**
-     * v4.5 OpenAPI 请求日志保留天数（默认 90）
-     */
     public static final String _ApiRequestKeepingDays = "_ApiRequestKeepingDays";
+    // v4.5.1
+    public static final String _BackupDirectory = "_BackupDirectory";
 
     // --
 

@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.Application;
+import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +76,16 @@ public class IncreasingVar extends SeriesVar {
 
             long nextValue = incr.incrementAndGet();
             RebuildConfiguration.setCustomValueAsync(nameKey, nextValue);
+
+            // 事务回滚时回收序号。仅当仍是最高号才回收，否则作废，避免与其他取号冲突造成重号
+            final long recycledValue = nextValue - 1;
+            TransactionManual.registerAfterRollback(() -> {
+                AtomicLong current = INCREASINGS.get(nameKey);
+                if (current != null && current.compareAndSet(nextValue, recycledValue)) {
+                    RebuildConfiguration.setCustomValueAsync(nameKey, recycledValue);
+                    log.info("Series value recycled on rollback : {} = {}", nameKey, recycledValue);
+                }
+            });
 
             String nextValueHex = nextValue + "";
             // v4.3.2 16进制

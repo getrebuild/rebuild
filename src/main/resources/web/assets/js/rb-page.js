@@ -234,6 +234,29 @@ $(function () {
         })
         dd.push('</div>')
         topPopover($('.admin-danger a'), dd.join(''))
+
+        var seText = null
+        $(res.data).each(function () {
+          if (String(this).indexOf('buy-license?type=fw') > -1) seText = String(this)
+        })
+        if (seText) {
+          var days = (seText.match(/<b>(\d+)<\/b>/) || [])[1]
+          var now = new Date()
+          var last = window.localStorage && localStorage.getItem('SupportExpireNotified')
+          var mark = null
+          if (days === null || ~~days <= 7) {
+            var today = now.toISOString().slice(0, 10)
+            if (last !== today) mark = today
+          } else if (!last || isNaN(Number(last)) || (now.getTime() - Number(last)) / 86400000 >= 7) {
+            mark = String(now.getTime())
+          }
+          if (mark) {
+            localStorage.setItem('SupportExpireNotified', mark)
+            setTimeout(function () {
+              RbAlertFree43.createSupportExpire45(seText)
+            }, 1200)
+          }
+        }
       }
     })
   } else {

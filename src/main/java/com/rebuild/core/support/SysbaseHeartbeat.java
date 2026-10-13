@@ -42,6 +42,7 @@ public class SysbaseHeartbeat {
     private static final String UsersMsg = "UsersMsg";
     private static final String CommercialNoRbv = "CommercialNoRbv";
     private static final String DateNotSync = "DateNotSync";
+    private static final String SupportExpires = "SupportExpires";
 
     public static final String DatabaseBackupFail = "DatabaseBackupFail";
     public static final String DatafileBackupFail = "DatafileBackupFail";
@@ -93,6 +94,16 @@ public class SysbaseHeartbeat {
             dangers.remove(DateNotSync);
         }
 
+        // #4
+        JSONObject supportAuth = License.queryAuthority(false);
+        String supportVn = supportAuth.getString("vn");
+        Integer supportLeft = supportAuth.getInteger("vnExpiresLeft");
+        if (supportVn != null && supportLeft != null && supportLeft <= 30) {
+            dangers.put(SupportExpires, supportVn + COMM_SPLITER + supportLeft);
+        } else {
+            dangers.remove(SupportExpires);
+        }
+
         Application.getCommonsCache().putx(CKEY_DANGERS, dangers, CommonsCache.TS_DAY);
     }
 
@@ -136,6 +147,17 @@ public class SysbaseHeartbeat {
             hasUpdate = Language.L("有新版的 REBUILD (%s) 更新可用 [(查看详情)](%s)", ss[0], ss[1]);
             hasUpdate = hasUpdate.replace("<a ", "<a target=\"_blank\" ");
             dangers.put(HasUpdate, hasUpdate);
+        }
+
+        String supportExpires = dangers.get(SupportExpires);
+        if (supportExpires != null && supportExpires.contains(COMM_SPLITER)) {
+            String[] ss = supportExpires.split(CommonsUtils.COMM_SPLITER_RE);
+            int supportLeft = Integer.parseInt(ss[1]);
+            String supportUrl = "https://getrebuild.com/buy-license?type=fw&vn=" + ss[0];
+            String supportText = supportLeft < 0
+                    ? Language.L("技术支持服务已到期，官方技术支持与产品升级服务将不可用 [(立即续费)](%s)", supportUrl)
+                    : Language.L("技术支持服务还剩 **%d** 天到期，到期后官方技术支持与产品升级服务将不可用 [(立即续费)](%s)", supportLeft, supportUrl);
+            dangers.put(SupportExpires, supportText.replace("<a ", "<a target=\"_blank\" "));
         }
 
         if (RebuildConfiguration.getBool(ConfigurationItem.DBBackupsEnable)) {
