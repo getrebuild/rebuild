@@ -37,6 +37,7 @@ public class AgentDefs {
      */
     public static AibotAgent getAgent(ID agentId) {
         ConfigBean cb = getAgentConfig(agentId);
+        if (cb == null) return null;
         JSONObject config = (JSONObject) cb.getJSON("config");
 
         return new AibotAgent()
@@ -63,6 +64,7 @@ public class AgentDefs {
      */
     public static ID getBindUser(ID agentId) {
         ConfigBean cb = getAgentConfig(agentId);
+        if (cb == null) return null;
 
         String bindUser = ((JSONObject) cb.getJSON("config")).getString("bindUser");
         if (StringUtils.isBlank(bindUser) || !ID.isId(bindUser)) return null;
@@ -79,20 +81,22 @@ public class AgentDefs {
      */
     public static JSONObject getPublishConfig(ID agentId) {
         ConfigBean cb = getAgentConfig(agentId);
+        if (cb == null) return new JSONObject();
 
         JSONObject publish = ((JSONObject) cb.getJSON("config")).getJSONObject("publish");
         return publish != null ? publish : new JSONObject();
     }
 
     private static ConfigBean getAgentConfig(ID agentId) {
+        if (agentId == null) return null;
+
         for (ConfigBean cb : AibotConfigManager.instance.getAgentConfigs()) {
             if (!agentId.equals(cb.getID("id"))) continue;
             if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
             if (cb.getJSON("config") == null) continue;
             return cb;
         }
-
-        throw new AiBotException("AGENT NOT FOUND:" + agentId);
+        return null;
     }
 
     private static Set<ID> toIds(JSONArray array) {

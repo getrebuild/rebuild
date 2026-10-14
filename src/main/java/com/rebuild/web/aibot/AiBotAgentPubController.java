@@ -142,6 +142,10 @@ public class AiBotAgentPubController extends BaseController {
         ID chatid = getOwnedChatId(req, id);
 
         ID bindUser = AgentDefs.getBindUser(id);
+        if (bindUser == null) {
+            StreamEcho.error(Language.L("请联系管理员为该智能体绑定用户后使用"), resp.getWriter());
+            return;
+        }
         ID keepUser = UserContextHolder.setUser(bindUser);
         AibotContextHolder.setAgent(agent, true);
 
