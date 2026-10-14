@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.aibot2.AgentDefs;
 import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.Chat;
 import com.rebuild.core.aibot2.ChatLogger;
@@ -205,7 +206,11 @@ public class AiBot2Controller extends BaseController {
             chat.getMessages().forEach(m -> messages.add(m.toJSON()));
             agentId = chat.getAgent().getAgentId();
         } else {
-            String welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);
+            ID initAgent = getIdParameter(req, "agent");
+            JSONObject publish = initAgent == null ? null : AgentDefs.getPublishConfig(initAgent);
+
+            String welcome = publish == null ? null : publish.getString("welcome");
+            if (StringUtils.isBlank(welcome)) welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);
             if (StringUtils.isBlank(welcome)) {
                 String aibotName = RebuildConfiguration.get(ConfigurationItem.AibotName);
                 welcome = String.format("欢迎使用 %s！有什么问题都可以向我提问哦", aibotName);
@@ -216,10 +221,21 @@ public class AiBot2Controller extends BaseController {
                     new Object[]{"ai", welcome});
             messages.add(welcomeMsg);
 
-            try {
-                suggestQuestions = SuggestQuestions.generate(user);
-            } catch (Exception ex) {
-                log.warn("SuggestQuestions failed", ex);
+            String suggests = publish == null ? null : publish.getString("suggestQuestions");
+            if (StringUtils.isNotBlank(suggests)) {
+                suggestQuestions = new JSONArray();
+                for (String line : suggests.split("\n")) {
+                    String q = line.trim();
+                    if (!q.isEmpty()) suggestQuestions.add(q);
+                }
+                if (suggestQuestions.isEmpty()) suggestQuestions = null;
+            }
+            if (suggestQuestions == null) {
+                try {
+                    suggestQuestions = SuggestQuestions.generate(user);
+                } catch (Exception ex) {
+                    log.warn("SuggestQuestions failed", ex);
+                }
             }
         }
 

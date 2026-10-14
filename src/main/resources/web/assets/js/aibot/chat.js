@@ -126,7 +126,7 @@ class Chat extends React.Component {
     this._preset = null
     this._ChatSidebar.setState({ current: null })
 
-    $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}`, (res) => {
+    $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}&agent=${agentId || ''}`, (res) => {
       if (res.error_code === 0) {
         const d = res.data || {}
         if (d._chatid) {
@@ -135,8 +135,11 @@ class Chat extends React.Component {
         }
         const agents = d.agents || []
         if (!agentId && !chatid) {
-          const last = $storage.get('aibot-agent')
-          if (last && agents.some((a) => (a.id || null) === last)) agentId = last
+          const last = $storage.get('__AiBotLastAgent')
+          if (last && agents.some((a) => (a.id || null) === last)) {
+            this.initChat(null, last)
+            return
+          }
         }
         this.setState({ agents, agentId: agentId || d.agentId || null })
         let messages = d.messages || []
@@ -283,7 +286,12 @@ class ChatInput extends React.Component {
     const current = agents.find((a) => (a.id || null) === (this.props._Chat.state.agentId || null)) || agents[0]
     return (
       <div className="chat-input-container">
-        <div className={`chat-input flex-column ${this.state.active && 'active'}`}>
+        <div
+          className={`chat-input flex-column ${this.state.active && 'active'}`}
+          onClick={(e) => {
+            if (e.target.closest('button, a, .chat-input-attach, .dropdown-menu')) return
+            if (this._$editable && !this._$editable.contains(e.target)) this._$editable.focus()
+          }}>
           <div className="chat-input-input">
             <div className="chat-input-attach">
               {this.state.activeSkill && <Attach key={`skill-${this.state.activeSkill}`} skill={this.state.activeSkill} _ChatInput={this} id={`skill-${this.state.activeSkill}`} />}
@@ -330,7 +338,7 @@ class ChatInput extends React.Component {
             {agents.length > 1 && (
               <span className="dropup chat-agents">
                 <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('切换智能体')} style={{ padding: '0 8px' }}>
-                  <i className={`icon mdi ${current.icon || 'mdi-shimmer'} down-2 mr-1`} />
+                  <i className={`icon mdi ${current.icon || 'mdi-shimmer'} down-2 mr-1 ai-color`} />
                   {current.name}
                 </button>
                 <div className="dropdown-menu auto-scroller">
@@ -408,13 +416,9 @@ class ChatInput extends React.Component {
     if (this.state.postState !== 0) return
     agentId = agentId || null
     if (agentId === (_Chat.state.agentId || null)) return
-    if (agentId === null) $storage.remove('aibot-agent')
-    else $storage.set('aibot-agent', agentId)
-    if (_Chat.state.chatid) {
-      _Chat.initChat(null, agentId)
-    } else {
-      _Chat.setState({ agentId })
-    }
+    if (agentId === null) $storage.remove('__AiBotLastAgent')
+    else $storage.set('__AiBotLastAgent', agentId)
+    _Chat.initChat(null, agentId)
   }
 
   hanldeSend() {
