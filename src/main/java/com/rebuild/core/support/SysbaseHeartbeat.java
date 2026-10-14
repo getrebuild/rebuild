@@ -16,7 +16,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OshiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
+import static com.rebuild.core.support.ConfigurationItem.DBBackupsEnable;
 import static com.rebuild.utils.CommonsUtils.COMM_SPLITER;
+import static com.rebuild.utils.CommonsUtils.COMM_SPLITER_RE;
 
 /**
  * @author devezhao
@@ -98,7 +99,7 @@ public class SysbaseHeartbeat {
         JSONObject supportAuth = License.queryAuthority(false);
         String supportVn = supportAuth.getString("vn");
         Integer supportLeft = supportAuth.getInteger("vnExpiresLeft");
-        if (supportVn != null && supportLeft != null && supportLeft <= 30) {
+        if (supportVn != null && supportLeft != null && supportLeft <= 30 && supportLeft > -30) {
             dangers.put(SupportExpires, supportVn + COMM_SPLITER + supportLeft);
         } else {
             dangers.remove(SupportExpires);
@@ -143,7 +144,7 @@ public class SysbaseHeartbeat {
 
         String hasUpdate = dangers.get(HasUpdate);
         if (hasUpdate != null && hasUpdate.contains(COMM_SPLITER)) {
-            String[] ss = hasUpdate.split(CommonsUtils.COMM_SPLITER_RE);
+            String[] ss = hasUpdate.split(COMM_SPLITER_RE);
             hasUpdate = Language.L("有新版的 REBUILD (%s) 更新可用 [(查看详情)](%s)", ss[0], ss[1]);
             hasUpdate = hasUpdate.replace("<a ", "<a target=\"_blank\" ");
             dangers.put(HasUpdate, hasUpdate);
@@ -151,7 +152,7 @@ public class SysbaseHeartbeat {
 
         String supportExpires = dangers.get(SupportExpires);
         if (supportExpires != null && supportExpires.contains(COMM_SPLITER)) {
-            String[] ss = supportExpires.split(CommonsUtils.COMM_SPLITER_RE);
+            String[] ss = supportExpires.split(COMM_SPLITER_RE);
             int supportLeft = Integer.parseInt(ss[1]);
             String supportUrl = "https://getrebuild.com/buy-license?type=fw&vn=" + ss[0];
             String supportText = supportLeft < 0
@@ -160,7 +161,7 @@ public class SysbaseHeartbeat {
             dangers.put(SupportExpires, supportText.replace("<a ", "<a target=\"_blank\" "));
         }
 
-        if (RebuildConfiguration.getBool(ConfigurationItem.DBBackupsEnable)) {
+        if (RebuildConfiguration.getBool(DBBackupsEnable)) {
             String hasDatabaseBackupFail = dangers.get(DatabaseBackupFail);
             if (hasDatabaseBackupFail != null) {
                 dangers.put(DatabaseBackupFail,
