@@ -155,7 +155,7 @@ public class AibotAgent implements Serializable {
 
     public String buildSystemPrompt(String skillName, boolean planMode, boolean planConfirmed) {
         return SystemPromptBuilder.build(
-                Config.getBasePrompt(), prompt, allowedSkill(skillName), planMode, planConfirmed);
+                Config.getBasePrompt(), prompt, allowedSkill(skillName), planMode, planConfirmed, tools);
     }
 
     private String allowedSkill(String skillName) {

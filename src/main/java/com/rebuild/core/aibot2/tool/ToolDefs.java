@@ -120,7 +120,7 @@ public class ToolDefs {
         Set<String> agentTools = agent != null ? agent.getTools() : null;
 
         return TOOL_MAP.entrySet().stream()
-                .filter(e -> !disabled.contains(e.getKey()))
+                .filter(e -> agentTools != null || !disabled.contains(e.getKey()))
                 .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
                 .filter(e -> agentTools == null || agentTools.contains(e.getKey()))
                 .map(e -> e.getValue().def())
@@ -244,6 +244,29 @@ public class ToolDefs {
     }
 
     /**
+     * 工具是否对指定 agent 不可用。agent 配置了工具白名单时以白名单为准，
+     * 即 AibotToolsDisabled 仅约束未配置白名单的默认 agent
+     *
+     * @param toolName
+     * @param agentTools null 表示默认 agent（未配置白名单）
+     * @return
+     */
+    public static boolean isToolDisabled(String toolName, Set<String> agentTools) {
+        if (agentTools != null) return !agentTools.contains(toolName);
+        return isToolDisabled(toolName);
+    }
+
+    /**
+     * 当前请求 agent 的工具白名单，null 表示默认 agent
+     *
+     * @return
+     */
+    public static Set<String> currentAgentTools() {
+        AibotAgent agent = AibotContextHolder.getAgent();
+        return agent == null ? null : agent.getTools();
+    }
+
+    /**
      * 根据名称执行工具
      *
      * @param toolName
@@ -273,7 +296,7 @@ public class ToolDefs {
                 throw new KnownToolException("Tool not found: " + toolName);
             }
 
-            if (isToolDisabled(toolName)) {
+            if (isToolDisabled(toolName, currentAgentTools())) {
                 log.warn("Tool disabled : {}", toolName);
                 throw new KnownToolException("Tool disabled: " + toolName);
             }

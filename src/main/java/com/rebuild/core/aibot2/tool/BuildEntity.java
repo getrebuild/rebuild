@@ -84,8 +84,8 @@ public class BuildEntity implements Tool, AdminGuard {
                                     + "用户未确认或要求调整时不得执行创建"});
         }
 
-        if (fields != null && !fields.isEmpty() && ToolDefs.isToolDisabled("BuildField")) {
-            throw new KnownToolException("本工具依赖 BuildField，但该工具已在 AI 助手配置中被停用，请先启用后重试");
+        if (fields != null && !fields.isEmpty() && ToolDefs.isToolDisabled("BuildField", ToolDefs.currentAgentTools())) {
+            throw new KnownToolException("本工具依赖 BuildField，但该工具当前不可用");
         }
 
         entityName = new Entity2Schema(UserContextHolder.getUser()).createEntity(
