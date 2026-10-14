@@ -53,7 +53,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 100%;
   border: 0 none;
   outline: none;
-  min-height: 40px;
+  min-height: 20px;
   max-height: 120px;
   overflow-y: auto;
   line-height: 20px;
@@ -66,12 +66,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   content: attr(data-placeholder);
   color: #aaa;
   pointer-events: none;
-}
-
-.chat-input .chat-input-action {
-  width: 110px;
-  text-align: right;
-  margin-top: auto;
 }
 
 .chat-input .chat-input-action button {
@@ -109,8 +103,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: none;
 }
 
+.chat-input.flex-column .chat-input-action {
+  margin-top: 6px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.chat-input.flex-column .chat-input-action .chat-agents button {
+  width: auto;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
 .chat-input .chat-input-attach {
-  margin-bottom: 3px;
+  margin-bottom: 6px;
 }
 
 .chat-input .chat-input-attach > span,
@@ -123,8 +130,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 12px;
   max-width: min(280px, 100%);
   line-height: 1.5;
-  margin-top: 3px;
   margin-right: 4px;
+  margin-bottom: 3px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -152,27 +159,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chat-input .chat-input-attach > span.chat-attach-badge > a.close {
   flex-shrink: 0;
-}
-
-.chat-input-container .chat-agents {
-  margin-top: 6px;
-}
-
-.chat-input-container .chat-agents.disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-.chat-input-container .chat-agents .badge {
-  font-size: 1rem;
-  margin: 0;
-  border-radius: 10px;
-  padding: 3px 7px;
-  border: 2px solid #eee;
-}
-
-.chat-input-container .chat-agents .badge:hover {
-  border-color: var(--rb-theme-color);
 }
 
 .chat-messages {

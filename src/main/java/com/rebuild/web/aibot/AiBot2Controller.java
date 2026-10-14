@@ -232,7 +232,7 @@ public class AiBot2Controller extends BaseController {
         JSONArray agents = new JSONArray();
         agents.add(JSONUtils.toJSONObject(
                 new String[]{"id", "name"},
-                new Object[]{null, RebuildConfiguration.get(ConfigurationItem.AibotName)}));
+                new Object[]{null, Language.L("默认")}));
         agents.addAll(AibotConfigManager.instance.listAgentsForUser(user));
         data.put("agents", agents);
         data.put("agentId", agentId);
