@@ -44,6 +44,7 @@ public class AgentDefs {
         return new AibotAgent()
                 .setAgentId(agentId)
                 .setName(StringUtils.defaultIfBlank(cb.getString("name"), RebuildConfiguration.get(AibotName)))
+                .setIcon(config.getString("icon"))
                 .setModel(config.getString("AibotBaseDefModel"))
                 .setDsUrl(config.getString("AibotDSUrl"))
                 .setDsSecret(config.getString("AibotDSSecret"))

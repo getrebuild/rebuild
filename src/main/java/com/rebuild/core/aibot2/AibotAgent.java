@@ -51,6 +51,11 @@ public class AibotAgent implements Serializable {
     @Getter
     @Setter
     @Accessors(chain = true)
+    private String icon;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
     private String model;
 
     // Agent 自有 API 连接（地址与秘钥可分别配置，未设置项回退系统配置）

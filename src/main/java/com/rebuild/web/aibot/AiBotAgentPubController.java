@@ -69,6 +69,7 @@ public class AiBotAgentPubController extends BaseController {
         ModelAndView mv = createModelAndView("/aibot/chat-pub");
         mv.getModelMap().put("agentId", agentId);
         mv.getModelMap().put("agentName", AgentDefs.getAgent(id).getName());
+        mv.getModelMap().put("agentIcon", AgentDefs.getAgent(id).getIcon());
         mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 助手强力驱动"));
         return mv;
     }
