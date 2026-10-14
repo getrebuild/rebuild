@@ -92,7 +92,7 @@ class DlgEdit extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('图标')}</label>
             <div className="col-sm-7">
-              <a className="project-icon" title="选择图标" onClick={() => this._selectIcon()}>
+              <a className="icon-settings" title={$L('选择图标')} onClick={() => this._selectIcon()}>
                 <i className={`icon zmdi zmdi-${this.state.iconName || 'texture'}`} />
               </a>
             </div>

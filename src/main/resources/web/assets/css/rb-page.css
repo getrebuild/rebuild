@@ -7015,3 +7015,22 @@ input[type='password']::-ms-clear {
     opacity: 0;
   }
 }
+
+.icon-settings {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  background-color: #e3e3e3;
+  text-align: center;
+  border-radius: 2px;
+}
+
+.icon-settings .icon {
+  font-size: 26px;
+  color: #555;
+  line-height: 36px;
+}
+
+.icon-settings:hover {
+  opacity: 0.8;
+}
