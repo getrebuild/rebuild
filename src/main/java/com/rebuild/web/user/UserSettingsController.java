@@ -83,6 +83,8 @@ public class UserSettingsController extends BaseController {
             if (feishuUser != null) mv.getModelMap().put("feishuUser", feishuUser);
         }
 
+        mv.getModelMap().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
+
         return mv;
     }
 
