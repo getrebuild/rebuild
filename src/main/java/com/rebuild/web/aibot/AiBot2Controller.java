@@ -25,6 +25,7 @@ import com.rebuild.core.aibot2.Message;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.StreamEcho;
 import com.rebuild.core.aibot2.SuggestQuestions;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.QueryHelper;
@@ -72,7 +73,13 @@ public class AiBot2Controller extends BaseController {
             return;
         }
 
-        ChatRequest chatRequest = buildChatRequest(req);
+        ChatRequest chatRequest;
+        try {
+            chatRequest = buildChatRequest(req);
+        } catch (InvalidParameterException ex) {
+            ServletUtils.writeJson(resp, Message.error(ex.getMessage()).toJSONString());
+            return;
+        }
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
         AibotContextHolder.setAgent(chat.getAgent(), false);
 
@@ -111,7 +118,13 @@ public class AiBot2Controller extends BaseController {
             return;
         }
 
-        ChatRequest chatRequest = buildChatRequest(req);
+        ChatRequest chatRequest;
+        try {
+            chatRequest = buildChatRequest(req);
+        } catch (InvalidParameterException ex) {
+            StreamEcho.error(ex.getMessage(), resp.getWriter());
+            return;
+        }
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
         AibotContextHolder.setAgent(chat.getAgent(), false);
 
@@ -144,10 +157,15 @@ public class AiBot2Controller extends BaseController {
 
     private ChatRequest buildChatRequest(HttpServletRequest req) {
         JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(req);
+        ID user = getRequestUser(req);
         ID chatid = getOwnedChatId(req);
         if (chatid == null) {
             String s = reqJson.getString("content");
-            chatid = ChatManager.initChat(getRequestUser(req), s);
+            ID agentId = getIdParameter(req, "agent");
+            if (agentId != null && !AibotConfigManager.instance.isAgentAvailable(agentId, user)) {
+                throw new InvalidParameterException(Language.L("智能体不存在或已被删除"));
+            }
+            chatid = ChatManager.initChat(user, s, agentId);
         }
 
         return new ChatRequest(reqJson, chatid);
@@ -177,12 +195,15 @@ public class AiBot2Controller extends BaseController {
     @GetMapping("post/chat-init")
     public RespBody chatInit(HttpServletRequest req) {
         ID chatid = getOwnedChatId(req);
+        ID user = getRequestUser(req);
 
         JSONArray messages = new JSONArray();
         JSONArray suggestQuestions = null;
+        ID agentId = null;
         if (chatid != null) {
             Chat chat = ChatManager.getChat(chatid);
             chat.getMessages().forEach(m -> messages.add(m.toJSON()));
+            agentId = chat.getAgent().getAgentId();
         } else {
             String welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);
             if (StringUtils.isBlank(welcome)) {
@@ -196,7 +217,7 @@ public class AiBot2Controller extends BaseController {
             messages.add(welcomeMsg);
 
             try {
-                suggestQuestions = SuggestQuestions.generate(getRequestUser(req));
+                suggestQuestions = SuggestQuestions.generate(user);
             } catch (Exception ex) {
                 log.warn("SuggestQuestions failed", ex);
             }
@@ -207,6 +228,14 @@ public class AiBot2Controller extends BaseController {
         if (suggestQuestions != null) {
             data.put("suggestQuestions", suggestQuestions);
         }
+
+        JSONArray agents = new JSONArray();
+        agents.add(JSONUtils.toJSONObject(
+                new String[]{"id", "name"},
+                new Object[]{null, RebuildConfiguration.get(ConfigurationItem.AibotName)}));
+        agents.addAll(AibotConfigManager.instance.listAgentsForUser(user));
+        data.put("agents", agents);
+        data.put("agentId", agentId);
         return RespBody.ok(data);
     }
 

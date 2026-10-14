@@ -194,7 +194,7 @@ public abstract class ShareToManager implements ConfigManager {
      * @param user
      * @return
      */
-    protected boolean isShareTo(String shareTo, ID user) {
+    public static boolean isShareTo(String shareTo, ID user) {
         if (SHARE_ALL.equals(shareTo)) return true;
 
         if (shareTo != null && shareTo.length() >= 20) {

@@ -4879,7 +4879,8 @@ pre.unstyle {
   font-weight: 700;
 }
 
-.dropdown-item.check {
+.dropdown-item.check,
+.dropdown-item.check .icon {
   color: #4285f4 !important;
 }
 

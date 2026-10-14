@@ -154,6 +154,27 @@ See LICENSE and COMMERCIAL in the project root for license information.
   flex-shrink: 0;
 }
 
+.chat-input-container .chat-agents {
+  margin-top: 6px;
+}
+
+.chat-input-container .chat-agents.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.chat-input-container .chat-agents .badge {
+  font-size: 1rem;
+  margin: 0;
+  border-radius: 10px;
+  padding: 3px 7px;
+  border: 2px solid #eee;
+}
+
+.chat-input-container .chat-agents .badge:hover {
+  border-color: var(--rb-theme-color);
+}
+
 .chat-messages {
   padding: 20px;
   height: 600px;

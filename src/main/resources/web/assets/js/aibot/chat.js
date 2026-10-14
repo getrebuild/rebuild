@@ -64,6 +64,8 @@ class Chat extends React.Component {
       ...props,
       messages: [],
       confirmAction: null,
+      agents: [],
+      agentId: null,
     }
     this._preset = props.preset
   }
@@ -105,7 +107,7 @@ class Chat extends React.Component {
     $(this._$chat).off('click.chat-hide')
   }
 
-  initChat(chatid) {
+  initChat(chatid, agentId) {
     this._stopPendingPoll()
 
     // 如果当前正在对话，仅关闭前端连接，后端继续完成并保存完整内容
@@ -117,7 +119,7 @@ class Chat extends React.Component {
       }
     }
 
-    this.setState({ chatid: chatid || null, confirmAction: null })
+    this.setState({ chatid: chatid || null, confirmAction: null, agentId: agentId || null })
     this._ChatMessages.setMessages([], true, null)
     this._ChatInput.reset(true)
     const _preset = this._preset
@@ -131,6 +133,7 @@ class Chat extends React.Component {
           this.setState({ chatid: d._chatid })
           this._ChatSidebar.setState({ current: d._chatid })
         }
+        this.setState({ agents: d.agents || [], agentId: agentId || d.agentId || null })
         let messages = d.messages || []
         // 最后一条是用户消息，说明 AI 还在回答中（刷新中断场景）
         if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
@@ -180,7 +183,7 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
-          $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload`, JSON.stringify(data), (res) => {
+          $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload&agent=${this.state.agentId || ''}`, JSON.stringify(data), (res) => {
             if (res._chatid) {
               this.setState({ chatid: res._chatid })
               this._ChatSidebar && this._ChatSidebar.setState({ current: res._chatid })
@@ -207,7 +210,7 @@ class Chat extends React.Component {
           // 累加正文内容，完成后交由调用方判断
           let fullContent = ''
           fetchStream(
-            `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`,
+            `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload&agent=${this.state.agentId || ''}`,
             data,
             (chunk) => {
               if (chunk && chunk.type === '_chatid') this._ChatSidebar && this._ChatSidebar._loadChatList()
@@ -271,6 +274,8 @@ class ChatInput extends React.Component {
 
   render() {
     const skills = this.state.skills || []
+    const agents = this.props._Chat.state.agents || []
+    const current = agents.find((a) => (a.id || null) === (this.props._Chat.state.agentId || null)) || agents[0]
     return (
       <div className="chat-input-container">
         <div className={`chat-input ${this.state.active && 'active'}`}>
@@ -368,8 +373,41 @@ class ChatInput extends React.Component {
           </div>
           <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-maxsize="52428800" multiple />
         </div>
+        {agents.length > 1 && (
+          <div className={`chat-agents ${this.state.postState !== 0 ? 'disabled' : ''}`}>
+            <span className="dropup">
+              <a className="badge badge-light" data-toggle="dropdown" title={current.name}>
+                <i className={`icon mdi ${current.icon || 'mdi-shimmer'} ai-color mr-1`} />
+                {current.name}
+              </a>
+              <div className="dropdown-menu auto-scroller">
+                {agents.map((a) => {
+                  const active = (a.id || null) === (this.props._Chat.state.agentId || null)
+                  return (
+                    <a key={a.id || 'default'} className={`dropdown-item ${active ? 'check' : ''}`} onClick={() => this._switchAgent(a.id)}>
+                      <i className={`icon mdi ${a.icon || 'mdi-shimmer'} mr-1`} />
+                      {a.name}
+                    </a>
+                  )
+                })}
+              </div>
+            </span>
+          </div>
+        )}
       </div>
     )
+  }
+
+  _switchAgent(agentId) {
+    const _Chat = this.props._Chat
+    if (this.state.postState !== 0) return
+    agentId = agentId || null
+    if (agentId === (_Chat.state.agentId || null)) return
+    if (_Chat.state.chatid) {
+      _Chat.initChat(null, agentId)
+    } else {
+      _Chat.setState({ agentId })
+    }
   }
 
   hanldeSend() {

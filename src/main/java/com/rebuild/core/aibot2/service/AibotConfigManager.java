@@ -8,15 +8,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2.service;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
+import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -65,6 +69,52 @@ public class AibotConfigManager implements ConfigManager {
     }
 
     /**
+     * 获取指定用户可用的智能体列表（不含默认助手，仅共享给该用户的）
+     *
+     * @param user
+     * @return
+     */
+    public JSONArray listAgentsForUser(ID user) {
+        List<ConfigBean> avail = new ArrayList<>();
+        for (ConfigBean cb : getAgentConfigs()) {
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+            if (cb.getJSON("config") == null) continue;
+            if (!ShareToManager.isShareTo(cb.getString("shareTo"), user)) continue;
+            avail.add(cb);
+        }
+
+        avail.sort(Comparator.comparing(c -> StringUtils.defaultString(c.getString("name"))));
+
+        JSONArray agents = new JSONArray();
+        for (ConfigBean cb : avail) {
+            agents.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "name", "icon"},
+                    new Object[]{cb.getID("id"), cb.getString("name"),
+                            ((JSONObject) cb.getJSON("config")).getString("icon")}));
+        }
+        return agents;
+    }
+
+    /**
+     * 指定智能体是否对用户可用（存在、未禁用且共享）
+     *
+     * @param agentId
+     * @param user
+     * @return
+     */
+    public boolean isAgentAvailable(ID agentId, ID user) {
+        if (agentId == null) return false;
+
+        for (ConfigBean cb : getAgentConfigs()) {
+            if (!agentId.equals(cb.getID("id"))) continue;
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+            if (cb.getJSON("config") == null) continue;
+            return ShareToManager.isShareTo(cb.getString("shareTo"), user);
+        }
+        return false;
+    }
+
+    /**
      * 获取指定用户的记忆列表
      *
      * @param user
@@ -109,7 +159,7 @@ public class AibotConfigManager implements ConfigManager {
         if (cache != null) return cache;
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,config,isDisabled,name from AibotConfig where type = ?")
+                "select configId,config,isDisabled,name,shareTo from AibotConfig where type = ?")
                 .setParameter(1, type)
                 .array();
 
@@ -119,7 +169,8 @@ public class AibotConfigManager implements ConfigManager {
                     .set("id", o[0])
                     .set("config", o[1] != null ? JSONUtils.parseSafe((String) o[1]) : new JSONObject())
                     .set("name", o[3])
-                    .set("isDisabled", o[2] != null && (Boolean) o[2]);
+                    .set("isDisabled", o[2] != null && (Boolean) o[2])
+                    .set("shareTo", o[4]);
             list.add(cb);
         }
 
