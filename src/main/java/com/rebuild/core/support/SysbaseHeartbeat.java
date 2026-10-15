@@ -98,7 +98,7 @@ public class SysbaseHeartbeat {
         JSONObject supportAuth = License.queryAuthority(false);
         String supportVn = supportAuth.getString("vn");
         Integer supportLeft = supportAuth.getInteger("vnExpiresLeft");
-        if (supportVn != null && supportLeft != null && supportLeft <= 30) {
+        if (supportVn != null && supportLeft != null && supportLeft <= 30 && supportLeft > -30) {
             dangers.put(SupportExpires, supportVn + COMM_SPLITER + supportLeft);
         } else {
             dangers.remove(SupportExpires);
