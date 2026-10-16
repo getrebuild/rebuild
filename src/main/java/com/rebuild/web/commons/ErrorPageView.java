@@ -34,7 +34,6 @@ import java.util.List;
 
 /**
  * @author Zixin (RB)
- * @see com.rebuild.web.RebuildWebConfigurer
  * @since 09/1/2020
  */
 @Slf4j

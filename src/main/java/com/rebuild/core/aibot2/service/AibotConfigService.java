@@ -58,13 +58,14 @@ public class AibotConfigService extends BaseConfigurationService {
         super.throwIfNotSelf(cfgid);
     }
 
-    // SKILL/KNOWLEDGE/AGENT 仅管理员可操作
+    // SKILL/KNOWLEDGE/AGENT/MINAPP 仅管理员可操作
     private void checkTypeGuard(String type) {
         if (UserHelper.isAdmin(UserContextHolder.getUser())) return;
 
         if (AibotConfigManager.TYPE_SKILL.equals(type)
                 || AibotConfigManager.TYPE_KNOWLEDGE.equals(type)
-                || AibotConfigManager.TYPE_AGENT.equals(type)) {
+                || AibotConfigManager.TYPE_AGENT.equals(type)
+                || AibotConfigManager.TYPE_MINAPP.equals(type)) {
             throw new DataSpecificationException(Language.L("权限不足，访问被阻止"));
         }
     }

@@ -216,6 +216,30 @@ public class AiBot2AdminController extends BaseController {
         return createModelAndView("/admin/integration/aibot-agents");
     }
 
+    @GetMapping("aibot/minapp-list")
+    public RespBody minappList() {
+        Object[][] array = Application.createQueryNoFilter(
+                "select configId,name,isDisabled,shareTo from AibotConfig where type = 'MINAPP' order by modifiedOn desc")
+                .array();
+
+        List<JSONObject> list = new ArrayList<>();
+        for (Object[] o : array) {
+            list.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "name", "isDisabled", "shareTo"},
+                    new Object[]{o[0], o[1], o[2], o[3]}));
+        }
+        return RespBody.ok(list);
+    }
+
+    @GetMapping("aibot-minapps")
+    public ModelAndView pageIntegrationAibotMinApps() {
+        if (!License.isCommercial()) {
+            return RbvMissingController.errorUnsupported(Language.L("微应用"));
+        }
+
+        return createModelAndView("/admin/integration/aibot-minapps");
+    }
+
     @GetMapping("aibot/agent-list")
     public RespBody agentList() {
         Object[][] array = Application.createQueryNoFilter(

@@ -48,7 +48,6 @@ import static com.rebuild.core.aibot2.tool.ToolHelper.compactJson;
 public class ToolDefs {
 
     private static final Map<String, JSONObject> TOOL_JSON_CACHE = new ConcurrentHashMap<>();
-
     private static final Map<String, Tool> TOOL_MAP = new LinkedHashMap<>();
 
     static {
@@ -84,6 +83,7 @@ public class ToolDefs {
         register(new BuildNavMenu());
         register(new BuildApp());
         register(new BuildFrontJsCode());
+        register(new BuildMinAppPage());
     }
 
     /**

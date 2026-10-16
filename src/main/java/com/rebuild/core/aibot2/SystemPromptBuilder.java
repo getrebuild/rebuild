@@ -52,18 +52,11 @@ public class SystemPromptBuilder {
     public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode, boolean planConfirmed, Set<String> agentTools) {
         StringBuilder systemPrompt = new StringBuilder();
 
-        // 基础要求（管理中心配置）
-        if (StringUtils.isNotBlank(basePrompt)) {
-            systemPrompt.append("<basic_requirements>\n").append(basePrompt.trim()).append("\n</basic_requirements>");
-        }
-
-        // Agent 提示词（优先级高于基础要求）
+        // 基础要求 / Agent 提示词（二选一：指定 Agent 时用其提示词替代基础要求，未指定则使用基础要求）
         if (StringUtils.isNotBlank(agentPrompt)) {
-            if (systemPrompt.length() > 0) systemPrompt.append(NN);
-            systemPrompt.append("<agent_prompt>\n")
-                    .append("以下是当前 Agent 的专属提示词，与前述要求冲突时以本节为准。\n\n")
-                    .append(agentPrompt.trim())
-                    .append("\n</agent_prompt>");
+            systemPrompt.append("<agent_prompt>\n").append(agentPrompt.trim()).append("\n</agent_prompt>");
+        } else if (StringUtils.isNotBlank(basePrompt)) {
+            systemPrompt.append("<basic_requirements>\n").append(basePrompt.trim()).append("\n</basic_requirements>");
         }
 
         // 系统能力（资源文件 + 动态追加工具使用指引）

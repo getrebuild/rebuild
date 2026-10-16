@@ -33,6 +33,7 @@ public class AibotConfigManager implements ConfigManager {
     public static final String TYPE_KNOWLEDGE = "KNOWLEDGE";
     public static final String TYPE_SKILL = "SKILL";
     public static final String TYPE_AGENT = "AGENT";
+    public static final String TYPE_MINAPP = "MINAPP";
     public static final String TYPE_AIBOT_SCHEDULE = "AIBOT_SCHEDULE";
     public static final String TYPE_AIBOT_USERMEMORY = "AIBOT_USERMEMORY";
 
@@ -66,6 +67,34 @@ public class AibotConfigManager implements ConfigManager {
      */
     public ConfigBean[] getAgentConfigs() {
         return getConfig(TYPE_AGENT);
+    }
+
+    /**
+     * 获取微应用（HTML 页面）配置列表
+     *
+     * @return
+     */
+    public ConfigBean[] getMinAppConfigs() {
+        return getConfig(TYPE_MINAPP);
+    }
+
+    /**
+     * 获取指定用户可访问的微应用页面（按记录 ID 匹配，访问地址 /pages/minapp/{id}）
+     *
+     * @param pageId
+     * @param user
+     * @return
+     */
+    public ConfigBean getMinAppById(ID pageId, ID user) {
+        if (pageId == null) return null;
+
+        for (ConfigBean cb : getMinAppConfigs()) {
+            if (!pageId.equals(cb.getID("id"))) continue;
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) return null;
+            if (!ShareToManager.isShareTo(cb.getString("shareTo"), user)) return null;
+            return cb;
+        }
+        return null;
     }
 
     /**
