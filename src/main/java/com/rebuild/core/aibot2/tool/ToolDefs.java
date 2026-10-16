@@ -66,6 +66,9 @@ public class ToolDefs {
         register(new CreateProjectTask());
         register(new ExportReport());
         register(new ApproveRecord());
+        register(new AssignRecord());
+        register(new ShareRecord());
+        register(new UnshareRecord());
         register(new SearchKnowledge());
         register(new ScheduleTask());
         register(new UserMemory());

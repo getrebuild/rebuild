@@ -1,0 +1,29 @@
+{
+  "type": "function",
+  "userDescription": "取消业务记录的共享。支持取消全部或指定用户的共享",
+  "function": {
+    "name": "UnshareRecord",
+    "description": "取消业务记录已共享给用户的访问权限。当用户要求「取消共享 / 收回某人查看权限」时使用。recordIds 可通过 QueryRecords 查询获取；toUsers 不传则取消全部用户的共享，传则只取消指定用户（用户全名或用户 ID）。首次调用会返回当前共享列表与本次取消范围的摘要，用户明确确认后再以相同参数并设置 confirmed=true 重新调用执行。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "recordIds": {
+          "type": ["string", "array"],
+          "items": { "type": "string" },
+          "description": "要取消共享的业务记录 ID（必填），支持数组或单个 ID。多条记录须属于同一实体，可通过 QueryRecords 查询获取"
+        },
+        "toUsers": {
+          "type": ["string", "array"],
+          "items": { "type": "string" },
+          "description": "取消哪些用户的共享（可选），填写用户全名或用户 ID，支持数组或单个；不传则取消全部用户的共享"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回当前共享列表与待执行摘要供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行取消共享"
+        }
+      },
+      "required": ["recordIds"],
+      "additionalProperties": false
+    }
+  }
+}

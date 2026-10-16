@@ -1,0 +1,33 @@
+{
+  "type": "function",
+  "userDescription": "将业务记录分配给指定用户。支持单条或批量，可选同时分配相关记录",
+  "function": {
+    "name": "AssignRecord",
+    "description": "将业务记录的所属用户变更（分配）给指定用户。当用户要求把记录「分配给 / 转交给 / 指派给某人」时使用。recordIds 可通过 QueryRecords 查询获取；目标用户须为本系统用户，填写用户全名或用户 ID。多条记录须属于同一实体，一次最多 100 条。分配会变更记录所属用户并通知相关用户，首次调用将返回待执行摘要，用户明确确认后再以相同参数并设置 confirmed=true 重新调用执行。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "recordIds": {
+          "type": ["string", "array"],
+          "items": { "type": "string" },
+          "description": "要分配的业务记录 ID（必填），支持数组或单个 ID。多条记录须属于同一实体，可通过 QueryRecords 查询获取"
+        },
+        "toUser": {
+          "type": "string",
+          "description": "目标用户（必填），填写用户全名或用户 ID。用户不存在或已停用时工具将报错"
+        },
+        "cascades": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "需要同时分配的相关实体名称数组（可选）。仅在用户明确要求同时分配相关记录时传入，不传则仅处理所选记录"
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回待执行摘要供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行分配"
+        }
+      },
+      "required": ["recordIds", "toUser"],
+      "additionalProperties": false
+    }
+  }
+}
