@@ -99,10 +99,20 @@ class AiBotUserRank extends ChartRank {
 
 $(document).ready(() => {
   $.get('./aibot/stats', (res) => {
+    const data = res.data || {}
     let $el = $('.J_stats-aibot')
-    $el.find('strong').text(res.data.aibotCount || 0)
-    _renderStats(res.data.aibot, $el)
-    renderRbcomp(<AiBotUserRank id="aibot-rank" users={res.data.aibotUsers || []} />, $('.J_stats-users')[0])
+    $el.find('strong').text(data.aibotCount || 0)
+    _renderStats(data.aibot, $el)
+
+    $el = $('.J_stats-chats')
+    $el.find('strong').text(data.chats || 0)
+    _renderStats(data.aibotDailyChats, $el)
+
+    $el = $('.J_stats-usercount')
+    $el.find('strong').text(data.users || 0)
+    _renderStats(data.aibotDailyUsers, $el)
+
+    renderRbcomp(<AiBotUserRank id="aibot-rank" users={data.aibotUsers || []} />, $('.J_stats-users')[0])
   })
 })
 

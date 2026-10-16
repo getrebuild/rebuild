@@ -60,100 +60,106 @@
           <div class="clearfix"></div>
         </div>
         <div class="main-content container-fluid pt-0">
-          <div class="card mb-0">
-            <div class="card-body">
-              <form class="simple mt-1">
-                <div class="form-group row">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('项目范围')}]]</label>
-                  <div class="col-12 col-lg-9 pt-1">
-                    <label class="custom-control custom-control-sm custom-radio custom-control-inline">
-                      <input class="custom-control-input" type="radio" name="scope" id="scope_1" value="1" checked />
-                      <span class="custom-control-label">[[${bundle.L('公开 (所有人可见，仅成员可编辑)')}]]</span>
-                    </label>
-                    <label class="custom-control custom-control-sm custom-radio custom-control-inline">
-                      <input class="custom-control-input" type="radio" name="scope" id="scope_2" value="2" />
-                      <span class="custom-control-label">[[${bundle.L('私有 (仅成员可见和编辑)')}]]</span>
-                    </label>
-                  </div>
-                </div>
-                <div class="form-group row pt-0">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('负责人')}]]</label>
-                  <div class="col-12 col-lg-9">
-                    <div id="principal">
-                      <div class="form-control form-control-sm form-control-plain"></div>
+          <div class="row">
+            <div class="col-lg-9 col-12">
+              <div class="card mb-0">
+                <div class="card-body">
+                  <form class="simple mt-1">
+                    <div class="form-group row">
+                      <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('项目范围')}]]</label>
+                      <div class="col-12 col-lg-9 pt-1">
+                        <label class="custom-control custom-control-sm custom-radio custom-control-inline">
+                          <input class="custom-control-input" type="radio" name="scope" id="scope_1" value="1" checked />
+                          <span class="custom-control-label">[[${bundle.L('公开 (所有人可见，仅成员可编辑)')}]]</span>
+                        </label>
+                        <label class="custom-control custom-control-sm custom-radio custom-control-inline">
+                          <input class="custom-control-input" type="radio" name="scope" id="scope_2" value="2" />
+                          <span class="custom-control-label">[[${bundle.L('私有 (仅成员可见和编辑)')}]]</span>
+                        </label>
+                      </div>
                     </div>
-                    <p class="form-text">[[${bundle.L('负责人拥有对任务的管理权限')}]]</p>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('项目成员')}]]</label>
-                  <div class="col-12 col-lg-9">
-                    <div id="members">
-                      <div class="form-control form-control-sm form-control-plain"></div>
+                    <div class="form-group row pt-0">
+                      <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('负责人')}]]</label>
+                      <div class="col-12 col-lg-9">
+                        <div id="principal">
+                          <div class="form-control form-control-sm form-control-plain"></div>
+                        </div>
+                        <p class="form-text">[[${bundle.L('负责人拥有对任务的管理权限')}]]</p>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('共享给')}]]</label>
-                  <div class="col-12 col-lg-9">
-                    <div id="membersShareTo">
-                      <div class="form-control form-control-sm form-control-plain"></div>
+                    <div class="form-group row">
+                      <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('项目成员')}]]</label>
+                      <div class="col-12 col-lg-9">
+                        <div id="members">
+                          <div class="form-control form-control-sm form-control-plain"></div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('任务面板')}]]</label>
-                  <div class="col-12 col-lg-9">
-                    <div class="plan-boxes card-list mb-2" id="plans">
-                      <p class="text-muted m-3">[[${bundle.L('加载中')}]]</p>
+                    <div class="form-group row">
+                      <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('共享给')}]]</label>
+                      <div class="col-12 col-lg-9">
+                        <div id="membersShareTo">
+                          <div class="form-control form-control-sm form-control-plain"></div>
+                        </div>
+                      </div>
                     </div>
-                    <button class="btn btn-secondary btn-sm J_add-plan" type="button"><i class="zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('任务卡字段显示')}]]</label>
-                  <div class="col-12 col-lg-9">
-                    <div id="cardFields">
-                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="createdBy" />
-                        <span class="custom-control-label">[[${bundle.L('创建人')}]]</span>
-                      </label>
-                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="createdOn" checked />
-                        <span class="custom-control-label">[[${bundle.L('创建时间')}]]</span>
-                      </label>
-                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="modifiedOn" />
-                        <span class="custom-control-label">[[${bundle.L('更新时间')}]]</span>
-                      </label>
-                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="endTime" checked />
-                        <span class="custom-control-label">[[${bundle.L('完成时间')}]]</span>
-                      </label>
-                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="description" />
-                        <span class="custom-control-label">[[${bundle.L('详情')}]]</span>
-                      </label>
-                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="attachments" />
-                        <span class="custom-control-label">[[${bundle.L('附件')}]]</span>
-                      </label>
-                      <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input class="custom-control-input" type="checkbox" value="_tag" checked />
-                        <span class="custom-control-label">[[${bundle.L('标签')}]]</span>
-                      </label>
+                    <div class="form-group row">
+                      <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('任务面板')}]]</label>
+                      <div class="col-12 col-lg-9">
+                        <div class="plan-boxes card-list mb-2" id="plans">
+                          <p class="text-muted m-3">[[${bundle.L('加载中')}]]</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm J_add-plan" type="button"><i class="zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+                      </div>
                     </div>
-                  </div>
+                    <div class="form-group row">
+                      <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('任务卡字段显示')}]]</label>
+                      <div class="col-12 col-lg-9">
+                        <div id="cardFields">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" value="createdBy" />
+                            <span class="custom-control-label">[[${bundle.L('创建人')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" value="createdOn" checked />
+                            <span class="custom-control-label">[[${bundle.L('创建时间')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" value="modifiedOn" />
+                            <span class="custom-control-label">[[${bundle.L('更新时间')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" value="endTime" checked />
+                            <span class="custom-control-label">[[${bundle.L('完成时间')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" value="description" />
+                            <span class="custom-control-label">[[${bundle.L('详情')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" value="attachments" />
+                            <span class="custom-control-label">[[${bundle.L('附件')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" value="_tag" checked />
+                            <span class="custom-control-label">[[${bundle.L('标签')}]]</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row footer">
+                      <label class="col-12 col-lg-3 col-form-label text-lg-right"> </label>
+                      <div class="col-12 col-lg-9">
+                        <button class="btn btn-primary J_save btn-space" type="button">[[${bundle.L('保存')}]]</button>
+                        <button class="btn btn-danger btn-outline J_status btn-space" type="button">[[${bundle.L('归档')}]]</button>
+                      </div>
+                    </div>
+                  </form>
                 </div>
-                <div class="form-group row footer">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right"> </label>
-                  <div class="col-12 col-lg-9">
-                    <button class="btn btn-primary J_save btn-space" type="button">[[${bundle.L('保存')}]]</button>
-                    <button class="btn btn-danger btn-outline J_status btn-space" type="button">[[${bundle.L('归档')}]]</button>
-                  </div>
-                </div>
-              </form>
+              </div>
             </div>
+
+            <div class="col-lg-3 col-12 col-right-compact"></div>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ package com.rebuild.web.aibot;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -49,12 +50,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * @author devezhao
@@ -95,35 +97,47 @@ public class AiBot2AdminController extends BaseController {
     }
 
     @GetMapping("aibot/stats")
-    public JSON statsAibot() {
+    public JSON statsAibot(HttpServletRequest request) {
+        final ID agent = getIdParameter(request, "agent");
         final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
-        final String sql = "select date_format(createdOn,'%Y-%m-%d'),sum(token) from AibotChat" +
-                " where createdOn > ? group by date_format(createdOn,'%Y-%m-%d')";
 
-        Object[][] aibot = Application.createQueryNoFilter(sql)
-                .setParameter(1, xday)
-                .array();
-        Arrays.sort(aibot, Comparator.comparing(o -> o[0].toString()));
+        Query query = Application.createQueryNoFilter(
+                "select createdOn, createdBy, token from AibotChat where createdOn > ?"
+                        + (agent == null ? "" : " and agentId = ?"))
+                .setParameter(1, xday);
+        if (agent != null) query.setParameter(2, agent);
+        Object[][] rows = query.array();
 
-        double aibotCount = 0;
-        for (Object[] o : aibot) {
-            o[1] = o[1] == null ? 0L : o[1];
-            o[1] = ObjectUtils.round(((Number) o[1]).longValue() / 10000d, 2);
-            aibotCount += (Double) o[1];
+        // 按日（词元/会话数/使用人数）与按用户聚合
+        Map<String, Long> tokensByDay = new TreeMap<>();
+        Map<String, Integer> chatsByDay = new TreeMap<>();
+        Map<String, Set<ID>> usersByDay = new TreeMap<>();
+        Map<ID, Long> tokenMap = new HashMap<>();
+        long tokenTotal = 0;
+
+        for (Object[] o : rows) {
+            String day = CalendarUtils.format("yyyy-MM-dd", (Date) o[0]);
+            ID user = (ID) o[1];
+            long token = o[2] == null ? 0L : ((Number) o[2]).longValue();
+
+            tokensByDay.merge(day, token, Long::sum);
+            chatsByDay.merge(day, 1, Integer::sum);
+            usersByDay.computeIfAbsent(day, k -> new HashSet<>()).add(user);
+            tokenMap.merge(user, token, Long::sum);
+            tokenTotal += token;
         }
 
-        // 按用户汇总
-        final String sql2 = "select createdBy,sum(token) from AibotChat" +
-                " where createdOn > ? group by createdBy";
-        Object[][] userTokens = Application.createQueryNoFilter(sql2)
-                .setParameter(1, xday)
-                .array();
-
-        Map<ID, Long> tokenMap = new HashMap<>();
-        for (Object[] o : userTokens) {
-            ID userId = (ID) o[0];
-            long tokenSum = o[1] == null ? 0L : ((Number) o[1]).longValue();
-            tokenMap.merge(userId, tokenSum, Long::sum);
+        List<Object[]> aibot = new ArrayList<>();
+        for (Map.Entry<String, Long> e : tokensByDay.entrySet()) {
+            aibot.add(new Object[]{e.getKey(), ObjectUtils.round(e.getValue() / 10000d, 2)});
+        }
+        List<Object[]> aibotDailyChats = new ArrayList<>();
+        for (Map.Entry<String, Integer> e : chatsByDay.entrySet()) {
+            aibotDailyChats.add(new Object[]{e.getKey(), e.getValue()});
+        }
+        List<Object[]> aibotDailyUsers = new ArrayList<>();
+        for (Map.Entry<String, Set<ID>> e : usersByDay.entrySet()) {
+            aibotDailyUsers.add(new Object[]{e.getKey(), e.getValue().size()});
         }
 
         List<Object[]> usersList = new ArrayList<>();
@@ -137,9 +151,14 @@ public class AiBot2AdminController extends BaseController {
         }
         usersList.sort((a, b) -> Double.compare((Double) b[2], (Double) a[2]));
 
-        return JSONUtils.toJSONObject(
+        JSONObject stats = JSONUtils.toJSONObject(
                 new String[]{"aibot", "aibotCount", "aibotUsers"},
-                new Object[]{aibot, ObjectUtils.round(aibotCount, 2), usersList.toArray()});
+                new Object[]{aibot.toArray(), ObjectUtils.round(tokenTotal / 10000d, 2), usersList.toArray()});
+        stats.put("aibotDailyChats", aibotDailyChats.toArray());
+        stats.put("aibotDailyUsers", aibotDailyUsers.toArray());
+        stats.put("chats", rows.length);
+        stats.put("users", tokenMap.size());
+        return stats;
     }
 
     @GetMapping("aibot/models")
