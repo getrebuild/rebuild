@@ -3387,9 +3387,9 @@ a.user-show:not([href]) {
   color: #999;
   font-size: 1.23rem;
   display: inline-block;
-  padding: 0 3px;
   margin-right: 6px;
   width: 20px;
+  text-align: left;
 }
 
 .card-list .card-footer a:hover {

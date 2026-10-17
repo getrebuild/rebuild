@@ -225,8 +225,8 @@ public class AiBot2AdminController extends BaseController {
         List<JSONObject> list = new ArrayList<>();
         for (Object[] o : array) {
             list.add(JSONUtils.toJSONObject(
-                    new String[]{"id", "name", "isDisabled", "shareTo"},
-                    new Object[]{o[0], o[1], o[2], o[3]}));
+                    new String[]{"id", "name", "isDisabled", "shareTo", "url"},
+                    new Object[]{o[0], o[1], o[2], o[3], RebuildConfiguration.getHomeUrl("pages/minapp/" + o[0])}));
         }
         return RespBody.ok(list);
     }
