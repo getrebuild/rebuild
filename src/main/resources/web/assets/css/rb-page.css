@@ -3387,9 +3387,9 @@ a.user-show:not([href]) {
   color: #999;
   font-size: 1.23rem;
   display: inline-block;
-  padding: 0 3px;
   margin-right: 6px;
   width: 20px;
+  text-align: left;
 }
 
 .card-list .card-footer a:hover {
@@ -4879,7 +4879,8 @@ pre.unstyle {
   font-weight: 700;
 }
 
-.dropdown-item.check {
+.dropdown-item.check,
+.dropdown-item.check .icon {
   color: #4285f4 !important;
 }
 
@@ -7014,4 +7015,23 @@ input[type='password']::-ms-clear {
     transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3);
     opacity: 0;
   }
+}
+
+.icon-settings {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  background-color: #e3e3e3;
+  text-align: center;
+  border-radius: 2px;
+}
+
+.icon-settings .icon {
+  font-size: 26px;
+  color: #555;
+  line-height: 36px;
+}
+
+.icon-settings:hover {
+  opacity: 0.8;
 }

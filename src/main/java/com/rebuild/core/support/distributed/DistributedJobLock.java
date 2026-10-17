@@ -70,10 +70,15 @@ public abstract class DistributedJobLock {
      * @return
      */
     public static boolean isAllowJob(String jobName) {
+        // 明确允许
+        String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
+        if (allowJobs != null && allowJobs.contains(jobName)) return true;
+
+        // 明确不允许
         String disallowJobs = CommandArgs.getString(CommandArgs._DistributedDisallowJobs);
         if (disallowJobs != null && (disallowJobs.contains(jobName) || disallowJobs.equals("*"))) return false;
 
-        String allowJobs = CommandArgs.getString(CommandArgs._DistributedAllowJobs);
-        return allowJobs == null || allowJobs.contains(jobName) || allowJobs.equals("*");
+        // 默认允许
+        return true;
     }
 }

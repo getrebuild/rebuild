@@ -228,6 +228,12 @@ class AiCreateButton extends React.Component {
 
   _handleClick(e) {
     $stopEvent(e, true)
-    window.AiBot && window.AiBot.init({ draggable: true, preset: { content: this.props.preset.content, autoSend: true } }, false)
+    AiCreateButton.openAibot(this.props.presetContent)
+  }
+
+  //
+  static openAibot(presetContent, rest) {
+    const ps = { preset: { content: presetContent, autoSend: true }, ...rest }
+    window.AiBot && window.AiBot.init(ps, false)
   }
 }

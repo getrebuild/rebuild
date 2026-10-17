@@ -80,6 +80,7 @@
                 <ul class="nav nav-tabs">
                   <li class="nav-item"><a class="nav-link active" href="#base" data-toggle="tab">[[${bundle.L('个人信息')}]]</a></li>
                   <li class="nav-item"><a class="nav-link" href="#secure" data-toggle="tab">[[${bundle.L('安全设置')}]]</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#mcp" data-toggle="tab">[[${bundle.L('MCP 接入')}]]</a></li>
                   <li class="nav-item"><a class="nav-link" href="#logs" data-toggle="tab">[[${bundle.L('登录日志')}]]</a></li>
                 </ul>
                 <div class="tab-content m-0">
@@ -232,6 +233,13 @@
                       </div>
                     </form>
                   </div>
+                  <div class="tab-pane" id="mcp">
+                    <div class="mt-2">
+                      <p class="mb-1">[[${bundle.L('通过 MCP 接入，可以在 WorkBuddy、QoderWork 等支持 MCP 协议的 AI 客户端中直接调用 REBUILD AI 助手。')}]]</p>
+                      <p>[[${bundle.L('注意“个人密钥”需替换成自己的，切勿共享。')}]]</p>
+                      <div class="J_mcpConfig"></div>
+                    </div>
+                  </div>
                   <div class="tab-pane" id="logs">
                     <table class="table table-fixed">
                       <thead>
@@ -257,6 +265,7 @@
     <script>
       window.__PageConfig = {
         userid: '[[${user.getId()}]]',
+        mcpServerUrl: '[[${_McpServerUrl}]]',
       }
     </script>
     <script th:src="@{/assets/lib/widget/cropper.min.js}"></script>

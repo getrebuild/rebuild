@@ -21,7 +21,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.CommandArgs;
@@ -117,7 +116,13 @@ public class FileShareController extends BaseController {
                 "select createdBy from ShortUrl where shortKey = ?")
                 .setParameter(1, shareKey)
                 .unique();
-        final String shareByName = sharer == null ? null : UserHelper.getName((ID) sharer[0]);
+        final ID shareBy = sharer == null ? null : (ID) sharer[0];
+        final String shareByName = shareBy == null ? null : UserHelper.getName(shareBy);
+
+        if (shareBy == null || !UserHelper.isActive(shareBy)) {
+            response.sendError(403, Language.L("分享已过期"));
+            return null;
+        }
 
         // v4.5 分享 AI 会话
         if (folderOrDashOrChat45 != null && folderOrDashOrChat45.getEntityCode() == EntityHelper.AibotChat) {
@@ -194,7 +199,8 @@ public class FileShareController extends BaseController {
 
             Object[] o = Application.getQueryFactory().uniqueNoFilter(folderOrDashOrChat45, "config");
             JSONArray dashConfig = JSON.parseArray(o[0].toString());
-            ChartManager.instance.richingCharts(dashConfig, UserService.SYSTEM_USER);
+            // 使用分享人的数据权限
+            ChartManager.instance.richingCharts(dashConfig, shareBy);
 
             Map<String, Object> map = new HashMap<>();
             map.put("dashName", dashName);

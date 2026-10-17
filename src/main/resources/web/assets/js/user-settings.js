@@ -169,10 +169,14 @@ $(document).ready(function () {
   })
 
   if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
-  else if (location.hash === '#logs') $('.nav-tabs a:eq(2)').trigger('click')
+  else if (location.hash === '#mcp') $('.nav-tabs a:eq(2)').trigger('click')
+  else if (location.hash === '#logs') $('.nav-tabs a:eq(3)').trigger('click')
 
   // AK 管理
   _initAccessKey()
+
+  // MCP 接入
+  _renderMcpConfig()
 })
 
 // 修改密码
@@ -507,4 +511,30 @@ class DlgAccessKey extends RbModalHandler {
     $(this._$copy).data('clipboard-text', this.props.token)
     $clipboard(this._$copy)
   }
+}
+
+// MCP 接入配置
+const _renderMcpConfig = function () {
+  const code = {
+    mcpServers: {
+      rebuild: {
+        url: window.__PageConfig.mcpServerUrl,
+        headers: {
+          Authorization: 'Bearer',
+        },
+        disabled: false,
+      },
+    },
+  }
+
+  const $mcp = $('.J_mcpConfig')
+  renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0], function () {
+    const $pre = $mcp.find('pre')
+    const $a = $('<a>', { href: '#secure', text: `<${$L('个人秘钥')}>` })
+    $pre.html($pre.html().replace('Bearer', 'Bearer ' + $a[0].outerHTML))
+    $pre.find('a').on('click', () => {
+      $('.nav-tabs a:eq(1)').trigger('click')
+      return false
+    })
+  })
 }

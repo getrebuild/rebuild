@@ -54,7 +54,10 @@
                             <a th:href="@{/admin/integration/aibot-kits}"><span>[[${bundle.L('能力扩展')}]]</span></a>
                           </li>
                           <li th:class="${active == 'aibot-agents'} ? 'active'">
-                            <a th:href="@{/admin/integration/aibot-agents}"><span>[[${bundle.L('专属智能体')}]]</span> <sup class="rbv"></sup></a>
+                            <a th:href="@{/admin/integration/aibot-agents}"><span>[[${bundle.L('智能体')}]]</span> <sup class="rbv"></sup></a>
+                          </li>
+                          <li th:class="${active == 'aibot-minapps'} ? 'active'">
+                            <a th:href="@{/admin/integration/aibot-minapps}"><span>[[${bundle.L('微应用')}]]</span> <sup class="rbv"></sup></a>
                           </li>
                         </ul>
                       </div>

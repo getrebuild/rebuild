@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Set;
 
 import static com.rebuild.core.aibot2.vector.VectorData.NN;
 
@@ -45,31 +46,30 @@ public class SystemPromptBuilder {
      * @param skillName
      * @param planMode
      * @param planConfirmed
+     * @param agentTools
      * @return
      */
-    public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode, boolean planConfirmed) {
+    public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode, boolean planConfirmed, Set<String> agentTools) {
         StringBuilder systemPrompt = new StringBuilder();
 
-        // 基础要求（管理中心配置）
-        if (StringUtils.isNotBlank(basePrompt)) {
+        // 基础要求 / Agent 提示词（二选一：指定 Agent 时用其提示词替代基础要求，未指定则使用基础要求）
+        if (StringUtils.isNotBlank(agentPrompt)) {
+            systemPrompt.append("<agent_prompt>\n").append(agentPrompt.trim()).append("\n</agent_prompt>");
+        } else if (StringUtils.isNotBlank(basePrompt)) {
             systemPrompt.append("<basic_requirements>\n").append(basePrompt.trim()).append("\n</basic_requirements>");
         }
 
-        // Agent 提示词（优先级高于基础要求）
-        if (StringUtils.isNotBlank(agentPrompt)) {
-            if (systemPrompt.length() > 0) systemPrompt.append(NN);
-            systemPrompt.append("<agent_prompt>\n")
-                    .append("以下是当前 Agent 的专属提示词，与前述要求冲突时以本节为准。\n\n")
-                    .append(agentPrompt.trim())
-                    .append("\n</agent_prompt>");
-        }
-
-        // 系统能力（资源文件 + 动态追加搜索工具选择规则）
+        // 系统能力（资源文件 + 动态追加工具使用指引）
         String capabilityPrompt = Config.getSystemCapabilityPrompt();
-        String searchGuidance = buildSearchToolGuidance();
+        String searchGuidance = buildSearchToolGuidance(agentTools);
         if (StringUtils.isNotBlank(searchGuidance)) {
             capabilityPrompt = StringUtils.isBlank(capabilityPrompt)
                     ? searchGuidance : capabilityPrompt.trim() + NN + searchGuidance;
+        }
+        String entityGuidance = buildEntityFieldGuidance(agentTools);
+        if (StringUtils.isNotBlank(entityGuidance)) {
+            capabilityPrompt = StringUtils.isBlank(capabilityPrompt)
+                    ? entityGuidance : capabilityPrompt.trim() + NN + entityGuidance;
         }
         if (StringUtils.isNotBlank(capabilityPrompt)) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
@@ -86,7 +86,7 @@ public class SystemPromptBuilder {
         }
 
         // 用户记忆（工具启用时注入使用指引与记忆内容）
-        if (isRealUser && !ToolDefs.isToolDisabled("UserMemory")) {
+        if (isRealUser && !ToolDefs.isToolDisabled("UserMemory", agentTools)) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<user_memory>\n").append(UserMemory.MEMORY_GUIDANCE);
 
@@ -139,9 +139,9 @@ public class SystemPromptBuilder {
      *
      * @return
      */
-    private static String buildSearchToolGuidance() {
-        boolean knowledgeEnabled = !ToolDefs.isToolDisabled("SearchKnowledge");
-        boolean helpEnabled = !ToolDefs.isToolDisabled("SearchHelp");
+    private static String buildSearchToolGuidance(Set<String> agentTools) {
+        boolean knowledgeEnabled = !ToolDefs.isToolDisabled("SearchKnowledge", agentTools);
+        boolean helpEnabled = !ToolDefs.isToolDisabled("SearchHelp", agentTools);
 
         if (!knowledgeEnabled && !helpEnabled) return null;
 
@@ -158,6 +158,21 @@ public class SystemPromptBuilder {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * 根据可用工具动态生成字段与实体引用规范
+     *
+     * @param agentTools
+     * @return
+     */
+    private static String buildEntityFieldGuidance(Set<String> agentTools) {
+        if (ToolDefs.isToolDisabled("ListEntities", agentTools)) return null;
+
+        return "## 字段与实体引用规范\n\n"
+                + "- 调用任何涉及字段名的工具前，必须先用 ListEntities 查询实体的真实字段名\n"
+                + "- 所有字段名必须使用 ListEntities 返回的 fields[].name，禁止自行编造或使用语义相近的名称，否则工具将拒绝执行并浪费一轮调用\n"
+                + "- 字段名也可使用中文标签，工具会自动转换为真实字段名";
     }
 
     /**

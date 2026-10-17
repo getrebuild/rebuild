@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.Set;
 
 import static com.rebuild.core.support.ConfigurationItem.AibotContextCompressThreshold;
+import static com.rebuild.core.support.ConfigurationItem.AibotDSSecret;
+import static com.rebuild.core.support.ConfigurationItem.AibotDSUrl;
 import static com.rebuild.core.support.ConfigurationItem.AibotTemperature;
 import static com.rebuild.core.support.ConfigurationItem.AibotTopP;
 import static com.rebuild.core.support.RebuildConfiguration.get;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 /**
  * AI Agent 资源封装层
@@ -47,6 +50,11 @@ public class AibotAgent implements Serializable {
     @Setter
     @Accessors(chain = true)
     private String name;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String icon;
 
     @Getter
     @Setter
@@ -99,26 +107,22 @@ public class AibotAgent implements Serializable {
     @Accessors(chain = true)
     private Long contextCompressThreshold;
 
-    /**
-     * @return
-     */
     public OpenAIClient client() {
         if (StringUtils.isBlank(dsUrl) && StringUtils.isBlank(dsSecret)) return Config.getClient();
 
         return Config.getClient(
-                StringUtils.defaultIfBlank(dsUrl, Config.getServerUrl(null)),
-                StringUtils.defaultIfBlank(dsSecret, Config.getSecret()));
+                defaultIfBlank(dsUrl, Config.getServerUrl(null)),
+                defaultIfBlank(dsSecret, Config.getSecret()));
     }
 
     public static AibotAgent defaultAgent() {
         return new AibotAgent().setName("default");
     }
 
-    /**
-     * @return
-     */
     public boolean available() {
-        return StringUtils.isNotBlank(dsSecret) || Config.availableAiBot();
+        String url = defaultIfBlank(dsUrl, get(AibotDSUrl));
+        String secret = defaultIfBlank(dsSecret, get(AibotDSSecret));
+        return StringUtils.isNotBlank(url) && StringUtils.isNotBlank(secret);
     }
 
     public static AibotAgent defaultAgent(String model, String prompt) {
@@ -151,7 +155,7 @@ public class AibotAgent implements Serializable {
 
     public String buildSystemPrompt(String skillName, boolean planMode, boolean planConfirmed) {
         return SystemPromptBuilder.build(
-                Config.getBasePrompt(), prompt, allowedSkill(skillName), planMode, planConfirmed);
+                Config.getBasePrompt(), prompt, allowedSkill(skillName), planMode, planConfirmed, tools);
     }
 
     private String allowedSkill(String skillName) {

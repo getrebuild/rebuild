@@ -38,12 +38,12 @@ public class AgentDefs {
     public static AibotAgent getAgent(ID agentId) {
         ConfigBean cb = getAgentConfig(agentId);
         if (cb == null) return null;
-
         JSONObject config = (JSONObject) cb.getJSON("config");
 
         return new AibotAgent()
                 .setAgentId(agentId)
                 .setName(StringUtils.defaultIfBlank(cb.getString("name"), RebuildConfiguration.get(AibotName)))
+                .setIcon(config.getString("icon"))
                 .setModel(config.getString("AibotBaseDefModel"))
                 .setDsUrl(config.getString("AibotDSUrl"))
                 .setDsSecret(config.getString("AibotDSSecret"))

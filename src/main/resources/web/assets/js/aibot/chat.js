@@ -64,6 +64,8 @@ class Chat extends React.Component {
       ...props,
       messages: [],
       confirmAction: null,
+      agents: [],
+      agentId: null,
     }
     this._preset = props.preset
   }
@@ -105,7 +107,7 @@ class Chat extends React.Component {
     $(this._$chat).off('click.chat-hide')
   }
 
-  initChat(chatid) {
+  initChat(chatid, agentId) {
     this._stopPendingPoll()
 
     // 如果当前正在对话，仅关闭前端连接，后端继续完成并保存完整内容
@@ -117,20 +119,29 @@ class Chat extends React.Component {
       }
     }
 
-    this.setState({ chatid: chatid || null, confirmAction: null })
+    this.setState({ chatid: chatid || null, confirmAction: null, agentId: agentId || null })
     this._ChatMessages.setMessages([], true, null)
     this._ChatInput.reset(true)
     const _preset = this._preset
     this._preset = null
     this._ChatSidebar.setState({ current: null })
 
-    $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}`, (res) => {
+    $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}&agent=${agentId || ''}`, (res) => {
       if (res.error_code === 0) {
         const d = res.data || {}
         if (d._chatid) {
           this.setState({ chatid: d._chatid })
           this._ChatSidebar.setState({ current: d._chatid })
         }
+        const agents = d.agents || []
+        if (!agentId && !chatid) {
+          const last = $storage.get('__AiBotLastAgent')
+          if (last && agents.some((a) => (a.id || null) === last)) {
+            this.initChat(null, last)
+            return
+          }
+        }
+        this.setState({ agents, agentId: agentId || d.agentId || null })
         let messages = d.messages || []
         // 最后一条是用户消息，说明 AI 还在回答中（刷新中断场景）
         if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
@@ -180,7 +191,7 @@ class Chat extends React.Component {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
-          $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload`, JSON.stringify(data), (res) => {
+          $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload&agent=${this.state.agentId || ''}`, JSON.stringify(data), (res) => {
             if (res._chatid) {
               this.setState({ chatid: res._chatid })
               this._ChatSidebar && this._ChatSidebar.setState({ current: res._chatid })
@@ -207,7 +218,7 @@ class Chat extends React.Component {
           // 累加正文内容，完成后交由调用方判断
           let fullContent = ''
           fetchStream(
-            `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`,
+            `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload&agent=${this.state.agentId || ''}`,
             data,
             (chunk) => {
               if (chunk && chunk.type === '_chatid') this._ChatSidebar && this._ChatSidebar._loadChatList()
@@ -271,9 +282,16 @@ class ChatInput extends React.Component {
 
   render() {
     const skills = this.state.skills || []
+    const agents = this.props._Chat.state.agents || []
+    const current = agents.find((a) => (a.id || null) === (this.props._Chat.state.agentId || null)) || agents[0]
     return (
       <div className="chat-input-container">
-        <div className={`chat-input ${this.state.active && 'active'}`}>
+        <div
+          className={`chat-input flex-column ${this.state.active && 'active'}`}
+          onClick={(e) => {
+            if (e.target.closest('button, a, .chat-input-attach, .dropdown-menu')) return
+            if (this._$editable && !this._$editable.contains(e.target)) this._$editable.focus()
+          }}>
           <div className="chat-input-input">
             <div className="chat-input-attach">
               {this.state.activeSkill && <Attach key={`skill-${this.state.activeSkill}`} skill={this.state.activeSkill} _ChatInput={this} id={`skill-${this.state.activeSkill}`} />}
@@ -315,61 +333,92 @@ class ChatInput extends React.Component {
               ref={(c) => (this._$editable = c)}
             />
           </div>
+          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-maxsize="52428800" multiple />
           <div className="chat-input-action">
-            {skills.length > 0 && (
-              <span className="dropup">
-                <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
-                  <i className="mdi mdi-flash-outline down-2" />
+            {agents.length > 1 && (
+              <span className="dropup chat-agents">
+                <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('切换智能体')} style={{ padding: '0 8px' }}>
+                  <i className={`icon mdi ${current.icon || 'mdi-shimmer'} down-2 mr-1 ai-color`} />
+                  {current.name}
                 </button>
-                <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 250 }} ref={(c) => (this._$skills = c)}>
-                  {skills.map((s, idx) => (
-                    <a
-                      key={idx}
-                      className="dropdown-item"
-                      onClick={() => {
-                        this.setState({ activeSkill: s.name })
-                      }}>
-                      {s.name}
-                      {s.description && <div className="text-muted fs-sm text-break">{s.description}</div>}
-                    </a>
-                  ))}
+                <div className="dropdown-menu auto-scroller">
+                  {agents.map((a) => {
+                    const active = (a.id || null) === (this.props._Chat.state.agentId || null)
+                    return (
+                      <a key={a.id || 'default'} className={`dropdown-item ${active ? 'check' : ''}`} onClick={() => this._switchAgent(a.id)}>
+                        <i className={`icon mdi ${a.icon || 'mdi-shimmer'} mr-1`} />
+                        {a.name}
+                      </a>
+                    )
+                  })}
                 </div>
               </span>
             )}
-            <span className="dropup">
-              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('数据')}>
-                <i className="mdi mdi-attachment-plus" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-right">
-                <a className="dropdown-item" onClick={() => this.attachFile()}>
-                  {$L('选择文件')}
-                </a>
-                <a className="dropdown-item" onClick={() => this.attachRecord()}>
-                  {$L('选择记录')}
-                </a>
-                {window.attachAibotPageData && (
-                  <a className="dropdown-item" onClick={() => this.attachPageData()}>
-                    {$L('选择当前页数据')}
+            <span className="ml-auto">
+              {skills.length > 0 && (
+                <span className="dropup">
+                  <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
+                    <i className="mdi mdi-flash-outline down-2" />
+                  </button>
+                  <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 250 }} ref={(c) => (this._$skills = c)}>
+                    {skills.map((s, idx) => (
+                      <a
+                        key={idx}
+                        className="dropdown-item"
+                        onClick={() => {
+                          this.setState({ activeSkill: s.name })
+                        }}>
+                        {s.name}
+                        {s.description && <div className="text-muted fs-sm text-break">{s.description}</div>}
+                      </a>
+                    ))}
+                  </div>
+                </span>
+              )}
+              <span className="dropup">
+                <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('数据')}>
+                  <i className="mdi mdi-attachment-plus" />
+                </button>
+                <div className="dropdown-menu dropdown-menu-right">
+                  <a className="dropdown-item" onClick={() => this.attachFile()}>
+                    {$L('选择文件')}
                   </a>
-                )}
-              </div>
+                  <a className="dropdown-item" onClick={() => this.attachRecord()}>
+                    {$L('选择记录')}
+                  </a>
+                  {window.attachAibotPageData && (
+                    <a className="dropdown-item" onClick={() => this.attachPageData()}>
+                      {$L('选择当前页数据')}
+                    </a>
+                  )}
+                </div>
+              </span>
+              <button
+                type="button"
+                className="btn btn-sm ml-1"
+                title={this.state.postState === 0 ? $L('发送') : this.state.postState === 2 ? $L('中断中') : $L('停止')}
+                disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill)}
+                onClick={() => {
+                  if (this.state.postState === 0) this.hanldeSend()
+                  else if (this.state.postState === 1) this.handleCancel()
+                }}>
+                <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : this.state.postState === 2 ? 'mdi mdi-spin mdi-loading' : 'mdi mdi-stop'} />
+              </button>
             </span>
-            <button
-              type="button"
-              className="btn btn-sm ml-1"
-              title={this.state.postState === 0 ? $L('发送') : this.state.postState === 2 ? $L('中断中') : $L('停止')}
-              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill)}
-              onClick={() => {
-                if (this.state.postState === 0) this.hanldeSend()
-                else if (this.state.postState === 1) this.handleCancel()
-              }}>
-              <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : this.state.postState === 2 ? 'mdi mdi-spin mdi-loading' : 'mdi mdi-stop'} />
-            </button>
           </div>
-          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-maxsize="52428800" multiple />
         </div>
       </div>
     )
+  }
+
+  _switchAgent(agentId) {
+    const _Chat = this.props._Chat
+    if (this.state.postState !== 0) return
+    agentId = agentId || null
+    if (agentId === (_Chat.state.agentId || null)) return
+    if (agentId === null) $storage.remove('__AiBotLastAgent')
+    else $storage.set('__AiBotLastAgent', agentId)
+    _Chat.initChat(null, agentId)
   }
 
   hanldeSend() {

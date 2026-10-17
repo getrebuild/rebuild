@@ -57,7 +57,7 @@ public class AiBotAgentPubController extends BaseController {
     @GetMapping("{agentId}")
     public ModelAndView pubIndex(@PathVariable String agentId, HttpServletResponse response) throws IOException {
         if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("专属智能体"));
+            return RbvMissingController.errorUnsupported(Language.L("智能体"));
         }
 
         ID id = getAvailableAgent(agentId);
@@ -69,6 +69,7 @@ public class AiBotAgentPubController extends BaseController {
         ModelAndView mv = createModelAndView("/aibot/chat-pub");
         mv.getModelMap().put("agentId", agentId);
         mv.getModelMap().put("agentName", AgentDefs.getAgent(id).getName());
+        mv.getModelMap().put("agentIcon", AgentDefs.getAgent(id).getIcon());
         mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 助手强力驱动"));
         return mv;
     }
@@ -124,19 +125,12 @@ public class AiBotAgentPubController extends BaseController {
 
         ID id = getAvailableAgent(agentId);
         if (id == null) {
-            StreamEcho.error(Language.L("Agent 不存在或未发布"), resp.getWriter());
+            StreamEcho.error(Language.L("智能体不存在或未发布"), resp.getWriter());
             return;
         }
         AibotAgent agent = AgentDefs.getAgent(id);
         if (!agent.available()) {
             StreamEcho.error(Language.L("请联系管理员配置 AI 助手后使用"), resp.getWriter());
-            return;
-        }
-
-        // 权限代理：公开访问必须绑定有效用户，不回退系统用户（权限过大）
-        ID bindUser = AgentDefs.getBindUser(id);
-        if (bindUser == null) {
-            StreamEcho.error(Language.L("请联系管理员为该 Agent 绑定用户后使用"), resp.getWriter());
             return;
         }
 
@@ -147,6 +141,11 @@ public class AiBotAgentPubController extends BaseController {
 
         ID chatid = getOwnedChatId(req, id);
 
+        ID bindUser = AgentDefs.getBindUser(id);
+        if (bindUser == null) {
+            StreamEcho.error(Language.L("请联系管理员为该智能体绑定用户后使用"), resp.getWriter());
+            return;
+        }
         ID keepUser = UserContextHolder.setUser(bindUser);
         AibotContextHolder.setAgent(agent, true);
 
@@ -205,17 +204,10 @@ public class AiBotAgentPubController extends BaseController {
         return chatid;
     }
 
-    /**
-     * 校验 Agent 可用（存在、未禁用、已启用发布）
-     *
-     * @param agentId
-     * @return 合法返回 ID，否则 null
-     */
     private ID getAvailableAgent(String agentId) {
         if (!ID.isId(agentId)) return null;
 
         ID id = ID.valueOf(agentId);
-        if (AgentDefs.getAgent(id) == null) return null;
         if (!AgentDefs.getPublishConfig(id).getBooleanValue("enabled")) return null;
         return id;
     }
