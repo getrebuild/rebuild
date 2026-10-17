@@ -91,7 +91,7 @@ $(document).ready(() => {
       // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<FileShare file={dashid} title={$L('分享仪表盘')} />)
     })
-    if (!rb.isAdminUser) $('.J_dash-share').remove()
+    // if (!rb.isAdminUser) $('.J_dash-share').remove()
 
     const $refreshs = $('.J_dash-refresh .dropdown-item').on('click', function () {
       $refreshs.removeClass('check')

@@ -379,7 +379,7 @@ class DlgSkillEdit extends RbModalHandler {
         title={
           <RF>
             {this.props.title}
-            <AiCreateButton preset={{ content: $L('我要创建一个技能') }} />
+            <AiCreateButton presetContent={$L('帮我做一个技能。先向我确认技能用途和使用场景，确认后再创建。')} />
           </RF>
         }
         disposeOnHide>
@@ -462,7 +462,7 @@ class DlgSkillEdit extends RbModalHandler {
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
           <div className="col-sm-7">
-            <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} placeholder={$L('选填')} />
+            <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} />
           </div>
         </div>
         <div className="form-group row">
@@ -539,9 +539,10 @@ class DlgSkillEdit extends RbModalHandler {
   _onSave() {
     const item = this.props.item || {}
     const name = $(this._$name).val()
+    const desc = $(this._$desc).val()
     const prompt = $(this._$prompt).val()
-    if (!name || !prompt) {
-      RbHighbar.create($L('请输入技能名称和提示词'))
+    if (!name || !desc || !prompt) {
+      RbHighbar.create($L('请输入技能名称、描述和提示词'))
       return
     }
 
@@ -550,7 +551,7 @@ class DlgSkillEdit extends RbModalHandler {
       type: 'SKILL',
       config: JSON.stringify({
         name: name,
-        description: $(this._$desc).val(),
+        description: desc,
         prompt: prompt,
       }),
       metadata: {

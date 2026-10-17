@@ -21,7 +21,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.service.dashboard.charts.builtin.ApprovalList;
@@ -55,14 +54,23 @@ public class ChartDataController extends BaseController {
     public JSON data(@IdParam ID chartId, HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         ID requestUser = AppUtils.getRequestUser(request);
+        boolean setContextUser = false;
         if (requestUser == null) {
             // sk:xxx
             String shareKeyToken = request.getHeader(AppUtils.HF_CSRFTOKEN);
-            String fileUrl = StringUtils.isBlank(shareKeyToken)
-                    ? null : ShortUrls.retrieveUrl(shareKeyToken.substring(3));
+            String shareKey = StringUtils.isBlank(shareKeyToken) ? null : shareKeyToken.substring(3);
+            String fileUrl = shareKey == null ? null : ShortUrls.retrieveUrl(shareKey);
             if (ID.isId(fileUrl) && ID.valueOf(fileUrl).getEntityCode() == EntityHelper.DashboardConfig) {
-                requestUser = UserService.SYSTEM_USER;
-                UserContextHolder.setUser(requestUser);
+                // 使用分享人的数据权限
+                Object[] sharer = Application.createQueryNoFilter(
+                        "select createdBy from ShortUrl where shortKey = ?")
+                        .setParameter(1, shareKey)
+                        .unique();
+                if (sharer != null && UserHelper.isActive((ID) sharer[0])) {
+                    requestUser = (ID) sharer[0];
+                    UserContextHolder.setUser(requestUser);
+                    setContextUser = true;
+                }
             }
         }
         if (requestUser == null) {
@@ -88,7 +96,7 @@ public class ChartDataController extends BaseController {
                     .build();
 
         } finally {
-            if (UserService.SYSTEM_USER.equals(requestUser)) UserContextHolder.clearUser();
+            if (setContextUser) UserContextHolder.clearUser();
         }
     }
 
