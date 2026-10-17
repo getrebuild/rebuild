@@ -210,7 +210,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot-agents")
     public ModelAndView pageIntegrationAibotAgents() {
         if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("专属智能体"));
+            return RbvMissingController.errorUnsupported(Language.L("智能体"));
         }
 
         return createModelAndView("/admin/integration/aibot-agents");
@@ -264,7 +264,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot-agent/{agentId}")
     public ModelAndView pageAibotAgent(@PathVariable String agentId, HttpServletResponse response) throws IOException {
         if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("专属智能体"));
+            return RbvMissingController.errorUnsupported(Language.L("智能体"));
         }
 
         ID agentId2 = ID.isId(agentId) ? ID.valueOf(agentId) : null;

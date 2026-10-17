@@ -57,7 +57,7 @@ public class AiBotAgentPubController extends BaseController {
     @GetMapping("{agentId}")
     public ModelAndView pubIndex(@PathVariable String agentId, HttpServletResponse response) throws IOException {
         if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("专属智能体"));
+            return RbvMissingController.errorUnsupported(Language.L("智能体"));
         }
 
         ID id = getAvailableAgent(agentId);
