@@ -85,7 +85,11 @@ public class AiBotAgentPubController extends BaseController {
         JSONArray suggestQuestions = null;
         if (chatid != null) {
             Chat chat = ChatManager.getChat(chatid, AgentDefs.getAgent(id));
-            chat.getMessages().forEach(m -> messages.add(m.toJSON()));
+            chat.getMessages().forEach(m -> {
+                JSONObject j = m.toJSON();
+                j.remove("toolHistory");
+                messages.add(j);
+            });
         } else {
             JSONObject publish = AgentDefs.getPublishConfig(id);
             String welcome = publish.getString("welcome");

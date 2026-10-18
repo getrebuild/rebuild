@@ -203,7 +203,11 @@ public class AiBot2Controller extends BaseController {
         ID agentId = null;
         if (chatid != null) {
             Chat chat = ChatManager.getChat(chatid);
-            chat.getMessages().forEach(m -> messages.add(m.toJSON()));
+            chat.getMessages().forEach(m -> {
+                JSONObject j = m.toJSON();
+                j.remove("toolHistory");
+                messages.add(j);
+            });
             agentId = chat.getAgent().getAgentId();
         } else {
             ID initAgent = getIdParameter(req, "agent");

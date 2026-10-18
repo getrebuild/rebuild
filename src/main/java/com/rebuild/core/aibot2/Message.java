@@ -9,6 +9,7 @@ package com.rebuild.core.aibot2;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 import lombok.Getter;
@@ -34,6 +35,9 @@ public class Message implements Serializable {
     private final String content;
     private final String reasoning;
     private final String error;
+
+    // 本轮回答过程中的工具调用与结果（仅持久化供恢复时重建上下文，不用于展示）
+    private JSONArray toolHistory;
 
     private ID userReqChatid;
     private JSON userReqJson;
@@ -68,6 +72,16 @@ public class Message implements Serializable {
         this.userReqJson = userReqJson;
     }
 
+    protected Message(String role, String content, String reasoning, String error, ChatRequest chatRequest, JSONArray toolHistory) {
+        this(role, content, reasoning, error, chatRequest);
+        this.toolHistory = toolHistory;
+    }
+
+    protected Message(String role, String content, String reasoning, String error, ID userReqChatid, JSON userReqJson, JSONArray toolHistory) {
+        this(role, content, reasoning, error, userReqChatid, userReqJson);
+        this.toolHistory = toolHistory;
+    }
+
     /**
      * @return
      */
@@ -88,6 +102,7 @@ public class Message implements Serializable {
         } else {
             d = toSimpleJSON();
             if (reasoning != null) d.put("reasoning", reasoning);
+            if (toolHistory != null) d.put("toolHistory", toolHistory);
         }
 
         d.put("_chatid", userReqChatid);

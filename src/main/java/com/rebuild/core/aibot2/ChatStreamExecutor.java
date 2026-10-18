@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2;
 
+import com.alibaba.fastjson.JSONArray;
 import com.openai.core.http.StreamResponse;
 import com.openai.models.chat.completions.ChatCompletionChunk;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
@@ -37,6 +38,7 @@ import static com.rebuild.core.aibot2.ChatExecutor.executeAndAppend;
 import static com.rebuild.core.aibot2.ChatExecutor.isLengthTruncated;
 import static com.rebuild.core.aibot2.ChatExecutor.logFinishReasonIfAbnormal;
 import static com.rebuild.core.aibot2.ChatExecutor.logToolCall;
+import static com.rebuild.core.aibot2.ChatExecutor.recordToolHistory;
 import static com.rebuild.core.aibot2.ChatExecutor.toolCallsText;
 
 /**
@@ -59,6 +61,8 @@ public class ChatStreamExecutor {
     private final StringBuilder fullReasoning = new StringBuilder();
     // 跨轮次正文，与前端累加展示的内容一致，落库时取此值
     private final StringBuilder fullContentAll = new StringBuilder();
+    // 本轮回答的工具调用与结果，落库时随最终消息持久化
+    private final JSONArray toolHistory = new JSONArray();
     private ThinkTagParser thinkParser = new ThinkTagParser();
     private boolean reasoningFound;
     private boolean reasoningEchoStopped;
@@ -222,7 +226,8 @@ public class ChatStreamExecutor {
         }
 
         chat.completionAfter(content,
-                fullReasoning.length() > 0 ? fullReasoning.toString() : null, chatRequest);
+                fullReasoning.length() > 0 ? fullReasoning.toString() : null, chatRequest,
+                toolHistory.isEmpty() ? null : toolHistory);
     }
 
     /**
@@ -263,7 +268,8 @@ public class ChatStreamExecutor {
                 .build();
         builder.addMessage(assistantMsg);
 
-        executeAndAppend(builder, assembledToolCalls, chatLogger(), this::echoTool);
+        List<String> results = executeAndAppend(builder, assembledToolCalls, chatLogger(), this::echoTool);
+        recordToolHistory(toolHistory, fullContent.toString(), assembledToolCalls, results);
         return true;
     }
 
