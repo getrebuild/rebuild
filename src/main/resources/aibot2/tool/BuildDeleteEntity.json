@@ -10,10 +10,6 @@
         "entity": {
           "type": "string",
           "description": "要删除的实体标识，支持实体名称（如 Account）或实体标签（如 客户）。可通过 ListEntities 获取"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行删除"
         }
       },
       "required": ["entity"],

@@ -18,10 +18,6 @@
         "recordId": {
           "type": "string",
           "description": "要更新的记录 ID（可选，不传则新建）。可通过 QueryRecords 工具查询获取"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回待保存数据摘要供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行保存"
         }
       },
       "required": ["entity", "recordData"],

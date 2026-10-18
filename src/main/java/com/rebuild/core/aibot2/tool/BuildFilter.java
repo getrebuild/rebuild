@@ -33,7 +33,7 @@ import java.util.List;
  * @since 2026/8/16
  */
 @Slf4j
-public class BuildFilter implements Tool {
+public class BuildFilter implements Tool, ConfirmableTool {
 
     @Override
     public Object tool(String arguments) throws Exception {

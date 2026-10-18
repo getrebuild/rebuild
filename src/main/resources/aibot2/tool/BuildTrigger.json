@@ -50,10 +50,6 @@
         "priority": {
           "type": "integer",
           "description": "执行优先级（可选，默认 100），值越大越先执行"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
         }
       },
       "required": ["entity", "name", "when", "actionType", "actionContent"],

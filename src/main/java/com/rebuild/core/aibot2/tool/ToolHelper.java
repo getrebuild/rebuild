@@ -134,6 +134,44 @@ public class ToolHelper {
     }
 
     /**
+     * 解析序号参数（支持单个整数、整数数组及 "1,2" 形式字符串），用于按 list 结果的序号定位条目。
+     * 参数非 null 但未解析出任何有效序号时抛出异常，避免静默落入其他定位方式
+     *
+     * @param value
+     * @return 序号列表，参数为 null 时返回空列表
+     */
+    public static List<Integer> resolveNos(Object value) {
+        List<Integer> list = new ArrayList<>();
+        if (value == null) return list;
+
+        if (value instanceof java.util.Collection) {
+            for (Object o : (java.util.Collection<?>) value) {
+                Integer i = parseInt(o);
+                if (i != null) list.add(i);
+            }
+        } else {
+            for (String s : value.toString().split(",")) {
+                Integer i = parseInt(s);
+                if (i != null) list.add(i);
+            }
+        }
+        if (list.isEmpty()) {
+            throw new KnownToolException("no 参数无效（应为单个序号或序号数组，如 [1,2]）: " + value);
+        }
+        return list;
+    }
+
+    private static Integer parseInt(Object o) {
+        if (o == null) return null;
+        if (o instanceof Number) return ((Number) o).intValue();
+        try {
+            return Integer.parseInt(o.toString().trim());
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    /**
      * 解析实体（支持名称、code、标签匹配）
      * 精确匹配优先，多个匹配时抛出异常要求询问用户选择（禁止自行决定）
      *
@@ -574,6 +612,21 @@ public class ToolHelper {
             return JSONUtils.parseSafe(text);
         } catch (Exception ex) {
             return text;
+        }
+    }
+
+    /**
+     * 安全解析为 JSONObject，空文本、非法或非对象时返回 null
+     *
+     * @param text
+     * @return
+     */
+    public static JSONObject parseObject(String text) {
+        if (StringUtils.isBlank(text)) return null;
+        try {
+            return JSON.parseObject(text);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

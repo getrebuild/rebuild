@@ -3,7 +3,7 @@
   "userDescription": "制作微应用。微应用是托管在本系统页面模板中的自定义 HTML 页面，可配置到导航菜单供用户访问 [商业工具]",
   "function": {
     "name": "BuildMinAppPage",
-    "description": "新建或修改微应用（HTML 自定义页面）。当用户需要制作自定义页面、数据看板、统计报表、说明文档、查询工具时使用。\n\n【准备工作】调用前必须：1) GetConfigSchema(schema=frontjs-api) 获取 FrontJS.MinApp API 参考；2) ListEntities 查询目标实体的真实英文字段名，严禁编造字段。\n\n【页面结构】页面由系统模板承载，生成的内容会被置于模板的 #page-content 容器中。因此只生成内容片段：不要生成 doctype、html、head、body 等文档标签，直接以自定义根容器开始（如 <div id=\"app\"> 包裹全部内容），样式也作用于该根容器，避免直接修改 body/html 以免与系统基础样式冲突。\n\n【系统资源（开箱即用，勿重复引入）】模板已自动引入 header（基础样式）与 footer（脚本库）：\n- 基础样式：Bootstrap 4（栅格 row/col、card 卡片、table 表格、btn 按钮、badge、alert 提示框）、zmdi/mdi 图标类（如 <i class=\"zmdi zmdi-refresh\"></i>）、animate 动画类、系统主题色；body 的字体与基础背景已由系统提供\n- 脚本库：jQuery（$）、React、moment、$L、RbHighbar（RbHighbar.create(message, {type: 'success|error'}) 提示条）、FrontJS（含 FrontJS.MinApp 数据操作）\n\n【页面规范】单文件：CSS 写 style 标签、脚本写 script 标签，全部内联，不引用本地相对路径资源（图片用外部 URL 或 base64）。业务逻辑写在 window load 事件内（window.addEventListener('load', function(){ ... })），以确保系统脚本加载完毕，此时可直接调用 FrontJS.MinApp 的 list/aggregate/get/create/update/delete 操作数据。无需考虑授权问题：页面与系统接口同源，请求自动携带登录态，调用任何接口都不需要凭证或鉴权处理。不要使用 text/babel，不要使用 document.write。\n\n【修改已有页面】先仅传入 id（不传 html）读取当前源码与名称，理解后再按用户要求修改，以 id+新 html 更新（同样走确认流程）。页面名称与是否禁用由用户在管理页面维护，本工具不修改。\n\n【沟通纪律】需求一次性问清（页面用途、数据与字段、样式偏好），其余自行合理决策；不逐条讲解代码、不复述参数含义；保存前仅转述改动清单；保存后仅回复访问地址与一句效果说明，保持简洁。",
+    "description": "新建或修改微应用（HTML 自定义页面）。当用户需要制作自定义页面、数据看板、统计报表、说明文档、查询工具时使用。\n\n【准备工作】调用前必须：1) GetConfigSchema(schema=frontjs-api) 获取 FrontJS.MinApp API 参考；2) ListEntities 查询目标实体的真实英文字段名，严禁编造字段。\n\n【页面结构】页面由系统模板承载，生成的内容会被置于模板的 #page-content 容器中。因此只生成内容片段：不要生成 doctype、html、head、body 等文档标签，直接以自定义根容器开始（如 <div id=\"app\"> 包裹全部内容），样式也作用于该根容器，避免直接修改 body/html 以免与系统基础样式冲突。\n\n【系统资源（开箱即用，勿重复引入）】模板已自动引入 header（基础样式）与 footer（脚本库）：\n- 基础样式：Bootstrap 4（栅格 row/col、card 卡片、table 表格、btn 按钮、badge、alert 提示框）、zmdi/mdi 图标类（如 <i class=\"zmdi zmdi-refresh\"></i>）、animate 动画类、系统主题色；body 的字体与基础背景已由系统提供\n- 脚本库：jQuery（$）、React、moment、$L、RbHighbar（RbHighbar.create(message, {type: 'success|error'}) 提示条）、FrontJS（含 FrontJS.MinApp 数据操作）\n- 可用组件：select2（搜索式下拉选择）、bootstrap-datetimepicker（日期时间选择）、EasyMDE（Markdown 编辑器）、marked（Markdown 渲染）、jquery-ui（拖拽与排序等交互）、perfect-scrollbar（滚动条美化）、mprogress（进度条）、jquery.html5uploader（文件上传）。系统内置大量 JS 库与组件，优先使用现成能力而非手写实现\n\n【页面规范】单文件：CSS 写 style 标签、脚本写 script 标签，全部内联，不引用本地相对路径资源（图片用外部 URL 或 base64）。业务逻辑写在 window load 事件内（window.addEventListener('load', function(){ ... })），以确保系统脚本加载完毕，此时可直接调用 FrontJS.MinApp 的 list/aggregate/get/create/update/delete 操作数据。无需考虑授权问题：页面与系统接口同源，请求自动携带登录态，调用任何接口都不需要凭证或鉴权处理。不要使用 text/babel，不要使用 document.write。\n\n【修改已有页面】先仅传入 id（不传 html）读取当前源码与名称，理解后再按用户要求修改，以 id+新 html 更新（同样走确认流程）。页面名称与是否禁用由用户在管理页面维护，本工具不修改。\n\n【沟通纪律】需求一次性问清（页面用途、数据与字段、样式偏好），其余自行合理决策；不逐条讲解代码、不复述参数含义；保存前仅转述改动清单；保存后仅回复访问地址与一句效果说明，保持简洁。",
     "parameters": {
       "type": "object",
       "properties": {
@@ -18,10 +18,6 @@
         "html": {
           "type": "string",
           "description": "页面内容源码（仅内容片段，不含 doctype/html/head/body 等文档标签，以自定义根容器开始）。CSS 与脚本全部内联；基础样式（Bootstrap/图标）与脚本库（jQuery、React、FrontJS 等）已由系统模板引入勿重复引入；数据操作用 FrontJS.MinApp（无需考虑授权）；业务逻辑写在 window load 事件内"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行"
         }
       },
       "additionalProperties": false

@@ -59,10 +59,6 @@
           "items": {
             "type": "object"
           }
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用返回完整规划清单，用户确认后以 confirmed=true 重新调用执行创建"
         }
       },
       "required": ["entities"],

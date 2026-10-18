@@ -35,7 +35,7 @@ import java.util.Set;
  * @since 2026/8/10
  */
 @Slf4j
-public class BuildEntity implements Tool, AdminGuard {
+public class BuildEntity implements Tool, AdminGuard, ConfirmableTool {
 
     @Override
     public Object tool(String arguments) throws Exception {
