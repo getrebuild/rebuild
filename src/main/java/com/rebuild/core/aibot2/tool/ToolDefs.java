@@ -27,7 +27,6 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -47,8 +46,7 @@ import static com.rebuild.core.aibot2.tool.ToolHelper.compactJson;
 @Slf4j
 public class ToolDefs {
 
-    private static final Map<String, JSONObject> TOOL_JSON_CACHE = new ConcurrentHashMap<>();
-
+    private static final Map<String, String> TOOL_JSON_CACHE = new ConcurrentHashMap<>();
     private static final Map<String, Tool> TOOL_MAP = new LinkedHashMap<>();
 
     static {
@@ -200,13 +198,13 @@ public class ToolDefs {
      * @return
      */
     static JSONObject getToolJson(String toolName) {
-        if (!Application.devMode()) {
-            JSONObject c = TOOL_JSON_CACHE.get(toolName);
-            if (c != null) return JSON.parseObject(c.toJSONString());
+        String d = Application.devMode() ? null : TOOL_JSON_CACHE.get(toolName);
+        if (d == null) {
+            d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
+            if (d == null) return null;
+            TOOL_JSON_CACHE.put(toolName, d);
         }
-
-        String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
-        return d == null ? null : JSONObject.parseObject(d);
+        return JSONObject.parseObject(d);
     }
 
     // 工具执行进度提示的兜底文案

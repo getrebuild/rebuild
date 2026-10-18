@@ -49,7 +49,7 @@ import static com.rebuild.core.aibot2.ChatExecutor.toolCallsText;
 public class ChatStreamExecutor {
 
     // 思考内容推送上限。退化模型的思考可能极长且大量重复，超出后仅落库不再推送
-    static final int MAX_REASONING_ECHO_CHARS = 9000;
+    static final int MAX_REASONING_ECHO_CHARS = 65535;
 
     private final Chat chat;
     private final ChatRequest chatRequest;
