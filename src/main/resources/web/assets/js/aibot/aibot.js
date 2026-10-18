@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // eslint-disable-next-line no-unused-vars
 class AiBot extends React.Component {
+  static defaultProps = { draggable: true }
+
   constructor(props) {
     super(props)
     this._isShown = false
@@ -199,13 +201,11 @@ class AiBot extends React.Component {
       } else {
         window._AiBot.show()
       }
-      // 有 preset：新建会话并应用预设
       if (preset) {
         window._AiBot._Chat._preset = preset
         window._AiBot._Chat.initChat()
       }
     } else {
-      // 首次创建：将 preset 传入组件
       var aiBotProps = { ...props }
       if (preset) aiBotProps.preset = preset
       renderRbcomp(<AiBot {...aiBotProps} />, function () {
@@ -233,7 +233,7 @@ class AiCreateButton extends React.Component {
 
   //
   static openAibot(presetContent, rest) {
-    const ps = { preset: { content: presetContent, autoSend: true }, ...rest }
+    const ps = { draggable: true, preset: { content: presetContent, autoSend: true }, ...rest }
     window.AiBot && window.AiBot.init(ps, false)
   }
 }

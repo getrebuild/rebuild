@@ -337,7 +337,7 @@ class ChatInput extends React.Component {
           <div className="chat-input-action">
             {agents.length > 1 && (
               <span className="dropup chat-agents">
-                <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('切换智能体')} style={{ padding: '0 8px' }}>
+                <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('切换智能体')}>
                   <i className={`icon mdi ${current.icon || 'mdi-shimmer'} down-2 mr-1 ai-color`} />
                   {current.name}
                 </button>
