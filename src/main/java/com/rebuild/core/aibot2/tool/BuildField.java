@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 新建字段（仅管理员）。不同字段类型有不同配置项
- *
  * @author devezhao
  * @since 2026/8/10
  */

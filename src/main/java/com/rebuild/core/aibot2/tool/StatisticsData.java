@@ -25,8 +25,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 数据统计/聚合工具
- *
  * @author RB
  * @since 2026/7/23
  */

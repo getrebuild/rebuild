@@ -13,9 +13,6 @@ import com.rebuild.core.aibot2.JsonSchemaValidator;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 获取配置数据体的 JSON Schema。
- * 在调用 BuildTrigger 等配置类工具前，先用本工具获取对应 Schema 作为生成约束
- *
  * @author devezhao
  * @since 2026/8/16
  */

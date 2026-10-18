@@ -22,8 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 
 /**
- * 文件/图片上传工具
- *
  * @author devezhao
  * @since 2026/7/24
  */

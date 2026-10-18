@@ -10,8 +10,6 @@ package com.rebuild.core.aibot2.tool;
 import com.rebuild.core.privileges.AdminGuard;
 
 /**
- * 新建/修改微应用（HTML 自定义页面）
- *
  * @author devezhao
  * @since 2026/10/16
  */

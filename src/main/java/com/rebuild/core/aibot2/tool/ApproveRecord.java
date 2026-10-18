@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 审批操作工具，支持提交、同意、驳回、撤回、撤销和查询审批状态
- *
  * @author devezhao
  * @since 2026/7/25
  */

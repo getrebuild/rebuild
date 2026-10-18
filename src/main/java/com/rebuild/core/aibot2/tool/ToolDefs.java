@@ -67,21 +67,23 @@ public class ToolDefs {
         register(new SearchKnowledge());
         register(new ScheduleTask());
         register(new UserMemory());
-
         register(new BuildSkill());
         register(new GetConfigSchema());
         register(new BuildFilter());
         register(new BuildEntity());
         register(new BuildField());
+        // @rbv
         register(new BuildTrigger());
         register(new ListTriggers());
         register(new BuildTransform());
         register(new BuildReportTemplate());
+        register(new BuildAviatorFormula());
         register(new BuildFormLayout());
         register(new BuildListLayout());
         register(new BuildNavMenu());
         register(new BuildApp());
         register(new BuildFrontJsCode());
+        register(new BuildDeleteEntity());
         register(new BuildMinAppPage());
     }
 

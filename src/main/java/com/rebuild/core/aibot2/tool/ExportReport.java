@@ -50,8 +50,6 @@ import static com.rebuild.core.service.datareport.DataReportManager.TYPE_LIST;
 import static com.rebuild.core.service.datareport.DataReportManager.TYPE_RECORD;
 
 /**
- * 报表导出工具
- *
  * @author Zixin
  * @since 2026/7/20
  */

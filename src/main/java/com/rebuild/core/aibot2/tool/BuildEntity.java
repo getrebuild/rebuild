@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 新建实体（仅管理员）
- *
  * @author devezhao
  * @since 2026/8/10
  */

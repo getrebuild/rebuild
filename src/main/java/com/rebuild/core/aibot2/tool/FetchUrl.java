@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * HTTP 资源调用工具，支持 GET / POST 请求
- *
  * @author devezhao
  * @since 2026/7/10
  */

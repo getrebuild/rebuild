@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 搜索系统知识库，获取与查询相关的知识片段
- *
  * @author devezhao
  * @since 2026/8/5
  */

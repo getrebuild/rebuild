@@ -29,8 +29,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * AI定时任务管理工具。支持创建、查询、取消操作
- *
  * @author devezhao
  * @since 2026/8/9
  */

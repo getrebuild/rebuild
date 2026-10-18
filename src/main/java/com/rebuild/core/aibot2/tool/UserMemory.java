@@ -29,8 +29,6 @@ import java.util.List;
 import static com.rebuild.core.aibot2.service.AibotConfigManager.TYPE_AIBOT_USERMEMORY;
 
 /**
- * 用户记忆
- *
  * @author devezhao
  * @since 2026/8/13
  */

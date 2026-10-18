@@ -23,8 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 搜索分类字段绑定的分类数据项，获取可填入 CLASSIFICATION 字段的分类项 ID
- *
  * @author RB
  * @since 2026/9/23
  */

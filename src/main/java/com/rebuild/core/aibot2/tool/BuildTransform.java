@@ -10,8 +10,6 @@ package com.rebuild.core.aibot2.tool;
 import com.rebuild.core.privileges.AdminGuard;
 
 /**
- * 新建记录转换配置
- *
  * @author devezhao
  * @since 2026/8/19
  */

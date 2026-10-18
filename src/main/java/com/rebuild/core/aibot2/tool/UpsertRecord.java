@@ -37,8 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 新建/更新业务记录，字段数据由模型直接组装（纯执行器，不做 AI 解析）
- *
  * @author RB
  * @since 2026/9/23
  */

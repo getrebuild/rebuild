@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 当用户需求超出现有工具能力时，提示用户联系定制开发
- *
  * @author devezhao
  * @since 2026/7/10
  */

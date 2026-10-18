@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 查询指定实体的记录数据。支持按名称/编号模糊匹配，也可返回记录列表
- *
  * @author devezhao
  * @since 2026/7/20
  */
