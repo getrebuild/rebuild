@@ -18,10 +18,6 @@
         "code": {
           "type": "string",
           "description": "ES6/JSX 源代码。必须包裹在 FrontJS.ready(function(){ ... }) 中。先调用 GetConfigSchema(schema=frontjs-api) 获取 API 参考，用 ListEntities 获取真实字段名后再编写"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
         }
       },
       "required": ["name", "applyPath", "code"],

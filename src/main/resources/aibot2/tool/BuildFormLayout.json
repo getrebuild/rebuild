@@ -23,10 +23,6 @@
           "type": "string",
           "enum": ["ALL", "SELF"],
           "description": "共享范围（可选，默认 ALL）：ALL=全部用户可用、SELF=仅创建人可用"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
         }
       },
       "required": ["entity", "config"],

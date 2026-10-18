@@ -22,7 +22,9 @@ import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static com.rebuild.core.aibot2.service.AibotConfigManager.TYPE_AIBOT_USERMEMORY;
 
@@ -39,7 +41,7 @@ public class UserMemory implements Tool {
             "通过 UserMemory 工具为用户维护长期个性化记忆。\n" +
                     "- 当用户告知长期有效的身份/偏好信息，或明确要求\"记住/忘记\"时，主动调用 UserMemory 记录或删除，并根据信息重要程度选择档位（1/2/3）\n" +
                     "- 一次性、仅本次会话特有的信息不要记录，次要信息记为第 3 档，记忆满额时会最先被自动移除\n" +
-                    "- update/delete 前先通过 list 查看现有记忆，使用 list 结果中的序号（no）或记忆内容定位目标条目并向用户确认后再操作\n" +
+                    "- update/delete 前先通过 list 查看现有记忆，使用 list 结果中的序号（no）或记忆内容定位目标条目并向用户确认后再操作；delete 可一次传多个序号（如 [1,3]）批量删除，勿分多次调用以免序号重排错位\n" +
                     "- 注入的记忆仅供参考，不要主动向用户复述";
 
     private static final int MAX_MEMORIES = 30;
@@ -82,12 +84,12 @@ public class UserMemory implements Tool {
                 break;
             }
             case "delete": {
-                Integer no = args.getInteger("no");
+                List<Integer> nos = ToolHelper.resolveNos(args.get("no"));
                 String content = args.getString("content");
-                if (no == null && StringUtils.isBlank(content)) {
+                if (nos.isEmpty() && StringUtils.isBlank(content)) {
                     throw new KnownToolException("delete 操作必须提供 no 或 content 参数（可先通过 list 查看）");
                 }
-                message = delete(user, no, content);
+                message = delete(user, nos, content);
                 break;
             }
             case "list": {
@@ -198,36 +200,49 @@ public class UserMemory implements Tool {
     }
 
     /**
-     * 按序号或内容匹配删除记忆（按内容匹配时找到多条全部删除）
+     * 按序号或内容匹配删除记忆。
+     * nos 支持单个或多个序号，传多个时先按同一份列表快照解析全部序号再统一删除，
+     * 避免删除过程中序号重排导致后续序号失效；按内容匹配时找到多条全部删除
      *
      * @param user
-     * @param no 序号（对应 list 结果中的编号）
+     * @param nos 序号列表（对应 list 结果中的编号）
      * @param content
      * @return
      */
-    private String delete(ID user, Integer no, String content) {
+    private String delete(ID user, List<Integer> nos, String content) {
         if (content != null) content = StringUtils.trim(content);
 
         ConfigBean[] memories = AibotConfigManager.instance.getUserMemoryConfigs(user);
 
-        if (no != null) {
-            ConfigBean target = byNo(memories, no);
-            if (target == null) {
-                throw new KnownToolException(String.format(
-                        "序号 %d 无效（当前共 %d 条记忆），请先通过 list 查看", no, memories.length));
+        if (!nos.isEmpty()) {
+            List<ConfigBean> targets = new ArrayList<>();
+            for (Integer no : nos) {
+                ConfigBean target = byNo(memories, no);
+                if (target == null) {
+                    throw new KnownToolException(String.format(
+                            "序号 %d 无效（当前共 %d 条记忆），请先通过 list 查看", no, memories.length));
+                }
+                if (!targets.contains(target)) targets.add(target);
             }
-            Application.getBean(AibotConfigService.class).delete(target.getID("id"));
-            return String.format("已删除记忆：%s", target.getString("content"));
+
+            List<String> deleted = new ArrayList<>();
+            for (ConfigBean target : targets) {
+                Application.getBean(AibotConfigService.class).delete(target.getID("id"));
+                deleted.add(target.getString("content"));
+            }
+            return deleted.size() == 1
+                    ? String.format("已删除记忆：%s", deleted.get(0))
+                    : String.format("已删除 %d 条记忆：%s", deleted.size(), StringUtils.join(deleted, "；"));
         }
 
-        int deleted = 0;
+        int count = 0;
         for (ConfigBean cb : memories) {
             if (content != null && content.equals(cb.getString("content"))) {
                 Application.getBean(AibotConfigService.class).delete(cb.getID("id"));
-                deleted++;
+                count++;
             }
         }
-        if (deleted == 0) {
+        if (count == 0) {
             throw new KnownToolException(String.format(
                     "未找到内容为「%s」的记忆，请先通过 list 查看当前记忆", content));
         }

@@ -43,7 +43,7 @@ import java.util.List;
  * @since 2026/9/23
  */
 @Slf4j
-public class UpsertRecord implements Tool {
+public class UpsertRecord implements Tool, ConfirmableTool {
 
     @Override
     public Object tool(String arguments) throws Exception {

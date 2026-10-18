@@ -41,7 +41,7 @@ import java.util.Set;
  * @since 2026/8/10
  */
 @Slf4j
-public class BuildField implements Tool, AdminGuard {
+public class BuildField implements Tool, AdminGuard, ConfirmableTool {
 
     // 允许通过 AI 创建的字段类型
     private static final Set<DisplayType> ALLOWED_TYPES = EnumSet.of(

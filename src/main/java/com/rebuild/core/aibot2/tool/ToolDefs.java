@@ -201,13 +201,18 @@ public class ToolDefs {
      * @return
      */
     static JSONObject getToolJson(String toolName) {
-        if (!Application.devMode()) {
-            JSONObject c = TOOL_JSON_CACHE.get(toolName);
-            if (c != null) return JSON.parseObject(c.toJSONString());
-        }
+        JSONObject c = TOOL_JSON_CACHE.get(toolName);
+        if (Application.devMode()) c = null;
+        if (c != null) return JSON.parseObject(c.toJSONString());
 
         String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
-        return d == null ? null : JSONObject.parseObject(d);
+        c = d == null ? null : JSONObject.parseObject(d);
+        if (c == null) throw new ToolException("Tool not found: " + toolName);
+
+        ConfirmableTool.decorate(c, TOOL_MAP.get(toolName));
+
+        TOOL_JSON_CACHE.put(toolName, c);
+        return JSON.parseObject(c.toJSONString());
     }
 
     // 工具执行进度提示的兜底文案
@@ -312,23 +317,32 @@ public class ToolDefs {
             if (chatLogger != null) chatLogger.log("TOOL_CALL " + toolName, arguments);
 
             try {
-                Object res = tool.tool(arguments);
+                String execArgs = tool instanceof ConfirmableTool
+                        ? ConfirmableTool.prepareArgs(toolName, user, arguments)
+                        : arguments;
+
+                Object res = tool.tool(execArgs);
                 String toolRes = res instanceof String ? (String) res : JSON.toJSONString(res);
+
+                if (tool instanceof ConfirmableTool) {
+                    toolRes = ConfirmableTool.handleResult(toolName, user, arguments, execArgs, toolRes);
+                }
+
                 log.info("TOOL_RESULT {}\n{}", toolName, compactJson(toolRes));
                 if (chatLogger != null) chatLogger.log("TOOL_RESULT " + toolName, toolRes);
 
                 if (chatLogger != null) {
-                    try {
-                        JSONObject resultJson = JSON.parseObject(toolRes);
-                        if ("ok".equals(resultJson.getString("status"))) {
+                    JSONObject resultJson = ToolHelper.parseObject(toolRes);
+                    if (resultJson != null && "ok".equals(resultJson.getString("status"))) {
+                        try {
                             String recordIdStr = resultJson.getString("id");
                             if (ID.isId(recordIdStr)) {
                                 Record record = QueryHelper.recordNoFilter(ID.valueOf(recordIdStr));
                                 chatLogger.log("TOOL_RECORD " + toolName, JSON.toJSONString(record));
                             }
+                        } catch (Exception ignored) {
+                            // 查询失败不影响正常流程
                         }
-                    } catch (Exception ignored) {
-                        // 查询失败不影响正常流程
                     }
                 }
                 return toolRes;

@@ -174,7 +174,7 @@ public class ScheduleTask implements Tool {
                     taskInfo.put("nextExecTime", config.getString("nextExecTime"));
                     taskInfo.put("lastExecTime", config.getString("lastExecTime"));
                     taskInfo.put("status", config.getString("status"));
-                    taskInfo.put("content", CommonsUtils.maxstr(config.getString("content"), 60));
+                    taskInfo.put("content", config.getString("content"));
 
                     String time = config.getString("time");
                     Integer dayOfWeek = config.getInteger("dayOfWeek");
@@ -194,47 +194,78 @@ public class ScheduleTask implements Tool {
     }
 
     /**
-     * 取消定时任务（按序号或任务 ID 定位）
+     * 取消定时任务（按序号或任务 ID 定位）。
+     * no 支持单个序号或序号数组，传多个时先按同一份列表快照解析全部序号再统一删除，
+     * 避免删除过程中序号重排导致后续序号失效
      */
     private Object doCancel(JSONObject args) {
         final ID user = UserContextHolder.getUser();
 
-        Integer no = args.getInteger("no");
-        ID taskId;
-        if (no != null) {
+        List<ID> taskIds = new ArrayList<>();
+        List<Integer> nos = ToolHelper.resolveNos(args.get("no"));
+        if (!nos.isEmpty()) {
             Object[][] array = queryUserTasks(user);
-            if (no < 1 || no > array.length) {
-                throw new KnownToolException(String.format(
-                        "序号 %d 无效（当前共 %d 个定时任务），请先通过 action=list 查看序号", no, array.length));
+            for (Integer no : nos) {
+                if (no < 1 || no > array.length) {
+                    throw new KnownToolException(String.format(
+                            "序号 %d 无效（当前共 %d 个定时任务），请先通过 action=list 查看序号", no, array.length));
+                }
+                ID id = (ID) array[no - 1][0];
+                if (!taskIds.contains(id)) taskIds.add(id);
             }
-            taskId = (ID) array[no - 1][0];
         } else {
-            taskId = ToolHelper.resolveId(args.getString("taskId"), "taskId", EntityHelper.AibotConfig);
+            taskIds.add(ToolHelper.resolveId(args.getString("taskId"), "taskId", EntityHelper.AibotConfig));
         }
 
-        Object[] task = Application.createQueryNoFilter(
-                "select config,name,createdBy from AibotConfig where configId = ? and type = ?")
-                .setParameter(1, taskId)
-                .setParameter(2, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
-                .unique();
+        // 先完成全部存在性与权限校验再统一删除，避免批量中途中断造成部分已删除
+        List<Object[]> tasks = new ArrayList<>();
+        for (ID taskId : taskIds) {
+            Object[] task = Application.createQueryNoFilter(
+                    "select configId,name,createdBy from AibotConfig where configId = ? and type = ?")
+                    .setParameter(1, taskId)
+                    .setParameter(2, AibotConfigManager.TYPE_AIBOT_SCHEDULE)
+                    .unique();
 
-        if (task == null) {
-            throw new KnownToolException("定时任务不存在或已删除: " + taskId);
+            if (task == null) {
+                if (taskIds.size() == 1) {
+                    throw new KnownToolException("定时任务不存在或已删除: " + taskId);
+                }
+                continue;
+            }
+
+            // 权限校验：仅创建者或管理员可取消
+            ID createdBy = (ID) task[2];
+            if (!user.equals(createdBy) && !UserHelper.isAdmin(user)) {
+                throw new KnownToolException("无权取消他人的定时任务");
+            }
+            tasks.add(task);
         }
 
-        // 权限校验：仅创建者或管理员可取消
-        ID createdBy = (ID) task[2];
-        if (!user.equals(createdBy) && !UserHelper.isAdmin(user)) {
-            throw new KnownToolException("无权取消他人的定时任务");
+        if (tasks.isEmpty()) {
+            throw new KnownToolException("定时任务不存在或已删除");
         }
 
-        String name = (String) task[1];
+        List<String> names = new ArrayList<>();
+        for (Object[] task : tasks) {
+            Application.getBean(AibotConfigService.class).delete((ID) task[0]);
+            names.add((String) task[1]);
+        }
 
-        Application.getBean(AibotConfigService.class).delete(taskId);
+        String message;
+        if (names.size() == 1) {
+            message = String.format("已成功取消定时任务 [%s]", names.get(0));
+        } else {
+            StringBuilder joined = new StringBuilder();
+            for (String name : names) {
+                if (joined.length() > 0) joined.append("、");
+                joined.append("[").append(name).append("]");
+            }
+            message = String.format("已成功取消 %d 个定时任务：%s", names.size(), joined);
+        }
 
         return JSONUtils.toJSONObject(
                 new String[]{"status", "message"},
-                new Object[]{"ok", String.format("已成功取消定时任务 [%s]", name)});
+                new Object[]{"ok", message});
     }
 
     /**
