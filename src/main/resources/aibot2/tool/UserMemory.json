@@ -13,8 +13,11 @@
           "description": "操作类型。add=新增记忆（用户告知新信息时），update=修改记忆内容或档位（用户信息变化时），delete=删除记忆（用户要求忘记时），list=查看全部记忆（修改或删除前先用）"
         },
         "no": {
-          "type": "integer",
-          "description": "记忆序号，即 action=list 结果中每条记忆的编号（1、2、3…）。update/delete 时与 oldContent/content 二选一，优先使用 no"
+          "type": ["integer", "array"],
+          "items": {
+            "type": "integer"
+          },
+          "description": "记忆序号，即 action=list 结果中每条记忆的编号（1、2、3…）。update/delete 时与 oldContent/content 二选一，优先使用 no。delete 可传序号数组（如 [1,3]）一次删除多条，多序号按同一次 list 快照解析，不受删除后序号重排影响，因此批量删除应一次传全部序号；update 仅支持单个序号"
         },
         "content": {
           "type": "string",

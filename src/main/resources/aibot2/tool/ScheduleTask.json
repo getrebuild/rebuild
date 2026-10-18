@@ -46,8 +46,11 @@
           "description": "任务ID（create 返回的 id）。cancel 时与 no 二选一，优先使用 no；不要向用户展示"
         },
         "no": {
-          "type": "integer",
-          "description": "任务序号，即 action=list 结果中每个任务的编号（1、2、3…）。cancel 时与 taskId 二选一，优先使用 no"
+          "type": ["integer", "array"],
+          "items": {
+            "type": "integer"
+          },
+          "description": "任务序号，即 action=list 结果中每个任务的编号（1、2、3…）。可传单个序号，或传序号数组（如 [1,2]）一次取消多个；取消多个时按同一次 list 快照解析，不受取消后序号重排影响，因此批量取消应一次传全部序号，不要分多次调用。cancel 时与 taskId 二选一，优先使用 no"
         }
       },
       "additionalProperties": false
