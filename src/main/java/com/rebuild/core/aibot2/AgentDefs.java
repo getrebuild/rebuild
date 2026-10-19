@@ -12,7 +12,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,7 +35,7 @@ public class AgentDefs {
      * @return
      */
     public static AibotAgent getAgent(ID agentId) {
-        ConfigBean cb = getAgentConfig(agentId);
+        ConfigBean cb = AibotConfigManager.instance.getConfigById(agentId, AibotConfigManager.TYPE_AGENT);
         if (cb == null) return null;
         JSONObject config = (JSONObject) cb.getJSON("config");
 
@@ -54,49 +53,6 @@ public class AgentDefs {
                 .setTemperature(config.getDouble("AibotTemperature"))
                 .setTopP(config.getDouble("AibotTopP"))
                 .setContextCompressThreshold(config.getLong("AibotContextCompressThreshold"));
-    }
-
-    /**
-     * 获取绑定的代理用户（未绑定或无效返回 null）
-     *
-     * @param agentId
-     * @return
-     */
-    public static ID getBindUser(ID agentId) {
-        ConfigBean cb = getAgentConfig(agentId);
-        if (cb == null) return null;
-
-        String bindUser = ((JSONObject) cb.getJSON("config")).getString("bindUser");
-        if (StringUtils.isBlank(bindUser) || !ID.isId(bindUser)) return null;
-
-        ID user = ID.valueOf(bindUser);
-        return UserHelper.isActive(user) ? user : null;
-    }
-
-    /**
-     * 获取发布配置（enabled/welcome），未配置返回空对象
-     *
-     * @param agentId
-     * @return
-     */
-    public static JSONObject getPublishConfig(ID agentId) {
-        ConfigBean cb = getAgentConfig(agentId);
-        if (cb == null) return new JSONObject();
-
-        JSONObject publish = ((JSONObject) cb.getJSON("config")).getJSONObject("publish");
-        return publish != null ? publish : new JSONObject();
-    }
-
-    private static ConfigBean getAgentConfig(ID agentId) {
-        if (agentId == null) return null;
-
-        for (ConfigBean cb : AibotConfigManager.instance.getAgentConfigs()) {
-            if (!agentId.equals(cb.getID("id"))) continue;
-            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
-            if (cb.getJSON("config") == null) continue;
-            return cb;
-        }
-        return null;
     }
 
     private static Set<ID> toIds(JSONArray array) {

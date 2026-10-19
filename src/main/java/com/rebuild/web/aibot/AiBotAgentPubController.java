@@ -22,6 +22,7 @@ import com.rebuild.core.aibot2.Chat;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.ChatRequest;
 import com.rebuild.core.aibot2.StreamEcho;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.License;
@@ -75,7 +76,7 @@ public class AiBotAgentPubController extends BaseController {
         mv.getModelMap().put("agentId", agentId);
         mv.getModelMap().put("agentName", AgentDefs.getAgent(id).getName());
         mv.getModelMap().put("agentIcon", AgentDefs.getAgent(id).getIcon());
-        mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 助手强力驱动"));
+        mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 智能体提供"));
         return mv;
     }
 
@@ -96,7 +97,7 @@ public class AiBotAgentPubController extends BaseController {
                 messages.add(j);
             });
         } else {
-            JSONObject publish = AgentDefs.getPublishConfig(id);
+            JSONObject publish = AibotConfigManager.instance.getPublishConfig(id, AibotConfigManager.TYPE_AGENT);
             String welcome = publish.getString("welcome");
             if (StringUtils.isBlank(welcome)) {
                 welcome = String.format("欢迎使用 %s！有什么问题都可以向我提问哦", AgentDefs.getAgent(id).getName());
@@ -152,7 +153,7 @@ public class AiBotAgentPubController extends BaseController {
 
         ID chatid = getOwnedChatId(req, id);
 
-        ID bindUser = AgentDefs.getBindUser(id);
+        ID bindUser = AibotConfigManager.instance.getBindUser(id, AibotConfigManager.TYPE_AGENT);
         if (bindUser == null) {
             StreamEcho.error(Language.L("请联系管理员为该智能体绑定用户后使用"), resp.getWriter());
             return;
@@ -237,7 +238,7 @@ public class AiBotAgentPubController extends BaseController {
         if (!ID.isId(agentId)) return null;
 
         ID id = ID.valueOf(agentId);
-        if (!AgentDefs.getPublishConfig(id).getBooleanValue("enabled")) return null;
+        if (!AibotConfigManager.instance.getPublishConfig(id, AibotConfigManager.TYPE_AGENT).getBooleanValue("enabled")) return null;
         return id;
     }
 }

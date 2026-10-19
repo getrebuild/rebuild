@@ -63,6 +63,9 @@ public class RateLimiters {
     // 免登录 AI 对话（基于 IP，防止 Token 成本被恶意消耗）
     public static final RequestRateLimiter AIBOT_PUB_4IP = disableAware("AIBOT_PUB_4IP",
             new int[]{60, 3600}, new int[]{20, 200});
+    // 免登录微应用页面（基于 IP）
+    public static final RequestRateLimiter MINAPP_PUB_4IP = disableAware("MINAPP_PUB_4IP",
+            new int[]{60, 3600}, new int[]{20, 200});
 
     /**
      * @param seconds

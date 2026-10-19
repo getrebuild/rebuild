@@ -15,7 +15,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.aibot2.AgentDefs;
 import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.Chat;
 import com.rebuild.core.aibot2.ChatLogger;
@@ -211,7 +210,8 @@ public class AiBot2Controller extends BaseController {
             agentId = chat.getAgent().getAgentId();
         } else {
             ID initAgent = getIdParameter(req, "agent");
-            JSONObject publish = initAgent == null ? null : AgentDefs.getPublishConfig(initAgent);
+            JSONObject publish = initAgent == null ? null
+                    : AibotConfigManager.instance.getPublishConfig(initAgent, AibotConfigManager.TYPE_AGENT);
 
             String welcome = publish == null ? null : publish.getString("welcome");
             if (StringUtils.isBlank(welcome)) welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);

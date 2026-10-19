@@ -10,6 +10,7 @@ package com.rebuild.web.aibot;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -18,11 +19,15 @@ import com.openai.models.models.Model;
 import com.openai.models.models.ModelListPage;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
+import com.rebuild.core.aibot2.service.AibotConfigService;
 import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.configuration.general.ShareToManager;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.rbstore.RBStore;
@@ -219,16 +224,78 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/minapp-list")
     public RespBody minappList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled,shareTo from AibotConfig where type = 'MINAPP' order by modifiedOn desc")
+                "select configId,name,isDisabled,shareTo,config from AibotConfig where type = 'MINAPP' order by modifiedOn desc")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
         for (Object[] o : array) {
+            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[4]);
+            JSONObject publish = conf == null ? null : conf.getJSONObject("publish");
+
             list.add(JSONUtils.toJSONObject(
-                    new String[]{"id", "name", "isDisabled", "shareTo", "url"},
-                    new Object[]{o[0], o[1], o[2], o[3], RebuildConfiguration.getHomeUrl("pages/minapp/" + o[0])}));
+                    new String[]{"id", "name", "isDisabled", "shareTo", "icon", "bindUser", "publishEnabled", "url"},
+                    new Object[]{o[0], o[1], o[2], o[3],
+                            conf == null ? null : conf.getString("icon"),
+                            conf == null ? null : conf.getString("bindUser"),
+                            publish != null && publish.getBooleanValue("enabled"),
+                            RebuildConfiguration.getHomeUrl("pages/minapp/" + o[0])}));
         }
         return RespBody.ok(list);
+    }
+
+    /**
+     * 微应用编辑保存（config 由服务端合并，保留 html 等其他键）
+     *
+     * @param data {id, name, icon, shareTo, enabled, bindUser}
+     * @return
+     */
+    @PostMapping("aibot/minapp-save")
+    public RespBody minappSave(@RequestBody JSONObject data) {
+        ID id = ID.isId(data.getString("id")) ? ID.valueOf(data.getString("id")) : null;
+        if (id == null) return RespBody.error(404);
+
+        String name = StringUtils.trimToEmpty(data.getString("name"));
+        if (name.length() > 60) return RespBody.error(Language.L("名称过长"));
+        String icon = StringUtils.trimToNull(data.getString("icon"));
+        String shareTo = StringUtils.defaultIfBlank(data.getString("shareTo"), ShareToManager.SHARE_SELF);
+
+        boolean enabled = data.getBooleanValue("enabled");
+        String bindUser = data.getString("bindUser");
+
+        if (enabled) {
+            if (!ID.isId(bindUser) || !UserHelper.isActive(ID.valueOf(bindUser))) {
+                return RespBody.error(Language.L("公开访问必须绑定有效用户"));
+            }
+        } else {
+            bindUser = null;
+        }
+
+        Object[] x = Application.createQueryNoFilter(
+                "select config from AibotConfig where configId = ? and type = 'MINAPP'")
+                .setParameter(1, id)
+                .unique();
+        if (x == null) return RespBody.error(404);
+
+        JSONObject config = (JSONObject) JSONUtils.parseSafe((String) x[0]);
+        if (config == null) config = new JSONObject();
+
+        boolean rebind = enabled && !bindUser.equals(config.getString("bindUser"));
+
+        config.put("icon", icon);
+        config.put("bindUser", bindUser);
+        config.put("publish", JSONUtils.toJSONObject("enabled", enabled));
+
+        Record record = EntityHelper.forUpdate(id, UserContextHolder.getUser());
+        record.setString("name", name);
+        record.setString("shareTo", shareTo);
+        record.setString("config", config.toJSONString());
+        Application.getBean(AibotConfigService.class).update(record);
+
+        // 关闭公开或换绑时立即吊销已发放的公开访问 token
+        if (!enabled || rebind) {
+            Application.getCommonsCache().evict(AibotConfigManager.CK_MINAPP_PUB_TOKEN + id);
+        }
+        return RespBody.ok();
     }
 
     @GetMapping("aibot-minapps")
@@ -238,6 +305,42 @@ public class AiBot2AdminController extends BaseController {
         }
 
         return createModelAndView("/admin/integration/aibot-minapps");
+    }
+
+    @GetMapping("aibot-minapp/{minappId}")
+    public ModelAndView pageAibotMinApp(@PathVariable String minappId, HttpServletResponse response) throws IOException {
+        if (!License.isCommercial()) {
+            return RbvMissingController.errorUnsupported(Language.L("微应用"));
+        }
+
+        ID minappId2 = ID.isId(minappId) ? ID.valueOf(minappId) : null;
+        if (minappId2 == null) {
+            response.sendError(404);
+            return null;
+        }
+
+        Object[] minapp = Application.createQueryNoFilter(
+                "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'MINAPP'")
+                .setParameter(1, minappId2)
+                .unique();
+        if (minapp == null) {
+            response.sendError(404);
+            return null;
+        }
+
+        JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) minapp[1]);
+        if (conf == null) conf = new JSONObject();
+        // 页面不展示源码，剥离 html 避免大载荷
+        conf.remove("html");
+
+        ModelAndView mv = createModelAndView("/admin/integration/aibot-minapp-editor");
+        mv.getModelMap().put("minappDisplayName", StringUtils.defaultString((String) minapp[0]));
+        mv.getModelMap().put("minappId", minappId2);
+        mv.getModelMap().put("minappName", StringUtils.trimToEmpty((String) minapp[0]));
+        mv.getModelMap().put("minappConfig", conf.toJSONString());
+        mv.getModelMap().put("minappShareTo", StringUtils.defaultIfBlank((String) minapp[3], ShareToManager.SHARE_SELF));
+        mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("pages/minapp/" + minappId2));
+        return mv;
     }
 
     @GetMapping("aibot/agent-list")
