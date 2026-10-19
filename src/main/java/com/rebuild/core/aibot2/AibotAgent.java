@@ -130,6 +130,10 @@ public class AibotAgent implements Serializable {
         return StringUtils.isNotBlank(url) && StringUtils.isNotBlank(secret);
     }
 
+    public boolean usable() {
+        return available() && StringUtils.isNotBlank(model());
+    }
+
     public static AibotAgent defaultAgent(String model, String prompt) {
         return new AibotAgent().setName("default").setModel(model).setPrompt(prompt);
     }

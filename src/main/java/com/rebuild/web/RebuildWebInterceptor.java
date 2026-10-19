@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AgentDefs;
 import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.cache.CommonsCache;
@@ -44,7 +45,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
 import static com.rebuild.web.commons.UseThemeController.THEMES_COLORS;
@@ -124,7 +124,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             if (re.getRequestUser() != null) {
                 boolean b = true;
                 if (License.isCommercial()) {
-                    b = Config.availableAiBot() && Application.getPrivilegesManager().allow(re.getRequestUser(), AllowUseAiBot);
+                    // 智能体可独立配置模型连接，未配置系统 AI 助手时也可用
+                    b = (Config.availableAiBot() || AgentDefs.hasUsableAgent(re.getRequestUser()))
+                            && Application.getPrivilegesManager().allow(re.getRequestUser(), AllowUseAiBot);
                 }
                 request.setAttribute("_AllowUseAiBot", b);
             }

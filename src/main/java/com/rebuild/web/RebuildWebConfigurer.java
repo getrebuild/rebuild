@@ -51,7 +51,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
-import static com.rebuild.core.support.ConfigurationItem.AibotDSSecret;
 import static com.rebuild.core.support.ConfigurationItem.AibotName;
 import static com.rebuild.core.support.ConfigurationItem.AppBuild;
 import static com.rebuild.core.support.ConfigurationItem.AppName;
@@ -114,16 +113,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         setStaticVariable(PortalUploadMaxSize);
         setStaticVariable(AppBuild);
 
-        if (License.isCommercial()) {
-            String aibot = RebuildConfiguration.get(AibotDSSecret);
-            if (StringUtils.isBlank(aibot)) {
-                thymeleafViewResolver.addStaticVariable("_AiBot", null);
-            } else {
-                thymeleafViewResolver.addStaticVariable("_AiBot", RebuildConfiguration.get(AibotName));
-            }
-        } else {
-            thymeleafViewResolver.addStaticVariable("_AiBot", RebuildConfiguration.get(AibotName));
-        }
+        // 可见性由请求级 _AllowUseAiBot 控制（智能体可独立于系统 AI 助手配置使用），此处仅提供名称
+        thymeleafViewResolver.addStaticVariable("_AiBot", RebuildConfiguration.get(AibotName));
 
         // 清理缓存
         thymeleafViewResolver.clearCache();

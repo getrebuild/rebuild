@@ -15,6 +15,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.aibot2.AgentDefs;
+import com.rebuild.core.aibot2.AibotAgent;
 import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.Chat;
 import com.rebuild.core.aibot2.ChatLogger;
@@ -65,11 +67,9 @@ public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat")
     public void chat(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (!Config.availableAiBot()) {
-            String errorMsg = UserHelper.isAdmin(getRequestUser(req))
-                    ? Language.L("请配置 [AI 助手](/admin/integration/aibot) 后使用")
-                    : Language.L("请联系管理员配置 AI 助手后使用");
-            ServletUtils.writeJson(resp, Message.error(errorMsg).toJSONString());
+        String unavailable = getUnavailableMsg(req);
+        if (unavailable != null) {
+            ServletUtils.writeJson(resp, Message.error(unavailable).toJSONString());
             return;
         }
 
@@ -110,11 +110,9 @@ public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat-stream")
     public void chatStream(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (!Config.availableAiBot()) {
-            String errorMsg = UserHelper.isAdmin(getRequestUser(req))
-                    ? Language.L("请配置 [AI 助手](/admin/integration/aibot) 后使用")
-                    : Language.L("请联系管理员配置 AI 助手后使用");
-            StreamEcho.error(errorMsg, resp.getWriter());
+        String unavailable = getUnavailableMsg(req);
+        if (unavailable != null) {
+            StreamEcho.error(unavailable, resp.getWriter());
             return;
         }
 
@@ -153,6 +151,31 @@ public class AiBot2Controller extends BaseController {
         } finally {
             chat.endRun();
         }
+    }
+
+    // 系统 AI 助手未配置时，若所使用的智能体具备自有模型连接（含回退系统配置）则放行
+    private String getUnavailableMsg(HttpServletRequest req) {
+        if (Config.availableAiBot()) return null;
+
+        AibotAgent agent = null;
+        ID chatid = getOwnedChatId(req);
+        if (chatid != null) {
+            agent = ChatManager.getChat(chatid).getAgent();
+        } else {
+            ID agentId = getIdParameter(req, "agent");
+            if (agentId != null) {
+                if (!AibotConfigManager.instance.isAgentAvailable(agentId, getRequestUser(req))) {
+                    return Language.L("智能体不存在或已被删除");
+                }
+                agent = AgentDefs.getAgentQuietly(agentId);
+            }
+        }
+
+        if (agent != null && agent.usable()) return null;
+
+        return UserHelper.isAdmin(getRequestUser(req))
+                ? Language.L("请配置 [Rex AI 助手](/admin/integration/aibot) 后使用")
+                : Language.L("请联系管理员配置 Rex AI 助手后使用");
     }
 
     private ChatRequest buildChatRequest(HttpServletRequest req) {

@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigNotFoundException;
+import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +69,23 @@ public class AgentDefs {
                 .setTemperature(conf.getDouble("AibotTemperature"))
                 .setTopP(conf.getDouble("AibotTopP"))
                 .setContextCompressThreshold(conf.getLong("AibotContextCompressThreshold"));
+    }
+
+    /**
+     * 是否存在对指定用户可用的智能体
+     *
+     * @param user null 表示不校验共享范围
+     * @return
+     */
+    public static boolean hasUsableAgent(ID user) {
+        for (ConfigBean cb : AibotConfigManager.instance.getAgentConfigs()) {
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+            if (cb.getJSON("config") == null) continue;
+            if (user != null && !ShareToManager.isShareTo(cb.getString("shareTo"), user)) continue;
+
+            if (getAgent(cb.getID("id")).usable()) return true;
+        }
+        return false;
     }
 
     private static Set<ID> toIds(JSONArray array) {
