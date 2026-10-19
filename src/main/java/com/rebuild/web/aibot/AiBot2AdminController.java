@@ -330,7 +330,7 @@ public class AiBot2AdminController extends BaseController {
 
         JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) minapp[1]);
         if (conf == null) conf = new JSONObject();
-        // 页面不展示源码，剥离 html 避免大载荷
+        // 源码由 AI 维护，页面无需展示
         conf.remove("html");
 
         ModelAndView mv = createModelAndView("/admin/integration/aibot-minapp-editor");

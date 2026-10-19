@@ -78,7 +78,7 @@ public abstract class ChatManager {
         } else {
             ID agentId = chat.getAgent().getAgentId();
             if (agentId != null) {
-                AibotAgent agent = AgentDefs.getAgent(agentId);
+                AibotAgent agent = AgentDefs.getAgentQuietly(agentId);
                 chat.refreshAgent(agent != null ? agent : AibotAgent.defaultAgent());
             }
         }

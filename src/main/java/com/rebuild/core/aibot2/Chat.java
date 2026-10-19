@@ -321,7 +321,7 @@ public class Chat implements Serializable {
     protected void restoreIfNeed() {
         if (this.agent == null) {
             Object a = QueryHelper.queryFieldValue(getChatid(), "agentId");
-            AibotAgent agent = a == null ? null : AgentDefs.getAgent((ID) a);
+            AibotAgent agent = a == null ? null : AgentDefs.getAgentQuietly((ID) a);
             if (agent != null) this.agent = agent;
         }
 
