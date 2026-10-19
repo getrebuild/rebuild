@@ -333,12 +333,12 @@ $(function () {
   if (rb.currentUser && $('.aibot-show').length) {
     $.get('/aibot/check-usable', function (res) {
       if (res.data) {
-        $('.aibot-show').removeClass('hide')
+        $('.aibot-show').removeClass('aibot-show')
 
-        var $ai = $('.aibot-show a')
+        var $ai = $('.aibot-shift a')
         if ($ai[0]) {
           var _FN = function () {
-            window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId'), draggable: true }, true)
+            window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId') }, true)
           }
           $ai.on('click', _FN)
           $(document).on('keydown.aibot', null, 'shift+/', function (e) {
@@ -728,7 +728,7 @@ var _initGlobalSearch = function () {
     var s = $('.search-input-gs').val()
     if ($(this).hasClass('aibot-quick')) {
       $('.search-container .dropdown-toggle').dropdown('toggle')
-      window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
+      window.AiBot && window.AiBot.init({ preset: { content: s, autoSend: true } }, false)
       return
     }
     $storage.set('GlobalSearch-gs', s || '')
@@ -758,7 +758,7 @@ var _initGlobalSearch = function () {
       var s = $('.search-input-gs').val()
       if ($active.hasClass('aibot-quick')) {
         $('.search-container .dropdown-toggle').dropdown('toggle')
-        window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
+        window.AiBot && window.AiBot.init({ preset: { content: s, autoSend: true } }, false)
         return
       }
       $storage.set('GlobalSearch-gs', s || '')

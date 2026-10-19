@@ -8,12 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // eslint-disable-next-line no-unused-vars
 class AiBot extends React.Component {
-  static defaultProps = { draggable: true }
-
   constructor(props) {
     super(props)
     this._isShown = false
-    const savedDock = props.draggable ? $storage.get('__AiBotDockMode') : 'false'
+    const savedDock = $storage.get('__AiBotDockMode')
     this.state = { dockMode: !savedDock ? true : savedDock === 'true', chatid: props.chatid }
   }
 
@@ -80,64 +78,62 @@ class AiBot extends React.Component {
 
     setTimeout(() => this.show(), 50)
 
-    if (this.props.draggable) {
-      $modalDraggable(this._$modal, {
-        containment: false,
-        keepPositionKey: '__AiBotLastChatModalPos',
-      })
+    $modalDraggable(this._$modal, {
+      containment: false,
+      keepPositionKey: '__AiBotLastChatModalPos',
+    })
 
-      // dock 模式下拖动 header 自动切换为浮动模式
-      $modal.find('.modal-header').on('mousedown', (e) => {
-        if ($(e.target).closest('.close').length) return
-        if (!this.state.dockMode) return
+    // dock 模式下拖动 header 自动切换为浮动模式
+    $modal.find('.modal-header').on('mousedown', (e) => {
+      if ($(e.target).closest('.close').length) return
+      if (!this.state.dockMode) return
 
-        const startX = e.clientX
-        const startY = e.clientY
-        const $dialog = $modal.find('.modal-dialog')
-        let dockOffset = null
+      const startX = e.clientX
+      const startY = e.clientY
+      const $dialog = $modal.find('.modal-dialog')
+      let dockOffset = null
 
-        const onMove = (ev) => {
-          const dx = ev.clientX - startX
-          const dy = ev.clientY - startY
-          if (Math.abs(dx) < 5 && Math.abs(dy) < 5 && !dockOffset) return
+      const onMove = (ev) => {
+        const dx = ev.clientX - startX
+        const dy = ev.clientY - startY
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5 && !dockOffset) return
 
-          if (!dockOffset) {
-            dockOffset = $dialog.offset()
-            $modal.removeClass('aibot-dock')
-            $dialog.css({ position: 'fixed', right: 'unset', bottom: 'unset' })
-            this.setState({ dockMode: false })
-            $storage.set('__AiBotDockMode', 'false')
-            $dialog.draggable('enable')
-          }
-
-          $dialog.css({
-            left: dockOffset.left - $(window).scrollLeft() + dx,
-            top: dockOffset.top - $(window).scrollTop() + dy,
-          })
+        if (!dockOffset) {
+          dockOffset = $dialog.offset()
+          $modal.removeClass('aibot-dock')
+          $dialog.css({ position: 'fixed', right: 'unset', bottom: 'unset' })
+          this.setState({ dockMode: false })
+          $storage.set('__AiBotDockMode', 'false')
+          $dialog.draggable('enable')
         }
 
-        const onUp = () => {
-          $(document).off('mousemove', onMove).off('mouseup', onUp)
-          if (dockOffset) {
-            const pos = $dialog.position()
-            $storage.set('__AiBotLastChatModalPos', pos.left + ',' + pos.top)
-          }
-        }
-
-        $(document).on('mousemove', onMove).on('mouseup', onUp)
-      })
-
-      $(document).on('keydown.aibot-hide', null, 'esc', (e) => {
-        if (e.isDefaultPrevented()) return
-        this.hide()
-      })
-
-      if (this.state.dockMode) {
-        $modal.addClass('aibot-dock')
-        const $dialog = $modal.find('.modal-dialog')
-        $dialog.draggable('disable')
-        $dialog.css({ left: '', top: '', right: '', bottom: '' })
+        $dialog.css({
+          left: dockOffset.left - $(window).scrollLeft() + dx,
+          top: dockOffset.top - $(window).scrollTop() + dy,
+        })
       }
+
+      const onUp = () => {
+        $(document).off('mousemove', onMove).off('mouseup', onUp)
+        if (dockOffset) {
+          const pos = $dialog.position()
+          $storage.set('__AiBotLastChatModalPos', pos.left + ',' + pos.top)
+        }
+      }
+
+      $(document).on('mousemove', onMove).on('mouseup', onUp)
+    })
+
+    $(document).on('keydown.aibot-hide', null, 'esc', (e) => {
+      if (e.isDefaultPrevented()) return
+      this.hide()
+    })
+
+    if (this.state.dockMode) {
+      $modal.addClass('aibot-dock')
+      const $dialog = $modal.find('.modal-dialog')
+      $dialog.draggable('disable')
+      $dialog.css({ left: '', top: '', right: '', bottom: '' })
     }
   }
 
@@ -154,9 +150,9 @@ class AiBot extends React.Component {
 
       const $dialog = $(this._$modal).find('.modal-dialog')
       if (dockMode) {
-        if (this.props.draggable) $dialog.draggable('disable')
+        $dialog.draggable('disable')
         $dialog.css({ left: '', top: '', right: '', bottom: '' })
-      } else if (this.props.draggable) {
+      } else {
         $dialog.draggable('enable')
         const last = $storage.get('__AiBotLastChatModalPos')
         if (last) {
@@ -231,9 +227,8 @@ class AiCreateButton extends React.Component {
     AiCreateButton.openAibot(this.props.presetContent)
   }
 
-  //
-  static openAibot(presetContent, rest) {
-    const ps = { draggable: true, preset: { content: presetContent, autoSend: true }, ...rest }
-    window.AiBot && window.AiBot.init(ps, false)
+  // @see AiBot#init
+  static openAibot(presetContent) {
+    AiBot.init({ preset: { content: presetContent, autoSend: true } })
   }
 }

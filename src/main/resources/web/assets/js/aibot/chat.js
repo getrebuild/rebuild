@@ -367,9 +367,14 @@ class ChatInput extends React.Component {
                         className="dropdown-item"
                         onClick={() => {
                           this.setState({ activeSkill: s.name })
-                        }}>
+                        }}
+                        title={s.description || ''}>
                         {s.name}
-                        {s.description && <div className="text-muted fs-sm text-break">{s.description}</div>}
+                        {s.description && (
+                          <div className="text-muted fs-sm text-ellipsis" style={{ lineHeight: 1 }}>
+                            {s.description}
+                          </div>
+                        )}
                       </a>
                     ))}
                   </div>
