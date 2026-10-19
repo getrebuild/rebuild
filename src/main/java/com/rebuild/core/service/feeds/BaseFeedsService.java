@@ -24,7 +24,6 @@ import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.CommandArgs;
-import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -39,7 +38,6 @@ import java.util.regex.Matcher;
 
 import static com.rebuild.core.privileges.UserService.AIBOT_USER;
 import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowAtAllUsers;
-import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
 
 /**
  * 从动态/评论中提取 at 用户，以及将文件放置在福建表
@@ -109,7 +107,7 @@ public abstract class BaseFeedsService extends ObservableService {
             related = record.getID("feedsId");
         }
 
-        // @所有人展开前，记录 AI 助手是否被显式 @（@AI助手），
+        // @所有人展开前，记录 Rex 是否被显式 @（@Rex），
         // 展开后 AIBOT_USER 也会出现在 atUsers 中，但不应触发 AI 回复
         boolean aibotExplicitlyMentioned = atUsers.contains(AIBOT_USER);
 
@@ -132,7 +130,7 @@ public abstract class BaseFeedsService extends ObservableService {
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
                     }
                 } else {
-                    aiReply = Language.L("请联系管理员配置 AI 助手后使用");
+                    aiReply = Language.L("请联系管理员配置 Rex AI 助手后使用");
                 }
 
                 aiReply = StringUtils.trim(aiReply);
@@ -189,11 +187,6 @@ public abstract class BaseFeedsService extends ObservableService {
             }
         }
         // @Rex
-        if (Application.getPrivilegesManager().allow(user, AllowUseAiBot) || !License.isCommercial()) {
-            fakeContent = fakeContent.replace("AI助手", "Rex");
-            fakeContent = fakeContent.replace("AI 助手", "Rex");
-        }
-
         Set<ID> atUsers = new HashSet<>();
         Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(fakeContent);
 

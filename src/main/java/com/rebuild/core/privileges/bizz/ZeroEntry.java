@@ -69,7 +69,7 @@ public enum ZeroEntry {
     AllowRecordMerge(false),
 
     /**
-     * 允许使用 Rex AI 助手
+     * 允许使用 Rex AI
      */
     AllowUseAiBot(true),
 

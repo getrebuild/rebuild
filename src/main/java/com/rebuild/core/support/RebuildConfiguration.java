@@ -142,7 +142,7 @@ public class RebuildConfiguration extends KVStorage {
     }
 
     /**
-     * AI 助手账号
+     * Rex 账号
      *
      * @return returns [AibotDSUrl, AibotDSSecret, AibotBaseDefModel]
      */

@@ -52,6 +52,15 @@ public class SystemPromptBuilder {
     public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode, boolean planConfirmed, Set<String> agentTools) {
         StringBuilder systemPrompt = new StringBuilder();
 
+        // 助手身份（Agent 会话有专属人设，不注入）
+        if (StringUtils.isBlank(agentPrompt)) {
+            systemPrompt.append("<assistant_identity>\n")
+                    .append("你是 REBUILD 系统内置的 AI 助手，名为「")
+                    .append(RebuildConfiguration.get(ConfigurationItem.AibotName))
+                    .append("」。当用户询问你的名字或身份时，请以该名称自称。\n")
+                    .append("</assistant_identity>");
+        }
+
         // 基础要求 / Agent 提示词（二选一：指定 Agent 时用其提示词替代基础要求，未指定则使用基础要求）
         if (StringUtils.isNotBlank(agentPrompt)) {
             systemPrompt.append("<agent_prompt>\n").append(agentPrompt.trim()).append("\n</agent_prompt>");

@@ -133,7 +133,7 @@ public class AiBotScheduleJob extends DistributedJobLock {
                 log.warn("AI bot not available, skip task: {}", taskIdStr);
                 Application.getNotifications().send(
                         MessageBuilder.createMessage(user,
-                                String.format("**[%s]**\n\n定时任务无法执行：AI 助手未配置", subject),
+                                String.format("**[%s]**\n\n定时任务无法执行：Rex AI 助手未配置", subject),
                                 Message.TYPE_DEFAULT));
                 return;
             }
