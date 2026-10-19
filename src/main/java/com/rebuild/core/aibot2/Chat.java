@@ -196,7 +196,8 @@ public class Chat implements Serializable {
             // 空内容消息（如仅附件或技能触发）发送给 AI 时需兑底文案，避免部分 AI 端拒绝空消息
             if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(StringUtils.defaultIfBlank(content, "请开始"));
             else if (ROLE_AI.equals(m.getRole())) {
-                appendToolHistory(builder, m.getToolHistory());
+                String roundsText = appendToolHistory(builder, m.getToolHistory());
+                content = stripRoundsPrefix(content, roundsText);
                 builder.addAssistantMessage(content);
             }
         }
@@ -212,10 +213,12 @@ public class Chat implements Serializable {
      *
      * @param builder
      * @param toolHistory
+     * @return 各轮正文原文的拼接（供调用方剪除重复前缀），无有效轮返回 null
      */
-    private void appendToolHistory(ChatCompletionCreateParams.Builder builder, JSONArray toolHistory) {
-        if (toolHistory == null) return;
+    private String appendToolHistory(ChatCompletionCreateParams.Builder builder, JSONArray toolHistory) {
+        if (toolHistory == null) return null;
 
+        StringBuilder roundsText = new StringBuilder();
         for (Object o : toolHistory) {
             JSONObject round = (JSONObject) o;
             JSONArray calls = round.getJSONArray("calls");
@@ -237,9 +240,11 @@ public class Chat implements Serializable {
                                 .build()));
             }
 
-            String roundContent = StringUtils.trimToNull(round.getString("content"));
+            String rawContent = round.getString("content");
+            if (rawContent != null) roundsText.append(rawContent);
+
             builder.addMessage(ChatCompletionMessage.builder()
-                    .content(roundContent)
+                    .content(StringUtils.trimToNull(rawContent))
                     .refusal((String) null)
                     .toolCalls(toolCalls)
                     .build());
@@ -257,6 +262,21 @@ public class Chat implements Serializable {
                         .build());
             }
         }
+        return roundsText.length() > 0 ? roundsText.toString() : null;
+    }
+
+    /**
+     * 流式消息的正文为全部轮文本拼接，与工具轮记录的正文重复。重建时若正文以各轮拼接为前缀则剪去，仅保留末轮正文
+     *
+     * @param content
+     * @param roundsText toolHistory 各轮正文拼接，可为 null
+     * @return
+     */
+    private static String stripRoundsPrefix(String content, String roundsText) {
+        if (StringUtils.isEmpty(roundsText) || content == null || !content.startsWith(roundsText)) return content;
+        String remaining = content.substring(roundsText.length());
+        // 剪除后为空时保持原文，避免发出空正文消息
+        return StringUtils.isNotBlank(remaining) ? remaining : content;
     }
 
     /**
