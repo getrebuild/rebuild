@@ -113,9 +113,9 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         setStaticVariable(PortalUploadMaxSize);
         setStaticVariable(AppBuild);
 
-        // Rex
-        thymeleafViewResolver.addStaticVariable("_AiBot",
-                StringUtils.defaultIfBlank(RebuildConfiguration.get(AibotName), null));
+        String aibot = StringUtils.defaultIfBlank(RebuildConfiguration.get(AibotName), null);
+        if (aibot == null && !License.isCommercial()) aibot = "Rex AI 助手";
+        thymeleafViewResolver.addStaticVariable("_AiBot", aibot);
 
         // 清理缓存
         thymeleafViewResolver.clearCache();
