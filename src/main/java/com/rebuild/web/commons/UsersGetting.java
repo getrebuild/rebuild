@@ -85,11 +85,11 @@ public class UsersGetting extends BaseController {
                             new String[]{"id", "text"}, new Object[]{USER_ALLS, Language.L("所有人")}));
                 }
             }
-            // @AI助手
+            // @Rex
             if (getBoolParameter(request, "aibot")) {
                 if (Application.getPrivilegesManager().allow(user, AllowUseAiBot) || !License.isCommercial()) {
                     found.add(JSONUtils.toJSONObject(
-                            new String[]{"id", "text"}, new Object[]{AIBOT_USER, Language.L("AI 助手")}));
+                            new String[]{"id", "text"}, new Object[]{AIBOT_USER, "Rex"}));
                 }
             }
         }

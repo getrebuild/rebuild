@@ -78,7 +78,7 @@ public abstract class ChatManager {
         } else {
             ID agentId = chat.getAgent().getAgentId();
             if (agentId != null) {
-                AibotAgent agent = AgentDefs.getAgent(agentId);
+                AibotAgent agent = AgentDefs.getAgentQuietly(agentId);
                 chat.refreshAgent(agent != null ? agent : AibotAgent.defaultAgent());
             }
         }
@@ -150,7 +150,7 @@ public abstract class ChatManager {
 
     /**
      * 直接提问/回答（支持提示词、图片视觉识别）
-     * 内部调用，落库归属 AI 助手
+     * 内部调用，落库归属 Rex
      *
      * @param userContent
      * @param prompt
@@ -164,7 +164,7 @@ public abstract class ChatManager {
 
     /**
      * 直接提问/回答（支持提示词、图片视觉识别、上下文连接）
-     * 内部调用，落库归属 AI 助手
+     * 内部调用，落库归属 Rex
      *
      * @param userContent
      * @param prompt

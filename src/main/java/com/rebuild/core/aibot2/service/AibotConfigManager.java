@@ -14,6 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.general.ShareToManager;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,9 @@ public class AibotConfigManager implements ConfigManager {
     public static final String TYPE_MINAPP = "MINAPP";
     public static final String TYPE_AIBOT_SCHEDULE = "AIBOT_SCHEDULE";
     public static final String TYPE_AIBOT_USERMEMORY = "AIBOT_USERMEMORY";
+
+    // 公开访问 token 缓存前缀（key: MinAppPubToken-{configId}）
+    public static final String CK_MINAPP_PUB_TOKEN = "MinAppPubToken-";
 
     public static final AibotConfigManager instance = new AibotConfigManager();
 
@@ -86,15 +90,71 @@ public class AibotConfigManager implements ConfigManager {
      * @return
      */
     public ConfigBean getMinAppById(ID pageId, ID user) {
-        if (pageId == null) return null;
+        ConfigBean cb = getConfigById(pageId, TYPE_MINAPP);
+        if (cb == null) return null;
+        return ShareToManager.isShareTo(cb.getString("shareTo"), user) ? cb : null;
+    }
 
-        for (ConfigBean cb : getMinAppConfigs()) {
-            if (!pageId.equals(cb.getID("id"))) continue;
+    /**
+     * 公开访问用：获取微应用页面（存在且未禁用，不做共享校验）
+     *
+     * @param pageId
+     * @return
+     */
+    public ConfigBean getMinAppByIdNoShare(ID pageId) {
+        return getConfigById(pageId, TYPE_MINAPP);
+    }
+
+    /**
+     * 按记录 ID 获取指定类型的配置（不存在、已禁用或无 config 返回 null）
+     *
+     * @param cfgid
+     * @param type
+     * @return
+     */
+    public ConfigBean getConfigById(ID cfgid, String type) {
+        if (cfgid == null) return null;
+
+        for (ConfigBean cb : getConfig(type)) {
+            if (!cfgid.equals(cb.getID("id"))) continue;
             if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) return null;
-            if (!ShareToManager.isShareTo(cb.getString("shareTo"), user)) return null;
+            if (cb.getJSON("config") == null) return null;
             return cb;
         }
         return null;
+    }
+
+    /**
+     * 获取绑定的代理用户（未绑定或无效返回 null）
+     *
+     * @param cfgid
+     * @param type
+     * @return
+     */
+    public ID getBindUser(ID cfgid, String type) {
+        ConfigBean cb = getConfigById(cfgid, type);
+        if (cb == null) return null;
+
+        String bindUser = ((JSONObject) cb.getJSON("config")).getString("bindUser");
+        if (StringUtils.isBlank(bindUser) || !ID.isId(bindUser)) return null;
+
+        ID user = ID.valueOf(bindUser);
+        return UserHelper.isActive(user) ? user : null;
+    }
+
+    /**
+     * 获取发布配置（enabled 等），未配置返回空对象
+     *
+     * @param cfgid
+     * @param type
+     * @return
+     */
+    public JSONObject getPublishConfig(ID cfgid, String type) {
+        ConfigBean cb = getConfigById(cfgid, type);
+        if (cb == null) return new JSONObject();
+
+        JSONObject publish = ((JSONObject) cb.getJSON("config")).getJSONObject("publish");
+        return publish != null ? publish : new JSONObject();
     }
 
     /**

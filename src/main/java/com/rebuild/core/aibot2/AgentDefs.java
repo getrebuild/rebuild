@@ -12,8 +12,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.configuration.ConfigNotFoundException;
+import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.support.RebuildConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
@@ -27,76 +29,63 @@ import static com.rebuild.core.support.ConfigurationItem.AibotName;
  * @author Zixin
  * @since 4.1
  */
+@Slf4j
 public class AgentDefs {
 
     /**
-     * 获取指定 Agent（不存在或已禁用返回 null）
+     * @param agentId
+     * @return
+     */
+    public static AibotAgent getAgentQuietly(ID agentId) {
+        try {
+            return getAgent(agentId);
+        } catch (ConfigNotFoundException ignored) {}
+        return null;
+    }
+
+    /**
+     * 获取指定 Agent
      *
      * @param agentId
      * @return
      */
     public static AibotAgent getAgent(ID agentId) {
-        ConfigBean cb = getAgentConfig(agentId);
-        if (cb == null) return null;
-        JSONObject config = (JSONObject) cb.getJSON("config");
+        ConfigBean cb = AibotConfigManager.instance.getConfigById(agentId, AibotConfigManager.TYPE_AGENT);
+        if (cb == null) throw new ConfigNotFoundException(agentId);
 
+        JSONObject conf = (JSONObject) cb.getJSON("config");
         return new AibotAgent()
                 .setAgentId(agentId)
                 .setName(StringUtils.defaultIfBlank(cb.getString("name"), RebuildConfiguration.get(AibotName)))
-                .setIcon(config.getString("icon"))
-                .setModel(config.getString("AibotBaseDefModel"))
-                .setDsUrl(config.getString("AibotDSUrl"))
-                .setDsSecret(config.getString("AibotDSSecret"))
-                .setPrompt(config.getString("AibotBasePrompt"))
-                .setKnowledgeBases(toIds(config.getJSONArray("knowledgeBases")))
-                .setTools(toSet(config.getJSONArray("tools")))
-                .setSkills(toSet(config.getJSONArray("skills")))
-                .setTemperature(config.getDouble("AibotTemperature"))
-                .setTopP(config.getDouble("AibotTopP"))
-                .setContextCompressThreshold(config.getLong("AibotContextCompressThreshold"));
+                .setIcon(conf.getString("icon"))
+                .setModel(conf.getString("AibotBaseDefModel"))
+                .setAsrModel(conf.getString("AibotAsrModel"))
+                .setDsUrl(conf.getString("AibotDSUrl"))
+                .setDsSecret(conf.getString("AibotDSSecret"))
+                .setPrompt(conf.getString("AibotBasePrompt"))
+                .setKnowledgeBases(toIds(conf.getJSONArray("knowledgeBases")))
+                .setTools(toSet(conf.getJSONArray("tools")))
+                .setSkills(toSet(conf.getJSONArray("skills")))
+                .setTemperature(conf.getDouble("AibotTemperature"))
+                .setTopP(conf.getDouble("AibotTopP"))
+                .setContextCompressThreshold(conf.getLong("AibotContextCompressThreshold"));
     }
 
     /**
-     * 获取绑定的代理用户（未绑定或无效返回 null）
+     * 是否存在对指定用户可用的智能体
      *
-     * @param agentId
+     * @param user null 表示不校验共享范围
      * @return
      */
-    public static ID getBindUser(ID agentId) {
-        ConfigBean cb = getAgentConfig(agentId);
-        if (cb == null) return null;
-
-        String bindUser = ((JSONObject) cb.getJSON("config")).getString("bindUser");
-        if (StringUtils.isBlank(bindUser) || !ID.isId(bindUser)) return null;
-
-        ID user = ID.valueOf(bindUser);
-        return UserHelper.isActive(user) ? user : null;
-    }
-
-    /**
-     * 获取发布配置（enabled/welcome），未配置返回空对象
-     *
-     * @param agentId
-     * @return
-     */
-    public static JSONObject getPublishConfig(ID agentId) {
-        ConfigBean cb = getAgentConfig(agentId);
-        if (cb == null) return new JSONObject();
-
-        JSONObject publish = ((JSONObject) cb.getJSON("config")).getJSONObject("publish");
-        return publish != null ? publish : new JSONObject();
-    }
-
-    private static ConfigBean getAgentConfig(ID agentId) {
-        if (agentId == null) return null;
-
+    public static boolean hasUsableAgent(ID user) {
         for (ConfigBean cb : AibotConfigManager.instance.getAgentConfigs()) {
-            if (!agentId.equals(cb.getID("id"))) continue;
             if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
             if (cb.getJSON("config") == null) continue;
-            return cb;
+            if (user != null && !ShareToManager.isShareTo(cb.getString("shareTo"), user)) continue;
+
+            if (getAgent(cb.getID("id")).usable()) return true;
         }
-        return null;
+        return false;
     }
 
     private static Set<ID> toIds(JSONArray array) {

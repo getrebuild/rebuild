@@ -13,7 +13,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .bosskey-show,
-.dev-show {
+.dev-show,
+.aibot-show {
   display: none !important;
 }
 

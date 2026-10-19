@@ -126,7 +126,7 @@ public enum ConfigurationItem {
     PortalOfficePreviewUrl,
 
     // Aibot
-    AibotName("REBUILD AI 助手"),
+    AibotName("Rex AI 助手"),
     AibotDSUrl,
     AibotDSSecret,
     AibotBaseDefModel,
@@ -137,6 +137,7 @@ public enum ConfigurationItem {
     AibotToolsDisabled,
     AibotTemperature,
     AibotTopP,
+    AibotAsrModel,
 
     // PORTALs
     PortalBaiduMapAk,

@@ -61,6 +61,11 @@ public class AibotAgent implements Serializable {
     @Accessors(chain = true)
     private String model;
 
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String asrModel;
+
     // Agent 自有 API 连接（地址与秘钥可分别配置，未设置项回退系统配置）
     @Getter
     @Setter
@@ -125,12 +130,20 @@ public class AibotAgent implements Serializable {
         return StringUtils.isNotBlank(url) && StringUtils.isNotBlank(secret);
     }
 
+    public boolean usable() {
+        return available() && StringUtils.isNotBlank(model());
+    }
+
     public static AibotAgent defaultAgent(String model, String prompt) {
         return new AibotAgent().setName("default").setModel(model).setPrompt(prompt);
     }
 
     public String model() {
         return model != null ? model : Config.getDefModel();
+    }
+
+    public String asrModel() {
+        return asrModel != null ? asrModel : Config.getAsrModel();
     }
 
     public Double temperature() {

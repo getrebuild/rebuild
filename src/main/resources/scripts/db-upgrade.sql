@@ -1,6 +1,9 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #82 (v4.6)
+update `user` set `FULL_NAME` = 'Rex' where `USER_ID` = '001-0000000000000002';
+
 -- #81 (v4.6)
 alter table `aibot_config`
   add column `SHARE_TO` varchar(4001) default 'SELF' comment '共享给谁 (ALL/SELF/$MemberID)';
@@ -46,7 +49,7 @@ alter table `commons_config`
 -- #76 (v4.4.7)
 insert into `user` (`USER_ID`, `LOGIN_NAME`, `PASSWORD`, `FULL_NAME`, `DEPT_ID`, `ROLE_ID`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
   values
-  ('001-0000000000000002', 'aibot', 'aibot', 'AI 助手', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'AIZS');
+  ('001-0000000000000002', 'aibot', 'aibot', 'Rex', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'AIZS');
 
 -- #75 (v4.4)
 alter table `meta_field`

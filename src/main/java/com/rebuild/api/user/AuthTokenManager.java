@@ -82,6 +82,17 @@ public class AuthTokenManager {
     }
 
     /**
+     * 吊销 Token 使其立即失效
+     *
+     * @param token
+     * @see #TYPE_ACCESS_TOKEN
+     */
+    public static void revokeToken(String token) {
+        if (token == null) return;
+        Application.getCommonsCache().evict(TOKEN_PREFIX + token);
+    }
+
+    /**
      * @return
      * @see #TYPE_CSRF_TOKEN
      */

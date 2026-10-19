@@ -175,6 +175,15 @@ public class Config {
     }
 
     /**
+     * 语音识别模型（未配置即不启用语音识别）
+     *
+     * @return
+     */
+    public static String getAsrModel() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotAsrModel);
+    }
+
+    /**
      * @return
      */
     public static String getBasePrompt() {

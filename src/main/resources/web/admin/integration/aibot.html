@@ -58,6 +58,12 @@
                           [[${AibotBaseDefModel ?:bundle.L('未配置')}]]
                         </td>
                       </tr>
+                      <tr>
+                        <td>[[${bundle.L('语音识别模型')}]]</td>
+                        <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true" th:data-form-text="${bundle.L('留空则不启用')}">
+                          [[${AibotAsrModel ?:bundle.L('未启用')}]]
+                        </td>
+                      </tr>
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('上下文大小')}]]</td>
                         <td data-id="AibotContextCompressThreshold" th:data-value="${AibotContextCompressThreshold ?:''}" data-optional="true" data-input-type="number">
