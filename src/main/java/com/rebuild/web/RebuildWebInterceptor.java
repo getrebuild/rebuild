@@ -339,6 +339,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.endsWith("/dashboard/chart-data")
                 || requestUri.startsWith("/aibot/pub/")
                 || requestUri.equals("/aibot/chat")
+                || requestUri.startsWith("/pages/minapp/")
                 ;
     }
 

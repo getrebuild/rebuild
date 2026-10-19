@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 public interface ConfirmableTool {
 
     // 草稿缓存时长（秒）
-    int DRAFT_TTL = CommonsCache.TS_DAY * 7;
+    int DRAFT_TTL = CommonsCache.TS_DAY * 3;
 
     // 草稿缓存 key 前缀
     String DRAFT_KEY_PREFIX = "AIBOT-CONFIRM-DRAFT:";
