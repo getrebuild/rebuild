@@ -83,7 +83,6 @@ class AiBot extends React.Component {
       keepPositionKey: '__AiBotLastChatModalPos',
     })
 
-    // dock 模式下拖动 header 自动切换为浮动模式
     $modal.find('.modal-header').on('mousedown', (e) => {
       if ($(e.target).closest('.close').length) return
       if (!this.state.dockMode) return
@@ -189,7 +188,7 @@ class AiBot extends React.Component {
       }
     }
 
-    var preset = props && props.preset
+    const preset = props && props.preset
     if (window._AiBot) {
       if (toggleShow) {
         if (!window._AiBot._isShown) window._AiBot.show()
