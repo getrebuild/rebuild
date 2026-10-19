@@ -17,6 +17,8 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
+import com.rebuild.core.aibot2.AgentDefs;
+import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.CombinedRole;
@@ -47,6 +49,8 @@ import java.util.Set;
 import static com.rebuild.core.privileges.UserService.ADMIN_USER;
 import static com.rebuild.core.privileges.UserService.AIBOT_USER;
 import static com.rebuild.core.privileges.UserService.SYSTEM_USER;
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
+import static com.rebuild.core.support.ConfigurationItem.AibotName;
 
 /**
  * 用户帮助类
@@ -521,5 +525,17 @@ public class UserHelper {
         String mobile = u.getWorkphone();
         if (!RegexUtils.isCNMobile(mobile)) mobile = u.getName();
         return RegexUtils.isCNMobile(mobile) ? mobile : null;
+    }
+
+    /**
+     * @param user
+     * @return
+     */
+    public static String getAvailableAiBot(ID user) {
+        if ((Config.availableAiBot() || AgentDefs.hasUsableAgent(user))
+                && Application.getPrivilegesManager().allow(user, AllowUseAiBot)) {
+            return RebuildConfiguration.get(AibotName);
+        }
+        return null;
     }
 }

@@ -329,15 +329,26 @@ $(function () {
     }
   }
 
-  var $ai = $('.aibot-show a')
-  if ($ai[0]) {
-    var _FN = function () {
-      window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId'), draggable: true }, true)
-    }
-    $ai.on('click', _FN)
-    $(document).on('keydown.aibot', null, 'shift+/', function (e) {
-      $stopEvent(e, true)
-      _FN()
+  // v4.6
+  if (rb.currentUser && $('.aibot-show').length) {
+    $.get('/aibot/check-usable', function (res) {
+      if (res.data) {
+        $('.aibot-show').removeClass('hide')
+
+        var $ai = $('.aibot-show a')
+        if ($ai[0]) {
+          var _FN = function () {
+            window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId'), draggable: true }, true)
+          }
+          $ai.on('click', _FN)
+          $(document).on('keydown.aibot', null, 'shift+/', function (e) {
+            $stopEvent(e, true)
+            _FN()
+          })
+        }
+      } else {
+        $('.aibot-show').remove()
+      }
     })
   }
 })

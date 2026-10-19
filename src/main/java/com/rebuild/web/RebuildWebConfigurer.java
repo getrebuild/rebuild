@@ -113,8 +113,9 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         setStaticVariable(PortalUploadMaxSize);
         setStaticVariable(AppBuild);
 
-        // 可见性由请求级 _AllowUseAiBot 控制（智能体可独立于系统 AI 助手配置使用），此处仅提供名称
-        thymeleafViewResolver.addStaticVariable("_AiBot", RebuildConfiguration.get(AibotName));
+        // Rex
+        thymeleafViewResolver.addStaticVariable("_AiBot",
+                StringUtils.defaultIfBlank(RebuildConfiguration.get(AibotName), null));
 
         // 清理缓存
         thymeleafViewResolver.clearCache();
