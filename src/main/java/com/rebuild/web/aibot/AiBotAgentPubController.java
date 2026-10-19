@@ -22,6 +22,7 @@ import com.rebuild.core.aibot2.Chat;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.ChatRequest;
 import com.rebuild.core.aibot2.StreamEcho;
+import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
@@ -53,6 +54,10 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/aibot/pub")
 public class AiBotAgentPubController extends BaseController {
+
+    // 匿名会话绑定的访客密钥前缀
+    private static final String PUBCHAT_VKEY_PREFIX = "AIBOT-PUBCHAT-VKEY:";
+    private static final int VKEY_EXPIRES = CommonsCache.TS_DAY * 30;
 
     @GetMapping("{agentId}")
     public ModelAndView pubIndex(@PathVariable String agentId, HttpServletResponse response) throws IOException {
@@ -139,9 +144,11 @@ public class AiBotAgentPubController extends BaseController {
         }
 
         JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(req);
+        // 匿名入口不接受任何附加数据（可注入任意记录/文件/他人会话）
         reqJson.remove("skill");
         reqJson.remove("planMode");
         reqJson.remove("planConfirmed");
+        reqJson.remove("attach");
 
         ID chatid = getOwnedChatId(req, id);
 
@@ -157,6 +164,9 @@ public class AiBotAgentPubController extends BaseController {
             if (chatid == null) {
                 chatid = ChatManager.initChat(UserService.AIBOT_USER,
                         "PUB:" + agent.getName() + ":" + StringUtils.trimToEmpty(reqJson.getString("content")), id);
+
+                // 绑定访客密钥，仅创建者可继续该会话
+                Application.getCommonsCache().put(PUBCHAT_VKEY_PREFIX + chatid, vkeyOf(req), VKEY_EXPIRES);
             }
 
             ChatRequest chatRequest = new ChatRequest(reqJson, chatid);
@@ -205,7 +215,22 @@ public class AiBotAgentPubController extends BaseController {
 
         if (!agentId.equals(e[0])) return null;
         if (!UserService.AIBOT_USER.equals(e[1])) return null;
+
+        // 校验访客密钥（缓存缺失视为过期，需开启新会话）
+        Object stored = Application.getCommonsCache().get(PUBCHAT_VKEY_PREFIX + chatid);
+        if (stored == null || !stored.equals(vkeyOf(req))) return null;
         return chatid;
+    }
+
+    /**
+     * 请求中的访客密钥。未提供时生成随机值（该会话将无法恢复）
+     *
+     * @param req
+     * @return
+     */
+    private String vkeyOf(HttpServletRequest req) {
+        String vkey = req.getParameter("vkey");
+        return StringUtils.isBlank(vkey) ? CommonsUtils.randomHex(true) : vkey;
     }
 
     private ID getAvailableAgent(String agentId) {
