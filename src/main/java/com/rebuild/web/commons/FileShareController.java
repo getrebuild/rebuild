@@ -184,7 +184,7 @@ public class FileShareController extends BaseController {
             Map<String, Object> map = new HashMap<>();
             map.put("chatName", chat[0]);
             map.put("messages", msgs.toJSONString().replace("</", "<\\/"));
-            map.put("pageFooter", "由 REBUILD AI 助手强力驱动");
+            map.put("pageFooter", "由 Rex AI 助手强力驱动");
             map.put("shareByName", shareByName);
             return createModelAndView("/common/shared-chat", map);
         }

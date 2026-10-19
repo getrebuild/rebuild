@@ -76,7 +76,7 @@ public class AiBotAgentPubController extends BaseController {
         mv.getModelMap().put("agentId", agentId);
         mv.getModelMap().put("agentName", AgentDefs.getAgent(id).getName());
         mv.getModelMap().put("agentIcon", AgentDefs.getAgent(id).getIcon());
-        mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 智能体提供"));
+        mv.getModelMap().put("pageFooter", Language.L("由 Rex AI 智能体提供"));
         return mv;
     }
 
