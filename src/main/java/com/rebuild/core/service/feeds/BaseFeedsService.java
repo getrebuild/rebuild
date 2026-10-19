@@ -188,15 +188,10 @@ public abstract class BaseFeedsService extends ObservableService {
                 }
             }
         }
-        // @AI 助手
+        // @Rex
         if (Application.getPrivilegesManager().allow(user, AllowUseAiBot) || !License.isCommercial()) {
-            fakeContent = fakeContent.replace("AI助手", "AI 助手");
-            for (String locale : locales) {
-                String keyText = "@" + Application.getLanguage().getBundle(locale).L("AI 助手");
-                if (fakeContent.contains(keyText)) {
-                    fakeContent = fakeContent.replace(keyText, "@" + AIBOT_USER);
-                }
-            }
+            fakeContent = fakeContent.replace("AI助手", "Rex");
+            fakeContent = fakeContent.replace("AI 助手", "Rex");
         }
 
         Set<ID> atUsers = new HashSet<>();

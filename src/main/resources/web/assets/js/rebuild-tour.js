@@ -144,8 +144,8 @@ const StepRebuild = () => {
     },
     {
       element: '.aibot-show',
-      title: $L('AI 助手'),
-      intro: $L('点击打开 AI 助手，它可以回答你的问题、协助你完成工作，快捷键 Shift+/'),
+      title: $L('Rex AI 助手'),
+      intro: $L('点击打开 Rex AI 助手，它可以回答你的问题、协助你完成工作，快捷键 Shift+/'),
       rbLeft: 12,
     },
     {
