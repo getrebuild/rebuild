@@ -137,6 +137,7 @@ public enum ConfigurationItem {
     AibotToolsDisabled,
     AibotTemperature,
     AibotTopP,
+    AibotAsrModel,
 
     // PORTALs
     PortalBaiduMapAk,
