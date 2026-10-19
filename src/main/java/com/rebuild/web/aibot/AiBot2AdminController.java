@@ -18,6 +18,7 @@ import com.openai.client.OpenAIClient;
 import com.openai.models.models.Model;
 import com.openai.models.models.ModelListPage;
 import com.rebuild.api.RespBody;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.Config;
@@ -293,6 +294,8 @@ public class AiBot2AdminController extends BaseController {
 
         // 关闭公开或换绑时立即吊销已发放的公开访问 token
         if (!enabled || rebind) {
+            String pubToken = (String) Application.getCommonsCache().getx(AibotConfigManager.CK_MINAPP_PUB_TOKEN + id);
+            if (pubToken != null) AuthTokenManager.revokeToken(pubToken);
             Application.getCommonsCache().evict(AibotConfigManager.CK_MINAPP_PUB_TOKEN + id);
         }
         return RespBody.ok();
