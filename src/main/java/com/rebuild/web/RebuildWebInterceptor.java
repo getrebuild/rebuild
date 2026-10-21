@@ -335,10 +335,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         String redirectUrl = AppUtils.getContextPath(url);
         if (nexturl != null) redirectUrl += "?nexturl=" + CodecUtils.urlEncode(nexturl);
 
-        // fix:4.6 不使用 sendRedirect，保持相对 Location 以避免代理或 HTTP/1.0 时跳转地址被绝对化为 http 协议
-//        response.sendRedirect(redirectUrl);
-        response.setStatus(HttpStatus.FOUND.value());
-        response.setHeader("Location", redirectUrl);
+        AppUtils.sendRedirect(response, redirectUrl);
     }
 
     private void checkSafeUse(String ipAddr, String requestUri) throws DefinedException {

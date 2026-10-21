@@ -23,8 +23,10 @@ import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 封裝一些有用的工具方法
@@ -246,5 +248,16 @@ public class AppUtils {
 
         String[] ss = wt.split("\\s+");
         return JSON.toJSONString(ss);
+    }
+
+    /**
+     * 不使用 sendRedirect，保持相对 Location 以避免代理环境下被绝对化为 http 协议
+     *
+     * @param response
+     * @param url
+     */
+    public static void sendRedirect(HttpServletResponse response, String url) {
+        response.setStatus(HttpStatus.FOUND.value());
+        response.setHeader("Location", url);
     }
 }

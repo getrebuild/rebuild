@@ -92,7 +92,8 @@ public class AibotConfigManager implements ConfigManager {
     public ConfigBean getMinAppById(ID pageId, ID user) {
         ConfigBean cb = getConfigById(pageId, TYPE_MINAPP);
         if (cb == null) return null;
-        return ShareToManager.isShareTo(cb.getString("shareTo"), user) ? cb : null;
+        return UserHelper.isAdmin(user)
+                || ShareToManager.isShareTo(cb.getString("shareTo"), user) ? cb : null;
     }
 
     /**
@@ -185,7 +186,7 @@ public class AibotConfigManager implements ConfigManager {
     }
 
     /**
-     * 指定智能体是否对用户可用（存在、未禁用且共享）
+     * 指定智能体是否对用户可用
      *
      * @param agentId
      * @param user
@@ -198,7 +199,8 @@ public class AibotConfigManager implements ConfigManager {
             if (!agentId.equals(cb.getID("id"))) continue;
             if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
             if (cb.getJSON("config") == null) continue;
-            return ShareToManager.isShareTo(cb.getString("shareTo"), user);
+            return UserHelper.isAdmin(user)
+                    || ShareToManager.isShareTo(cb.getString("shareTo"), user);
         }
         return false;
     }
@@ -248,7 +250,7 @@ public class AibotConfigManager implements ConfigManager {
         if (cache != null) return cache;
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,config,isDisabled,name,shareTo from AibotConfig where type = ?")
+                "select configId,config,isDisabled,name,shareTo,createdBy from AibotConfig where type = ?")
                 .setParameter(1, type)
                 .array();
 
@@ -259,7 +261,8 @@ public class AibotConfigManager implements ConfigManager {
                     .set("config", o[1] != null ? JSONUtils.parseSafe((String) o[1]) : new JSONObject())
                     .set("name", o[3])
                     .set("isDisabled", o[2] != null && (Boolean) o[2])
-                    .set("shareTo", o[4]);
+                    .set("shareTo", o[4])
+                    .set("createdBy", o[5]);
             list.add(cb);
         }
 

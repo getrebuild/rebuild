@@ -168,6 +168,16 @@ public class FlowNode {
     }
 
     /**
+     * 相同审批人自动通过（上一节点审批人出现在本节点审批人中时）
+     *
+     * @return
+     */
+    public boolean skipSameApprover() {
+        Boolean b = getDataMap().getBoolean("skipSameApprover");
+        return b != null && b;
+    }
+
+    /**
      * @return
      */
     public boolean freeApproval() {

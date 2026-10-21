@@ -258,18 +258,11 @@ public class AiBot2AdminController extends BaseController {
         String name = StringUtils.trimToEmpty(data.getString("name"));
         if (name.length() > 60) return RespBody.error(Language.L("名称过长"));
         String icon = StringUtils.trimToNull(data.getString("icon"));
-        String shareTo = StringUtils.defaultIfBlank(data.getString("shareTo"), ShareToManager.SHARE_SELF);
+        String shareTo = StringUtils.defaultIfBlank(data.getString("shareTo"), ShareToManager.SHARE_ALL);
 
         boolean enabled = data.getBooleanValue("enabled");
         String bindUser = data.getString("bindUser");
-
-        if (enabled) {
-            if (!ID.isId(bindUser) || !UserHelper.isActive(ID.valueOf(bindUser))) {
-                return RespBody.error(Language.L("公开访问必须绑定有效用户"));
-            }
-        } else {
-            bindUser = null;
-        }
+        if (!enabled) bindUser = null;
 
         Object[] x = Application.createQueryNoFilter(
                 "select config from AibotConfig where configId = ? and type = 'MINAPP'")
@@ -280,7 +273,7 @@ public class AiBot2AdminController extends BaseController {
         JSONObject config = (JSONObject) JSONUtils.parseSafe((String) x[0]);
         if (config == null) config = new JSONObject();
 
-        boolean rebind = enabled && !bindUser.equals(config.getString("bindUser"));
+        boolean rebind = enabled && bindUser != null && !bindUser.equals(config.getString("bindUser"));
 
         config.put("icon", icon);
         config.put("bindUser", bindUser);
@@ -341,7 +334,7 @@ public class AiBot2AdminController extends BaseController {
         mv.getModelMap().put("minappId", minappId2);
         mv.getModelMap().put("minappName", StringUtils.trimToEmpty((String) minapp[0]));
         mv.getModelMap().put("minappConfig", conf.toJSONString());
-        mv.getModelMap().put("minappShareTo", StringUtils.defaultIfBlank((String) minapp[3], ShareToManager.SHARE_SELF));
+        mv.getModelMap().put("minappShareTo", StringUtils.defaultIfBlank((String) minapp[3], ShareToManager.SHARE_ALL));
         mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("pages/minapp/" + minappId2));
         return mv;
     }
@@ -396,7 +389,7 @@ public class AiBot2AdminController extends BaseController {
         mv.getModelMap().put("agentName", StringUtils.trimToEmpty((String) agent[0]));
         JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) agent[1]);
         mv.getModelMap().put("agentConfig", conf != null ? conf.toJSONString() : null);
-        mv.getModelMap().put("agentShareTo", StringUtils.defaultIfBlank((String) agent[3], ShareToManager.SHARE_SELF));
+        mv.getModelMap().put("agentShareTo", StringUtils.defaultIfBlank((String) agent[3], ShareToManager.SHARE_ALL));
         return mv;
     }
 

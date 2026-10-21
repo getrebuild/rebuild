@@ -17,6 +17,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.SysbaseSupport;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.OshiUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +53,7 @@ public class ErrorPageView extends BaseController {
     public ModelAndView pageError(HttpServletRequest request) {
         String msgMsg = request.getParameter("msg");
         if (StringUtils.isBlank(msgMsg)) msgMsg = Language.L("系统繁忙，请稍后重试");
-        return createErrorPage(msgMsg);
+        return createErrorPage(CommonsUtils.sanitizeHtml(msgMsg));
     }
 
     /**

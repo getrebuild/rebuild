@@ -21,9 +21,10 @@
             "adv-filter",
             "user-selector",
             "frontjs-api",
-            "minapp-page"
+            "minapp-page",
+            "report-template"
           ],
-          "description": "Schema 名称。trigger-config=触发器、approval-config=审批流程、form-layout=表单布局、list-layout=列表布局、nav-menu=导航菜单、chart-config=图表、dashboard-config=仪表盘、transform-config=记录转换、adv-filter=高级过滤条件、user-selector=用户选择器（接收人/分配人等通用组件）、frontjs-api=FrontJS 前端扩展 API 参考（方法签名与代码示例）、minapp-page=微应用页面开发参考（页面结构、系统内置前端库与数据接口）"
+          "description": "Schema 名称。trigger-config=触发器、approval-config=审批流程、form-layout=表单布局、list-layout=列表布局、nav-menu=导航菜单、chart-config=图表、dashboard-config=仪表盘、transform-config=记录转换、adv-filter=高级过滤条件、user-selector=用户选择器（接收人/分配人等通用组件）、frontjs-api=FrontJS 前端扩展 API 参考（方法签名与代码示例）、minapp-page=微应用页面开发参考（页面结构、系统内置前端库与数据接口）、report-template=报表模板语法参考（网页与 Excel 模板的变量写法、预置变量与易错点）"
         }
       },
       "required": ["schema"],
