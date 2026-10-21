@@ -77,7 +77,7 @@ public class AiBotController extends LoginAction {
         }
 
         ModelAndView mv = createModelAndView("/aibot/chat-view");
-        mv.getModelMap().put("pageFooter", Language.L("由 Rex AI 助手强力驱动"));
+        mv.getModelMap().put("pageFooter", Language.L("由 Rex AI 助手提供支持"));
         return mv;
     }
 
