@@ -273,7 +273,7 @@ public class AiBot2AdminController extends BaseController {
         JSONObject config = (JSONObject) JSONUtils.parseSafe((String) x[0]);
         if (config == null) config = new JSONObject();
 
-        boolean rebind = enabled && !bindUser.equals(config.getString("bindUser"));
+        boolean rebind = enabled && bindUser != null && !bindUser.equals(config.getString("bindUser"));
 
         config.put("icon", icon);
         config.put("bindUser", bindUser);

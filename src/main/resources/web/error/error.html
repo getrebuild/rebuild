@@ -73,7 +73,7 @@
     <script>
       var $btn = document.getElementById('goHome')
       if (window.self != window.top) {
-        $btn.parentNode.removeChild($btn)
+        if ($btn) $btn.parentNode.removeChild($btn)
         if (parent && parent.RbViewModal) {
           try {
             // Check#1
@@ -86,7 +86,7 @@
             } catch (ignore2) {}
           }
         }
-      } else if (location.href.indexOf('/f/') > -1 || location.href.indexOf('/s/') > -1) {
+      } else if ($btn && (location.href.indexOf('/f/') > -1 || location.href.indexOf('/s/') > -1)) {
         $btn.parentNode.removeChild($btn)
       }
       if (document.getElementsByClassName('err600').length > 0) {

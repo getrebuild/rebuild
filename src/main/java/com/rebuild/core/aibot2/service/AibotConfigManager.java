@@ -92,7 +92,8 @@ public class AibotConfigManager implements ConfigManager {
     public ConfigBean getMinAppById(ID pageId, ID user) {
         ConfigBean cb = getConfigById(pageId, TYPE_MINAPP);
         if (cb == null) return null;
-        return UserHelper.isAdmin(user) || ShareToManager.isShareTo(cb.getString("shareTo"), user) ? cb : null;
+        return UserHelper.isAdmin(user)
+                || ShareToManager.isShareTo(cb.getString("shareTo"), user) ? cb : null;
     }
 
     /**
@@ -185,7 +186,7 @@ public class AibotConfigManager implements ConfigManager {
     }
 
     /**
-     * 指定智能体是否对用户可用（存在、未禁用，且为本人创建或共享）
+     * 指定智能体是否对用户可用
      *
      * @param agentId
      * @param user
@@ -198,7 +199,8 @@ public class AibotConfigManager implements ConfigManager {
             if (!agentId.equals(cb.getID("id"))) continue;
             if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
             if (cb.getJSON("config") == null) continue;
-            return UserHelper.isAdmin(user) || ShareToManager.isShareTo(cb.getString("shareTo"), user);
+            return UserHelper.isAdmin(user)
+                    || ShareToManager.isShareTo(cb.getString("shareTo"), user);
         }
         return false;
     }
