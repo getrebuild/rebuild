@@ -222,6 +222,7 @@ class SimpleNode extends NodeSpec {
       if (data.allowReferral) descs.push($L('允许转审'))
       if (data.allowCountersign) descs.push($L('允许加签'))
       if (data.allowFinish) descs.push($L('允许提前结束'))
+      if (data.skipSameApprover) descs.push($L('自动通过'))
       if (data.freeApproval) descs.push($L('自由审批'))
       descs.push(data.signMode === 'AND' ? $L('会签') : data.signMode === 'ALL' ? $L('依次审批') : $L('或签'))
       if (data.expiresAuto && ~~data.expiresAuto.expiresAuto > 0) descs.push($L('限时审批'))
@@ -699,9 +700,22 @@ class ApproverNodeConfig extends StartNodeConfig {
           </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
+              <input className="custom-control-input" type="checkbox" name="skipSameApprover" checked={this.state.skipSameApprover === true} onChange={this.handleChange} />
+              <span className="custom-control-label">
+                {$L('相同审批人自动通过')} <sup className="rbv" />
+              </span>
+            </label>
+          </div>
+
+          <div className="form-group mt-5">
+            <label className="text-bold">{$L('自由审批')}</label>
+            <label className="custom-control custom-control-sm custom-checkbox mb-2">
               <input className="custom-control-input" type="checkbox" name="freeApproval" checked={this.state.freeApproval === true} onChange={this.handleChange} />
               <span className="custom-control-label">
-                {$L('自由审批')} (LAB) <sup className="rbv" />
+                {$L('启用')} (LAB) <sup className="rbv" />
+                <a href="https://getrebuild.com/docs/admin/approval#%E5%AE%A1%E6%89%B9%E4%BA%BA" title={$L('查看帮助')} target="_blank">
+                  <i className="zmdi zmdi-help zicon down-1 cursor-pointer" />
+                </a>
               </span>
             </label>
           </div>
@@ -977,6 +991,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       allowCountersign: this.state.allowCountersign,
       allowFinish: this.state.allowFinish,
       freeApproval: this.state.freeApproval,
+      skipSameApprover: this.state.skipSameApprover,
       expiresAuto: expiresAuto,
       remarkReq: this.state.remarkReq || 0,
     }
@@ -987,8 +1002,12 @@ class ApproverNodeConfig extends StartNodeConfig {
     }
 
     if (rb.commercial < 1) {
-      if (d.allowReferral || d.allowCountersign || d.allowFinish || d.freeApproval) {
-        RbAlertFree43.create($L('免费版不支持转审/加签/提前结束/自由审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+      if (d.allowReferral || d.allowCountersign || d.allowFinish || d.skipSameApprover) {
+        RbAlertFree43.create($L('免费版不支持转审/加签/提前结束/自动通过功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+        return
+      }
+      if (d.freeApproval) {
+        RbAlertFree43.create($L('免费版不支持自由审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
         return
       }
       if (~~expiresAuto.expiresAuto > 0) {

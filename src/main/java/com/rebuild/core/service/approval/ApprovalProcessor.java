@@ -69,6 +69,8 @@ public class ApprovalProcessor extends SetUser {
     private ID approvalId;
     // 流程定义
     private FlowParser flowParser;
+    // 相同审批人自动通过进行中（防止钩子重复触发）
+    private boolean inAutoApprove46;
 
     /**
      * @param recordId
@@ -232,6 +234,65 @@ public class ApprovalProcessor extends SetUser {
         if (state == ApprovalState.APPROVED) {
             Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.recordId, selectNextUsers);
             share2CcIfNeed(this.recordId, ccs4share);
+
+            // 相同审批人自动通过
+            autoApproveNextIfSame(approver, currentNode.getNodeId());
+        }
+    }
+
+    /**
+     * 相同审批人自动通过
+     *
+     * @param approver
+     * @param fromNode 刚完成审批的节点
+     * @see FlowNode#skipSameApprover()
+     */
+    private void autoApproveNextIfSame(ID approver, String fromNode) {
+        if (this.inAutoApprove46) return;
+
+        this.inAutoApprove46 = true;
+        try {
+            for (int i = 0; i < 10; i++) {
+                ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.recordId);
+                if (status.getCurrentState() != ApprovalState.PROCESSING) break;
+
+                String pendingNode = status.getCurrentStepNode();
+                if (StringUtils.isBlank(pendingNode) || pendingNode.equals(fromNode)) break;
+
+                FlowNode flowNode = getFlowNode(pendingNode);
+                if (flowNode == null || !flowNode.skipSameApprover()) break;
+
+                Object[][] pendingApprovers = Application.createQueryNoFilter(
+                        "select approver from RobotApprovalStep" +
+                                " where recordId = ? and approvalId = ? and node = ? and state = 1" +
+                                " and isCanceled = 'F' and isBacked = 'F' and isWaiting = 'F'")
+                        .setParameter(1, this.recordId)
+                        .setParameter(2, status.getApprovalId())
+                        .setParameter(3, pendingNode)
+                        .array();
+
+                boolean selfIn = false;
+                for (Object[] o : pendingApprovers) {
+                    if (approver.equals(o[0])) {
+                        selfIn = true;
+                        break;
+                    }
+                }
+                if (!selfIn) break;
+
+                try {
+                    Object[] remarks = new Object[]{Language.L("相同审批人自动通过")};
+                    approve(approver, ApprovalState.APPROVED, remarks,
+                            null, null, null, null, false, false);
+                    fromNode = pendingNode;
+                } catch (Exception ex) {
+                    log.warn("Cannot auto-approve same-approver for [{}] on node {}", this.recordId, pendingNode, ex);
+                    break;
+                }
+            }
+
+        } finally {
+            this.inAutoApprove46 = false;
         }
     }
 
