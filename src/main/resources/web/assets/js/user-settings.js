@@ -333,17 +333,17 @@ class DlgChangeEmail extends RbFormHandler {
 }
 
 // 临时授权
-class DlgTempAuth extends RbModalHandler {
-  render() {
+class DlgTempAuth extends RbAlert {
+  renderContent() {
     return (
-      <RbModal title={$L('临时授权')} ref={(c) => (this._dlg = c)} disposeOnHide>
-        <div className="file-share">
+      <div className="file-share rbalert-form-sm">
+        <div className="form-group mb-5">
           <label className="text-dark text-bold">{$L('临时授权链接')}</label>
           <div className="input-group input-group-sm">
-            <input className="form-control" value={this.state.tempUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
+            <input className="form-control form-control-sm bg-transparent" value={this.state.tempUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
-                <i className="icon zmdi zmdi-copy" />
+              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)} title={$L('复制')}>
+                <i className="icon mdi mdi-content-copy" />
               </button>
             </span>
           </div>
@@ -352,16 +352,18 @@ class DlgTempAuth extends RbModalHandler {
             {$L('通过临时授权链接可登录你的账号，请勿向陌生人提供')}
           </p>
         </div>
-      </RbModal>
+      </div>
     )
   }
 
   componentDidMount() {
+    super.componentDidMount && super.componentDidMount()
+
     $.post('/settings/user/temp-auth', (res) => {
-      this.setState({ tempUrl: res.data || 'ERROR' })
-      // copy
-      $(this._$copy).data('clipboard-text', this.state.tempUrl)
-      $clipboard(this._$copy)
+      this.setState({ tempUrl: res.data })
+      $(this._$copy).on('click', () => {
+        $clipboard2(this._$copy, this.state.tempUrl)
+      })
     })
   }
 }
@@ -484,17 +486,17 @@ const _revokeAk = function () {
 
 // AK 显示弹窗
 // eslint-disable-next-line no-unused-vars
-class DlgAccessKey extends RbModalHandler {
-  render() {
+class DlgAccessKey extends RbAlert {
+  renderContent() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('个人秘钥')} disposeOnHide>
-        <div className="file-share">
-          <label className="text-dark text-bold">{$L('秘钥仅显示一次请复制保存')}</label>
+      <div className="file-share rbalert-form-sm">
+        <div className="form-group mb-5">
+          <label className="text-dark text-bold">{$L('个人秘钥仅显示一次请复制保存')}</label>
           <div className="input-group input-group-sm">
-            <input className="form-control" value={this.props.token} readOnly onClick={(e) => $(e.target).select()} />
+            <input className="form-control form-control-sm bg-transparent" value={this.props.token || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
-              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)}>
-                <i className="icon zmdi zmdi-copy" />
+              <button type="button" className="btn btn-secondary" ref={(c) => (this._$copy = c)} title={$L('复制')}>
+                <i className="icon mdi mdi-content-copy" />
               </button>
             </span>
           </div>
@@ -503,13 +505,16 @@ class DlgAccessKey extends RbModalHandler {
             {$L('通过个人秘钥可以访问你的数据，请勿将秘钥分享给他人')}
           </p>
         </div>
-      </RbModal>
+      </div>
     )
   }
 
   componentDidMount() {
-    $(this._$copy).data('clipboard-text', this.props.token)
-    $clipboard(this._$copy)
+    super.componentDidMount && super.componentDidMount()
+
+    $(this._$copy).on('click', () => {
+      $clipboard2(this._$copy, this.props.token)
+    })
   }
 }
 

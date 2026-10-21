@@ -187,7 +187,7 @@ class SharedFiles extends RbModalHandler {
 
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('分享列表')} disposeOnHide>
-        <div className="file-list file-list-striped sharing-list" ref={(c) => (this._$list = c)}>
+        <div className="file-list file-list-striped sharing-list p-2" ref={(c) => (this._$list = c)}>
           {files.length === 0 ? (
             <div className="list-nodata pt-4">
               <i className="zmdi zmdi-share" />

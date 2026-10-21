@@ -13,10 +13,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.privileges.UserService;
-import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -31,22 +28,33 @@ import java.util.Date;
 public class ShortUrls {
 
     /**
-     * @param longUrl
-     * @return
-     */
-    public static String make(String longUrl) {
-        return make(longUrl, 0, null);
-    }
-
-    /**
+     * 已有有效分享则复用原记录（同一用户同一对象仅一条，链接不变），仅更新有效期
+     *
      * @param longUrl
      * @param seconds
      * @param user
      * @return
      */
     public static String make(String longUrl, int seconds, ID user) {
-        Record record = EntityHelper.forNew(EntityHelper.ShortUrl,
-                ObjectUtils.defaultIfNull(user, UserService.SYSTEM_USER));
+        Object[][] exists = Application.createQueryNoFilter(
+                "select shortId,shortKey from ShortUrl" +
+                        " where longUrl = ? and createdBy = ? and (expireTime > ? or expireTime is null) order by createdOn desc")
+                .setParameter(1, longUrl)
+                .setParameter(2, user)
+                .setParameter(3, CalendarUtils.now())
+                .setLimit(1)
+                .array();
+
+        if (exists.length > 0) {
+            Record update = EntityHelper.forUpdate((ID) exists[0][0], user);
+            if (seconds > 0) update.setDate("expireTime", CalendarUtils.add(seconds, Calendar.SECOND));
+            else update.setNull("expireTime");
+            Application.getCommonsService().update(update);
+
+            return (String) exists[0][1];
+        }
+
+        Record record = EntityHelper.forNew(EntityHelper.ShortUrl, user);
         record.setString("longUrl", longUrl);
         if (seconds > 0) record.setDate("expireTime", CalendarUtils.add(seconds, Calendar.SECOND));
 
@@ -55,17 +63,6 @@ public class ShortUrls {
 
         Application.getCommonsService().create(record);
         return shortKey;
-    }
-
-    /**
-     * @param shortKey
-     * @return
-     */
-    public static boolean invalid(String shortKey) {
-        String dsql = String.format(
-                "delete from `short_url` where SHORT_KEY = '%s'", CommonsUtils.escapeSql(shortKey));
-        int a = Application.getSqlExecutor().execute(dsql);
-        return a > 0;
     }
 
     /**

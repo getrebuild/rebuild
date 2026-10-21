@@ -83,9 +83,6 @@ public class FileShareController extends BaseController {
                 RebuildConfiguration.getBool(ConfigurationItem.FileSharable),
                 Language.L("不允许分享文件"));
 
-        String shareUrl4del = getParameter(request, "shareUrl");
-        if (shareUrl4del != null && shareUrl4del.contains("/s/")) ShortUrls.invalid(shareUrl4del.split("/s/")[1]);
-
         String fileUrl = getParameterNotNull(request, "url");
         int time = getIntParameter(request, "time", 5);
         String shareKey = ShortUrls.make(fileUrl, time * 60, getRequestUser(request));
@@ -315,16 +312,23 @@ public class FileShareController extends BaseController {
         return RespBody.ok();
     }
 
-    @PostMapping("/filex/is-make-share")
+    @GetMapping("/filex/is-make-share")
     public RespBody isSharedFile(HttpServletRequest request) {
         final String longUrl = getParameterNotNull(request, "longUrl");
+        final ID user = getRequestUser(request);
 
-        Object[] has = Application.createQueryNoFilter(
-                "select shortKey from from ShortUrl where longUrl = ? and expireTime > ?")
+        // 当前用户对该对象的已有有效分享（含永久），取最新一条
+        Object[][] has = Application.createQueryNoFilter(
+                "select shortKey from ShortUrl " +
+                        "where longUrl = ? and createdBy = ? and (expireTime > ? or expireTime is null) order by createdOn desc")
                 .setParameter(1, longUrl)
-                .setParameter(2, CalendarUtils.now())
-                .unique();
-        return RespBody.ok(has == null ? null : has[0]);
+                .setParameter(2, user)
+                .setParameter(3, CalendarUtils.now())
+                .setLimit(1)
+                .array();
+        if (has.length == 0) return RespBody.ok(null);
+
+        return RespBody.ok(RebuildConfiguration.getHomeUrl("s/" + has[0][0]));
     }
 
     /**
