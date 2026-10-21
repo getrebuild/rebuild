@@ -536,29 +536,41 @@ class FileShare extends RbAlert {
       $.get(`/files/check-readable?id=${this.props.file}`, (res) => {
         if (res.data) {
           this._filePath = res.data
-          this._changeTime()
+          this._loadExists()
         } else {
           RbHighbar.create($L('你没有查看此文件的权限'))
         }
       })
     } else {
-      this._changeTime()
+      this._loadExists()
     }
+  }
+
+  // 已有有效分享则直接使用，避免打开弹窗即重置有效期
+  _loadExists() {
+    $.get(`/filex/is-make-share?longUrl=${$encode(this._filePath)}`, (res) => {
+      if (res.data) this._showShareUrl(res.data)
+      else this._changeTime()
+    })
   }
 
   _changeTime(e) {
     const t = e ? ~~e.target.dataset.time : EXPIRES_TIME[0][0]
     if (this.state.time === t) return
     this.setState({ time: t }, () => {
-      $.get(`/filex/make-share?url=${$encode(this._filePath)}&time=${t}&shareUrl=${$encode(this.__shareUrl)}`, (res) => {
-        this.__shareUrl = (res.data || {}).shareUrl
-        this.setState({ shareUrl: this.__shareUrl })
-
-        $(this._$copy)
-          .off('click')
-          .on('click', () => $clipboard2(this._$copy, this.__shareUrl))
+      $.get(`/filex/make-share?url=${$encode(this._filePath)}&time=${t}`, (res) => {
+        this._showShareUrl((res.data || {}).shareUrl)
       })
     })
+  }
+
+  _showShareUrl(shareUrl) {
+    this.__shareUrl = shareUrl
+    this.setState({ shareUrl: shareUrl })
+
+    $(this._$copy)
+      .off('click')
+      .on('click', () => $clipboard2(this._$copy, this.__shareUrl))
   }
 }
 
