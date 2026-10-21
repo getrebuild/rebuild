@@ -26,6 +26,7 @@ public class ReferenceDocs {
     static {
         RES_MAP.put("frontjs-api", "json-schema/frontjs-api-reference.md");
         RES_MAP.put("minapp-page", "json-schema/minapp-page-reference.md");
+        RES_MAP.put("report-template", "json-schema/report-template-reference.md");
     }
 
     /**

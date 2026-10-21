@@ -1,30 +1,34 @@
 {
   "type": "function",
-  "userDescription": "构建网页报表模板。基于 HTML 模板生成可导出的报表 [商业工具]",
+  "userDescription": "构建报表模板。基于 HTML 或 Excel 表格生成可导出的报表 [商业工具]",
   "function": {
     "name": "BuildReportTemplate",
-    "description": "新建网页报表模板（HTML5 类型）。当用户希望为某实体创建可导出的报表模板（如「帮我做一个客户信息报表」「设计一个订单打印模板」）时使用。模板内容为 HTML 代码，支持主记录字段、明细列表、审批记录、相关项列表等多种变量语法，运行时自动替换为实际值",
+    "description": "新建报表模板，支持三种类型。网页模板（templateType=html5，传 templateContent 为 HTML 片段）适合单条记录的打印与网页导出。Excel 记录模板（templateType=excel，传 rows 二维数组）适合单条记录的 Excel 导出。Excel 列表模板（templateType=excelList，传 rows）适合多条记录的列表 Excel 导出。不支持 WORD 模板。\n\n调用前准备。1) 先用 GetConfigSchema(schema=report-template) 获取报表模板语法参考，其中包含各类型的变量写法、预置变量与易错点。2) 用 ListEntities 查询目标实体的真实字段名，严禁编造字段。\n\n模板中每个变量都会被校验，存在无效变量将拒绝创建。",
     "parameters": {
       "type": "object",
       "properties": {
-        "entity": {
+        "entity": { "type": "string", "description": "报表所属实体名称或标签" },
+        "name": { "type": "string", "description": "报表模板名称，应简洁描述其用途，如「客户信息报表」「订单打印模板」" },
+        "templateType": {
           "type": "string",
-          "description": "报表所属实体名称或标签"
-        },
-        "name": {
-          "type": "string",
-          "description": "报表模板名称，应简洁描述其用途，如「客户信息报表」「订单打印模板」"
+          "enum": ["html5", "excel", "excelList"],
+          "description": "模板类型，默认 html5。html5=网页模板（需传 templateContent），excel=Excel 记录模板（单条记录导出，需传 rows），excelList=Excel 列表模板（多条记录列表导出，需传 rows，不支持 useFilter）"
         },
         "templateContent": {
           "type": "string",
-          "description": "HTML 模板内容，应为完整的 HTML 片段（不需要 html/body 标签）。所有样式必须使用内联方式（style=\"...\"），不要使用 CSS class 或 <style> 标签，因为报表生成时仅提取 body 内容，外部样式不会生效。模板语法说明：\n\n1. 主记录字段：使用 {字段名} 或 {字段标签}，如 <h1>{客户名称}</h1>\n\n2. 明细列表：在 table 第一个单元格放置 {detail} 标记，后续数据行使用 [detail$字段名] 引用明细字段，该行按明细记录数量自动复制\n\n3. 审批记录：在 table 第一个单元格放置 {approval} 标记，行内使用 [approval$字段名]，可用字段：[approval$node](审批节点)、[approval$state](审批状态)、[approval$approver](审批人)、[approval$approvedTime](审批时间)、[approval$remark](批注)\n\n4. 相关项列表：在 table 第一个单元格放置 {引用字段名$相关实体名} 标记，行内使用 [引用字段名$相关实体名$字段名] 引用相关记录字段。例如主实体有引用字段 refCustomer 指向 Customer 实体，则标记为 {refCustomer$Customer}，行内字段如 [refCustomer$Customer$customerName]、[refCustomer$Customer$createdBy]\n\n5. 预置变量：{__NUMBER}(明细序号)、{__CURRENTUSER}(当前用户)、{__CURRENTDATE}(当前日期)、{__CURRENTDATETIME}(当前日期时间)、{__EXPORTTIMES}(导出/打印次数)\n\n6. 分页符：使用 <!-- pagebreak --> 插入分页\n\n注意：表格行字段使用方括号 [字段名]，主记录字段使用花括号 {字段名}，两者语法不同。工具会校验每个变量是否有效，无效变量将拒绝创建"
+          "description": "HTML 模板内容，templateType=html5 时必传。应为完整 HTML 片段（不需要 html/body 标签），所有样式必须使用内联方式（style=\"...\"），不要使用 CSS class 或 <style> 标签，因为报表生成时仅提取 body 内容，外部样式不会生效。变量语法（主记录字段、明细列表、审批记录、相关项列表、预置变量）先用 GetConfigSchema(schema=report-template) 获取参考文档"
+        },
+        "rows": {
+          "type": "array",
+          "description": "Excel 模板内容，templateType=excel 或 excelList 时必传。二维数组，每个元素为一行（字符串数组），行内元素为单元格文本，第一行通常为表头（生成时自动加粗）。变量写在单元格文本中，如 {customerName}，可与普通文字混排。变量语法（主记录字段、明细、审批、相关项、预置变量、多列表的 $ 前缀规则）先用 GetConfigSchema(schema=report-template) 获取参考文档",
+          "items": { "type": "array", "items": { "type": "string" } }
         },
         "useFilter": {
           "type": "object",
-          "description": "报表过滤条件（可选），仅匹配的记录可使用该报表。该参数为对象，含实体名和条件数组（条件数组为数组而非对象），结构定义见 adv-filter Schema（用 GetConfigSchema 获取）"
+          "description": "报表过滤条件（可选），仅匹配的记录可使用该报表。仅网页与 Excel 记录模板可用，列表模板（excelList）不支持。该参数为对象，含实体名和条件数组（条件数组为数组而非对象），结构定义见 adv-filter Schema（用 GetConfigSchema 获取）"
         }
       },
-      "required": ["entity", "name", "templateContent"],
+      "required": ["entity", "name"],
       "additionalProperties": false
     }
   }
