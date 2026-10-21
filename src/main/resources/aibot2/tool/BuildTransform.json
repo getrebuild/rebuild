@@ -21,7 +21,7 @@
         },
         "fieldsMapping": {
           "type": "object",
-          "description": "主记录字段映射，key 为目标字段名，value 为取值来源，支持三种形式：1) 字符串=源字段名（如 \"accountName\"，将源字段值映射到目标字段）；2) 对象 {\"type\":\"VFIXED\",\"value\":X}=固定值（X 原样写入目标字段）；3) 对象 {\"type\":\"VFORMULA\",\"value\":\"公式\"}=计算公式（公式字段变量用 {源字段名}，高级公式用 {{{{ }}}} 包裹，应先用 BuildAviatorFormula 编写并校验）。系统字段如 owningUser 可映射为源实体的用户字段名"
+          "description": "主记录字段映射，key 为目标字段名，value 为取值来源，支持三种形式：1) 字符串=源字段名（如 \"accountName\"，将源字段值映射到目标字段）；2) 对象 {\"type\":\"VFIXED\",\"value\":X}=固定值（X 原样写入目标字段）；3) 对象 {\"type\":\"VFORMULA\",\"value\":\"公式\"}=计算公式（公式字段变量用 {源字段名}，高级公式用 {{{{ }}}} 包裹，应先用 BuildAviatorFormula 编写并校验）。目标字段须为可映射字段，自动编号、条形码、不可查询的字段及系统字段均不可作为映射目标，仅所属用户（owningUser）例外，可映射为源实体的用户字段名"
         },
         "fieldsMappingDetail": {
           "type": "array",

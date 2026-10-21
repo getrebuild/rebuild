@@ -198,17 +198,8 @@ public class TransformConfigController extends BaseController {
         }
         // 目标
         else {
-            fields = MetaFormatter.buildFieldsWithRefs(entity, 1, true, field -> {
-                EasyField easyField = (EasyField) field;
-                return !easyField.getRawMeta().isQueryable()
-                        || easyField.getDisplayType() == DisplayType.BARCODE
-                        || easyField.getDisplayType() == DisplayType.SERIES
-                        || MetadataHelper.isCommonsField(easyField.getRawMeta());
-            });
-
-            if (entity.containsField(EntityHelper.OwningUser)) {
-                fields.add(EasyMetaFactory.toJSON(entity.getField(EntityHelper.OwningUser)));
-            }
+            fields = MetaFormatter.buildFieldsWithRefs(entity, 1, true,
+                    field -> !TransformManager.isMappableTargetField(((EasyField) field).getRawMeta()));
 
             // v3.4 for dtf
             if (entity.getMainEntity() != null) {
