@@ -346,8 +346,12 @@ public class AiBot2Controller extends BaseController {
         ID user = getRequestUser(req);
 
         LinkedList<ID> ids = getUserTopChats(user);
-        if (ids.contains(chatid)) ids.remove(chatid);
-        else ids.addFirst(chatid);
+        if (ids.contains(chatid)) {
+            ids.remove(chatid);
+        } else {
+            if (ids.size() >= 9) ids.removeLast();
+            ids.addFirst(chatid);
+        }
         KVStorage.setCustomValue("AIBOT-TOP:" + user, StringUtils.join(ids, ","));
 
         return RespBody.ok();

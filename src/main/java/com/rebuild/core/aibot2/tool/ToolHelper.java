@@ -474,7 +474,17 @@ public class ToolHelper {
 
         DisplayType dt = EasyMetaFactory.getDisplayType(targetField);
         if (dt == DisplayType.PICKLIST) {
-            if (ID.isId(value) && ID.valueOf(value).getEntityCode() == EntityHelper.PickList) return value;
+            if (ID.isId(value) && ID.valueOf(value).getEntityCode() == EntityHelper.PickList) {
+                ID valId = ID.valueOf(value);
+                // 选项 ID 须属于目标字段的选项（含隐藏），否则运行时落成悬空引用
+                for (ConfigBean e : PickListManager.instance.getPickListRaw(targetField, true)) {
+                    if (valId.equals(e.getID("id"))) return value;
+                }
+                throw new KnownToolException(String.format(
+                        "固定值无效 : %s。选项 ID 不在目标字段 %s(%s) 的可用选项中，可用选项: %s",
+                        value, EasyMetaFactory.getLabel(targetField), targetField.getName(),
+                        buildOptionsDesc(targetField)));
+            }
 
             ID itemId = PickListManager.instance.findItemByLabel(value, targetField);
             if (itemId == null) {
