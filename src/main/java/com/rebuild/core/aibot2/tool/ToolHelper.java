@@ -16,12 +16,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.dataimport.RecordCheckout;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.trigger.aviator.AviatorUtils;
 import com.rebuild.core.support.general.ContentWithFieldVars;
@@ -44,9 +46,6 @@ import java.util.Set;
  * @since 2026/7/24
  */
 public class ToolHelper {
-
-    // 高级公式的结尾包裹（与 AviatorUtils.CODE_PREFIX 成对）
-    private static final String CODE_SUFFIX = "}}}}";
 
     private ToolHelper() {}
 
@@ -460,7 +459,7 @@ public class ToolHelper {
 
     /**
      * 解析配置中的固定值（VFIXED）。运行时按字面值写入（见 EntityRecordCreator#setValueByLiteral），
-     * 不是字段名；下拉列表字段须存选项 ID，此处允许直接传选项文本并转换
+     * 不是字段名；下拉列表须存选项 ID、多选须存位掩码值，此处允许直接传选项文本并转换
      *
      * @param targetField 目标字段，为空时原样返回
      * @param value
@@ -472,21 +471,51 @@ public class ToolHelper {
                 || FieldValueHelper.isCurrentVar(value) || FieldValueHelper._RAND.equals(value)) {
             return value;
         }
-        if (EasyMetaFactory.getDisplayType(targetField) != DisplayType.PICKLIST) return value;
-        if (ID.isId(value) && ID.valueOf(value).getEntityCode() == EntityHelper.PickList) return value;
 
-        ID itemId = PickListManager.instance.findItemByLabel(value, targetField);
-        if (itemId == null) {
-            List<String> options = new ArrayList<>();
-            for (ConfigBean e : PickListManager.instance.getPickListRaw(targetField, false)) {
-                options.add(e.getString("text"));
+        DisplayType dt = EasyMetaFactory.getDisplayType(targetField);
+        if (dt == DisplayType.PICKLIST) {
+            if (ID.isId(value) && ID.valueOf(value).getEntityCode() == EntityHelper.PickList) return value;
+
+            ID itemId = PickListManager.instance.findItemByLabel(value, targetField);
+            if (itemId == null) {
+                throw new KnownToolException(String.format(
+                        "固定值无效 : %s。目标字段 %s(%s) 是下拉列表，须填选项文本或选项 ID，可用选项: %s",
+                        value, EasyMetaFactory.getLabel(targetField), targetField.getName(),
+                        buildOptionsDesc(targetField)));
             }
-            throw new KnownToolException(String.format(
-                    "固定值无效 : %s。目标字段 %s(%s) 是下拉列表，须填选项文本或选项 ID，可用选项: %s",
-                    value, EasyMetaFactory.getLabel(targetField), targetField.getName(),
-                    StringUtils.join(options, "、")));
+            return itemId.toLiteral();
         }
-        return itemId.toLiteral();
+
+        // 多选存位掩码 long：允许传选项文本（多个用逗号分隔）或直接传掩码数字，与数据导入口径一致
+        if (dt == DisplayType.MULTISELECT) {
+            long mask = 0;
+            for (String s : value.split(RecordCheckout.MVAL_SPLIT)) {
+                mask += MultiSelectManager.instance.findMultiItemByLabel(s.trim(), targetField);
+            }
+            if (mask == 0) {
+                try {
+                    long numMask = Long.parseLong(value.trim());
+                    if (MultiSelectManager.instance.isValidMask(numMask, targetField)) return String.valueOf(numMask);
+                } catch (NumberFormatException ignored) {
+                }
+                throw new KnownToolException(String.format(
+                        "固定值无效 : %s。目标字段 %s(%s) 是多选，须填选项文本（多个用逗号分隔）或位掩码值，可用选项: %s",
+                        value, EasyMetaFactory.getLabel(targetField), targetField.getName(),
+                        buildOptionsDesc(targetField)));
+            }
+            return String.valueOf(mask);
+        }
+
+        return value;
+    }
+
+    // 下拉/多选字段的可用选项文本，供固定值无效时报错提示
+    private static String buildOptionsDesc(Field field) {
+        List<String> options = new ArrayList<>();
+        for (ConfigBean e : PickListManager.instance.getPickListRaw(field, false)) {
+            options.add(e.getString("text"));
+        }
+        return StringUtils.join(options, "、");
     }
 
     /**
@@ -500,9 +529,9 @@ public class ToolHelper {
         if (StringUtils.isBlank(formula)) return Collections.emptyList();
 
         String script = formula;
-        if (script.startsWith(AviatorUtils.CODE_PREFIX) && script.endsWith(CODE_SUFFIX)
-                && script.length() > AviatorUtils.CODE_PREFIX.length() + CODE_SUFFIX.length()) {
-            script = script.substring(AviatorUtils.CODE_PREFIX.length(), script.length() - CODE_SUFFIX.length());
+        if (script.startsWith(AviatorUtils.CODE_PREFIX) && script.endsWith(AviatorUtils.CODE_SUFFIX)
+                && script.length() > AviatorUtils.CODE_PREFIX.length() + AviatorUtils.CODE_SUFFIX.length()) {
+            script = script.substring(AviatorUtils.CODE_PREFIX.length(), script.length() - AviatorUtils.CODE_SUFFIX.length());
         }
 
         Set<String> definedVars = new HashSet<>();
@@ -520,7 +549,8 @@ public class ToolHelper {
 
         List<String> unresolved = new ArrayList<>();
         try {
-            for (String var : AviatorUtils.getInstance().compile(script, true).getVariableNames()) {
+            // 一次性校验脚本不入缓存，避免污染 Aviator 表达式缓存
+            for (String var : AviatorUtils.getInstance().compile(script, false).getVariableNames()) {
                 if (!definedVars.contains(var)) unresolved.add(var);
             }
         } catch (Exception ignored) {
