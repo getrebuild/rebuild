@@ -1342,13 +1342,13 @@ class ChatSidebar extends React.Component {
       return <li className="text-muted text-center fs-md m-3">{$L('暂无会话')}</li>
     }
 
-    const labels = { today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
+    const labels = { pinned: $L('置顶'), today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
     const ret = list.map((g) => {
       if (!g.items || g.items.length === 0) return null
       return (
         <React.Fragment key={g.group}>
           <li className="chat-list-group fs-md">{labels[g.group] || g.group}</li>
-          {g.items.map((item) => this._renderItem(item))}
+          {g.items.map((item) => this._renderItem(item, g.group === 'pinned'))}
         </React.Fragment>
       )
     })
@@ -1356,7 +1356,7 @@ class ChatSidebar extends React.Component {
     return ret
   }
 
-  _renderItem(item) {
+  _renderItem(item, isPinned) {
     return (
       <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
         <a
@@ -1368,6 +1368,7 @@ class ChatSidebar extends React.Component {
             this.props._Chat.initChat(item.chatid)
             this.setState({ current: item.chatid })
           }}>
+          {isPinned && <i className="icon zmdi zmdi-format-valign-top mr-1 fs-14 down-1" />}
           {item.subject}
         </a>
         <span>
@@ -1375,16 +1376,30 @@ class ChatSidebar extends React.Component {
             <i className="icon zmdi zmdi-more fs-18" />
           </a>
           <div className="dropdown-menu dropdown-menu-right">
-            <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
-              {$L('删除')}
+            <a className="dropdown-item" onClick={() => this.handlePin(item)}>
+              {isPinned ? $L('取消置顶') : $L('置顶')}
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleOpenNew(item)}>
+              {$L('新窗口打开')}
             </a>
             <a className="dropdown-item" onClick={() => this.handleRename(item)}>
               {$L('重命名')}
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
+              {$L('删除')}
             </a>
           </div>
         </span>
       </li>
     )
+  }
+
+  handlePin(item) {
+    $.post('/aibot2/post/chat-pin?chatid=' + item.chatid, () => this._loadChatList())
+  }
+
+  handleOpenNew(item) {
+    window.open(`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`, '_blank')
   }
 
   handleDelete(item) {

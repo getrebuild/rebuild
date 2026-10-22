@@ -110,7 +110,7 @@ public class FeedsPostController extends BaseController {
         if (ids.contains(feedsId)) {
             ids.remove(feedsId);
         } else {
-            if (ids.size() >= 3) ids.removeLast();
+            if (ids.size() >= 9) ids.removeLast();
             ids.addFirst(feedsId);
         }
 
