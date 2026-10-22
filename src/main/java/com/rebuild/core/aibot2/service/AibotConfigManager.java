@@ -177,10 +177,16 @@ public class AibotConfigManager implements ConfigManager {
 
         JSONArray agents = new JSONArray();
         for (ConfigBean cb : avail) {
-            agents.add(JSONUtils.toJSONObject(
+            JSONObject conf = (JSONObject) cb.getJSON("config");
+            JSONObject agent = JSONUtils.toJSONObject(
                     new String[]{"id", "name", "icon"},
-                    new Object[]{cb.getID("id"), cb.getString("name"),
-                            ((JSONObject) cb.getJSON("config")).getString("icon")}));
+                    new Object[]{cb.getID("id"), cb.getString("name"), conf.getString("icon")});
+
+            // 未设置表示不限制技能，空数组表示不可用任何技能
+            JSONArray skills = conf.getJSONArray("skills");
+            if (skills != null) agent.put("skills", skills);
+
+            agents.add(agent);
         }
         return agents;
     }

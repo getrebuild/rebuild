@@ -15,17 +15,26 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.MultiSelectManager;
+import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.dataimport.RecordCheckout;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -446,6 +455,118 @@ public class ToolHelper {
             throw new KnownToolException("过滤条件中存在无效配置项，请确认使用了 ListEntities 返回的真实字段名。"
                     + "无效项: " + joinErrors(parseErrors));
         }
+    }
+
+    /**
+     * 解析配置中的固定值（VFIXED）。运行时按字面值写入（见 EntityRecordCreator#setValueByLiteral），
+     * 不是字段名；下拉列表须存选项 ID、多选须存位掩码值，此处允许直接传选项文本并转换
+     *
+     * @param targetField 目标字段，为空时原样返回
+     * @param value
+     * @return
+     */
+    public static String resolveFixedValue(Field targetField, String value) {
+        // {CURRENT}/{RAND} 等系统变量由运行时取值
+        if (targetField == null || StringUtils.isBlank(value)
+                || FieldValueHelper.isCurrentVar(value) || FieldValueHelper._RAND.equals(value)) {
+            return value;
+        }
+
+        DisplayType dt = EasyMetaFactory.getDisplayType(targetField);
+        if (dt == DisplayType.PICKLIST) {
+            if (ID.isId(value) && ID.valueOf(value).getEntityCode() == EntityHelper.PickList) {
+                ID valId = ID.valueOf(value);
+                // 选项 ID 须属于目标字段的选项（含隐藏），否则运行时落成悬空引用
+                for (ConfigBean e : PickListManager.instance.getPickListRaw(targetField, true)) {
+                    if (valId.equals(e.getID("id"))) return value;
+                }
+                throw new KnownToolException(String.format(
+                        "固定值无效 : %s。选项 ID 不在目标字段 %s(%s) 的可用选项中，可用选项: %s",
+                        value, EasyMetaFactory.getLabel(targetField), targetField.getName(),
+                        buildOptionsDesc(targetField)));
+            }
+
+            ID itemId = PickListManager.instance.findItemByLabel(value, targetField);
+            if (itemId == null) {
+                throw new KnownToolException(String.format(
+                        "固定值无效 : %s。目标字段 %s(%s) 是下拉列表，须填选项文本或选项 ID，可用选项: %s",
+                        value, EasyMetaFactory.getLabel(targetField), targetField.getName(),
+                        buildOptionsDesc(targetField)));
+            }
+            return itemId.toLiteral();
+        }
+
+        // 多选存位掩码 long：允许传选项文本（多个用逗号分隔）或直接传掩码数字，与数据导入口径一致
+        if (dt == DisplayType.MULTISELECT) {
+            long mask = 0;
+            for (String s : value.split(RecordCheckout.MVAL_SPLIT)) {
+                mask += MultiSelectManager.instance.findMultiItemByLabel(s.trim(), targetField);
+            }
+            if (mask == 0) {
+                try {
+                    long numMask = Long.parseLong(value.trim());
+                    if (MultiSelectManager.instance.isValidMask(numMask, targetField)) return String.valueOf(numMask);
+                } catch (NumberFormatException ignored) {
+                }
+                throw new KnownToolException(String.format(
+                        "固定值无效 : %s。目标字段 %s(%s) 是多选，须填选项文本（多个用逗号分隔）或位掩码值，可用选项: %s",
+                        value, EasyMetaFactory.getLabel(targetField), targetField.getName(),
+                        buildOptionsDesc(targetField)));
+            }
+            return String.valueOf(mask);
+        }
+
+        return value;
+    }
+
+    // 下拉/多选字段的可用选项文本，供固定值无效时报错提示
+    private static String buildOptionsDesc(Field field) {
+        List<String> options = new ArrayList<>();
+        for (ConfigBean e : PickListManager.instance.getPickListRaw(field, false)) {
+            options.add(e.getString("text"));
+        }
+        return StringUtils.join(options, "、");
+    }
+
+    /**
+     * 找出公式中运行时取不到值的变量。各求值入口只把 `{字段名}` 形式的变量注入环境，
+     * 直接书写的裸标识符（如 recordId）能通过语法检查，运行时取到 null 且不报错，属静默失效
+     *
+     * @param formula 公式，可含 {{{{ }}}} 包裹
+     * @return 取不到值的变量名
+     */
+    public static List<String> findUnresolvedFormulaVars(String formula) {
+        if (StringUtils.isBlank(formula)) return Collections.emptyList();
+
+        String script = formula;
+        if (script.startsWith(AviatorUtils.CODE_PREFIX) && script.endsWith(AviatorUtils.CODE_SUFFIX)
+                && script.length() > AviatorUtils.CODE_PREFIX.length() + AviatorUtils.CODE_SUFFIX.length()) {
+            script = script.substring(AviatorUtils.CODE_PREFIX.length(), script.length() - AviatorUtils.CODE_SUFFIX.length());
+        }
+
+        Set<String> definedVars = new HashSet<>();
+        definedVars.add("__FormData");  // 由 AviatorUtils#eval 注入
+
+        for (String var : ContentWithFieldVars.matchsVars(script)) {
+            // 与引擎一致，`{^字段名}` 求值时替换为 `_字段名`
+            String envKey = var.replace("^", "_");
+            script = script.replace("{" + var + "}", envKey);
+            definedVars.add(envKey);
+            // 点连接路径（如 refField.subField）在引擎中是一个完整变量名，编译结果只暴露其根名
+            int dot = envKey.indexOf('.');
+            if (dot > 0) definedVars.add(envKey.substring(0, dot));
+        }
+
+        List<String> unresolved = new ArrayList<>();
+        try {
+            // 一次性校验脚本不入缓存，避免污染 Aviator 表达式缓存
+            for (String var : AviatorUtils.getInstance().compile(script, false).getVariableNames()) {
+                if (!definedVars.contains(var)) unresolved.add(var);
+            }
+        } catch (Exception ignored) {
+            // 语法错误由调用方单独报告
+        }
+        return unresolved;
     }
 
     /**

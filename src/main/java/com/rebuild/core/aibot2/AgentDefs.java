@@ -68,7 +68,10 @@ public class AgentDefs {
                 .setSkills(toSet(conf.getJSONArray("skills")))
                 .setTemperature(conf.getDouble("AibotTemperature"))
                 .setTopP(conf.getDouble("AibotTopP"))
-                .setContextCompressThreshold(conf.getLong("AibotContextCompressThreshold"));
+                .setContextCompressThreshold(conf.getLong("AibotContextCompressThreshold"))
+                .setAllowNewChat(Boolean.TRUE.equals(conf.getBoolean("allowNewChat")))
+                .setAllowUpload(Boolean.TRUE.equals(conf.getBoolean("allowUpload")))
+                .setAllowSkill(Boolean.TRUE.equals(conf.getBoolean("allowSkill")));
     }
 
     /**

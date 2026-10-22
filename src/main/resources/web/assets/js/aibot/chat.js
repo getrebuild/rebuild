@@ -66,6 +66,7 @@ class Chat extends React.Component {
       confirmAction: null,
       agents: [],
       agentId: null,
+      skills: [],
     }
     this._preset = props.preset
   }
@@ -100,6 +101,15 @@ class Chat extends React.Component {
     if (this.state.chatid !== prevState.chatid) {
       typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(this.state.chatid)
     }
+    if (this.state.agentId !== prevState.agentId || this.state.agents !== prevState.agents) {
+      const current = this.getCurrentAgent()
+      typeof this.props.onAgentChanged === 'function' && this.props.onAgentChanged(current && current.id ? current : null)
+    }
+  }
+
+  getCurrentAgent() {
+    const agents = this.state.agents || []
+    return agents.find((a) => (a.id || null) === (this.state.agentId || null)) || agents[0]
   }
 
   componentWillUnmount() {
@@ -141,7 +151,7 @@ class Chat extends React.Component {
             return
           }
         }
-        this.setState({ agents, agentId: agentId || d.agentId || null })
+        this.setState({ agents, agentId: agentId || d.agentId || null, skills: d.skills || [] })
         let messages = d.messages || []
         // 最后一条是用户消息，说明 AI 还在回答中（刷新中断场景）
         if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
@@ -277,13 +287,17 @@ class Chat extends React.Component {
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [], skills: [], activeSkill: null, planMode: false, planConfirmed: false }
+    this.state = { postState: 0, attach: [], activeSkill: null, planMode: false, planConfirmed: false }
   }
 
   render() {
-    const skills = this.state.skills || []
-    const agents = this.props._Chat.state.agents || []
-    const current = agents.find((a) => (a.id || null) === (this.props._Chat.state.agentId || null)) || agents[0]
+    const _Chat = this.props._Chat
+    const agents = _Chat.state.agents || []
+    const current = _Chat.getCurrentAgent()
+    const allSkills = _Chat.state.skills || []
+    // 智能体未配置 skills 表示不限制，配置为空数组表示不可用任何技能
+    const agentSkills = current && current.skills
+    const skills = Array.isArray(agentSkills) ? allSkills.filter((s) => agentSkills.some((n) => String(n).toLowerCase() === String(s.name).toLowerCase())) : allSkills
     return (
       <div className="chat-input-container">
         <div
@@ -360,7 +374,7 @@ class ChatInput extends React.Component {
                   <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
                     <i className="mdi mdi-flash-outline down-2" />
                   </button>
-                  <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 250 }} ref={(c) => (this._$skills = c)}>
+                  <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 250 }}>
                     {skills.map((s, idx) => (
                       <a
                         key={idx}
@@ -371,7 +385,7 @@ class ChatInput extends React.Component {
                         title={s.description || ''}>
                         {s.name}
                         {s.description && (
-                          <div className="text-muted fs-sm text-ellipsis" style={{ lineHeight: 1 }}>
+                          <div className="text-muted fs-sm text-ellipsis" style={{ lineHeight: 1, marginTop: 3 }}>
                             {s.description}
                           </div>
                         )}
@@ -553,16 +567,7 @@ class ChatInput extends React.Component {
     }
   }
 
-  _loadSkills() {
-    $.get('/aibot2/skills', (res) => {
-      this.setState({ skills: res.data || [] }, () => {
-        $(this._$skills).perfectScrollbar()
-      })
-    })
-  }
-
   componentDidMount() {
-    this._loadSkills()
     $multipleUploader(this._$file, (res) => {
       const attach = [...this.state.attach, { file: res.key, id: $random('attach-', true) }]
       this.setState({ attach })
@@ -1342,13 +1347,13 @@ class ChatSidebar extends React.Component {
       return <li className="text-muted text-center fs-md m-3">{$L('暂无会话')}</li>
     }
 
-    const labels = { today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
+    const labels = { pinned: $L('置顶'), today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
     const ret = list.map((g) => {
       if (!g.items || g.items.length === 0) return null
       return (
         <React.Fragment key={g.group}>
           <li className="chat-list-group fs-md">{labels[g.group] || g.group}</li>
-          {g.items.map((item) => this._renderItem(item))}
+          {g.items.map((item) => this._renderItem(item, g.group === 'pinned'))}
         </React.Fragment>
       )
     })
@@ -1356,7 +1361,7 @@ class ChatSidebar extends React.Component {
     return ret
   }
 
-  _renderItem(item) {
+  _renderItem(item, isPinned) {
     return (
       <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
         <a
@@ -1368,6 +1373,7 @@ class ChatSidebar extends React.Component {
             this.props._Chat.initChat(item.chatid)
             this.setState({ current: item.chatid })
           }}>
+          {isPinned && <i className="icon mdi mdi-pin mdi-rotate-45 mr-1 fs-14 down-1" />}
           {item.subject}
         </a>
         <span>
@@ -1375,16 +1381,30 @@ class ChatSidebar extends React.Component {
             <i className="icon zmdi zmdi-more fs-18" />
           </a>
           <div className="dropdown-menu dropdown-menu-right">
-            <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
-              {$L('删除')}
+            <a className="dropdown-item" onClick={() => this.handlePin(item)}>
+              {isPinned ? $L('取消置顶') : $L('置顶')}
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleOpenNew(item)}>
+              {$L('新窗口打开')}
             </a>
             <a className="dropdown-item" onClick={() => this.handleRename(item)}>
               {$L('重命名')}
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
+              {$L('删除')}
             </a>
           </div>
         </span>
       </li>
     )
+  }
+
+  handlePin(item) {
+    $.post('/aibot2/post/chat-pin?chatid=' + item.chatid, () => this._loadChatList())
+  }
+
+  handleOpenNew(item) {
+    window.open(`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`, '_blank')
   }
 
   handleDelete(item) {
@@ -1462,7 +1482,7 @@ class Attach extends React.Component {
     } else if (props.file) {
       this.setState({
         name: `[${$L('文件')}] ${$fileCutName(props.file)}`,
-        viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(props.file),
+        viewUrl: rb.currentUser ? `${rb.baseUrl}/commons/file-view?src=` + $encode(props.file) : null,
       })
     } else if (props.skill) {
       this.setState({

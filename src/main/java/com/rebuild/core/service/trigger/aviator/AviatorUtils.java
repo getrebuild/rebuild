@@ -66,7 +66,8 @@ import java.util.TreeSet;
 public class AviatorUtils {
 
     // 高级公式使用 {{{{}}}} 包裹
-    public static final String CODE_PREFIX = "{{{{";  // ends with }}}}
+    public static final String CODE_PREFIX = "{{{{";
+    public static final String CODE_SUFFIX = "}}}}";
 
     private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
 

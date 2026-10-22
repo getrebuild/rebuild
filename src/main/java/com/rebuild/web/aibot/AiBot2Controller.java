@@ -32,6 +32,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SysbaseSupport;
 import com.rebuild.core.support.i18n.Language;
@@ -54,7 +55,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -279,12 +283,8 @@ public class AiBot2Controller extends BaseController {
         agents.addAll(AibotConfigManager.instance.listAgentsForUser(user));
         data.put("agents", agents);
         data.put("agentId", agentId);
+        data.put("skills", SkillDefs.listSkills());
         return RespBody.ok(data);
-    }
-
-    @GetMapping("skills")
-    public RespBody skills() {
-        return RespBody.ok(SkillDefs.listSkills());
     }
 
     @PostMapping("post/chat-delete")
@@ -295,10 +295,22 @@ public class AiBot2Controller extends BaseController {
 
     @GetMapping("post/chat-list")
     public RespBody chatList(HttpServletRequest req) {
+        ID user = getRequestUser(req);
         Object[][] chats = Application.createQueryNoFilter(
                 "select chatId,subject,modifiedOn from AibotChat where createdBy = ? order by modifiedOn desc")
-                .setParameter(1, getRequestUser(req))
+                .setParameter(1, user)
+                .setLimit(2000)  // 最多显示
                 .array();
+
+        // 置顶项（按用户维度存于 KV），排在最前并从日期分组中剔除
+        Map<ID, Object[]> chatMap = new HashMap<>();
+        for (Object[] c : chats) chatMap.put((ID) c[0], c);
+
+        List<Object[]> pinned = new ArrayList<>();
+        for (ID id : getUserTopChats(user)) {
+            Object[] c = chatMap.remove(id);
+            if (c != null) pinned.add(c);
+        }
 
         // 按日期分组：今天 / 近三天 / 最近一周 / 更早
         long todayStart = org.apache.commons.lang3.time.DateUtils
@@ -311,6 +323,7 @@ public class AiBot2Controller extends BaseController {
         List<Object[]> week = new ArrayList<>();
         List<Object[]> earlier = new ArrayList<>();
         for (Object[] c : chats) {
+            if (!chatMap.containsKey(c[0])) continue;  // 已归入置顶
             long t = ((Date) c[2]).getTime();
             if (t >= todayStart) today.add(c);
             else if (t >= threeDayStart) recent3d.add(c);
@@ -319,11 +332,38 @@ public class AiBot2Controller extends BaseController {
         }
 
         JSONArray data = new JSONArray();
+        addChatGroup(data, "pinned", pinned);
         addChatGroup(data, "today", today);
         addChatGroup(data, "recent3d", recent3d);
         addChatGroup(data, "week", week);
         addChatGroup(data, "earlier", earlier);
         return RespBody.ok(data);
+    }
+
+    @PostMapping("post/chat-pin")
+    public RespBody chatPin(HttpServletRequest req) {
+        ID chatid = getOwnedChatIdNotNull(req);
+        ID user = getRequestUser(req);
+
+        LinkedList<ID> ids = getUserTopChats(user);
+        if (ids.contains(chatid)) {
+            ids.remove(chatid);
+        } else {
+            if (ids.size() >= 9) ids.removeLast();
+            ids.addFirst(chatid);
+        }
+        KVStorage.setCustomValue("AIBOT-TOP:" + user, StringUtils.join(ids, ","));
+
+        return RespBody.ok();
+    }
+
+    private static LinkedList<ID> getUserTopChats(ID user) {
+        String top = StringUtils.defaultString(KVStorage.getCustomValue("AIBOT-TOP:" + user), "");
+        LinkedList<ID> ids = new LinkedList<>();
+        for (String s : top.split(",")) {
+            if (ID.isId(s)) ids.add(ID.valueOf(s));
+        }
+        return ids;
     }
 
     private void addChatGroup(JSONArray data, String group, List<Object[]> items) {
