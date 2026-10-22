@@ -112,8 +112,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .chat-input.flex-column .chat-input-action .chat-agents button {
   width: auto;
-  padding: 0 10px;
+  padding: 0;
   white-space: nowrap;
+}
+
+.chat-input.flex-column .chat-input-action .chat-agents button:hover,
+.chat-input.flex-column .chat-input-action .chat-agents button:active {
+  opacity: 0.8;
+  background-color: transparent;
+  color: var(--rb-theme-color);
 }
 
 .chat-input .chat-input-attach {
