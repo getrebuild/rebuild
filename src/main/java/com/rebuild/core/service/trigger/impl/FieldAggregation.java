@@ -300,7 +300,8 @@ public class FieldAggregation extends TriggerAction {
             if (stopPropagation) GeneralEntityServiceContextHolder.isQuickMode(true);
         }
 
-        if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == FieldAggregation.class) {
+        if (operatingContext.getAction() == BizzPermission.UPDATE && this.getClass() == FieldAggregation.class
+                && !actionContext.getConfigAsBool("disableRefresh")) {
             this.fieldAggregationRefresh = new FieldAggregationRefresh(this, operatingContext, targetWithMatchFields);
         }
 
