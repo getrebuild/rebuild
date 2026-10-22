@@ -161,9 +161,9 @@ public class FieldAggregation extends TriggerAction {
         final List<String> tschain = checkTriggerChain(chainName);
         if (tschain == null) return TriggerResult.triggerOnce();
 
-        // v4.3-b3 合并执行，已执行则跳过
+        // v4.3-b3 合并执行，已执行/内部重算NONE 则跳过
         final boolean useMergeExec = actionContext.getConfigAsBool("useMergeExec");
-        if (useMergeExec) {
+        if (useMergeExec && operatingContext.getAction() != BizzPermission.NONE) {
             Set<ID> set = EXEC_TRIGGERS43.get();
             if (set != null && set.contains(actionContext.getConfigId())) {
                 log.info("Use merge execution : {}", actionContext.getConfigId());
@@ -443,5 +443,12 @@ public class FieldAggregation extends TriggerAction {
         Object o = TRIGGER_CHAIN.get();
         TRIGGER_CHAIN.remove();
         return o;
+    }
+
+    /**
+     * 清理合并执行标记（在操作收口时需要调用，触发链内不清）
+     */
+    public static void cleanMergedExec() {
+        EXEC_TRIGGERS43.remove();
     }
 }
