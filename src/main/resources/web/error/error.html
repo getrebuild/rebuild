@@ -14,7 +14,6 @@
       .zmdi.err404 {
         color: #4285f4 !important;
       }
-      .zmdi.err401,
       .zmdi.err403,
       .zmdi.err600 {
         color: #fbbc05 !important;
@@ -28,6 +27,10 @@
       .zmdi.err603::before,
       .zmdi.err604::before {
         content: '\f119';
+      }
+      .zmdi.err401::before {
+        content: '\F205';
+        color: #bbb;
       }
       .error-description > pre:empty {
         display: none;
@@ -48,13 +51,13 @@
         <div class="main-content container">
           <div class="error-container">
             <div class="error-number mb-0"><i class="zmdi zmdi-alert-circle text-danger" th:classappend="${'err' + error_code}"></i></div>
-            <th:block th:if="${'UNLOGIN' == error_msg}">
+            <th:block th:if="${error_code == 401}">
               <div class="error-description">[[${bundle.L('请登录后使用')}]]</div>
               <div class="error-goback-button">
                 <a class="btn btn-xl btn-space btn-primary" th:href="@{/user/login?nexturl=}" id="goLogin">[[${bundle.L('去登录')}]]</a>
               </div>
             </th:block>
-            <th:block th:if="${'UNLOGIN' != error_msg}">
+            <th:block th:if="${error_code != 401}">
               <div class="error-description" th:utext="${error_msg}"></div>
               <div th:if="${error_stack != null}" class="error-description text-left"><pre th:utext="${error_stack}"></pre></div>
               <div class="error-goback-button">
@@ -94,7 +97,9 @@
       }
       // v4.6
       var $goLogin = document.getElementById('goLogin')
-      if ($goLogin) $goLogin.setAttribute('href', $goLogin.getAttribute('href') + encodeURIComponent(location.href))
+      if ($goLogin) {
+        $goLogin.setAttribute('href', $goLogin.getAttribute('href') + encodeURIComponent(location.href))
+      }
     </script>
   </body>
 </html>
