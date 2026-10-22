@@ -167,6 +167,10 @@ public class BuildField implements Tool, AdminGuard, ConfirmableTool {
         }
 
         if (!ALLOWED_TYPES.contains(dt)) {
+            if (dt == DisplayType.BARCODE) {
+                throw new KnownToolException("不支持创建条形码字段 (BARCODE)，此类字段需由用户到实体的字段页手动添加，"
+                        + "请引导用户操作而不要重复尝试；若只需承载码值内容，可改用 TEXT 或 SERIES 字段");
+            }
             throw new KnownToolException("不支持创建该字段类型 : " + typeStr + "，可用类型: " + buildAllowedTypesDesc());
         }
         return dt;

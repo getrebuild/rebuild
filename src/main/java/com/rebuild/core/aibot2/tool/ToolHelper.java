@@ -15,17 +15,24 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.trigger.aviator.AviatorUtils;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +44,9 @@ import java.util.Set;
  * @since 2026/7/24
  */
 public class ToolHelper {
+
+    // 高级公式的结尾包裹（与 AviatorUtils.CODE_PREFIX 成对）
+    private static final String CODE_SUFFIX = "}}}}";
 
     private ToolHelper() {}
 
@@ -446,6 +456,77 @@ public class ToolHelper {
             throw new KnownToolException("过滤条件中存在无效配置项，请确认使用了 ListEntities 返回的真实字段名。"
                     + "无效项: " + joinErrors(parseErrors));
         }
+    }
+
+    /**
+     * 解析配置中的固定值（VFIXED）。运行时按字面值写入（见 EntityRecordCreator#setValueByLiteral），
+     * 不是字段名；下拉列表字段须存选项 ID，此处允许直接传选项文本并转换
+     *
+     * @param targetField 目标字段，为空时原样返回
+     * @param value
+     * @return
+     */
+    public static String resolveFixedValue(Field targetField, String value) {
+        // {CURRENT}/{RAND} 等系统变量由运行时取值
+        if (targetField == null || StringUtils.isBlank(value)
+                || FieldValueHelper.isCurrentVar(value) || FieldValueHelper._RAND.equals(value)) {
+            return value;
+        }
+        if (EasyMetaFactory.getDisplayType(targetField) != DisplayType.PICKLIST) return value;
+        if (ID.isId(value) && ID.valueOf(value).getEntityCode() == EntityHelper.PickList) return value;
+
+        ID itemId = PickListManager.instance.findItemByLabel(value, targetField);
+        if (itemId == null) {
+            List<String> options = new ArrayList<>();
+            for (ConfigBean e : PickListManager.instance.getPickListRaw(targetField, false)) {
+                options.add(e.getString("text"));
+            }
+            throw new KnownToolException(String.format(
+                    "固定值无效 : %s。目标字段 %s(%s) 是下拉列表，须填选项文本或选项 ID，可用选项: %s",
+                    value, EasyMetaFactory.getLabel(targetField), targetField.getName(),
+                    StringUtils.join(options, "、")));
+        }
+        return itemId.toLiteral();
+    }
+
+    /**
+     * 找出公式中运行时取不到值的变量。各求值入口只把 `{字段名}` 形式的变量注入环境，
+     * 直接书写的裸标识符（如 recordId）能通过语法检查，运行时取到 null 且不报错，属静默失效
+     *
+     * @param formula 公式，可含 {{{{ }}}} 包裹
+     * @return 取不到值的变量名
+     */
+    public static List<String> findUnresolvedFormulaVars(String formula) {
+        if (StringUtils.isBlank(formula)) return Collections.emptyList();
+
+        String script = formula;
+        if (script.startsWith(AviatorUtils.CODE_PREFIX) && script.endsWith(CODE_SUFFIX)
+                && script.length() > AviatorUtils.CODE_PREFIX.length() + CODE_SUFFIX.length()) {
+            script = script.substring(AviatorUtils.CODE_PREFIX.length(), script.length() - CODE_SUFFIX.length());
+        }
+
+        Set<String> definedVars = new HashSet<>();
+        definedVars.add("__FormData");  // 由 AviatorUtils#eval 注入
+
+        for (String var : ContentWithFieldVars.matchsVars(script)) {
+            // 与引擎一致，`{^字段名}` 求值时替换为 `_字段名`
+            String envKey = var.replace("^", "_");
+            script = script.replace("{" + var + "}", envKey);
+            definedVars.add(envKey);
+            // 点连接路径（如 refField.subField）在引擎中是一个完整变量名，编译结果只暴露其根名
+            int dot = envKey.indexOf('.');
+            if (dot > 0) definedVars.add(envKey.substring(0, dot));
+        }
+
+        List<String> unresolved = new ArrayList<>();
+        try {
+            for (String var : AviatorUtils.getInstance().compile(script, true).getVariableNames()) {
+                if (!definedVars.contains(var)) unresolved.add(var);
+            }
+        } catch (Exception ignored) {
+            // 语法错误由调用方单独报告
+        }
+        return unresolved;
     }
 
     /**

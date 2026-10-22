@@ -28,7 +28,7 @@
             "IMAGE", "FILE", "PICKLIST", "MULTISELECT", "CLASSIFICATION",
             "REFERENCE", "N2NREFERENCE"
           ],
-          "description": "字段类型。TEXT(文本)、NTEXT(多行文本)、NUMBER(整数)、DECIMAL(小数)、BOOL(复选框)、LOCATION(位置)、TAG(标签)、SERIES(自动编号)、IMAGE(图片)、FILE(附件)、PICKLIST(下拉列表)、MULTISELECT(多选)、CLASSIFICATION(分类)、REFERENCE(引用)、N2NREFERENCE(多引用)，其余见名知义"
+          "description": "字段类型。TEXT(文本)、NTEXT(多行文本)、NUMBER(整数)、DECIMAL(小数)、BOOL(复选框)、LOCATION(位置)、TAG(标签)、SERIES(自动编号)、IMAGE(图片)、FILE(附件)、PICKLIST(下拉列表)、MULTISELECT(多选)、CLASSIFICATION(分类)、REFERENCE(引用)、N2NREFERENCE(多引用)，其余见名知义。不支持条形码/二维码(BARCODE)字段，需引导用户到实体字段页手动添加，承载码值内容可改用 TEXT 或 SERIES"
         },
         "refEntity": {
           "type": "string",

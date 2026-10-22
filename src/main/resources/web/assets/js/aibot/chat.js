@@ -100,6 +100,15 @@ class Chat extends React.Component {
     if (this.state.chatid !== prevState.chatid) {
       typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(this.state.chatid)
     }
+    if (this.state.agentId !== prevState.agentId || this.state.agents !== prevState.agents) {
+      const current = this.getCurrentAgent()
+      typeof this.props.onAgentChanged === 'function' && this.props.onAgentChanged(current && current.id ? current.name : null)
+    }
+  }
+
+  getCurrentAgent() {
+    const agents = this.state.agents || []
+    return agents.find((a) => (a.id || null) === (this.state.agentId || null)) || agents[0]
   }
 
   componentWillUnmount() {
@@ -283,7 +292,7 @@ class ChatInput extends React.Component {
   render() {
     const skills = this.state.skills || []
     const agents = this.props._Chat.state.agents || []
-    const current = agents.find((a) => (a.id || null) === (this.props._Chat.state.agentId || null)) || agents[0]
+    const current = this.props._Chat.getCurrentAgent()
     return (
       <div className="chat-input-container">
         <div
@@ -1368,7 +1377,7 @@ class ChatSidebar extends React.Component {
             this.props._Chat.initChat(item.chatid)
             this.setState({ current: item.chatid })
           }}>
-          {isPinned && <i className="icon zmdi zmdi-format-valign-top mr-1 fs-14 down-1" />}
+          {isPinned && <i className="icon mdi mdi-pin mdi-rotate-45 mr-1 fs-14 down-1" />}
           {item.subject}
         </a>
         <span>
