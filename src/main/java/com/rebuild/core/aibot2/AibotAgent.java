@@ -112,6 +112,20 @@ public class AibotAgent implements Serializable {
     @Accessors(chain = true)
     private Long contextCompressThreshold;
 
+    // 公开访客聊天页（/aibot/pub）能力开关，未配置即为 false（禁用），内部聊天不受影响
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private boolean allowNewChat;
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private boolean allowUpload;
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private boolean allowSkill;
+
     public OpenAIClient client() {
         if (StringUtils.isBlank(dsUrl) && StringUtils.isBlank(dsSecret)) return Config.getClient();
 

@@ -297,9 +297,7 @@ class ChatInput extends React.Component {
     const allSkills = _Chat.state.skills || []
     // 智能体未配置 skills 表示不限制，配置为空数组表示不可用任何技能
     const agentSkills = current && current.skills
-    const skills = Array.isArray(agentSkills)
-      ? allSkills.filter((s) => agentSkills.some((n) => String(n).toLowerCase() === String(s.name).toLowerCase()))
-      : allSkills
+    const skills = Array.isArray(agentSkills) ? allSkills.filter((s) => agentSkills.some((n) => String(n).toLowerCase() === String(s.name).toLowerCase())) : allSkills
     return (
       <div className="chat-input-container">
         <div
@@ -387,7 +385,7 @@ class ChatInput extends React.Component {
                         title={s.description || ''}>
                         {s.name}
                         {s.description && (
-                          <div className="text-muted fs-sm text-ellipsis" style={{ lineHeight: 1 }}>
+                          <div className="text-muted fs-sm text-ellipsis" style={{ lineHeight: 1, marginTop: 3 }}>
                             {s.description}
                           </div>
                         )}
@@ -1484,7 +1482,7 @@ class Attach extends React.Component {
     } else if (props.file) {
       this.setState({
         name: `[${$L('文件')}] ${$fileCutName(props.file)}`,
-        viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(props.file),
+        viewUrl: rb.currentUser ? `${rb.baseUrl}/commons/file-view?src=` + $encode(props.file) : null,
       })
     } else if (props.skill) {
       this.setState({
