@@ -185,7 +185,7 @@ public class AibotAgent implements Serializable {
                 Config.getBasePrompt(), prompt, allowedSkill(skillName), planMode, planConfirmed, tools);
     }
 
-    private String allowedSkill(String skillName) {
+    public String allowedSkill(String skillName) {
         if (StringUtils.isBlank(skillName) || skills == null) return skillName;
 
         List<String> allowed = new ArrayList<>();

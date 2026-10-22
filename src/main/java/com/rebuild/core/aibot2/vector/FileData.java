@@ -101,6 +101,11 @@ public class FileData implements VectorData {
             }
 
         } else {
+            // 任意路径读取防护：文件键须为相对键（如 rb/..），不接受绝对路径；未命中存储目录即视为不存在
+            if (filePath.contains(":") || filePath.startsWith("/") || filePath.startsWith("\\")) {
+                throw new AiBotException("无法读取文件:" + filePath);
+            }
+
             file = RebuildConfiguration.getFileOfTemp(filePath);
             if (!file.exists()) file = RebuildConfiguration.getFileOfData(filePath);
             if (!file.exists() && QiniuCloud.instance().available()) {
@@ -110,7 +115,6 @@ public class FileData implements VectorData {
                     log.warn("Cannot download file from cloud : {}", filePath);
                 }
             }
-            if (!file.exists()) file = new File(filePath);
         }
 
         if (file == null || !file.isFile()) {
