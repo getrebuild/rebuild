@@ -12,7 +12,7 @@ class AiBot extends React.Component {
     super(props)
     this._isShown = false
     const savedDock = $storage.get('__AiBotDockMode')
-    this.state = { dockMode: !savedDock ? true : savedDock === 'true', chatid: props.chatid }
+    this.state = { dockMode: !savedDock ? true : savedDock === 'true', chatid: props.chatid, agent: null }
   }
 
   render() {
@@ -22,8 +22,8 @@ class AiBot extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <i className="icon mdi mdi-shimmer" />
-              <h3 className="modal-title">{rb._aibotName || $L('Rex AI 助手')}</h3>
+              <i className={`icon mdi ${(this.state.agent && this.state.agent.icon) || 'mdi-shimmer'}`} />
+              <h3 className="modal-title">{(this.state.agent && this.state.agent.name) || rb._aibotName || $L('Rex AI 助手')}</h3>
               <button
                 className="close fs-19"
                 type="button"
@@ -56,6 +56,7 @@ class AiBot extends React.Component {
                   this.setState({ chatid: id })
                   typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(id)
                 }}
+                onAgentChanged={(agent) => this.setState({ agent })}
                 ref={(c) => (this._Chat = c)}
               />
             </div>

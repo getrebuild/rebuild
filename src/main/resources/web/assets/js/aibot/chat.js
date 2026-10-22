@@ -102,7 +102,7 @@ class Chat extends React.Component {
     }
     if (this.state.agentId !== prevState.agentId || this.state.agents !== prevState.agents) {
       const current = this.getCurrentAgent()
-      typeof this.props.onAgentChanged === 'function' && this.props.onAgentChanged(current && current.id ? current.name : null)
+      typeof this.props.onAgentChanged === 'function' && this.props.onAgentChanged(current && current.id ? current : null)
     }
   }
 
