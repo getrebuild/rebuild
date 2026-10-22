@@ -283,12 +283,8 @@ public class AiBot2Controller extends BaseController {
         agents.addAll(AibotConfigManager.instance.listAgentsForUser(user));
         data.put("agents", agents);
         data.put("agentId", agentId);
+        data.put("skills", SkillDefs.listSkills());
         return RespBody.ok(data);
-    }
-
-    @GetMapping("skills")
-    public RespBody skills() {
-        return RespBody.ok(SkillDefs.listSkills());
     }
 
     @PostMapping("post/chat-delete")

@@ -66,6 +66,7 @@ class Chat extends React.Component {
       confirmAction: null,
       agents: [],
       agentId: null,
+      skills: [],
     }
     this._preset = props.preset
   }
@@ -150,7 +151,7 @@ class Chat extends React.Component {
             return
           }
         }
-        this.setState({ agents, agentId: agentId || d.agentId || null })
+        this.setState({ agents, agentId: agentId || d.agentId || null, skills: d.skills || [] })
         let messages = d.messages || []
         // 最后一条是用户消息，说明 AI 还在回答中（刷新中断场景）
         if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
@@ -286,13 +287,19 @@ class Chat extends React.Component {
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [], skills: [], activeSkill: null, planMode: false, planConfirmed: false }
+    this.state = { postState: 0, attach: [], activeSkill: null, planMode: false, planConfirmed: false }
   }
 
   render() {
-    const skills = this.state.skills || []
-    const agents = this.props._Chat.state.agents || []
-    const current = this.props._Chat.getCurrentAgent()
+    const _Chat = this.props._Chat
+    const agents = _Chat.state.agents || []
+    const current = _Chat.getCurrentAgent()
+    const allSkills = _Chat.state.skills || []
+    // 智能体未配置 skills 表示不限制，配置为空数组表示不可用任何技能
+    const agentSkills = current && current.skills
+    const skills = Array.isArray(agentSkills)
+      ? allSkills.filter((s) => agentSkills.some((n) => String(n).toLowerCase() === String(s.name).toLowerCase()))
+      : allSkills
     return (
       <div className="chat-input-container">
         <div
@@ -369,7 +376,7 @@ class ChatInput extends React.Component {
                   <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
                     <i className="mdi mdi-flash-outline down-2" />
                   </button>
-                  <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 250 }} ref={(c) => (this._$skills = c)}>
+                  <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 250 }}>
                     {skills.map((s, idx) => (
                       <a
                         key={idx}
@@ -562,16 +569,7 @@ class ChatInput extends React.Component {
     }
   }
 
-  _loadSkills() {
-    $.get('/aibot2/skills', (res) => {
-      this.setState({ skills: res.data || [] }, () => {
-        $(this._$skills).perfectScrollbar()
-      })
-    })
-  }
-
   componentDidMount() {
-    this._loadSkills()
     $multipleUploader(this._$file, (res) => {
       const attach = [...this.state.attach, { file: res.key, id: $random('attach-', true) }]
       this.setState({ attach })
