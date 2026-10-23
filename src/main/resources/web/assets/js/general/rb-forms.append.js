@@ -252,10 +252,11 @@ class DeleteConfirm extends RbAlert {
   }
 
   handleDelete() {
+    debugger
     let ids = this.props.ids || this.props.id
     if (!ids || ids.length === 0) return
     if (typeof ids === 'object') ids = ids.join(',')
-    const cascades = this.__select2 ? this.__select2.val().join(',') : ''
+    const cascades = this.state.enableCascade && this.__select2 ? this.__select2.val().join(',') : ''
 
     let _timer1 = setTimeout(() => $(this._$dbtn).text($L('请稍后')), 15000)
     let _timer2 = setTimeout(() => $(this._$dbtn).text($L('仍在处理')), 30000)
