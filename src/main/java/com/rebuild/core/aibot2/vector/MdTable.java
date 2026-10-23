@@ -89,6 +89,6 @@ public class MdTable {
 
     private String escapeValue(String md) {
         if (StringUtils.isBlank(md)) return StringUtils.EMPTY;
-        return md.replace("|", "\\|").replace("\n", " ");
+        return VectorData.flatten(md).replace("|", "\\|");
     }
 }

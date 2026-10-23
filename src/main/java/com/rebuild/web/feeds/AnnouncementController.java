@@ -124,6 +124,8 @@ public class AnnouncementController extends BaseController {
     @PostMapping("/commons/announcements/make-read")
     public RespBody announcementMakeRead(@IdParam ID aid, HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        if (!FeedsHelper.checkReadable(aid, user)) return RespBody.error(403);
+
         Record status = EntityHelper.forNew(EntityHelper.FeedsStatus, user);
         status.setID("feedsId", aid);
         Application.getCommonsService().create(status);
