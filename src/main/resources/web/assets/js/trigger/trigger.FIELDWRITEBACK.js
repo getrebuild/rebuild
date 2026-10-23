@@ -268,7 +268,7 @@ class ContentFieldWriteback extends ActionContentSpec {
         if (content && content.targetEntity) {
           $s2te.val(content.targetEntity)
           if (!$s2te.val()) this.setState({ hasWarning: `${$L('目标实体已经不可用')} [${content.targetEntity.toUpperCase()}]` })
-          if (rb.env !== 'dev') $s2te.attr('disabled', true)
+          // if (rb.env !== 'dev') $s2te.attr('disabled', true)
         }
 
         $s2te.trigger('change')

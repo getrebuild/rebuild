@@ -58,9 +58,17 @@ public class ShortUrls {
         record.setString("longUrl", longUrl);
         if (seconds > 0) record.setDate("expireTime", CalendarUtils.add(seconds, Calendar.SECOND));
 
-        final String shortKey = CodecUtils.randomCode(20);
-        record.setString("shortKey", shortKey);
+        String shortKey;
+        while (true) {
+            shortKey = CodecUtils.randomCode(10);
+            Object e = Application.createQueryNoFilter(
+                    "select shortId from ShortUrl where shortKey = ?")
+                    .setParameter(1, shortKey)
+                    .unique();
+            if (e == null) break;
+        }
 
+        record.setString("shortKey", shortKey);
         Application.getCommonsService().create(record);
         return shortKey;
     }
