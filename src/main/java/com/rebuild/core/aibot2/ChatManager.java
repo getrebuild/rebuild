@@ -225,7 +225,7 @@ public abstract class ChatManager {
     }
 
     /**
-     * 以指定用户身份提问/回答（会话归属该用户，工具按其权限执行）
+     * 以指定用户身份提问/回答，会话归属该用户
      *
      * @param userContent
      * @param source
@@ -237,6 +237,28 @@ public abstract class ChatManager {
         ID keepCurrentUser = UserContextHolder.setUser(user);
         try {
             return ask(userContent, prompt, files, source);
+        } finally {
+            UserContextHolder.clearUser(keepCurrentUser);
+        }
+    }
+
+    /**
+     * 以指定用户身份提问/回答，会话归属该用户
+     *
+     * @param userContent
+     * @param prompt
+     * @param files
+     * @param source
+     * @param user
+     * @param chatid 传入已有会话 ID 可连接上下文进行多轮对话
+     * @return [0]=AI 回答，[1]=chatid
+     */
+    public static String[] askAsUser(String userContent, String prompt, List<File> files, String source, ID user, ID chatid) {
+        Assert.notNull(user, "[user] cannot be null");
+        ID keepCurrentUser = UserContextHolder.setUser(user);
+        try {
+            if (chatid == null) chatid = initChat(user, userContent);
+            return ask(userContent, prompt, files, source, chatid);
         } finally {
             UserContextHolder.clearUser(keepCurrentUser);
         }
