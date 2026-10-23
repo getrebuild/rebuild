@@ -35,7 +35,7 @@ import java.util.List;
  * 文件
  *
  * @author Zixin
- * @since 2026/4/28
+ * @since 2026/9/10
  */
 @Slf4j
 public class FileData implements VectorData {
@@ -116,6 +116,7 @@ public class FileData implements VectorData {
             content = StringUtils.trim(content);
 
             if (StringUtils.isBlank(content)) content = "无法识别文件";
+            else content = VectorData.truncate(content);
 
         } catch (Throwable e) {
             throw new AiBotException("无法识别文件:" + e.getLocalizedMessage());

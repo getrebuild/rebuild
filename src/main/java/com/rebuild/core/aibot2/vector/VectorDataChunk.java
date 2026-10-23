@@ -33,7 +33,7 @@ public class VectorDataChunk implements VectorData {
         for (VectorData data : datas) {
             out.append(data.toVector().trim()).append(NN);
         }
-        return out.toString();
+        return VectorData.truncate(out.toString());
     }
 
     @Override

@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.i18n.Language;
@@ -53,6 +54,7 @@ public class FeedsPostController extends BaseController {
     @RequestMapping("like")
     public RespBody like(HttpServletRequest request, @IdParam ID source) {
         final ID user = getRequestUser(request);
+        if (!FeedsHelper.checkReadable(source, user)) return RespBody.error(403);
 
         Object[] liked = Application.createQueryNoFilter(
                 "select likeId from FeedsLike where source = ? and createdBy = ?")
@@ -72,7 +74,12 @@ public class FeedsPostController extends BaseController {
 
     @RequestMapping("delete")
     public RespBody delete(@IdParam ID anyFeedsId) {
-        Application.getService(anyFeedsId.getEntityCode()).delete(anyFeedsId);
+        int entityCode = anyFeedsId.getEntityCode();
+        if (entityCode != EntityHelper.Feeds && entityCode != EntityHelper.FeedsComment) {
+            return RespBody.error(403);
+        }
+
+        Application.getService(entityCode).delete(anyFeedsId);
         return RespBody.ok();
     }
 

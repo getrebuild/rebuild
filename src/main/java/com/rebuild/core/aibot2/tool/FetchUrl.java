@@ -35,7 +35,7 @@ import java.util.Set;
 @Slf4j
 public class FetchUrl implements Tool {
 
-    private static final int MAX_LEN = 20000;
+    private static final int MAX_LEN = 65535;
     private static final int REQ_TIMEOUT = 15;
 
     private static final Set<String> BLOCKED_HEADERS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(

@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2.tool;
 
 import com.rebuild.TestSupport;
-import com.rebuild.core.aibot2.vector.EntitiesData;
 import com.rebuild.core.aibot2.vector.FileData;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
@@ -21,12 +20,6 @@ import java.io.FileNotFoundException;
  * @since 2025/5/10
  */
 public class VectorDataTest extends TestSupport {
-
-    @Test
-    void testEntitiesData() {
-        String c = new EntitiesData().toVector();
-        System.out.println(c);
-    }
 
     @Test
     void testFileData() throws FileNotFoundException {
