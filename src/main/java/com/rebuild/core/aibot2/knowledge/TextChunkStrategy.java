@@ -147,7 +147,7 @@ public class TextChunkStrategy implements ChunkStrategy {
     /**
      * 判断字符串是否包含 CJK 汉字
      */
-    private static boolean containsCJK(String text) {
+    public static boolean containsCJK(String text) {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (c >= 0x4E00 && c <= 0x9FFF) return true;

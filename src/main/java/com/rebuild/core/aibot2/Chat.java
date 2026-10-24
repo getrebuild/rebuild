@@ -355,7 +355,8 @@ public class Chat implements Serializable {
 
         for (Object msg : data) {
             JSONObject msgJson = (JSONObject) msg;
-            String role = msgJson.getString("role");
+            // 旧版 pub 会话的用户消息未存 role，此处兜底
+            String role = StringUtils.defaultIfBlank(msgJson.getString("role"), ROLE_USER);
             String content = msgJson.getString("content");
 
             if (ROLE_USER.equals(role)) {
