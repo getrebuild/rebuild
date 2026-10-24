@@ -84,7 +84,7 @@ class Chat extends React.Component {
   }
 
   componentDidMount() {
-    this.initChat(this.state.chatid)
+    this.initChat(this.state.chatid, this.props.agentId)
 
     $(this._$chat).on('click.sidebar-hide', (e) => {
       if (this.props.standalone && window.innerWidth >= 900) return
@@ -117,7 +117,10 @@ class Chat extends React.Component {
     $(this._$chat).off('click.chat-hide')
   }
 
+  // agentId 未指定（undefined）时沿用上次选择的 agent，指定 null 则为默认 agent
   initChat(chatid, agentId) {
+    const useLastAgent = agentId === undefined && !chatid
+
     this._stopPendingPoll()
 
     // 如果当前正在对话，仅关闭前端连接，后端继续完成并保存完整内容
@@ -144,9 +147,11 @@ class Chat extends React.Component {
           this._ChatSidebar.setState({ current: d._chatid })
         }
         const agents = d.agents || []
-        if (!agentId && !chatid) {
+        if (useLastAgent) {
           const last = $storage.get('__AiBotLastAgent')
           if (last && agents.some((a) => (a.id || null) === last)) {
+            // 递归重新初始化，未消费的 preset 需带过去
+            this._preset = _preset
             this.initChat(null, last)
             return
           }

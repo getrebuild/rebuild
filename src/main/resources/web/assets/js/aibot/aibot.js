@@ -34,7 +34,14 @@ class AiBot extends React.Component {
                 title={$L('独立窗口')}>
                 <span className="mdi mdi-open-in-new down-1" />
               </button>
-              <button className="close" type="button" onClick={() => this._Chat.initChat()} title={$L('新会话')}>
+              <button
+                className="close"
+                type="button"
+                onClick={() => {
+                  this._Chat.initChat()
+                  $storage.remove('__AiBotLastChatId')
+                }}
+                title={$L('新会话')}>
                 <span className="mdi mdi-chat-plus-outline" />
               </button>
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('会话列表')}>
@@ -52,6 +59,7 @@ class AiBot extends React.Component {
                 chatid={this.props.chatid}
                 preset={this.props.preset}
                 sendMode={this.props.sendMode}
+                agentId={this.props.agentId}
                 onChatidChanged={(id) => {
                   this.setState({ chatid: id })
                   typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(id)
@@ -199,7 +207,7 @@ class AiBot extends React.Component {
       }
       if (preset) {
         window._AiBot._Chat._preset = preset
-        window._AiBot._Chat.initChat()
+        window._AiBot._Chat.initChat(null, props.agentId)
       }
     } else {
       var aiBotProps = { ...props }
@@ -224,11 +232,12 @@ class AiCreateButton extends React.Component {
 
   _handleClick(e) {
     $stopEvent(e, true)
-    AiCreateButton.openAibot(this.props.presetContent)
+    AiCreateButton.openAibot(this.props.presetContent, this.props.agentId)
   }
 
   // @see AiBot#init
-  static openAibot(presetContent) {
-    AiBot.init({ preset: { content: presetContent, autoSend: true } })
+  static openAibot(presetContent, agentId = null) {
+    // 创建类指令依赖默认 agent 的管理工具，未指定时不沿用上次选择的 agent
+    AiBot.init({ preset: { content: presetContent, autoSend: true }, agentId })
   }
 }

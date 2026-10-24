@@ -550,6 +550,33 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   transition: all 0.4s;
 }
 
+.agent-card-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.agent-card-head > .text-truncate {
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-icon-tile {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(254, 82, 129, 0.14), rgba(71, 78, 254, 0.14));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.agent-icon-tile.tile-minapp {
+  background: linear-gradient(135deg, rgba(71, 78, 254, 0.14), rgba(0, 194, 168, 0.18));
+}
+
 .chat-message .msg-user .markdown-body,
 .chat-message .msg-user .markdown-body a {
   color: #fff;

@@ -59,7 +59,6 @@ $(document).ready(() => {
           data.forEach((item) => {
             $.post(`./aibot/kb-build?id=${item.id}`)
           })
-          RbHighbar.success($L('已提交重建任务'))
           KbList.load()
         })
       },
@@ -90,7 +89,7 @@ class KbList extends React.Component {
       let chunkBadge
       if (item.chunkCount > 0)
         chunkBadge = (
-          <span className="badge badge-light ml-1" title={$L('知识分片')}>
+          <span className="badge badge-light ml-1" title={$L('索引')}>
             {item.chunkCount}
           </span>
         )
