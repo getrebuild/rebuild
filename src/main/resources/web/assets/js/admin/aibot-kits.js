@@ -48,6 +48,24 @@ $(document).ready(() => {
     setTimeout(() => $file.click(), 20)
   })
 
+  $('.J_rebuildKb').on('click', (e) => {
+    $stopEvent(e, true)
+    RbAlert.create($L('确认重建全部知识库的索引？'), {
+      confirmText: $L('重建'),
+      confirm: function () {
+        this.hide()
+        $.get('./aibot/kb-list', (res) => {
+          const data = res.data || []
+          data.forEach((item) => {
+            $.post(`./aibot/kb-build?id=${item.id}`)
+          })
+          RbHighbar.success($L('已提交重建任务'))
+          KbList.load()
+        })
+      },
+    })
+  })
+
   _renderMcpConfig()
 })
 
@@ -59,6 +77,10 @@ class KbList extends React.Component {
       const data = res.data || []
       $('.J_kbEmpty').toggle(data.length === 0)
       renderRbcomp(<KbList data={data} />, 'kbList')
+      // 有构建中的知识库时自动刷新，直至全部完成
+      if (data.some((item) => item.chunkCount === -1)) {
+        $setTimeout(() => KbList.load(), 5000, 'KbList.load')
+      }
     })
   }
 
