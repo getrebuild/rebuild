@@ -70,30 +70,30 @@ const __showRexGuide = function (configured, isAdmin) {
     <div>
       <div className="rex-guide-feat">
         <i className="mdi mdi-shimmer rex-guide-qicon" />
-        解答系统使用和业务知识问题
+        系统和业务问题，问了就有答案
       </div>
       <div className="rex-guide-feat">
         <i className="mdi mdi-comment-text-outline rex-guide-qicon" />
-        用一句话创建业务记录
+        一句话建好业务记录，不用逐个填表单
       </div>
       <div className="rex-guide-feat">
         <i className="mdi mdi-database-search-outline rex-guide-qicon" />
-        快速查找并汇总你需要的数据
+        要找要汇总的数据，说一句就行
       </div>
     </div>
   )
 
   if (configured) {
-    const questions = ['系统里都有哪些业务实体？', '帮我创建一条客户记录', '如何配置一个自动化触发器？']
+    const questions = isAdmin ? ['系统里都有哪些业务实体', '如何配置一个自动化触发器', '帮我创建一条客户记录'] : ['帮我创建一条客户记录', '怎么快速找到我需要的数据', '有哪些待我审批的记录']
     RbHeroModal.show({
       ...heroProps,
       icon: <i className="mdi mdi-shimmer" />,
-      title: `认识一下 ${name}`,
-      subtitle: 'AI 模型已配置完成，随时为你答疑解惑、协助处理数据',
+      title: `${name} 已就绪`,
+      subtitle: '问一句试试，它比你更熟悉这套系统',
       footer: (
         <React.Fragment>
           <span className="rex-guide-hint">
-            快捷键 <kbd>Shift + /</kbd> 随时唤起
+            以后按 <kbd>Shift + /</kbd> 随时叫它
           </span>
           <button type="button" className="rex-guide-btn" onClick={() => openAiBot()}>
             {`打开 ${name}`}
@@ -102,7 +102,7 @@ const __showRexGuide = function (configured, isAdmin) {
       ),
       children: (
         <div>
-          <div className="rex-guide-qtitle">试试这些</div>
+          <div className="rex-guide-qtitle">先从这几个问题开始</div>
           {questions.map((q) => (
             <div key={q} className="rex-guide-q" onClick={() => openAiBot(q)}>
               <i className="mdi mdi-shimmer rex-guide-qicon" />
@@ -117,8 +117,8 @@ const __showRexGuide = function (configured, isAdmin) {
     RbHeroModal.show({
       ...heroProps,
       icon: <i className="mdi mdi-shimmer" />,
-      title: `配置 ${name}`,
-      subtitle: '只需三步接入 AI 模型，约一分钟即可完成',
+      title: '只差一步，接入 AI 模型',
+      subtitle: `约一分钟完成配置，${name} 就能开始为你和团队干活`,
       footer: (
         <React.Fragment>
           <span className="rex-guide-hint">配置入口 管理中心 - Rex AI 助手</span>
@@ -133,15 +133,15 @@ const __showRexGuide = function (configured, isAdmin) {
               hide()
               location.href = rb.baseUrl + '/admin/integration/aibot'
             }}>
-            去配置
+            立即接入
           </button>
         </React.Fragment>
       ),
       children: (
         <div>
-          <div className="rex-guide-qtitle">配置完成后，你和团队可以</div>
+          <div className="rex-guide-qtitle">接好模型，它能做这些</div>
           {feats}
-          <div className="rex-guide-qtitle rex-guide-gap">配置步骤</div>
+          <div className="rex-guide-qtitle rex-guide-gap">三步接入</div>
           <div className="rex-guide-steps">
             <div className="rex-guide-step">
               <span className="rex-guide-num">1</span>
@@ -167,7 +167,7 @@ const __showRexGuide = function (configured, isAdmin) {
       ...heroProps,
       icon: <i className="mdi mdi-shimmer" />,
       title: `认识一下 ${name}`,
-      subtitle: '系统内置的智能助手，可以帮助你完成日常工作',
+      subtitle: '能答疑、能帮你建记录找数据的智能助手',
       footer: (
         <React.Fragment>
           <span className="rex-guide-hint">
@@ -182,7 +182,7 @@ const __showRexGuide = function (configured, isAdmin) {
         <div>
           <div className="rex-guide-qtitle">它可以帮你</div>
           {feats}
-          <div className="rex-guide-note">系统尚未接入 AI 模型，请转告管理员在管理中心完成配置</div>
+          <div className="rex-guide-note">它还差 AI 模型没接入，提醒管理员到 管理中心 - Rex AI 助手 配置一下就能用</div>
         </div>
       ),
     })
