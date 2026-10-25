@@ -194,14 +194,15 @@ public class ReferenceSearchController extends EntityController {
         List<Object> result = resultSearch(searchWhere, searchEntity, maxResults);
 
         // be:4.3.1
-        if (CURRENT.equals(q) || CURRENT2.equals(q)) {
+        // be:4.5.3
+        if (CURRENT.equalsIgnoreCase(q) || CURRENT2.equalsIgnoreCase(q)) {
             result.add(JSONUtils.toJSONObject(
-                    new String[]{"id", "text"}, new Object[]{CURRENT, CURRENT}));
-        } else if (("self".equals(q) || "当前用户".equals(q) || "当前部门".equals(q))
+                    new String[]{"id", "text"}, new Object[]{CURRENT2, CURRENT2}));
+        } else if (("self".equalsIgnoreCase(q) || "当前用户".equals(q) || "当前部门".equals(q))
                 && (sEntityCode == EntityHelper.User || sEntityCode == EntityHelper.Department)) {
             result.add(JSONUtils.toJSONObject(
                     new String[]{"id", "text"}, new Object[]{CURRENT2, Language.L("当前用户/部门")}));
-        } else if (("system".equals(q) || "系统用户".equals(q)) && sEntityCode == EntityHelper.User) {
+        } else if (("system".equalsIgnoreCase(q) || "系统用户".equals(q)) && sEntityCode == EntityHelper.User) {
             result.add(JSONUtils.toJSONObject(
                     new String[]{"id", "text"}, new Object[]{UserService.SYSTEM_USER, Language.L("系统用户")}));
         }
