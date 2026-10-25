@@ -13,13 +13,21 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -152,6 +160,21 @@ public class FeedsHelper {
             return team.isMember(user);
         }
         return false;
+    }
+
+    /**
+     * 用户对指定动态/评论是否可写（更新），仅限本人或管理员
+     *
+     * @param feedsOrComment
+     * @param user
+     * @throws OperationDeniedException
+     */
+    public static void checkSelfOrAdmin(ID feedsOrComment, ID user) {
+        if (UserHelper.isSystemUser(user) || UserHelper.isAdmin(user)) return;
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(feedsOrComment, "createdBy");
+        if (o == null) throw new NoRecordFoundException(feedsOrComment, Boolean.TRUE);
+        if (!o[0].equals(user)) throw new OperationDeniedException(Language.L("无操作权限"));
     }
 
     /**

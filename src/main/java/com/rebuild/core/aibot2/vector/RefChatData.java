@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * 引用历史会话（AI 压缩后输出）
  *
- * @author dev
+ * @author Zixin
  * @since 2026/9/12
  */
 public class RefChatData implements VectorData {

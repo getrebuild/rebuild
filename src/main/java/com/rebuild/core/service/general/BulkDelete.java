@@ -48,6 +48,7 @@ public class BulkDelete extends BulkOperator {
                     // 可能有级联触发器
                     Object ts = FieldAggregation.cleanTriggerChain();
                     if (ts != null) log.info("Clean current-loop : {}", ts);
+                    FieldAggregation.cleanMergedExec();
                 }
 
             } else {

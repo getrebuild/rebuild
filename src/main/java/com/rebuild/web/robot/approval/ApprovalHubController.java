@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -106,8 +107,18 @@ public class ApprovalHubController extends BaseController {
         JSONObject item = JSONUtils.toJSONObject(
                 new String[]{"id", "createdOn", "createdBy", "state", "approvalId"},
                 new Object[]{o[0], I18nUtils.formatDate((Date) o[1]), o[2], state, approvalId});
-        // 创建人
-        item.put("createdBy", new Object[]{o[2], UserHelper.getName((ID) o[2])});
+
+        ID prevApproveUser = (ID) o[2];
+        ID submitUser = (ID) o[2];
+        try {
+            submitUser = ApprovalHelper.getSubmitter(recordId, approvalId);
+        } catch (Exception ex) {
+            log.warn("Cannot get submitter of record: {}", recordId, ex);
+        }
+        // v4.5.3 使用提交人
+        item.put("createdBy", new Object[]{submitUser, UserHelper.getName(submitUser)});
+        item.put("prevApproveUser", new Object[]{prevApproveUser, UserHelper.getName(prevApproveUser)});
+
         // 处理时间
         if (o[8] != null) {
             item.put("approvedOn", I18nUtils.formatDate((Date) o[8]));

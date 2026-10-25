@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 public class DynamicClassLoader extends ClassLoader {
 
     public static final String CLASSES_DIR = "_classes";
+    public static final String PROXYTRIGGER_CLASSES = "PROXYTRIGGER_CLASSES";
 
     private static volatile DynamicClassLoader instance;
 
@@ -67,7 +68,7 @@ public class DynamicClassLoader extends ClassLoader {
                     .forEach(p -> {
                         try {
                             byte[] bs = Files.readAllBytes(p);
-                            String name = new ClassReader(bs).getClassName().replace('/', '.');
+                            String name = readClassName(bs);
                             if (loadedClasses.containsKey(name)) return;
 
                             Class<?> clazz = defineClass(name, bs, 0, bs.length);
@@ -91,7 +92,68 @@ public class DynamicClassLoader extends ClassLoader {
      * @return
      */
     public Class<?> getLoadedClass(String className) {
-        return loadedClasses.get(className);
+        Class<?> clazz = loadedClasses.get(className);
+        if (clazz == null) clazz = loadFromProxyTriggerDir(className);
+        return clazz;
+    }
+
+    /**
+     * 未命中时按需从上传目录加载
+     *
+     * @param className
+     * @return
+     */
+    private synchronized Class<?> loadFromProxyTriggerDir(String className) {
+        Class<?> clazz = loadedClasses.get(className);
+        if (clazz != null) return clazz;
+
+        File dir = RebuildConfiguration.getFileOfData("rb/" + PROXYTRIGGER_CLASSES);
+        if (!dir.exists()) return null;
+
+        byte[] bs = null;
+        File matched = null;
+        try (Stream<Path> paths = Files.walk(dir.toPath())) {
+            for (Path p : (Iterable<Path>) paths.filter(x -> x.toString().endsWith(".class"))::iterator) {
+                try {
+                    File f = p.toFile();
+                    if (matched != null && f.lastModified() <= matched.lastModified()) continue;
+
+                    byte[] bs2 = Files.readAllBytes(p);
+                    String name = readClassName(bs2);
+                    if (className.equals(name)) {
+                        bs = bs2;
+                        matched = f;
+                    }
+
+                } catch (Throwable e) {
+                    log.warn("Cannot read external class: {}", p, e);
+                }
+            }
+
+        } catch (IOException e) {
+            log.error("Cannot scan classes directory: {}", dir, e);
+            return null;
+        }
+
+        if (matched == null) return null;
+
+        try {
+            clazz = defineClass(className, bs, 0, bs.length);
+            loadedClasses.put(className, clazz);
+            log.info("Loaded external class: {} from {}", className, matched);
+
+        } catch (Throwable e) {
+            log.warn("Cannot load external class: {}", matched, e);
+        }
+        return clazz;
+    }
+
+    /**
+     * @param bs
+     * @return
+     */
+    public static String readClassName(byte[] bs) {
+        return new ClassReader(bs).getClassName().replace('/', '.');
     }
 
     /**

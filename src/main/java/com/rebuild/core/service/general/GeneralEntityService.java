@@ -43,6 +43,7 @@ import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerWhen;
+import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.lock.CommonsLock;
 import com.rebuild.core.support.lock.RecordAlertsBean;
@@ -199,7 +200,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             return record;
 
         } finally {
-            if (originEnter43) RobotTriggerObserver.executeLazyTriggers(this);
+            try {
+                if (originEnter43) RobotTriggerObserver.executeLazyTriggers(this);
+            } finally {
+                if (RobotTriggerObserver.getTriggerSource() == null) FieldAggregation.cleanMergedExec();
+            }
         }
     }
 
