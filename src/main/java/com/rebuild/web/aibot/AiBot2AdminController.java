@@ -213,13 +213,13 @@ public class AiBot2AdminController extends BaseController {
         return mv;
     }
 
-    @GetMapping("aibot-agents")
-    public ModelAndView pageIntegrationAibotAgents() {
+    @GetMapping("aibot-minapps")
+    public ModelAndView pageIntegrationAibotMinApps() {
         if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("智能体"));
+            return RbvMissingController.errorUnsupported(Language.L("微应用"));
         }
 
-        return createModelAndView("/admin/integration/aibot-agents");
+        return createModelAndView("/admin/integration/aibot-minapps");
     }
 
     @GetMapping("aibot/minapp-list")
@@ -294,14 +294,7 @@ public class AiBot2AdminController extends BaseController {
         return RespBody.ok();
     }
 
-    @GetMapping("aibot-minapps")
-    public ModelAndView pageIntegrationAibotMinApps() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("微应用"));
-        }
 
-        return createModelAndView("/admin/integration/aibot-minapps");
-    }
 
     @GetMapping("aibot-minapp/{minappId}")
     public ModelAndView pageAibotMinApp(@PathVariable String minappId, HttpServletResponse response) throws IOException {
@@ -462,15 +455,5 @@ public class AiBot2AdminController extends BaseController {
         KnowledgeBuilder.updateChunkCount(knowledgeId, -1);
         KnowledgeBuilder.buildAsync(knowledgeId);
         return RespBody.ok();
-    }
-
-    @GetMapping("aibot-agents")
-    public ModelAndView pageIntegrationAibotAgents() {
-        return createModelAndView("/admin/integration/aibot-agents");
-    }
-
-    @GetMapping("aibot-minapps")
-    public ModelAndView pageIntegrationAibotMinapps() {
-        return createModelAndView("/admin/integration/aibot-minapps");
     }
 }
