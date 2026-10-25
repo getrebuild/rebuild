@@ -113,9 +113,9 @@ public class ApprovalHubController extends BaseController {
         try {
             submitUser = ApprovalHelper.getSubmitter(recordId, approvalId);
         } catch (Exception ex) {
-            log.warn("Cannot get submitter of record: {}", recordId);
+            log.warn("Cannot get submitter of record: {}", recordId, ex);
         }
-        // v4.6 使用提交人
+        // v4.5.3 使用提交人
         item.put("createdBy", new Object[]{submitUser, UserHelper.getName(submitUser)});
         item.put("prevApproveUser", new Object[]{prevApproveUser, UserHelper.getName(prevApproveUser)});
 

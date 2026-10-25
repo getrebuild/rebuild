@@ -252,7 +252,6 @@ class DeleteConfirm extends RbAlert {
   }
 
   handleDelete() {
-    debugger
     let ids = this.props.ids || this.props.id
     if (!ids || ids.length === 0) return
     if (typeof ids === 'object') ids = ids.join(',')

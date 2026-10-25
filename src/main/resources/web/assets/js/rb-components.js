@@ -210,7 +210,7 @@ class RbHeroModal extends RbModal {
         <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: ~~(props.width || 551) }}>
           <div className="modal-content">
             <div className="rbheromodal-hero">
-              <span className="rbheromodal-close" onClick={() => this.hide()} title="关闭 (Esc)">
+              <span className="rbheromodal-close" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <i className="zmdi zmdi-close" />
               </span>
               {props.icon && <div className="rbheromodal-icon">{props.icon}</div>}

@@ -43,7 +43,11 @@ const __showRexGuide = function (configured, isAdmin) {
 
   let name = rb._aibotName || 'Rex AI 助手'
 
+  let marked = false
   const mark = function () {
+    if (marked) return
+    marked = true
+
     if (configured) $storage.set('RexGuideEnd-' + rb.currentUser, 'yes')
     else if (isAdmin) $storage.set('RexGuideCfgCount-' + rb.currentUser, ~~$storage.get('RexGuideCfgCount-' + rb.currentUser) + 1)
     else $storage.set('RexGuideUserEnd-' + rb.currentUser, 'yes')
@@ -189,12 +193,26 @@ const __showRexGuide = function (configured, isAdmin) {
   }
 }
 
+const __rexGuideShow = function (configured, isAdmin) {
+  // 延迟留足向导的启动时间（startTour 最大延时 1000ms + 页面异步渲染），避免同屏弹出
+  setTimeout(function () {
+    // 显示了新手向导则本次不弹，等下次进入页面
+    if (window.tourStarted) return
+    __showRexGuide(configured, isAdmin)
+  }, 3000)
+}
+
 // 调试用：强制指定显示场景，0=正常逻辑，1=未配置·管理员，2=未配置·普通用户，3=已配置·体验
 // 控制台改值后执行 __checkRexGuide() 即可重现，强制模式跳过去重和 AI 入口检查
 window.__RexGuideScene = window.__RexGuideScene || 0
 
 window.__checkRexGuide = function () {
+  // iframe 内不显示
+  if (window.top !== window.self) return
   if (!rb.currentUser) return
+
+  // 已看过「已配置」引导则无需再请求，强制场景调试时跳过
+  if (!~~window.__RexGuideScene && $storage.get('RexGuideEnd-' + rb.currentUser)) return
 
   $.get('/aibot/check-configured', function (res) {
     let configured = !!res.data
@@ -221,12 +239,7 @@ window.__checkRexGuide = function () {
       if ($storage.get('RexGuideUserEnd-' + rb.currentUser)) return
     }
 
-    const show = function () {
-      setTimeout(() => __showRexGuide(configured, isAdmin), 1000)
-    }
-    // 等待新手向导结束
-    if (window.tourStarted) $(document).one('rbTourComplete', show)
-    else show()
+    __rexGuideShow(configured, isAdmin)
   })
 }
 

@@ -73,10 +73,15 @@ public class FeedsPostController extends BaseController {
     }
 
     @RequestMapping("delete")
-    public RespBody delete(@IdParam ID anyFeedsId) {
+    public RespBody delete(HttpServletRequest request, @IdParam ID anyFeedsId) {
         int entityCode = anyFeedsId.getEntityCode();
         if (entityCode != EntityHelper.Feeds && entityCode != EntityHelper.FeedsComment) {
             return RespBody.error(403);
+        }
+
+        // 评论无服务层校验（删动态会级联删他人评论），在入口收敛
+        if (entityCode == EntityHelper.FeedsComment) {
+            FeedsHelper.checkSelfOrAdmin(anyFeedsId, getRequestUser(request));
         }
 
         Application.getService(entityCode).delete(anyFeedsId);

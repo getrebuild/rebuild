@@ -106,12 +106,10 @@ const startTour123 = function () {
     .oncomplete(() => {
       _oncomplete = true
       $storage.set(stepName, 'yes')
-      $(document).trigger('rbTourComplete')
     })
     .onexit(() => {
       window.tourStarted = undefined
       $(document.body).removeClass('rebuild-tour-body')
-      $(document).trigger('rbTourComplete')
 
       if (!_oncomplete) {
         $.cookie('rb.TourEnd', 'session', { expires: null })
