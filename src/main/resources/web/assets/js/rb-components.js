@@ -189,13 +189,6 @@ class RbModal extends React.Component {
 
 // ~~ 渐变横幅弹窗
 class RbHeroModal extends RbModal {
-  componentDidMount() {
-    super.componentDidMount()
-    $(this._rbmodal).on('hidden.bs.modal', () => {
-      typeof this.props.onClose === 'function' && this.props.onClose(this)
-    })
-  }
-
   render() {
     const props = this.props
     return (
@@ -227,7 +220,7 @@ class RbHeroModal extends RbModal {
 
   // -- Usage
   /**
-   * @param {*} props { icon, title, subtitle, width, footer, onClose, children }
+   * @param {*} props { icon, title, subtitle, width, footer, children }
    */
   static show(props) {
     renderRbcomp(<RbHeroModal {...props} disposeOnHide />)

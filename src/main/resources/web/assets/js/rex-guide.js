@@ -49,9 +49,14 @@ const __showRexGuide = function (configured, isAdmin) {
     marked = true
 
     if (configured) $storage.set('RexGuideEnd-' + rb.currentUser, 'yes')
-    else if (isAdmin) $storage.set('RexGuideCfgCount-' + rb.currentUser, ~~$storage.get('RexGuideCfgCount-' + rb.currentUser) + 1)
-    else $storage.set('RexGuideUserEnd-' + rb.currentUser, 'yes')
+    else if (isAdmin) {
+      $storage.set('RexGuideCfgCount-' + rb.currentUser, ~~$storage.get('RexGuideCfgCount-' + rb.currentUser) + 1)
+      sessionStorage.setItem('RexGuideCfgSess-' + rb.currentUser, 'yes')
+    } else $storage.set('RexGuideUserEnd-' + rb.currentUser, 'yes')
   }
+
+  // 展示即计数，避免未关闭就离开页面导致重复弹；强制调试模式不计数
+  if (!~~window.__RexGuideScene) mark()
 
   let modal
   const hide = function () {
@@ -67,7 +72,6 @@ const __showRexGuide = function (configured, isAdmin) {
 
   const heroProps = {
     ref: (c) => (modal = c),
-    onClose: mark, // 任何途径关闭（含 Esc）均触发
   }
 
   const feats = (
@@ -133,7 +137,6 @@ const __showRexGuide = function (configured, isAdmin) {
             type="button"
             className="rex-guide-btn"
             onClick={() => {
-              mark() // 跳转可能中断关闭动画，先落去重标记
               hide()
               location.href = rb.baseUrl + '/admin/integration/aibot'
             }}>
@@ -232,8 +235,9 @@ window.__checkRexGuide = function () {
       if (!$('.aibot-show')[0]) return
       if ($storage.get('RexGuideEnd-' + rb.currentUser)) return
     } else if (isAdmin) {
-      // 管理员最多提醒 3 次，无视说明暂不打算配置
+      // 管理员累计最多提醒 3 次，且一次会话最多弹 1 次
       if (~~$storage.get('RexGuideCfgCount-' + rb.currentUser) >= 3) return
+      if (sessionStorage.getItem('RexGuideCfgSess-' + rb.currentUser)) return
     } else {
       // 普通用户无法行动，告知一次即可
       if ($storage.get('RexGuideUserEnd-' + rb.currentUser)) return
