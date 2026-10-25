@@ -180,11 +180,6 @@ public class AiBot2AdminController extends BaseController {
         return mv;
     }
 
-    @GetMapping("aibot-agents")
-    public ModelAndView pageIntegrationAibotAgents() {
-        return createModelAndView("/admin/integration/aibot-agents");
-    }
-
     @GetMapping("aibot/tools")
     public RespBody toolList() {
         return RespBody.ok(ToolDefs.listTools(true, false));
@@ -249,5 +244,15 @@ public class AiBot2AdminController extends BaseController {
         KnowledgeBuilder.updateChunkCount(knowledgeId, -1);
         KnowledgeBuilder.buildAsync(knowledgeId);
         return RespBody.ok();
+    }
+
+    @GetMapping("aibot-agents")
+    public ModelAndView pageIntegrationAibotAgents() {
+        return createModelAndView("/admin/integration/aibot-agents");
+    }
+
+    @GetMapping("aibot-minapps")
+    public ModelAndView pageIntegrationAibotMinapps() {
+        return createModelAndView("/admin/integration/aibot-minapps");
     }
 }

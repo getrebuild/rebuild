@@ -1,0 +1,42 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-aibot#%E5%BE%AE%E5%BA%94%E7%94%A8" />
+    <title>微应用</title>
+    <style>
+      .agent-icon-tile {
+        flex: none;
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 8px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(71, 78, 254, 0.14), rgba(0, 194, 168, 0.18));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .agent-icon-tile .icon {
+        font-size: 32px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='aibot-agents')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid syscfg">
+          <div style="width: 680px; margin: 200px auto; text-align: center">
+            <div class="agent-icon-tile"><i class="icon mdi mdi-shimmer ai-color"></i></div>
+            <p class="text-muted fs-14">
+              微应用是由 Rex AI 生成的自定义网页，适合数据看板、查询工具、单据录入等场景。在对话中直接提需求即可，例如「做一个数据看板，实时展示各区域销售进度」，AI 确认方案后自动生成页面。
+            </p>
+            <p class="text-muted fs-14">该功能即将开放，敬请期待。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+  </body>
+</html>
