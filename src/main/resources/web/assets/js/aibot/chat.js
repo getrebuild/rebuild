@@ -352,7 +352,6 @@ class ChatInput extends React.Component {
               ref={(c) => (this._$editable = c)}
             />
           </div>
-          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-maxsize="52428800" multiple />
           <div className="chat-input-action">
             {agents.length > 1 && (
               <span className="dropup chat-agents">
@@ -430,6 +429,7 @@ class ChatInput extends React.Component {
               </button>
             </span>
           </div>
+          <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-maxsize="20971520" multiple />
         </div>
       </div>
     )

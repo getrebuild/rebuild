@@ -221,13 +221,19 @@ class ContentFieldWriteback extends ActionContentSpec {
               <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('禁用级联执行')}</span>
+                  <span className="custom-control-label">
+                    {$L('禁用级联执行')}
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('更新目标记录时不再触发其上的其他触发器')} />
+                  </span>
                 </label>
               </div>
               <div className="mt-2 bosskey-show">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$lockMode = c)} />
-                  <span className="custom-control-label">{$L('启用加锁模式')} (LAB)</span>
+                  <span className="custom-control-label">
+                    {$L('启用加锁模式')} (LAB)
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('与其他开启加锁的写回触发器串行执行，避免并发冲突')} />
+                  </span>
                 </label>
               </div>
               <div className="mt-2 bosskey-show">
@@ -235,7 +241,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$execOnMainUpdate = c)} />
                   <span className="custom-control-label">
                     {$L('主记录更新时同步执行')} (LAB)
-                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅源实体/目标实体为同一明细实体时有效')} />
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅源实体为主实体的明细实体时有效')} />
                   </span>
                 </label>
               </div>

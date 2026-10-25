@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -56,9 +57,11 @@ public class RecordData implements VectorData {
             Field field = r.getEntity().getField(fieldName);
             if (isFilterField(field)) continue;
 
-            String label = EasyMetaFactory.getLabel(field);
             String value = clearedFieldValue(r.getObjectValue(fieldName), field);
-            v.append(label).append(": ").append(value).append(N);
+            if (StringUtils.isBlank(value)) continue;
+
+            String label = EasyMetaFactory.getLabel(field);
+            v.append(label).append(": ").append(VectorData.flatten(value)).append(N);
         }
 
         if (hasDetails && r.getEntity().getDetailEntity() != null) {

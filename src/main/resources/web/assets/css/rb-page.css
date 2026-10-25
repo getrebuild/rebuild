@@ -7036,3 +7036,64 @@ input[type='password']::-ms-clear {
 .icon-settings:hover {
   opacity: 0.8;
 }
+
+.rbheromodal .modal-content {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.38);
+}
+
+.rbheromodal-hero {
+  background: linear-gradient(120deg, #4b6bff 0%, #7b4bff 55%, #9b45f5 100%);
+  color: #fff;
+  padding: 26px 24px 56px;
+  position: relative;
+}
+
+.rbheromodal-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.rbheromodal-hero h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 6px 0 4px;
+  color: #fff;
+}
+
+.rbheromodal-hero p {
+  opacity: 0.88;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.rbheromodal-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  opacity: 0.8;
+  cursor: pointer;
+  color: #fff;
+}
+
+.rbheromodal-close:hover {
+  opacity: 1;
+}
+
+.rbheromodal-card {
+  margin: -38px 18px 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(60, 60, 120, 0.14);
+  padding: 15px;
+  position: relative;
+}
+
+.rbheromodal-footer {
+  padding: 14px 20px 16px;
+  display: flex;
+  align-items: center;
+}

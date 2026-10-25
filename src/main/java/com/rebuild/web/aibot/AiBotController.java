@@ -13,6 +13,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
@@ -86,5 +87,11 @@ public class AiBotController extends LoginAction {
         String aibot = UserHelper.getAvailableAiBot(getRequestUser(req));
         if (aibot == null && !License.isCommercial()) aibot = "Rex AI 助手";
         return RespBody.ok(aibot);
+    }
+    
+    @GetMapping("check-configured")
+    public RespBody checkConfigured(HttpServletRequest request) {
+        if (AppUtils.getRequestUser(request) == null) return RespBody.error();
+        return RespBody.ok(Config.availableAiBot());
     }
 }

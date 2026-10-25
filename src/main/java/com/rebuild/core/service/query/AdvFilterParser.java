@@ -1000,7 +1000,8 @@ public class AdvFilterParser extends SetUser {
      * @param queryField
      * @return
      */
-    protected Object useValueOfVarField(final String value, Field queryField) {
+    protected Object useValueOfVarField(String value, Field queryField) {
+        if ("{CURRENT}".equals(value)) value = "{@CURRENT}";
         if (StringUtils.isBlank(value) || !value.matches(PATT_FIELDVAR)) return value;
 
         // {@FIELD} > FIELD

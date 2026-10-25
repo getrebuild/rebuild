@@ -51,6 +51,8 @@ public class FeedsService extends BaseFeedsService {
 
     @Override
     public int delete(ID recordId) {
+        FeedsHelper.checkSelfOrAdmin(recordId, getCurrentUser());
+
         // 先删评论
         Object[][] comments = Application.createQueryNoFilter(
                 "select commentId from FeedsComment where feedsId = ?")

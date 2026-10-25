@@ -189,6 +189,8 @@ public class FeedsListController extends BaseController {
     @GetMapping("/feeds/feeds-details")
     public RespBody fetchDetails(@IdParam ID feedsId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        if (!FeedsHelper.checkReadable(feedsId, user)) return RespBody.error(403);
+
         String sql = ITEM_SQL + "feedsId = ?";
         Object[] o = Application.createQueryNoFilter(sql).setParameter(1, feedsId).unique();
         if (o == null) throw new NoRecordFoundException(feedsId, Boolean.TRUE);
@@ -274,7 +276,10 @@ public class FeedsListController extends BaseController {
     }
 
     @GetMapping("/feeds/announcement-read-status")
-    public RespBody announcementReadStatus(@IdParam ID announcementId) {
+    public RespBody announcementReadStatus(@IdParam ID announcementId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        if (!FeedsHelper.checkReadable(announcementId, user)) return RespBody.error(403);
+
         Object[][] status = Application.createQueryNoFilter(
                 "select createdBy,createdOn from FeedsStatus where feedsId = ?")
                 .setParameter(1, announcementId)
@@ -304,6 +309,8 @@ public class FeedsListController extends BaseController {
         final ID user = getRequestUser(request);
 
         ID feeds = getIdParameterNotNull(request, "feeds");
+        if (!FeedsHelper.checkReadable(feeds, user)) return RespBody.error(403);
+
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 20);
 

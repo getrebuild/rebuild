@@ -207,7 +207,10 @@ class ContentFieldAggregation extends ActionContentSpec {
               <div className="mt-2">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$stopPropagation = c)} />
-                  <span className="custom-control-label">{$L('禁用级联执行')}</span>
+                  <span className="custom-control-label">
+                    {$L('禁用级联执行')}
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('更新目标记录时不再触发其上的其他触发器')} />
+                  </span>
                 </label>
               </div>
               <div className="mt-2 bosskey-show">
@@ -215,14 +218,26 @@ class ContentFieldAggregation extends ActionContentSpec {
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$execOnMainUpdate = c)} />
                   <span className="custom-control-label">
                     {$L('主记录更新时同步执行')} (LAB)
-                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅源实体/目标实体为同一明细实体时有效')} />
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('仅源实体为主实体的明细实体时有效')} />
                   </span>
                 </label>
               </div>
               <div className="mt-2 bosskey-show">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                   <input className="custom-control-input" type="checkbox" ref={(c) => (this._$useMergeExec = c)} />
-                  <span className="custom-control-label">{$L('尝试合并执行')} (LAB)</span>
+                  <span className="custom-control-label">
+                    {$L('尝试合并执行')} (LAB)
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('同一次操作引发的多次触发合并为一次执行')} />
+                  </span>
+                </label>
+              </div>
+              <div className="mt-2 bosskey-show">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._$disableRefresh = c)} />
+                  <span className="custom-control-label">
+                    {$L('禁用原目标重算')} (LAB)
+                    <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('源记录更换聚合目标后原目标聚合值可能不准确')} />
+                  </span>
                 </label>
               </div>
             </div>
@@ -285,6 +300,9 @@ class ContentFieldAggregation extends ActionContentSpec {
       }
       if (content.useMergeExec === true) {
         $(this._$useMergeExec).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
+      }
+      if (content.disableRefresh === true) {
+        $(this._$disableRefresh).attr('checked', true).parents('.mt-2').removeClass('bosskey-show')
       }
     }
   }
@@ -494,6 +512,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       stopPropagation: $(this._$stopPropagation).prop('checked'),
       execOnMainUpdate: $(this._$execOnMainUpdate).prop('checked'),
       useMergeExec: $(this._$useMergeExec).prop('checked'),
+      disableRefresh: $(this._$disableRefresh).prop('checked'),
       fillbackField: $(this._$fillbackField).val() || null,
     }
 
