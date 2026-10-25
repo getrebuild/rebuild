@@ -187,6 +187,53 @@ class RbModal extends React.Component {
   }
 }
 
+// ~~ 渐变横幅弹窗
+class RbHeroModal extends RbModal {
+  componentDidMount() {
+    super.componentDidMount()
+    $(this._rbmodal).on('hidden.bs.modal', () => {
+      typeof this.props.onClose === 'function' && this.props.onClose(this)
+    })
+  }
+
+  render() {
+    const props = this.props
+    return (
+      <div
+        className="modal fade rbmodal rbheromodal"
+        aria-modal="true"
+        tabIndex="-1"
+        ref={(c) => {
+          this._rbmodal = c
+          this._element = c
+        }}>
+        <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: ~~(props.width || 551) }}>
+          <div className="modal-content">
+            <div className="rbheromodal-hero">
+              <span className="rbheromodal-close" onClick={() => this.hide()} title="关闭 (Esc)">
+                <i className="zmdi zmdi-close" />
+              </span>
+              {props.icon && <div className="rbheromodal-icon">{props.icon}</div>}
+              <h3>{props.title || ''}</h3>
+              {props.subtitle && <p>{props.subtitle}</p>}
+            </div>
+            <div className="rbheromodal-card">{props.children}</div>
+            {props.footer && <div className="rbheromodal-footer">{props.footer}</div>}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // -- Usage
+  /**
+   * @param {*} props { icon, title, subtitle, width, footer, onClose, children }
+   */
+  static show(props) {
+    renderRbcomp(<RbHeroModal {...props} disposeOnHide />)
+  }
+}
+
 // ~~ Modal 处理器
 class RbModalHandler extends React.Component {
   constructor(props) {

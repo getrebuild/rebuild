@@ -9,9 +9,11 @@ package com.rebuild.web.aibot;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
@@ -78,5 +80,11 @@ public class AiBotController extends LoginAction {
         ModelAndView mv = createModelAndView("/aibot/chat-view");
         mv.getModelMap().put("pageFooter", Language.L("由 REBUILD AI 助手强力驱动"));
         return mv;
+    }
+
+    @GetMapping("check-configured")
+    public RespBody checkConfigured(HttpServletRequest request) {
+        if (AppUtils.getRequestUser(request) == null) return RespBody.error();
+        return RespBody.ok(Config.availableAiBot());
     }
 }
