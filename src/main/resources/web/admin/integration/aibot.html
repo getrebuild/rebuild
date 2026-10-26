@@ -133,10 +133,7 @@
 
             <div class="col-lg-3 col-12 col-right-compact">
               <div class="card">
-                <div class="card-header card-header-divider">
-                  [[${bundle.L('用量统计')}]] <small class="fs-13">([[${bundle.L('90天')}]])</small>
-                  <a href="###" class="float-right J_all-chats">[[${bundle.L('所有会话')}]]</a>
-                </div>
+                <div class="card-header card-header-divider">[[${bundle.L('用量统计')}]] <small class="fs-13">([[${bundle.L('90天')}]])</small></div>
                 <div class="card-body">
                   <div class="row stats J_stats-aibot">
                     <div class="col-8">
@@ -152,7 +149,7 @@
                       <span></span>
                     </div>
                     <div class="col-4">
-                      <strong class="fs-18">0</strong>
+                      <a class="light-link J_all-chats"><strong class="fs-18">0</strong></a>
                       <p class="text-muted m-0 fs-12">[[${bundle.L('会话数')}]]</p>
                     </div>
                   </div>
@@ -183,6 +180,7 @@
     <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
     <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/aibot-chats.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/aibot.js}" type="text/babel"></script>
   </body>
 </html>

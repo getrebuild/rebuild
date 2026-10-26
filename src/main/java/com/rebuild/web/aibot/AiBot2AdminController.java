@@ -183,11 +183,13 @@ public class AiBot2AdminController extends BaseController {
         if (!UserHelper.isAdmin(getRequestUser(request))) return RespBody.error(403);
 
         final ID user = getIdParameter(request, "user");
+        final ID agent = getIdParameter(request, "agent");
         final int pageNo = getIntParameter(request, "pageNo", 1);
         final int pageSize = 20;
 
         String where = String.format(" where createdBy not in ('%s','%s')", UserService.SYSTEM_USER, UserService.AIBOT_USER);
         if (user != null) where += " and createdBy = '" + user + "'";
+        if (agent != null) where += " and agentId = '" + agent + "'";
         String q = StringUtils.trimToEmpty(getParameter(request, "q"));
         if (StringUtils.isNotBlank(q)) {
             where += String.format(" and subject like '%%%s%%'", CommonsUtils.escapeSql(q));
@@ -284,7 +286,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/minapp-list")
     public RespBody minappList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled,shareTo,config from AibotConfig where type = 'MINAPP' order by modifiedOn desc")
+                "select configId,name,isDisabled,shareTo,config from AibotConfig where type = 'MINAPP' order by name")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -392,7 +394,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/agent-list")
     public RespBody agentList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled from AibotConfig where type = 'AGENT' order by modifiedOn desc")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'AGENT' order by name")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -451,7 +453,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/skill-list")
     public RespBody skillList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled from AibotConfig where type = 'SKILL' order by modifiedOn desc")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'SKILL' order by name")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -475,7 +477,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/kb-list")
     public RespBody kbList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by modifiedOn desc")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by name")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
