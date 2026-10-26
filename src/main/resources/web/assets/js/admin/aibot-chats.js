@@ -89,7 +89,7 @@ class AiBotChatsModal extends RbModal {
                         placeholder={$L('查询')}
                         maxLength="40"
                         onKeyDown={(e) => {
-                          if (e.keyCode === 13) this._loadNext(true, e.target.value.trim())
+                          if (e.keyCode === 13) this._loadNext(true, $(e.target).closest('.input-search').find('input').val().trim())
                         }}
                       />
                       <span className="input-group-btn">
