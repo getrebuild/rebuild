@@ -120,10 +120,11 @@ $(document).ready(() => {
   })()
 
   // 搜索
-  $initQuickSearch(null, (q) => {
-    currentSearch = $('.input-search input').val()
+  const gs = $initQuickSearch(null, (q) => {
+    currentSearch = q
     _ContactList && _ContactList.search()
   })
+  if (gs) currentSearch = gs
 
   const $btn = $('.input-search .input-group-btn .btn')
   const $input = $('.input-search input')
