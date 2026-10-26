@@ -41,21 +41,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 20px;
 }
 
-.contact-list {
-  margin-left: -8px;
-  margin-right: -8px;
-}
-
-.contact-list > span {
-  display: inline-block;
-  padding: 0 8px;
-  margin: 0;
-  margin-bottom: 17px;
-  width: 25%;
-  min-width: 260px;
-  max-width: 380px;
-}
-
 .contact-list div.card {
   width: 100%;
   margin: 0;
@@ -74,7 +59,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .contact-list div.card .img {
-  width: 60px;
+  width: 50px;
   margin-top: 3px;
 }
 
@@ -84,12 +69,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .contact-list div.card .img .avatar {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
 }
 
 .contact-list div.card .info {
-  margin-left: 71px;
+  margin-left: 60px;
   overflow: hidden;
   white-space: nowrap;
 }

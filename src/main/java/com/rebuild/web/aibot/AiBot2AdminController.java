@@ -213,6 +213,14 @@ public class AiBot2AdminController extends BaseController {
         return mv;
     }
 
+    @GetMapping("aibot-agents")
+    public ModelAndView pageIntegrationAibotAgents() {
+        if (!License.isCommercial()) {
+            return RbvMissingController.errorUnsupported(Language.L("智能体"));
+        }
+        return createModelAndView("/admin/integration/aibot-agents");
+    }
+
     @GetMapping("aibot-minapps")
     public ModelAndView pageIntegrationAibotMinApps() {
         if (!License.isCommercial()) {
@@ -293,8 +301,6 @@ public class AiBot2AdminController extends BaseController {
         }
         return RespBody.ok();
     }
-
-
 
     @GetMapping("aibot-minapp/{minappId}")
     public ModelAndView pageAibotMinApp(@PathVariable String minappId, HttpServletResponse response) throws IOException {

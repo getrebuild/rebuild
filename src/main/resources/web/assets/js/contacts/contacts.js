@@ -13,60 +13,62 @@ class ContactList extends React.Component {
 
   render() {
     return (
-      <div className="contact-list">
-        {(this.state.data || []).map((item) => {
-          return (
-            <span key={item.id}>
-              <div className="card">
-                <div className="card-body">
-                  <div className="img float-left">
-                    <a className="user-show">
-                      <div className="avatar">
-                        <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} />
-                      </div>
-                    </a>
-                  </div>
-                  <div className="info">
-                    <table>
-                      <tbody>
-                        <tr>
-                          <td colSpan="2">
-                            <strong>{item.fullName}</strong>
-                            <p className="m-0 text-muted fs-12">{item.deptName}</p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>{$L('邮箱')}</td>
-                          <td>
-                            {item.email ? (
-                              <a href={`mailto:${item.email}`} className="link" title={item.email}>
-                                {item.email}
-                              </a>
-                            ) : (
-                              <span className="text-muted">{$L('无')}</span>
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>{$L('电话')}</td>
-                          <td>
-                            {item.workphone ? (
-                              <a href={`tel:${item.workphone}`} className="link" title={item.workphone}>
-                                {item.workphone}
-                              </a>
-                            ) : (
-                              <span className="text-muted">{$L('无')}</span>
-                            )}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+      <RF>
+        <div className="contact-list card-list card-grid">
+          {(this.state.data || []).map((item) => {
+            return (
+              <div key={item.id}>
+                <div className="card">
+                  <div className="card-body">
+                    <div className="img float-left">
+                      <a className="user-show">
+                        <div className="avatar">
+                          <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} />
+                        </div>
+                      </a>
+                    </div>
+                    <div className="info">
+                      <table>
+                        <tbody>
+                          <tr>
+                            <td colSpan="2">
+                              <strong>{item.fullName}</strong>
+                              <p className="m-0 text-muted fs-12">{item.deptName}</p>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>{$L('邮箱')}</td>
+                            <td>
+                              {item.email ? (
+                                <a href={`mailto:${item.email}`} className="link" title={item.email}>
+                                  {item.email}
+                                </a>
+                              ) : (
+                                <span className="text-muted">{$L('无')}</span>
+                              )}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>{$L('电话')}</td>
+                            <td>
+                              {item.workphone ? (
+                                <a href={`tel:${item.workphone}`} className="link" title={item.workphone}>
+                                  {item.workphone}
+                                </a>
+                              ) : (
+                                <span className="text-muted">{$L('无')}</span>
+                              )}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
-            </span>
-          )
-        })}
+            )
+          })}
+        </div>
 
         {this._page === 1 && this.state.data && this.state.data.length === 0 && (
           <div className="list-nodata">
@@ -74,7 +76,7 @@ class ContactList extends React.Component {
             <p>{$L('暂无数据')}</p>
           </div>
         )}
-      </div>
+      </RF>
     )
   }
 
