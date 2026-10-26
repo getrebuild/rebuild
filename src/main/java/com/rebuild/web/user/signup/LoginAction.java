@@ -55,6 +55,7 @@ public class LoginAction extends BaseController {
     protected static final String SK_NEED_VCODE = "needLoginVCode";
 
     private static final String SK_SHOW_TOUR = "showStartTour";
+    private static final String SK_SHOW_REXGUIDE = "showStartRexGuide";
 
     public static final String SK_TEMP_AUTH = "rbTempAuth";
 
@@ -160,13 +161,21 @@ public class LoginAction extends BaseController {
             // 头像缓存
             ServletUtils.setSessionAttribute(request, UserAvatar.SK_DAVATAR, System.currentTimeMillis());
 
-            // TOUR 显示规则
+            // TOUR
             Object[] initLoginTimes = Application.createQueryNoFilter(
                     "select count(loginTime) from LoginLog where user = ? and loginTime > '2022-01-01'")
                     .setParameter(1, user)
                     .unique();
             if (ObjectUtils.toLong(initLoginTimes[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
                 ServletUtils.setSessionAttribute(request, SK_SHOW_TOUR, Boolean.TRUE);
+            }
+            // Rex
+            Object[] initLoginTimes2 = Application.createQueryNoFilter(
+                    "select count(loginTime) from LoginLog where user = ? and loginTime > '2026-10-01'")
+                    .setParameter(1, user)
+                    .unique();
+            if (ObjectUtils.toLong(initLoginTimes2[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
+                ServletUtils.setSessionAttribute(request, SK_SHOW_REXGUIDE, Boolean.TRUE);
             }
         }
 
