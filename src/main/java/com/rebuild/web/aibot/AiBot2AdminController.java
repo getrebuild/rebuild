@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.openai.client.OpenAIClient;
 import com.openai.models.models.Model;
@@ -30,13 +31,16 @@ import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.rbstore.RBStore;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
@@ -119,18 +123,25 @@ public class AiBot2AdminController extends BaseController {
         Map<String, Integer> chatsByDay = new TreeMap<>();
         Map<String, Set<ID>> usersByDay = new TreeMap<>();
         Map<ID, Long> tokenMap = new HashMap<>();
+        Set<ID> realUsers = new HashSet<>();
         long tokenTotal = 0;
+        int realChats = 0;
 
         for (Object[] o : rows) {
             String day = CalendarUtils.format("yyyy-MM-dd", (Date) o[0]);
             ID user = (ID) o[1];
             long token = o[2] == null ? 0L : ((Number) o[2]).longValue();
 
+            // 词元全量统计（含内部会话），会话数/使用人数仅统计真实用户（与 chat-list 口径一致）
             tokensByDay.merge(day, token, Long::sum);
-            chatsByDay.merge(day, 1, Integer::sum);
-            usersByDay.computeIfAbsent(day, k -> new HashSet<>()).add(user);
             tokenMap.merge(user, token, Long::sum);
             tokenTotal += token;
+
+            if (UserHelper.isSystemUser(user)) continue;
+            realChats++;
+            realUsers.add(user);
+            chatsByDay.merge(day, 1, Integer::sum);
+            usersByDay.computeIfAbsent(day, k -> new HashSet<>()).add(user);
         }
 
         List<Object[]> aibot = new ArrayList<>();
@@ -162,9 +173,51 @@ public class AiBot2AdminController extends BaseController {
                 new Object[]{aibot.toArray(), ObjectUtils.round(tokenTotal / 10000d, 2), usersList.toArray()});
         stats.put("aibotDailyChats", aibotDailyChats.toArray());
         stats.put("aibotDailyUsers", aibotDailyUsers.toArray());
-        stats.put("chats", rows.length);
-        stats.put("users", tokenMap.size());
+        stats.put("chats", realChats);
+        stats.put("users", realUsers.size());
         return stats;
+    }
+
+    @GetMapping("aibot/chat-list")
+    public RespBody adminChatList(HttpServletRequest request) {
+        if (!UserHelper.isAdmin(getRequestUser(request))) return RespBody.error(403);
+
+        final ID user = getIdParameter(request, "user");
+        final ID agent = getIdParameter(request, "agent");
+        final int pageNo = getIntParameter(request, "pageNo", 1);
+        final int pageSize = 20;
+
+        String where = String.format(" where createdBy not in ('%s','%s')", UserService.SYSTEM_USER, UserService.AIBOT_USER);
+        if (user != null) where += " and createdBy = '" + user + "'";
+        if (agent != null) where += " and agentId = '" + agent + "'";
+        String q = StringUtils.trimToEmpty(getParameter(request, "q"));
+        if (StringUtils.isNotBlank(q)) {
+            where += String.format(" and subject like '%%%s%%'", CommonsUtils.escapeSql(q));
+        }
+
+        long total = -1L;
+        if (pageNo == 1) {
+            total = ((Number) Application.createQueryNoFilter(
+                    "select count(chatId) from AibotChat" + where).unique()[0]).longValue();
+        }
+
+        Object[][] array = Application.createQueryNoFilter(
+                "select chatId,subject,createdBy,token,modifiedOn from AibotChat" + where + " order by modifiedOn desc")
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .array();
+
+        JSONArray data = new JSONArray();
+        for (Object[] o : array) {
+            JSONObject item = JSONUtils.toJSONObject(
+                    new String[]{"id", "subject", "userName", "token", "modifiedOn"},
+                    new Object[]{o[0], o[1], UserHelper.getName((ID) o[2]),
+                            o[3] == null ? 0L : o[3], I18nUtils.formatDate((Date) o[4])});
+            data.add(item);
+        }
+
+        JSONObject res = JSONUtils.toJSONObject(
+                new String[]{"total", "data"}, new Object[]{total, data});
+        return RespBody.ok(res);
     }
 
     @GetMapping("aibot/models")
@@ -213,6 +266,14 @@ public class AiBot2AdminController extends BaseController {
         return mv;
     }
 
+    @GetMapping("aibot-agents")
+    public ModelAndView pageIntegrationAibotAgents() {
+        if (!License.isCommercial()) {
+            return RbvMissingController.errorUnsupported(Language.L("智能体"));
+        }
+        return createModelAndView("/admin/integration/aibot-agents");
+    }
+
     @GetMapping("aibot-minapps")
     public ModelAndView pageIntegrationAibotMinApps() {
         if (!License.isCommercial()) {
@@ -225,7 +286,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/minapp-list")
     public RespBody minappList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled,shareTo,config from AibotConfig where type = 'MINAPP' order by modifiedOn desc")
+                "select configId,name,isDisabled,shareTo,config from AibotConfig where type = 'MINAPP' order by name")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -294,8 +355,6 @@ public class AiBot2AdminController extends BaseController {
         return RespBody.ok();
     }
 
-
-
     @GetMapping("aibot-minapp/{minappId}")
     public ModelAndView pageAibotMinApp(@PathVariable String minappId, HttpServletResponse response) throws IOException {
         if (!License.isCommercial()) {
@@ -335,7 +394,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/agent-list")
     public RespBody agentList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled from AibotConfig where type = 'AGENT' order by modifiedOn desc")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'AGENT' order by name")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -394,7 +453,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/skill-list")
     public RespBody skillList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled from AibotConfig where type = 'SKILL' order by modifiedOn desc")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'SKILL' order by name")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();
@@ -418,7 +477,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/kb-list")
     public RespBody kbList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by modifiedOn desc")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by name")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();

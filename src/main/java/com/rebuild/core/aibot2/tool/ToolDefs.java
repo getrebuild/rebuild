@@ -112,8 +112,9 @@ public class ToolDefs {
      * @return
      */
     public static List<ChatCompletionTool> tools(AibotAgent agent) {
+        boolean anonymous = AibotContextHolder.isAnonymous();
         // 管理员专属工具不提供给非管理员
-        boolean isAdmin = !AibotContextHolder.isAnonymous()
+        boolean isAdmin = !anonymous
                 && UserContextHolder.getUser(true) != null
                 && UserHelper.isAdmin(UserContextHolder.getUser());
 
@@ -123,6 +124,7 @@ public class ToolDefs {
         return TOOL_MAP.entrySet().stream()
                 .filter(e -> agentTools != null || !disabled.contains(e.getKey()))
                 .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
+                .filter(e -> !anonymous || !(e.getValue() instanceof PersonalGuard))
                 .filter(e -> agentTools == null || agentTools.contains(e.getKey()))
                 .map(e -> e.getValue().def())
                 .collect(Collectors.toList());
@@ -310,6 +312,11 @@ public class ToolDefs {
             if (tool instanceof AdminGuard && (AibotContextHolder.isAnonymous() || !UserHelper.isAdmin(user))) {
                 log.warn("Tool requires admin : {} by {}", toolName, user);
                 throw new KnownToolException("此操作仅限管理员使用");
+            }
+
+            if (tool instanceof PersonalGuard && AibotContextHolder.isAnonymous()) {
+                log.warn("Tool requires login user : {}", toolName);
+                throw new KnownToolException("此操作仅限登录用户使用");
             }
 
             if (StringUtils.isBlank(arguments)) arguments = "{}";

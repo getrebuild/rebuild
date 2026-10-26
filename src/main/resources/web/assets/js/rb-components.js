@@ -795,7 +795,7 @@ class UserSelector extends React.Component {
     // Mix select2 and dropdown
     // data-reference="parent" data-offset="1,26"
     return (
-      <span className="select2 select2-container select2-container--default user-selector">
+      <span className="select2 select2-container select2-container--default user-selector" title={this.props.title || null}>
         <span className="selection">
           {this.props.compToggle ? (
             <span ref={(c) => (this._$dropdownParent = c)}>

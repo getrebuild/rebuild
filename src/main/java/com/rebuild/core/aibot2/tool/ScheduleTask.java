@@ -33,7 +33,7 @@ import java.util.List;
  * @since 2026/8/9
  */
 @Slf4j
-public class ScheduleTask implements Tool {
+public class ScheduleTask implements Tool, PersonalGuard {
 
     @Override
     public Object tool(String arguments) throws Exception {

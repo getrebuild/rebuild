@@ -105,6 +105,9 @@ class Chat extends React.Component {
       const current = this.getCurrentAgent()
       typeof this.props.onAgentChanged === 'function' && this.props.onAgentChanged(current && current.id ? current : null)
     }
+    if (this.state.viewAsAdmin !== prevState.viewAsAdmin) {
+      typeof this.props.onViewAsAdmin === 'function' && this.props.onViewAsAdmin(this.state.viewAsAdmin)
+    }
   }
 
   getCurrentAgent() {
@@ -132,7 +135,7 @@ class Chat extends React.Component {
       }
     }
 
-    this.setState({ chatid: chatid || null, confirmAction: null, agentId: agentId || null })
+    this.setState({ chatid: chatid || null, confirmAction: null, agentId: agentId || null, viewAsAdmin: null })
     this._ChatMessages.setMessages([], true, null)
     this._ChatInput.reset(true)
     const _preset = this._preset
@@ -156,7 +159,7 @@ class Chat extends React.Component {
             return
           }
         }
-        this.setState({ agents, agentId: agentId || d.agentId || null, skills: d.skills || [] })
+        this.setState({ agents, agentId: agentId || d.agentId || null, skills: d.skills || [], viewAsAdmin: d.viewAsAdmin || null })
         let messages = d.messages || []
         // 最后一条是用户消息，说明 AI 还在回答中（刷新中断场景）
         if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
@@ -1316,7 +1319,8 @@ class ChatSidebar extends React.Component {
 
       if (this.state.current) {
         const exists = data.some((g) => g.items.some((x) => x.chatid === this.state.current))
-        if (!exists) {
+        // 管理员查看他人会话时不重置（该会话不在自己的列表里）
+        if (!exists && !this.props._Chat.state.viewAsAdmin) {
           this.props._Chat.initChat()
           this.setState({ current: null })
         }

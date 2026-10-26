@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global AiBotChatsModal */
 
 const __MODELS = ['qwen3.8-max', 'glm-5.2', 'deepseek-v4-flash', 'gpt-5']
 
@@ -113,6 +114,10 @@ $(document).ready(() => {
     _renderStats(data.aibotDailyUsers, $el)
 
     renderRbcomp(<AiBotUserRank id="aibot-rank" users={data.aibotUsers || []} />, $('.J_stats-users')[0])
+  })
+
+  $('.J_all-chats').on('click', () => {
+    renderRbcomp(<AiBotChatsModal title={$L('所有会话')} width={880} disposeOnHide useWhite useScrollable />)
   })
 })
 

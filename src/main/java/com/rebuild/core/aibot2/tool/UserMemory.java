@@ -33,7 +33,7 @@ import static com.rebuild.core.aibot2.service.AibotConfigManager.TYPE_AIBOT_USER
  * @since 2026/8/13
  */
 @Slf4j
-public class UserMemory implements Tool {
+public class UserMemory implements Tool, PersonalGuard {
 
     public static final String MEMORY_GUIDANCE =
             "通过 UserMemory 工具为用户维护长期个性化记忆。\n" +

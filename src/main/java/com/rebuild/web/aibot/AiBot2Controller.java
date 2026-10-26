@@ -202,8 +202,10 @@ public class AiBot2Controller extends BaseController {
         ID chatid = getIdParameter(req, "chatid");
         if (chatid == null) return null;
 
+        ID user = getRequestUser(req);
         Object createdBy = QueryHelper.queryFieldValue(chatid, "createdBy");
-        return getRequestUser(req).equals(createdBy) ? chatid : null;
+        // 管理员可查看和操作所有用户的会话
+        return user.equals(createdBy) || UserHelper.isAdmin(user) ? chatid : null;
     }
 
     private ID getOwnedChatIdNotNull(HttpServletRequest req) {
@@ -274,6 +276,14 @@ public class AiBot2Controller extends BaseController {
                 new String[]{"_chatid", "messages"}, new Object[]{chatid, messages});
         if (suggestQuestions != null) {
             data.put("suggestQuestions", suggestQuestions);
+        }
+
+        // 管理员查看他人会话时返回所属人，前端显示标识
+        if (chatid != null && UserHelper.isAdmin(user)) {
+            Object createdBy = QueryHelper.queryFieldValue(chatid, "createdBy");
+            if (!user.equals(createdBy)) {
+                data.put("viewAsAdmin", UserHelper.getName((ID) createdBy));
+            }
         }
 
         JSONArray agents = new JSONArray();
