@@ -278,6 +278,14 @@ public class AiBot2Controller extends BaseController {
             data.put("suggestQuestions", suggestQuestions);
         }
 
+        // 管理员查看他人会话时返回所属人，前端显示标识
+        if (chatid != null && UserHelper.isAdmin(user)) {
+            Object createdBy = QueryHelper.queryFieldValue(chatid, "createdBy");
+            if (!user.equals(createdBy)) {
+                data.put("viewAsAdmin", UserHelper.getName((ID) createdBy));
+            }
+        }
+
         JSONArray agents = new JSONArray();
         agents.add(JSONUtils.toJSONObject(
                 new String[]{"id", "name"},

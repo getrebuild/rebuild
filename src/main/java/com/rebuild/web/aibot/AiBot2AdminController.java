@@ -123,18 +123,25 @@ public class AiBot2AdminController extends BaseController {
         Map<String, Integer> chatsByDay = new TreeMap<>();
         Map<String, Set<ID>> usersByDay = new TreeMap<>();
         Map<ID, Long> tokenMap = new HashMap<>();
+        Set<ID> realUsers = new HashSet<>();
         long tokenTotal = 0;
+        int realChats = 0;
 
         for (Object[] o : rows) {
             String day = CalendarUtils.format("yyyy-MM-dd", (Date) o[0]);
             ID user = (ID) o[1];
             long token = o[2] == null ? 0L : ((Number) o[2]).longValue();
 
+            // 词元全量统计（含内部会话），会话数/使用人数仅统计真实用户（与 chat-list 口径一致）
             tokensByDay.merge(day, token, Long::sum);
-            chatsByDay.merge(day, 1, Integer::sum);
-            usersByDay.computeIfAbsent(day, k -> new HashSet<>()).add(user);
             tokenMap.merge(user, token, Long::sum);
             tokenTotal += token;
+
+            if (UserHelper.isSystemUser(user)) continue;
+            realChats++;
+            realUsers.add(user);
+            chatsByDay.merge(day, 1, Integer::sum);
+            usersByDay.computeIfAbsent(day, k -> new HashSet<>()).add(user);
         }
 
         List<Object[]> aibot = new ArrayList<>();
@@ -166,8 +173,8 @@ public class AiBot2AdminController extends BaseController {
                 new Object[]{aibot.toArray(), ObjectUtils.round(tokenTotal / 10000d, 2), usersList.toArray()});
         stats.put("aibotDailyChats", aibotDailyChats.toArray());
         stats.put("aibotDailyUsers", aibotDailyUsers.toArray());
-        stats.put("chats", rows.length);
-        stats.put("users", tokenMap.size());
+        stats.put("chats", realChats);
+        stats.put("users", realUsers.size());
         return stats;
     }
 

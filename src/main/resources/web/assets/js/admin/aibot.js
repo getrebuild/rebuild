@@ -97,8 +97,7 @@ class AiBotUserRank extends ChartRank {
   }
 }
 
-// ~~ 所有会话（管理员查看）
-// eslint-disable-next-line no-undef
+// ~~ 所有会话
 class AiBotChatsModal extends RbModal {
   constructor(props) {
     super(props)
@@ -121,7 +120,7 @@ class AiBotChatsModal extends RbModal {
     } else if (this.state.data.length === 0) {
       body = (
         <div className="list-nodata">
-          <span className="zmdi zmdi-comments" />
+          <span className="zmdi zmdi-info-outline" />
           <p>{$L('暂无数据')}</p>
         </div>
       )
@@ -132,7 +131,7 @@ class AiBotChatsModal extends RbModal {
             <thead>
               <tr>
                 <th>{$L('标题')}</th>
-                <th className="text-right">{$L('TOKEN 用量')}</th>
+                <th className="text-right">{$L('Token 用量')}</th>
                 <th>{$L('所属用户')}</th>
                 <th>{$L('使用时间')}</th>
               </tr>
@@ -141,7 +140,7 @@ class AiBotChatsModal extends RbModal {
               {this.state.data.map((item) => (
                 <tr key={item.id}>
                   <td>
-                    <a href={`${rb.baseUrl}/aibot/chat#chatid=${item.id}`} title={item.subject} target="_blank" className="link">
+                    <a href={`${rb.baseUrl}/aibot/chat?frame=1#chatid=${item.id}`} title={item.subject} target="_blank" className="link">
                       {item.subject}
                     </a>
                   </td>
@@ -156,7 +155,7 @@ class AiBotChatsModal extends RbModal {
           </table>
 
           {this.state.showMore && (
-            <div className="text-center mt-4 mb-0">
+            <div className="text-center mt-4 mb-4">
               <a className="show-more-pill" onClick={() => this._loadNext()}>
                 {$L('显示更多')}
               </a>
@@ -168,7 +167,7 @@ class AiBotChatsModal extends RbModal {
 
     return (
       <div className="modal-body m-0 p-0">
-        <div className="card card-table shadow-none">
+        <div className="card card-table shadow-none mb-0">
           <div className="card-body">
             <div className="dataTables_wrapper container-fluid">
               <div className="row rb-datatable-header bg-eee">
@@ -198,6 +197,7 @@ class AiBotChatsModal extends RbModal {
                         multiple={false}
                         onSelectItem={(s, isRemove) => this._selectUser(isRemove || !s ? '' : s.id)}
                         onClearSelection={() => this._selectUser('')}
+                        title={$L('选择所属用户')}
                       />
                     </div>
                   </div>
