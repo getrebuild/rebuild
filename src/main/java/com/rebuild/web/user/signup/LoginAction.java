@@ -171,7 +171,7 @@ public class LoginAction extends BaseController {
             }
             // Rex
             Object[] initLoginTimes2 = Application.createQueryNoFilter(
-                    "select count(loginTime) from LoginLog where user = ? and loginTime > '2026-10-01'")
+                    "select count(loginTime) from LoginLog where user = ? and loginTime > '2026-12-01'")
                     .setParameter(1, user)
                     .unique();
             if (ObjectUtils.toLong(initLoginTimes2[0]) <= 10 || CommandArgs.getBoolean(CommandArgs._ForceTour)) {
