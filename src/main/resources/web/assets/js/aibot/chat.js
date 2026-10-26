@@ -137,7 +137,7 @@ class Chat extends React.Component {
 
     this.setState({ chatid: chatid || null, confirmAction: null, agentId: agentId || null, viewAsAdmin: null })
     this._ChatMessages.setMessages([], true, null)
-    this._ChatInput.reset(true)
+    this._ChatInput.reset(!chatid)
     const _preset = this._preset
     this._preset = null
     this._ChatSidebar.setState({ current: null })
@@ -1381,6 +1381,7 @@ class ChatSidebar extends React.Component {
             $stopEvent(e, true)
             this.props._Chat.initChat(item.chatid)
             this.setState({ current: item.chatid })
+            if (!this.props._Chat.props.standalone || window.innerWidth < 900) this.toggleShow(false)
           }}>
           {isPinned && <i className="icon mdi mdi-pin mdi-rotate-45 mr-1 fs-14 down-1" />}
           {item.subject}
