@@ -202,8 +202,10 @@ public class AiBot2Controller extends BaseController {
         ID chatid = getIdParameter(req, "chatid");
         if (chatid == null) return null;
 
+        ID user = getRequestUser(req);
         Object createdBy = QueryHelper.queryFieldValue(chatid, "createdBy");
-        return getRequestUser(req).equals(createdBy) ? chatid : null;
+        // 管理员可查看和操作所有用户的会话
+        return user.equals(createdBy) || UserHelper.isAdmin(user) ? chatid : null;
     }
 
     private ID getOwnedChatIdNotNull(HttpServletRequest req) {

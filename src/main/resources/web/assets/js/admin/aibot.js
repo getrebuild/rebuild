@@ -97,6 +97,147 @@ class AiBotUserRank extends ChartRank {
   }
 }
 
+// ~~ 所有会话（管理员查看）
+// eslint-disable-next-line no-undef
+class AiBotChatsModal extends RbModal {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, total: -1, data: null, user: '', showMore: false }
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    this._loadNext(true)
+  }
+
+  renderContent() {
+    let body
+    if (this.state.data === null) {
+      body = (
+        <div className="rb-loading rb-loading-active">
+          <RbSpinner />
+        </div>
+      )
+    } else if (this.state.data.length === 0) {
+      body = (
+        <div className="list-nodata">
+          <span className="zmdi zmdi-comments" />
+          <p>{$L('暂无数据')}</p>
+        </div>
+      )
+    } else {
+      body = (
+        <RF>
+          <table className="table table-hover table-striped mb-0">
+            <thead>
+              <tr>
+                <th>{$L('标题')}</th>
+                <th className="text-right">{$L('TOKEN 用量')}</th>
+                <th>{$L('所属用户')}</th>
+                <th>{$L('使用时间')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.data.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <a href={`${rb.baseUrl}/aibot/chat#chatid=${item.id}`} title={item.subject} target="_blank" className="link">
+                      {item.subject}
+                    </a>
+                  </td>
+                  <td className="text-right">{(item.token || 0).toLocaleString()}</td>
+                  <td className="text-muted">{item.userName}</td>
+                  <td className="text-muted">
+                    <DateShow date={item.modifiedOn} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {this.state.showMore && (
+            <div className="text-center mt-4 mb-0">
+              <a className="show-more-pill" onClick={() => this._loadNext()}>
+                {$L('显示更多')}
+              </a>
+            </div>
+          )}
+        </RF>
+      )
+    }
+
+    return (
+      <div className="modal-body m-0 p-0">
+        <div className="card card-table shadow-none">
+          <div className="card-body">
+            <div className="dataTables_wrapper container-fluid">
+              <div className="row rb-datatable-header bg-eee">
+                <div className="col-8">
+                  <div className="dataTables_filter d-flex align-items-center">
+                    <div className="input-group input-search">
+                      <input
+                        className="form-control"
+                        type="text"
+                        placeholder={$L('查询')}
+                        maxLength="40"
+                        onKeyDown={(e) => {
+                          if (e.keyCode === 13) this._loadNext(true, e.target.value.trim())
+                        }}
+                      />
+                      <span className="input-group-btn">
+                        <button className="btn btn-secondary" type="button" onClick={(e) => this._loadNext(true, $(e.target).closest('.input-search').find('input').val().trim())}>
+                          <i className="icon zmdi zmdi-search" />
+                        </button>
+                      </span>
+                    </div>
+                    <div className="ml-2" style={{ width: 227 }}>
+                      <UserSelector
+                        hideDepartment
+                        hideRole
+                        hideTeam
+                        multiple={false}
+                        onSelectItem={(s, isRemove) => this._selectUser(isRemove || !s ? '' : s.id)}
+                        onClearSelection={() => this._selectUser('')}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="col-4">
+                  <div className="dataTables_oper pt-2 fs-13">{this.state.total > -1 && <span className="text-muted">{$L('共 %s 条', this.state.total)}</span>}</div>
+                </div>
+              </div>
+              <div className="data-list">{body}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  _selectUser(id) {
+    this.setState({ user: id || '' }, () => this._loadNext(true))
+  }
+
+  _loadNext(reset, q) {
+    if (this.state._search) return
+    this.setState({ _search: true })
+
+    this.__pageNo = reset ? 1 : (this.__pageNo || 0) + 1
+    this.__q = q !== undefined ? q : this.__q
+
+    $.get('./aibot/chat-list', { pageNo: this.__pageNo, user: this.state.user || '', q: this.__q || '' }, (res) => {
+      const d = res.data || {}
+      const _data = d.data || []
+      this.setState({
+        _search: false,
+        data: reset ? _data : (this.state.data || []).concat(_data),
+        showMore: _data.length >= 20,
+        total: d.total > -1 ? d.total : this.state.total,
+      })
+    })
+  }
+}
+
 $(document).ready(() => {
   $.get('./aibot/stats', (res) => {
     const data = res.data || {}
@@ -113,6 +254,10 @@ $(document).ready(() => {
     _renderStats(data.aibotDailyUsers, $el)
 
     renderRbcomp(<AiBotUserRank id="aibot-rank" users={data.aibotUsers || []} />, $('.J_stats-users')[0])
+  })
+
+  $('.J_all-chats').on('click', () => {
+    renderRbcomp(<AiBotChatsModal title={$L('所有会话')} width={880} disposeOnHide useWhite useScrollable />)
   })
 })
 

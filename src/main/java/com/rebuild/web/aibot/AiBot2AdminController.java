@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.openai.client.OpenAIClient;
 import com.openai.models.models.Model;
@@ -30,13 +31,16 @@ import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.rbstore.RBStore;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
@@ -165,6 +169,46 @@ public class AiBot2AdminController extends BaseController {
         stats.put("chats", rows.length);
         stats.put("users", tokenMap.size());
         return stats;
+    }
+
+    @GetMapping("aibot/chat-list")
+    public RespBody adminChatList(HttpServletRequest request) {
+        if (!UserHelper.isAdmin(getRequestUser(request))) return RespBody.error(403);
+
+        final ID user = getIdParameter(request, "user");
+        final int pageNo = getIntParameter(request, "pageNo", 1);
+        final int pageSize = 20;
+
+        String where = String.format(" where createdBy not in ('%s','%s')", UserService.SYSTEM_USER, UserService.AIBOT_USER);
+        if (user != null) where += " and createdBy = '" + user + "'";
+        String q = StringUtils.trimToEmpty(getParameter(request, "q"));
+        if (StringUtils.isNotBlank(q)) {
+            where += String.format(" and subject like '%%%s%%'", CommonsUtils.escapeSql(q));
+        }
+
+        long total = -1L;
+        if (pageNo == 1) {
+            total = ((Number) Application.createQueryNoFilter(
+                    "select count(chatId) from AibotChat" + where).unique()[0]).longValue();
+        }
+
+        Object[][] array = Application.createQueryNoFilter(
+                "select chatId,subject,createdBy,token,modifiedOn from AibotChat" + where + " order by modifiedOn desc")
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .array();
+
+        JSONArray data = new JSONArray();
+        for (Object[] o : array) {
+            JSONObject item = JSONUtils.toJSONObject(
+                    new String[]{"id", "subject", "userName", "token", "modifiedOn"},
+                    new Object[]{o[0], o[1], UserHelper.getName((ID) o[2]),
+                            o[3] == null ? 0L : o[3], I18nUtils.formatDate((Date) o[4])});
+            data.add(item);
+        }
+
+        JSONObject res = JSONUtils.toJSONObject(
+                new String[]{"total", "data"}, new Object[]{total, data});
+        return RespBody.ok(res);
     }
 
     @GetMapping("aibot/models")

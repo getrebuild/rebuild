@@ -82,6 +82,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .file-list-item > div.type {
   width: 40px;
   vertical-align: middle;
+  height: 34px;
 }
 
 .file-list-item > div.type {
