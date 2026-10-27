@@ -397,6 +397,18 @@ public class AiBot2AdminController extends BaseController {
                 "select configId,name,config,isDisabled from AibotConfig where type = 'AGENT' order by name")
                 .array();
 
+        // 近 90 日各智能体真实用户会话数（口径同 stats/chat-list）
+        final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
+        Map<ID, Integer> chatCountMap = new HashMap<>();
+        Object[][] chats = Application.createQueryNoFilter(
+                String.format("select agentId from AibotChat where createdOn > ? and createdBy not in ('%s','%s')",
+                        UserService.SYSTEM_USER, UserService.AIBOT_USER))
+                .setParameter(1, xday)
+                .array();
+        for (Object[] c : chats) {
+            if (c[0] != null) chatCountMap.merge((ID) c[0], 1, Integer::sum);
+        }
+
         List<JSONObject> list = new ArrayList<>();
         for (Object[] o : array) {
             JSONObject item = new JSONObject(true);
@@ -407,6 +419,7 @@ public class AiBot2AdminController extends BaseController {
             conf.remove("AibotDSSecret");
             item.put("config", conf);
             item.put("isDisabled", o[3]);
+            item.put("chatCount", chatCountMap.getOrDefault((ID) o[0], 0));
             list.add(item);
         }
         return RespBody.ok(list);

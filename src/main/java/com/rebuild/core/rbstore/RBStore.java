@@ -59,7 +59,7 @@ public class RBStore {
      * @return
      */
     public static JSON fetchAibotSkills(String file) {
-        return fetchRemoteJson("aibot2/skills/" +
+        return fetchRemoteJson("skills/" +
                 StringUtils.defaultIfBlank(file, "index.json"));
     }
 
