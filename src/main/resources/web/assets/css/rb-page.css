@@ -2121,7 +2121,7 @@ th.column-fixed::before,
   padding: 0 8px;
   z-index: 1;
   display: none;
-  transform: scale(1.21);
+  transform: scale(1.2);
 }
 
 .dataTables_info .list-stats-settings:hover {
