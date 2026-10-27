@@ -455,6 +455,12 @@ public class AiBot2AdminController extends BaseController {
             item.put("config", conf);
             item.put("isDisabled", o[3]);
             item.put("chatCount", chatCountMap.getOrDefault((ID) o[0], 0));
+
+            // 设置了日限额的才返回今日用量（列表卡片显示使用百分比）
+            Long dailyLimit = conf.getLong("dailyTokenLimit");
+            if (dailyLimit != null && dailyLimit > 0) {
+                item.put("usageToday", AgentQuota.usage((ID) o[0])[0]);
+            }
             list.add(item);
         }
         return RespBody.ok(list);

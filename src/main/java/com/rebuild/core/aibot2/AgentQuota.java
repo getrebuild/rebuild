@@ -63,28 +63,21 @@ public class AgentQuota {
 
         Calendar month = CalendarUtils.getInstance();
         month.set(Calendar.DAY_OF_MONTH, 1);
-        month.set(Calendar.HOUR_OF_DAY, 0);
-        month.set(Calendar.MINUTE, 0);
-        month.set(Calendar.SECOND, 0);
-        month.set(Calendar.MILLISECOND, 0);
 
-        Object[][] rows = Application.createQueryNoFilter(
-                "select createdOn,token from AibotChat where agentId = ? and createdOn > ?")
-                .setParameter(1, agentId)
-                .setParameter(2, month.getTime())
-                .array();
-
-        String today = CalendarUtils.format("yyyy-MM-dd", CalendarUtils.now());
-        long todayUsage = 0;
-        long monthUsage = 0;
-        for (Object[] o : rows) {
-            long token = o[1] == null ? 0 : ((Number) o[1]).longValue();
-            monthUsage += token;
-            if (today.equals(CalendarUtils.format("yyyy-MM-dd", (Date) o[0]))) todayUsage += token;
-        }
+        long todayUsage = sumToken(agentId, CalendarUtils.clearTime(CalendarUtils.now()));
+        long monthUsage = sumToken(agentId, CalendarUtils.clearTime(month.getTime()));
 
         long[] usage = new long[]{todayUsage, monthUsage};
         Application.getCommonsCache().putx(CK_PREFIX + agentId, usage, CommonsCache.TS_MINTE);
         return usage;
+    }
+
+    private static long sumToken(ID agentId, Date since) {
+        Object[] o = Application.createQueryNoFilter(
+                "select sum(token) from AibotChat where agentId = ? and createdOn > ?")
+                .setParameter(1, agentId)
+                .setParameter(2, since)
+                .unique();
+        return (o == null || o[0] == null) ? 0L : ((Number) o[0]).longValue();
     }
 }
