@@ -186,5 +186,6 @@ module.exports = {
     AiCreateButton: true,
     AiBot: true,
     RbScroller: true,
+    $renderStats: true,
   },
 }

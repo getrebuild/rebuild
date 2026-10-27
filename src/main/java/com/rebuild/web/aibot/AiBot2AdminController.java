@@ -34,6 +34,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.rbstore.RBStore;
+import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
@@ -289,28 +290,61 @@ public class AiBot2AdminController extends BaseController {
                 "select configId,name,isDisabled,shareTo,config from AibotConfig where type = 'MINAPP' order by name")
                 .array();
 
+        // 近 90 日各微应用页面访问量
+        Map<ID, Integer> visitCountMap = new HashMap<>();
+        Object[][] visits = Application.createQueryNoFilter(
+                "select source from CommonsLog where type = ? and logTime > ?")
+                .setParameter(1, CommonsLog.TYPE_MINAPP)
+                .setParameter(2, CalendarUtils.clearTime(CalendarUtils.addDay(-90)))
+                .array();
+        for (Object[] v : visits) {
+            if (v[0] != null) visitCountMap.merge((ID) v[0], 1, Integer::sum);
+        }
+
         List<JSONObject> list = new ArrayList<>();
         for (Object[] o : array) {
             JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[4]);
             JSONObject publish = conf == null ? null : conf.getJSONObject("publish");
 
             list.add(JSONUtils.toJSONObject(
-                    new String[]{"id", "name", "isDisabled", "shareTo", "icon", "bindUser", "publishEnabled", "url"},
+                    new String[]{"id", "name", "isDisabled", "shareTo", "icon", "bindUser", "publishEnabled", "url", "visitCount"},
                     new Object[]{o[0], o[1], o[2], o[3],
                             conf == null ? null : conf.getString("icon"),
                             conf == null ? null : conf.getString("bindUser"),
                             publish != null && publish.getBooleanValue("enabled"),
-                            RebuildConfiguration.getHomeUrl("pages/minapp/" + o[0])}));
+                            RebuildConfiguration.getHomeUrl("pages/minapp/" + o[0]),
+                            visitCountMap.getOrDefault((ID) o[0], 0)}));
         }
         return RespBody.ok(list);
     }
 
-    /**
-     * 微应用编辑保存（config 由服务端合并，保留 html 等其他键）
-     *
-     * @param data {id, name, icon, shareTo, enabled, bindUser}
-     * @return
-     */
+    @GetMapping("aibot/minapp-stats")
+    public RespBody minappStats(HttpServletRequest request) {
+        ID minapp = getIdParameter(request, "minapp");
+        if (minapp == null) return RespBody.error(404);
+
+        Object[][] logs = Application.createQueryNoFilter(
+                "select logTime from CommonsLog where type = ? and source = ? and logTime > ?")
+                .setParameter(1, CommonsLog.TYPE_MINAPP)
+                .setParameter(2, minapp)
+                .setParameter(3, CalendarUtils.clearTime(CalendarUtils.addDay(-90)))
+                .array();
+
+        Map<String, Integer> visitsByDay = new TreeMap<>();
+        for (Object[] o : logs) {
+            visitsByDay.merge(CalendarUtils.format("yyyy-MM-dd", (Date) o[0]), 1, Integer::sum);
+        }
+
+        List<Object[]> dailyVisits = new ArrayList<>();
+        for (Map.Entry<String, Integer> e : visitsByDay.entrySet()) {
+            dailyVisits.add(new Object[]{e.getKey(), e.getValue()});
+        }
+
+        return RespBody.ok(JSONUtils.toJSONObject(
+                new String[]{"visits", "dailyVisits"},
+                new Object[]{logs.length, dailyVisits.toArray()}));
+    }
+
     @PostMapping("aibot/minapp-save")
     public RespBody minappSave(@RequestBody JSONObject data) {
         ID id = ID.isId(data.getString("id")) ? ID.valueOf(data.getString("id")) : null;

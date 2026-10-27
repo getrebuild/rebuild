@@ -103,15 +103,15 @@ $(document).ready(() => {
     const data = res.data || {}
     let $el = $('.J_stats-aibot')
     $el.find('strong').text(data.aibotCount || 0)
-    _renderStats(data.aibot, $el)
+    $renderStats(data.aibot, $el)
 
     $el = $('.J_stats-chats')
     $el.find('strong').text(data.chats || 0)
-    _renderStats(data.aibotDailyChats, $el)
+    $renderStats(data.aibotDailyChats, $el)
 
     $el = $('.J_stats-usercount')
     $el.find('strong').text(data.users || 0)
-    _renderStats(data.aibotDailyUsers, $el)
+    $renderStats(data.aibotDailyUsers, $el)
 
     renderRbcomp(<AiBotUserRank id="aibot-rank" users={data.aibotUsers || []} />, $('.J_stats-users')[0])
   })
@@ -131,66 +131,4 @@ postBefore = function (data) {
     return false
   }
   return data
-}
-
-const _renderStats = function (data, $el) {
-  const xAxis = []
-  const series = []
-  data.forEach((item) => {
-    xAxis.push(item[0])
-    series.push(item[1])
-  })
-
-  const option = {
-    grid: { left: 0, right: 0, top: 4, bottom: 4 },
-    animation: true,
-    tooltip: {
-      trigger: 'axis',
-      formatter: '{b} : <b>{c}</b>',
-      textStyle: {
-        fontSize: 12,
-        lineHeight: 1.3,
-        color: '#333',
-      },
-      axisPointer: {
-        lineStyle: { color: '#ddd' },
-      },
-      backgroundColor: '#fff',
-      extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
-      confine: true,
-      position: 'top',
-    },
-    textStyle: {
-      fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-    },
-    xAxis: {
-      show: false,
-      type: 'category',
-      data: xAxis,
-    },
-    yAxis: {
-      show: false,
-      type: 'value',
-      splitLine: { show: false },
-      cursor: 'default',
-    },
-    series: [
-      {
-        data: series,
-        areaStyle: { opacity: 0.2 },
-        itemStyle: {
-          normal: {
-            color: '#4285f4',
-            lineStyle: { color: '#4285f4' },
-          },
-        },
-        type: 'line',
-        smooth: true,
-        connectNulls: true,
-      },
-    ],
-  }
-
-  const c = echarts.init($el.find('span')[0])
-  c.setOption(option)
 }
