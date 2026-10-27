@@ -2117,13 +2117,11 @@ th.column-fixed::before,
 }
 
 .dataTables_info .list-stats-settings {
-  opacity: 0.6;
-  padding: 9px 8px;
-  font-size: 15px;
-  position: absolute;
-  top: 0;
+  opacity: 0.8;
+  padding: 0 8px;
   z-index: 1;
   display: none;
+  transform: scale(1.21);
 }
 
 .dataTables_info .list-stats-settings:hover {
@@ -6533,22 +6531,30 @@ div.formula-code {
   border-radius: 99px;
 }
 
-.dataTables_wrapper .rb-datatable-header.v42 {
+.dataTables_wrapper .rb-datatable-header.v42,
+.dataTables_wrapper .rb-datatable-footer.v46 {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 10px;
 }
 
-.dataTables_wrapper .rb-datatable-header.v42 > div {
+.dataTables_wrapper .rb-datatable-header.v42 > div,
+.dataTables_wrapper .rb-datatable-footer.v46 > div {
   flex: none;
   white-space: nowrap;
   width: unset;
   max-width: unset;
 }
 
-.dataTables_wrapper .rb-datatable-header.v42 > div.right {
+.dataTables_wrapper .rb-datatable-header.v42 > div.right,
+.dataTables_wrapper .rb-datatable-footer.v46 > div.right {
   text-align: right;
+}
+
+.dataTables_wrapper .rb-datatable-footer.v46 > div:first-child {
+  flex: 1 1 auto;
+  white-space: normal;
 }
 
 .EasyMDEContainer .editor-toolbar button.mdi {

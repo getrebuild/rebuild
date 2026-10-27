@@ -1916,11 +1916,11 @@ class RbListPagination extends React.Component {
     const pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
 
     return (
-      <div className="row rb-datatable-footer">
-        <div className="col-12 col-lg-6">
+      <div className="row rb-datatable-footer v46">
+        <div className="col-12 col-md-6">
           <div className="dataTables_info">{this.renderStats()}</div>
         </div>
-        <div className="col-12 col-lg-6">
+        <div className="col-12 col-md-6">
           <div className="float-right paging_sizes">
             <select className="form-control form-control-sm" title={$L('每页显示')} onChange={this.setPageSize} value={this.state.pageSize || 20}>
               {rb.env === 'dev' && <option value="5">5</option>}
