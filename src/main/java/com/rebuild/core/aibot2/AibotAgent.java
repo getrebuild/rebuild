@@ -112,6 +112,16 @@ public class AibotAgent implements Serializable {
     @Accessors(chain = true)
     private Long contextCompressThreshold;
 
+    // 日/月 token 用量限额（原始 token 数，null 或 ≤0 表示不限制）
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private Long dailyTokenLimit;
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private Long monthlyTokenLimit;
+
     // 公开访客聊天页（/aibot/pub）能力开关，未配置即为 false（禁用），内部聊天不受影响
     @Getter
     @Setter
@@ -174,6 +184,14 @@ public class AibotAgent implements Serializable {
         Long v = contextCompressThreshold != null ? contextCompressThreshold
                 : parseLong(get(AibotContextCompressThreshold), "contextCompressThreshold");
         return (v != null && v > 0) ? v : null;
+    }
+
+    public Long dailyTokenLimit() {
+        return (dailyTokenLimit != null && dailyTokenLimit > 0) ? dailyTokenLimit : null;
+    }
+
+    public Long monthlyTokenLimit() {
+        return (monthlyTokenLimit != null && monthlyTokenLimit > 0) ? monthlyTokenLimit : null;
     }
 
     public List<ChatCompletionTool> tools() {

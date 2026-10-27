@@ -69,6 +69,8 @@ public class AgentDefs {
                 .setTemperature(conf.getDouble("AibotTemperature"))
                 .setTopP(conf.getDouble("AibotTopP"))
                 .setContextCompressThreshold(conf.getLong("AibotContextCompressThreshold"))
+                .setDailyTokenLimit(conf.getLong("dailyTokenLimit"))
+                .setMonthlyTokenLimit(conf.getLong("monthlyTokenLimit"))
                 .setAllowNewChat(Boolean.TRUE.equals(conf.getBoolean("allowNewChat")))
                 .setAllowUpload(Boolean.TRUE.equals(conf.getBoolean("allowUpload")))
                 .setAllowSkill(Boolean.TRUE.equals(conf.getBoolean("allowSkill")));
