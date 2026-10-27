@@ -59,7 +59,8 @@ $(document).ready(() => {
           data.forEach((item) => {
             $.post(`./aibot/kb-build?id=${item.id}`)
           })
-          KbList.load()
+
+          $setTimeout(() => KbList.load(), 3000, 'KbList.load')
         })
       },
     })
@@ -76,7 +77,8 @@ class KbList extends React.Component {
       const data = res.data || []
       $('.J_kbEmpty').toggle(data.length === 0)
       renderRbcomp(<KbList data={data} />, 'kbList')
-      // 有构建中的知识库时自动刷新，直至全部完成
+
+      // 有构建中的知识库时自动刷新
       if (data.some((item) => item.chunkCount === -1)) {
         $setTimeout(() => KbList.load(), 5000, 'KbList.load')
       }
