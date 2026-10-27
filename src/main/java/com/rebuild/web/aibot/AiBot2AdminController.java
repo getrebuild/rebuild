@@ -22,6 +22,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AgentQuota;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
@@ -147,7 +148,7 @@ public class AiBot2AdminController extends BaseController {
 
         List<Object[]> aibot = new ArrayList<>();
         for (Map.Entry<String, Long> e : tokensByDay.entrySet()) {
-            aibot.add(new Object[]{e.getKey(), ObjectUtils.round(e.getValue() / 10000d, 2)});
+            aibot.add(new Object[]{e.getKey(), ObjectUtils.round(e.getValue() / 10000d, 1)});
         }
         List<Object[]> aibotDailyChats = new ArrayList<>();
         for (Map.Entry<String, Integer> e : chatsByDay.entrySet()) {
@@ -165,13 +166,13 @@ public class AiBot2AdminController extends BaseController {
 
             long tokenSum = tokenMap.getOrDefault(u.getId(), 0L);
             usersList.add(new Object[]{u.getId().toString(), u.getFullName(),
-                    ObjectUtils.round(tokenSum / 10000d, 2)});
+                    ObjectUtils.round(tokenSum / 10000d, 1)});
         }
         usersList.sort((a, b) -> Double.compare((Double) b[2], (Double) a[2]));
 
         JSONObject stats = JSONUtils.toJSONObject(
                 new String[]{"aibot", "aibotCount", "aibotUsers"},
-                new Object[]{aibot.toArray(), ObjectUtils.round(tokenTotal / 10000d, 2), usersList.toArray()});
+                new Object[]{aibot.toArray(), ObjectUtils.round(tokenTotal / 10000d, 1), usersList.toArray()});
         stats.put("aibotDailyChats", aibotDailyChats.toArray());
         stats.put("aibotDailyUsers", aibotDailyUsers.toArray());
         stats.put("chats", realChats);
@@ -454,6 +455,12 @@ public class AiBot2AdminController extends BaseController {
             item.put("config", conf);
             item.put("isDisabled", o[3]);
             item.put("chatCount", chatCountMap.getOrDefault((ID) o[0], 0));
+
+            // 设置了日限额的才返回今日用量（列表卡片显示使用百分比）
+            Long dailyLimit = conf.getLong("dailyTokenLimit");
+            if (dailyLimit != null && dailyLimit > 0) {
+                item.put("usageToday", AgentQuota.usage((ID) o[0])[0]);
+            }
             list.add(item);
         }
         return RespBody.ok(list);
@@ -489,6 +496,10 @@ public class AiBot2AdminController extends BaseController {
         JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) agent[1]);
         mv.getModelMap().put("agentConfig", conf != null ? conf.toJSONString() : null);
         mv.getModelMap().put("agentShareTo", StringUtils.defaultIfBlank((String) agent[3], ShareToManager.SHARE_ALL));
+
+        long[] usage = AgentQuota.usage(agentId2);
+        mv.getModelMap().put("usageToday", ObjectUtils.round(usage[0] / 10000d, 2));
+        mv.getModelMap().put("usageMonth", ObjectUtils.round(usage[1] / 10000d, 2));
         return mv;
     }
 

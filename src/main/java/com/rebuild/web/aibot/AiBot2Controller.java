@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.AgentDefs;
+import com.rebuild.core.aibot2.AgentQuota;
 import com.rebuild.core.aibot2.AibotAgent;
 import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.Chat;
@@ -87,6 +88,12 @@ public class AiBot2Controller extends BaseController {
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
         AibotContextHolder.setAgent(chat.getAgent(), false);
 
+        String quotaExceeded = AgentQuota.check(chat.getAgent());
+        if (quotaExceeded != null) {
+            ServletUtils.writeJson(resp, Message.error(quotaExceeded).toJSONString());
+            return;
+        }
+
         if (!chat.tryBeginRun()) {
             ServletUtils.writeJson(resp,
                     Message.error(Language.L("会话正在处理中，请稍后再试")).toJSONString());
@@ -129,6 +136,12 @@ public class AiBot2Controller extends BaseController {
         }
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
         AibotContextHolder.setAgent(chat.getAgent(), false);
+
+        String quotaExceeded = AgentQuota.check(chat.getAgent());
+        if (quotaExceeded != null) {
+            StreamEcho.error(quotaExceeded, resp.getWriter());
+            return;
+        }
 
         if (!chat.tryBeginRun()) {
             StreamEcho.error(Language.L("会话正在处理中，请稍后再试"), resp.getWriter());

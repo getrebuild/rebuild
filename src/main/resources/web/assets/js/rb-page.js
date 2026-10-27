@@ -1461,22 +1461,24 @@ var $isSysMask = function (label) {
 
 // 分页计算
 var $pages = function (tp, cp) {
+  var mid = 3  // 中部连续页码数（含当前页，须为奇数）
+  var half = (mid - 1) / 2
   var pages = []
   if (tp <= 8) {
     for (var i = 1; i <= tp; i++) pages.push(i)
     return pages
   }
-  if (tp - cp <= 5) {
+  if (tp - cp <= mid) {
     pages.push(1)
     pages.push('.')
-    for (var i = tp - 5; i <= tp; i++) pages.push(i)
+    for (var i = tp - mid; i <= tp; i++) pages.push(i)
     return pages
   }
 
   if (cp > tp) cp = tp
-  if (cp <= 4) cp = 4
-  var begin = cp - 2,
-    end = cp + 3
+  if (cp <= half + 2) cp = half + 2  // 中部起点钳制在第2页
+  var begin = cp - half,
+    end = begin + mid
   if (begin < 1) begin = 1
   if (end > tp) end = tp
   if (begin > 1) pages.push(1)

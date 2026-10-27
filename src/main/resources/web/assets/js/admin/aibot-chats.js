@@ -54,8 +54,8 @@ class AiBotChatsModal extends RbModal {
                     </a>
                   </td>
                   <td className="text-right">{(item.token || 0).toLocaleString()}</td>
-                  <td className="fs-12">{item.userName}</td>
-                  <td className="fs-12">
+                  <td>{item.userName}</td>
+                  <td>
                     <DateShow date={item.modifiedOn} />
                   </td>
                 </tr>
