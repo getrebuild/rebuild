@@ -6,6 +6,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 // ~~ 所有会话
+
+// token 用量单位为 K
+const formatTokenUsage = function (v) {
+  v = v || 0
+  return v >= 1000 ? (v / 1000).toFixed(1) + 'K' : v.toLocaleString()
+}
+
 // eslint-disable-next-line no-unused-vars
 class AiBotChatsModal extends RbModal {
   constructor(props) {
@@ -53,7 +60,7 @@ class AiBotChatsModal extends RbModal {
                       {item.subject}
                     </a>
                   </td>
-                  <td className="text-right">{(item.token || 0).toLocaleString()}</td>
+                  <td className="text-right">{formatTokenUsage(item.token)}</td>
                   <td>{item.userName}</td>
                   <td>
                     <DateShow date={item.modifiedOn} />
