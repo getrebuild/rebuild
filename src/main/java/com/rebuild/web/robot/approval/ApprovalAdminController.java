@@ -198,7 +198,6 @@ public class ApprovalAdminController extends BaseController {
             if (N.contains(".createdBy.") || N.contains(".modifiedBy.") || N.contains(".createdDept.")) continue;
 
             fieldsFilter.add(o);
-            System.out.println(Arrays.toString(o));
         }
         return JSONUtils.toJSONObjectArray(
                 new String[]{"id", "text"}, fieldsFilter.toArray(new String[0][]));
