@@ -223,16 +223,21 @@ $(document).ready(() => {
       if (_data.logs && _data.logs.length > 0) {
         const last = _data.logs[0]
         const $d = $('.J_last-logs .form-control-plaintext').empty()
-        $(`<a href="#last-logs">${$fromNow(last[0])}</a>`)
+        $(`<a href="#last-logs" title="${$L('查看详情')}">${$fromNow(last[0])}</a>`)
           .appendTo($d)
           .on('click', (e) => {
             $stopEvent(e, true)
-            renderRbcomp(<LastLogsViewer width="681" data={_data.logs} />)
+
+            if (rb.commercial < 1) {
+              RbAlertFree43.create($L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+            } else {
+              renderRbcomp(<LastLogsViewer width="681" data={_data.logs} />)
+            }
           })
         if (_data.count) $(`<span class="text-muted ml-1">(${$L('近 30 天执行 %s 次', _data.count)})</span>`).appendTo($d)
+      } else {
+        $('.J_last-logs .text-muted').text($L('无'))
       }
-
-      $('.J_last-logs').removeClass('hide')
     })
   }
 
