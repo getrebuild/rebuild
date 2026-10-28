@@ -945,6 +945,7 @@ create table if not exists `aibot_chat` (
   `CONTENTS`           longtext comment '会话内容',
   `TOKEN`              bigint(20) comment '词元用量',
   `AGENT_ID`           char(20) comment '使用的智能体',
+  `SOURCE`             varchar(40) comment '会话来源',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -1050,4 +1051,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 82);
+  values ('021-9000000000000001', 'DBVer', 83);
