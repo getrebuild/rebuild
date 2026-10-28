@@ -11,16 +11,17 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalHelper;
@@ -32,6 +33,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.admin.ConfigCommons;
+import com.rebuild.web.general.MetaFormatter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,12 +45,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author devezhao
@@ -130,11 +130,11 @@ public class ApprovalAdminController extends BaseController {
 
     @GetMapping("approval/user-fields")
     public JSON approvalUserFields(@EntityParam Entity entity) {
-        final String textSubmitor = Language.L("发起人") + ".";
-        final String textApprover = Language.L("审批人") + ".";
-        final String textDept = Language.L("部门") + ".";
-
         List<String[]> fields = new ArrayList<>();
+
+        String textSubmitor = Language.L("发起人") + ".";
+        String textApprover = Language.L("审批人") + ".";
+        String textDept = Language.L("部门") + ".";
 
         // 虚拟字段
         Field[] userRefFields = MetadataSorter.sortFields(
@@ -142,35 +142,32 @@ public class ApprovalAdminController extends BaseController {
         Field[] deptRefFields = MetadataSorter.sortFields(
                 MetadataHelper.getEntity(EntityHelper.Department), DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
 
-        Set<String> fieldsNames = new HashSet<>();
-        Collections.addAll(fieldsNames, EntityHelper.ApprovalLastUser, "deptId");
-
         // 发起人
         for (Field field : userRefFields) {
-            if (isRefUserOrDeptField(field, fieldsNames, true)) {
+            if (isRefUserOrDeptField(field)) {
                 fields.add(new String[]{
                         ApprovalHelper.APPROVAL_SUBMITOR + field.getName(),
                         textSubmitor + EasyMetaFactory.getLabel(field)});
             }
         }
         for (Field field : deptRefFields) {
-            if (isRefUserOrDeptField(field, fieldsNames, true)) {
+            if (isRefUserOrDeptField(field)) {
                 fields.add(new String[]{
                         ApprovalHelper.APPROVAL_SUBMITOR + "deptId." + field.getName(),
                         textSubmitor + textDept + EasyMetaFactory.getLabel(field)});
             }
         }
 
-        // （上一）审批人
+        // 审批人
         for (Field field : userRefFields) {
-            if (isRefUserOrDeptField(field, fieldsNames, true)) {
+            if (isRefUserOrDeptField(field)) {
                 fields.add(new String[]{
                         ApprovalHelper.APPROVAL_APPROVER + field.getName(),
                         textApprover + EasyMetaFactory.getLabel(field)});
             }
         }
         for (Field field : deptRefFields) {
-            if (isRefUserOrDeptField(field, fieldsNames, true)) {
+            if (isRefUserOrDeptField(field)) {
                 fields.add(new String[]{
                         ApprovalHelper.APPROVAL_APPROVER + "deptId." + field.getName(),
                         textApprover + textDept + EasyMetaFactory.getLabel(field)});
@@ -178,38 +175,39 @@ public class ApprovalAdminController extends BaseController {
         }
 
         // 本实体字段
-        Field[] refFields = MetadataSorter.sortFields(entity, DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
-        for (Field field : refFields) {
-            if (isRefUserOrDeptField(field, fieldsNames, false)) {
-                fields.add(new String[]{field.getName(), EasyMetaFactory.getLabel(field)});
+        JSONArray fieldsOfSelf = MetaFormatter.buildFieldsWithRefs(entity, 3, false, false, true, field -> {
+            if (field instanceof EasyField) field = ((EasyField) field).getRawMeta();
+            if (field instanceof Field && ((Field) field).getReferenceEntity() != null) {
+                int c = ((Field) field).getReferenceEntity().getEntityCode();
+                return !(c == EntityHelper.User || c == EntityHelper.Department);
             }
-        }
-        // 引用实体字段
-        for (Field field : refFields) {
-            if (!(field.getType() == FieldType.REFERENCE || field.getType() == FieldType.REFERENCE_LIST)) continue;
-            if (MetadataHelper.isCommonsField(field)) continue;
-
-            String parentName = field.getName() + ".";
-            String parentLabel = EasyMetaFactory.getLabel(field) + ".";
-
-            Field[] refFields2 = MetadataSorter.sortFields(field.getReferenceEntity(), DisplayType.REFERENCE, DisplayType.N2NREFERENCE);
-            for (Field field2 : refFields2) {
-                if (isRefUserOrDeptField(field2, fieldsNames, false)) {
-                    fields.add(new String[]{parentName + field2.getName(), parentLabel + EasyMetaFactory.getLabel(field2)});
-                }
-            }
+            return true;
+        });
+        for (Object o : fieldsOfSelf) {
+            JSONObject item = (JSONObject) o;
+            fields.add(new String[]{item.getString("name"), item.getString("label")});
         }
 
+        // 过滤
+        List<String[]> fieldsFilter = new ArrayList<>();
+        for (String[] o : fields) {
+            String N = o[0];
+            // 创建人/修改人/创建部门
+            if (N.startsWith("createdBy.") || N.startsWith("modifiedBy.") || N.startsWith("createdDept.")) continue;
+            if (N.endsWith(".createdBy") || N.endsWith(".modifiedBy") || N.endsWith(".createdDept")) continue;
+            if (N.contains(".createdBy.") || N.contains(".modifiedBy.") || N.contains(".createdDept.")) continue;
+
+            fieldsFilter.add(o);
+            System.out.println(Arrays.toString(o));
+        }
         return JSONUtils.toJSONObjectArray(
-                new String[]{"id", "text"}, fields.toArray(new String[0][]));
+                new String[]{"id", "text"}, fieldsFilter.toArray(new String[0][]));
     }
 
-    private boolean isRefUserOrDeptField(Field field, Set<String> filterNames, boolean excludeCommon) {
-        if (excludeCommon && MetadataHelper.isCommonsField(field)) return false;
-        if (filterNames.contains(field.getName())) return false;
-
-        int ec = field.getReferenceEntity().getEntityCode();
-        return ec == EntityHelper.User || ec == EntityHelper.Department;
+    private boolean isRefUserOrDeptField(Field field) {
+        if (field.getReferenceEntity() == null) return false;
+        int c = field.getReferenceEntity().getEntityCode();
+        return c == EntityHelper.User || c == EntityHelper.Department;
     }
 
     @PostMapping("approval/user-fields-show")
