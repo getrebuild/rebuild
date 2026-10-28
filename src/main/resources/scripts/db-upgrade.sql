@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #83 (v4.6)
+alter table `aibot_chat`
+  add column `SOURCE` varchar(40) comment '会话来源';
+
 -- #82 (v4.6)
 update `user` set `FULL_NAME` = 'Rex' where `USER_ID` = '001-0000000000000002';
 

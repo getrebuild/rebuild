@@ -23,6 +23,7 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.AgentQuota;
+import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
@@ -79,6 +80,10 @@ import java.util.TreeMap;
 @RequestMapping("/admin/integration")
 public class AiBot2AdminController extends BaseController {
 
+    private static final String CHAT_VISIBLE_WHERE = String.format(
+            " where createdBy <> '%s' and (createdBy <> '%s' or source = '%s')",
+            UserService.SYSTEM_USER, UserService.AIBOT_USER, ChatManager.SOURCE_PUB);
+
     @PostMapping("aibot")
     public RespBody postIntegrationAibot(@RequestBody JSONObject data) {
         if (data.getBooleanValue("__clear__")) {
@@ -114,7 +119,7 @@ public class AiBot2AdminController extends BaseController {
         final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
 
         Query query = Application.createQueryNoFilter(
-                "select createdOn, createdBy, token from AibotChat where createdOn > ?"
+                "select createdOn, createdBy, token, source from AibotChat where createdOn > ?"
                         + (agent == null ? "" : " and agentId = ?"))
                 .setParameter(1, xday);
         if (agent != null) query.setParameter(2, agent);
@@ -133,16 +138,19 @@ public class AiBot2AdminController extends BaseController {
             String day = CalendarUtils.format("yyyy-MM-dd", (Date) o[0]);
             ID user = (ID) o[1];
             long token = o[2] == null ? 0L : ((Number) o[2]).longValue();
+            boolean visitor = isVisitorChat(user, (String) o[3]);
 
-            // 词元全量统计（含内部会话），会话数/使用人数仅统计真实用户（与 chat-list 口径一致）
+            // 词元全量统计（含内部调用会话），会话数统计真实用户与访客（与 chat-list 口径一致），使用人数不含访客
             tokensByDay.merge(day, token, Long::sum);
             tokenMap.merge(user, token, Long::sum);
             tokenTotal += token;
 
-            if (UserHelper.isSystemUser(user)) continue;
+            if (!visitor && UserHelper.isSystemUser(user)) continue;
             realChats++;
-            realUsers.add(user);
             chatsByDay.merge(day, 1, Integer::sum);
+
+            if (visitor) continue;
+            realUsers.add(user);
             usersByDay.computeIfAbsent(day, k -> new HashSet<>()).add(user);
         }
 
@@ -189,7 +197,7 @@ public class AiBot2AdminController extends BaseController {
         final int pageNo = getIntParameter(request, "pageNo", 1);
         final int pageSize = 20;
 
-        String where = String.format(" where createdBy not in ('%s','%s')", UserService.SYSTEM_USER, UserService.AIBOT_USER);
+        String where = CHAT_VISIBLE_WHERE;
         if (user != null) where += " and createdBy = '" + user + "'";
         if (agent != null) where += " and agentId = '" + agent + "'";
         String q = StringUtils.trimToEmpty(getParameter(request, "q"));
@@ -210,9 +218,11 @@ public class AiBot2AdminController extends BaseController {
 
         JSONArray data = new JSONArray();
         for (Object[] o : array) {
+            ID createdBy = (ID) o[2];
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"id", "subject", "userName", "token", "modifiedOn"},
-                    new Object[]{o[0], o[1], UserHelper.getName((ID) o[2]),
+                    new Object[]{o[0], o[1], UserService.AIBOT_USER.equals(createdBy)
+                            ? Language.L("访客") : UserHelper.getName(createdBy),
                             o[3] == null ? 0L : o[3], I18nUtils.formatDate((Date) o[4])});
             data.add(item);
         }
@@ -220,6 +230,11 @@ public class AiBot2AdminController extends BaseController {
         JSONObject res = JSONUtils.toJSONObject(
                 new String[]{"total", "data"}, new Object[]{total, data});
         return RespBody.ok(res);
+    }
+
+    // 公开访问的匿名会话（登录用户走公开入口归属本人），内部调用会话归属 Rex 但无来源标记
+    private static boolean isVisitorChat(ID user, String source) {
+        return UserService.AIBOT_USER.equals(user) && ChatManager.SOURCE_PUB.equals(source);
     }
 
     @GetMapping("aibot/models")
@@ -432,12 +447,11 @@ public class AiBot2AdminController extends BaseController {
                 "select configId,name,config,isDisabled from AibotConfig where type = 'AGENT' order by name")
                 .array();
 
-        // 近 90 日各智能体真实用户会话数（口径同 stats/chat-list）
+        // 近 90 日各智能体会话数，含访客会话（口径同 stats/chat-list）
         final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
         Map<ID, Integer> chatCountMap = new HashMap<>();
         Object[][] chats = Application.createQueryNoFilter(
-                String.format("select agentId from AibotChat where createdOn > ? and createdBy not in ('%s','%s')",
-                        UserService.SYSTEM_USER, UserService.AIBOT_USER))
+                "select agentId from AibotChat" + CHAT_VISIBLE_WHERE + " and createdOn > ?")
                 .setParameter(1, xday)
                 .array();
         for (Object[] c : chats) {

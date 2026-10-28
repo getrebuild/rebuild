@@ -39,12 +39,15 @@ import static com.rebuild.core.metadata.EntityHelper.AibotChat;
 @Slf4j
 public abstract class ChatManager {
 
+    // 会话来源：公开访问（含匿名访客）
+    public static final String SOURCE_PUB = "PUB";
+
     /**
      * @param user
      * @return
      */
     public static ID initChat(ID user, String subject) {
-        return initChat(user, subject, null);
+        return initChat(user, subject, null, null);
     }
 
     /**
@@ -54,12 +57,24 @@ public abstract class ChatManager {
      * @return
      */
     public static ID initChat(ID user, String subject, ID agentId) {
+        return initChat(user, subject, agentId, null);
+    }
+
+    /**
+     * @param user
+     * @param subject
+     * @param agentId 使用的智能体（空为默认）
+     * @param source 会话来源（空为用户会话，非空为系统调用/公开访问）
+     * @return
+     */
+    public static ID initChat(ID user, String subject, ID agentId, String source) {
         Record chat = EntityHelper.forNew(AibotChat, user);
 
         if (StringUtils.isBlank(subject)) subject = "新会话";
         else subject = CommonsUtils.maxstr(subject, 40);
         chat.setString("subject", subject);
         if (agentId != null) chat.setID("agentId", agentId);
+        if (StringUtils.isNotBlank(source)) chat.setString("source", source);
 
         chat = Application.getCommonsService().createOrUpdate(chat);
         return chat.getPrimary();
@@ -169,14 +184,13 @@ public abstract class ChatManager {
      * @param userContent
      * @param prompt
      * @param files
-     * @param source
+     * @param source 调用来源（落库标记）
      * @param chatid 可选，传入已有会话 ID 可连接上下文进行多轮对话
      * @return [0]=AI 回答，[1]=chatid 字面量
      */
     public static String[] ask(String userContent, String prompt, List<File> files, String source, ID chatid) {
-        String subject = "ASK:" + (StringUtils.isBlank(source) ? "N" : source) + ":" + userContent;
         if (chatid == null) {
-            chatid = initChat(UserService.AIBOT_USER, subject);
+            chatid = initChat(UserService.AIBOT_USER, userContent, null, source);
         }
         Chat chat = new Chat(chatid, null, prompt);
 
@@ -257,7 +271,7 @@ public abstract class ChatManager {
         Assert.notNull(user, "[user] cannot be null");
         ID keepCurrentUser = UserContextHolder.setUser(user);
         try {
-            if (chatid == null) chatid = initChat(user, userContent);
+            if (chatid == null) chatid = initChat(user, userContent, null, source);
             return ask(userContent, prompt, files, source, chatid);
         } finally {
             UserContextHolder.clearUser(keepCurrentUser);
