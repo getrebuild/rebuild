@@ -390,6 +390,11 @@ public class AiBot2AdminController extends BaseController {
         config.put("bindUser", bindUser);
         config.put("publish", JSONUtils.toJSONObject("enabled", enabled));
 
+        Long minuteVisitLimit = data.getLong("minuteVisitLimit");
+        Long hourVisitLimit = data.getLong("hourVisitLimit");
+        config.put("minuteVisitLimit", minuteVisitLimit != null && minuteVisitLimit > 0 ? minuteVisitLimit : null);
+        config.put("hourVisitLimit", hourVisitLimit != null && hourVisitLimit > 0 ? hourVisitLimit : null);
+
         Record record = EntityHelper.forUpdate(id, UserContextHolder.getUser());
         record.setString("name", name);
         record.setString("shareTo", shareTo);

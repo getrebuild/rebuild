@@ -7,18 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import com.rebuild.core.support.CommandArgs;
 import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,33 +26,22 @@ import java.util.Set;
 @Slf4j
 public class RateLimiters {
 
-    private static final Set<String> DISABLED = new HashSet<>();
-    static {
-        String v = CommandArgs.getString(CommandArgs._DisabledRateLimiters);
-        if (StringUtils.isNotBlank(v)) {
-            for (String name : v.split(",")) {
-                if (StringUtils.isNotBlank(name)) DISABLED.add(name.trim());
-            }
-        }
-        if (!DISABLED.isEmpty()) log.warn("Disabled rate limiters : {}", DISABLED);
-    }
-
     // 登录 Token（基于用户）
-    public static final RequestRateLimiter LOGIN_TOKEN_4USER = disableAware("LOGIN_TOKEN_4USER",
+    public static final RequestRateLimiter LOGIN_TOKEN_4USER = createRateLimiter(
             new int[]{60, 600, 3600}, new int[]{5, 15, 30});
     // 注册验证码（基于邮箱）
-    public static final RequestRateLimiter SIGNUP_4EMAIL = disableAware("SIGNUP_4EMAIL",
+    public static final RequestRateLimiter SIGNUP_4EMAIL = createRateLimiter(
             new int[]{60, 600, 3600}, new int[]{2, 6, 12});
     // 注册验证码（基于 IP）
-    public static final RequestRateLimiter SIGNUP_4IP = disableAware("SIGNUP_4IP",
+    public static final RequestRateLimiter SIGNUP_4IP = createRateLimiter(
             new int[]{60, 600, 3600}, new int[]{20, 60, 120});
 
     // API 网关（基于 IP）
-    public static final RequestRateLimiter API_GATEWAY_4IP = disableAware("API_GATEWAY_4IP",
+    public static final RequestRateLimiter API_GATEWAY_4IP = createRateLimiter(
             new int[]{10, 2000}, new int[]{60, 6000});
 
     // 外部门户表单（基于 IP）
-    public static final RequestRateLimiter EXTFORM_4IP = disableAware("EXTFORM_4IP",
+    public static final RequestRateLimiter EXTFORM_4IP = createRateLimiter(
             new int[]{60, 3600}, new int[]{20, 200});
 
     /**
@@ -75,67 +60,41 @@ public class RateLimiters {
     }
 
     /**
-     * @param expr eg. 60:5;600:100
+     * @param m 每分钟次数
+     * @param h 每小时次数
+     * @param d 每日次数
      * @return
      */
-    public static RequestRateLimiter createRateLimiter(String expr) {
-        List<Integer> seconds = new ArrayList<>();
-        List<Integer> limits = new ArrayList<>();
+    public static RequestRateLimiter createRateLimiter(Integer m, Integer h, Integer d) {
+        Set<RequestLimitRule> rules = new HashSet<>();
+        if (m != null && m > 0) rules.add(RequestLimitRule.of(Duration.ofSeconds(60), m));
+        if (h != null && h > 0) rules.add(RequestLimitRule.of(Duration.ofHours(1), h));
+        if (d != null && d > 0) rules.add(RequestLimitRule.of(Duration.ofDays(1), d));
 
-        for (String s : expr.split("[,;]")) {
-            String[] ss = s.split(":");
-            seconds.add(Integer.valueOf(ss[0]));
-            limits.add(Integer.valueOf(ss[1]));
-        }
-
-        return createRateLimiter(
-                seconds.stream().mapToInt(Integer::intValue).toArray(),
-                limits.stream().mapToInt(Integer::intValue).toArray());
+        return rules.isEmpty() ? NO_LIMITS : new InMemorySlidingWindowRequestRateLimiter(rules);
     }
 
-    private static RequestRateLimiter disableAware(String name, int[] seconds, int[] limits) {
-        return new DisableAwareRateLimiter(name, createRateLimiter(seconds, limits));
-    }
-
-    /**
-     * 命名限流器，类目出现在 _DisabledRateLimiters 中时直接放行
-     */
-    private static class DisableAwareRateLimiter implements RequestRateLimiter {
-        private final String name;
-        private final RequestRateLimiter delegate;
-
-        DisableAwareRateLimiter(String name, RequestRateLimiter delegate) {
-            this.name = name;
-            this.delegate = delegate;
-        }
-
+    // 无规则时的不限流实例
+    private static final RequestRateLimiter NO_LIMITS = new RequestRateLimiter() {
         @Override
         public boolean overLimitWhenIncremented(String key) {
-            return isDisabled() || delegate.overLimitWhenIncremented(key);
+            return false;
         }
-
         @Override
         public boolean overLimitWhenIncremented(String key, int weight) {
-            return isDisabled() || delegate.overLimitWhenIncremented(key, weight);
+            return false;
         }
-
         @Override
         public boolean geLimitWhenIncremented(String key) {
-            return isDisabled() || delegate.geLimitWhenIncremented(key);
+            return false;
         }
-
         @Override
         public boolean geLimitWhenIncremented(String key, int weight) {
-            return isDisabled() || delegate.geLimitWhenIncremented(key, weight);
+            return false;
         }
-
         @Override
         public boolean resetLimit(String key) {
-            return delegate.resetLimit(key);
+            return false;
         }
-
-        boolean isDisabled() {
-            return DISABLED.contains(name);
-        }
-    }
+    };
 }
