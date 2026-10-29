@@ -19,7 +19,6 @@ import com.openai.client.OpenAIClient;
 import com.openai.models.models.Model;
 import com.openai.models.models.ModelListPage;
 import com.rebuild.api.RespBody;
-import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.AgentQuota;
@@ -27,7 +26,6 @@ import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
-import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.aibot2.service.AibotConfigService;
 import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.configuration.general.ShareToManager;
@@ -373,7 +371,11 @@ public class AiBot2AdminController extends BaseController {
 
         boolean enabled = data.getBooleanValue("enabled");
         String bindUser = data.getString("bindUser");
-        if (!enabled) bindUser = null;
+        String accessPassword = StringUtils.trimToNull(data.getString("accessPassword"));
+        if (!enabled) {
+            bindUser = null;
+            accessPassword = null;
+        }
 
         Object[] x = Application.createQueryNoFilter(
                 "select config from AibotConfig where configId = ? and type = 'MINAPP'")
@@ -384,24 +386,21 @@ public class AiBot2AdminController extends BaseController {
         JSONObject config = (JSONObject) JSONUtils.parseSafe((String) x[0]);
         if (config == null) config = new JSONObject();
 
-        boolean rebind = enabled && bindUser != null && !bindUser.equals(config.getString("bindUser"));
-
         config.put("icon", icon);
         config.put("bindUser", bindUser);
+        config.put("accessPassword", accessPassword);
         config.put("publish", JSONUtils.toJSONObject("enabled", enabled));
+
+        Long minuteVisitLimit = data.getLong("minuteVisitLimit");
+        Long hourVisitLimit = data.getLong("hourVisitLimit");
+        config.put("minuteVisitLimit", minuteVisitLimit != null && minuteVisitLimit > 0 ? minuteVisitLimit : null);
+        config.put("hourVisitLimit", hourVisitLimit != null && hourVisitLimit > 0 ? hourVisitLimit : null);
 
         Record record = EntityHelper.forUpdate(id, UserContextHolder.getUser());
         record.setString("name", name);
         record.setString("shareTo", shareTo);
         record.setString("config", config.toJSONString());
         Application.getBean(AibotConfigService.class).update(record);
-
-        // 关闭公开或换绑时立即吊销已发放的公开访问 token
-        if (!enabled || rebind) {
-            String pubToken = (String) Application.getCommonsCache().getx(AibotConfigManager.CK_MINAPP_PUB_TOKEN + id);
-            if (pubToken != null) AuthTokenManager.revokeToken(pubToken);
-            Application.getCommonsCache().evict(AibotConfigManager.CK_MINAPP_PUB_TOKEN + id);
-        }
         return RespBody.ok();
     }
 

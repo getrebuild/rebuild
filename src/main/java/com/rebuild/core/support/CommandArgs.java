@@ -82,9 +82,6 @@ public class CommandArgs {
     // v4.5.1
     public static final String _BackupDirectory = "_BackupDirectory";
 
-    // v4.6
-    public static final String _DisabledRateLimiters = "_DisabledRateLimiters";
-
     // --
 
     /**

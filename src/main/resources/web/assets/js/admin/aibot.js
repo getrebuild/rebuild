@@ -14,19 +14,23 @@ useEditComp = function (name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
   } else if ('AibotSuggestQuestions' === name || 'AibotWelcome' === name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
+  } else if ('AibotReplyStyle' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="">{$L('默认')}</option>
+        <option value="concise">{$L('简洁')}</option>
+        <option value="detailed">{$L('详细')}</option>
+        <option value="professional">{$L('专业')}</option>
+        <option value="friendly">{$L('亲切')}</option>
+      </select>
+    )
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
-      let __modelContextMap = {}
       let option = {
         options: __MODELS,
         onSelect: (v) => {
           // eslint-disable-next-line no-undef
           changeValue({ target: { value: v, name: 'AibotBaseDefModel' } })
-          if (__modelContextMap[v]) {
-            // eslint-disable-next-line no-undef
-            changeValue({ target: { value: __modelContextMap[v].toString(), name: 'AibotContextCompressThreshold' } })
-            $('input[name=AibotContextCompressThreshold]').val(__modelContextMap[v])
-          }
         },
       }
       $autoComplete($('input[name="AibotBaseDefModel"]'), null, option)
@@ -49,10 +53,6 @@ useEditComp = function (name) {
         $.get(`./aibot/models${qs}`, (res) => {
           if (res.error_code === 0 && res.data && res.data.length) {
             option.options = res.data.map((m) => m.id)
-            __modelContextMap = {}
-            res.data.forEach((m) => {
-              if (m.contextWindow) __modelContextMap[m.id] = m.contextWindow
-            })
           } else {
             option.options = [...__MODELS]
           }

@@ -124,7 +124,7 @@ public class AppUtils {
     protected static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
         String authToken = request.getHeader(HF_AUTHTOKEN);
         if (authToken != null) {
-            return AuthTokenManager.verifyToken(authToken, false, refreshToken);
+            return AuthTokenManager.verifyToken(authToken, ServletUtils.getRemoteAddr(request), refreshToken);
         }
         return getRequestUserViaAk(request, false);
     }

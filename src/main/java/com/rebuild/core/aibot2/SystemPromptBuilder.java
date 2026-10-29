@@ -43,13 +43,14 @@ public class SystemPromptBuilder {
      *
      * @param basePrompt
      * @param agentPrompt
+     * @param replyStyle
      * @param skillName
      * @param planMode
      * @param planConfirmed
      * @param agentTools
      * @return
      */
-    public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode, boolean planConfirmed, Set<String> agentTools) {
+    public static String build(String basePrompt, String agentPrompt, String replyStyle, String skillName, boolean planMode, boolean planConfirmed, Set<String> agentTools) {
         StringBuilder systemPrompt = new StringBuilder();
 
         // 助手身份（Agent 会话有专属人设，不注入）
@@ -66,6 +67,13 @@ public class SystemPromptBuilder {
             systemPrompt.append("<agent_prompt>\n").append(agentPrompt.trim()).append("\n</agent_prompt>");
         } else if (StringUtils.isNotBlank(basePrompt)) {
             systemPrompt.append("<basic_requirements>\n").append(basePrompt.trim()).append("\n</basic_requirements>");
+        }
+
+        // 回复风格（预设提示词片段，未设置则不注入）
+        String stylePrompt = buildReplyStylePrompt(replyStyle);
+        if (stylePrompt != null) {
+            if (systemPrompt.length() > 0) systemPrompt.append(NN);
+            systemPrompt.append("<reply_style>\n").append(stylePrompt).append("\n</reply_style>");
         }
 
         // 系统能力（资源文件 + 动态追加工具使用指引）
@@ -141,6 +149,30 @@ public class SystemPromptBuilder {
         }
 
         return systemPrompt.toString();
+    }
+
+    /**
+     * 回复风格预设映射
+     *
+     * @param style 风格标识，可为 null
+     * @return 提示词片段，未匹配返回 null
+     */
+    private static String buildReplyStylePrompt(String style) {
+        if (StringUtils.isBlank(style)) return null;
+
+        switch (style.trim().toLowerCase()) {
+            case "concise":
+                return "回答力求简短，先给结论再补必要说明，一般不超过五句话。不重复用户的问题，不加开场白和结尾客套。涉及代码或配置时只给关键片段。";
+            case "detailed":
+                return "回答要完整展开，交代背景、步骤和原因。多步骤内容用有序列表分点说明。涉及代码或配置时给出完整可用的片段，并说明每处改动的作用。必要时补充注意事项与替代方案。";
+            case "professional":
+                return "使用准确的业务与技术术语，表述客观严谨。先给判断依据再给结论。涉及数据的回答标明来源与口径。不确定的内容明确说明，不做主观推测。";
+            case "friendly":
+                return "语气自然平和，像同事之间交流。用日常说法解释专业概念，必要时打个比方。多用短句，避免生硬的书面表达和命令式口吻。";
+            default:
+                log.warn("Unknown AI reply style : {}", style);
+                return null;
+        }
     }
 
     /**

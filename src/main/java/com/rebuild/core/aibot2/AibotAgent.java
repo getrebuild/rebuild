@@ -22,9 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.rebuild.core.support.ConfigurationItem.AibotContextCompressThreshold;
 import static com.rebuild.core.support.ConfigurationItem.AibotDSSecret;
 import static com.rebuild.core.support.ConfigurationItem.AibotDSUrl;
+import static com.rebuild.core.support.ConfigurationItem.AibotMemoryRounds;
+import static com.rebuild.core.support.ConfigurationItem.AibotReplyStyle;
 import static com.rebuild.core.support.ConfigurationItem.AibotTemperature;
 import static com.rebuild.core.support.ConfigurationItem.AibotTopP;
 import static com.rebuild.core.support.RebuildConfiguration.get;
@@ -66,7 +67,6 @@ public class AibotAgent implements Serializable {
     @Accessors(chain = true)
     private String asrModel;
 
-    // Agent 自有 API 连接（地址与秘钥可分别配置，未设置项回退系统配置）
     @Getter
     @Setter
     @Accessors(chain = true)
@@ -110,9 +110,13 @@ public class AibotAgent implements Serializable {
     @Getter
     @Setter
     @Accessors(chain = true)
-    private Long contextCompressThreshold;
+    private String replyStyle;
 
-    // 日/月 token 用量限额（原始 token 数，null 或 ≤0 表示不限制）
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private Long memoryRounds;
+
     @Getter
     @Setter
     @Accessors(chain = true)
@@ -122,7 +126,6 @@ public class AibotAgent implements Serializable {
     @Accessors(chain = true)
     private Long monthlyTokenLimit;
 
-    // 公开访客聊天页（/aibot/pub）能力开关，未配置即为 false（禁用），内部聊天不受影响
     @Getter
     @Setter
     @Accessors(chain = true)
@@ -180,9 +183,12 @@ public class AibotAgent implements Serializable {
         return (v != null && v >= 0 && v <= 1) ? v : null;
     }
 
-    public Long contextCompressThreshold() {
-        Long v = contextCompressThreshold != null ? contextCompressThreshold
-                : parseLong(get(AibotContextCompressThreshold), "contextCompressThreshold");
+    public String replyStyle() {
+        return StringUtils.trimToNull(defaultIfBlank(replyStyle, get(AibotReplyStyle)));
+    }
+
+    public Long memoryRounds() {
+        Long v = memoryRounds != null ? memoryRounds : parseLong(get(AibotMemoryRounds), "memoryRounds");
         return (v != null && v > 0) ? v : null;
     }
 
@@ -200,7 +206,7 @@ public class AibotAgent implements Serializable {
 
     public String buildSystemPrompt(String skillName, boolean planMode, boolean planConfirmed) {
         return SystemPromptBuilder.build(
-                Config.getBasePrompt(), prompt, allowedSkill(skillName), planMode, planConfirmed, tools);
+                Config.getBasePrompt(), prompt, replyStyle(), allowedSkill(skillName), planMode, planConfirmed, tools);
     }
 
     public String allowedSkill(String skillName) {
