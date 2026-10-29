@@ -60,7 +60,7 @@
                       </tr>
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('语音识别模型')}]]</td>
-                        <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true" th:data-form-text="${bundle.L('留空则不启用')}">
+                        <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true" th:data-form-text="${bundle.L('需平台支持，留空不启用')}">
                           [[${AibotAsrModel ?:bundle.L('未启用')}]]
                         </td>
                       </tr>
@@ -79,7 +79,7 @@
                           th:data-value="${AibotMemoryRounds ?:''}"
                           data-optional="true"
                           data-input-type="number"
-                          th:data-form-text="${bundle.L('每次对话携带的历史轮数，留空则不限制')}"
+                          th:data-form-text="${bundle.L('回答时可记住多少轮对话 (适当调小可节约 Token 成本)')}"
                         >
                           [[${AibotMemoryRounds ?:bundle.L('默认')}]]
                         </td>
