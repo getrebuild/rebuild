@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,6 +86,21 @@ public class FetchUrl implements Tool {
             throw new KnownToolException("不支持的请求方法 (method) : " + method + "，可用值: GET, POST");
         }
 
+        // HTML 默认修剪以节省上下文，pruneHtml=false 可取原始内容
+        boolean pruned = false;
+        boolean pruneHtml = !args.containsKey("pruneHtml") || args.getBooleanValue("pruneHtml");
+        String head = (result.length() > 256 ? result.substring(0, 256) : result).trim().toLowerCase();
+        if (pruneHtml && (head.startsWith("<!doctype") || head.startsWith("<html"))) {
+            Document doc = Jsoup.parse(result);
+            doc.select("script, noscript, link, meta").remove();
+            doc.outputSettings(new Document.OutputSettings().prettyPrint(false));
+            // script 已移除，此时用正则清注释与空白是安全的
+            result = doc.html()
+                    .replaceAll("(?s)<!--.*?-->", "")
+                    .replaceAll("\\s{2,}", " ");
+            pruned = true;
+        }
+
         if (result.length() > MAX_LEN) {
             result = result.substring(0, MAX_LEN) + "\n\n... (truncated, total " + result.length() + " chars)";
         }
@@ -91,6 +108,7 @@ public class FetchUrl implements Tool {
         JSONObject ret = JSONUtils.toJSONObject(
                 new String[]{"status", "response"},
                 new Object[]{"ok", result});
+        if (pruned) ret.put("pruned", true);
         if (ignoredHeaders != null) {
             ret.put("ignoredHeaders", ignoredHeaders);
         }

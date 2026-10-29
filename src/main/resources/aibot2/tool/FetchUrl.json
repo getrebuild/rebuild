@@ -3,7 +3,7 @@
   "userDescription": "请求外部 HTTP 接口。支持 GET/POST 方法和自定义请求头 [系统工具]",
   "function": {
     "name": "FetchUrl",
-    "description": "请求外部 HTTP 接口，支持 GET/POST 方法及自定义请求头。当用户需要调用第三方/外部 API 获取数据或触发操作时使用，会对请求 URL 进行安全检查，自动过滤 host、connection、authorization 等不安全请求头，响应内容超过 20000 字符会自动截断",
+    "description": "请求外部 HTTP 接口，支持 GET/POST 方法及自定义请求头。当用户需要调用第三方/外部 API 获取数据或触发操作时使用，会对请求 URL 进行安全检查，自动过滤 host、connection、authorization 等不安全请求头。响应为 HTML 页面时默认自动修剪（剔除 script/link/meta 等无用标签并压缩空白，可用 pruneHtml=false 关闭）；响应内容超过 65535 字符会自动截断",
     "parameters": {
       "type": "object",
       "properties": {
@@ -24,6 +24,10 @@
         "body": {
           "type": "string",
           "description": "POST 请求体内容，支持 JSON 字符串或纯文本（仅 POST 方法时使用）"
+        },
+        "pruneHtml": {
+          "type": "boolean",
+          "description": "响应为 HTML 页面时是否自动修剪，默认 true：剔除 script/link/meta 等对理解内容无用的标签并压缩空白以节省上下文。需要查看页面脚本、完整源码或精确结构时设为 false"
         }
       },
       "required": ["url"],

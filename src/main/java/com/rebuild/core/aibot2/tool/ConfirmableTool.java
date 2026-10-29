@@ -45,10 +45,11 @@ public interface ConfirmableTool {
 
         JSONObject confirmed = new JSONObject(true);
         confirmed.put("type", "boolean");
-        confirmed.put("description", "是否已获得用户明确确认。用户尚未确认时首次调用不带此参数或设为 false，工具返回改动清单供你转述给用户；"
+        confirmed.put("description", "是否已获得用户明确确认。默认不带此参数或设为 false，工具返回改动清单（含 draftId）供你转述给用户；"
                 + "用户明确同意后，用返回结果中的 draftId 加 confirmed=true 重新调用即可执行，无需重复传入其他内容参数。"
-                + "若用户在本次对话中已明确同意执行本操作（如对包含本改动的方案或清单回复了确认/保存/执行），"
-                + "可在首次调用时直接携带 confirmed=true 立即执行，并在最终回复中附上改动要点供用户事后核对");
+                + "仅当用户已看到包含本次改动具体内容的方案或清单（如具体字段、页面结构、记录内容）并明确回复确认/保存/执行时，"
+                + "才可在首次调用时直接携带 confirmed=true 立即执行，并在最终回复中附上改动要点供用户事后核对。"
+                + "「按你自己的想法做」「你看着办」等概括性授权不构成确认，仍须先转述改动清单征得同意");
         props.put("confirmed", confirmed);
 
         JSONObject draftId = new JSONObject(true);
@@ -103,10 +104,8 @@ public interface ConfirmableTool {
             String draftId = CommonsUtils.randomHex(true);
             Application.getCommonsCache().put(draftKey(toolName, user, draftId), execArgs, DRAFT_TTL);
             result.put("draftId", draftId);
-            result.put("message", "本次操作尚未执行。若用户在本次对话中已明确同意执行本操作（如对包含本改动的方案或清单回复了确认/保存/执行），"
-                    + "无需再次征求确认，直接以 {\"draftId\":\"" + draftId + "\", \"confirmed\":true} 重新调用本工具执行即可，"
-                    + "并在最终回复中附上改动要点供用户事后核对。"
-                    + "用户尚未确认时，才需要将改动清单完整转述给用户并征求确认，用户明确同意后以同样方式重新调用执行，"
+            result.put("message", "本次操作尚未执行。请将上述改动清单完整转述给用户并征求确认，"
+                    + "用户明确同意后以 {\"draftId\":\"" + draftId + "\", \"confirmed\":true} 重新调用本工具执行，"
                     + "无需重复传入其他参数（系统已缓存本次内容）。用户明确拒绝或要求调整时不得执行。");
             return result.toJSONString();
         }
