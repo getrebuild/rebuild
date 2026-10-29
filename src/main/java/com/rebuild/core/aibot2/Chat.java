@@ -191,7 +191,7 @@ public class Chat implements Serializable {
         }
 
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent);
-        for (Message m : messages) {
+        for (Message m : requestMessages()) {
             String content = m.getContent();
             // 空内容消息（如仅附件或技能触发）发送给 AI 时需兑底文案，避免部分 AI 端拒绝空消息
             if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(StringUtils.defaultIfBlank(content, "请开始"));
@@ -206,6 +206,27 @@ public class Chat implements Serializable {
                 .toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO);
 
         return builder;
+    }
+
+    /**
+     * 按记忆轮数截取发送给模型的历史消息（仅影响请求，不影响持久化与前端展示）
+     * <p>按消息边界截取，工具调用与结果由 {@link #appendToolHistory} 在同一条 AI 消息内成对重建，不会产生孤儿 tool_call
+     *
+     * @return
+     */
+    private List<Message> requestMessages() {
+        Long rounds = agent.memoryRounds();
+        if (rounds == null) return messages;
+
+        int allowed = rounds.intValue() + 1; // 历史轮数 + 本轮提问
+        int users = 0;
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            if (ROLE_USER.equals(messages.get(i).getRole()) && ++users > allowed) {
+                log.debug("Chat history truncated : chatid={}, keep={}/{}", getChatid(), messages.size() - i - 1, messages.size());
+                return messages.subList(i + 1, messages.size());
+            }
+        }
+        return messages;
     }
 
     /**

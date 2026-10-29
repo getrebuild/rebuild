@@ -47,9 +47,11 @@ class AiBotChatsModal extends RbModal {
             <thead>
               <tr>
                 <th>{$L('标题')}</th>
-                <th className="text-right">{$L('Token 用量')}</th>
-                <th>{$L('所属用户')}</th>
-                <th>{$L('使用时间')}</th>
+                <th width="120">{$L('使用时间')}</th>
+                <th width="120">{$L('使用用户')}</th>
+                <th width="100" className="text-right">
+                  {$L('消耗 TOKEN')}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -60,11 +62,11 @@ class AiBotChatsModal extends RbModal {
                       {item.subject}
                     </a>
                   </td>
-                  <td className="text-right">{formatTokenUsage(item.token)}</td>
-                  <td>{item.userName}</td>
                   <td>
                     <DateShow date={item.modifiedOn} />
                   </td>
+                  <td>{item.userName}</td>
+                  <td className="text-right">{formatTokenUsage(item.token)}</td>
                 </tr>
               ))}
             </tbody>

@@ -58,16 +58,10 @@
                           [[${AibotBaseDefModel ?:bundle.L('未配置')}]]
                         </td>
                       </tr>
-                      <tr>
+                      <tr class="bosskey-show">
                         <td>[[${bundle.L('语音识别模型')}]]</td>
                         <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true" th:data-form-text="${bundle.L('留空则不启用')}">
                           [[${AibotAsrModel ?:bundle.L('未启用')}]]
-                        </td>
-                      </tr>
-                      <tr class="bosskey-show">
-                        <td>[[${bundle.L('上下文大小')}]]</td>
-                        <td data-id="AibotContextCompressThreshold" th:data-value="${AibotContextCompressThreshold ?:''}" data-optional="true" data-input-type="number">
-                          [[${AibotContextCompressThreshold ?:bundle.L('默认')}]]
                         </td>
                       </tr>
                       <tr class="bosskey-show">
@@ -77,6 +71,28 @@
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('核采样')}]]</td>
                         <td data-id="AibotTopP" th:data-value="${AibotTopP ?:''}" data-optional="true" data-input-type="number">[[${AibotTopP ?:bundle.L('默认')}]]</td>
+                      </tr>
+                      <tr class="bosskey-show">
+                        <td>[[${bundle.L('记忆轮数')}]]</td>
+                        <td
+                          data-id="AibotMemoryRounds"
+                          th:data-value="${AibotMemoryRounds ?:''}"
+                          data-optional="true"
+                          data-input-type="number"
+                          th:data-form-text="${bundle.L('每次对话携带的历史轮数，留空则不限制')}"
+                        >
+                          [[${AibotMemoryRounds ?:bundle.L('默认')}]]
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('回复风格')}]]</td>
+                        <td data-id="AibotReplyStyle" th:data-value="${AibotReplyStyle ?:''}" data-optional="true">
+                          <th:block th:if="${AibotReplyStyle == 'concise'}">[[${bundle.L('简洁')}]]</th:block>
+                          <th:block th:if="${AibotReplyStyle == 'detailed'}">[[${bundle.L('详细')}]]</th:block>
+                          <th:block th:if="${AibotReplyStyle == 'professional'}">[[${bundle.L('专业')}]]</th:block>
+                          <th:block th:if="${AibotReplyStyle == 'friendly'}">[[${bundle.L('亲切')}]]</th:block>
+                          <th:block th:if="${AibotReplyStyle == null}">[[${bundle.L('默认')}]]</th:block>
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('系统提示词')}]]</td>
