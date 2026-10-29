@@ -16,7 +16,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -57,16 +59,6 @@ public class RateLimiters {
     public static final RequestRateLimiter EXTFORM_4IP = disableAware("EXTFORM_4IP",
             new int[]{60, 3600}, new int[]{20, 200});
 
-    // MCP 网关（基于用户）
-    public static final RequestRateLimiter MCP_4USER = disableAware("MCP_4USER",
-            new int[]{36000}, new int[]{500});
-    // 免登录 AI 对话（基于 IP，防止 Token 成本被恶意消耗）
-    public static final RequestRateLimiter AIBOT_PUB_4IP = disableAware("AIBOT_PUB_4IP",
-            new int[]{60, 3600}, new int[]{20, 200});
-    // 免登录微应用页面（基于 IP）
-    public static final RequestRateLimiter MINAPP_PUB_4IP = disableAware("MINAPP_PUB_4IP",
-            new int[]{60, 3600}, new int[]{20, 200});
-
     /**
      * @param seconds
      * @param limits
@@ -80,6 +72,25 @@ public class RateLimiters {
             rules.add(RequestLimitRule.of(Duration.ofSeconds(seconds[i]), limits[i]));
         }
         return new InMemorySlidingWindowRequestRateLimiter(rules);
+    }
+
+    /**
+     * @param expr eg. 60:5;600:100
+     * @return
+     */
+    public static RequestRateLimiter createRateLimiter(String expr) {
+        List<Integer> seconds = new ArrayList<>();
+        List<Integer> limits = new ArrayList<>();
+
+        for (String s : expr.split("[,;]")) {
+            String[] ss = s.split(":");
+            seconds.add(Integer.valueOf(ss[0]));
+            limits.add(Integer.valueOf(ss[1]));
+        }
+
+        return createRateLimiter(
+                seconds.stream().mapToInt(Integer::intValue).toArray(),
+                limits.stream().mapToInt(Integer::intValue).toArray());
     }
 
     private static RequestRateLimiter disableAware(String name, int[] seconds, int[] limits) {

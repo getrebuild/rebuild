@@ -13,7 +13,6 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.RateLimiters;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,11 +67,6 @@ public class McpGateway {
         ID user = AppUtils.getRequestUserViaAk(request, true);
         if (user == null) {
             writeJson(response, HttpStatus.UNAUTHORIZED.value(), McpServer.errorBody(McpServer.ERR_UNAUTHORIZED, "Invalid Access Key"));
-            return;
-        }
-
-        if (RateLimiters.MCP_4USER.overLimitWhenIncremented("mcp:" + user)) {
-            writeJson(response, HttpStatus.TOO_MANY_REQUESTS.value(), McpServer.errorBody(McpServer.ERR_RATE_LIMIT, "Rate limit exceeded"));
             return;
         }
 
