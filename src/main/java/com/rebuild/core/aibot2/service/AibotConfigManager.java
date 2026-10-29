@@ -38,9 +38,6 @@ public class AibotConfigManager implements ConfigManager {
     public static final String TYPE_AIBOT_SCHEDULE = "AIBOT_SCHEDULE";
     public static final String TYPE_AIBOT_USERMEMORY = "AIBOT_USERMEMORY";
 
-    // 公开访问 token 缓存前缀（key: MinAppPubToken-{configId}）
-    public static final String CK_MINAPP_PUB_TOKEN = "MinAppPubToken-";
-
     public static final AibotConfigManager instance = new AibotConfigManager();
 
     private AibotConfigManager() {

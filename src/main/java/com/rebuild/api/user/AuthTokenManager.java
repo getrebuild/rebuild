@@ -15,6 +15,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.KVStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -60,11 +61,23 @@ public class AuthTokenManager {
      * @return
      */
     protected static String generateToken(ID user, int seconds, String type) {
-        // Type,User,Time,Version
-        String desc = String.format("%s,%s,%d,v2",
+        return generateToken(user, seconds, type, null);
+    }
+
+    /**
+     * @param user
+     * @param seconds
+     * @param type
+     * @param bindIp
+     * @return
+     */
+    protected static String generateToken(ID user, int seconds, String type, String bindIp) {
+        // Type,User,Time,Version[,BindIp]
+        String desc = String.format("%s,%s,%d,v2%s",
                 ObjectUtils.defaultIfNull(type, TYPE_ACCESS_TOKEN),
                 ObjectUtils.defaultIfNull(user, UserService.SYSTEM_USER),
-                System.nanoTime());
+                System.nanoTime(),
+                StringUtils.isNotBlank(bindIp) ? "," + bindIp : "");
         String token = EncryptUtils.toSHA1Hex(desc);
 
         Application.getCommonsCache().put(TOKEN_PREFIX + token, desc, seconds);
@@ -79,6 +92,20 @@ public class AuthTokenManager {
     public static String generateAccessToken(ID user) {
         Assert.notNull(user, "[user] cannot be null");
         return generateToken(user, ACCESSTOKEN_EXPIRES, TYPE_ACCESS_TOKEN);
+    }
+
+    /**
+     * 生成绑定 IP 的访问 Token（不可刷新、非签发 IP 访问无效）
+     *
+     * @param user
+     * @param bindIp
+     * @param seconds
+     * @return
+     */
+    public static String generateAccessToken(ID user, String bindIp, int seconds) {
+        Assert.notNull(user, "[user] cannot be null");
+        Assert.hasText(bindIp, "[bindIp] cannot be blank");
+        return generateToken(user, seconds, TYPE_ACCESS_TOKEN, bindIp);
     }
 
     /**
@@ -125,7 +152,7 @@ public class AuthTokenManager {
      * @return
      */
     public static ID verifyToken(String token) {
-        return verifyToken(token, Boolean.FALSE, Boolean.FALSE);
+        return verifyToken(token, null, Boolean.FALSE, Boolean.FALSE);
     }
 
     /**
@@ -137,11 +164,36 @@ public class AuthTokenManager {
      * @return
      */
     public static ID verifyToken(String token, boolean verifyAfterDestroy, boolean verifyAfterRefresh) {
+        return verifyToken(token, null, verifyAfterDestroy, verifyAfterRefresh);
+    }
+
+    /**
+     * 验证 Token（绑定 IP 的 Token 须由签发 IP 访问）
+     *
+     * @param token
+     * @param remoteIp
+     * @param refreshToken
+     * @return
+     */
+    public static ID verifyToken(String token, String remoteIp, boolean refreshToken) {
+        return verifyToken(token, remoteIp, Boolean.FALSE, refreshToken);
+    }
+
+    /**
+     * @param token
+     * @param remoteIp
+     * @param verifyAfterDestroy
+     * @param verifyAfterRefresh
+     * @return
+     */
+    private static ID verifyToken(String token, String remoteIp, boolean verifyAfterDestroy, boolean verifyAfterRefresh) {
         Assert.notNull(token, "[token] cannot be null");
         String desc = Application.getCommonsCache().get(TOKEN_PREFIX + token);
         if (desc == null) return null;
 
         String[] descs = desc.split(",");
+        boolean ipBound = descs.length > 4 && StringUtils.isNotBlank(descs[4]);
+
         if (TYPE_ONCE_TOKEN.equals(descs[0])) {
             verifyAfterDestroy = true;
         }
@@ -152,7 +204,11 @@ public class AuthTokenManager {
             verifyAfterRefresh = false;
         }
 
-        if (verifyAfterRefresh && TYPE_ACCESS_TOKEN.equals(descs[0])) {
+        if (ipBound && (StringUtils.isBlank(remoteIp) || !remoteIp.equals(descs[4]))) {
+            return null;
+        }
+
+        if (verifyAfterRefresh && TYPE_ACCESS_TOKEN.equals(descs[0]) && !ipBound) {
             Application.getCommonsCache().put(TOKEN_PREFIX + token, desc, ACCESSTOKEN_EXPIRES);
         }
 
