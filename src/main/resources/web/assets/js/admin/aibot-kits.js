@@ -22,7 +22,7 @@ $(document).ready(() => {
   $('.J_batchUploadKb').on('click', (e) => {
     $stopEvent(e, true)
 
-    const $file = $('<input type="file" multiple />').appendTo('body').hide()
+    const $file = $('<input type="file" multiple data-maxsize="52428800" data-updir="AIBOT_KB" />').appendTo('body').hide()
 
     $multipleUploader($file[0], (res) => {
       const data = {
@@ -179,7 +179,7 @@ class DlgKbEdit extends RbModalHandler {
               <label className="col-sm-3 col-form-label text-sm-right">{$L('内容')}</label>
               <div className="col-sm-7">
                 <div className="mb-1 file-select">
-                  <input type="file" className="inputfile" id="DlgKbEdit__file" ref={(c) => (this._$file = c)} />
+                  <input type="file" className="inputfile" id="DlgKbEdit__file" data-maxsize="52428800" data-updir="AIBOT_KB" ref={(c) => (this._$file = c)} />
                   <label htmlFor="DlgKbEdit__file" className="btn-secondary">
                     <span className="zmdi zmdi-upload" />
                     <span className="ml-1">{$L('上传文件')}</span>
