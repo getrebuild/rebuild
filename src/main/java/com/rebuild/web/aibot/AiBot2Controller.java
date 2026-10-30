@@ -35,9 +35,7 @@ import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.SysbaseSupport;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -51,7 +49,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -418,13 +415,7 @@ public class AiBot2Controller extends BaseController {
         String comment = getParameter(req, "comment");
 
         ChatLogger chatLogger = ChatManager.getChat(chatid).chatLogger();
-        File logFile = chatLogger.getLogFile();
-        if (!logFile.exists()) return RespBody.error();
-
-        String feedbackDetail = StringUtils.isBlank(comment) ? type : type + " : " + comment;
-        chatLogger.log("FEEDBACK", feedbackDetail);
-
-        TaskExecutors.queue(() -> new SysbaseSupport().uploadAibotFeedback(logFile, comment));
+        if (!chatLogger.feedback(type, comment)) return RespBody.error();
         return RespBody.ok();
     }
 }

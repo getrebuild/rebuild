@@ -855,7 +855,12 @@ class ChatMessage extends React.Component {
   }
 
   _submitFeedback(type, chatid, comment) {
-    $.post(`/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}&comment=${encodeURIComponent(comment)}`, () => {
+    const _Chat = this.props._ChatMessages.props._Chat
+    let url = `/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}&comment=${encodeURIComponent(comment)}`
+    if (_Chat._vkey) {
+      url = `/aibot/pub/${_Chat.props.agentId}/chat-feedback?chatid=${chatid}&vkey=${_Chat._vkey}&type=${type}&comment=${encodeURIComponent(comment)}`
+    }
+    $.post(url, () => {
       this.setState({ feedback: type })
     })
   }
