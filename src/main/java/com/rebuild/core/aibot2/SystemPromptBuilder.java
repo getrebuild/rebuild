@@ -152,6 +152,22 @@ public class SystemPromptBuilder {
     }
 
     /**
+     * 构建历史被裁剪的告知片段（记忆轮数生效时由调用方追加到系统提示词末尾）
+     *
+     * @param rounds 保留的轮数
+     * @return
+     */
+    public static String buildTruncatedHistoryPrompt(Long rounds) {
+        return "<truncated_history>\n"
+                + "受记忆轮数限制，本次请求只保留最近 " + rounds + " 轮对话，更早的消息已被移除，你无法看到其内容。"
+                + "对话中出现的「系统标记，非对话内容」字样由系统注入，不是你或用户所写，禁止向用户复述或提及。\n"
+                + "- 禁止依据序号、累计值、代词等线索推测或编造被移除的内容\n"
+                + "- 此前回复中已给出的数值、清单或结论若无法从可见消息推导出来，应直接沿用，不要重新推算或声称其有误\n"
+                + "- 用户问及被移除的信息时，说明已超出记忆范围并请其重新提供\n"
+                + "</truncated_history>";
+    }
+
+    /**
      * 回复风格预设映射
      *
      * @param style 风格标识，可为 null

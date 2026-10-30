@@ -1,9 +1,11 @@
+# ${VAR:-默认值} 可由同目录 .env 或 shell 环境变量覆盖，不设置时行为与之前一致
+# RB_DB_PASSWD 仅首次安装 (数据卷为空) 时生效，之后以卷内 .rebuild 文件为准，改密码需 down -v 重来
 services:
   mysql:
     image: mysql:5.7
     environment:
       MYSQL_ROOT_HOST: '%'
-      MYSQL_ROOT_PASSWORD: 'rebuild!P4wd'
+      MYSQL_ROOT_PASSWORD: '${RB_DB_PASSWD:-rebuild!P4wd}'
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -16,7 +18,7 @@ services:
       - app_network
 
   rebuild:
-    image: getrebuild/rebuild:latest
+    image: ${RB_IMAGE:-getrebuild/rebuild:latest}
     depends_on:
       mysql:
         condition: service_healthy
@@ -24,9 +26,11 @@ services:
     command:
       - >
         mkdir -p /app/rebuild/.rebuild &&
-        java -Dinitialize=docker -Duser.timezone=Asia/Shanghai -DSN= -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
+        java -Dinitialize=docker -Duser.timezone=Asia/Shanghai -DSN=${RB_SN:-} -DDataDirectory=/app/rebuild/.rebuild -jar /app/rebuild/rebuild-boot.jar
+    environment:
+      RB_DB_PASSWD: '${RB_DB_PASSWD:-rebuild!P4wd}'
     ports:
-      - '18080:18080'
+      - '${RB_HTTP_PORT:-18080}:18080'
     volumes:
       - rebuild_data:/app/rebuild/.rebuild
     restart: unless-stopped

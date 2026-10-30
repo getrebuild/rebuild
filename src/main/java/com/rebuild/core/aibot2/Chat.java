@@ -179,27 +179,50 @@ public class Chat implements Serializable {
     private ChatCompletionCreateParams.Builder requestParams(String userMessage, ChatRequest chatRequest) {
         boolean planMode = chatRequest != null && chatRequest.getPlanMode();
         boolean planConfirmed = chatRequest != null && chatRequest.getPlanConfirmed();
-        String systemPrompt = agent.buildSystemPrompt(
-                chatRequest == null ? null : chatRequest.getSkill(), planMode, planConfirmed);
-        chatLogger().logSession(agent.model(), systemPrompt);
 
-        if (userMessage != null) {
-            Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
-            messages.add(message);
+        // 本轮提问先入队，历史裁剪窗口据此计算
+        if (userMessage != null) messages.add(new Message(ROLE_USER, userMessage, null, null, chatRequest));
 
-            chatLogger().log("USER", userMessage);
+        List<Message> reqMessages = requestMessages();
+        // 非 null 表示历史已按记忆轮数裁剪
+        Long memoryRounds = reqMessages.size() < messages.size() ? agent.memoryRounds() : null;
+        if (memoryRounds != null) {
+            chatLogger().logEvent(String.format("History truncated by memory rounds %d (keep %d/%d messages)",
+                    memoryRounds, reqMessages.size(), messages.size()));
         }
 
+        String systemPrompt = agent.buildSystemPrompt(
+                chatRequest == null ? null : chatRequest.getSkill(), planMode, planConfirmed);
+        if (memoryRounds != null) systemPrompt += "\n\n" + SystemPromptBuilder.buildTruncatedHistoryPrompt(memoryRounds);
+
+        // logSession 靠日志文件为空判断是否写会话头，必须在 log(USER) 之前调用
+        chatLogger().logSession(agent.model(), systemPrompt);
+        if (userMessage != null) chatLogger().log("USER", userMessage);
+
+        String truncatedMark = memoryRounds != null ? buildTruncatedMark(memoryRounds) : null;
+
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent);
-        for (Message m : requestMessages()) {
+        for (Message m : reqMessages) {
             String content = m.getContent();
-            // 空内容消息（如仅附件或技能触发）发送给 AI 时需兑底文案，避免部分 AI 端拒绝空消息
-            if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(StringUtils.defaultIfBlank(content, "请开始"));
-            else if (ROLE_AI.equals(m.getRole())) {
+            boolean isUser = ROLE_USER.equals(m.getRole());
+            if (isUser) {
+                // 空内容消息（如仅附件或技能触发）发送给 AI 时需兑底文案，避免部分 AI 端拒绝空消息
+                content = StringUtils.defaultIfBlank(content, "请开始");
+            } else if (ROLE_AI.equals(m.getRole())) {
                 String roundsText = appendToolHistory(builder, m.getToolHistory());
                 content = stripRoundsPrefix(content, roundsText);
-                builder.addAssistantMessage(content);
+            } else {
+                continue;
             }
+
+            // 仅注入窗口首条实际发送的消息，不改变消息序列结构（部分 AI 端不接受连续同角色或中途的 system 消息）
+            if (truncatedMark != null) {
+                content = truncatedMark + "\n\n" + content;
+                truncatedMark = null;
+            }
+
+            if (isUser) builder.addUserMessage(content);
+            else builder.addAssistantMessage(content);
         }
 
         builder.tools(agent.tools())
@@ -222,11 +245,21 @@ public class Chat implements Serializable {
         int users = 0;
         for (int i = messages.size() - 1; i >= 0; i--) {
             if (ROLE_USER.equals(messages.get(i).getRole()) && ++users > allowed) {
-                log.debug("Chat history truncated : chatid={}, keep={}/{}", getChatid(), messages.size() - i - 1, messages.size());
                 return messages.subList(i + 1, messages.size());
             }
         }
         return messages;
+    }
+
+    /**
+     * 历史被裁剪时注入在窗口首条消息前的边界标记，行为约束见 {@link SystemPromptBuilder#buildTruncatedHistoryPrompt}
+     * <p>仅拼入发送给模型的请求文本，不修改 {@link Message}，故不影响持久化、前端展示与会话日志中的消息内容
+     *
+     * @param rounds 保留的轮数
+     * @return
+     */
+    private static String buildTruncatedMark(Long rounds) {
+        return "（系统标记，非对话内容。此处更早的对话已省略，本次请求只保留最近 " + rounds + " 轮。）";
     }
 
     /**
