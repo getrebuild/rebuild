@@ -205,6 +205,7 @@ public class AiBot2Controller extends BaseController {
             chatid = ChatManager.initChat(user, s, agentId);
         }
 
+        reqJson.put("sendTime", System.currentTimeMillis());
         return new ChatRequest(reqJson, chatid);
     }
 
