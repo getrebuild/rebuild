@@ -108,9 +108,7 @@ public class Installer implements InstallState {
         this.rbsystemPackage = this.installProps.getString("rbsystemPackage");
         final boolean dbNew = this.installDatabase();
 
-        if (rbsystemPackage == null) {
-            this.installAdmin();
-        }
+        this.installAdmin();
 
         Properties installProps = buildConnectionProps(null);
 
