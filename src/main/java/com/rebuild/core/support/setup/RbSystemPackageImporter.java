@@ -40,7 +40,7 @@ public class RbSystemPackageImporter {
     private File rbspkgDir;
 
     /**
-     * @param tempFileName 临时目录下的包文件名
+     * @param tempFileName
      */
     public RbSystemPackageImporter(String tempFileName) {
         this(RebuildConfiguration.getFileOfTemp(tempFileName));
@@ -54,7 +54,7 @@ public class RbSystemPackageImporter {
     }
 
     /**
-     * 完整恢复：解包 → 执行 schema/data → 复制附件目录
+     * 完整恢复
      *
      * @param conn
      * @throws SQLException
