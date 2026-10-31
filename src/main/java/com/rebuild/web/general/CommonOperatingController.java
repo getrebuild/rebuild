@@ -151,24 +151,39 @@ public class CommonOperatingController extends BaseController {
         JSONObject filter = queryBody.getJSONObject("filter");
         String sort = queryBody.getString("sort");
         int limit = queryBody.getIntValue("limit");
+        int pageSize = queryBody.getIntValue("pageSize");
+        if (pageSize > 0) limit = pageSize;
         if (limit < 1) limit = 20;
         if (limit > 500) limit = 500;
+
+        int pageNo = queryBody.getIntValue("pageNo");
+        long offset = pageNo > 1 ? (long) (pageNo - 1) * limit : 0;
+        if (offset > 100000) offset = 100000;
 
         Entity listEntity = MetadataHelper.getEntity(entity);
         if (StringUtils.isBlank(fields)) fields = getAllFields(listEntity);
 
+        String filterWhere = ParseHelper.validAdvFilter(filter)
+                ? new AdvFilterParser(filter, listEntity).toSqlWhere() : null;
+
         String sql = String.format("select %s from %s",
                 StringUtils.join(fields.split("[,;]"), ","), listEntity.getName());
-        if (ParseHelper.validAdvFilter(filter)) {
-            String filterWhere = new AdvFilterParser(filter, listEntity).toSqlWhere();
-            if (filterWhere != null) sql += " where " + filterWhere;
-        }
+        if (filterWhere != null) sql += " where " + filterWhere;
         if (StringUtils.isNotBlank(sort)) {
             sql += " order by " + sort.replace(":", " ");
         }
 
-        List<Record> list = Application.createQuery(sql).setLimit(limit).list();
-        return RespBody.ok(list);
+        List<Record> list = Application.createQuery(sql).setLimit(limit, (int) offset).list();
+
+        RespBody resp = RespBody.ok(list);
+        
+        if (queryBody.getBooleanValue("total")) {
+            String cs = "select count(" + listEntity.getPrimaryField().getName() + ") from " + listEntity.getName();
+            if (filterWhere != null) cs += " where " + filterWhere;
+            Object[] found = Application.createQuery(cs).unique();
+            resp.putExtra("total", found == null ? 0 : ((Number) found[0]).longValue());
+        }
+        return resp;
     }
 
     // 获取全部字段

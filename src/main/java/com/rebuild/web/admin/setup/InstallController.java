@@ -22,6 +22,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.WebConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -66,7 +67,7 @@ public class InstallController extends BaseController implements InstallState {
         checkInstalled();
         ModelAndView mv = createModelAndView("/admin/setup/install");
         mv.getModel().put("Version", Application.VER);
-        mv.getModel().put("csrfToken", AuthTokenManager.generateCsrfToken());
+        mv.getModel().put(WebConstants.CSRF_TOKEN, AuthTokenManager.generateCsrfToken());
 
         // 切换语言
         putLocales(mv, AppUtils.getReuqestLocale(request));

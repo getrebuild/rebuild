@@ -35,6 +35,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.LocationUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import com.rebuild.web.WebConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -204,8 +205,8 @@ public class FileShareController extends BaseController {
             map.put("dashId", folderOrDashOrChat45);
             map.put("dashConfig", dashConfig);
             map.put("shareKey", shareKey);
-            map.put("csrfToken", "sk:" + shareKey);
             map.put("shareByName", shareByName);
+            map.put(WebConstants.CSRF_TOKEN, "sk:" + shareKey);
             return createModelAndView("/common/shared-dash", map);
         }
 
@@ -269,7 +270,7 @@ public class FileShareController extends BaseController {
         Map<String, Object> map = new HashMap<>();
         map.put("publicUrl", makePublicUrl(fileUrl, null));
         map.put("shareByName", shareByName);
-        map.put("csrfToken", AuthTokenManager.generateCsrfToken(180));
+        map.put(WebConstants.CSRF_TOKEN, AuthTokenManager.generateCsrfToken(180));
         return createModelAndView("/common/shared-file", map);
     }
 
