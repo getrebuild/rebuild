@@ -23,7 +23,7 @@ class Setup extends React.Component {
         {this.state.stepNo === 2 && <DatabaseConf {...this.state.databaseProps} $$$parent={this} />}
         {this.state.stepNo === 3 && <CacheConf {...this.state.cacheProps} $$$parent={this} />}
         {this.state.stepNo === 4 && <AdminConf {...this.state.adminProps} $$$parent={this} />}
-        {this.state.stepNo === 5 && <ModelConf {...this.state.modelProps} $$$parent={this} />}
+        {this.state.stepNo === 5 && <ModelConf {...this.state.modelProps} rbsystemPackage={this.state.rbsystemPackage} $$$parent={this} />}
         {this.state.stepNo === 10 && (
           <div>
             <div className="rb-finish text-center">
@@ -71,6 +71,7 @@ class Setup extends React.Component {
       cacheProps: this.state.cacheProps || {},
       adminProps: this.state.adminProps || {},
       modelProps: this.state.modelProps || {},
+      rbsystemPackage: this.state.rbsystemPackage || null,
     }
     this.setState({ installState: 10 })
     $.post('/setup/install-rebuild', JSON.stringify(data), (res) => {
@@ -505,8 +506,8 @@ class ModelConf extends React.Component {
     return (
       <div className="rb-model">
         <h3>
-          {$L('选择初始业务实体')}
-          <div className="link" dangerouslySetInnerHTML={{ __html: $L('你可以选择来自 [RB 仓库](https://getrebuild.com/market/go/1220-rb-store) 的业务实体使用，或在安装完成后自行添加') }} />
+          {$L('选择初始业务系统')}
+          <div className="link" dangerouslySetInnerHTML={{ __html: $L('你可以选择初始业务实体，或使用行业解决方案') }} />
         </h3>
 
         {DatabaseConf_mount ? (
@@ -514,7 +515,7 @@ class ModelConf extends React.Component {
             <RbAlertBox message={$L('由于使用了已存在的 REBUILD 数据库，因此此步骤不可用，你仍可以继续安装')} />
           </div>
         ) : (
-          <InitModels ref={(c) => (this._InitModels = c)} />
+          <InitModels ref={(c) => (this._InitModels = c)} rbsystemPackage={this.state.rbsystemPackage} />
         )}
 
         <div className="progress">
@@ -540,10 +541,12 @@ class ModelConf extends React.Component {
     return this._InitModels ? this._InitModels.getSelected() : []
   }
 
-  _prev = () => this.props.$$$parent.setState({ stepNo: 4, modelProps: this._buildProps() })
+  _buildPackage = () => (this._InitModels ? this._InitModels.getPackage() : null)
+
+  _prev = () => this.props.$$$parent.setState({ stepNo: 4, modelProps: this._buildProps(), rbsystemPackage: this._buildPackage() })
   _next = () => {
     const ps = this._buildProps()
-    this.props.$$$parent.setState({ stepNo: 10, modelProps: ps }, () => this.props.$$$parent.install())
+    this.props.$$$parent.setState({ stepNo: 10, modelProps: ps, rbsystemPackage: this._buildPackage() }, () => this.props.$$$parent.install())
   }
 }
 

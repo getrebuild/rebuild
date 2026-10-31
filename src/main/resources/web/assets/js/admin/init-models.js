@@ -73,23 +73,51 @@ class InitModels extends React.Component {
         })}
 
         {this.state.data.apps && this.state.data.apps.length > 0 && (
-          <fieldset>
-            <legend>
-              <strong>行业方案</strong>
-            </legend>
-            <form>
-              {this.state.data.apps.map((item) => (
-                <div key={item.url}>
-                  <a className="d-block hover-opacity" href={item.url} target="_blank" rel="noopener noreferrer" title={item.desc}>
-                    <strong>{item.name}</strong>
-                    <p>{item.desc}</p>
-                  </a>
-                </div>
-              ))}
-            </form>
-            <div className="clearfix" />
-          </fieldset>
+          <RF>
+            <hr style={{ borderTopWidth: 2, marginBottom: '1.5rem' }} />
+            <fieldset>
+              <legend>
+                <strong>{$L('行业方案')}</strong>
+              </legend>
+              <form>
+                {this.state.data.apps.map((item) => (
+                  <div key={item.url}>
+                    <a className="d-block hover-opacity" href={item.url} target="_blank" rel="noopener noreferrer" title={item.desc}>
+                      <strong>{item.name}</strong>
+                      <p>{item.desc}</p>
+                    </a>
+                  </div>
+                ))}
+              </form>
+              <div className="clearfix" />
+            </fieldset>
+          </RF>
         )}
+
+        <fieldset>
+          <legend>
+            <strong>{$L('应用市场')}</strong>
+          </legend>
+          <form>
+            <div className="w-100">
+              <label className="text-muted">{$L('或上传来自 [应用市场](https://getrebuild.com/store/) 的应用资源包')}</label>
+              <div className="file-select">
+                <input type="file" className="inputfile" id="upload-rbsystem-package" accept=".rbspkg" data-local="temp" ref={(c) => (this._$upload = c)} disabled={this.state.uploading} />
+                <label htmlFor="upload-rbsystem-package" className="btn-secondary">
+                  <i className="zmdi zmdi-upload" />
+                  {this.state.uploading ? <span className="text-muted">{$L('上传中')}</span> : <span>{$L('选择文件')}</span>}
+                </label>
+                {this.state.rbsystemPackage && (
+                  <span className="ml-2 text-bold">
+                    <i className="mdi-package-check mdi mr-1" />
+                    {$fileCutName(this.state.rbsystemPackage)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </form>
+          <div className="clearfix" />
+        </fieldset>
       </div>
     )
   }
@@ -102,6 +130,15 @@ class InitModels extends React.Component {
       this.setState(s, () => {
         $('i.J_rbv-tip').tooltip()
         typeof this.props.onLoad === 'function' && this.props.onLoad()
+
+        if (this._$upload) {
+          $createUploader(
+            this._$upload,
+            () => this.setState({ uploading: true }),
+            (result) => this.setState({ rbsystemPackage: result.key, uploading: false }),
+            () => this.setState({ uploading: false }),
+          )
+        }
       })
     })
   }
@@ -138,5 +175,9 @@ class InitModels extends React.Component {
       if ($chk.prop('checked')) ss.push($chk.val())
     }
     return ss
+  }
+
+  getPackage() {
+    return this.state.rbsystemPackage || null
   }
 }

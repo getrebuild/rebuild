@@ -87,6 +87,10 @@ public class Installer implements InstallState {
 
     private String EXISTS_SN;
 
+    // 上传的系统包（rbspkg），存在则完整恢复
+    private String rbsystemPackage;
+    private RbSystemPackageImporter packageImporter;
+
     private Installer() {}
 
     /**
@@ -101,9 +105,12 @@ public class Installer implements InstallState {
      * 执行安装
      */
     public void install() throws Exception {
+        this.rbsystemPackage = this.installProps.getString("rbsystemPackage");
         final boolean dbNew = this.installDatabase();
 
-        this.installAdmin();
+        if (rbsystemPackage == null) {
+            this.installAdmin();
+        }
 
         Properties installProps = buildConnectionProps(null);
 
@@ -158,6 +165,12 @@ public class Installer implements InstallState {
         clearAllCache();
 
         if (!dbNew) return;
+
+        // 系统包恢复：清理后结束
+        if (rbsystemPackage != null) {
+            if (packageImporter != null) packageImporter.cleanup();
+            return;
+        }
 
         // 附加数据
 
@@ -323,18 +336,27 @@ public class Installer implements InstallState {
         }
 
         // 初始化数据库
-        try (Connection conn = getConnection(null)) {
-            int affetced = 0;
-            for (final String s : getDbInitScript()) {
-                try (Statement stmt = conn.createStatement()) {
-                    stmt.execute(s);
-                    affetced++;
-                }
+        if (rbsystemPackage != null) {
+            packageImporter = new RbSystemPackageImporter(rbsystemPackage);
+            try (Connection conn = getConnection(null)) {
+                packageImporter.restore(conn);
+            } catch (IOException | SQLException e) {
+                throw new RebuildSetupException(e);
             }
-            log.info("Database schemes init : {}", affetced);
+        } else {
+            try (Connection conn = getConnection(null)) {
+                int affetced = 0;
+                for (final String s : getDbInitScript()) {
+                    try (Statement stmt = conn.createStatement()) {
+                        stmt.execute(s);
+                        affetced++;
+                    }
+                }
+                log.info("Database schemes init : {}", affetced);
 
-        } catch (SQLException | IOException e) {
-            throw new RebuildSetupException(e);
+            } catch (SQLException | IOException e) {
+                throw new RebuildSetupException(e);
+            }
         }
 
         return true;

@@ -11,6 +11,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.support.License;
@@ -53,6 +54,7 @@ public class InstallController extends BaseController implements InstallState {
 
     @Override
     public boolean checkInstalled() {
+        if (Application.devMode()) return false;
         if (InstallState.super.checkInstalled() && Application.isStateReady()) {
             throw new DefinedException("NOT ALLOWED");
         }
@@ -64,6 +66,7 @@ public class InstallController extends BaseController implements InstallState {
         checkInstalled();
         ModelAndView mv = createModelAndView("/admin/setup/install");
         mv.getModel().put("Version", Application.VER);
+        mv.getModel().put("csrfToken", AuthTokenManager.generateCsrfToken());
 
         // 切换语言
         putLocales(mv, AppUtils.getReuqestLocale(request));
