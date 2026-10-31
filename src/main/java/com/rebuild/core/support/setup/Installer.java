@@ -87,7 +87,7 @@ public class Installer implements InstallState {
 
     private String EXISTS_SN;
 
-    // 上传的系统包（rbspkg），存在则完整恢复
+    // 上传的应用资源包（rbspkg），存在则完整恢复
     private String rbsystemPackage;
     private RbSystemPackageImporter packageImporter;
 
@@ -166,7 +166,7 @@ public class Installer implements InstallState {
 
         if (!dbNew) return;
 
-        // 系统包恢复：清理后结束
+        // 应用资源包恢复：清理后结束
         if (rbsystemPackage != null) {
             if (packageImporter != null) packageImporter.cleanup();
             return;

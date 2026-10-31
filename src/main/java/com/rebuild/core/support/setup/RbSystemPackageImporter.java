@@ -23,10 +23,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * 系统包（rbspkg）导入，用于安装时完整恢复
- * - rbspkg/schema.sql 全库表结构
- * - rbspkg/data.sql 配置与业务数据
- * - rbspkg/{REPORT_TEMPLATES,PROXYTRIGGER_CLASSES,AIBOT_KBS} 特殊附件目录
+ * 应用资源包导入
  *
  * @author RB
  * @see Installer
