@@ -4,10 +4,8 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* eslint-disable no-undef */
 /* global RbHeroModal */
-
-// ~~ AI 助手引导弹窗（未配置引导管理员配置、已配置引导用户体验）
+// ~~ AI 助手引导弹窗
 
 const __injectRexGuideStyle = function () {
   if (document.getElementById('rex-guide-style')) return
@@ -55,7 +53,6 @@ const __showRexGuide = function (configured, isAdmin) {
     } else $storage.set('RexGuideUserEnd-' + rb.currentUser, 'yes')
   }
 
-  // 展示即计数，避免未关闭就离开页面导致重复弹；强制调试模式不计数
   if (!~~window.__RexGuideScene) mark()
 
   let modal
@@ -92,7 +89,9 @@ const __showRexGuide = function (configured, isAdmin) {
   )
 
   if (configured) {
-    const questions = isAdmin ? ['系统里都有哪些业务实体', '如何配置一个自动化触发器', '帮我创建一条客户记录'] : ['帮我创建一条客户记录', '怎么快速找到我需要的数据', '有哪些待我审批的记录']
+    const questions = isAdmin
+      ? ['帮我建一个客户管理实体', '帮我配置一个自动化触发器', '统计一下本月各业务实体的数据量']
+      : ['帮我创建一条客户记录', '帮我查一下本周需要跟进的客户', '有哪些待我审批的记录']
     RbHeroModal.show({
       ...heroProps,
       icon: <i className="mdi mdi-shimmer" />,
@@ -196,25 +195,10 @@ const __showRexGuide = function (configured, isAdmin) {
   }
 }
 
-const __rexGuideShow = function (configured, isAdmin) {
-  // 延迟留足向导的启动时间（startTour 最大延时 1000ms + 页面异步渲染），避免同屏弹出
-  setTimeout(function () {
-    // 显示了新手向导则本次不弹，等下次进入页面
-    if (window.tourStarted) return
-    __showRexGuide(configured, isAdmin)
-  }, 3000)
-}
-
-// 调试用：强制指定显示场景，0=正常逻辑，1=未配置·管理员，2=未配置·普通用户，3=已配置·体验
-// 控制台改值后执行 __checkRexGuide() 即可重现，强制模式跳过去重和 AI 入口检查
 window.__RexGuideScene = window.__RexGuideScene || 0
-
 window.__checkRexGuide = function () {
-  // iframe 内不显示
   if (window.top !== window.self) return
   if (!rb.currentUser) return
-
-  // 已看过「已配置」引导则无需再请求，强制场景调试时跳过
   if (!~~window.__RexGuideScene && $storage.get('RexGuideEnd-' + rb.currentUser)) return
 
   $.get('/aibot/check-configured', function (res) {
@@ -231,24 +215,20 @@ window.__checkRexGuide = function () {
     } else if (scene === 3) {
       configured = true
     } else if (configured) {
-      // 无 AI 入口（如商业版未授权）的用户不引导
       if (!$('.aibot-show')[0]) return
       if ($storage.get('RexGuideEnd-' + rb.currentUser)) return
     } else if (isAdmin) {
-      // 管理员累计最多提醒 3 次，且一次会话最多弹 1 次
       if (~~$storage.get('RexGuideCfgCount-' + rb.currentUser) >= 3) return
       if (sessionStorage.getItem('RexGuideCfgSess-' + rb.currentUser)) return
     } else {
-      // 普通用户无法行动，告知一次即可
       if ($storage.get('RexGuideUserEnd-' + rb.currentUser)) return
     }
 
-    __rexGuideShow(configured, isAdmin)
+    if (window.tourStarted) return
+    __showRexGuide(configured, isAdmin)
   })
 }
 
-// 自触发。本文件为 text/babel 脚本，晚于 DOM ready 执行，
-// 延时以覆盖 startTour 的启动延迟（最大 1000ms，见 dashboard.js 等调用点）
 setTimeout(function () {
   window.__checkRexGuide()
-}, 1500)
+}, 3000)
