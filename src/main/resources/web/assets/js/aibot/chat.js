@@ -1354,7 +1354,10 @@ class ChatSidebar extends React.Component {
 
   componentDidUpdate(props, prevState) {
     if (prevState.current !== this.state.current && this.state.current) {
-      $storage.set('__AiBotLastChatId', this.state.current)
+      // 管理员查看他人会话时不持久化，避免下次打开加载别人的会话
+      if (!this.props._Chat.state.viewAsAdmin) {
+        $storage.set('__AiBotLastChatId', this.state.current)
+      }
     }
     if (prevState.list !== this.state.list) {
       this._Scroller && this._Scroller.update(true)
