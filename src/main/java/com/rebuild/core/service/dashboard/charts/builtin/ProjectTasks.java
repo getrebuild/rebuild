@@ -70,8 +70,8 @@ public class ProjectTasks extends ChartData implements BuiltinChart {
             String taskNumber = String.format("%s-%s", cbProject.getString("projectCode"), o[3]);
 
             array.add(JSONUtils.toJSONObject(
-                    new String[] { "id", "projectName", "planFlow", "taskNumber", "taskName", "createdOn", "deadline", "endTime", "status", "priority" },
-                    new Object[] { o[0], projectName, cbPlan.getInteger("flowStatus"), taskNumber, o[4],
+                    new String[]{"id", "projectName", "planFlow", "taskNumber", "taskName", "createdOn", "deadline", "endTime", "status", "priority"},
+                    new Object[]{o[0], projectName, cbPlan.getInteger("flowStatus"), taskNumber, o[4],
                             I18nUtils.formatDate((Date) o[5]),
                             I18nUtils.formatDate((Date) o[6]),
                             I18nUtils.formatDate((Date) o[7]),
