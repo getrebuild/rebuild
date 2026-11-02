@@ -507,7 +507,7 @@ class ModelConf extends React.Component {
       <div className="rb-model">
         <h3>
           {$L('选择初始业务系统')}
-          <div className="link" dangerouslySetInnerHTML={{ __html: $L('你可以选择初始业务实体，或使用行业解决方案') }} />
+          <div className="link" dangerouslySetInnerHTML={{ __html: $L('你可以选择初始业务实体，或使用整体解决方案') }} />
         </h3>
 
         {DatabaseConf_mount ? (

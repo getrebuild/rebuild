@@ -72,31 +72,36 @@ class InitModels extends React.Component {
           )
         })}
 
+        <hr style={{ borderTopWidth: 2, marginBottom: '1.6rem' }} />
+
         {this.state.data.apps && this.state.data.apps.length > 0 && (
-          <RF>
-            <hr style={{ borderTopWidth: 2, marginBottom: '1.5rem' }} />
-            <fieldset>
-              <legend>
-                <strong>{$L('行业方案')}</strong>
-              </legend>
-              <form>
-                {this.state.data.apps.map((item) => (
-                  <div key={item.url}>
-                    <a className="d-block hover-opacity" href={item.url} target="_blank" rel="noopener noreferrer" title={item.desc}>
-                      <strong>{item.name}</strong>
-                      <p>{item.desc}</p>
-                    </a>
-                  </div>
-                ))}
-              </form>
-              <div className="clearfix" />
-            </fieldset>
-          </RF>
+          <fieldset>
+            <legend>
+              <strong>
+                <i className="icon mdi mdi-store mr-1 fs-17 down-1" />
+                {$L('行业方案')}
+              </strong>
+            </legend>
+            <form>
+              {this.state.data.apps.map((item) => (
+                <div key={item.url}>
+                  <a className="d-block hover-opacity" href={item.url} target="_blank" rel="noopener noreferrer" title={item.desc}>
+                    <strong>{item.name}</strong>
+                    <p>{item.desc}</p>
+                  </a>
+                </div>
+              ))}
+            </form>
+            <div className="clearfix" />
+          </fieldset>
         )}
 
         <fieldset>
           <legend>
-            <strong>{$L('应用商店')}</strong>
+            <strong>
+              <i className="icon mdi mdi-store mr-1 fs-17 down-1" />
+              {$L('应用商店')}
+            </strong>
           </legend>
           <form>
             <div className="w-100">
