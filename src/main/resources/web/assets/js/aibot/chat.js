@@ -53,7 +53,10 @@ let __evt_ScrollToBottomStop = false
 let __evt_StreamCancel = false
 let __streamController = null
 
-// 错误消息渲染为红色 + 警告图标（实时与历史消息共用）
+var STALL_HINT_DELAY = 3000
+var STALL_HINTS_INIT = ['马上就好...', '稍等一下...', '快好了..']
+
+// 错误消息渲染为红色
 const __errorHtml = (error) => `<span class="text-danger"><i class="mdi mdi-alert-circle-outline fs-14 down-1 mr-1"></i>${error}</span>`
 
 // eslint-disable-next-line no-unused-vars
@@ -778,7 +781,7 @@ class ChatMessages extends React.Component {
 class ChatMessage extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, waitResp: props.sendResp ? 1 : 0, reasoningOpen: !!props.sendResp }
+    this.state = { ...props, waitResp: props.sendResp ? 1 : 0, reasoningOpen: !!props.sendResp, stallHint: null }
   }
 
   componentDidMount() {
@@ -788,7 +791,8 @@ class ChatMessage extends React.Component {
         data = data || {}
         if (data.type === '_done') {
           // 输出完成后自动收起思考过程
-          this.setState({ waitResp: -1, reasoningOpen: false, toolHint: null })
+          this._clearStallTimers()
+          this.setState({ waitResp: -1, reasoningOpen: false, toolHint: null, stallHint: null })
           return
         }
         if (data.error) {
@@ -805,7 +809,8 @@ class ChatMessage extends React.Component {
         // 工具执行中的进度提示，收到正文或思考内容后清除
         if (data.type === '_tool') {
           // waitResp 置 0 隐藏初始空转圈，避免与状态条重复
-          this.setState({ toolHint: data.content, waitResp: 0 })
+          this._clearStallTimers()
+          this.setState({ toolHint: data.content, waitResp: 0, stallHint: null })
           return
         }
 
@@ -813,23 +818,54 @@ class ChatMessage extends React.Component {
           if (data.type === '_reasoning') {
             data.reasoning = (this.state.reasoning || '') + data.content
             delete data.content
-            this.setState({ ...data, waitResp: 2, toolHint: null })
+            this.setState({ ...data, waitResp: 2, toolHint: null, stallHint: null })
+            this._startStallWatch()
           } else {
             data.content = (this.state.content || '') + data.content
-            this.setState({ ...data, waitResp: 0, toolHint: null })
+            this.setState({ ...data, waitResp: 0, toolHint: null, stallHint: null })
+            this._startStallWatch()
           }
         }
       })
+
+    if (this.state.waitResp === 1 && !this.props.pending) {
+      this._startStallWatch()
+    }
+  }
+
+  _clearStallTimers() {
+    if (this._stallTimer) {
+      clearTimeout(this._stallTimer)
+      this._stallTimer = null
+    }
+    if (this._stallInterval) {
+      clearInterval(this._stallInterval)
+      this._stallInterval = null
+    }
+  }
+
+  _startStallWatch() {
+    this._clearStallTimers()
+    this._stallTimer = setTimeout(() => {
+      const idx = Math.floor(Math.random() * STALL_HINTS_INIT.length)
+      this.setState({ stallHint: $L(STALL_HINTS_INIT[idx]) })
+    }, STALL_HINT_DELAY)
+  }
+
+  componentWillUnmount() {
+    this._clearStallTimers()
   }
 
   componentDidUpdate(props, prevState) {
     // 占位消息被真实消息替换（sendResp 消失），同步 state
     if (props.sendResp && !this.props.sendResp) {
+      this._clearStallTimers()
       this.setState({
         content: this.props.content,
         reasoning: this.props.reasoning,
         waitResp: 0,
         reasoningOpen: false,
+        stallHint: null,
       })
       return
     }
@@ -955,7 +991,7 @@ class ChatMessage extends React.Component {
               </div>
             </div>
           )}
-          {this.state.waitResp === 1 && !this.props.pending && (
+          {this.state.waitResp === 1 && !this.props.pending && !this.state.stallHint && (
             <div className="wait-resp">
               <i className="mdi-spin mdi mdi-loading fs-20" />
             </div>
@@ -979,6 +1015,14 @@ class ChatMessage extends React.Component {
               <div className="reasoning-toggle cursor-default">
                 <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />
                 <span>{this.state.toolHint}</span>
+              </div>
+            </div>
+          )}
+          {this.state.stallHint && this.state.waitResp !== -1 && !this.state.toolHint && (
+            <div className="reasoning">
+              <div className="reasoning-toggle cursor-default">
+                <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />
+                <span>{this.state.stallHint}</span>
               </div>
             </div>
           )}
