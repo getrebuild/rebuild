@@ -105,10 +105,18 @@ class InitModels extends React.Component {
           </legend>
           <form>
             <div className="w-100">
-              <label className="text-muted">{$L('或上传来自 REBUILD [应用商店](https://getrebuild.com/store/) 的应用资源包')}</label>
+              <label className="text-muted">{$L('上传从 REBUILD [应用商店](https://getrebuild.com/store/) 下载的应用资源包，自动安装业务系统')}</label>
               <div className="file-select">
-                <input type="file" className="inputfile" id="upload-rbsystem-package" accept=".rbspkg" data-local="temp" ref={(c) => (this._$upload = c)} disabled={this.state.uploading} />
-                <label htmlFor="upload-rbsystem-package" className="btn-secondary" disabled={this.state.uploading}>
+                <input
+                  type="file"
+                  className="inputfile"
+                  id="upload-rbsystem-package"
+                  accept=".rbspkg"
+                  data-local="temp"
+                  ref={(c) => (this._$upload = c)}
+                  disabled={!!(this.state.uploading || rb.currentUser)}
+                />
+                <label htmlFor="upload-rbsystem-package" className="btn-secondary" disabled={!!(this.state.uploading || rb.currentUser)}>
                   <i className="zmdi zmdi-upload" />
                   {this.state.uploading ? <span className="text-muted">{$L('上传中...')}</span> : <span>{$L('选择文件')}</span>}
                 </label>
@@ -119,6 +127,7 @@ class InitModels extends React.Component {
                   </span>
                 )}
               </div>
+              {rb.currentUser && <RbAlertBox message={$L('应用资源包仅支持全新安装时使用')} className="mb-0" />}
             </div>
           </form>
           <div className="clearfix" />
