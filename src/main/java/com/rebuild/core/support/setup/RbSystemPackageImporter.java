@@ -70,7 +70,7 @@ public class RbSystemPackageImporter {
         ZipUtil.unzip(packageFile, dest);
         rbspkgDir = new File(dest, "rbspkg");
         if (!rbspkgDir.exists()) {
-            throw new RebuildException("Bad rbsystem package : rbspkg/ not found");
+            throw new RebuildException("BAD RBSPKG : NOT FOUND");
         }
 
         executeSqlFile(conn, new File(rbspkgDir, "schema.sql"));

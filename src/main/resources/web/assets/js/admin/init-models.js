@@ -96,16 +96,16 @@ class InitModels extends React.Component {
 
         <fieldset>
           <legend>
-            <strong>{$L('应用市场')}</strong>
+            <strong>{$L('应用商店')}</strong>
           </legend>
           <form>
             <div className="w-100">
-              <label className="text-muted">{$L('或上传来自 [应用市场](https://getrebuild.com/store/) 的应用资源包')}</label>
+              <label className="text-muted">{$L('或上传来自 REBUILD [应用商店](https://getrebuild.com/store/) 的应用资源包')}</label>
               <div className="file-select">
                 <input type="file" className="inputfile" id="upload-rbsystem-package" accept=".rbspkg" data-local="temp" ref={(c) => (this._$upload = c)} disabled={this.state.uploading} />
-                <label htmlFor="upload-rbsystem-package" className="btn-secondary">
+                <label htmlFor="upload-rbsystem-package" className="btn-secondary" disabled={this.state.uploading}>
                   <i className="zmdi zmdi-upload" />
-                  {this.state.uploading ? <span className="text-muted">{$L('上传中')}</span> : <span>{$L('选择文件')}</span>}
+                  {this.state.uploading ? <span className="text-muted">{$L('上传中...')}</span> : <span>{$L('选择文件')}</span>}
                 </label>
                 {this.state.rbsystemPackage && (
                   <span className="ml-2 text-bold">
