@@ -7,7 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.api.user;
 
-import cn.devezhao.commons.CalendarUtils;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import cn.devezhao.commons.EncryptUtils;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.api.ApiContext;
@@ -45,7 +47,7 @@ public class LoginToken extends BaseApi {
         }
 
         // 兼容处理
-        String salt = "iloverb" + CalendarUtils.format("yyyyMMdd", CalendarUtils.now());
+        String salt = "iloverb" + LocalDate.now(ZoneOffset.UTC).format(DateTimeFormatter.BASIC_ISO_DATE);
         String passwd45 = EncryptUtils.toSHA256Hex(password);
         passwd45 = EncryptUtils.toSHA256Hex(passwd45 + salt);
 
