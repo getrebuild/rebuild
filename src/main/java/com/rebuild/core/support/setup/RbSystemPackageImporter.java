@@ -62,7 +62,7 @@ public class RbSystemPackageImporter {
      */
     public void restore(Connection conn) throws SQLException, IOException {
         if (!packageFile.exists()) {
-            throw new RebuildException("Package not found : " + packageFile);
+            throw new RebuildException("PACKAGE NOT FOUND : " + packageFile);
         }
 
         File dest = RebuildConfiguration.getFileOfTemp("__RBSPKG_INSTALL");
@@ -70,7 +70,7 @@ public class RbSystemPackageImporter {
         ZipUtil.unzip(packageFile, dest);
         rbspkgDir = new File(dest, "rbspkg");
         if (!rbspkgDir.exists()) {
-            throw new RebuildException("BAD RBSPKG : NOT FOUND");
+            throw new RebuildException("BAD PACKAGE : `rbspkg` NOT FOUND");
         }
 
         executeSqlFile(conn, new File(rbspkgDir, "schema.sql"));
