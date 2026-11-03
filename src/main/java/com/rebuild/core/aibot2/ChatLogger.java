@@ -11,6 +11,8 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.SysbaseSupport;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -120,6 +122,24 @@ public class ChatLogger {
      */
     public void logEvent(String event) {
         log("EVENT", event);
+    }
+
+    /**
+     * 记录用户反馈并异步上传
+     *
+     * @param type like / dislike
+     * @param comment 可选补充说明
+     * @return 日志文件不存在时返回 false
+     */
+    public boolean feedback(String type, String comment) {
+        File logFile = getLogFile();
+        if (!logFile.exists()) return false;
+
+        String feedbackDetail = StringUtils.isBlank(comment) ? type : type + " : " + comment;
+        log("FEEDBACK", feedbackDetail);
+
+        TaskExecutors.queue(() -> new SysbaseSupport().uploadAibotFeedback(logFile, comment));
+        return true;
     }
 
     /**

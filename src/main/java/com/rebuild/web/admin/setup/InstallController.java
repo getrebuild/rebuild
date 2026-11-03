@@ -11,6 +11,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.support.License;
@@ -21,6 +22,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.WebConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -53,6 +55,7 @@ public class InstallController extends BaseController implements InstallState {
 
     @Override
     public boolean checkInstalled() {
+        if (Application.devMode()) return false;
         if (InstallState.super.checkInstalled() && Application.isStateReady()) {
             throw new DefinedException("NOT ALLOWED");
         }
@@ -64,6 +67,7 @@ public class InstallController extends BaseController implements InstallState {
         checkInstalled();
         ModelAndView mv = createModelAndView("/admin/setup/install");
         mv.getModel().put("Version", Application.VER);
+        mv.getModel().put(WebConstants.CSRF_TOKEN, AuthTokenManager.generateCsrfToken());
 
         // 切换语言
         putLocales(mv, AppUtils.getReuqestLocale(request));

@@ -72,10 +72,15 @@ class InitModels extends React.Component {
           )
         })}
 
+        <hr style={{ borderTopWidth: 2, marginBottom: '1.6rem' }} />
+
         {this.state.data.apps && this.state.data.apps.length > 0 && (
           <fieldset>
             <legend>
-              <strong>行业方案</strong>
+              <strong>
+                <i className="icon mdi mdi-store mr-1 fs-17 down-1" />
+                {$L('行业方案')}
+              </strong>
             </legend>
             <form>
               {this.state.data.apps.map((item) => (
@@ -90,6 +95,43 @@ class InitModels extends React.Component {
             <div className="clearfix" />
           </fieldset>
         )}
+
+        <fieldset>
+          <legend>
+            <strong>
+              <i className="icon mdi mdi-store mr-1 fs-17 down-1" />
+              {$L('应用商店')}
+            </strong>
+          </legend>
+          <form>
+            <div className="w-100">
+              <label className="text-muted">{$L('上传从 REBUILD [应用商店](https://getrebuild.com/store/) 下载的应用资源包，自动安装业务系统')}</label>
+              <div className="file-select">
+                <input
+                  type="file"
+                  className="inputfile"
+                  id="upload-rbsystem-package"
+                  accept=".rbspkg"
+                  data-local="temp"
+                  ref={(c) => (this._$upload = c)}
+                  disabled={!!(this.state.uploading || rb.currentUser)}
+                />
+                <label htmlFor="upload-rbsystem-package" className="btn-secondary" disabled={!!(this.state.uploading || rb.currentUser)}>
+                  <i className="zmdi zmdi-upload" />
+                  {this.state.uploading ? <span className="text-muted">{$L('上传中...')}</span> : <span>{$L('选择文件')}</span>}
+                </label>
+                {this.state.rbsystemPackage && (
+                  <span className="ml-2 text-bold">
+                    <i className="mdi-package-check mdi mr-1" />
+                    {$fileCutName(this.state.rbsystemPackage)}
+                  </span>
+                )}
+              </div>
+              {rb.currentUser && <RbAlertBox message={$L('应用资源包仅支持全新安装时使用')} className="mb-0" />}
+            </div>
+          </form>
+          <div className="clearfix" />
+        </fieldset>
       </div>
     )
   }
@@ -102,6 +144,15 @@ class InitModels extends React.Component {
       this.setState(s, () => {
         $('i.J_rbv-tip').tooltip()
         typeof this.props.onLoad === 'function' && this.props.onLoad()
+
+        if (this._$upload) {
+          $createUploader(
+            this._$upload,
+            () => this.setState({ uploading: true }),
+            (result) => this.setState({ rbsystemPackage: result.key, uploading: false }),
+            () => this.setState({ uploading: false }),
+          )
+        }
       })
     })
   }
@@ -138,5 +189,9 @@ class InitModels extends React.Component {
       if ($chk.prop('checked')) ss.push($chk.val())
     }
     return ss
+  }
+
+  getPackage() {
+    return this.state.rbsystemPackage || null
   }
 }
