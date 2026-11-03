@@ -8,6 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.user.signup;
 
 import cn.devezhao.commons.CalendarUtils;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
@@ -290,7 +293,7 @@ public class LoginAction extends BaseController {
 
         if (o == null || o[0] == null) return false;
 
-        String salt = "iloverb" + CalendarUtils.format("yyyyMMdd", CalendarUtils.now());
+        String salt = "iloverb" + LocalDate.now(ZoneOffset.UTC).format(DateTimeFormatter.BASIC_ISO_DATE);
         String hash = EncryptUtils.toSHA256Hex(o[0].toString() + salt);
         return StringUtils.equals(passwd2sha, hash);
     }
