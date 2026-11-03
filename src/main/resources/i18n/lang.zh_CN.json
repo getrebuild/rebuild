@@ -3532,5 +3532,7 @@
   "技术支持服务还剩 **%d** 天到期，到期后官方技术支持与产品升级服务将不可用 [(立即续费)](%s)": "技术支持服务还剩 **%d** 天到期，到期后官方技术支持与产品升级服务将不可用 [(立即续费)](%s)",
   "技术支持服务提醒": "技术支持服务提醒",
   "立即续费": "立即续费",
-  "点击续费": "点击续费"
+  "点击续费": "点击续费",
+  "微应用":"微应用",
+  "请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users#2.%20%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5)":"请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users#2.%20%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5)"
 }
