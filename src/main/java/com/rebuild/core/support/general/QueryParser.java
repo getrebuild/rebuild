@@ -207,7 +207,7 @@ public class QueryParser {
         if (StringUtils.isNotBlank(sortNode)) sortClause = parseSort(sortNode);
         // 默认排序
         if (sortClause == null) {
-            if (entity.containsField(EntityHelper.Seq)) {
+            if (EasyMetaFactory.valueOf(entity).isDetailsSortable()) {
                 sortClause = EntityHelper.Seq + " asc";
             } else if (entity.containsField(EntityHelper.ModifiedOn)) {
                 sortClause = EntityHelper.ModifiedOn + (":asc".equals(sortNode) ? " asc" : " desc");

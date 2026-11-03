@@ -64,6 +64,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.DETAILS_COPIABLE;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.DETAILS_NOTEMPTY;
+
 /**
  * 表单构造
  *
@@ -278,15 +281,15 @@ public class FormsBuilder extends FormsManager {
         if (hasMainEntity != null) {
             model.set("mainMeta", EasyMetaFactory.toJSON(hasMainEntity));
             // v3.4
-            model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
+            model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(DETAILS_NOTEMPTY));
             // v3.6
-            model.set("detailsCopiable", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_COPIABLE));
-            // v4.2
-            model.set("detailsHasSeq", entityMeta.containsField(EntityHelper.Seq));
+            model.set("detailsCopiable", entityMeta.getExtraAttrs().getBooleanValue(DETAILS_COPIABLE));
+            // v4.2,4.6
+            model.set("detailsHasSeq", EasyMetaFactory.valueOf(entityMeta).isDetailsSortable());
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
             // compatible v3.3
-            model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
+            model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(DETAILS_NOTEMPTY));
             // v3.4 ND
             List<JSON> detailMetas = new ArrayList<>();
             for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) {

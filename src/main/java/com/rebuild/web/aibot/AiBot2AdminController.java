@@ -400,7 +400,6 @@ public class AiBot2AdminController extends BaseController {
         return createModelAndView("/admin/integration/aibot-minapps");
     }
 
-
     @GetMapping("aibot/minapp-list")
     public RespBody minappList() {
         Object[][] array = Application.createQueryNoFilter(

@@ -38,6 +38,10 @@ public class EasyEntityConfigProps {
      */
     public static final String DETAILS_COPIABLE = "detailsCopiable";
     /**
+     * 明细排序
+     */
+    public static final String DETAILS_SORTABLE = "detailsSortable";
+    /**
      * 显示顺序
      */
     public static final String DETAILS_SEQ = "detailsSeq";
