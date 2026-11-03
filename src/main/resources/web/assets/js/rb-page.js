@@ -1965,7 +1965,7 @@ function $renderMermaid($container) {
 
 function $saltText(text) {
   var _d = new Date()
-  var _salt = 'iloverb' + _d.getFullYear() + ('0' + (_d.getMonth() + 1)).slice(-2) + ('0' + _d.getDate()).slice(-2)
+  var _salt = 'iloverb' + _d.getUTCFullYear() + ('0' + (_d.getUTCMonth() + 1)).slice(-2) + ('0' + _d.getUTCDate()).slice(-2)
   // eslint-disable-next-line no-undef
   return sha256(sha256(text) + _salt)
 }

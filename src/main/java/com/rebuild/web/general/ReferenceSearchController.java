@@ -226,7 +226,7 @@ public class ReferenceSearchController extends EntityController {
 
         String q = StringUtils.trim(getParameter(request, "q"));
         int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
-        // 直接显示
+        // 一级直接显示
         boolean useSimple37 = StringUtils.isBlank(q) && openLevel == 0;
 
         // 为空则加载最近使用的
@@ -243,12 +243,12 @@ public class ReferenceSearchController extends EntityController {
 
         String sqlWhere;
         if (useSimple37) {
-            sqlWhere = String.format("dataId = '%s' and parent is null order by code,fullName",
+            sqlWhere = String.format("dataId = '%s' and isHide <> 'T' and parent is null order by code,fullName",
                     useClassification.toLiteral());
         } else {
             q = CommonsUtils.escapeSql(q);
             sqlWhere = String.format(
-                    "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%' or code like '%s%%') order by code,fullName",
+                    "dataId = '%s' and isHide <> 'T' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%' or code like '%s%%') order by code,fullName",
                     useClassification.toLiteral(), openLevel, q, q, q);
         }
 
