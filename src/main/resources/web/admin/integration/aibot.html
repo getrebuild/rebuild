@@ -15,6 +15,10 @@
         font-weight: bold;
         cursor: pointer;
       }
+      td[data-id='AibotBasePrompt'],
+      td[data-id='AibotSuggestQuestions'] {
+        white-space: pre-line;
+      }
     </style>
   </head>
   <body>
@@ -107,28 +111,14 @@
                     <tbody>
                       <tr>
                         <td width="40%">[[${bundle.L('欢迎词')}]]</td>
-                        <td
-                          data-id="AibotWelcome"
-                          style="white-space: pre-line"
-                          th:data-value="${AibotWelcome ?:''}"
-                          data-optional="true"
-                          th:data-form-text="${bundle.L('新会话时展示的欢迎语')}"
-                          th:text="${AibotWelcome ?:bundle.L('默认')}"
-                        >
-                          默认
+                        <td data-id="AibotWelcome" th:data-value="${AibotWelcome ?:''}" data-optional="true" th:data-form-text="${bundle.L('新会话时展示的欢迎语')}">
+                          [[${AibotWelcome ?:bundle.L('默认')}]]
                         </td>
                       </tr>
                       <tr>
                         <td width="40%">[[${bundle.L('引导问题')}]]</td>
-                        <td
-                          data-id="AibotSuggestQuestions"
-                          style="white-space: pre-line"
-                          th:data-value="${AibotSuggestQuestions ?:''}"
-                          data-optional="true"
-                          th:data-form-text="${bundle.L('新会话时展示的引导问题，每行一个问题')}"
-                          th:text="${AibotSuggestQuestions ?:bundle.L('默认')}"
-                        >
-                          默认
+                        <td data-id="AibotSuggestQuestions" th:data-value="${AibotSuggestQuestions ?:''}" data-optional="true" th:data-form-text="${bundle.L('新会话时展示的引导问题，每行一个问题')}">
+                          [[${AibotSuggestQuestions ?:bundle.L('默认')}]]
                         </td>
                       </tr>
                     </tbody>

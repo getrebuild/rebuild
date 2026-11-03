@@ -132,7 +132,7 @@ $(function () {
   $.fn.modal.Constructor.prototype._enforceFocus = function () {}
 
   // navless/frame
-  if (rb.commercial > 0 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
+  if (rb.commercial > 0 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1) && location.href.indexOf('/pages/minapp/') === -1) $(document.body).addClass('rb-navless40')
   if (rb.commercial > 0 && window.__BOSSKEY === true) $('.bosskey-show').removeClass('bosskey-show')
 
   // scroller
@@ -1461,7 +1461,7 @@ var $isSysMask = function (label) {
 
 // 分页计算
 var $pages = function (tp, cp) {
-  var mid = 3  // 中部连续页码数（含当前页，须为奇数）
+  var mid = 3 // 中部连续页码数（含当前页，须为奇数）
   var half = (mid - 1) / 2
   var pages = []
   if (tp <= 8) {
@@ -1476,7 +1476,7 @@ var $pages = function (tp, cp) {
   }
 
   if (cp > tp) cp = tp
-  if (cp <= half + 2) cp = half + 2  // 中部起点钳制在第2页
+  if (cp <= half + 2) cp = half + 2 // 中部起点钳制在第2页
   var begin = cp - half,
     end = begin + mid
   if (begin < 1) begin = 1
@@ -1793,6 +1793,7 @@ function $modalDraggable($modal, option) {
       handle: '.modal-header',
       containment: option.containment === false ? false : 'window',
       scroll: false,
+      iframeFix: true,
       start: function () {
         $(this).css({
           right: 'unset',

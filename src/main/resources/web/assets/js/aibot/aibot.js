@@ -113,6 +113,7 @@ class AiBot extends React.Component {
           this.setState({ dockMode: false })
           $storage.set('__AiBotDockMode', 'false')
           $dialog.draggable('enable')
+          $('iframe').css('pointer-events', 'none')
         }
 
         $dialog.css({
@@ -123,6 +124,7 @@ class AiBot extends React.Component {
 
       const onUp = () => {
         $(document).off('mousemove', onMove).off('mouseup', onUp)
+        $('iframe').css('pointer-events', '')
         if (dockOffset) {
           const pos = $dialog.position()
           $storage.set('__AiBotLastChatModalPos', pos.left + ',' + pos.top)

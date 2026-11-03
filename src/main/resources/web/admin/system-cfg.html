@@ -84,6 +84,12 @@
         border-radius: 2px;
         padding: 10px;
       }
+      td[data-id='LoginBulletinBoard'],
+      td[data-id='OpenSignUpAllowDomain'],
+      td[data-id='AllowUsesTime'],
+      td[data-id='AllowUsesIp'] {
+        white-space: pre-line;
+      }
     </style>
   </head>
   <body>
@@ -141,7 +147,7 @@
                           data-optional="true"
                           th:data-form-text="${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}"
                         >
-                          <pre class="unstyle text-break">[[${PageFooter ?:bundle.L('无')}]]</pre>
+                          [[${PageFooter ?:bundle.L('无')}]]
                         </td>
                       </tr>
                       <tr>
@@ -176,7 +182,7 @@
                           data-optional="true"
                           th:data-form-text="${bundle.L('支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}"
                         >
-                          <pre class="unstyle text-break">[[${LoginBulletinBoard ?:bundle.L('默认')}]]</pre>
+                          [[${LoginBulletinBoard ?:bundle.L('默认')}]]
                         </td>
                       </tr>
                     </tbody>
@@ -214,7 +220,7 @@
                           th:data-form-text="${bundle.L('仅指定注册域的邮箱才能注册，每个域一行，例如 `getrebuild.com` `*.sina.com`')}"
                           data-optional="true"
                         >
-                          <pre class="unstyle">[[${OpenSignUpAllowDomain ?:bundle.L('不限')}]]</pre>
+                          [[${OpenSignUpAllowDomain ?:bundle.L('不限')}]]
                         </td>
                       </tr>
                       <tr>
@@ -260,7 +266,7 @@
                           data-optional="true"
                           th:data-form-text="${bundle.L('仅指定时间可使用，每个时间一行，如 `10` `9-18` 等')}"
                         >
-                          <pre class="unstyle">[[${AllowUsesTime ?:bundle.L('不限')}]]</pre>
+                          [[${AllowUsesTime ?:bundle.L('不限')}]]
                         </td>
                       </tr>
                       <tr>
@@ -271,7 +277,7 @@
                           data-optional="true"
                           th:data-form-text="${bundle.L('仅指定 IP 可使用，每个 IP 一行，如 `192.168.*` `192.168.10.*` 等')}"
                         >
-                          <pre class="unstyle">[[${AllowUsesIp ?:bundle.L('不限')}]]</pre>
+                          [[${AllowUsesIp ?:bundle.L('不限')}]]
                         </td>
                       </tr>
                       <tr class="bosskey-show">
