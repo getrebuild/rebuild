@@ -117,8 +117,8 @@ public class AiBot2AdminController extends BaseController {
         final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
 
         Query query = Application.createQueryNoFilter(
-                "select createdOn, createdBy, token, source from AibotChat where createdOn > ?"
-                        + (agent == null ? "" : " and agentId = ?"))
+                        "select createdOn, createdBy, token, source from AibotChat where createdOn > ?"
+                                + (agent == null ? "" : " and agentId = ?"))
                 .setParameter(1, xday);
         if (agent != null) query.setParameter(2, agent);
         Object[][] rows = query.array();
@@ -186,55 +186,6 @@ public class AiBot2AdminController extends BaseController {
         return stats;
     }
 
-    @GetMapping("aibot/chat-list")
-    public RespBody adminChatList(HttpServletRequest request) {
-        if (!UserHelper.isAdmin(getRequestUser(request))) return RespBody.error(403);
-
-        final ID user = getIdParameter(request, "user");
-        final ID agent = getIdParameter(request, "agent");
-        final int pageNo = getIntParameter(request, "pageNo", 1);
-        final int pageSize = 20;
-
-        String where = CHAT_VISIBLE_WHERE;
-        if (user != null) where += " and createdBy = '" + user + "'";
-        if (agent != null) where += " and agentId = '" + agent + "'";
-        String q = StringUtils.trimToEmpty(getParameter(request, "q"));
-        if (StringUtils.isNotBlank(q)) {
-            where += String.format(" and subject like '%%%s%%'", CommonsUtils.escapeSql(q));
-        }
-
-        long total = -1L;
-        if (pageNo == 1) {
-            total = ((Number) Application.createQueryNoFilter(
-                    "select count(chatId) from AibotChat" + where).unique()[0]).longValue();
-        }
-
-        Object[][] array = Application.createQueryNoFilter(
-                "select chatId,subject,createdBy,token,modifiedOn from AibotChat" + where + " order by modifiedOn desc")
-                .setLimit(pageSize, pageNo * pageSize - pageSize)
-                .array();
-
-        JSONArray data = new JSONArray();
-        for (Object[] o : array) {
-            ID createdBy = (ID) o[2];
-            JSONObject item = JSONUtils.toJSONObject(
-                    new String[]{"id", "subject", "userName", "token", "modifiedOn"},
-                    new Object[]{o[0], o[1], UserService.AIBOT_USER.equals(createdBy)
-                            ? Language.L("访客") : UserHelper.getName(createdBy),
-                            o[3] == null ? 0L : o[3], I18nUtils.formatDate((Date) o[4])});
-            data.add(item);
-        }
-
-        JSONObject res = JSONUtils.toJSONObject(
-                new String[]{"total", "data"}, new Object[]{total, data});
-        return RespBody.ok(res);
-    }
-
-    // 公开访问的匿名会话（登录用户走公开入口归属本人），内部调用会话归属 Rex 但无来源标记
-    private static boolean isVisitorChat(ID user, String source) {
-        return UserService.AIBOT_USER.equals(user) && ChatManager.SOURCE_PUB.equals(source);
-    }
-
     @GetMapping("aibot/models")
     public RespBody modelList(HttpServletRequest request) {
         String baseUrl = getParameter(request, "baseUrl");
@@ -281,6 +232,80 @@ public class AiBot2AdminController extends BaseController {
         return mv;
     }
 
+
+    @GetMapping("aibot/tools")
+    public RespBody toolList() {
+        return RespBody.ok(ToolDefs.listTools(true, false));
+    }
+
+    @GetMapping("aibot/skill-list")
+    public RespBody skillList() {
+        Object[][] array = Application.createQueryNoFilter(
+                        "select configId,name,config,isDisabled from AibotConfig where type = 'SKILL' order by name")
+                .array();
+
+        List<JSONObject> list = new ArrayList<>();
+        for (Object[] o : array) {
+            JSONObject item = new JSONObject(true);
+            item.put("id", o[0]);
+            item.put("name", o[1]);
+            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[2]);
+            item.put("config", conf != null ? conf : new JSONObject());
+            item.put("isDisabled", o[3]);
+            list.add(item);
+        }
+        return RespBody.ok(list);
+    }
+
+    @GetMapping("aibot/skills")
+    public RespBody skills() {
+        return RespBody.ok(SkillDefs.listSkills());
+    }
+
+    @GetMapping("aibot/kb-list")
+    public RespBody kbList() {
+        Object[][] array = Application.createQueryNoFilter(
+                        "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by name")
+                .array();
+
+        List<JSONObject> list = new ArrayList<>();
+        for (Object[] o : array) {
+            JSONObject item = new JSONObject(true);
+            item.put("id", o[0]);
+            item.put("name", o[1]);
+            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[2]);
+            if (conf != null) {
+                item.put("description", conf.getString("description"));
+                item.put("sourceType", conf.getString("sourceType"));
+                item.put("sourceConfig", conf.getString("sourceConfig"));
+                item.put("chunkCount", conf.getIntValue("chunkCount"));
+            }
+            item.put("isDisabled", o[3]);
+            list.add(item);
+        }
+        return RespBody.ok(list);
+    }
+
+    @PostMapping("aibot/kb-build")
+    public RespBody kbBuild(HttpServletRequest req) {
+        ID knowledgeId = getIdParameterNotNull(req, "id");
+        Object[] knowledge = Application.createQueryNoFilter(
+                        "select configId from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
+                .setParameter(1, knowledgeId)
+                .unique();
+        if (knowledge == null) return RespBody.error();
+
+        // 已有排队中的构建任务（执行时会重读最新配置），无需重复提交
+        if (KnowledgeBuilder.isBuildPending(knowledgeId)) return RespBody.ok();
+
+        // -1=构建中 0=构建失败。任务开始执行时会再次重置，避免被前一个任务完成状态覆盖
+        KnowledgeBuilder.updateChunkCount(knowledgeId, -1);
+        KnowledgeBuilder.buildAsync(knowledgeId);
+        return RespBody.ok();
+    }
+
+    // - Agent
+
     @GetMapping("aibot-agents")
     public ModelAndView pageIntegrationAibotAgents() {
         if (!License.isCommercial()) {
@@ -289,168 +314,17 @@ public class AiBot2AdminController extends BaseController {
         return createModelAndView("/admin/integration/aibot-agents");
     }
 
-    @GetMapping("aibot-minapps")
-    public ModelAndView pageIntegrationAibotMinApps() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("微应用"));
-        }
-
-        return createModelAndView("/admin/integration/aibot-minapps");
-    }
-
-    @GetMapping("aibot/minapp-list")
-    public RespBody minappList() {
-        Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,isDisabled,shareTo,config from AibotConfig where type = 'MINAPP' order by name")
-                .array();
-
-        // 近 90 日各微应用页面访问量
-        Map<ID, Integer> visitCountMap = new HashMap<>();
-        Object[][] visits = Application.createQueryNoFilter(
-                "select source from CommonsLog where type = ? and logTime > ?")
-                .setParameter(1, CommonsLog.TYPE_MINAPP)
-                .setParameter(2, CalendarUtils.clearTime(CalendarUtils.addDay(-90)))
-                .array();
-        for (Object[] v : visits) {
-            if (v[0] != null) visitCountMap.merge((ID) v[0], 1, Integer::sum);
-        }
-
-        List<JSONObject> list = new ArrayList<>();
-        for (Object[] o : array) {
-            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[4]);
-            JSONObject publish = conf == null ? null : conf.getJSONObject("publish");
-
-            list.add(JSONUtils.toJSONObject(
-                    new String[]{"id", "name", "isDisabled", "shareTo", "icon", "bindUser", "publishEnabled", "url", "visitCount"},
-                    new Object[]{o[0], o[1], o[2], o[3],
-                            conf == null ? null : conf.getString("icon"),
-                            conf == null ? null : conf.getString("bindUser"),
-                            publish != null && publish.getBooleanValue("enabled"),
-                            RebuildConfiguration.getHomeUrl("pages/minapp/" + o[0]),
-                            visitCountMap.getOrDefault((ID) o[0], 0)}));
-        }
-        return RespBody.ok(list);
-    }
-
-    @GetMapping("aibot/minapp-stats")
-    public RespBody minappStats(HttpServletRequest request) {
-        ID minapp = getIdParameter(request, "minapp");
-        if (minapp == null) return RespBody.error(404);
-
-        Object[][] logs = Application.createQueryNoFilter(
-                "select logTime from CommonsLog where type = ? and source = ? and logTime > ?")
-                .setParameter(1, CommonsLog.TYPE_MINAPP)
-                .setParameter(2, minapp)
-                .setParameter(3, CalendarUtils.clearTime(CalendarUtils.addDay(-90)))
-                .array();
-
-        Map<String, Integer> visitsByDay = new TreeMap<>();
-        for (Object[] o : logs) {
-            visitsByDay.merge(CalendarUtils.format("yyyy-MM-dd", (Date) o[0]), 1, Integer::sum);
-        }
-
-        List<Object[]> dailyVisits = new ArrayList<>();
-        for (Map.Entry<String, Integer> e : visitsByDay.entrySet()) {
-            dailyVisits.add(new Object[]{e.getKey(), e.getValue()});
-        }
-
-        return RespBody.ok(JSONUtils.toJSONObject(
-                new String[]{"visits", "dailyVisits"},
-                new Object[]{logs.length, dailyVisits.toArray()}));
-    }
-
-    @PostMapping("aibot/minapp-save")
-    public RespBody minappSave(@RequestBody JSONObject data) {
-        ID id = ID.isId(data.getString("id")) ? ID.valueOf(data.getString("id")) : null;
-        if (id == null) return RespBody.error(404);
-
-        String name = StringUtils.trimToEmpty(data.getString("name"));
-        if (name.length() > 60) return RespBody.error(Language.L("名称过长"));
-        String icon = StringUtils.trimToNull(data.getString("icon"));
-        String shareTo = StringUtils.defaultIfBlank(data.getString("shareTo"), ShareToManager.SHARE_ALL);
-
-        boolean enabled = data.getBooleanValue("enabled");
-        String bindUser = data.getString("bindUser");
-        String accessPassword = StringUtils.trimToNull(data.getString("accessPassword"));
-        if (!enabled) {
-            bindUser = null;
-            accessPassword = null;
-        }
-
-        Object[] x = Application.createQueryNoFilter(
-                "select config from AibotConfig where configId = ? and type = 'MINAPP'")
-                .setParameter(1, id)
-                .unique();
-        if (x == null) return RespBody.error(404);
-
-        JSONObject config = (JSONObject) JSONUtils.parseSafe((String) x[0]);
-        if (config == null) config = new JSONObject();
-
-        config.put("icon", icon);
-        config.put("bindUser", bindUser);
-        config.put("accessPassword", accessPassword);
-        config.put("publish", JSONUtils.toJSONObject("enabled", enabled));
-
-        Long minuteVisitLimit = data.getLong("minuteVisitLimit");
-        Long hourVisitLimit = data.getLong("hourVisitLimit");
-        config.put("minuteVisitLimit", minuteVisitLimit != null && minuteVisitLimit > 0 ? minuteVisitLimit : null);
-        config.put("hourVisitLimit", hourVisitLimit != null && hourVisitLimit > 0 ? hourVisitLimit : null);
-
-        Record record = EntityHelper.forUpdate(id, UserContextHolder.getUser());
-        record.setString("name", name);
-        record.setString("shareTo", shareTo);
-        record.setString("config", config.toJSONString());
-        Application.getBean(AibotConfigService.class).update(record);
-        return RespBody.ok();
-    }
-
-    @GetMapping("aibot-minapp/{minappId}")
-    public ModelAndView pageAibotMinApp(@PathVariable String minappId, HttpServletResponse response) throws IOException {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("微应用"));
-        }
-
-        ID minappId2 = ID.isId(minappId) ? ID.valueOf(minappId) : null;
-        if (minappId2 == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        Object[] minapp = Application.createQueryNoFilter(
-                "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'MINAPP'")
-                .setParameter(1, minappId2)
-                .unique();
-        if (minapp == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) minapp[1]);
-        if (conf == null) conf = new JSONObject();
-        // 源码由 AI 维护，页面无需展示
-        conf.remove("html");
-
-        ModelAndView mv = createModelAndView("/admin/integration/aibot-minapp-editor");
-        mv.getModelMap().put("minappDisplayName", StringUtils.defaultString((String) minapp[0]));
-        mv.getModelMap().put("minappId", minappId2);
-        mv.getModelMap().put("minappName", StringUtils.trimToEmpty((String) minapp[0]));
-        mv.getModelMap().put("minappConfig", conf.toJSONString());
-        mv.getModelMap().put("minappShareTo", StringUtils.defaultIfBlank((String) minapp[3], ShareToManager.SHARE_ALL));
-        mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("pages/minapp/" + minappId2));
-        return mv;
-    }
-
     @GetMapping("aibot/agent-list")
     public RespBody agentList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled from AibotConfig where type = 'AGENT' order by name")
+                        "select configId,name,config,isDisabled from AibotConfig where type = 'AGENT' order by name")
                 .array();
 
         // 近 90 日各智能体会话数，含访客会话（口径同 stats/chat-list）
         final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
         Map<ID, Integer> chatCountMap = new HashMap<>();
         Object[][] chats = Application.createQueryNoFilter(
-                "select agentId from AibotChat" + CHAT_VISIBLE_WHERE + " and createdOn > ?")
+                        "select agentId from AibotChat" + CHAT_VISIBLE_WHERE + " and createdOn > ?")
                 .setParameter(1, xday)
                 .array();
         for (Object[] c : chats) {
@@ -492,7 +366,7 @@ public class AiBot2AdminController extends BaseController {
         }
 
         Object[] agent = Application.createQueryNoFilter(
-                "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'AGENT'")
+                        "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'AGENT'")
                 .setParameter(1, agentId2)
                 .unique();
         if (agent == null) {
@@ -516,84 +390,206 @@ public class AiBot2AdminController extends BaseController {
         return mv;
     }
 
-    @GetMapping("aibot/tools")
-    public RespBody toolList() {
-        return RespBody.ok(ToolDefs.listTools(true, false));
+    // - MinApp
+
+    @GetMapping("aibot-minapps")
+    public ModelAndView pageIntegrationAibotMinApps() {
+        if (!License.isCommercial()) {
+            return RbvMissingController.errorUnsupported(Language.L("微应用"));
+        }
+        return createModelAndView("/admin/integration/aibot-minapps");
     }
 
-    @GetMapping("aibot/skill-list")
-    public RespBody skillList() {
+
+    @GetMapping("aibot/minapp-list")
+    public RespBody minappList() {
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled from AibotConfig where type = 'SKILL' order by name")
+                        "select configId,name,isDisabled,shareTo,config from AibotConfig where type = 'MINAPP' order by name")
                 .array();
+
+        // 近 90 日各微应用页面访问量
+        Map<ID, Integer> visitCountMap = new HashMap<>();
+        Object[][] visits = Application.createQueryNoFilter(
+                        "select source from CommonsLog where type = ? and logTime > ?")
+                .setParameter(1, CommonsLog.TYPE_MINAPP)
+                .setParameter(2, CalendarUtils.clearTime(CalendarUtils.addDay(-90)))
+                .array();
+        for (Object[] v : visits) {
+            if (v[0] != null) visitCountMap.merge((ID) v[0], 1, Integer::sum);
+        }
 
         List<JSONObject> list = new ArrayList<>();
         for (Object[] o : array) {
-            JSONObject item = new JSONObject(true);
-            item.put("id", o[0]);
-            item.put("name", o[1]);
-            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[2]);
-            item.put("config", conf != null ? conf : new JSONObject());
-            item.put("isDisabled", o[3]);
-            list.add(item);
+            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[4]);
+            JSONObject publish = conf == null ? null : conf.getJSONObject("publish");
+
+            list.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "name", "isDisabled", "shareTo", "icon", "bindUser", "publishEnabled", "url", "visitCount"},
+                    new Object[]{o[0], o[1], o[2], o[3],
+                            conf == null ? null : conf.getString("icon"),
+                            conf == null ? null : conf.getString("bindUser"),
+                            publish != null && publish.getBooleanValue("enabled"),
+                            RebuildConfiguration.getHomeUrl("pages/minapp/" + o[0]),
+                            visitCountMap.getOrDefault((ID) o[0], 0)}));
         }
         return RespBody.ok(list);
     }
 
-    @GetMapping("aibot/skills")
-    public RespBody skills() {
-        return RespBody.ok(SkillDefs.listSkills());
-    }
+    @GetMapping("aibot/minapp-stats")
+    public RespBody minappStats(HttpServletRequest request) {
+        ID minapp = getIdParameter(request, "minapp");
+        if (minapp == null) return RespBody.error(404);
 
-    @GetMapping("aibot/kb-list")
-    public RespBody kbList() {
-        Object[][] array = Application.createQueryNoFilter(
-                "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by name")
+        Object[][] logs = Application.createQueryNoFilter(
+                        "select logTime from CommonsLog where type = ? and source = ? and logTime > ?")
+                .setParameter(1, CommonsLog.TYPE_MINAPP)
+                .setParameter(2, minapp)
+                .setParameter(3, CalendarUtils.clearTime(CalendarUtils.addDay(-90)))
                 .array();
 
-        List<JSONObject> list = new ArrayList<>();
-        for (Object[] o : array) {
-            JSONObject item = new JSONObject(true);
-            item.put("id", o[0]);
-            item.put("name", o[1]);
-            JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) o[2]);
-            if (conf != null) {
-                item.put("description", conf.getString("description"));
-                item.put("sourceType", conf.getString("sourceType"));
-                item.put("sourceConfig", conf.getString("sourceConfig"));
-                item.put("chunkCount", conf.getIntValue("chunkCount"));
-            }
-            item.put("isDisabled", o[3]);
-            list.add(item);
+        Map<String, Integer> visitsByDay = new TreeMap<>();
+        for (Object[] o : logs) {
+            visitsByDay.merge(CalendarUtils.format("yyyy-MM-dd", (Date) o[0]), 1, Integer::sum);
         }
-        return RespBody.ok(list);
+
+        List<Object[]> dailyVisits = new ArrayList<>();
+        for (Map.Entry<String, Integer> e : visitsByDay.entrySet()) {
+            dailyVisits.add(new Object[]{e.getKey(), e.getValue()});
+        }
+
+        return RespBody.ok(JSONUtils.toJSONObject(
+                new String[]{"visits", "dailyVisits"},
+                new Object[]{logs.length, dailyVisits.toArray()}));
     }
 
-    @PostMapping("aibot/kb-build")
-    public RespBody build(HttpServletRequest req) {
-        ID knowledgeId = getIdParameterNotNull(req, "id");
-        Object[] knowledge = Application.createQueryNoFilter(
-                "select configId from AibotConfig where configId = ? and type = 'KNOWLEDGE'")
-                .setParameter(1, knowledgeId)
+    @PostMapping("aibot/minapp-save")
+    public RespBody minappSave(@RequestBody JSONObject data) {
+        ID id = ID.isId(data.getString("id")) ? ID.valueOf(data.getString("id")) : null;
+        if (id == null) return RespBody.error(404);
+
+        String name = StringUtils.trimToEmpty(data.getString("name"));
+        if (name.length() > 60) return RespBody.error(Language.L("名称过长"));
+        String icon = StringUtils.trimToNull(data.getString("icon"));
+        String shareTo = StringUtils.defaultIfBlank(data.getString("shareTo"), ShareToManager.SHARE_ALL);
+
+        boolean enabled = data.getBooleanValue("enabled");
+        String bindUser = data.getString("bindUser");
+        String accessPassword = StringUtils.trimToNull(data.getString("accessPassword"));
+        if (!enabled) {
+            bindUser = null;
+            accessPassword = null;
+        }
+
+        Object[] x = Application.createQueryNoFilter(
+                        "select config from AibotConfig where configId = ? and type = 'MINAPP'")
+                .setParameter(1, id)
                 .unique();
-        if (knowledge == null) return RespBody.error();
+        if (x == null) return RespBody.error(404);
 
-        // 已有排队中的构建任务（执行时会重读最新配置），无需重复提交
-        if (KnowledgeBuilder.isBuildPending(knowledgeId)) return RespBody.ok();
+        JSONObject config = (JSONObject) JSONUtils.parseSafe((String) x[0]);
+        if (config == null) config = new JSONObject();
 
-        // -1=构建中 0=构建失败。任务开始执行时会再次重置，避免被前一个任务完成状态覆盖
-        KnowledgeBuilder.updateChunkCount(knowledgeId, -1);
-        KnowledgeBuilder.buildAsync(knowledgeId);
+        config.put("icon", icon);
+        config.put("bindUser", bindUser);
+        config.put("accessPassword", accessPassword);
+        config.put("publish", JSONUtils.toJSONObject("enabled", enabled));
+
+        Long minuteVisitLimit = data.getLong("minuteVisitLimit");
+        Long hourVisitLimit = data.getLong("hourVisitLimit");
+        config.put("minuteVisitLimit", minuteVisitLimit != null && minuteVisitLimit > 0 ? minuteVisitLimit : null);
+        config.put("hourVisitLimit", hourVisitLimit != null && hourVisitLimit > 0 ? hourVisitLimit : null);
+
+        Record record = EntityHelper.forUpdate(id, UserContextHolder.getUser());
+        record.setString("name", name);
+        record.setString("shareTo", shareTo);
+        record.setString("config", config.toJSONString());
+        Application.getBean(AibotConfigService.class).update(record);
         return RespBody.ok();
     }
 
-    @GetMapping("aibot-agents")
-    public ModelAndView pageIntegrationAibotAgents() {
-        return createModelAndView("/admin/integration/aibot-agents");
+    @GetMapping("aibot-minapp/{minappId}")
+    public ModelAndView pageAibotMinApp(@PathVariable String minappId, HttpServletResponse response) throws IOException {
+        if (!License.isCommercial()) {
+            return RbvMissingController.errorUnsupported(Language.L("微应用"));
+        }
+
+        ID minappId2 = ID.isId(minappId) ? ID.valueOf(minappId) : null;
+        if (minappId2 == null) {
+            response.sendError(404);
+            return null;
+        }
+
+        Object[] minapp = Application.createQueryNoFilter(
+                        "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'MINAPP'")
+                .setParameter(1, minappId2)
+                .unique();
+        if (minapp == null) {
+            response.sendError(404);
+            return null;
+        }
+
+        JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) minapp[1]);
+        if (conf == null) conf = new JSONObject();
+        conf.remove("html");
+
+        ModelAndView mv = createModelAndView("/admin/integration/aibot-minapp-editor");
+        mv.getModelMap().put("minappDisplayName", StringUtils.defaultString((String) minapp[0]));
+        mv.getModelMap().put("minappId", minappId2);
+        mv.getModelMap().put("minappName", StringUtils.trimToEmpty((String) minapp[0]));
+        mv.getModelMap().put("minappConfig", conf.toJSONString());
+        mv.getModelMap().put("minappShareTo", StringUtils.defaultIfBlank((String) minapp[3], ShareToManager.SHARE_ALL));
+        mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("pages/minapp/" + minappId2));
+        return mv;
     }
 
-    @GetMapping("aibot-minapps")
-    public ModelAndView pageIntegrationAibotMinapps() {
-        return createModelAndView("/admin/integration/aibot-minapps");
+    // -- Others
+
+    @GetMapping("aibot/chat-list")
+    public RespBody adminChatList(HttpServletRequest request) {
+        if (!UserHelper.isAdmin(getRequestUser(request))) return RespBody.error(403);
+
+        final ID user = getIdParameter(request, "user");
+        final ID agent = getIdParameter(request, "agent");
+        final int pageNo = getIntParameter(request, "pageNo", 1);
+        final int pageSize = 20;
+
+        String where = CHAT_VISIBLE_WHERE;
+        if (user != null) where += " and createdBy = '" + user + "'";
+        if (agent != null) where += " and agentId = '" + agent + "'";
+        String q = StringUtils.trimToEmpty(getParameter(request, "q"));
+        if (StringUtils.isNotBlank(q)) {
+            where += String.format(" and subject like '%%%s%%'", CommonsUtils.escapeSql(q));
+        }
+
+        long total = -1L;
+        if (pageNo == 1) {
+            total = ((Number) Application.createQueryNoFilter(
+                    "select count(chatId) from AibotChat" + where).unique()[0]).longValue();
+        }
+
+        Object[][] array = Application.createQueryNoFilter(
+                        "select chatId,subject,createdBy,token,modifiedOn from AibotChat" + where + " order by modifiedOn desc")
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .array();
+
+        JSONArray data = new JSONArray();
+        for (Object[] o : array) {
+            ID createdBy = (ID) o[2];
+            JSONObject item = JSONUtils.toJSONObject(
+                    new String[]{"id", "subject", "userName", "token", "modifiedOn"},
+                    new Object[]{o[0], o[1], UserService.AIBOT_USER.equals(createdBy)
+                            ? Language.L("访客") : UserHelper.getName(createdBy),
+                            o[3] == null ? 0L : o[3], I18nUtils.formatDate((Date) o[4])});
+            data.add(item);
+        }
+
+        JSONObject res = JSONUtils.toJSONObject(
+                new String[]{"total", "data"}, new Object[]{total, data});
+        return RespBody.ok(res);
+    }
+
+    // 公开访问的匿名会话（登录用户走公开入口归属本人），内部调用会话归属 Rex 但无来源标记
+    private static boolean isVisitorChat(ID user, String source) {
+        return UserService.AIBOT_USER.equals(user) && ChatManager.SOURCE_PUB.equals(source);
     }
 }
