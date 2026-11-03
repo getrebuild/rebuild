@@ -52,8 +52,8 @@ class Setup extends React.Component {
 
               {(this.state.installState === 10 || this.state.installState === 11) && (
                 <div className="quick-tip animated fadeIn delay-1s link mt-4">
-                  <a href="https://getrebuild.com/learn/quick-start" target="_blank">
-                    {$L('首次使用？5 分钟搭出你的第一个应用')}
+                  <a href="https://www.getrebuild.com/features/ai-build" target="_blank" className="ai-color">
+                    {$L('5 分钟让 AI 帮你搭建一个应用')}
                   </a>
                 </div>
               )}
