@@ -483,7 +483,7 @@ class RbAlertFree43 extends RbAlert {
           <h4 className="m-0 mb-2 text-bold" style={{ fontSize: '1.538rem', marginTop: -5 }}>
             {props.title || $L('升级后使用')}
           </h4>
-          <div>{props.message}</div>
+          <div className="link">{props.message}</div>
         </div>
         <div className="mt-4 mb-1">
           <a className="btn btn-dark btn-pill btn-lg w-100" target="_blank" href={props.btnLink || 'https://getrebuild.com/market/go/buy-26a'}>
@@ -495,17 +495,24 @@ class RbAlertFree43 extends RbAlert {
   }
 
   static create(message) {
-    if (!message) message = $L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')
-    if (typeof message === 'string') message = WrapHtml(message)
-    renderRbcomp(<RbAlertFree43 message={message} width="480" />)
+    if (window.top !== window.self && parent.RbAlertFree43) {
+      parent.RbAlertFree43.create(message)
+    } else {
+      if (!message) message = $L('免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)')
+      if (typeof message === 'string') message = WrapHtml(message)
+      renderRbcomp(<RbAlertFree43 message={message} width="480" />)
+    }
   }
 
   // v4.5.1
   static createSupportExpire45(message) {
-    const vn = (message.match(/vn=(VN-[\w]+)/) || [])[1]
-    const url = 'https://getrebuild.com/buy-license?type=fw&vn=' + (vn || '')
-
-    renderRbcomp(<RbAlertFree43 message={WrapHtml(message)} title={$L('技术支持服务提醒')} btnText={$L('立即续费')} btnLink={url} width="480" />)
+    if (window.top !== window.self && parent.RbAlertFree43) {
+      parent.RbAlertFree43.createSupportExpire45(message)
+    } else {
+      const vn = (message.match(/vn=(VN-[\w]+)/) || [])[1]
+      const url = 'https://getrebuild.com/buy-license?type=fw&vn=' + (vn || '')
+      renderRbcomp(<RbAlertFree43 message={WrapHtml(message)} title={$L('技术支持服务提醒')} btnText={$L('立即续费')} btnLink={url} width="480" />)
+    }
   }
 }
 
