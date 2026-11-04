@@ -51,6 +51,8 @@ public class ToolDefs {
 
     static {
         register(new ListEntities());
+        register(new ListCharts());
+        register(new ListDashs());
         register(new FetchUrl());
         register(new SuggestCustom());
         register(new SearchHelp());
@@ -70,6 +72,7 @@ public class ToolDefs {
         register(new BuildSkill());
         register(new GetConfigSchema());
         register(new BuildFilter());
+        register(new BuildChart());
         register(new BuildEntity());
         register(new BuildField());
         // @rbv
