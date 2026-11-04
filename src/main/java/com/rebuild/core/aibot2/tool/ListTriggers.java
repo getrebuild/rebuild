@@ -14,4 +14,9 @@ import com.rebuild.core.privileges.AdminGuard;
  * @since 2026/9/5
  */
 public class ListTriggers extends RbvTool implements AdminGuard {
+
+    @Override
+    public boolean isSystem() {
+        return HIDDEN_SYSTEM;
+    }
 }

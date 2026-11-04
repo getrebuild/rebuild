@@ -68,6 +68,16 @@ public class BuildChart implements Tool {
         TYPE_AXIS_LIMITS.put("RANK", new int[]{1, 2, 1, 9});
     }
 
+    // 合法维度 calc（日期/分类字段的计算方式）
+    private static final Set<String> VALID_DIM_CALCS = new HashSet<>(Arrays.asList(
+            "Y", "Q", "M", "W", "D", "H", "I", "L1", "L2", "L3", "L4"
+    ));
+
+    // 合法数值 calc（聚合方式）
+    private static final Set<String> VALID_NUM_CALCS = new HashSet<>(Arrays.asList(
+            "SUM", "AVG", "MAX", "MIN", "COUNT", "COUNT2", "COUNT_DISTINCT", "_FORMULA"
+    ));
+
     @Override
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
@@ -140,6 +150,17 @@ public class BuildChart implements Tool {
             }
             String resolved = ToolHelper.resolveFieldPath(entity, field);
             dim.put("field", resolved);
+
+            // 兜底校验 calc（免费版跳过 Schema 校验时生效）
+            String calc = dim.getString("calc");
+            if (StringUtils.isNotBlank(calc)) {
+                calc = calc.toUpperCase();
+                if (!VALID_DIM_CALCS.contains(calc)) {
+                    throw new KnownToolException("第 " + (i + 1) + " 个维度的 calc 无效 : " + calc
+                            + "，可用值 : " + StringUtils.join(VALID_DIM_CALCS, "/"));
+                }
+                dim.put("calc", calc);
+            }
         }
 
         // 解析数值字段
@@ -154,8 +175,14 @@ public class BuildChart implements Tool {
 
             String calc = num.getString("calc");
             if (StringUtils.isBlank(calc)) {
-                throw new KnownToolException("第 " + (i + 1) + " 个数值的 calc 不能为空（SUM/AVG/MAX/MIN/COUNT/COUNT2/_FORMULA）");
+                throw new KnownToolException("第 " + (i + 1) + " 个数值的 calc 不能为空（SUM/AVG/MAX/MIN/COUNT/COUNT2/COUNT_DISTINCT/_FORMULA）");
             }
+            calc = calc.toUpperCase();
+            if (!VALID_NUM_CALCS.contains(calc)) {
+                throw new KnownToolException("第 " + (i + 1) + " 个数值的 calc 无效 : " + calc
+                        + "，可用值 : " + StringUtils.join(VALID_NUM_CALCS, "/"));
+            }
+            num.put("calc", calc);
 
             // 数值级过滤条件校验
             JSONObject numFilter = num.getJSONObject("filter");
@@ -194,11 +221,23 @@ public class BuildChart implements Tool {
                     + "。请修正后重试，可用 GetConfigSchema(schema=chart-config) 查看完整定义");
         }
 
-        // 解析可选仪表盘 ID
+        // 解析可选仪表盘 ID（先校验存在与权限，避免图表创建后才失败留下孤儿图表）
         String dashidStr = args.getString("dashid");
         ID dashid = null;
+        Object[] dash = null;
         if (StringUtils.isNotBlank(dashidStr)) {
             dashid = ToolHelper.resolveId(dashidStr, "dashid", EntityHelper.DashboardConfig);
+            dash = Application.createQueryNoFilter(
+                    "select config,createdBy from DashboardConfig where configId = ?")
+                    .setParameter(1, dashid)
+                    .unique();
+            if (dash == null) {
+                throw new KnownToolException("指定的仪表盘不存在 : " + dashidStr);
+            }
+            // 校验仪表盘编辑权限：管理员或创建者本人
+            if (!UserHelper.isAdmin(user) && !user.equals(dash[1])) {
+                throw new KnownToolException("无权操作他人仪表盘");
+            }
         }
 
         // 创建图表配置记录
@@ -213,19 +252,7 @@ public class BuildChart implements Tool {
         log.info("Chart created via AI : {} on {} ({})", chartId, entity.getName(), type);
 
         // 添加到仪表盘
-        if (dashid != null) {
-            Object[] dash = Application.createQueryNoFilter(
-                    "select config,createdBy from DashboardConfig where configId = ?")
-                    .setParameter(1, dashid)
-                    .unique();
-            if (dash == null) {
-                throw new KnownToolException("指定的仪表盘不存在 : " + dashidStr);
-            }
-            // 校验仪表盘编辑权限：管理员或创建者本人
-            if (!UserHelper.isAdmin(user) && !user.equals(dash[1])) {
-                throw new KnownToolException("无权操作他人仪表盘");
-            }
-            
+        if (dash != null) {
             JSONArray dashConfig = JSON.parseArray((String) dash[0]);
             JSONObject item = JSONUtils.toJSONObject("chart", chartId);
             item.put("w", 4);

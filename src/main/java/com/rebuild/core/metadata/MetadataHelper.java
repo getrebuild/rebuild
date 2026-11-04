@@ -323,6 +323,24 @@ public class MetadataHelper {
     }
 
     /**
+     * 解析实体家族范围
+     *
+     * @param entity
+     * @return
+     */
+    public static String[] resolveEntityFamily(Entity entity) {
+        List<String> names = new ArrayList<>();
+        names.add(entity.getName());
+
+        if (entity.getMainEntity() != null) {
+            names.add(entity.getMainEntity().getName());
+        } else if (entity.getDetailEntity() != null) {
+            for (Entity de : MetadataSorter.sortDetailEntities(entity)) names.add(de.getName());
+        }
+        return names.toArray(new String[0]);
+    }
+
+    /**
      * 实体是否具备权限字段（业务实体）
      *
      * @param entity

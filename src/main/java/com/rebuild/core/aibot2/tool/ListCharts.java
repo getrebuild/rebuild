@@ -38,14 +38,7 @@ public class ListCharts implements Tool {
             if (entity == null) {
                 throw new KnownToolException("未知实体 : " + entityIdent + ToolHelper.suggestEntity(entityIdent));
             }
-            // 明细实体需同时查主实体
-            if (entity.getMainEntity() != null) {
-                specEntity = new String[]{entity.getName(), entity.getMainEntity().getName()};
-            } else if (entity.getDetailEntity() != null) {
-                specEntity = new String[]{entity.getName()};
-            } else {
-                specEntity = new String[]{entity.getName()};
-            }
+            specEntity = MetadataHelper.resolveEntityFamily(entity);
         }
 
         boolean onlySelf = args.getBooleanValue("myself");
