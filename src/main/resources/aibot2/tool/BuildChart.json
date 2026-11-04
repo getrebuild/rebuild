@@ -1,0 +1,54 @@
+{
+  "type": "function",
+  "userDescription": "构建数据图表",
+  "function": {
+    "name": "BuildChart",
+    "description": "新建数据图表（可视化）。当用户希望对业务数据做统计分析与可视化展示时使用——用户可能不会提到「图表」一词，典型表述如：帮我做一个客户分布饼图、按月统计销售额趋势、做个数据表格看板、生成漏斗图分析转化率等。调用前必须先用 GetConfigSchema(schema=chart-config) 获取 axis/option 的结构定义和各图表类型对维度/数值数量的约束（商业版可用），并用 ListEntities 查询实体真实字段名（axis 中的 field 支持点号跨引用实体，如 refField.subField）。免费版无法获取 Schema 时，按以下各类型轴约束配置：INDEX=0维度+1~2数值、PIE=1维度+1数值、TREEMAP=1~3维度+1数值、RADAR=1维度+1~3数值、SCATTER=0~3维度+2数值、CNMAP=1维度+0~9数值、DATALIST2=1~9维度+0数值、DOLOR=1维度+0数值、PARETO=1维度+1数值、TABLE=0~9维度+0~99数值、LINE/BAR/BAR2/BAR3=1~2维度+1~9数值、FUNNEL=0~1维度+1~9数值、RANK=1~2维度+1~9数值。维度项必填 field，可选 label/sort/calc（日期字段需指定 calc 如 Y/M/D）；数值项必填 field 和 calc（SUM/AVG/MAX/MIN/COUNT/COUNT2/_FORMULA），可选 label/scale/unit/formula/filter。过滤条件 filter 的结构见 adv-filter Schema（用 GetConfigSchema 获取）",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "图表数据源实体名称"
+        },
+        "title": {
+          "type": "string",
+          "description": "图表标题"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["TABLE", "INDEX", "LINE", "BAR", "BAR2", "BAR3", "PARETO", "PIE", "FUNNEL", "TREEMAP", "RADAR", "SCATTER", "CNMAP", "DATALIST2", "DOLOR", "RANK"],
+          "description": "图表类型。TABLE=数据表、INDEX=指标卡、LINE=折线图、BAR=柱状图、BAR2=柱状图(对比)、BAR3=柱状图(堆叠)、PARETO=帕累托图、PIE=饼图、FUNNEL=漏斗图、TREEMAP=矩形树图、RADAR=雷达图、SCATTER=散点图、CNMAP=中国地图、DATALIST2=数据列表、DOLOR=词云图、RANK=排行榜"
+        },
+        "axis": {
+          "type": "object",
+          "description": "轴配置，含 dimension（维度数组）和 numerical（数值数组）。维度项必填 field，可选 label/sort/calc；数值项必填 field 和 calc，可选 label/sort/scale/unit/formula/filter。各类型对维度/数值数量的约束不同，详见 description",
+          "properties": {
+            "dimension": {
+              "type": "array",
+              "items": { "type": "object" }
+            },
+            "numerical": {
+              "type": "array",
+              "items": { "type": "object" }
+            }
+          }
+        },
+        "option": {
+          "type": "object",
+          "description": "显示选项（可选）。通用字段如 shareChart（共享）、noPrivileges（忽略权限）；类型特有字段如 showGrid/showLegend/showHorizontal 等，详见 chart-config Schema 的 option 定义"
+        },
+        "filter": {
+          "type": "object",
+          "description": "数据过滤条件（可选），AdvFilter 结构，完整定义见 adv-filter Schema（用 GetConfigSchema 获取）"
+        },
+        "dashid": {
+          "type": "string",
+          "description": "仪表盘 ID（可选）。指定后图表创建完成会自动添加到该仪表盘中，默认尺寸 4x4"
+        }
+      },
+      "required": ["entity", "title", "type", "axis"],
+      "additionalProperties": false
+    }
+  }
+}
