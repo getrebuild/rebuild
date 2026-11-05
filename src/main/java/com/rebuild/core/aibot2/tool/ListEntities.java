@@ -228,4 +228,9 @@ public class ListEntities implements Tool {
     private static boolean isEntityVisible(Entity e, boolean isAdmin) {
         return MetadataHelper.isBusinessEntity(e) || (isAdmin && MetadataHelper.isBizzEntity(e));
     }
+
+    @Override
+    public boolean isSystem() {
+        return HIDDEN_SYSTEM;
+    }
 }

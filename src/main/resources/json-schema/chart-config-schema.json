@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rebuild 图表配置数据体",
+  "description": "ChartConfig 表中 config 字段的结构，定义图表的数据源、轴配置与显示选项。不同图表类型（type）对维度/数值数量和 option 字段有不同约束，通过 allOf/if-then-else 条件校验",
+  "type": "object",
+  "required": ["entity", "type", "axis"],
+  "properties": {
+    "entity": { "type": "string", "description": "源实体名" },
+    "title": { "type": "string", "description": "图表标题" },
+    "type": {
+      "type": "string",
+      "enum": ["TABLE", "INDEX", "LINE", "BAR", "BAR2", "BAR3", "PARETO", "PIE", "FUNNEL", "TREEMAP", "RADAR", "SCATTER", "CNMAP", "DATALIST2", "DOLOR", "RANK"],
+      "description": "图表类型"
+    },
+    "axis": {
+      "type": "object",
+      "required": ["dimension", "numerical"],
+      "properties": {
+        "dimension": {
+          "type": "array",
+          "description": "维度轴配置列表",
+          "items": { "$ref": "#/$defs/dimensionItem" }
+        },
+        "numerical": {
+          "type": "array",
+          "description": "数值轴配置列表",
+          "items": { "$ref": "#/$defs/numericalItem" }
+        }
+      }
+    },
+    "option": {
+      "type": "object",
+      "description": "显示选项。通用字段适用于所有图表，类型特有字段仅对应图表类型有效",
+      "properties": {
+        "noPrivileges": { "type": "boolean", "description": "通用，忽略数据权限（仅管理员创建的图表生效）" },
+        "shareChart": { "type": "boolean", "description": "通用，共享此图表" },
+        "showNumerical": { "type": "boolean", "description": "LINE/BAR/PIE/FUNNEL/TREEMAP/RADAR/SCATTER/DOLOR，显示数值标签" },
+        "showGrid": { "type": "boolean", "description": "LINE/BAR/SCATTER，显示参考线" },
+        "showLegend": { "type": "boolean", "description": "LINE/BAR/PIE/RADAR/SCATTER，显示图例" },
+        "showMarkLine": { "type": "boolean", "description": "LINE/BAR/SCATTER，显示均线" },
+        "labelRotate": { "type": "boolean", "description": "LINE/BAR，横轴倾斜显示" },
+        "showHorizontal": { "type": "boolean", "description": "BAR/BAR2/BAR3/PARETO，横向显示" },
+        "showMutliYAxis": { "type": "boolean", "description": "LINE/BAR/BAR3，多轴显示（与 showHorizontal 互斥）" },
+        "showAreaColor": { "type": "boolean", "description": "LINE 独有，显示区域背景" },
+        "dateContinuous": { "type": "boolean", "description": "LINE/BAR，尝试使用连续日期" },
+        "useComparison": { "type": "boolean", "description": "LINE/BAR，尝试使用日期对比" },
+        "themeStyle": { "type": "string", "description": "样式主题。标准图表：shine/techblue/mint/fruit/sakura/jazz/wonderland/westeros/infographic/macarons；CNMAP：dark/light" },
+        "useBgcolor": { "type": ["string", "null"], "description": "背景色（TREEMAP/CNMAP/DATALIST2 不适用）" },
+        "useColor": { "type": ["string", "null"], "description": "INDEX 独有，颜色" },
+        "useIcon": { "type": ["string", "null"], "description": "INDEX 独有，图标" },
+        "showGrowthRate": { "type": "boolean", "description": "INDEX 独有，显示增长率（需 2 个数值）" },
+        "showCvr": { "type": "boolean", "description": "FUNNEL 独有，显示转化率" },
+        "absoluteScale": { "type": "boolean", "description": "RADAR 独有，绝对比例显示" },
+        "showLineNumber": { "type": "boolean", "description": "TABLE 独有，显示行号" },
+        "showSums": { "type": "boolean", "description": "TABLE 独有，显示汇总" },
+        "mergeCell": { "type": "boolean", "description": "TABLE 独有，自动合并单元格" },
+        "pageSize": { "type": "integer", "description": "TABLE/DATALIST2，最大显示条数" }
+      }
+    },
+    "filter": {
+      "type": ["object", "null"],
+      "description": "高级过滤条件（AdvFilter），完整定义见 adv-filter-schema.json"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "INDEX" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "maxItems": 0 }, "numerical": { "minItems": 1, "maxItems": 2 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "PIE" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 1 }, "numerical": { "minItems": 1, "maxItems": 1 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "TREEMAP" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 3 }, "numerical": { "minItems": 1, "maxItems": 1 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "RADAR" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 1 }, "numerical": { "minItems": 1, "maxItems": 3 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "SCATTER" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 0, "maxItems": 3 }, "numerical": { "minItems": 2, "maxItems": 2 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "CNMAP" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 1 }, "numerical": { "maxItems": 9 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "DATALIST2" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 9 }, "numerical": { "maxItems": 0 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "DOLOR" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 1 }, "numerical": { "maxItems": 0 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "PARETO" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 1 }, "numerical": { "minItems": 1, "maxItems": 1 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "TABLE" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "maxItems": 9 }, "numerical": { "maxItems": 99 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "enum": ["LINE", "BAR", "BAR2", "BAR3"] } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 2 }, "numerical": { "minItems": 1, "maxItems": 9 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "FUNNEL" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "maxItems": 1 }, "numerical": { "minItems": 1, "maxItems": 9 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "RANK" } } },
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 2 }, "numerical": { "minItems": 1, "maxItems": 9 } } } } }
+    }
+  ],
+  "$defs": {
+    "dimensionItem": {
+      "type": "object",
+      "required": ["field"],
+      "properties": {
+        "field": { "type": "string", "description": "字段名（支持 refField.field 二级路径）" },
+        "fkey": { "type": "string", "description": "前端生成的唯一标识" },
+        "label": { "type": "string", "description": "自定义别名" },
+        "sort": {
+          "type": "string",
+          "enum": ["NONE", "ASC", "DESC"],
+          "description": "排序方向（INDEX/CNMAP 禁用排序）"
+        },
+        "calc": {
+          "type": "string",
+          "enum": ["Y", "Q", "M", "W", "D", "H", "I", "L1", "L2", "L3", "L4"],
+          "description": "计算方式。仅 date/time/classification 字段需要：Y=年/Q=季度/M=月/W=周/D=日/H=时/I=分；L1~L4=分类层级"
+        }
+      }
+    },
+    "numericalItem": {
+      "type": "object",
+      "required": ["field", "calc"],
+      "properties": {
+        "field": { "type": "string", "description": "字段名（支持 refField.field 二级路径）" },
+        "fkey": { "type": "string", "description": "前端生成的唯一标识" },
+        "label": { "type": "string", "description": "自定义别名" },
+        "sort": {
+          "type": "string",
+          "enum": ["NONE", "ASC", "DESC"],
+          "description": "排序方向"
+        },
+        "calc": {
+          "type": "string",
+          "enum": ["SUM", "AVG", "MAX", "MIN", "COUNT", "COUNT2", "COUNT_DISTINCT", "_FORMULA"],
+          "description": "聚合方式。COUNT=计数(含空)/COUNT2=计数(不含空)/COUNT_DISTINCT=去重计数/_FORMULA=自定义公式"
+        },
+        "scale": { "type": "integer", "minimum": 0, "maximum": 6, "description": "小数位数" },
+        "unit": {
+          "type": "integer",
+          "enum": [1000, 10000, 100000, 1000000, 10000000, 100000000],
+          "description": "数字单位：千/万/十万/百万/千万/亿"
+        },
+        "formula": { "type": "string", "description": "计算公式（v4.3，calc=_FORMULA 时使用）" },
+        "filter": {
+          "type": ["object", "null"],
+          "description": "数值级高级过滤条件（AdvFilter）"
+        }
+      }
+    }
+  }
+}

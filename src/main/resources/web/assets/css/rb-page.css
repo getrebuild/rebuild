@@ -4716,30 +4716,30 @@ html.external-auth .auth-body.must-center .login {
   margin: 0;
 }
 
+.init-models fieldset {
+  margin-bottom: 20px;
+}
+
 .init-models fieldset legend {
   font-size: 1rem;
   font-weight: bold;
-}
-
-.init-models fieldset + fieldset {
-  margin-top: 12px;
 }
 
 .init-models fieldset legend .custom-control-sm {
   margin: 0 -6px 0 0 !important;
 }
 
+.init-models form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 2%;
+}
+
 .init-models form > div {
   width: 49%;
   border: 1px solid #eee;
   padding: 10px;
-  float: left;
-  margin-bottom: 12px;
   border-radius: 2px;
-}
-
-.init-models form > div:nth-child(even) {
-  margin-left: 2%;
 }
 
 .init-models form > div p {

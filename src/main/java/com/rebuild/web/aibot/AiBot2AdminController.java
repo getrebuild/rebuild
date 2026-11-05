@@ -34,6 +34,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.rbstore.RBStore;
+import com.rebuild.core.rbstore.SkillImporter;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
@@ -41,6 +42,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -262,6 +264,25 @@ public class AiBot2AdminController extends BaseController {
         return RespBody.ok(SkillDefs.listSkills());
     }
 
+    @PostMapping("aibot/import-skills")
+    public RespBody importSkills(HttpServletRequest request) {
+        String[] names = getParameterNotNull(request, "names").split(",");
+
+        SkillImporter importer = new SkillImporter();
+        importer.setSkillNames(names);
+        importer.setUser(getRequestUser(request));
+
+        try {
+            TaskExecutors.run(importer);
+            return importer.getSucceeded() > 0
+                    ? RespBody.ok() : RespBody.error(importer.getErrorMessage());
+
+        } catch (Exception ex) {
+            log.error("Cannot import skills : {}", getParameter(request, "names"), ex);
+            return RespBody.error(ex.getLocalizedMessage());
+        }
+    }
+
     @GetMapping("aibot/kb-list")
     public RespBody kbList() {
         Object[][] array = Application.createQueryNoFilter(
@@ -399,7 +420,6 @@ public class AiBot2AdminController extends BaseController {
         }
         return createModelAndView("/admin/integration/aibot-minapps");
     }
-
 
     @GetMapping("aibot/minapp-list")
     public RespBody minappList() {

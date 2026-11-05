@@ -135,14 +135,7 @@ public class DashboardController extends BaseController {
             if ("ENTITY".equalsIgnoreCase(type)) {
                 String entity = getParameterNotNull(request, "entity");
                 Entity entityMeta = MetadataHelper.getEntity(entity);
-
-                if (entityMeta.getMainEntity() != null) {
-                    specEntity = new String[]{entity, entityMeta.getMainEntity().getName()};
-                } else if (entityMeta.getDetailEntity() != null) {
-                    specEntity = new String[]{entity, entityMeta.getDetailEntity().getName()};
-                } else {
-                    specEntity = new String[]{entity};
-                }
+                specEntity = MetadataHelper.resolveEntityFamily(entityMeta);
             }
 
             charts = ChartManager.instance.getChartList(user, specEntity, "MYSELF".equalsIgnoreCase(type));

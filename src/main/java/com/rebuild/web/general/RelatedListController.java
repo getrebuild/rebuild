@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.FieldPrivileges;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.feeds.FeedsType;
@@ -71,8 +72,7 @@ public class RelatedListController extends BaseController {
         if ("NAME".equalsIgnoreCase(sortExpr)) {
             sortExpr = relatedEntity.getNameField().getName() + ":asc";
         } else if ("autoId:asc".equals(sortExpr)) {
-            // v4.2 明細排序
-            if (relatedEntity.containsField(EntityHelper.Seq)) sortExpr = "seq:asc";
+            if (EasyMetaFactory.valueOf(relatedEntity).isDetailsSortable()) sortExpr = "seq:asc";
         } else {
             sortExpr = CommonsUtils.escapeSql(sortExpr);
         }

@@ -32,18 +32,15 @@ public class RBStore {
             ConfigurationItem.RbStoreUrl.name(), "https://getrebuild.com/gh/getrebuild/rebuild-datas/");
 
     /**
-     * for Classification
-     *
-     * @param fileUri
+     * @param file
      * @return
      */
-    public static JSON fetchClassification(String fileUri) {
-        return fetchRemoteJson("classifications/" + fileUri);
+    public static JSON fetchClassification(String file) {
+        return fetchRemoteJson("classifications/" +
+                StringUtils.defaultIfBlank(file, "index.json"));
     }
 
     /**
-     * for Metaschema
-     *
      * @param file
      * @return
      */
@@ -53,19 +50,15 @@ public class RBStore {
     }
 
     /**
-     * for Aibot skills
-     * 
      * @param file
      * @return
      */
     public static JSON fetchAibotSkills(String file) {
-        return fetchRemoteJson("skills/" +
-                StringUtils.defaultIfBlank(file, "index.json"));
+        return fetchRemoteJson("aibot2/skills/" +
+                StringUtils.defaultIfBlank(file, "index-4.6.json"));
     }
 
     /**
-     * for Aibot model context windows
-     *
      * @param file
      * @return
      */
@@ -75,14 +68,14 @@ public class RBStore {
     }
 
     /**
-     * for Holidays
-     *
      * @param file
      * @return
      */
     public static JSON fetchHolidays(String file) {
         return fetchRemoteJson("holidays/" + file);
     }
+
+    // --
 
     /**
      * @param fileUrl

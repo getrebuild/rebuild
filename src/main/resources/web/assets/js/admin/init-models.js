@@ -72,7 +72,7 @@ class InitModels extends React.Component {
           )
         })}
 
-        <hr style={{ borderTopWidth: 2, marginBottom: '1.6rem' }} />
+        <hr style={{ borderTopWidth: 2, marginBottom: 20, marginTop: 24 }} />
 
         {this.state.data.apps && this.state.data.apps.length > 0 && (
           <fieldset>
