@@ -89,7 +89,7 @@
     },
     {
       "if": { "properties": { "type": { "const": "DATALIST2" } } },
-      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1 }, "numerical": { "maxItems": 0 } } } } }
+      "then": { "properties": { "axis": { "properties": { "dimension": { "minItems": 1, "maxItems": 9 }, "numerical": { "maxItems": 0 } } } } }
     },
     {
       "if": { "properties": { "type": { "const": "DOLOR" } } },

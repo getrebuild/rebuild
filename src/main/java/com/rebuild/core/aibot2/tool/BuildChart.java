@@ -198,6 +198,8 @@ public class BuildChart implements Tool {
 
         // 解析可选 option
         JSONObject option = args.getJSONObject("option");
+        // 「使用全部数据」在图表设计页仅管理员可见，此处同口径剔除，避免绕过数据权限
+        if (option != null && !UserHelper.isAdmin(user)) option.remove("noPrivileges");
 
         // 解析可选 filter
         JSONObject filter = args.getJSONObject("filter");

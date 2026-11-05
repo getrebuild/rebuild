@@ -15,13 +15,11 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.dashboard.DashboardManager;
 import com.rebuild.utils.JSONUtils;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author devezhao
  * @since 2026/11/4
  */
-@Slf4j
 public class ListDashs implements Tool {
 
     @Override

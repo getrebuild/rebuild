@@ -13,6 +13,7 @@
         },
         "title": {
           "type": "string",
+          "maxLength": 100,
           "description": "图表标题"
         },
         "type": {
@@ -36,7 +37,7 @@
         },
         "option": {
           "type": "object",
-          "description": "显示选项（可选）。通用字段如 shareChart（共享）、noPrivileges（忽略权限）；类型特有字段如 showGrid/showLegend/showHorizontal 等，详见 chart-config Schema 的 option 定义"
+          "description": "显示选项（可选）。通用字段如 shareChart（共享）、noPrivileges（使用全部数据，仅管理员创建的图表生效，非管理员传入会被忽略）；类型特有字段如 showGrid/showLegend/showHorizontal 等，详见 chart-config Schema 的 option 定义"
         },
         "filter": {
           "type": "object",

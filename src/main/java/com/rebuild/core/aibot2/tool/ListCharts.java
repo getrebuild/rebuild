@@ -16,14 +16,12 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.utils.JSONUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author devezhao
  * @since 2026/11/4
  */
-@Slf4j
 public class ListCharts implements Tool {
 
     @Override
