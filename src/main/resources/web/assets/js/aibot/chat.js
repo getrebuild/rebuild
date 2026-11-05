@@ -334,7 +334,6 @@ class ChatInput extends React.Component {
               className="chat-input-editable"
               onInput={(e) => this.setState({ content: e.target.innerText })}
               onPaste={(e) => {
-                // 粘贴文件（含截图）时上传为附件
                 const cdata = e.clipboardData || window.clipboardData
                 if (cdata && cdata.files && cdata.files.length > 0) {
                   $stopEvent(e, true)
@@ -379,31 +378,30 @@ class ChatInput extends React.Component {
               </span>
             )}
             <span className="ml-auto">
-              {skills.length > 0 && (
-                <span className="dropup">
-                  <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
-                    <i className="mdi mdi-flash-outline down-2" />
-                  </button>
-                  <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 250 }}>
-                    {skills.map((s, idx) => (
-                      <a
-                        key={idx}
-                        className="dropdown-item"
-                        onClick={() => {
-                          this.setState({ activeSkill: s.name })
-                        }}
-                        title={s.description || ''}>
-                        {s.name}
-                        {s.description && (
-                          <div className="text-muted fs-sm text-ellipsis" style={{ lineHeight: 1, marginTop: 3 }}>
-                            {s.description}
-                          </div>
-                        )}
-                      </a>
-                    ))}
-                  </div>
-                </span>
-              )}
+              <span className="dropup">
+                <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
+                  <i className="mdi mdi-flash-outline down-2" />
+                </button>
+                <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxWidth: 250 }}>
+                  {skills.map((s, idx) => (
+                    <a
+                      key={idx}
+                      className="dropdown-item"
+                      onClick={() => {
+                        this.setState({ activeSkill: s.name })
+                      }}
+                      title={s.description || ''}>
+                      {s.name}
+                      {s.description && (
+                        <div className="text-muted fs-sm text-ellipsis" style={{ lineHeight: 1, marginTop: 3 }}>
+                          {s.description}
+                        </div>
+                      )}
+                    </a>
+                  ))}
+                  {skills.length === 0 && <div className="dropdown-item text-muted">{$L('无可用技能')}</div>}
+                </div>
+              </span>
               <span className="dropup">
                 <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('数据')}>
                   <i className="mdi mdi-attachment-plus" />

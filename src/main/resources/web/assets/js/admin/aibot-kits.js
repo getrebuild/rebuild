@@ -385,16 +385,6 @@ class DlgSkillEdit extends RbModalHandler {
       )
     }
 
-    if (this.state.hasError) {
-      return (
-        <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
-          <div className="mb-7">
-            <RbAlertBox message={this.state.hasError} />
-          </div>
-        </RbModal>
-      )
-    }
-
     const skills = this.state.skills || []
     return (
       <RbModal
@@ -518,8 +508,8 @@ class DlgSkillEdit extends RbModalHandler {
 
   _loadSkills() {
     $.get('/admin/rbstore/load-index?type=skills', (res) => {
-      let hasError = res.error_code > 0 ? res.error_msg || $L('暂无可用技能') : null
-      this.setState({ skills: res.data || [], hasError })
+      if (res.error_code === 0) this.setState({ skills: res.data })
+      else RbHighbar.error(res.error_msg)
     })
   }
 
@@ -547,7 +537,7 @@ class DlgSkillEdit extends RbModalHandler {
     }
 
     const $btn = $(this._$importBtn).button('loading')
-    $.post(`/admin/rbstore/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
+    $.post(`./aibot/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('成功导入 %d 个技能', selected.length))
