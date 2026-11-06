@@ -591,7 +591,7 @@ class DlgSkillEdit extends RbModalHandler {
 let _toolsData = []
 class ToolList extends React.Component {
   static load() {
-    $.get('./aibot/tools', (res) => {
+    $.get('./aibot/tool-list', (res) => {
       _toolsData = res.data || []
       renderRbcomp(<ToolList data={_toolsData} />, 'toolsList')
     })
