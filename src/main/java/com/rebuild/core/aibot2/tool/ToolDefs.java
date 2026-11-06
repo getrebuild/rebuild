@@ -120,11 +120,11 @@ public class ToolDefs {
                 && UserContextHolder.getUser(true) != null
                 && UserHelper.isAdmin(UserContextHolder.getUser());
 
-        Set<String> disabled = getDisabledTools();
         Set<String> agentTools = agent != null ? agent.getTools() : null;
 
+        // 禁用工具仍发送给模型，调用时由 execute 拦截并返回禁用说明，
+        // 使模型能向用户解释功能未开放（与 RbvTool 商业版提示同模式）
         return TOOL_MAP.entrySet().stream()
-                .filter(e -> agentTools != null || !disabled.contains(e.getKey()))
                 .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
                 .filter(e -> !anonymous || !(e.getValue() instanceof PersonalGuard))
                 .filter(e -> agentTools == null || agentTools.contains(e.getKey()))
@@ -309,7 +309,8 @@ public class ToolDefs {
 
             if (isToolDisabled(toolName, currentAgentTools())) {
                 log.warn("Tool disabled : {}", toolName);
-                throw new KnownToolException("Tool disabled: " + toolName);
+                throw new KnownToolException("该工具已被系统管理员禁用，当前不可用。"
+                        + "请告知用户此功能未开放，可联系系统管理员开启，勿再重试或改用其他工具绕行");
             }
 
             if (tool instanceof AdminGuard && (AibotContextHolder.isAnonymous() || !UserHelper.isAdmin(user))) {
@@ -359,7 +360,6 @@ public class ToolDefs {
                 return toolRes;
 
             } catch (KnownToolException ex) {
-                // 已知业务异常（如参数校验失败、实体不存在），仅记录消息不输出堆栈
                 log.warn("TOOL_WARN {}\n{}", toolName, ex.getMessage());
                 throw ex;
             } catch (ToolException ex) {
