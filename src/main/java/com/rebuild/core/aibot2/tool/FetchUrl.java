@@ -114,9 +114,4 @@ public class FetchUrl implements Tool {
         }
         return ret;
     }
-
-    @Override
-    public boolean isSystem() {
-        return HIDDEN_SYSTEM;
-    }
 }

@@ -237,7 +237,7 @@ public class AiBot2AdminController extends BaseController {
 
     @GetMapping("aibot/tool-list")
     public RespBody toolList() {
-        return RespBody.ok(ToolDefs.listTools(true, false));
+        return RespBody.ok(ToolDefs.listTools(true, true, false));
     }
 
     @GetMapping("aibot/skill-list")

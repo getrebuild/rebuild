@@ -14,9 +14,4 @@ import com.rebuild.core.privileges.AdminGuard;
  * @since 2026/9/10
  */
 public class BuildFrontJsCode extends RbvTool implements AdminGuard {
-
-    @Override
-    public boolean isSystem() {
-        return HIDDEN_SYSTEM;
-    }
 }

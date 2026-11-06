@@ -34,11 +34,6 @@ import java.util.List;
 public class BuildFilter implements Tool, ConfirmableTool {
 
     @Override
-    public boolean isSystem() {
-        return HIDDEN_SYSTEM;
-    }
-
-    @Override
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
 

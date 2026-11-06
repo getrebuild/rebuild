@@ -172,16 +172,17 @@ public class ToolDefs {
      * 列出工具定义
      *
      * @param includeDisabled
+     * @param includeSystem
      * @param includeSchema
      * @return
      */
-    public static List<JSONObject> listTools(boolean includeDisabled, boolean includeSchema) {
+    public static List<JSONObject> listTools(boolean includeDisabled, boolean includeSystem, boolean includeSchema) {
         Set<String> disabled = getDisabledTools();
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
             Tool toolImpl = TOOL_MAP.get(toolName);
-            if (toolImpl.isSystem()) continue;
             if (disabled.contains(toolName) && !includeDisabled) continue;
+            if (toolImpl.isSystem() && !includeSystem) continue;
 
             JSONObject toolJson = getToolJson(toolName);
             if (toolJson == null) continue;
@@ -224,21 +225,21 @@ public class ToolDefs {
     private static final String TOOL_HINT_DEFAULT = "正在处理...";
 
     /**
-     * 工具执行中的用户可见提示。取 userDescription 首句，
-     * 系统工具与描述缺失时回退兜底文案，避免内部工具名外泄到用户对话。
+     * 工具执行中的用户可见提示。取 userDescription 首句，描述缺失时回退兜底文案。
      *
      * @param toolName
      * @return
      */
     public static String userHint(String toolName) {
         Tool tool = TOOL_MAP.get(toolName);
-        if (tool == null || tool.isSystem()) return TOOL_HINT_DEFAULT;
+        if (tool == null) return TOOL_HINT_DEFAULT;
 
         JSONObject json = getToolJson(toolName);
         String desc = json == null ? null : json.getString("userDescription");
         if (StringUtils.isBlank(desc)) return TOOL_HINT_DEFAULT;
 
-        desc = StringUtils.substringBefore(desc, "。").trim();
+        desc = StringUtils.substringBefore(desc, "。")
+                .replaceAll("\\s*\\[(系统工具|商业工具)]", "").trim();
         if (desc.length() > 24) desc = CommonsUtils.maxstr(desc, 24) + "...";
         return StringUtils.defaultIfBlank(desc, TOOL_HINT_DEFAULT);
     }

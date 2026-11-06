@@ -1,6 +1,6 @@
 {
   "type": "function",
-  "userDescription": "构建微应用（自定义 HTML 页面）。做好后可挂到导航菜单供用户访问 [系统工具] [商业工具]",
+  "userDescription": "构建微应用（自定义 HTML 页面）。做好后可挂到导航菜单供用户访问 [商业工具]",
   "function": {
     "name": "BuildMinAppPage",
     "description": "新建或修改微应用（HTML 自定义页面）。当用户需要制作自定义页面、数据看板、统计报表、说明文档、查询工具时使用。\n\n【准备工作】调用前必须：1) GetConfigSchema(schema=minapp-page) 获取微应用页面开发参考（页面结构、系统已内置的前端库与组件、数据接口、页面规范）；2) GetConfigSchema(schema=frontjs-api) 获取 FrontJS.MinApp 数据操作 API 参考；3) ListEntities 查询目标实体的真实英文字段名，严禁编造字段。\n\n【要点】只生成内容片段（不含 doctype/html/head/body 等文档标签，以自定义根容器开始）；基础样式与脚本库已由系统模板引入勿重复引入，系统 /assets/lib/ 下内置大量前端库按绝对路径按需引入，尽量使用系统内置库、确有必要才从外部加载；数据操作用 FrontJS.MinApp（无需考虑授权）；业务逻辑写在 window load 事件内。\n\n【修改已有页面】先仅传入 id（不传 html）读取当前源码与名称，理解后再按用户要求修改，以 id+新 html 更新（同样走确认流程）。页面名称与是否禁用由用户在管理页面维护，本工具不修改。\n\n【沟通纪律】需求一次性问清（页面用途、数据与字段、样式偏好），其余自行合理决策；不逐条讲解代码、不复述参数含义；保存前仅转述改动清单；保存后仅回复访问地址与一句效果说明，保持简洁。",
