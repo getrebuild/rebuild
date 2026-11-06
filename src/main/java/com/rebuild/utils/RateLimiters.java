@@ -44,6 +44,10 @@ public class RateLimiters {
     public static final RequestRateLimiter EXTFORM_4IP = createRateLimiter(
             new int[]{60, 3600}, new int[]{20, 200});
 
+    // 公开页访问密码（基于 IP）。阈值严于表单，防暴力猜解
+    public static final RequestRateLimiter PUB_AUTH_4IP = createRateLimiter(
+            new int[]{60, 3600}, new int[]{5, 30});
+
     /**
      * @param seconds
      * @param limits
