@@ -14,4 +14,9 @@ import com.rebuild.core.privileges.AdminGuard;
  * @since 2026/8/27
  */
 public class BuildApp extends RbvTool implements AdminGuard {
+
+    @Override
+    public boolean isSystem() {
+        return HIDDEN_SYSTEM;
+    }
 }
