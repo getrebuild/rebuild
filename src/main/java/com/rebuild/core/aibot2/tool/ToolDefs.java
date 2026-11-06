@@ -52,7 +52,6 @@ public class ToolDefs {
     static {
         register(new ListEntities());
         register(new ListCharts());
-        register(new ListDashs());
         register(new ListConfigs());
         register(new FetchUrl());
         register(new SuggestCustom());

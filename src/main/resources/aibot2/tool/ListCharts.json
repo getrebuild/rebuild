@@ -1,21 +1,30 @@
 {
   "type": "function",
-  "userDescription": "查看可用图表列表 [系统工具]",
+  "userDescription": "查看可用图表、仪表盘列表 [系统工具]",
   "function": {
     "name": "ListCharts",
-    "description": "查看当前用户可用的图表列表。当需要了解系统中已有哪些图表、避免重复创建、或获取图表 ID 用于其他操作时使用。可选按实体过滤（entity 参数），可选只看自己创建的图表（myself=true）。返回的 isManageable 表示该图表是否为当前用户自己创建（管理员同样可编辑他人共享的图表）",
+    "description": "查看当前用户可用的图表或仪表盘列表。chart=图表，当需要了解系统中已有哪些图表、避免重复创建、或获取图表 ID 用于其他操作时使用，可选按实体过滤（entity 参数）、只看自己创建的图表（myself=true），返回的 isManageable 表示该图表是否为当前用户自己创建（管理员同样可编辑他人共享的图表）。dash=仪表盘，当需要了解系统中有哪些仪表盘、获取仪表盘 ID 用于 BuildChart 的 dashid 参数时使用，返回的 editable 表示当前用户是否可编辑该仪表盘（管理员或创建者本人）",
     "parameters": {
       "type": "object",
       "properties": {
+        "listType": {
+          "type": "string",
+          "enum": [
+            "chart",
+            "dash"
+          ],
+          "description": "查询类型。chart=图表、dash=仪表盘"
+        },
         "entity": {
           "type": "string",
-          "description": "按源实体名称过滤（可选），只返回该实体下的图表"
+          "description": "按源实体名称过滤（可选，仅 listType=chart 时有效），只返回该实体下的图表"
         },
         "myself": {
           "type": "boolean",
-          "description": "是否只返回自己创建的图表（可选，默认 false）"
+          "description": "是否只返回自己创建的图表（可选，默认 false，仅 listType=chart 时有效）"
         }
       },
+      "required": ["listType"],
       "additionalProperties": false
     }
   }
