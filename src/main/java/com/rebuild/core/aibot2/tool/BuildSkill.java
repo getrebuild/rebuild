@@ -30,6 +30,11 @@ import org.apache.commons.lang3.StringUtils;
 public class BuildSkill implements Tool, AdminGuard, ConfirmableTool {
 
     @Override
+    public boolean isSystem() {
+        return HIDDEN_SYSTEM;
+    }
+
+    @Override
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
 
