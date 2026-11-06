@@ -50,7 +50,7 @@ $(document).ready(() => {
 
   $('.J_rebuildKb').on('click', (e) => {
     $stopEvent(e, true)
-    RbAlert.create($L('确认重建全部知识库的索引？'), {
+    RbAlert.create($L('确认重建全部知识库索引？'), {
       confirmText: $L('重建'),
       confirm: function () {
         this.hide()

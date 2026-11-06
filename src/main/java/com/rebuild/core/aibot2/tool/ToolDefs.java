@@ -53,6 +53,7 @@ public class ToolDefs {
         register(new ListEntities());
         register(new ListCharts());
         register(new ListDashs());
+        register(new ListConfigs());
         register(new FetchUrl());
         register(new SuggestCustom());
         register(new SearchHelp());
@@ -77,7 +78,6 @@ public class ToolDefs {
         register(new BuildField());
         // @rbv
         register(new BuildTrigger());
-        register(new ListTriggers());
         register(new BuildTransform());
         register(new BuildReportTemplate());
         register(new BuildAviatorFormula());
