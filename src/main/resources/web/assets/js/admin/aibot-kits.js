@@ -607,9 +607,30 @@ class ToolList extends React.Component {
         desc = WrapHtml(desc)
       }
 
-      const _saveFn = (checked) => {
-        if (rb.commercial < 1) RbAlertFree43.create()
-        else this._saveToolsDisabled(item.name, checked)
+      const _saveFn = (checked, e) => {
+        if (rb.commercial < 1) {
+          RbAlertFree43.create()
+          return
+        }
+
+        if (checked) {
+          this._saveToolsDisabled(item.name, checked)
+          return
+        }
+
+        const input = e ? e.target : null
+        const doSave = () => this._saveToolsDisabled(item.name, false)
+        let confirmed = false
+        RbAlert.create($L('关闭后 Rex AI 将失去此能力。确定关闭吗？'), {
+          onConfirm: function () {
+            confirmed = true
+            this.hide()
+            doSave()
+          },
+          onHide: () => {
+            if (!confirmed && input) input.checked = true
+          },
+        })
       }
 
       return (
