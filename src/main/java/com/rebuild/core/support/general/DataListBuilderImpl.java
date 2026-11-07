@@ -98,7 +98,7 @@ public class DataListBuilderImpl implements DataListBuilder {
         JSONArray stats = null;
         if (isNeedReload()) {
             List<Object[]> statsRaw = getStats();
-            totalRows = (long) statsRaw.get(0)[1];
+            totalRows = ObjectUtils.toLong(statsRaw.get(0)[1]);
 
             // 统计字段
             if (statsRaw.size() > 1) {
@@ -142,7 +142,14 @@ public class DataListBuilderImpl implements DataListBuilder {
     protected List<Object[]> getStats() {
         List<Object[]> stats = new ArrayList<>();
 
-        final Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
+        final String groupBy = queryParser.getGroupBy();
+        Object[] count;
+        if (groupBy != null && groupBy.indexOf('(') >= 0) {
+            // 表达式分组（如按天）无法使用 count(distinct ...)，直接按分组结果计数
+            count = new Object[]{Application.createQuery(queryParser.toSql(), user).array().length};
+        } else {
+            count = Application.createQuery(queryParser.toCountSql(), user).unique();
+        }
         stats.add(new Object[]{null, count[0], null});
         if (count.length < 2) return stats;
 

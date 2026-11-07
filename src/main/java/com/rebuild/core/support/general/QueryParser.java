@@ -56,6 +56,7 @@ public class QueryParser {
 
     private String sql;
     private String countSql;
+    private String groupBy;
     private List<Map<String, Object>> countFields;
     private int[] limit;
     private boolean reload;
@@ -115,6 +116,16 @@ public class QueryParser {
     public List<String> getQueryFields() {
         doParseIfNeed();
         return queryFields;
+    }
+
+    /**
+     * 分组字段（可能为表达式）
+     *
+     * @return
+     */
+    public String getGroupBy() {
+        doParseIfNeed();
+        return groupBy;
     }
 
     /**
@@ -197,6 +208,7 @@ public class QueryParser {
 
         // v4.0-b3 分组
         final String groupBy = queryExpr.getString("groupBy");
+        this.groupBy = groupBy;
         if (groupBy != null) {
             fullSql.append(" group by ").append(groupBy);
         }
