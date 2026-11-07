@@ -105,7 +105,7 @@ class InitModels extends React.Component {
           </legend>
           <form>
             <div className="w-100">
-              <label className="text-muted">{$L('上传从 REBUILD [应用商店](https://getrebuild.com/store/) 下载的应用资源包，自动安装业务系统')}</label>
+              <label className="text-muted">{WrapHtml($L('上传从 REBUILD [应用商店](https://getrebuild.com/store/) 下载的应用资源包，自动安装业务系统'))}</label>
               <div className="file-select">
                 <input
                   type="file"

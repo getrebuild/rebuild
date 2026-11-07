@@ -235,9 +235,9 @@ public class AiBot2AdminController extends BaseController {
     }
 
 
-    @GetMapping("aibot/tools")
+    @GetMapping("aibot/tool-list")
     public RespBody toolList() {
-        return RespBody.ok(ToolDefs.listTools(true, false));
+        return RespBody.ok(ToolDefs.listTools(true, true, false));
     }
 
     @GetMapping("aibot/skill-list")
@@ -286,7 +286,7 @@ public class AiBot2AdminController extends BaseController {
     @GetMapping("aibot/kb-list")
     public RespBody kbList() {
         Object[][] array = Application.createQueryNoFilter(
-                        "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by name")
+                "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by name")
                 .array();
 
         List<JSONObject> list = new ArrayList<>();

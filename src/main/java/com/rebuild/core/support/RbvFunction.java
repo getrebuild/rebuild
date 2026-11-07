@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
@@ -64,10 +65,16 @@ public class RbvFunction {
         return null;
     }
 
-    // -- SOP
+    // -- APPROVAL
 
     public void onApproveManual(Record approvalRecord) {
         log.debug("No RbvFunction : onApproveManual");
+    }
+
+    // -- SOP
+
+    public boolean hadSop(Entity entity) {
+        return false;
     }
 
     // -- CONF

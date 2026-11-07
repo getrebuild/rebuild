@@ -206,7 +206,7 @@ function ShowEnable(disabled, cfgid, switchFn) {
           id={htmlid}
           onClick={(e) => {
             if (typeof switchFn === 'function') {
-              switchFn(e.target.checked)
+              switchFn(e.target.checked, e)
               return
             }
 

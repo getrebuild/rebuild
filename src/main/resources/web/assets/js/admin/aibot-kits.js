@@ -50,7 +50,7 @@ $(document).ready(() => {
 
   $('.J_rebuildKb').on('click', (e) => {
     $stopEvent(e, true)
-    RbAlert.create($L('确认重建全部知识库的索引？'), {
+    RbAlert.create($L('确认重建全部知识库索引？'), {
       confirmText: $L('重建'),
       confirm: function () {
         this.hide()
@@ -591,7 +591,7 @@ class DlgSkillEdit extends RbModalHandler {
 let _toolsData = []
 class ToolList extends React.Component {
   static load() {
-    $.get('./aibot/tools', (res) => {
+    $.get('./aibot/tool-list', (res) => {
       _toolsData = res.data || []
       renderRbcomp(<ToolList data={_toolsData} />, 'toolsList')
     })
@@ -607,9 +607,30 @@ class ToolList extends React.Component {
         desc = WrapHtml(desc)
       }
 
-      const _saveFn = (checked) => {
-        if (rb.commercial < 1) RbAlertFree43.create()
-        else this._saveToolsDisabled(item.name, checked)
+      const _saveFn = (checked, e) => {
+        if (rb.commercial < 1) {
+          RbAlertFree43.create()
+          return
+        }
+
+        if (checked) {
+          this._saveToolsDisabled(item.name, checked)
+          return
+        }
+
+        const input = e ? e.target : null
+        const doSave = () => this._saveToolsDisabled(item.name, false)
+        let confirmed = false
+        RbAlert.create($L('关闭后 Rex AI 将失去此能力。确定关闭吗？'), {
+          onConfirm: function () {
+            confirmed = true
+            this.hide()
+            doSave()
+          },
+          onHide: () => {
+            if (!confirmed && input) input.checked = true
+          },
+        })
       }
 
       return (

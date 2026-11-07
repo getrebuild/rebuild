@@ -52,7 +52,7 @@ public class ToolDefs {
     static {
         register(new ListEntities());
         register(new ListCharts());
-        register(new ListDashs());
+        register(new ListConfigs());
         register(new FetchUrl());
         register(new SuggestCustom());
         register(new SearchHelp());
@@ -77,7 +77,6 @@ public class ToolDefs {
         register(new BuildField());
         // @rbv
         register(new BuildTrigger());
-        register(new ListTriggers());
         register(new BuildTransform());
         register(new BuildReportTemplate());
         register(new BuildAviatorFormula());
@@ -121,11 +120,11 @@ public class ToolDefs {
                 && UserContextHolder.getUser(true) != null
                 && UserHelper.isAdmin(UserContextHolder.getUser());
 
-        Set<String> disabled = getDisabledTools();
         Set<String> agentTools = agent != null ? agent.getTools() : null;
 
+        // 禁用工具仍发送给模型，调用时由 execute 拦截并返回禁用说明，
+        // 使模型能向用户解释功能未开放（与 RbvTool 商业版提示同模式）
         return TOOL_MAP.entrySet().stream()
-                .filter(e -> agentTools != null || !disabled.contains(e.getKey()))
                 .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
                 .filter(e -> !anonymous || !(e.getValue() instanceof PersonalGuard))
                 .filter(e -> agentTools == null || agentTools.contains(e.getKey()))
@@ -173,16 +172,17 @@ public class ToolDefs {
      * 列出工具定义
      *
      * @param includeDisabled
+     * @param includeSystem
      * @param includeSchema
      * @return
      */
-    public static List<JSONObject> listTools(boolean includeDisabled, boolean includeSchema) {
+    public static List<JSONObject> listTools(boolean includeDisabled, boolean includeSystem, boolean includeSchema) {
         Set<String> disabled = getDisabledTools();
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
             Tool toolImpl = TOOL_MAP.get(toolName);
-            if (toolImpl.isSystem()) continue;
             if (disabled.contains(toolName) && !includeDisabled) continue;
+            if (toolImpl.isSystem() && !includeSystem) continue;
 
             JSONObject toolJson = getToolJson(toolName);
             if (toolJson == null) continue;
@@ -225,21 +225,21 @@ public class ToolDefs {
     private static final String TOOL_HINT_DEFAULT = "正在处理...";
 
     /**
-     * 工具执行中的用户可见提示。取 userDescription 首句，
-     * 系统工具与描述缺失时回退兜底文案，避免内部工具名外泄到用户对话。
+     * 工具执行中的用户可见提示。取 userDescription 首句，描述缺失时回退兜底文案。
      *
      * @param toolName
      * @return
      */
     public static String userHint(String toolName) {
         Tool tool = TOOL_MAP.get(toolName);
-        if (tool == null || tool.isSystem()) return TOOL_HINT_DEFAULT;
+        if (tool == null) return TOOL_HINT_DEFAULT;
 
         JSONObject json = getToolJson(toolName);
         String desc = json == null ? null : json.getString("userDescription");
         if (StringUtils.isBlank(desc)) return TOOL_HINT_DEFAULT;
 
-        desc = StringUtils.substringBefore(desc, "。").trim();
+        desc = StringUtils.substringBefore(desc, "。")
+                .replaceAll("\\s*\\[(系统工具|商业工具)]", "").trim();
         if (desc.length() > 24) desc = CommonsUtils.maxstr(desc, 24) + "...";
         return StringUtils.defaultIfBlank(desc, TOOL_HINT_DEFAULT);
     }
@@ -309,7 +309,8 @@ public class ToolDefs {
 
             if (isToolDisabled(toolName, currentAgentTools())) {
                 log.warn("Tool disabled : {}", toolName);
-                throw new KnownToolException("Tool disabled: " + toolName);
+                throw new KnownToolException("该工具已被系统管理员禁用，当前不可用。"
+                        + "请告知用户此功能未开放，可联系系统管理员开启，勿再重试或改用其他工具绕行");
             }
 
             if (tool instanceof AdminGuard && (AibotContextHolder.isAnonymous() || !UserHelper.isAdmin(user))) {
@@ -359,7 +360,6 @@ public class ToolDefs {
                 return toolRes;
 
             } catch (KnownToolException ex) {
-                // 已知业务异常（如参数校验失败、实体不存在），仅记录消息不输出堆栈
                 log.warn("TOOL_WARN {}\n{}", toolName, ex.getMessage());
                 throw ex;
             } catch (ToolException ex) {

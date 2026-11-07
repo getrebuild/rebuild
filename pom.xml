@@ -311,7 +311,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>fix-1.9-4d94aeb4dd-1</version>
+            <version>1.9.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>

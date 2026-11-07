@@ -1,0 +1,29 @@
+{
+  "type": "function",
+  "userDescription": "查看现有配置。含触发器、审批流程、记录转换和报表模板 [系统工具]",
+  "function": {
+    "name": "ListConfigs",
+    "description": "查询现有配置的完整内容，支持触发器（自动化规则）、审批流程、记录转换、报表模板四类。返回每条配置的完整定义、启用状态与配置页链接（url），以及针对该类型配置的分析方法（message 字段）。典型场景：用户询问某实体上配置了哪些自动化规则或审批流程、某操作会影响什么业务数据，或要求排查、梳理、优化现有配置。本工具只读，修改现有配置请引导用户到各条配置的 url 对应页面自行操作",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "configType": {
+          "type": "string",
+          "enum": [
+            "trigger",
+            "approval",
+            "transform",
+            "report-template"
+          ],
+          "description": "配置类型。trigger=触发器（自动化规则）、approval=审批流程、transform=记录转换、report-template=报表模板"
+        },
+        "entity": {
+          "type": "string",
+          "description": "所属实体名称（可选）。指定后仅返回该实体上的配置，不指定则返回全部。分析级联影响时可能需要按链路上的各实体多次调用"
+        }
+      },
+      "required": ["configType"],
+      "additionalProperties": false
+    }
+  }
+}

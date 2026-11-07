@@ -351,12 +351,20 @@ var $regex = {
 // URL 编码
 var $encode = function (s) {
   if (!s) return ''
-  return encodeURIComponent(s)
+  try {
+    return encodeURIComponent(s)
+  } catch (e) {
+    return s
+  }
 }
 // URL 解码
 var $decode = function (s) {
   if (!s) return ''
-  return decodeURIComponent(s)
+  try {
+    return decodeURIComponent(s)
+  } catch (e) {
+    return s
+  }
 }
 
 // BASE64 解码
@@ -369,7 +377,6 @@ var $base64Encode = function (s) {
   })
   return btoa(bin)
 }
-
 // BASE64 解码
 var $base64Decode = function (b64) {
   var bin = atob(b64)

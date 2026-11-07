@@ -348,7 +348,7 @@
     <entity name="RobotSopStep" type-code="071" description="业务进度记录" queryable="false">
         <field name="stepId" type="primary"/>
         <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="业务记录"/>
-        <field name="sopId" type="reference" ref-entity="RobotSopConfig" nullable="false" updatable="false" description="业务进度"/>
+        <field name="sopId" type="reference" ref-entity="RobotSopConfig" nullable="false" updatable="false" description="业务进度" cascade="delete"/>
         <field name="node" type="string" max-length="100" nullable="false" updatable="false" description="进度节点"/>
         <field name="operator" type="reference" ref-entity="User" description="操作人"/>
         <field name="achievedTime" type="timestamp" description="达成时间"/>

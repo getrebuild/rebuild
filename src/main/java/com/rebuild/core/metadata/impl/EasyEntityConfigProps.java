@@ -101,11 +101,7 @@ public class EasyEntityConfigProps {
      */
     public static final String ADVLIST_MODE2_SHOWFIELDS = "mode2ShowFields";
     /**
-     * 详情模式:树形菜单:父级
-     */
-    public static final String ADVLIST_MODE2_ENABLETREEPARENTFIELD = "mode2EnableTreeParentField";
-    /**
-     * 详情模式:树形菜单:顶级
+     * 详情模式:树形菜单:字段（自引用为树，否则为分组）
      */
     public static final String ADVLIST_MODE2_ENABLETREEGROUPFIELD = "mode2EnableTreeGroupField";
     /**

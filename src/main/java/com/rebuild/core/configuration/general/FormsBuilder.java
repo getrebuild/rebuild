@@ -40,6 +40,7 @@ import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -355,7 +356,7 @@ public class FormsBuilder extends FormsManager {
         model.set("onViewEditable", BooleanUtils.toBoolean(enabledViewEditable));
 
         // v3.7
-        model.set("hadSop", License.isRbvAttached());
+        model.set("hadSop", RbvFunction.call().hadSop(entityMeta));
         // v3.9
         model.set("layoutId", model.getID("id"));
         model.remove("id");
