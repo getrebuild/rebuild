@@ -104,7 +104,7 @@ class KbList extends React.Component {
             {item.name} {chunkBadge}
           </td>
           <td>{item.description || <NoValue />}</td>
-          <td className="actions">
+          <td className="actions pr-1">
             <a title={$L('修改')} className="icon" onClick={() => _editKb(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
@@ -112,6 +112,7 @@ class KbList extends React.Component {
               <i className="zmdi zmdi-delete" />
             </a>
           </td>
+          <td className="actions">{ShowEnable(item.isDisabled, item.id)}</td>
         </tr>
       )
     })
@@ -329,7 +330,7 @@ class SkillList extends React.Component {
         <tr key={item.id}>
           <td>{item.name}</td>
           <td>{cfg.description || <NoValue />}</td>
-          <td className="actions">
+          <td className="actions pr-1">
             <a title={$L('修改')} className="icon" onClick={() => _editSkill(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
@@ -337,6 +338,7 @@ class SkillList extends React.Component {
               <i className="zmdi zmdi-delete" />
             </a>
           </td>
+          <td className="actions">{ShowEnable(item.isDisabled, item.id)}</td>
         </tr>
       )
     })
