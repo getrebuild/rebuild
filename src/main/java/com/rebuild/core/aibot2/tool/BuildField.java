@@ -55,6 +55,9 @@ public class BuildField implements Tool, AdminGuard, ConfirmableTool {
     // 流水号重置周期（对应 SeriesZeroResetJob）
     private static final Set<String> SERIES_ZEROS = new HashSet<>(Arrays.asList("D", "W", "M", "Y"));
 
+    // 自引用标记（引用字段所在实体自身）
+    private static final String SELF_REF = "@self";
+
     @Override
     public Object tool(String arguments) throws Exception {
         final JSONObject args = JSON.parseObject(arguments);
@@ -85,15 +88,7 @@ public class BuildField implements Tool, AdminGuard, ConfirmableTool {
         String seriesZero = null;
 
         if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
-            String refIdent = args.getString("refEntity");
-            if (StringUtils.isBlank(refIdent)) {
-                throw new KnownToolException("引用字段必须指定引用实体 (refEntity)");
-            }
-            Entity ref = ToolHelper.resolveEntity(refIdent);
-            if (ref == null) {
-                throw new KnownToolException("无效引用实体 : " + refIdent + ToolHelper.suggestEntity(refIdent));
-            }
-            refEntity = ref.getName();
+            refEntity = resolveRefEntity(args.getString("refEntity"), entity);
 
         } else if (dt == DisplayType.PICKLIST || dt == DisplayType.MULTISELECT) {
             options = args.getJSONArray("options");
@@ -146,6 +141,40 @@ public class BuildField implements Tool, AdminGuard, ConfirmableTool {
                 new Object[]{"ok", entity.getName(), fieldName, fieldLabel, dt.name(), fieldsUrl,
                         String.format("已成功在实体 [%s] 中创建字段 [%s](%s)，[点击查看实体字段列表](%s)，请将此链接展示给用户，以便其核对字段类型与配置是否符合预期",
                                 EasyMetaFactory.getLabel(entity), fieldLabel, fieldName, fieldsUrl)});
+    }
+
+    /**
+     * 解析引用实体。支持 @self 引用字段所在实体自身
+     *
+     * @param refIdent
+     * @param entity
+     * @return
+     */
+    private static String resolveRefEntity(String refIdent, Entity entity) {
+        String ref = StringUtils.trimToNull(refIdent);
+        if (ref == null) {
+            throw new KnownToolException("引用字段必须指定引用实体 (refEntity)");
+        }
+
+        if (SELF_REF.equals(ref) || ref.equalsIgnoreCase(entity.getName())) {
+            return entity.getName();
+        }
+
+        Entity refMeta;
+        try {
+            refMeta = ToolHelper.resolveEntity(ref);
+        } catch (KnownToolException ex) {
+            // 标签重名时不猜测意图，提示改用 @self 显式表示自引用
+            if (ref.equalsIgnoreCase(EasyMetaFactory.getLabel(entity))) {
+                throw new KnownToolException(ex.getLocalizedMessage()
+                        + "。若确为引用本实体自身，请将 refEntity 改为 " + SELF_REF);
+            }
+            throw ex;
+        }
+        if (refMeta == null) {
+            throw new KnownToolException("无效引用实体 : " + ref + ToolHelper.suggestEntity(ref));
+        }
+        return refMeta.getName();
     }
 
     /**

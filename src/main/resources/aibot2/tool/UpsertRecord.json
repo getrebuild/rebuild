@@ -9,7 +9,7 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "目标实体名称或标识（可通过 ListEntities 工具查询）"
+          "description": "目标实体名称（可通过 ListEntities 工具查询的 name）"
         },
         "recordData": {
           "type": "object",

@@ -31,7 +31,7 @@
               },
               "mainEntity": {
                 "type": "string",
-                "description": "主实体名称（可选），指定后创建为明细实体。主实体必须是独立实体，不能是明细实体"
+                "description": "主实体名称（可选，ListEntities 返回的 name），指定后创建为明细实体。主实体必须是独立实体，不能是明细实体"
               },
               "nameField": {
                 "type": "boolean",

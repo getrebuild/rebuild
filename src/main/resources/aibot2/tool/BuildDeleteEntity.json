@@ -9,7 +9,7 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "要删除的实体标识，支持实体名称（如 Account）或实体标签（如 客户）。可通过 ListEntities 获取"
+          "description": "要删除的实体名称（如 Account），可通过 ListEntities 获取"
         }
       },
       "required": ["entity"],

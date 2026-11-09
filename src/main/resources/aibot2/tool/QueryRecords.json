@@ -9,7 +9,7 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "实体名称、数字code或标签名称，支持模糊匹配（可通过 ListEntities 工具查询可用实体）"
+          "description": "实体名称（可通过 ListEntities 工具查询可用实体的 name）"
         },
         "name": {
           "type": "string",
@@ -47,7 +47,7 @@
         },
         "fields": {
           "type": "string",
-          "description": "返回的字段名称列表（逗号分隔）。不传则返回所有可查询字段"
+          "description": "返回的字段名列表（逗号分隔）。不传则返回所有可查询字段"
         },
         "limit": {
           "type": "integer",
@@ -55,7 +55,7 @@
         },
         "sort": {
           "type": "string",
-          "description": "排序字段及方向，格式为 字段名:asc 或 字段名:desc（如 modifiedOn:desc）。不传则默认按修改时间倒序"
+          "description": "排序字段名及方向，格式为 字段名:asc 或 字段名:desc（如 modifiedOn:desc）。不传则默认按修改时间倒序"
         },
         "pageNo": {
           "type": "integer",

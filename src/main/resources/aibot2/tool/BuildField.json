@@ -9,7 +9,7 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "所属实体名称"
+          "description": "所属实体名称（ListEntities 返回的 name）"
         },
         "fieldLabel": {
           "type": "string",
@@ -32,7 +32,7 @@
         },
         "refEntity": {
           "type": "string",
-          "description": "引用实体名称。type 为 REFERENCE 或 N2NREFERENCE 时必填"
+          "description": "引用实体名称（ListEntities 返回的 name）。type 为 REFERENCE 或 N2NREFERENCE 时必填。引用字段所在实体自身时填 @self，如部门表的上级部门字段"
         },
         "options": {
           "type": "array",

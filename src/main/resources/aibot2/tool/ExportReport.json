@@ -9,7 +9,7 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "实体名称或标签（用于查询可用报表模板）"
+          "description": "实体名称（ListEntities 返回的 name，用于查询可用报表模板）"
         },
         "reportId": {
           "type": "string",
@@ -56,7 +56,7 @@
         },
         "fields": {
           "type": "array",
-          "description": "导出哪些字段（仅内置数据导出有效），字段名称或标签均可，不传则导出全部可导出字段",
+          "description": "导出哪些字段（仅内置数据导出有效），不传则导出全部可导出字段",
           "items": {
             "type": "string"
           }

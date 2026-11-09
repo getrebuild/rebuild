@@ -14,7 +14,7 @@
         },
         "entity": {
           "type": "string",
-          "description": "实体名称。build 时必填；validate 时建议填写，填写后会校验公式中的字段变量是否真实存在，不填则仅提取变量名不做校验"
+          "description": "实体名称（ListEntities 返回的 name）。build 时必填；validate 时建议填写，填写后会校验公式中的字段变量是否真实存在，不填则仅提取变量名不做校验"
         },
         "formula": {
           "type": "string",

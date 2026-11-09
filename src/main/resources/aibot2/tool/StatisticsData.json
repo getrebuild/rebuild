@@ -9,11 +9,11 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "实体名称、数字code或标签名称（可通过 ListEntities 工具查询可用实体）"
+          "description": "实体名称（可通过 ListEntities 工具查询可用实体的 name）"
         },
         "aggField": {
           "type": "string",
-          "description": "聚合字段名或标签（COUNT 时可不传或传 *，SUM/AVG/MAX/MIN 时必须为数值或日期字段）"
+          "description": "聚合字段名（COUNT 时可不传或传 *，SUM/AVG/MAX/MIN 时必须为数值或日期字段）"
         },
         "aggFunc": {
           "type": "string",
@@ -22,7 +22,7 @@
         },
         "groupBy": {
           "type": "string",
-          "description": "分组字段名或标签（可选，支持逗号分隔多个字段）。按指定字段分组后返回每组的聚合值"
+          "description": "分组字段名（可选，支持逗号分隔多个字段）。按指定字段分组后返回每组的聚合值"
         },
         "filter": {
           "type": "array",
