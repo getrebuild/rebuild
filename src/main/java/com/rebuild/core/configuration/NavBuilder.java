@@ -338,7 +338,7 @@ public class NavBuilder extends NavManager {
             navsOfMinApps.add(JSONUtils.toJSONObject(
                     NAV_ITEM_PROPS,
                     new Object[]{
-                            StringUtils.defaultIfBlank(config.getString("icon"), "texture"),
+                            StringUtils.defaultIfBlank(config.getString("icon"), "mdi-shimmer"),
                             cb.getString("name"),
                             NAV_MINAPP,
                             cb.getID("id")}));
