@@ -8,6 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2;
 
 import cn.devezhao.persist4j.engine.ID;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.io.File;
 import java.util.List;
@@ -18,14 +21,23 @@ import java.util.List;
  * @author RB
  * @since 4.6
  */
+@Getter
+@Accessors(chain = true)
 public class AskRequest {
 
     private final String userContent;
+
+    @Setter
     private String prompt;
+    @Setter
     private List<File> files;
+    @Setter
     private String source;
+    @Setter
     private ID chatid;
+    @Setter
     private AibotAgent agent;
+    @Setter
     private ID user;
 
     /**
@@ -33,63 +45,5 @@ public class AskRequest {
      */
     public AskRequest(String userContent) {
         this.userContent = userContent;
-    }
-
-    public AskRequest setPrompt(String prompt) {
-        this.prompt = prompt;
-        return this;
-    }
-
-    public AskRequest setFiles(List<File> files) {
-        this.files = files;
-        return this;
-    }
-
-    public AskRequest setSource(String source) {
-        this.source = source;
-        return this;
-    }
-
-    public AskRequest setChatid(ID chatid) {
-        this.chatid = chatid;
-        return this;
-    }
-
-    public AskRequest setAgent(AibotAgent agent) {
-        this.agent = agent;
-        return this;
-    }
-
-    public AskRequest setUser(ID user) {
-        this.user = user;
-        return this;
-    }
-
-    public String getUserContent() {
-        return userContent;
-    }
-
-    public String getPrompt() {
-        return prompt;
-    }
-
-    public List<File> getFiles() {
-        return files;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public ID getChatid() {
-        return chatid;
-    }
-
-    public AibotAgent getAgent() {
-        return agent;
-    }
-
-    public ID getUser() {
-        return user;
     }
 }
