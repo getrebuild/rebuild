@@ -32,8 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static cn.devezhao.commons.web.WebUtils.CURRENT_USER;
-import static com.rebuild.utils.AppUtils.URL_AUTHTOKEN;
-import static com.rebuild.web.WebConstants.AUTH_TOKEN;
 
 /**
  * @author devezhao
@@ -51,17 +49,7 @@ public class AiBotController extends LoginAction {
         }
 
         ID user = AppUtils.getRequestUser(request);
-        String authToken;
-        // token exchange
-        if (user == null && (authToken = request.getParameter(URL_AUTHTOKEN)) != null) {
-            user = AuthTokenManager.verifyToken(authToken, false, true);
-            if (user != null) {
-                ServletUtils.setSessionAttribute(request, CURRENT_USER, user);
-                request.setAttribute(AUTH_TOKEN, authToken);
-                UserContextHolder.setUser(user);
-                request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(user));
-            }
-        }
+        if (user == null) user = getRequestUserViaTokenExchange(request);
 
         // 自动登录（记住登录）
         if (user == null) {
@@ -93,5 +81,25 @@ public class AiBotController extends LoginAction {
     public RespBody checkConfigured(HttpServletRequest request) {
         if (AppUtils.getRequestUser(request) == null) return RespBody.error();
         return RespBody.ok(Config.availableAiBot());
+    }
+
+    /**
+     * 从 URL 参数 `_authToken` 换取登录态（用于 iframe/独立窗口）
+     *
+     * @param request
+     * @return null or UserID
+     */
+    public static ID getRequestUserViaTokenExchange(HttpServletRequest request) {
+        String authToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
+        if (authToken == null) return null;
+
+        ID user = AuthTokenManager.verifyToken(authToken, false, true);
+        if (user == null) return null;
+
+        ServletUtils.setSessionAttribute(request, CURRENT_USER, user);
+        request.setAttribute(WebConstants.AUTH_TOKEN, authToken);
+        UserContextHolder.setUser(user);
+        request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(user));
+        return user;
     }
 }
