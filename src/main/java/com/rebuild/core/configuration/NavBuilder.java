@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.user.PageTokenVerify;
 import com.rebuild.core.Application;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -71,6 +72,12 @@ public class NavBuilder extends NavManager {
     );
     // 项目所在位置
     private static final int NAV_PROJECT__INDEX = 4;
+
+    // 新建微应用
+    private static final JSONObject NAV_MINAPP__MANAGE = JSONUtils.toJSONObject(
+            NAV_ITEM_PROPS,
+            new String[]{"plus", "添加微应用", "BUILTIN", NAV_MINAPP + "--manage"}
+    );
 
     private static final Pattern PATT_LISTURL437 = Pattern.compile("/app/(\\w+)/(list|view|form)");
 
@@ -147,6 +154,13 @@ public class NavBuilder extends NavManager {
         if (config == null) {
             JSONArray useDefault = useBlankNav(user);
             ((JSONObject) useDefault.get(NAV_PROJECT__INDEX)).put("sub", buildAvailableProjects(user));
+            for (Object item : useDefault) {
+                JSONObject nav = (JSONObject) item;
+                if (NAV_MINAPP.equals(nav.getString("value"))) {
+                    nav.put("sub", buildAvailableMinApps(user));
+                    break;
+                }
+            }
             return useDefault;
         }
 
@@ -176,6 +190,8 @@ public class NavBuilder extends NavManager {
                 nav.put("sub", buildAvailableProjects(user));
             } else if (NAV_DASHBOARD.equals(nav.getString("value"))) {
                 nav.put("sub", buildAvailableDashboards(user));
+            } else if (NAV_MINAPP.equals(nav.getString("value"))) {
+                nav.put("sub", buildAvailableMinApps(user));
             }
         }
 
@@ -202,7 +218,8 @@ public class NavBuilder extends NavManager {
             if (NAV_PARENT.equals(value)) {
                 return true;
             } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)
-                    || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value) || NAV_DIVIDER.equals(value)) {
+                    || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value) || NAV_DIVIDER.equals(value)
+                    || NAV_MINAPP.equals(value)) {
                 return false;
             } else if (NAV_APPROVAL.equals(value)) {
                 // v4.4: 修订 `filterBadge`
@@ -306,6 +323,32 @@ public class NavBuilder extends NavManager {
             navsOfProjects.add(NAV_PROJECT__ADD.clone());
         }
         return navsOfProjects;
+    }
+
+    /**
+     * 动态获取微应用菜单
+     *
+     * @param user
+     * @return
+     */
+    private JSONArray buildAvailableMinApps(ID user) {
+        JSONArray navsOfMinApps = new JSONArray();
+        for (ConfigBean cb : AibotConfigManager.instance.listMinAppsForUser(user)) {
+            JSONObject config = (JSONObject) cb.getJSON("config");
+            navsOfMinApps.add(JSONUtils.toJSONObject(
+                    NAV_ITEM_PROPS,
+                    new Object[]{
+                            StringUtils.defaultIfBlank(config.getString("icon"), "texture"),
+                            cb.getString("name"),
+                            NAV_MINAPP,
+                            cb.getID("id")}));
+        }
+
+        // 管理员显示管理入口
+        if (UserHelper.isAdmin(user)) {
+            navsOfMinApps.add(NAV_MINAPP__MANAGE.clone());
+        }
+        return navsOfMinApps;
     }
 
     /**
@@ -468,6 +511,18 @@ public class NavBuilder extends NavManager {
             navName = "nav_entity--APPROVAL";
             navUrl = String.format("%s/approval/home", AppUtils.getContextPath());
 
+        } else if (NAV_MINAPP.equals(navType)) {
+            navName = "nav_minapp-" + navName;
+            navUrl = AppUtils.getContextPath("/pages/minapp/" + navUrl + "?frame=1");
+
+        } else if (NAV_MINAPP.equals(navName)) {
+            navName = "nav_entity--MINAPP";
+            navUrl = AppUtils.getContextPath("/pages/minapp");
+
+        } else if (navName.startsWith(NAV_MINAPP)) {
+            navName = "nav_minapp--add";
+            navUrl = AppUtils.getContextPath("/admin/integration/aibot-minapps");
+
         } else if (NAV_DIVIDER.equals(navName)) {
             navUrl = NAV_DIVIDER;
 
@@ -542,7 +597,8 @@ public class NavBuilder extends NavManager {
             Document navBody = Jsoup.parseBodyFragment(navHtml.toString());
             for (Element nav : navBody.select("." + activeNav)) {
                 nav.addClass("active");
-                if (activeNav.startsWith("nav_entity-") || activeNav.startsWith("nav_project-")) {
+                if (activeNav.startsWith("nav_entity-") || activeNav.startsWith("nav_project-")
+                        || activeNav.startsWith("nav_minapp-")) {
                     Element navParent = nav.parent();
                     if (navParent != null && navParent.hasClass("sub-menu-ul")) {
                         //noinspection ConstantConditions
