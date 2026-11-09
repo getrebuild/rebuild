@@ -4717,7 +4717,7 @@ html.external-auth .auth-body.must-center .login {
 }
 
 .init-models fieldset {
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .init-models fieldset legend {
@@ -7102,4 +7102,42 @@ input[type='password']::-ms-clear {
   padding: 14px 20px 16px;
   display: flex;
   align-items: center;
+}
+
+.nav-tabs.nav-tabs-segment {
+  display: flex;
+  width: fit-content;
+  padding: 3px;
+  gap: 2px;
+  background-color: #f1f3f6;
+  border-bottom: 0;
+  border-radius: 7px;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item {
+  margin: 0;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link {
+  padding: 6px 15px;
+  border: 0 none;
+  border-radius: 5px;
+  background-color: transparent;
+  color: #5b626e;
+  font-size: 13px;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link:hover,
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link:focus {
+  border: 0 none;
+  background-color: transparent;
+  color: #2b2f36;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link.active {
+  border: 0 none;
+  background-color: #fff;
+  color: #2b2f36;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }

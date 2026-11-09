@@ -506,8 +506,8 @@ class ModelConf extends React.Component {
     return (
       <div className="rb-model">
         <h3>
-          {$L('选择初始业务系统')}
-          <div className="link" dangerouslySetInnerHTML={{ __html: $L('你可以选择初始业务实体，或使用整体解决方案') }} />
+          {$L('选择业务应用')}
+          <div className="link" dangerouslySetInnerHTML={{ __html: $L('选择要预装的业务应用，不选择也可以直接安装') }} />
         </h3>
 
         {DatabaseConf_mount ? (
@@ -528,7 +528,7 @@ class ModelConf extends React.Component {
           </button>
           <div className="float-right">
             <button type="button" className="btn btn-primary" onClick={this._next}>
-              {$L('完成安装')}
+              {$L('开始安装')}
             </button>
           </div>
           <div className="clearfix" />
@@ -538,13 +538,22 @@ class ModelConf extends React.Component {
   }
 
   _buildProps() {
+    if (this._InitModels && this._InitModels.getMode() === 'package') return []
     return this._InitModels ? this._InitModels.getSelected() : []
   }
 
-  _buildPackage = () => (this._InitModels ? this._InitModels.getPackage() : null)
+  _buildPackage = () => {
+    if (!this._InitModels || this._InitModels.getMode() !== 'package') return null
+    return this._InitModels.getPackage()
+  }
 
   _prev = () => this.props.$$$parent.setState({ stepNo: 4, modelProps: this._buildProps(), rbsystemPackage: this._buildPackage() })
   _next = () => {
+    if (this._InitModels && this._InitModels.getMode() === 'package' && !this._InitModels.getPackage()) {
+      RbHighbar.create($L('请选择应用资源包'))
+      return
+    }
+
     const ps = this._buildProps()
     this.props.$$$parent.setState({ stepNo: 10, modelProps: ps, rbsystemPackage: this._buildPackage() }, () => this.props.$$$parent.install())
   }

@@ -11,7 +11,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class InitModels extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props }
+    this.state = { ...props, installMode: props.rbsystemPackage ? 'package' : 'modules' }
     this._$refs = {}
   }
 
@@ -26,15 +26,45 @@ class InitModels extends React.Component {
       return null
     }
 
-    const types = this.state.data.types
-    const schemas = this.state.data.schemas
+    const types = this.state.data.types || {}
+    const schemas = this.state.data.schemas || []
+    const mode = this.state.installMode
+
+    return (
+      <div className="init-models">
+        <ul className="nav nav-tabs nav-tabs-segment mx-auto">
+          <li className="nav-item">
+            <a className={`nav-link${mode === 'modules' ? ' active' : ''}`} role="button" onClick={() => this.setState({ installMode: 'modules' })}>
+              {$L('按业务模块安装')}
+            </a>
+          </li>
+          <li className="nav-item">
+            <a className={`nav-link${mode === 'package' ? ' active' : ''}`} role="button" onClick={() => this.setState({ installMode: 'package' })}>
+              {$L('从应用商店安装')}
+            </a>
+          </li>
+        </ul>
+        <div className="tab-content p-0">
+          <div className={`tab-pane${mode === 'modules' ? ' active' : ''}`}>{this._renderModels(types, schemas)}</div>
+          <div className={`tab-pane${mode === 'package' ? ' active' : ''}`}>{this._renderPackage()}</div>
+        </div>
+      </div>
+    )
+  }
+
+  _renderModels(types, schemas) {
+    const groups = Object.keys(types)
+    if (groups.length === 0) {
+      return <RbAlertBox message={$L('暂无可用的业务实体，你仍可以继续安装，稍后在后台创建')} />
+    }
+
     const _find = (s) => {
       return schemas.find((x) => s === x.key)
     }
 
     return (
-      <div className="init-models">
-        {Object.keys(types).map((t) => {
+      <div>
+        {groups.map((t) => {
           return (
             <fieldset key={t}>
               <legend>
@@ -53,12 +83,15 @@ class InitModels extends React.Component {
               <form>
                 {types[t].map((s) => {
                   const item = _find(s)
+                  if (!item) return null
+
                   return (
                     <div key={item.key}>
                       <label className="custom-control custom-checkbox m-0" title={item.desc} ref={(c) => (this._$refs[item.key] = c)}>
                         <input className="custom-control-input" type="checkbox" value={item.key} data-refs={item.refs} onClick={(e) => this._handleSelect(e)} disabled={item.exists} />
                         <span className="custom-control-label text-bold">
                           {item.name}
+                          {item.exists && <span className="text-muted font-weight-normal ml-1">{$L('已安装')}</span>}
                           {item.rbv && <i className="zmdi zmdi-info-outline text-warning zicon ml-1 J_rbv-tip" title={$L('部分功能可能需要商业版才能正常运行')} />}
                         </span>
                         <p>{item.desc}</p>
@@ -71,75 +104,50 @@ class InitModels extends React.Component {
             </fieldset>
           )
         })}
-
-        <hr style={{ borderTopWidth: 2, marginBottom: 20, marginTop: 24 }} />
-
-        {this.state.data.apps && this.state.data.apps.length > 0 && (
-          <fieldset>
-            <legend>
-              <strong>
-                <i className="icon mdi mdi-store mr-1 fs-17 down-1" />
-                {$L('行业方案')}
-              </strong>
-            </legend>
-            <form>
-              {this.state.data.apps.map((item) => (
-                <div key={item.url}>
-                  <a className="d-block hover-opacity" href={item.url} target="_blank" rel="noopener noreferrer" title={item.desc}>
-                    <strong>{item.name}</strong>
-                    <p>{item.desc}</p>
-                  </a>
-                </div>
-              ))}
-            </form>
-            <div className="clearfix" />
-          </fieldset>
-        )}
-
-        <fieldset>
-          <legend>
-            <strong>
-              <i className="icon mdi mdi-store mr-1 fs-17 down-1" />
-              {$L('应用商店')}
-            </strong>
-          </legend>
-          <form>
-            <div className="w-100">
-              <label className="text-muted">{WrapHtml($L('上传从 REBUILD [应用商店](https://getrebuild.com/store/) 下载的应用资源包，自动安装业务系统'))}</label>
-              <div className="file-select">
-                <input
-                  type="file"
-                  className="inputfile"
-                  id="upload-rbsystem-package"
-                  accept=".rbspkg"
-                  data-local="temp"
-                  ref={(c) => (this._$upload = c)}
-                  disabled={!!(this.state.uploading || rb.currentUser)}
-                />
-                <label htmlFor="upload-rbsystem-package" className="btn-secondary" disabled={!!(this.state.uploading || rb.currentUser)}>
-                  <i className="zmdi zmdi-upload" />
-                  {this.state.uploading ? <span className="text-muted">{$L('上传中...')}</span> : <span>{$L('选择文件')}</span>}
-                </label>
-                {this.state.rbsystemPackage && (
-                  <span className="ml-2 text-bold">
-                    <i className="mdi-package-check mdi mr-1" />
-                    {$fileCutName(this.state.rbsystemPackage)}
-                  </span>
-                )}
-              </div>
-              {rb.currentUser && <RbAlertBox message={$L('应用资源包仅支持全新安装时使用')} className="mb-0" />}
-            </div>
-          </form>
-          <div className="clearfix" />
-        </fieldset>
       </div>
+    )
+  }
+
+  _renderPackage() {
+    const packageLabel = $L('选择从 REBUILD [应用商店](https://getrebuild.com/store/) 下载的应用资源包，整套业务系统一次装好，不用从零搭建。')
+    return (
+      <form>
+        <div className="w-100 p-4 mt-4">
+          <label className="text-dark">{WrapHtml(packageLabel)}</label>
+          <div className="file-select">
+            <input
+              type="file"
+              className="inputfile"
+              id="upload-rbsystem-package"
+              accept=".rbspkg"
+              data-local="temp"
+              ref={(c) => (this._$upload = c)}
+              disabled={!!(this.state.uploading || rb.currentUser)}
+            />
+            <label htmlFor="upload-rbsystem-package" className="btn-secondary" disabled={!!(this.state.uploading || rb.currentUser)}>
+              <i className="zmdi zmdi-upload" />
+              {this.state.uploading ? <span className="text-muted">{$L('上传中...')}</span> : <span>{$L('选择文件')}</span>}
+            </label>
+            {this.state.rbsystemPackage && (
+              <span className="ml-2 text-bold">
+                <i className="mdi-package-check mdi mr-1" />
+                {$fileCutName(this.state.rbsystemPackage)}
+                <a className="ml-2 text-primary font-weight-normal" role="button" onClick={this._removePackage}>
+                  {$L('移除')}
+                </a>
+              </span>
+            )}
+          </div>
+          {rb.currentUser && <RbAlertBox message={$L('应用资源包仅支持全新安装时使用')} className="mb-0" />}
+        </div>{' '}
+      </form>
     )
   }
 
   componentDidMount() {
     $.get(rb.isAdminVerified ? '/admin/rbstore/load-metaschemas' : '/setup/init-models', (res) => {
       const s = {}
-      if (res.error_code > 0) s.hasError = $L('暂无可用业务实体')
+      if (res.error_code > 0) s.hasError = $L('暂无可用的业务实体，你仍可以继续安装，稍后在后台创建')
       else s.data = res.data
       this.setState(s, () => {
         $('i.J_rbv-tip').tooltip()
@@ -157,20 +165,30 @@ class InitModels extends React.Component {
     })
   }
 
+  _checkRefs($chk) {
+    const refs = ($chk.data('refs') || '').split(',')
+    refs.forEach((s) => {
+      if (!s) return
+      const $label = $(this._$refs[s])
+      if (!$label.length) return
+
+      const $ref = $label.find('input')
+      if ($ref.attr('disabled') || $ref.prop('checked')) return
+
+      $ref.prop('checked', true)
+      this._syncGroupAll($ref)
+    })
+  }
+
   _handleSelect(e) {
     const $el = $(e.currentTarget)
-    if (!$el.prop('checked')) return
-
-    const refs = ($el.data('refs') || '').split(',')
-    refs.forEach((s) => {
-      const $chk = $(this._$refs[s]).find('input')
-      if ($chk.attr('disabled')) return
-      $chk.prop('checked', true)
-    })
+    if ($el.prop('checked')) this._checkRefs($el)
+    this._syncGroupAll($el)
   }
 
   _handleSelectAll(e) {
     const chk = $(e.currentTarget).prop('checked')
+    const that = this
     $(e.currentTarget)
       .parents('legend')
       .next()
@@ -178,8 +196,33 @@ class InitModels extends React.Component {
       .each(function () {
         const $chk = $(this)
         if ($chk.attr('disabled')) return
-        $(this).prop('checked', chk)
+        $chk.prop('checked', chk)
+        if (chk) that._checkRefs($chk)
+        that._syncGroupAll($chk)
       })
+  }
+
+  _syncGroupAll($chk) {
+    const $group = $chk.closest('fieldset')
+    if (!$group.length) return
+
+    const $all = $group.find('legend input')
+    if (!$all.length) return
+
+    const $items = $group.find('form input')
+    const total = $items.filter(':not(:disabled)').length
+    const checked = $items.filter(':checked').length
+    $all.prop('checked', total > 0 && checked === total)
+    $all.prop('indeterminate', checked > 0 && checked < total)
+  }
+
+  _removePackage = () => {
+    if (this._$upload) this._$upload.value = ''
+    this.setState({ rbsystemPackage: null })
+  }
+
+  getMode() {
+    return this.state.installMode
   }
 
   getSelected() {
