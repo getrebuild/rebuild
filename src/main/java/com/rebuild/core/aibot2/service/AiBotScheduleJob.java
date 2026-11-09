@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AskRequest;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.tool.ScheduleTask;
@@ -138,7 +139,7 @@ public class AiBotScheduleJob extends DistributedJobLock {
                 return;
             }
 
-            String aiResponse = ChatManager.ask(content, null, null, "AiBotScheduleJob");
+            String aiResponse = ChatManager.ask(new AskRequest(content).setSource("AiBotScheduleJob"))[0];
 
             String message = String.format("**[%s]**\n\n%s", subject, aiResponse);
             Application.getNotifications().send(

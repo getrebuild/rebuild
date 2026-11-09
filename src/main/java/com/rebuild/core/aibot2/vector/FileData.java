@@ -16,6 +16,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.aibot2.AiBotException;
 import com.rebuild.core.aibot2.AibotAgent;
 import com.rebuild.core.aibot2.AibotContextHolder;
+import com.rebuild.core.aibot2.AskRequest;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -170,13 +171,13 @@ public class FileData implements VectorData {
         String askContent = "请详细描述这张图片中的内容，包括所有可见的文字、数据、表格、界面元素等信息";
 
         if (mimeType.startsWith("image/")) {
-            return ChatManager.ask(askContent, null, Collections.singletonList(file), "FileData");
+            return ChatManager.ask(new AskRequest(askContent).setFiles(Collections.singletonList(file)).setSource("FileData"))[0];
         } else {
             List<File> pageImages = renderPdfToImages(file);
             if (pageImages.isEmpty()) return null;
 
             try {
-                return ChatManager.ask(askContent, null, pageImages, "FileData");
+                return ChatManager.ask(new AskRequest(askContent).setFiles(pageImages).setSource("FileData"))[0];
             } finally {
                 pageImages.forEach(FileUtils::deleteQuietly);
             }

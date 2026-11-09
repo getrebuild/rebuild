@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AskRequest;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.metadata.EntityHelper;
@@ -124,7 +125,7 @@ public abstract class BaseFeedsService extends ObservableService {
                 if (Config.availableAiBot()) {
                     String userContent = "请直接、简洁的回答问题（不要MD格式）：\n" + content;
                     try {
-                        aiReply = ChatManager.askAsUser(userContent, null, null, "BaseFeedsService", publishUser);
+                        aiReply = ChatManager.ask(new AskRequest(userContent).setSource("BaseFeedsService").setUser(publishUser))[0];
                     } catch (Exception ex) {
                         log.error("AiBot error during ask", ex);
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
