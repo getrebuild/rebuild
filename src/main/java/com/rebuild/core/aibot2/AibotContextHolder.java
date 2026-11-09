@@ -59,6 +59,26 @@ public class AibotContextHolder {
     }
 
     /**
+     * 替换当前 Agent，返回原值（用于嵌套调用恢复）
+     *
+     * @param agent
+     * @return
+     */
+    public static AibotAgent swapAgent(AibotAgent agent) {
+        AibotAgent old = AGENT.get();
+        restoreAgent(agent);
+        return old;
+    }
+
+    /**
+     * @param agent
+     */
+    public static void restoreAgent(AibotAgent agent) {
+        if (agent == null) AGENT.remove();
+        else AGENT.set(agent);
+    }
+
+    /**
      * @return
      */
     public static AibotAgent getAgent() {

@@ -15,6 +15,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigNotFoundException;
 import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -75,6 +76,24 @@ public class AgentDefs {
                 .setAllowNewChat(Boolean.TRUE.equals(conf.getBoolean("allowNewChat")))
                 .setAllowUpload(Boolean.TRUE.equals(conf.getBoolean("allowUpload")))
                 .setAllowSkill(Boolean.TRUE.equals(conf.getBoolean("allowSkill")));
+    }
+
+    /**
+     * 获取指定智能体并校验对用户是否可用
+     *
+     * @param agentId 智能体 ID 字面量，空表示未指定
+     * @param user 校验用户
+     * @return null 表示未指定智能体
+     * @throws AiBotException 智能体不存在或不可用
+     */
+    public static AibotAgent getAvailableAgent(String agentId, ID user) {
+        if (StringUtils.isBlank(agentId)) return null;
+
+        if (!ID.isId(agentId)
+                || !AibotConfigManager.instance.isAgentAvailable(ID.valueOf(agentId), user)) {
+            throw new AiBotException(Language.L("智能体不存在或不可用") + ":" + agentId);
+        }
+        return getAgent(ID.valueOf(agentId));
     }
 
     /**
