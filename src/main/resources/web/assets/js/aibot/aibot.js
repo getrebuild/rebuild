@@ -16,13 +16,12 @@ class AiBot extends React.Component {
   }
 
   render() {
-    const dockMode = this.state.dockMode
     return (
       <div className="aibot modal" ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <i className={`icon mdi ${(this.state.agent && this.state.agent.icon) || 'mdi-shimmer'}`} />
+              <i className={`icon mdi ${(this.state.agent && this.state.agent.icon) || 'mdi-shimmer'} ai-color`} />
               <h3 className="modal-title">{(this.state.agent && this.state.agent.name) || rb._aibotName || $L('Rex AI 助手')}</h3>
               <button
                 className="close fs-19"
@@ -47,8 +46,8 @@ class AiBot extends React.Component {
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('会话列表')}>
                 <span className="mdi mdi-segment" />
               </button>
-              <button className="close dock-toggle" type="button" onClick={() => this.toggleDockMode()} title={dockMode ? $L('浮动模式') : $L('侧栏模式')}>
-                <span className={`mdi ${dockMode ? 'mdi-dock-window' : 'mdi-dock-right'}`} />
+              <button className="close dock-return" type="button" onClick={() => this.setDockMode()} title={$L('停靠侧栏')}>
+                <span className="mdi mdi-dock-right" />
               </button>
               <button className="close hide2" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="mdi mdi-close" />
@@ -100,6 +99,7 @@ class AiBot extends React.Component {
       const startY = e.clientY
       const $dialog = $modal.find('.modal-dialog')
       let dockOffset = null
+      let baseOffset = null
 
       const onMove = (ev) => {
         const dx = ev.clientX - startX
@@ -109,7 +109,8 @@ class AiBot extends React.Component {
         if (!dockOffset) {
           dockOffset = $dialog.offset()
           $modal.removeClass('aibot-dock')
-          $dialog.css({ position: 'fixed', right: 'unset', bottom: 'unset' })
+          $dialog.css({ position: 'relative', right: 'unset', bottom: 'unset', left: '', top: '' })
+          baseOffset = $dialog.offset()
           this.setState({ dockMode: false })
           $storage.set('__AiBotDockMode', 'false')
           $dialog.draggable('enable')
@@ -117,8 +118,8 @@ class AiBot extends React.Component {
         }
 
         $dialog.css({
-          left: dockOffset.left - $(window).scrollLeft() + dx,
-          top: dockOffset.top - $(window).scrollTop() + dy,
+          left: dockOffset.left - baseOffset.left + dx,
+          top: dockOffset.top - baseOffset.top + dy,
         })
       }
 
@@ -151,25 +152,14 @@ class AiBot extends React.Component {
     this._Chat.toggleSidebar()
   }
 
-  toggleDockMode() {
-    const dockMode = !this.state.dockMode
-    this.setState({ dockMode }, () => {
-      $storage.set('__AiBotDockMode', dockMode ? 'true' : 'false')
-      if (dockMode) $(this._$modal).addClass('aibot-dock')
-      else $(this._$modal).removeClass('aibot-dock')
-
-      const $dialog = $(this._$modal).find('.modal-dialog')
-      if (dockMode) {
-        $dialog.draggable('disable')
-        $dialog.css({ left: '', top: '', right: '', bottom: '' })
-      } else {
-        $dialog.draggable('enable')
-        const last = $storage.get('__AiBotLastChatModalPos')
-        if (last) {
-          const [l, t] = last.split(',').map((v) => parseInt(v))
-          $dialog.css({ left: l, top: Math.max(-22, t), right: 'unset', bottom: 'unset' })
-        }
-      }
+  setDockMode() {
+    if (this.state.dockMode) return
+    this.setState({ dockMode: true }, () => {
+      $storage.set('__AiBotDockMode', 'true')
+      const $modal = $(this._$modal).addClass('aibot-dock')
+      const $dialog = $modal.find('.modal-dialog')
+      $dialog.draggable('disable')
+      $dialog.css({ left: '', top: '', right: '', bottom: '' })
     })
   }
 

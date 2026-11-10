@@ -359,7 +359,7 @@ class ChatInput extends React.Component {
           </div>
           <div className="chat-input-action">
             {agents.length > 1 && (
-              <span className="dropup chat-agents">
+              <span className="dropup chat-agents down-2">
                 <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('切换智能体')}>
                   <i className={`icon mdi ${current.icon || 'mdi-shimmer'} down-2 mr-1 ai-color`} />
                   {current.name}
@@ -399,7 +399,7 @@ class ChatInput extends React.Component {
                       )}
                     </a>
                   ))}
-                  {skills.length === 0 && <div className="dropdown-item text-muted">{$L('无可用技能')}</div>}
+                  {skills.length === 0 && <div className="dropdown-item text-muted text-italic">{$L('暂无技能')}</div>}
                 </div>
               </span>
               <span className="dropup">
