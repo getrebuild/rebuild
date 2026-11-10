@@ -674,7 +674,7 @@ const _renderMcpConfig = function () {
 
   renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0], function () {
     const $pre = $mcp.find('pre')
-    const $a = $('<a>', { href: '../../settings/user#secure', target: '_blank', text: `<${$L('个人秘钥')}>` })
+    const $a = $('<a>', { href: '../../settings/user#mcp', target: '_blank', text: `<${$L('个人秘钥')}>` })
     $pre.html($pre.html().replace('Bearer', 'Bearer ' + $a[0].outerHTML))
   })
 }
