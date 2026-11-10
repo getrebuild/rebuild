@@ -7,10 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.core.Timeout;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.CommonsUtils;
@@ -22,6 +24,8 @@ import org.springframework.util.Assert;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
 
 /**
  * @author Zixin
@@ -143,6 +147,30 @@ public class Config {
      */
     public static boolean availableAiBot() {
         return RebuildConfiguration.getAibotAccount() != null;
+    }
+
+    /**
+     * 默认助手是否可用（全局配置完整且未禁用）
+     *
+     * @return
+     */
+    public static boolean defaultAgentAvailable() {
+        return availableAiBot()
+                && !RebuildConfiguration.getBool(ConfigurationItem.AibotDefaultDisabled);
+    }
+
+    /**
+     * 指定用户可用的 AI 助手名称，不可用返回 null
+     *
+     * @param user
+     * @return
+     */
+    public static String getAvailableAiBot(ID user) {
+        if ((defaultAgentAvailable() || AgentDefs.hasUsableAgent(user))
+                && Application.getPrivilegesManager().allow(user, AllowUseAiBot)) {
+            return RebuildConfiguration.get(ConfigurationItem.AibotName);
+        }
+        return null;
     }
 
     /**

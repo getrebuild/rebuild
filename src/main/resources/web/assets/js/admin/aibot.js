@@ -24,6 +24,13 @@ useEditComp = function (name) {
         <option value="friendly">{$L('亲切')}</option>
       </select>
     )
+  } else if ('AibotDefaultDisabled' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="true">{$L('是')}</option>
+        <option value="false">{$L('否')}</option>
+      </select>
+    )
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
       let option = {

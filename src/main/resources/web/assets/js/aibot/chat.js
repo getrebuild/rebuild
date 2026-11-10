@@ -67,7 +67,7 @@ class Chat extends React.Component {
       ...props,
       messages: [],
       confirmAction: null,
-      agents: [],
+      agents: null,
       agentId: null,
       skills: [],
     }
@@ -304,6 +304,19 @@ class ChatInput extends React.Component {
   render() {
     const _Chat = this.props._Chat
     const agents = _Chat.state.agents || []
+    if (_Chat.state.agents !== null && agents.length === 0 && !_Chat.state.agentId) {
+      return (
+        <div className="chat-input-container">
+          <div className="chat-input text-muted">
+            <div className="w-100 text-center">
+              <i className="mdi mdi-shimmer mr-1 down-1" />
+              {$L('你暂无使用 Rex AI 的权限，请联系管理员开通')}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     const current = _Chat.getCurrentAgent()
     const allSkills = _Chat.state.skills || []
     // 智能体未配置 skills 表示不限制，配置为空数组表示不可用任何技能
@@ -451,11 +464,14 @@ class ChatInput extends React.Component {
 
   hanldeSend() {
     if (this.state.postState !== 0) return
+
+    const _Chat = this.props._Chat
+    if (Array.isArray(_Chat.state.agents) && _Chat.state.agents.length === 0 && !_Chat.state.agentId) return
+
     // 无文字但有附件（文件/记录等）或技能时允许发送
     if ($empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill) return
 
     const content = this.state.content.trim()
-    const _Chat = this.props._Chat
 
     // /new /ref /plan
     const m = content.match(/^\/(new|ref|plan)(?:\s+([\s\S]*))?$/)

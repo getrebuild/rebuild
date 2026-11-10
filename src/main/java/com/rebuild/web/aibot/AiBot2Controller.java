@@ -168,27 +168,40 @@ public class AiBot2Controller extends BaseController {
         }
     }
 
-    // 系统 AI 助手未配置时，若所使用的智能体具备自有模型连接（含回退系统配置）则放行
+    // 默认助手不可用（未配置或已禁用）时，若所使用的智能体具备自有模型连接（含回退系统配置）则放行
     private String getUnavailableMsg(HttpServletRequest req) {
-        if (Config.availableAiBot()) return null;
+        if (Config.defaultAgentAvailable()) return null;
 
+        ID user = getRequestUser(req);
         AibotAgent agent = null;
+        boolean useDefault;
         ID chatid = getOwnedChatId(req);
         if (chatid != null) {
             agent = ChatManager.getChat(chatid).getAgent();
+            useDefault = agent.getAgentId() == null;
         } else {
             ID agentId = getIdParameter(req, "agent");
+            useDefault = agentId == null;
             if (agentId != null) {
-                if (!AibotConfigManager.instance.isAgentAvailable(agentId, getRequestUser(req))) {
+                if (!AibotConfigManager.instance.isAgentAvailable(agentId, user)) {
                     return Language.L("智能体不存在或已被删除");
                 }
                 agent = AgentDefs.getAgentQuietly(agentId);
             }
         }
 
+        if (useDefault) {
+            if (Config.availableAiBot()) {
+                return Language.L("默认助手已禁用，请选择智能体");
+            }
+            return UserHelper.isAdmin(user)
+                    ? Language.L("请配置 [Rex AI 助手](/admin/integration/aibot) 后使用")
+                    : Language.L("请联系管理员配置 Rex AI 助手后使用");
+        }
+
         if (agent != null && agent.usable()) return null;
 
-        return UserHelper.isAdmin(getRequestUser(req))
+        return UserHelper.isAdmin(user)
                 ? Language.L("请配置 [Rex AI 助手](/admin/integration/aibot) 后使用")
                 : Language.L("请联系管理员配置 Rex AI 助手后使用");
     }
@@ -249,8 +262,25 @@ public class AiBot2Controller extends BaseController {
                 messages.add(j);
             });
             agentId = chat.getAgent().getAgentId();
-        } else {
+        }
+
+        // 默认助手可用，或当前为已存在的默认助手会话时，才提供默认项
+        JSONArray agents = new JSONArray();
+        if (Config.defaultAgentAvailable() || (chatid != null && agentId == null)) {
+            agents.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "name"},
+                    new Object[]{null, Language.L("默认")}));
+        }
+        agents.addAll(AibotConfigManager.instance.listAgentsForUser(user));
+
+        if (chatid == null) {
             ID initAgent = getIdParameter(req, "agent");
+            // 默认助手不可用时，新会话默认选中第一个可用智能体
+            if (initAgent == null && !Config.defaultAgentAvailable() && !agents.isEmpty()) {
+                initAgent = ID.valueOf(agents.getJSONObject(0).getString("id"));
+            }
+            agentId = initAgent;
+
             JSONObject publish = initAgent == null ? null
                     : AibotConfigManager.instance.getPublishConfig(initAgent, AibotConfigManager.TYPE_AGENT);
 
@@ -298,11 +328,6 @@ public class AiBot2Controller extends BaseController {
             }
         }
 
-        JSONArray agents = new JSONArray();
-        agents.add(JSONUtils.toJSONObject(
-                new String[]{"id", "name"},
-                new Object[]{null, Language.L("默认")}));
-        agents.addAll(AibotConfigManager.instance.listAgentsForUser(user));
         data.put("agents", agents);
         data.put("agentId", agentId);
         data.put("skills", SkillDefs.listSkills());

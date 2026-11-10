@@ -123,6 +123,22 @@
                       </tr>
                     </tbody>
                   </table>
+                  <h5>[[${bundle.L('访问控制')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.L('禁用默认助手')}]]</td>
+                        <td
+                          data-id="AibotDefaultDisabled"
+                          th:data-value="${AibotDefaultDisabled ?: 'false'}"
+                          data-optional="true"
+                          th:data-form-text="${bundle.L('禁用后将不再提供默认助手，用户只能使用共享给他们的智能体')}"
+                        >
+                          [[${AibotDefaultDisabled == 'true' ? bundle.L('是') : bundle.L('否')}]]
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                   <div class="edit-footer">
                     <button class="btn btn-link" type="button">[[${bundle.L('取消')}]]</button>
                     <div class="btn-group">
