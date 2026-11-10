@@ -42,6 +42,7 @@ import com.rebuild.web.BaseController;
 import com.rebuild.web.InvalidParameterException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -215,14 +216,14 @@ public class AiBot2Controller extends BaseController {
 
         ID user = getRequestUser(req);
         Object createdBy = QueryHelper.queryFieldValue(chatid, "createdBy");
-        // 管理员可查看和操作所有用户的会话
+        Assert.notNull(createdBy, "Chat Not Found : " + chatid);
         return user.equals(createdBy) || UserHelper.isAdmin(user) ? chatid : null;
     }
 
     private ID getOwnedChatIdNotNull(HttpServletRequest req) {
-        ID chatid = getOwnedChatId(req);
-        if (chatid == null) throw new InvalidParameterException(Language.L("会话不存在或无权访问"));
-        return chatid;
+        ID id = getOwnedChatId(req);
+        Assert.notNull(id, Language.L("会话不存在或无权访问"));
+        return id;
     }
 
     @PostMapping("post/chat-stream-stop")
