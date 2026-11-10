@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FormulaDate, FormulaCalc, FIELD_TYPES */
+/* global FormulaDate, FormulaCalc, FormulaCalcWithCode, FormulaEditor, FIELD_TYPES */
 
 const wpc = window.__PageConfig
 const __gExtConfig = {}
@@ -694,7 +694,11 @@ const _handleCalcFormula = function (formula) {
   const $el = $('#calcFormula2')
   function _FN(s) {
     $('#calcFormula').val(s || '')
-    $el.text(FormulaCalc.textFormula(s, FIELDS_CACHE))
+    if (FormulaEditor.isCode(s)) {
+      renderRbcomp(<span>{FormulaEditor.textCode(s)}</span>, $el)
+    } else {
+      $el.text(FormulaCalc.textFormula(s, FIELDS_CACHE))
+    }
     formula = s
   }
 
@@ -711,9 +715,16 @@ const _handleCalcFormula = function (formula) {
       FIELDS_CACHE = fs
       if (formula) _FN(formula)
     })
+  } else if (formula) {
+    _FN(formula)
   }
 
-  $el.on('click', () => renderRbcomp(<FormulaCalc onConfirm={_FN} fields={FIELDS_CACHE} initFormula={formula} />))
+  $el.on('click', () => {
+    if (!FIELDS_CACHE) return
+    renderRbcomp(
+      <FormulaCalcWithCode entity={wpc.entityName} fields={FIELDS_CACHE} fieldsDeep={1} initFormula={formula} onConfirm={_FN} />,
+    )
+  })
 }
 
 const _handleTag = function (tagList, tagMaxSelect) {

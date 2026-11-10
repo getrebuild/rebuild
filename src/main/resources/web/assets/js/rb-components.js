@@ -1801,8 +1801,14 @@ class CodeEditor extends React.Component {
 
   formatCode() {
     let cc = this.val()
-    cc = $formatCode(cc)
-    this.val(cc)
+    cc = typeof this.props.formatter === 'function' ? this.props.formatter(cc) : $formatCode(cc)
+
+    if (this._CodeMirror) {
+      const cm = this._CodeMirror
+      cm.replaceRange(cc, { line: 0, ch: 0 }, cm.posFromIndex(cm.getValue().length))
+    } else {
+      this.val(cc)
+    }
   }
 
   fullscreen() {

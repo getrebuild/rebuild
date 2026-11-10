@@ -243,3 +243,10 @@ div.series-starts > input:focus {
 .fields ul li.flag-NOW > a::before {
   color: #fbbc05;
 }
+
+textarea.formula-code,
+.code-editor .CodeMirror,
+.code-editor .CodeMirror .CodeMirror-scroll {
+  min-height: 224px;
+  height: auto;
+}

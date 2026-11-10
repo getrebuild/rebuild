@@ -444,6 +444,11 @@ class EditorWithFieldVars extends CodeEditor {
   renderActions() {
     return (
       <div className={`code-editor-actions btm ${this._isCode ? '' : 'light'}`}>
+        {this.props.formatter && (
+          <a title={$L('格式化')} onClick={() => this.formatCode()}>
+            <i className="icon mdi mdi-wrap" />
+          </a>
+        )}
         <span className="dropdown">
           <a title={$L('插入字段变量')} data-toggle="dropdown">
             <i className="mdi mdi-code-braces down-1" />
@@ -491,7 +496,8 @@ class EditorWithFieldVars extends CodeEditor {
   componentDidMount() {
     super.componentDidMount()
 
-    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=3`, (res) => {
+    const fieldsDeep = this.props.fieldsDeep === undefined ? 3 : this.props.fieldsDeep
+    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=${fieldsDeep}`, (res) => {
       this.setState({ fieldVars: res.data || [] }, () => {
         $(this._$fieldVars).perfectScrollbar()
       })
@@ -508,6 +514,12 @@ class EditorWithFieldVars extends CodeEditor {
         this.setState({ funcVars }, () => {
           $(this._$funcVars).perfectScrollbar()
         })
+
+        if (window.AviatorCode) {
+          window.AviatorCode.setFunctions(res.data)
+          const cm = this._CodeMirror
+          if (cm && cm.getOption('mode') === window.AviatorCode.MODE) cm.setOption('mode', window.AviatorCode.MODE)
+        }
       })
     }
 
@@ -549,6 +561,7 @@ class FormulaCalcWithCode extends FormulaCalc {
           }}
           verifyFormula
           entity={this.props.entity}
+          fieldsDeep={this.props.fieldsDeep}
         />
       )
     } else {
@@ -645,10 +658,12 @@ class FormulaEditor extends React.Component {
           showFuncs
           isCode
           entity={this.props.entity}
+          fieldsDeep={this.props.fieldsDeep}
           placeholder="## Support AviatorScript"
           cmOptions={{
-            mode: 'text/x-custom-js',
+            mode: 'text/x-aviator',
           }}
+          formatter={window.$formatAviator}
           value={this.props.initCode}
           ref={(c) => (this._formulaCode = c)}
         />

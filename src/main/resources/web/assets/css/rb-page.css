@@ -5581,6 +5581,11 @@ pre.unstyle {
   background-color: rgba(0, 0, 0, 0.7);
 }
 
+.code-editor .cm-s-material .cm-aviator-var {
+  color: #f07178;
+  font-weight: 500;
+}
+
 .select2-results span.icon-append {
   padding-left: 20px;
   position: relative;
@@ -6489,6 +6494,47 @@ div.formula-code {
 
 .form-control-plaintext.formula > .v.num {
   color: #df5000;
+}
+
+.form-control-plaintext.formula code {
+  display: block;
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.form-control-plaintext.formula.switch-code {
+  padding-right: 40px;
+}
+
+.form-control-plaintext.formula.switch-code + .switch-code-btn {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  display: inline-block;
+  width: 31px;
+  height: 31px;
+  line-height: 32px;
+  text-align: center;
+  font-size: 1.3rem;
+  color: #212121;
+  border-radius: 4px;
+  transition: all 0.4s;
+}
+
+.form-control-plaintext.formula.switch-code + .switch-code-btn:hover {
+  background-color: #212121;
+  color: #fff;
+}
+
+.code-editor .dropdown-menu > .dropdown-item > em {
+  width: 15px;
+  display: inline-block;
+  color: #4285f4;
+  font-size: 0.9rem;
+  font-style: normal;
 }
 
 .modal-dialog > .modal-content {
