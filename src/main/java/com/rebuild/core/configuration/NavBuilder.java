@@ -214,18 +214,16 @@ public class NavBuilder extends NavManager {
 
         fixNavIcon(item, value);
 
+        // 内置导航无需实体校验（可能被保存为 BUILTIN 或 ENTITY 类型）
+        if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)
+                || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value) || NAV_DIVIDER.equals(value)
+                || NAV_MINAPP.equals(value) || NAV_APPROVAL.equals(value)) {
+            return false;
+        }
+
         if ("ENTITY".equalsIgnoreCase(type)) {
             if (NAV_PARENT.equals(value)) {
                 return true;
-            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)
-                    || NAV_CONTACT.equals(value) || NAV_DASHBOARD.equals(value) || NAV_DIVIDER.equals(value)
-                    || NAV_MINAPP.equals(value)) {
-                return false;
-            } else if (NAV_APPROVAL.equals(value)) {
-                // v4.4: 修订 `filterBadge`
-                item.put("filter", ApprovalHubController.FILTER_BADGE);
-                item.put("filterBadge", true);
-                return false;
             } else if (!MetadataHelper.containsEntity(value)) {
                 log.warn("Unknown entity in nav : {}", value);
                 return true;
@@ -510,6 +508,9 @@ public class NavBuilder extends NavManager {
         } else if (NAV_APPROVAL.equals(navName)) {
             navName = "nav_entity--APPROVAL";
             navUrl = String.format("%s/approval/home", AppUtils.getContextPath());
+            // 审批中心待办角标
+            item.put("filter", ApprovalHubController.FILTER_BADGE);
+            item.put("filterBadge", true);
 
         } else if (NAV_MINAPP.equals(navType)) {
             navName = "nav_minapp-" + navName;
