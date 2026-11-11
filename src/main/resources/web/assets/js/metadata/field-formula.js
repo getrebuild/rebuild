@@ -662,6 +662,7 @@ class FormulaEditor extends React.Component {
           placeholder="## Support AviatorScript"
           cmOptions={{
             mode: 'text/x-aviator',
+            lineWrapping: false,
           }}
           formatter={window.$formatAviator}
           value={this.props.initCode}

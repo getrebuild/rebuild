@@ -5513,6 +5513,43 @@ pre.unstyle {
   min-height: 300px;
 }
 
+.code-editor .CodeMirror-scroll,
+.code-editor .CodeMirror-vscrollbar,
+.code-editor .CodeMirror-hscrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-track,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-thumb,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-thumb:hover,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
 .code-editor.code-editor-fullscreen,
 .code-editor.code-editor-fullscreen .CodeMirror {
   position: fixed !important;
