@@ -388,24 +388,19 @@ class LightAttachmentList extends RelatedList {
         </div>
         <div className="info position-relative">
           <span className="fop-action">
-            {window.__LAB_FILE_RENAME42 && (wpc.privileges || {}).U && (
+            {item.editable && (
               <a
-                title={$L('重命名')}
+                title={$L('编辑')}
                 onClick={(e) => {
                   $stopEvent(e)
-                  FileRename.create(item.fileName, (newName, dlg) => {
-                    if (!newName || !dlg) return
-                    dlg.disabled(true)
-                    $.post(`/app/entity/extras/file-rename?newName=${$encode(newName)}&id=${$encode(item.id)}&fieldBelong=${item.belongField}:${item.relatedRecord[0]}`, (res) => {
-                      if (res.error_code === 0) {
-                        // this.fetchData()
-                        location.reload()
-                      } else {
-                        RbHighbar.error(res.error_msg)
-                        dlg.disabled(false)
-                      }
-                    })
-                  })
+                  renderRbcomp(
+                    <FileRename
+                      fileId={item.id}
+                      fileKey={item.fileName}
+                      renameUrl={(newName) => `/app/entity/extras/file-rename?newName=${$encode(newName)}&id=${$encode(item.id)}&fieldBelong=${item.belongField}:${item.relatedRecord[0]}`}
+                      onRenamed={() => location.reload()}
+                    />,
+                  )
                 }}>
                 <i className="icon mdi mdi-square-edit-outline" />
               </a>

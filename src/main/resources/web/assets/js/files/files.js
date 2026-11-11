@@ -107,8 +107,8 @@ class FilesList extends React.Component {
     return (
       <div className="info position-relative">
         <span className="fop-action">
-          {!item.relatedRecord && (
-            <a title={$L('修改')} onClick={(e) => this._handleEdit(item, e)}>
+          {item.editable && (
+            <a title={$L('编辑')} onClick={(e) => this._handleEdit(item, e)}>
               <i className="icon mdi mdi-square-edit-outline" />
             </a>
           )}
@@ -131,19 +131,12 @@ class FilesList extends React.Component {
       <FileRename
         fileId={item.id}
         fileKey={item.fileName}
-        onConfirm={(newName, dlg) => {
-          if (!newName || !dlg) return
-          dlg.disabled(true)
-          $.post(`/files/file-edit?newName=${$encode(newName)}&id=${item.id}`, (res) => {
-            if (res.error_code === 0) {
-              dlg.hide()
-              filesList && filesList.loadData()
-            } else {
-              RbHighbar.error(res.error_msg)
-              dlg.disabled()
-            }
-          })
+        renameUrl={(newName) => {
+          return item.relatedRecord
+            ? `/app/entity/extras/file-rename?newName=${$encode(newName)}&id=${item.id}&fieldBelong=${item.belongField}:${item.relatedRecord[0]}`
+            : `/files/file-edit?newName=${$encode(newName)}&id=${item.id}`
         }}
+        onRenamed={() => filesList && filesList.loadData()}
       />,
     )
   }

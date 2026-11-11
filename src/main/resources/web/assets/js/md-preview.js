@@ -42,7 +42,7 @@ $(document).ready(() => {
   })
   toolbar.push({
     name: 'save',
-    action: (e) => {
+    action: () => {
       const data = {
         id: $('#viewer').data('fileid'),
         content: _EasyMDE.value(),
@@ -102,7 +102,9 @@ $(document).ready(() => {
   )
 })
 
-window.onbeforeunload = function () {
-  if (_EasyMDE.value() === _lastContent) return undefined
-  return 'SHOW-UNSAVED-CHANGES'
-}
+// 有未保存的修改时，关闭窗口给出提示
+window.addEventListener('beforeunload', function (e) {
+  if (!_EasyMDE || _EasyMDE.value() === _lastContent) return
+  e.preventDefault()
+  e.returnValue = ''
+})

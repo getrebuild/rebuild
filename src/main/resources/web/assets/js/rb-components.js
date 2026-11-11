@@ -2105,9 +2105,10 @@ class FileRename extends RbAlert {
   }
 
   renderContent() {
-    let fileExt = $fileExtName(this.__fileName)
+    const fileExt = $fileExtName(this.__fileName)
     const isOffice = this.props.fileId && ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileExt)
     const isMd = this.props.fileId && ['md'].includes(fileExt)
+
     return (
       <form className="rbalert-form-sm">
         <div className="form-group">
@@ -2122,7 +2123,7 @@ class FileRename extends RbAlert {
             <a className="btn btn-link ml-1" href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
               <i className="mdi mdi-microsoft-office icon" />
               &nbsp;
-              {$L('在线编辑')} (LAB)
+              {$L('在线编辑')}
             </a>
           )}
         </div>
@@ -2137,22 +2138,28 @@ class FileRename extends RbAlert {
 
   handleConfirm(e) {
     const newName = $val(this._$fileName)
-    if (newName && this.__fileName !== newName) {
-      typeof this.props.onConfirm === 'function' && this.props.onConfirm(newName, this)
-    } else {
+    if (!newName || this.__fileName === newName) {
       typeof this.props.onConfirm === 'function' && this.props.onConfirm(null) // Nochangs
       this.hide()
+      return
     }
-  }
 
-  // -- Usage
+    // 统一提交重命名，renameUrl 由调用方按文件类型构造
+    if (this.props.renameUrl) {
+      this.disabled(true)
+      $.post(this.props.renameUrl(newName), (res) => {
+        if (res.error_code === 0) {
+          this.hide()
+          typeof this.props.onRenamed === 'function' && this.props.onRenamed()
+        } else {
+          RbHighbar.error(res.error_msg)
+          this.disabled(false)
+        }
+      })
+      return
+    }
 
-  /**
-   * @param {*} fileKey
-   * @param {*} onConfirm
-   */
-  static create(fileKey, onConfirm) {
-    renderRbcomp(<FileRename fileKey={fileKey} onConfirm={onConfirm} />)
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(newName, this)
   }
 }
 
