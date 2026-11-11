@@ -1347,6 +1347,78 @@ class AnyRecordSelector extends RecordSelector {
   }
 }
 
+// ~~ 通用下拉选择器（select2）
+class Select2 extends React.Component {
+  render() {
+    const props = this.props
+    return (
+      <select className={props.className || 'form-control form-control-sm'} multiple={props.multiple} disabled={props.disabled} defaultValue={props.defaultValue} ref={(c) => (this._$select = c)}>
+        {props.children}
+      </select>
+    )
+  }
+
+  componentDidMount() {
+    this.__select2 = $(this._$select).select2(this._select2Options())
+    $(this._$select).on('change.rbselect', this._handleChange)
+    this.__optionsSig = this._optionsSignature()
+  }
+
+  componentDidUpdate() {
+    const sig = this._optionsSignature()
+    if (sig === this.__optionsSig) return
+    // 选项变更后重建 select2 并恢复选中值
+    const val = this.val()
+    const $el = $(this._$select)
+    if ($el.data('select2')) $el.select2('destroy')
+    this.__select2 = $el.select2(this._select2Options())
+    this.__optionsSig = sig
+    if (val != null && val !== '') this.val(val)
+  }
+
+  _select2Options() {
+    const options = { placeholder: this.props.placeholder, allowClear: this.props.allowClear }
+    if (this.props.select2Options) $.extend(options, this.props.select2Options)
+    Object.keys(options).forEach((k) => {
+      if (options[k] === undefined) delete options[k]
+    })
+    return options
+  }
+
+  _optionsSignature() {
+    return $(this._$select)
+      .find('option')
+      .map((i, el) => `${el.value}|${el.textContent}`)
+      .get()
+      .join(',')
+  }
+
+  componentWillUnmount() {
+    if (!this._$select) return
+    const $el = $(this._$select)
+    $el.off('.rbselect')
+    if ($el.data('select2')) $el.select2('destroy')
+    this.__select2 = null
+    this._$select = null
+  }
+
+  _handleChange = () => {
+    typeof this.props.onChange === 'function' && this.props.onChange(this.val())
+  }
+
+  val(value) {
+    if (!this._$select) return null
+    const $el = $(this._$select)
+    if (value === undefined) return $el.val()
+    $el.val(value).trigger('change.select2')
+    return this
+  }
+
+  select2() {
+    return this.__select2
+  }
+}
+
 // ~~ 选择记录
 class RecordSelectorModal extends RbAlert {
   renderContent() {
@@ -1801,8 +1873,14 @@ class CodeEditor extends React.Component {
 
   formatCode() {
     let cc = this.val()
-    cc = $formatCode(cc)
-    this.val(cc)
+    cc = typeof this.props.formatter === 'function' ? this.props.formatter(cc) : $formatCode(cc)
+
+    if (this._CodeMirror) {
+      const cm = this._CodeMirror
+      cm.replaceRange(cc, { line: 0, ch: 0 }, cm.posFromIndex(cm.getValue().length))
+    } else {
+      this.val(cc)
+    }
   }
 
   fullscreen() {
@@ -2051,9 +2129,10 @@ class FileRename extends RbAlert {
   }
 
   renderContent() {
-    let fileExt = $fileExtName(this.__fileName)
+    const fileExt = $fileExtName(this.__fileName)
     const isOffice = this.props.fileId && ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileExt)
     const isMd = this.props.fileId && ['md'].includes(fileExt)
+
     return (
       <form className="rbalert-form-sm">
         <div className="form-group">
@@ -2066,9 +2145,9 @@ class FileRename extends RbAlert {
           </button>
           {(isOffice || isMd) && (
             <a className="btn btn-link ml-1" href={`${rb.baseUrl}/filex/editor?src=${this.props.fileId}`} target="_blank">
-              <i className="mdi mdi-microsoft-office icon" />
+              <i className="mdi mdi-file-document-edit icon" />
               &nbsp;
-              {$L('在线编辑')} (LAB)
+              {$L('在线编辑')}
             </a>
           )}
         </div>
@@ -2083,22 +2162,28 @@ class FileRename extends RbAlert {
 
   handleConfirm(e) {
     const newName = $val(this._$fileName)
-    if (newName && this.__fileName !== newName) {
-      typeof this.props.onConfirm === 'function' && this.props.onConfirm(newName, this)
-    } else {
+    if (!newName || this.__fileName === newName) {
       typeof this.props.onConfirm === 'function' && this.props.onConfirm(null) // Nochangs
       this.hide()
+      return
     }
-  }
 
-  // -- Usage
+    // 统一提交重命名，renameUrl 由调用方按文件类型构造
+    if (this.props.renameUrl) {
+      this.disabled(true)
+      $.post(this.props.renameUrl(newName), (res) => {
+        if (res.error_code === 0) {
+          this.hide()
+          typeof this.props.onRenamed === 'function' && this.props.onRenamed()
+        } else {
+          RbHighbar.error(res.error_msg)
+          this.disabled(false)
+        }
+      })
+      return
+    }
 
-  /**
-   * @param {*} fileKey
-   * @param {*} onConfirm
-   */
-  static create(fileKey, onConfirm) {
-    renderRbcomp(<FileRename fileKey={fileKey} onConfirm={onConfirm} />)
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(newName, this)
   }
 }
 

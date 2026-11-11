@@ -17,7 +17,7 @@
         },
         "mainEntity": {
           "type": "string",
-          "description": "主实体名称（可选）。指定后创建为该主实体的明细实体，如订单明细。主实体必须是独立实体，不能是明细实体。未指定则创建独立实体"
+          "description": "主实体名称（可选，ListEntities 返回的 name）。指定后创建为该主实体的明细实体，如订单明细。主实体必须是独立实体，不能是明细实体。未指定则创建独立实体"
         },
         "nameField": {
           "type": "boolean",
@@ -33,7 +33,7 @@
         },
         "fields": {
           "type": "array",
-          "description": "要同时创建的业务字段列表（可选）。每项参数与 BuildField 工具完全一致(fieldLabel/fieldName/type/refEntity/options/classification/comments)，refEntity 只能引用已存在的实体",
+          "description": "要同时创建的业务字段列表（可选）。每项参数与 BuildField 工具完全一致(fieldLabel/fieldName/type/refEntity/options/classification/comments)，refEntity 引用其他实体时填实体名称（ListEntities 返回的 name），引用本实体自身时填 @self",
           "items": {
             "type": "object"
           }

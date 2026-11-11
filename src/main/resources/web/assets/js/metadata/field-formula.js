@@ -6,6 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 // ~~ 字段匹配配置组件
+// eslint-disable-next-line no-unused-vars
 class MatchFields extends React.Component {
   constructor(props) {
     super(props)
@@ -391,6 +392,36 @@ class FormulaDate extends RbAlert {
   }
 }
 
+// https://getrebuild.com/docs/topic/write-formula
+const FUNC_DESCS = {
+  AIASK: '向 AI 提问并返回结果',
+  CHINESEDATE: '将日期转换为中文日期或农历日期',
+  CHINESEYUAN: '将数字转换为人民币大写',
+  CONCATARRAY: '连接多个对象为数组',
+  CONCATID: '连接多个 ID 为 ID 数组',
+  CURRENTBIZUNIT: '获取当前登录用户所在部门',
+  CURRENTDATE: '获取当前日期时间',
+  CURRENTUSER: '获取当前登录用户',
+  DATEADD: '日期加，返回加上指定数量后的新日期',
+  DATEDIFF: '计算两个日期之间的差值',
+  DATEPICKAT: '获取日期时间中的指定部分',
+  DATESUB: '日期减，返回减去指定数量后的新日期',
+  FVGET: '读取指定记录的字段值',
+  FVSET: '更新指定记录的字段值',
+  ID: '将文本转换为记录 ID',
+  IFNULL: '值为空时返回默认值',
+  ISEQUALS: '判断两个值是否相等',
+  ISNULL: '判断值是否为空',
+  LOCATIONDISTANCE: '计算两个位置的直线距离',
+  OVERTIME: '计算两个时间点之间的加班时长',
+  REPORT: '导出报表',
+  REQUEST: '请求给定 URL 获取结果',
+  SQLQUERY: '执行 SQL 查询并返回字段值',
+  TEXT: '将 ID 值转换为文本',
+  TODATE: '将日期格式文本转换为日期对象',
+  TOSTR: '将任意对象转换为文本',
+}
+
 // ~ 带字段的编辑器
 // eslint-disable-next-line no-undef
 class EditorWithFieldVars extends CodeEditor {
@@ -413,6 +444,11 @@ class EditorWithFieldVars extends CodeEditor {
   renderActions() {
     return (
       <div className={`code-editor-actions btm ${this._isCode ? '' : 'light'}`}>
+        {this.props.formatter && (
+          <a title={$L('格式化')} onClick={() => this.formatCode()}>
+            <i className="icon mdi mdi-wrap" />
+          </a>
+        )}
         <span className="dropdown">
           <a title={$L('插入字段变量')} data-toggle="dropdown">
             <i className="mdi mdi-code-braces down-1" />
@@ -440,7 +476,7 @@ class EditorWithFieldVars extends CodeEditor {
             <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxHeight: 388 }} ref={(c) => (this._$funcVars = c)}>
               {this.state.funcVars.map((item) => {
                 return (
-                  <a key={item.name} className="dropdown-item" data-name={item.name} onClick={() => this.insertAtCursor(`${item.name}()`)}>
+                  <a key={item.name} className="dropdown-item" data-name={item.name} title={FUNC_DESCS[item.name]} onClick={() => this.insertAtCursor(`${item.name}()`)}>
                     {item.label}
                   </a>
                 )
@@ -460,7 +496,8 @@ class EditorWithFieldVars extends CodeEditor {
   componentDidMount() {
     super.componentDidMount()
 
-    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=3`, (res) => {
+    const fieldsDeep = this.props.fieldsDeep === undefined ? 3 : this.props.fieldsDeep
+    $.get(`/commons/metadata/fields?entity=${this.props.entity}&deep=${fieldsDeep}`, (res) => {
       this.setState({ fieldVars: res.data || [] }, () => {
         $(this._$fieldVars).perfectScrollbar()
       })
@@ -477,6 +514,12 @@ class EditorWithFieldVars extends CodeEditor {
         this.setState({ funcVars }, () => {
           $(this._$funcVars).perfectScrollbar()
         })
+
+        if (window.AviatorCode) {
+          window.AviatorCode.setFunctions(res.data)
+          const cm = this._CodeMirror
+          if (cm && cm.getOption('mode') === window.AviatorCode.MODE) cm.setOption('mode', window.AviatorCode.MODE)
+        }
       })
     }
 
@@ -518,6 +561,7 @@ class FormulaCalcWithCode extends FormulaCalc {
           }}
           verifyFormula
           entity={this.props.entity}
+          fieldsDeep={this.props.fieldsDeep}
         />
       )
     } else {
@@ -531,19 +575,19 @@ class FormulaCalcWithCode extends FormulaCalc {
         <li className="list-inline-item">
           <a data-toggle="dropdown">{$L('函数')}</a>
           <div className="dropdown-menu">
-            <a className="dropdown-item" onClick={() => this.handleInput('DATEADD')} title="DATEADD($DATE, $NUMBER[H|D|M|Y])">
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEADD')} title={FUNC_DESCS.DATEADD}>
               DATEADD
             </a>
-            <a className="dropdown-item" onClick={() => this.handleInput('DATESUB')} title="DATESUB($DATE, $NUMBER[H|D|M|Y])">
+            <a className="dropdown-item" onClick={() => this.handleInput('DATESUB')} title={FUNC_DESCS.DATESUB}>
               DATESUB
             </a>
-            <a className="dropdown-item" onClick={() => this.handleInput('DATEDIFF')} title="DATEDIFF($DATE1, $DATE2, [H|D|M|Y])">
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEDIFF')} title={FUNC_DESCS.DATEDIFF}>
               DATEDIFF
             </a>
-            <a className="dropdown-item" onClick={() => this.handleInput('OVERTIME')} title="OVERTIME($DATE1, $DATE2)">
+            <a className="dropdown-item" onClick={() => this.handleInput('OVERTIME')} title={FUNC_DESCS.OVERTIME}>
               OVERTIME
             </a>
-            <a className="dropdown-item" onClick={() => this.handleInput('DATEPICKAT')} title="DATEPICKAT($DATE, [Y|Q|M|D|H|I])">
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEPICKAT')} title={FUNC_DESCS.DATEPICKAT}>
               DATEPICKAT
             </a>
             <div className="dropdown-divider" />
@@ -614,10 +658,13 @@ class FormulaEditor extends React.Component {
           showFuncs
           isCode
           entity={this.props.entity}
+          fieldsDeep={this.props.fieldsDeep}
           placeholder="## Support AviatorScript"
           cmOptions={{
-            mode: 'text/x-custom-js',
+            mode: 'text/x-aviator',
+            lineWrapping: false,
           }}
+          formatter={window.$formatAviator}
           value={this.props.initCode}
           ref={(c) => (this._formulaCode = c)}
         />

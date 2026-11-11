@@ -9,7 +9,7 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "实体名称、数字code或标签名称（可通过 ListEntities 工具查询可用实体）"
+          "description": "实体名称（可通过 ListEntities 工具查询可用实体的 name）"
         },
         "recordId": {
           "type": "string",
@@ -17,7 +17,7 @@
         },
         "fields": {
           "type": "string",
-          "description": "返回的字段名称列表（逗号分隔），不传则返回所有可查询字段"
+          "description": "返回的字段名列表（逗号分隔），不传则返回所有可查询字段"
         }
       },
       "required": ["entity", "recordId"],

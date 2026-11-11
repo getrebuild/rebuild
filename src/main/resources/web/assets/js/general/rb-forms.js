@@ -4147,7 +4147,7 @@ const __addRecentlyUse = function (id) {
 
 // 表单计算（视图下无效）
 const __calcFormula = function (fieldComp) {
-  const watchFields = fieldComp.props.calcFormula.match(/\{([a-z0-9]+)}/gi) || []
+  const watchFields = fieldComp.props.calcFormula.match(/\{([0-9a-zA-Z_$]{3,})\}/g) || []
   const $$$parent = fieldComp.props.$$$parent
 
   const evalUrl = `/app/entity/extras/eval-calc-formula?entity=${fieldComp.props.entity}&field=${fieldComp.props.field}`

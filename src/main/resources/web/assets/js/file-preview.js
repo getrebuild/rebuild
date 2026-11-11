@@ -91,7 +91,7 @@ class RbPreview extends React.Component {
               )}
               {this.props.id && (this._isDoc(fileName) || md433) && (
                 <a href={`${rb.baseUrl}/filex/editor?src=${this.props.id}`} target="_blank" title={$L('在线编辑')}>
-                  <i className="mdi mdi-microsoft-office fs-17" />
+                  <i className="mdi mdi-file-document-edit fs-17" />
                 </a>
               )}
               {rb.fileSharable && rb.currentUser && (

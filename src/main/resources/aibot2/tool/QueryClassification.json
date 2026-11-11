@@ -9,11 +9,11 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "实体名称（可通过 ListEntities 工具查询）"
+          "description": "实体名称（可通过 ListEntities 工具查询的 name）"
         },
         "field": {
           "type": "string",
-          "description": "分类字段名称（CLASSIFICATION 类型字段，支持内部名或中文标签）"
+          "description": "分类字段名（CLASSIFICATION 类型字段，取 ListEntities 返回的 name）"
         },
         "keyword": {
           "type": "string",

@@ -272,15 +272,18 @@ public class ModelExtrasController extends BaseController {
         String targetField = getParameterNotNull(request, "field");
         if (!entity.containsField(targetField)) return RespBody.error();
 
+        final Field field = entity.getField(targetField);
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
         Map<String, Object> varsInFormula = new HashMap<>(post.getInnerMap());
-        for (Object value : varsInFormula.values()) {
-            if (value == null || StringUtils.isBlank(value.toString())) {
-                return RespBody.ok();
+        if (!CalcFormulaSupport.isCodeFormula(field)) {
+            for (Object value : varsInFormula.values()) {
+                if (value == null || StringUtils.isBlank(value.toString())) {
+                    return RespBody.ok();
+                }
             }
         }
 
-        Object evalVal = CalcFormulaSupport.evalCalcFormula(entity.getField(targetField), varsInFormula);
+        Object evalVal = CalcFormulaSupport.evalCalcFormula(field, varsInFormula);
         return evalVal == null ? RespBody.ok() : RespBody.ok(evalVal);
     }
 }

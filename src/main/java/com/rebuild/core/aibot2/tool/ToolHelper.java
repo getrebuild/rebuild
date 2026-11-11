@@ -181,8 +181,9 @@ public class ToolHelper {
     }
 
     /**
-     * 解析实体（支持名称、code、标签匹配）
-     * 精确匹配优先，多个匹配时抛出异常要求询问用户选择（禁止自行决定）
+     * 解析实体（精确匹配名称、code、标签）
+     * 标签命中多个时抛出异常要求询问用户选择（禁止自行决定）。
+     * 不做模糊匹配，避免静默命中相邻实体（如想引用明细实体却落到主实体）
      *
      * @param name
      * @return
@@ -190,7 +191,7 @@ public class ToolHelper {
     public static Entity resolveEntity(String name) {
         if (StringUtils.isBlank(name)) return null;
 
-        // 1. 精确匹配实体名称（名称唯一，直接返回；同名歧义仅在标签匹配分支处理）
+        // 1. 精确匹配实体名称（名称唯一，直接返回；标签歧义仅在标签匹配分支处理）
         if (MetadataHelper.containsEntity(name)) {
             return MetadataHelper.getEntity(name);
         }
@@ -202,29 +203,19 @@ public class ToolHelper {
             }
         }
 
-        String nameLower = name.toLowerCase();
         List<Entity> exactMatches = new ArrayList<>();
-        List<Entity> fuzzyMatches = new ArrayList<>();
-
         for (Entity e : MetadataHelper.getEntities()) {
             String label = EasyMetaFactory.getLabel(e);
             if (StringUtils.isBlank(label)) continue;
 
             // 精确标签匹配（可能有同名实体，不能直接返回）
-            if (label.equalsIgnoreCase(name)) {
-                exactMatches.add(e);
-            } else if (label.toLowerCase().contains(nameLower)) {
-                fuzzyMatches.add(e);
-            }
+            if (label.equalsIgnoreCase(name)) exactMatches.add(e);
         }
 
         if (exactMatches.size() == 1) return exactMatches.get(0);
-        if (!exactMatches.isEmpty()) return throwAmbiguousEntities(name, exactMatches);
+        if (exactMatches.isEmpty()) return null;
 
-        if (fuzzyMatches.isEmpty()) return null;
-        if (fuzzyMatches.size() == 1) return fuzzyMatches.get(0);
-
-        return throwAmbiguousEntities(name, fuzzyMatches);
+        return throwAmbiguousEntities(name, exactMatches);
     }
 
     /**
@@ -246,7 +237,7 @@ public class ToolHelper {
     }
 
     /**
-     * 解析字段（支持字段名、标签）。未匹配时抛出异常并附候选提示
+     * 解析字段（支持字段名、标签）。标签重复或未匹配时抛出异常，不自行选择
      *
      * @param entity
      * @param fieldIdent
@@ -261,12 +252,23 @@ public class ToolHelper {
             return entity.getField(fieldIdent);
         }
 
+        List<Field> customMatches = new ArrayList<>();
+        Field systemMatch = null;
         for (Field f : entity.getFields()) {
-            if (MetadataHelper.isSystemField(f)) continue;
-            if (fieldIdent.equalsIgnoreCase(EasyMetaFactory.getLabel(f))) {
-                return f;
-            }
+            if (!fieldIdent.equalsIgnoreCase(EasyMetaFactory.getLabel(f))) continue;
+            // 自定义字段优先，避免同名标签歧义
+            if (!MetadataHelper.isSystemField(f)) customMatches.add(f);
+            else if (systemMatch == null) systemMatch = f;
         }
+
+        if (customMatches.size() == 1) return customMatches.get(0);
+        if (customMatches.size() > 1) {
+            List<String> names = new ArrayList<>();
+            for (Field f : customMatches) names.add(f.getName());
+            throw new KnownToolException(String.format("字段标签「%s」在实体 %s 中重复，请改用字段名: %s",
+                    fieldIdent, entity.getName(), StringUtils.join(names, ", ")));
+        }
+        if (systemMatch != null) return systemMatch;
 
         throw new KnownToolException(String.format("字段不存在 : %s.%s %s",
                 entity.getName(), fieldIdent, suggestField(entity, fieldIdent)));
@@ -431,6 +433,21 @@ public class ToolHelper {
      * @param filterExpr
      */
     public static void validateFilter(Entity entity, JSONObject filterExpr) {
+        // 外层实体已解析，filter 内的同名实体标签统一为真实名称；不同实体仍由解析器报错
+        String filterEntity = filterExpr.getString("entity");
+        if (StringUtils.isBlank(filterEntity)) {
+            filterExpr.put("entity", entity.getName());
+        } else {
+            try {
+                Entity useEntity = resolveEntity(filterEntity);
+                if (useEntity != null && useEntity.getEntityCode() == entity.getEntityCode()) {
+                    filterExpr.put("entity", entity.getName());
+                }
+            } catch (KnownToolException ignored) {
+                // 保留原值，由解析器给出实体不一致错误
+            }
+        }
+
         AdvFilterParser parser;
         try {
             parser = new AdvFilterParser(filterExpr, entity);

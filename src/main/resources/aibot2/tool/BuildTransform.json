@@ -9,11 +9,11 @@
       "properties": {
         "sourceEntity": {
           "type": "string",
-          "description": "源实体名称（转换前记录所属实体）"
+          "description": "源实体名称（转换前记录所属实体，取 ListEntities 返回的 name）"
         },
         "targetEntity": {
           "type": "string",
-          "description": "目标实体名称（转换后生成记录所属实体）"
+          "description": "目标实体名称（转换后生成记录所属实体，取 ListEntities 返回的 name）"
         },
         "name": {
           "type": "string",
@@ -25,21 +25,21 @@
         },
         "fieldsMappingDetail": {
           "type": "array",
-          "description": "明细字段映射（可选，当源/目标实体含明细时使用）。每项为对象，含 source（源明细实体名称）、target（目标明细实体名称）、fieldsMapping（明细字段映射，同主记录格式）",
+          "description": "明细字段映射（可选，当源/目标实体含明细时使用）。每项为对象，含 source（源明细实体名）、target（目标明细实体名）、fieldsMapping（明细字段映射，同主记录格式），实体名均取 ListEntities 返回的 name",
           "items": {
             "type": "object",
             "properties": {
               "source": {
                 "type": "string",
-                "description": "源明细实体名称"
+                "description": "源明细实体名称（ListEntities 返回的 name）"
               },
               "target": {
                 "type": "string",
-                "description": "目标明细实体名称"
+                "description": "目标明细实体名称（ListEntities 返回的 name）"
               },
               "fieldsMapping": {
                 "type": "object",
-                "description": "明细字段映射，格式与主记录 fieldsMapping 相同（value 支持源字段名字符串、{type:VFIXED,value}固定值、{type:VFORMULA,value}公式）"
+                "description": "明细字段映射，格式与主记录 fieldsMapping 相同（value 支持源字段名、{type:VFIXED,value}固定值、{type:VFORMULA,value}公式）"
               }
             },
             "required": ["source", "target", "fieldsMapping"]

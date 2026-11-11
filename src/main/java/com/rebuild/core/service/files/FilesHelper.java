@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.project.ProjectHelper;
@@ -334,6 +335,27 @@ public class FilesHelper {
         if (recordId == null) return null;
 
         return isRecordReadable(recordId, user) ? (String) file[0] : null;
+    }
+
+    /**
+     * 文件/附件是否允许编辑。记录附件随所属记录可编辑，独立文件取决于所在目录
+     *
+     * @param user
+     * @param fileId
+     * @return
+     */
+    public static boolean isFileEditable(ID user, ID fileId) {
+        if (UserHelper.isAdmin(user)) return true;
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "relatedRecord");
+        if (o == null) return false;
+
+        ID relatedRecord = (ID) o[0];
+        if (relatedRecord != null) {
+            return MetadataHelper.containsEntity(relatedRecord.getEntityCode())
+                    && Application.getPrivilegesManager().allowUpdate(user, relatedRecord);
+        }
+        return isFileManageable(user, fileId);
     }
 
     /**

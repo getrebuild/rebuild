@@ -131,7 +131,7 @@ const __showRexGuide = function (configured, isAdmin) {
       subtitle: `约一分钟完成配置，${name} 就能开始为你和团队干活`,
       footer: (
         <React.Fragment>
-          <span className="rex-guide-hint">配置入口 管理中心 - Rex AI 助手</span>
+          <span className="rex-guide-hint">配置入口 管理中心 - Rex AI</span>
           <button type="button" className="rex-guide-btn plain" onClick={hide}>
             稍后再说
           </button>
@@ -191,7 +191,7 @@ const __showRexGuide = function (configured, isAdmin) {
         <div>
           <div className="rex-guide-qtitle">它可以帮你</div>
           {feats}
-          <div className="rex-guide-note">它还差 AI 模型没接入，提醒管理员到 管理中心 - Rex AI 助手 配置一下就能用</div>
+          <div className="rex-guide-note">它还差 AI 模型没接入，提醒管理员到 管理中心 - Rex AI 配置一下就能用</div>
         </div>
       ),
     })

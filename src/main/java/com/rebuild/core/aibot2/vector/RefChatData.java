@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2.vector;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.aibot2.AskRequest;
 import com.rebuild.core.aibot2.Chat;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Message;
@@ -46,6 +47,6 @@ public class RefChatData implements VectorData {
         if (conversationText.length() == 0) return "";
 
         String prompt = "你是对话压缩助手，请将以下对话历史压缩为简洁摘要，保留关键信息和上下文要点";
-        return ChatManager.ask(conversationText.toString(), prompt, null, "RefChatData");
+        return ChatManager.ask(new AskRequest(conversationText.toString()).setPrompt(prompt).setSource("RefChatData"))[0];
     }
 }

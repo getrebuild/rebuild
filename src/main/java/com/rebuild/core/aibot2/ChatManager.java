@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -154,127 +153,112 @@ public abstract class ChatManager {
     }
 
     /**
-     * 直接提问/回答
+     * 直接提问/回答（程序调用统一入口）
+     * user 为空时以 Rex 身份提问，会话归属 Rex；指定 user 时以该用户身份执行，会话归属该用户
      *
-     * @param userContent
-     * @return
-     */
-    public static String ask(String userContent) {
-        return ask(userContent, null, null, null);
-    }
-
-    /**
-     * 直接提问/回答（支持提示词、图片视觉识别）
-     * 内部调用，落库归属 Rex
-     *
-     * @param userContent
-     * @param prompt
-     * @param files
-     * @param source
-     * @return
-     */
-    public static String ask(String userContent, String prompt, List<File> files, String source) {
-        return ask(userContent, prompt, files, source, null)[0];
-    }
-
-    /**
-     * 直接提问/回答（支持提示词、图片视觉识别、上下文连接）
-     * 内部调用，落库归属 Rex
-     *
-     * @param userContent
-     * @param prompt
-     * @param files
-     * @param source 调用来源（落库标记）
-     * @param chatid 可选，传入已有会话 ID 可连接上下文进行多轮对话
+     * @param params
      * @return [0]=AI 回答，[1]=chatid 字面量
      */
-    public static String[] ask(String userContent, String prompt, List<File> files, String source, ID chatid) {
-        if (chatid == null) {
-            chatid = initChat(UserService.AIBOT_USER, userContent, null, source);
+    public static String[] ask(AskRequest params) {
+        if (params.getUser() == null) {
+            return doAsk(params, UserService.AIBOT_USER);
         }
-        Chat chat = new Chat(chatid, null, prompt);
 
-        String result;
+        ID keepCurrentUser = UserContextHolder.setUser(params.getUser());
         try {
-            if (CollectionUtils.isEmpty(files)) {
-                result = chat.ask(userContent);
-            } else {
-                // 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
-                List<ChatCompletionContentPart> parts = new ArrayList<>();
-                parts.add(ChatCompletionContentPart.ofText(
-                        ChatCompletionContentPartText.builder().text(userContent).build()));
+            return doAsk(params, params.getUser());
+        } finally {
+            UserContextHolder.clearUser(keepCurrentUser);
+        }
+    }
 
-                for (File imageFile : files) {
-                    String base64 = CommonsUtils.fileToBase64(imageFile);
-                    String mimeType;
-                    try {
-                        mimeType = Config.TIKA.detect(imageFile);
-                    } catch (IOException e) {
-                        mimeType = "image/png";
-                        log.warn("Failed to detect image mime type, fallback to png : {}", imageFile.getName(), e);
+    private static String[] doAsk(AskRequest params, ID user) {
+        ID chatid = params.getChatid();
+        boolean newChat = chatid == null;
+
+        if (newChat) {
+            // 超限校验在会话落库前，避免超限后残留仅有主题的空会话
+            String quotaExceeded = AgentQuota.check(params.getAgent());
+            if (quotaExceeded != null) throw new AiBotException(quotaExceeded);
+
+            chatid = initChat(user, params.getUserContent(),
+                    params.getAgent() == null ? null : params.getAgent().getAgentId(), params.getSource());
+        }
+
+        Chat chat;
+        if (newChat && params.getAgent() != null) {
+            appendPrompt(params.getAgent(), params.getPrompt());
+            chat = new Chat(chatid, params.getAgent());
+        } else if (newChat) {
+            chat = new Chat(chatid, null, params.getPrompt());
+        } else {
+            // 会话已绑定的智能体优先，忽略本次 agent
+            chat = new Chat(chatid);
+
+            // 已有会话在其绑定智能体上校验（新建场景已在落库前校验）
+            String quotaExceeded = AgentQuota.check(chat.getAgent());
+            if (quotaExceeded != null) throw new AiBotException(quotaExceeded);
+
+            appendPrompt(chat.getAgent(), params.getPrompt());
+        }
+
+        AibotAgent prevAgent = AibotContextHolder.swapAgent(chat.getAgent());
+        try {
+            String result;
+            try {
+                List<File> files = params.getFiles();
+                if (CollectionUtils.isEmpty(files)) {
+                    result = chat.ask(params.getUserContent());
+                } else {
+                    // 通过 AI 视觉能力识别图片内容并返回文本描述（支持多张图片）
+                    List<ChatCompletionContentPart> parts = new ArrayList<>();
+                    parts.add(ChatCompletionContentPart.ofText(
+                            ChatCompletionContentPartText.builder().text(params.getUserContent()).build()));
+
+                    for (File imageFile : files) {
+                        String base64 = CommonsUtils.fileToBase64(imageFile);
+                        String mimeType;
+                        try {
+                            mimeType = Config.TIKA.detect(imageFile);
+                        } catch (IOException e) {
+                            mimeType = "image/png";
+                            log.warn("Failed to detect image mime type, fallback to png : {}", imageFile.getName(), e);
+                        }
+
+                        String dataUrl = String.format("data:%s;base64,%s", mimeType, base64);
+                        parts.add(ChatCompletionContentPart.ofImageUrl(
+                                ChatCompletionContentPartImage.builder()
+                                        .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder().url(dataUrl).build())
+                                        .build()));
                     }
 
-                    String dataUrl = String.format("data:%s;base64,%s", mimeType, base64);
-                    parts.add(ChatCompletionContentPart.ofImageUrl(
-                            ChatCompletionContentPartImage.builder()
-                                    .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder().url(dataUrl).build())
-                                    .build()));
+                    result = chat.ask(params.getUserContent(), parts);
                 }
-
-                result = chat.ask(userContent, parts);
+            } catch (Exception ex) {
+                // 失败时用户消息也落库，避免产生空会话记录（落库失败不掩盖原始异常）
+                try {
+                    chat.store();
+                } catch (Exception storeEx) {
+                    log.error("Cannot store chat on failure : {}", chatid, storeEx);
+                }
+                throw ex;
             }
-        } catch (Exception ex) {
-            // 失败时用户消息也落库，避免产生空会话记录（落库失败不掩盖原始异常）
-            try {
-                chat.store();
-            } catch (Exception storeEx) {
-                log.error("Cannot store chat on failure : {}", chatid, storeEx);
-            }
-            throw ex;
-        }
 
-        // 补充 AI 消息后落库
-        chat.completionAfter(result, null, null);
-        return new String[]{result, chatid.toLiteral()};
-    }
-
-    /**
-     * 以指定用户身份提问/回答，会话归属该用户
-     *
-     * @param userContent
-     * @param source
-     * @param user
-     * @return
-     */
-    public static String askAsUser(String userContent, String prompt, List<File> files, String source, ID user) {
-        Assert.notNull(user, "[user] cannot be null");
-        ID keepCurrentUser = UserContextHolder.setUser(user);
-        try {
-            return ask(userContent, prompt, files, source);
+            // 补充 AI 消息后落库
+            chat.completionAfter(result, null, null);
+            return new String[]{result, chatid.toLiteral()};
         } finally {
-            UserContextHolder.clearUser(keepCurrentUser);
+            AibotContextHolder.restoreAgent(prevAgent);
         }
     }
 
     /**
-     * 以指定用户身份提问/回答，会话归属该用户
-     *
-     * @param userContent
+     * @param agent
      * @param prompt
-     * @param files
-     * @param source
-     * @param user
-     * @param chatid 传入已有会话 ID 可连接上下文进行多轮对话
-     * @return [0]=AI 回答，[1]=chatid
      */
-    public static String[] askAsUser(String userContent, String prompt, List<File> files, String source, ID user, ID chatid) {
-        Assert.notNull(user, "[user] cannot be null");
-        ID keepCurrentUser = UserContextHolder.setUser(user);
-        try {
-            if (chatid == null) chatid = initChat(user, userContent, null, source);
-            return ask(userContent, prompt, files, source, chatid);
-        } finally {
-            UserContextHolder.clearUser(keepCurrentUser);
-        }
+    private static void appendPrompt(AibotAgent agent, String prompt) {
+        if (agent == null || StringUtils.isBlank(prompt)) return;
+        String base = agent.getPrompt();
+        agent.setPrompt(StringUtils.isBlank(base) ? prompt : base + "\n\n" + prompt);
     }
 }

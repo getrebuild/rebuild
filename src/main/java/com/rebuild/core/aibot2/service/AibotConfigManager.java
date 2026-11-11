@@ -189,6 +189,25 @@ public class AibotConfigManager implements ConfigManager {
     }
 
     /**
+     * 获取指定用户可用的微应用列表（仅共享给该用户的，按名称排序）
+     *
+     * @param user
+     * @return
+     */
+    public ConfigBean[] listMinAppsForUser(ID user) {
+        List<ConfigBean> avail = new ArrayList<>();
+        for (ConfigBean cb : getMinAppConfigs()) {
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+            if (cb.getJSON("config") == null) continue;
+            if (!UserHelper.isAdmin(user) && !ShareToManager.isShareTo(cb.getString("shareTo"), user)) continue;
+            avail.add(cb);
+        }
+
+        avail.sort(Comparator.comparing(c -> StringUtils.defaultString(c.getString("name"))));
+        return avail.toArray(new ConfigBean[0]);
+    }
+
+    /**
      * 指定智能体是否对用户可用
      *
      * @param agentId

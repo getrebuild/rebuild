@@ -17,7 +17,7 @@
         },
         "entity": {
           "type": "string",
-          "description": "按源实体名称过滤（可选，仅 listType=chart 时有效），只返回该实体下的图表"
+          "description": "按源实体名称（ListEntities 返回的 name）过滤（可选，仅 listType=chart 时有效），只返回该实体下的图表"
         },
         "myself": {
           "type": "boolean",

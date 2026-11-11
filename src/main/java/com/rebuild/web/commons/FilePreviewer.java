@@ -53,6 +53,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.rebuild.core.support.ConfigurationItem.AppName;
 import static com.rebuild.core.support.ConfigurationItem.OnlyofficeServer;
 import static com.rebuild.web.commons.FileShareController.makePublicUrl;
 
@@ -89,6 +90,10 @@ public class FilePreviewer extends BaseController {
         String src = getParameterNotNull(request, "src");
         if (ID.isId(src)) {
             ID id = ID.valueOf(src);
+            if (id.getEntityCode() == EntityHelper.Attachment) {
+                RbAssert.is(FilesHelper.isFileEditable(getRequestUser(request), id),
+                        Language.L("无权修改此文件"));
+            }
             src = getFileById(id, getRequestUser(request));
         }
 
@@ -116,7 +121,7 @@ public class FilePreviewer extends BaseController {
             id = ID.valueOf(src);
             src = getFileById(id, getRequestUser(request));
         }
-        RbAssert.is(id == null || FilesHelper.isFileManageable(getRequestUser(request), id),
+        RbAssert.is(id == null || FilesHelper.isFileEditable(getRequestUser(request), id),
                 Language.L("无权修改此文件"));
 
         File file = QiniuCloud.downloadFile(src);
@@ -195,7 +200,7 @@ public class FilePreviewer extends BaseController {
         // 编辑模式
         if (editor) {
             ooConfig.put("type", "desktop");
-            mv.getModel().put("title", fileName + " - " + Language.L("文档编辑"));
+            mv.getModel().put("title", fileName + " - " + Language.L("文档编辑") + " · " + RebuildConfiguration.get(AppName));
         } else {
             // https://api.onlyoffice.com/docs/docs-api/usage-api/config/#type
             String view = StringUtils.defaultIfBlank(getParameter(request, "view"), "embedded");
@@ -288,11 +293,19 @@ public class FilePreviewer extends BaseController {
         ID fileid = ID.valueOf(data.getString("id"));
         String content = data.getString("content");
 
+        if (fileid.getEntityCode() == EntityHelper.DataReportConfig) {
+            if (!UserHelper.isAdmin(user)) return RespBody.errorl("无权修改此文件");
+        } else if (fileid.getEntityCode() != EntityHelper.Attachment
+                || !FilesHelper.isFileEditable(user, fileid)) {
+            return RespBody.errorl("无权修改此文件");
+        }
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(fileid, "filePath");
+        if (o == null || o[0] == null) return RespBody.errorl("文件不存在");
+        String fileKey = o[0].toString();
+
         File tmp = RebuildConfiguration.getFileOfTemp("md-tmpfile-" + CommonsUtils.randomHex());
         FileUtils.writeStringToFile(tmp, content, StandardCharsets.UTF_8);
-
-        Object[] o = Application.getQueryFactory().unique(fileid, "filePath");
-        String fileKey = o[0].toString();
         long fileSize = FileUtils.sizeOf(tmp);
 
         if (QiniuCloud.instance().available()) {

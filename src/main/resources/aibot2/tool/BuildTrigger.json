@@ -9,7 +9,7 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "触发源实体名称，触发器挂在该实体上"
+          "description": "触发源实体名称（ListEntities 返回的 name），触发器挂在该实体上"
         },
         "name": {
           "type": "string",

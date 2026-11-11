@@ -186,30 +186,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: -4px;
 }
 
-.form-control-plaintext.formula.switch-code {
-  padding-right: 40px;
-}
-
-.form-control-plaintext.formula.switch-code + .switch-code-btn {
-  position: absolute;
-  right: 3px;
-  top: 3px;
-  display: inline-block;
-  width: 31px;
-  height: 31px;
-  line-height: 32px;
-  text-align: center;
-  font-size: 1.3rem;
-  color: #212121;
-  border-radius: 4px;
-  transition: all 0.4s;
-}
-
-.form-control-plaintext.formula.switch-code + .switch-code-btn:hover {
-  background-color: #212121;
-  color: #fff;
-}
-
 .auto-assign .select2-selection__rendered,
 .auto-share .select2-selection__rendered {
   display: block !important;
@@ -258,7 +234,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #edebe6;
 }
 
-.dropdown-item > em,
 .fields ul li.flag-DECIMAL > a::before,
 .fields ul li.flag-NUMBER > a::before,
 .fields ul li.flag-DATE > a::before,

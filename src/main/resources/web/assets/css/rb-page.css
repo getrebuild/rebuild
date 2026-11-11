@@ -4717,7 +4717,7 @@ html.external-auth .auth-body.must-center .login {
 }
 
 .init-models fieldset {
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .init-models fieldset legend {
@@ -5513,6 +5513,43 @@ pre.unstyle {
   min-height: 300px;
 }
 
+.code-editor .CodeMirror-scroll,
+.code-editor .CodeMirror-vscrollbar,
+.code-editor .CodeMirror-hscrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-track,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-thumb,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-thumb:hover,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
 .code-editor.code-editor-fullscreen,
 .code-editor.code-editor-fullscreen .CodeMirror {
   position: fixed !important;
@@ -5579,6 +5616,11 @@ pre.unstyle {
 .code-editor .CodeMirror.cm-s-default + .code-editor-actions,
 .code-editor .code-editor-actions.light {
   background-color: rgba(0, 0, 0, 0.7);
+}
+
+.code-editor .cm-s-material .cm-aviator-var {
+  color: #f07178;
+  font-weight: 500;
 }
 
 .select2-results span.icon-append {
@@ -6491,6 +6533,47 @@ div.formula-code {
   color: #df5000;
 }
 
+.form-control-plaintext.formula code {
+  display: block;
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.form-control-plaintext.formula.switch-code {
+  padding-right: 40px;
+}
+
+.form-control-plaintext.formula.switch-code + .switch-code-btn {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  display: inline-block;
+  width: 31px;
+  height: 31px;
+  line-height: 32px;
+  text-align: center;
+  font-size: 1.3rem;
+  color: #212121;
+  border-radius: 4px;
+  transition: all 0.4s;
+}
+
+.form-control-plaintext.formula.switch-code + .switch-code-btn:hover {
+  background-color: #212121;
+  color: #fff;
+}
+
+.code-editor .dropdown-menu > .dropdown-item > em {
+  width: 15px;
+  display: inline-block;
+  color: #4285f4;
+  font-size: 0.9rem;
+  font-style: normal;
+}
+
 .modal-dialog > .modal-content {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -7102,4 +7185,42 @@ input[type='password']::-ms-clear {
   padding: 14px 20px 16px;
   display: flex;
   align-items: center;
+}
+
+.nav-tabs.nav-tabs-segment {
+  display: flex;
+  width: fit-content;
+  padding: 3px;
+  gap: 2px;
+  background-color: #f1f3f6;
+  border-bottom: 0;
+  border-radius: 7px;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item {
+  margin: 0;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link {
+  padding: 6px 15px;
+  border: 0 none;
+  border-radius: 5px;
+  background-color: transparent;
+  color: #5b626e;
+  font-size: 13px;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link:hover,
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link:focus {
+  border: 0 none;
+  background-color: transparent;
+  color: #2b2f36;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link.active {
+  border: 0 none;
+  background-color: #fff;
+  color: #2b2f36;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
