@@ -42,7 +42,7 @@ class FilesList extends React.Component {
                   onClick={(e) => {
                     $stopEvent(e, true)
                     $.get(`/files/check-readable?id=${item.id}`, (res) => {
-                      if (res.data) RbPreview.create(res.data)
+                      if (res.data) RbPreview.create(res.data, 0, item.editable ? item.id : null)
                       else RbHighbar.create($L('你没有查看此文件的权限'))
                     })
                   }}
