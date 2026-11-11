@@ -1347,6 +1347,54 @@ class AnyRecordSelector extends RecordSelector {
   }
 }
 
+// ~~ 通用下拉选择器（select2）
+class Select2 extends React.Component {
+  render() {
+    const props = this.props
+    return (
+      <select className={props.className || 'form-control form-control-sm'} multiple={props.multiple} disabled={props.disabled} defaultValue={props.defaultValue} ref={(c) => (this._$select = c)}>
+        {props.children}
+      </select>
+    )
+  }
+
+  componentDidMount() {
+    const options = { placeholder: this.props.placeholder, allowClear: this.props.allowClear }
+    if (this.props.select2Options) $.extend(options, this.props.select2Options)
+    Object.keys(options).forEach((k) => {
+      if (options[k] === undefined) delete options[k]
+    })
+
+    this.__select2 = $(this._$select).select2(options)
+    $(this._$select).on('change.rbselect', this._handleChange)
+  }
+
+  componentWillUnmount() {
+    if (!this._$select) return
+    const $el = $(this._$select)
+    $el.off('.rbselect')
+    if ($el.data('select2')) $el.select2('destroy')
+    this.__select2 = null
+    this._$select = null
+  }
+
+  _handleChange = () => {
+    typeof this.props.onChange === 'function' && this.props.onChange(this.val())
+  }
+
+  val(value) {
+    if (!this._$select) return null
+    const $el = $(this._$select)
+    if (value === undefined) return $el.val()
+    $el.val(value).trigger('change.select2')
+    return this
+  }
+
+  select2() {
+    return this.__select2
+  }
+}
+
 // ~~ 选择记录
 class RecordSelectorModal extends RbAlert {
   renderContent() {
