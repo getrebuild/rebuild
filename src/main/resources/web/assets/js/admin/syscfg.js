@@ -9,6 +9,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 公共部分
 
 $(document).ready(() => {
+  // title 不支持 HTML，含 MD 转换的说明转纯文本用于悬浮提示，原文保留给编辑模式
+  $('.syscfg tr[title]').each(function () {
+    const $tr = $(this)
+    const title = $tr.attr('title')
+    if (/<[a-z/][^>]*>/i.test(title)) {
+      $tr.attr('data-form-text', title)
+      $tr.attr('title', $('<div>').html(title.replace(/<br\s*\/?>/gi, '\n')).text().trim())
+    }
+  })
+
   $('.card-header .J_edit').on('click', (e) => {
     $stopEvent(e, true)
     enableEditMode()
@@ -59,7 +69,7 @@ const enableEditMode = function () {
     const name = $item.data('id')
     const value = $item.data('value')
     const optional = $item.data('optional')
-    const formText = $item.data('form-text') || $item.closest('tr').attr('title')
+    const formText = $item.data('form-text') || $item.closest('tr').data('form-text') || $item.closest('tr').attr('title')
     const inputType = $item.data('input-type')
 
     let c = useEditComp(name, value)

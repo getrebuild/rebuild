@@ -131,24 +131,17 @@
                           </p>
                         </td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('所有外部链接将以此作为前缀')}">
                         <td>[[${bundle.L('主页地址/域名')}]]</td>
-                        <td data-id="HomeURL" th:data-value="${HomeURL}" th:data-form-text="${bundle.L('所有外部链接将以此作为前缀')}">[[${HomeURL}]]</td>
+                        <td data-id="HomeURL" th:data-value="${HomeURL}">[[${HomeURL}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('默认语言')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'DefaultLanguage' : ''}" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}">
                         <td>[[${bundle.L('页脚')}]]</td>
-                        <td
-                          data-id="PageFooter"
-                          th:data-value="${PageFooter}"
-                          data-optional="true"
-                          th:data-form-text="${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}"
-                        >
-                          [[${PageFooter ?:bundle.L('无')}]]
-                        </td>
+                        <td data-id="PageFooter" th:data-value="${PageFooter}" data-optional="true">[[${PageFooter ?:bundle.L('无')}]]</td>
                       </tr>
                       <tr>
                         <td>
@@ -171,19 +164,12 @@
                           <input type="file" class="hide J_CustomWallpaper" accept="image/*" data-maxsize="104857600" data-local="true" data-noname="true" />
                         </td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}">
                         <td>
                           [[${bundle.L('登录页布告栏')}]] <sup class="rbv"></sup>
                           <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i>
                         </td>
-                        <td
-                          th:data-id="${commercial > 0 ? 'LoginBulletinBoard' : ''}"
-                          th:data-value="${LoginBulletinBoard}"
-                          data-optional="true"
-                          th:data-form-text="${bundle.L('支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}"
-                        >
-                          [[${LoginBulletinBoard ?:bundle.L('默认')}]]
-                        </td>
+                        <td th:data-id="${commercial > 0 ? 'LoginBulletinBoard' : ''}" th:data-value="${LoginBulletinBoard}" data-optional="true">[[${LoginBulletinBoard ?:bundle.L('默认')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -202,24 +188,13 @@
                         <td>[[${bundle.L('允许分享文件')}]]</td>
                         <td data-id="FileSharable" th:data-value="${FileSharable}">[[${FileSharable ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('允许用户 [自助注册](https://getrebuild.com/docs/admin/users#3.%20%E8%87%AA%E5%8A%A9%E6%B3%A8%E5%86%8C)')}">
                         <td>[[${bundle.L('公开注册')}]]</td>
-                        <td
-                          data-id="OpenSignUp"
-                          th:data-value="${OpenSignUp}"
-                          th:data-form-text="${bundle.L('允许用户 [自助注册](https://getrebuild.com/docs/admin/users#3.%20%E8%87%AA%E5%8A%A9%E6%B3%A8%E5%86%8C)')}"
-                        >
-                          [[${OpenSignUp ? bundle.L('是') : bundle.L('否')}]]
-                        </td>
+                        <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${OpenSignUp ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('仅指定注册域的邮箱才能注册，每个域一行，例如 `getrebuild.com` `*.sina.com`')}">
                         <td>[[${bundle.L('公开注册注册域')}]]</td>
-                        <td
-                          th:data-id="${commercial > 0 ? 'OpenSignUpAllowDomain' : ''}"
-                          th:data-value="${OpenSignUpAllowDomain}"
-                          th:data-form-text="${bundle.L('仅指定注册域的邮箱才能注册，每个域一行，例如 `getrebuild.com` `*.sina.com`')}"
-                          data-optional="true"
-                        >
+                        <td th:data-id="${commercial > 0 ? 'OpenSignUpAllowDomain' : ''}" th:data-value="${OpenSignUpAllowDomain}" data-optional="true">
                           [[${OpenSignUpAllowDomain ?:bundle.L('不限')}]]
                         </td>
                       </tr>
@@ -245,40 +220,22 @@
                           <th:block th:if="${PasswordExpiredDays != '0'}">[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]</th:block>
                         </td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('请确保邮件/短信配置正确，否则无法发送/接收验证码，导致无法登录')}">
                         <td>[[${bundle.L('启用两步验证')}]] <sup class="rbv"></sup></td>
-                        <td
-                          th:data-id="${commercial > 0 ? 'Login2FAMode' : ''}"
-                          th:data-value="${Login2FAMode}"
-                          th:data-form-text="${bundle.L('请确保邮件/短信配置正确，否则无法发送/接收验证码，导致无法登录')}"
-                        >
+                        <td th:data-id="${commercial > 0 ? 'Login2FAMode' : ''}" th:data-value="${Login2FAMode}">
                           <th:block th:if="${Login2FAMode == '0'}">[[${bundle.L('不启用')}]]</th:block>
                           <th:block th:if="${Login2FAMode == '1'}">[[${bundle.L('手机或邮箱')}]]</th:block>
                           <th:block th:if="${Login2FAMode == '2'}">[[${bundle.L('仅手机')}]]</th:block>
                           <th:block th:if="${Login2FAMode == '3'}">[[${bundle.L('仅邮箱')}]]</th:block>
                         </td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('仅指定时间可使用，每个时间一行，如 `10` `9-18` 等')}">
                         <td>[[${bundle.L('允许使用时间')}]] <sup class="rbv"></sup></td>
-                        <td
-                          th:data-id="${commercial > 0 ? 'AllowUsesTime' : ''}"
-                          th:data-value="${AllowUsesTime}"
-                          data-optional="true"
-                          th:data-form-text="${bundle.L('仅指定时间可使用，每个时间一行，如 `10` `9-18` 等')}"
-                        >
-                          [[${AllowUsesTime ?:bundle.L('不限')}]]
-                        </td>
+                        <td th:data-id="${commercial > 0 ? 'AllowUsesTime' : ''}" th:data-value="${AllowUsesTime}" data-optional="true">[[${AllowUsesTime ?:bundle.L('不限')}]]</td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('仅指定 IP 可使用，每个 IP 一行，如 `192.168.*` `192.168.10.*` 等')}">
                         <td>[[${bundle.L('允许使用 IP')}]] <sup class="rbv"></sup></td>
-                        <td
-                          th:data-id="${commercial > 0 ? 'AllowUsesIp' : ''}"
-                          th:data-value="${AllowUsesIp}"
-                          data-optional="true"
-                          th:data-form-text="${bundle.L('仅指定 IP 可使用，每个 IP 一行，如 `192.168.*` `192.168.10.*` 等')}"
-                        >
-                          [[${AllowUsesIp ?:bundle.L('不限')}]]
-                        </td>
+                        <td th:data-id="${commercial > 0 ? 'AllowUsesIp' : ''}" th:data-value="${AllowUsesIp}" data-optional="true">[[${AllowUsesIp ?:bundle.L('不限')}]]</td>
                       </tr>
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('同一用户允许多地登录')}]] (LAB) <sup class="rbv"></sup></td>
@@ -289,9 +246,9 @@
                   <h5>[[${bundle.L('数据安全')}]]</h5>
                   <table class="table">
                     <tbody>
-                      <tr>
+                      <tr th:title="${bundle.L('每日 0 点备份到数据目录，请预留足够磁盘空间')}">
                         <td width="40%">[[${bundle.L('数据自动备份')}]]</td>
-                        <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}" th:data-form-text="${bundle.L('每日 0 点备份到数据目录，请预留足够磁盘空间')}">
+                        <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}">
                           <span>[[${DBBackupsEnable ? bundle.L('是') : bundle.L('否')}]]</span>
                           <button class="btn btn-light btn-sm J_backDb" type="button"><i class="icon mdi mdi-database-export-outline"></i> [[${bundle.L('立即备份')}]]</button>
                         </td>
@@ -321,11 +278,9 @@
                         <td>ONLYOFFICE JWT</td>
                         <td th:data-id="OnlyofficeJwt" th:data-value="${OnlyofficeJwt}" data-optional="true">[[${OnlyofficeJwt ?:bundle.L('无')}]]</td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('与 ONLYOFFICE 二选一即可')}">
                         <td>[[${bundle.L('文档预览服务地址')}]]</td>
-                        <td th:data-id="PortalOfficePreviewUrl" th:data-value="${PortalOfficePreviewUrl}" data-optional="true" th:data-form-text="${bundle.L('与 ONLYOFFICE 二选一即可')}">
-                          [[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]
-                        </td>
+                        <td th:data-id="PortalOfficePreviewUrl" th:data-value="${PortalOfficePreviewUrl}" data-optional="true">[[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]</td>
                       </tr>
                     </tbody>
                   </table>
