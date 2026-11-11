@@ -102,13 +102,28 @@ public class CalcFormulaSupport {
                     varsInFormula = null;
                     break;
                 }
+                // 点连接变量记录根引用字段值，供 buildCodeEnv 回退取值
+                if (useCode && fieldName.contains(".")) {
+                    String fieldNameRef = fieldName.substring(0, fieldName.indexOf("."));
+                    Object refV = record.getObjectValue(fieldNameRef);
+                    if (refV == null && recordInDb != null) {
+                        refV = recordInDb.getObjectValue(fieldNameRef);
+                    }
+                    varsInFormula.put(fieldNameRef, refV);
+                }
                 varsInFormula.put(fieldName, v);
             }
             if (varsInFormula == null) continue;
 
-            Object evalVal = useCode
-                    ? evalValue(formula, buildCodeEnv(record.getEntity(), formula, varsInFormula), targetField, false, false)
-                    : evalValue(formula, varsInFormula, targetField, false, false);
+            Object evalVal;
+            if (useCode) {
+                Map<String, Object> codeEnv = buildCodeEnv(record.getEntity(), formula, varsInFormula, false);
+                // 点连接变量取不到值，与普通公式同口径跳过
+                if (codeEnv == null) continue;
+                evalVal = evalValue(formula, codeEnv, targetField, false, false);
+            } else {
+                evalVal = evalValue(formula, varsInFormula, targetField, false, false);
+            }
             // 无值忽略
             if (evalVal == null) continue;
             // 同值忽略
@@ -146,7 +161,9 @@ public class CalcFormulaSupport {
 
         // 高级公式代码
         if (isCodeFormula(formula)) {
-            return evalValue(formula, buildCodeEnv(entity, formula, varsInFormula), easyField, true, forceEval);
+            Map<String, Object> codeEnv = buildCodeEnv(entity, formula, varsInFormula, forceEval);
+            if (codeEnv == null) return null;
+            return evalValue(formula, codeEnv, easyField, true, forceEval);
         }
 
         // 兼容
@@ -282,10 +299,11 @@ public class CalcFormulaSupport {
      * @param entity
      * @param formula
      * @param varsInFormula
-     * @return
+     * @param forceEval
+     * @return 点连接变量取不到值且不强算时返回 null，调用方按跳过处理
      * @see AviatorUtils#convertValueOfFieldVar(Object, Field)
      */
-    private static Map<String, Object> buildCodeEnv(Entity entity, String formula, Map<String, Object> varsInFormula) {
+    private static Map<String, Object> buildCodeEnv(Entity entity, String formula, Map<String, Object> varsInFormula, boolean forceEval) {
         Map<String, Object> env = new HashMap<>();
         for (String fieldName : ContentWithFieldVars.matchsVars(formula)) {
             if ("NOW".equals(fieldName)) {
@@ -298,6 +316,21 @@ public class CalcFormulaSupport {
             if (field == null) {
                 env.put(fieldName, value);
                 continue;
+            }
+
+            // v4.6 点连接支持：按引用字段值回查子字段值（与普通公式同口径）
+            if (value == null && fieldName.contains(".")) {
+                String fieldNameRef = fieldName.substring(0, fieldName.indexOf("."));
+                String fieldNameSub = fieldName.substring(fieldName.indexOf(".") + 1);
+                Object refValue = varsInFormula == null ? null : varsInFormula.get(fieldNameRef);
+                if (ID.isId(refValue) && !EntityHelper.isUnsavedId(refValue)) {
+                    Object[] o = Application.getQueryFactory()
+                            .uniqueNoFilter(ID.valueOf(refValue.toString()), fieldNameSub);
+                    value = o == null ? null : o[0];
+                }
+                if (value == null && !forceEval) {
+                    return null;
+                }
             }
 
             // 表单实时计算/回填公式传入的数字值为字符串，需转换为数值（Aviator 不做字符串隐式转换）

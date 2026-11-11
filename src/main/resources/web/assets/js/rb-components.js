@@ -1359,14 +1359,38 @@ class Select2 extends React.Component {
   }
 
   componentDidMount() {
+    this.__select2 = $(this._$select).select2(this._select2Options())
+    $(this._$select).on('change.rbselect', this._handleChange)
+    this.__optionsSig = this._optionsSignature()
+  }
+
+  componentDidUpdate() {
+    const sig = this._optionsSignature()
+    if (sig === this.__optionsSig) return
+    // 选项变更后重建 select2 并恢复选中值
+    const val = this.val()
+    const $el = $(this._$select)
+    if ($el.data('select2')) $el.select2('destroy')
+    this.__select2 = $el.select2(this._select2Options())
+    this.__optionsSig = sig
+    if (val != null && val !== '') this.val(val)
+  }
+
+  _select2Options() {
     const options = { placeholder: this.props.placeholder, allowClear: this.props.allowClear }
     if (this.props.select2Options) $.extend(options, this.props.select2Options)
     Object.keys(options).forEach((k) => {
       if (options[k] === undefined) delete options[k]
     })
+    return options
+  }
 
-    this.__select2 = $(this._$select).select2(options)
-    $(this._$select).on('change.rbselect', this._handleChange)
+  _optionsSignature() {
+    return $(this._$select)
+      .find('option')
+      .map((i, el) => `${el.value}|${el.textContent}`)
+      .get()
+      .join(',')
   }
 
   componentWillUnmount() {
