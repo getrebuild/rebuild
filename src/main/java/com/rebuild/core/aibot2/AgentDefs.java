@@ -69,6 +69,7 @@ public class AgentDefs {
                 .setSkills(toSet(conf.getJSONArray("skills")))
                 .setTemperature(conf.getDouble("AibotTemperature"))
                 .setTopP(conf.getDouble("AibotTopP"))
+                .setReasoningEffort(conf.getString("AibotReasoningEffort"))
                 .setReplyStyle(conf.getString("AibotReplyStyle"))
                 .setMemoryRounds(conf.getLong("AibotMemoryRounds"))
                 .setDailyTokenLimit(conf.getLong("dailyTokenLimit"))

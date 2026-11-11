@@ -51,20 +51,13 @@
                         <td>[[${bundle.L('秘钥')}]]</td>
                         <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未配置')}]]</td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('请正确填写模型名称（填写 API 地址、秘钥后可自动获取可用模型列表）')}">
                         <td>[[${bundle.L('使用模型')}]]</td>
-                        <td
-                          class="position-relative"
-                          data-id="AibotBaseDefModel"
-                          th:data-value="${AibotBaseDefModel ?:''}"
-                          th:data-form-text="${bundle.L('请正确填写模型名称（填写 API 地址、秘钥后可自动获取可用模型列表）')}"
-                        >
-                          [[${AibotBaseDefModel ?:bundle.L('未配置')}]]
-                        </td>
+                        <td class="position-relative" data-id="AibotBaseDefModel" th:data-value="${AibotBaseDefModel ?:''}">[[${AibotBaseDefModel ?:bundle.L('未配置')}]]</td>
                       </tr>
-                      <tr class="bosskey-show">
+                      <tr class="bosskey-show" th:title="${bundle.L('需平台支持，留空不启用')}">
                         <td>[[${bundle.L('语音识别模型')}]]</td>
-                        <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true" th:data-form-text="${bundle.L('需平台支持，留空不启用')}">
+                        <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true">
                           [[${AibotAsrModel ?:bundle.L('未启用')}]]
                         </td>
                       </tr>
@@ -76,14 +69,22 @@
                         <td>[[${bundle.L('核采样')}]]</td>
                         <td data-id="AibotTopP" th:data-value="${AibotTopP ?:''}" data-optional="true" data-input-type="number">[[${AibotTopP ?:bundle.L('默认')}]]</td>
                       </tr>
-                      <tr class="bosskey-show">
+                      <tr th:title="${bundle.L('越高思考越充分，但响应会变慢（仅部分模型支持）')}">
+                        <td>[[${bundle.L('思考强度')}]]</td>
+                        <td data-id="AibotReasoningEffort" th:data-value="${AibotReasoningEffort ?:''}" data-optional="true">
+                          <th:block th:if="${AibotReasoningEffort == 'low'}">[[${bundle.L('低')}]]</th:block>
+                          <th:block th:if="${AibotReasoningEffort == 'medium'}">[[${bundle.L('中')}]]</th:block>
+                          <th:block th:if="${AibotReasoningEffort == 'high'}">[[${bundle.L('高')}]]</th:block>
+                          <th:block th:if="${AibotReasoningEffort == null or AibotReasoningEffort == ''}">[[${bundle.L('默认')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr th:title="${bundle.L('回答时可记住多少轮对话 (适当调小可节约 Token 成本)')}">
                         <td>[[${bundle.L('记忆轮数')}]]</td>
                         <td
                           data-id="AibotMemoryRounds"
                           th:data-value="${AibotMemoryRounds ?:''}"
                           data-optional="true"
                           data-input-type="number"
-                          th:data-form-text="${bundle.L('回答时可记住多少轮对话 (适当调小可节约 Token 成本)')}"
                         >
                           [[${AibotMemoryRounds ?:bundle.L('默认')}]]
                         </td>
@@ -98,9 +99,9 @@
                           <th:block th:if="${AibotReplyStyle == null}">[[${bundle.L('默认')}]]</th:block>
                         </td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('提示词用于设定 AI 身份、规范行为与输出')}">
                         <td>[[${bundle.L('系统提示词')}]]</td>
-                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true" th:data-form-text="${bundle.L('提示词用于设定 AI 身份、规范行为与输出')}">
+                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">
                           [[${AibotBasePrompt ?:bundle.L('无')}]]
                         </td>
                       </tr>
@@ -109,15 +110,13 @@
                   <h5>[[${bundle.L('使用引导')}]]</h5>
                   <table class="table">
                     <tbody>
-                      <tr>
+                      <tr th:title="${bundle.L('新会话时展示的欢迎语')}">
                         <td width="40%">[[${bundle.L('欢迎词')}]]</td>
-                        <td data-id="AibotWelcome" th:data-value="${AibotWelcome ?:''}" data-optional="true" th:data-form-text="${bundle.L('新会话时展示的欢迎语')}">
-                          [[${AibotWelcome ?:bundle.L('默认')}]]
-                        </td>
+                        <td data-id="AibotWelcome" th:data-value="${AibotWelcome ?:''}" data-optional="true">[[${AibotWelcome ?:bundle.L('默认')}]]</td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('新会话时展示的引导问题，每行一个问题')}">
                         <td width="40%">[[${bundle.L('引导问题')}]]</td>
-                        <td data-id="AibotSuggestQuestions" th:data-value="${AibotSuggestQuestions ?:''}" data-optional="true" th:data-form-text="${bundle.L('新会话时展示的引导问题，每行一个问题')}">
+                        <td data-id="AibotSuggestQuestions" th:data-value="${AibotSuggestQuestions ?:''}" data-optional="true">
                           [[${AibotSuggestQuestions ?:bundle.L('默认')}]]
                         </td>
                       </tr>
@@ -126,13 +125,12 @@
                   <h5>[[${bundle.L('访问控制')}]]</h5>
                   <table class="table">
                     <tbody>
-                      <tr>
+                      <tr th:title="${bundle.L('禁用后将不再提供默认助手，用户只能使用共享给他们的智能体')}">
                         <td width="40%">[[${bundle.L('禁用默认助手')}]]</td>
                         <td
                           data-id="AibotDefaultDisabled"
                           th:data-value="${AibotDefaultDisabled ?: 'false'}"
                           data-optional="true"
-                          th:data-form-text="${bundle.L('禁用后将不再提供默认助手，用户只能使用共享给他们的智能体')}"
                         >
                           [[${AibotDefaultDisabled == 'true' ? bundle.L('是') : bundle.L('否')}]]
                         </td>

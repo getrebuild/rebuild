@@ -25,6 +25,7 @@ import java.util.Set;
 import static com.rebuild.core.support.ConfigurationItem.AibotDSSecret;
 import static com.rebuild.core.support.ConfigurationItem.AibotDSUrl;
 import static com.rebuild.core.support.ConfigurationItem.AibotMemoryRounds;
+import static com.rebuild.core.support.ConfigurationItem.AibotReasoningEffort;
 import static com.rebuild.core.support.ConfigurationItem.AibotReplyStyle;
 import static com.rebuild.core.support.ConfigurationItem.AibotTemperature;
 import static com.rebuild.core.support.ConfigurationItem.AibotTopP;
@@ -110,6 +111,11 @@ public class AibotAgent implements Serializable {
     @Getter
     @Setter
     @Accessors(chain = true)
+    private String reasoningEffort;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
     private String replyStyle;
 
     @Getter
@@ -181,6 +187,13 @@ public class AibotAgent implements Serializable {
     public Double topP() {
         Double v = topP != null ? topP : parseDouble(get(AibotTopP), "topP");
         return (v != null && v >= 0 && v <= 1) ? v : null;
+    }
+
+    public String reasoningEffort() {
+        String v = StringUtils.trimToNull(defaultIfBlank(reasoningEffort, get(AibotReasoningEffort)));
+        if (v == null) return null;
+        v = v.toLowerCase();
+        return ("low".equals(v) || "medium".equals(v) || "high".equals(v)) ? v : null;
     }
 
     public String replyStyle() {

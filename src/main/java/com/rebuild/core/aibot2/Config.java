@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.core.Timeout;
+import com.openai.models.ReasoningEffort;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
@@ -136,6 +137,11 @@ public class Config {
         if (temperature != null) b.temperature(temperature);
         Double topP = agent.topP();
         if (topP != null) b.topP(topP);
+
+        String reasoningEffort = agent.reasoningEffort();
+        if (StringUtils.isNotBlank(reasoningEffort)) {
+            b.reasoningEffort(ReasoningEffort.of(reasoningEffort));
+        }
 
         return b;
     }

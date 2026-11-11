@@ -59,7 +59,7 @@ const enableEditMode = function () {
     const name = $item.data('id')
     const value = $item.data('value')
     const optional = $item.data('optional')
-    const formText = $item.data('form-text')
+    const formText = $item.data('form-text') || $item.closest('tr').attr('title')
     const inputType = $item.data('input-type')
 
     let c = useEditComp(name, value)

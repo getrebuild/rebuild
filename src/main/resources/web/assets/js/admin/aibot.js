@@ -31,6 +31,15 @@ useEditComp = function (name) {
         <option value="false">{$L('否')}</option>
       </select>
     )
+  } else if ('AibotReasoningEffort' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="">{$L('默认')}</option>
+        <option value="low">{$L('低')}</option>
+        <option value="medium">{$L('中')}</option>
+        <option value="high">{$L('高')}</option>
+      </select>
+    )
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
       let option = {

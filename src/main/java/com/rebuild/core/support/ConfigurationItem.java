@@ -138,6 +138,7 @@ public enum ConfigurationItem {
     AibotToolsDisabled,
     AibotTemperature,
     AibotTopP,
+    AibotReasoningEffort,
     AibotAsrModel,
     AibotDefaultDisabled(false),
 
