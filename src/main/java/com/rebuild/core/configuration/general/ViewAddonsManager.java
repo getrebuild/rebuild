@@ -73,8 +73,9 @@ public class ViewAddonsManager extends BaseLayoutManager {
     public JSONObject getViewTab(String entity, ID user) {
         JSONObject vtabs = getViewAddons(entity, user, TYPE_TAB);
 
-        // 明细实体：仅在从未配置过时自动插入，已配置则完全按配置渲染（含空配置）
-        if (getLayout(user, entity, TYPE_TAB, null) == null) {
+        // 明细实体：v4.6 前的旧配置（无 v46 标记）仍自动插入
+        ConfigBean tabConfig = getLayout(user, entity, TYPE_TAB, null);
+        if (tabConfig == null || !isV46Config(tabConfig)) {
             Entity ifMain = MetadataHelper.getEntity(entity);
             if (ifMain.getDetailEntity() != null) {
                 JSONArray tabsFluent = new JSONArray();
@@ -86,6 +87,15 @@ public class ViewAddonsManager extends BaseLayoutManager {
             }
         }
         return vtabs;
+    }
+
+    /**
+     * v4.6 起保存的配置带 v46 标记
+     */
+    private boolean isV46Config(ConfigBean config) {
+        JSON configJson = config.getJSON("config");
+        if (configJson instanceof JSONArray) return false; // compatible: v2.2
+        return ((JSONObject) configJson).getBooleanValue("v46");
     }
 
     /**

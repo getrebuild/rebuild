@@ -59,6 +59,7 @@ $(document).ready(() => {
       autoExpand: $val('#relatedAutoExpand'),
       autoHide: $val('#relatedAutoHide'),
       defaultList: $val('#relatedDefaultList'),
+      v46: true,
     }
 
     $btn.button('loading')
