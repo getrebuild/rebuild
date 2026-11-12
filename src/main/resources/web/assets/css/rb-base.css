@@ -23513,7 +23513,7 @@ html.theme-dark2 .markdown-body,
   font-family: var(--fontStack-sansSerif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji');
   font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.8;
   word-wrap: break-word;
 }
 
@@ -23815,6 +23815,12 @@ html.theme-dark2 .markdown-body,
 .markdown-body p {
   margin-top: 0;
   margin-bottom: 10px;
+  line-height: 1.8;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  line-height: 1.8;
 }
 
 .markdown-body blockquote {
