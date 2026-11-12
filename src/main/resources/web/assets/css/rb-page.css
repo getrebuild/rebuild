@@ -2368,7 +2368,7 @@ th.column-fixed::before,
 }
 
 .form-line fieldset {
-  border-bottom: 1px solid #ebebeb;
+  border-bottom: 1px solid #ddd;
   position: relative;
   margin: 16px 0;
 }
@@ -2379,7 +2379,7 @@ th.column-fixed::before,
   background-color: #fff;
   width: auto;
   left: 10px;
-  margin: -11px 0 0;
+  margin: -12px 0 0;
   padding: 3px 5px 0;
   color: #666;
   border-radius: 4px;
@@ -2399,14 +2399,14 @@ th.column-fixed::before,
 
 .form-line.hover fieldset legend::after {
   font-family: 'Material-Design-Iconic-Font', serif;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   content: '\f2f9';
   width: 13px;
   display: inline-block;
   float: left;
   text-align: center;
   line-height: 1;
-  transform: translateY(-1px);
+  font-weight: normal;
 }
 
 .form-line.hover.collapsed fieldset legend::after {
@@ -2421,6 +2421,11 @@ th.column-fixed::before,
   height: 0;
   font-size: 0;
   overflow: hidden;
+}
+
+.form-line46 fieldset legend {
+  color: #404040;
+  font-weight: bold;
 }
 
 .btn-primary.btn-outline,

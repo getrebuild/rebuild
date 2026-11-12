@@ -83,34 +83,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-bottom: 0px solid #dee2e6;
 }
 
-.detail-form-header h5 {
-  margin: 0;
-  padding-top: 9px;
-}
-
-.detail-form-header h5 > .icon {
-  line-height: 17px;
-  font-size: 19px;
-  transform: translateY(2px);
-}
-
-.detail-form-header h5 > a {
-  opacity: 0.6;
-  padding: 0 6px;
-  font-size: 15px;
-  color: #616161;
-  transform: translateY(1.5px);
-  display: none;
-}
-
-.detail-form-header h5 > a:hover {
-  opacity: 0.8;
-}
-
-.detail-form-header h5:hover > a {
-  display: inline-block;
-}
-
 /* fix btn-space compact */
 
 div.dataTables_wrapper div.dataTables_oper {
@@ -135,7 +107,12 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 
 .rbform .detail-form-table .detail-form-header,
 .rbform .detail-form-table .detail-form-action {
-  min-height: 36.39px;
+  min-height: 32px;
+}
+
+.rbform .detail-form-table .detail-form-action .btn {
+  height: 32px;
+  min-height: 32px;
 }
 
 .rbform .dialog-footer .fjs-dock,
@@ -209,7 +186,11 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 /* detail-form-table protable */
 
 .detail-form-table {
-  margin: 5px 15px 15px;
+  margin: 0 15px;
+}
+
+.detail-form-table + .detail-form-table {
+  margin-top: 10px;
 }
 
 .protable.rb-scroller {
@@ -443,26 +424,62 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   cursor: pointer;
 }
 
-.detail-form-table {
-  margin-top: 0;
-}
-
 .detail-form-table .detail-form-table-header {
-  padding: 10px 0;
+  padding: 0 0 10px;
   background-color: rgba(255, 255, 255, 0.8);
   background-color: #fff;
   position: sticky;
   z-index: 6;
   top: 0;
   overflow: visible;
+  display: flex;
+  align-items: center;
+}
+
+.detail-form-table .detail-form-table-header > .detail-form-header .form-line {
+  width: auto;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.detail-form-table .detail-form-table-header > .detail-form-header .form-line.hover fieldset legend::after {
+  transform: translateY(2px);
+}
+
+.detail-form-table .detail-form-table-header > .detail-form-header .form-line a {
+  opacity: 0.6;
+  padding-left: 6px;
+  padding-right: 1px;
+  font-size: 15px;
+  color: #616161 !important;
+  display: inline-block;
+}
+
+.detail-form-table .detail-form-table-header > .detail-form-header .form-line a:hover {
+  opacity: 1;
+}
+
+.detail-form-table .detail-form-table-header > .detail-form-header {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.detail-form-table .detail-form-table-header > .detail-form-action {
+  flex: 0 0 auto;
+}
+
+.detail-form-table .detail-form-table-header:has(.form-line.collapsed) + .detail-form-table-body {
+  display: none;
 }
 
 .detail-form-table + .detail-form-table .detail-form-table-header {
   z-index: 5;
 }
+
 .detail-form-table + .detail-form-table + .detail-form-table .detail-form-table-header {
   z-index: 4;
 }
+
 .detail-form-table + .detail-form-table + .detail-form-table + .detail-form-table .detail-form-table-header {
   z-index: 3;
 }
