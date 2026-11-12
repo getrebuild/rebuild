@@ -951,7 +951,7 @@ const RbViewPage = {
         mainid: that.__id,
         autoExpand: $isTrue(wpc.viewTabsAutoExpand),
         defaultList: $isTrue(wpc.viewTabsDefaultList),
-        isDetail: !!this.showAt2,
+        isDetail: !!configThat.isDetail,
         specLayout: configThat.layout,
       }
 
@@ -997,8 +997,8 @@ const RbViewPage = {
 
     $.get(`/app/entity/related-counts?mainid=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
       for (let k in res.data || {}) {
+        const tabId = `#tab-${k.replace('.', '--')}`
         if (~~res.data[k] > 0) {
-          const tabId = `#tab-${k.replace('.', '--')}`
           const $tabNav = $(`.nav-tabs a[href="${tabId}"]`)
           if ($tabNav[0]) {
             $tabNav.parent().removeClass('hide')
@@ -1008,9 +1008,14 @@ const RbViewPage = {
           } else {
             const $tabLine = $(tabId)
             if ($tabLine[0]) {
+              $tabLine.closest('.tab-pane-bottom').removeClass('hide')
               $tabLine.prev().find('em').text(res.data[k])
             }
           }
+        } else if ($isTrue(wpc.viewTabsAutoHide)) {
+          // 隐藏无记录（v4.6 含下方区块）
+          const $tabLine = $(tabId)
+          if ($tabLine[0]) $tabLine.closest('.tab-pane-bottom').addClass('hide')
         }
       }
     })

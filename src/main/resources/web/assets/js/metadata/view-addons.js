@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const _configLabels = {}
 const _configFilters = {}
 const _configLayouts = {}
+const _configShowAts = {}
 
 $(document).ready(() => {
   const entity = $urlp('entity'),
@@ -29,6 +30,7 @@ $(document).ready(() => {
           _configLabels[key] = this[1] // label
           _configFilters[key] = this[2] // filter
           _configLayouts[key] = this[3] // layout
+          if (this[4] === 2) _configShowAts[key] = 2 // 显示位置
         }
         $(`.unset-list li[data-key="${key}"]`).trigger('click')
       })
@@ -49,7 +51,7 @@ $(document).ready(() => {
     let config = []
     $('.J_config>li').each(function () {
       const key = $(this).data('key')
-      config.push([key, _configLabels[key] || null, _configFilters[key] || null, _configLayouts[key] || null])
+      config.push([key, _configLabels[key] || null, _configFilters[key] || null, _configLayouts[key] || null, _configShowAts[key] || null])
     })
 
     config = {
@@ -73,7 +75,7 @@ $(document).ready(() => {
 const _refreshConfigStar = function () {
   $('.dd-list.J_config .dd-item').each(function () {
     const key = $(this).data('key')
-    if (_configLabels[key] || _configFilters[key] || _configLayouts[key]) {
+    if (_configLabels[key] || _configFilters[key] || _configLayouts[key] || _configShowAts[key]) {
       $(this).addClass('star')
     } else {
       $(this).removeClass('star')
@@ -101,16 +103,20 @@ render_item_after = function ($item) {
           label={_configLabels[key]}
           filter={_configFilters[key]}
           layout={_configLayouts[key]}
+          showAt={_configShowAts[key]}
           onConfirm={(s) => {
             _configLabels[key] = s.label
             _configFilters[key] = s.filter
             _configLayouts[key] = s.layout
+            if (s.showAt === 2) _configShowAts[key] = 2
+            else delete _configShowAts[key]
             _refreshConfigStar()
           }}
           entity={entity}
           filterShow={$urlp('type') === 'TAB' && !isFilter}
           listLayoutShow={$urlp('type') === 'TAB' && !isFilter}
           formLayoutShow={$urlp('type') === 'ADD' && !isFilter}
+          showAtShow={$urlp('type') === 'TAB'}
         />,
         null,
         function () {
@@ -134,7 +140,22 @@ class ShowStyles2 extends ShowStyles {
         {this.props.formLayoutShow && this.renderExtrasFormLayout()}
         {this.props.listLayoutShow && this.renderExtrasListLayout()}
         {this.props.filterShow && this.renderExtrasFilter()}
+        {this.props.showAtShow && this.renderExtrasShowAt()}
       </RF>
+    )
+  }
+
+  renderExtrasShowAt() {
+    return (
+      <div className="form-group row pt-1">
+        <label className="col-sm-3 col-form-label text-sm-right" />
+        <div className="col-sm-7 pt-0">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+            <input className="custom-control-input" type="checkbox" defaultChecked={this.props.showAt === 2} ref={(c) => (this._$showAt = c)} />
+            <span className="custom-control-label">{$L('显示在详情页下方')}</span>
+          </label>
+        </div>
+      </div>
     )
   }
 
@@ -220,6 +241,7 @@ class ShowStyles2 extends ShowStyles {
       label: $(this._$label).val() || '',
       filter: this.state.filter || null,
       layout: $(this._$formLayout).val() || $(this._$listLayout).val() || null,
+      showAt: $(this._$showAt).prop('checked') ? 2 : 1,
     }
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(data)
     this.hide()

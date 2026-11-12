@@ -30,10 +30,6 @@ public class EasyEntityConfigProps {
      */
     public static final String DETAILS_GLOBALREPEAT = "detailsGlobalRepeat";
     /**
-     * 明细显示位置
-     */
-    public static final String DETAILS_SHOWAT2 = "detailsShowAt2";
-    /**
      * 明细复制按钮
      */
     public static final String DETAILS_COPIABLE = "detailsCopiable";

@@ -115,6 +115,10 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   min-height: 32px;
 }
 
+.rbform .detail-form-table .detail-form-action .btn.w-auto {
+  min-width: 32px !important;
+}
+
 .rbform .dialog-footer .fjs-dock,
 .rbform .detail-form-table .detail-form-action .fjs-dock,
 .dataTables_wrapper .dataTables_oper .fjs-dock,
@@ -443,7 +447,7 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 }
 
 .detail-form-table .detail-form-table-header > .detail-form-header .form-line.hover fieldset legend::after {
-  transform: translateY(2px);
+  transform: translateY(1.5px);
 }
 
 .detail-form-table .detail-form-table-header > .detail-form-header .form-line a {
@@ -452,7 +456,6 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   padding-right: 1px;
   font-size: 15px;
   color: #616161 !important;
-  display: inline-block;
 }
 
 .detail-form-table .detail-form-table-header > .detail-form-header .form-line a:hover {
@@ -462,6 +465,12 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
 .detail-form-table .detail-form-table-header > .detail-form-header {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.detail-form-table .detail-form-table-header > .detail-form-header .icon {
+  margin-right: 3px;
+  font-size: 15px;
+  transform: translateY(0.5px);
 }
 
 .detail-form-table .detail-form-table-header > .detail-form-action {

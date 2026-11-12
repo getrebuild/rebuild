@@ -2407,6 +2407,7 @@ th.column-fixed::before,
   text-align: center;
   line-height: 1;
   font-weight: normal;
+  transform: translateY(0.5px);
 }
 
 .form-line.hover.collapsed fieldset legend::after {

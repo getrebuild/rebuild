@@ -836,6 +836,14 @@ body {
   }
 }
 
+.tab-content-bottom .tab-pane-bottom + .tab-pane-bottom {
+  margin-top: 5px;
+}
+
+.tab-content-bottom .tab-pane-bottom .card-table {
+  margin-bottom: 20px;
+}
+
 .tab-content-bottom .tab-pane-bottom > .form-line.collapsed + div {
   display: none;
 }
@@ -843,6 +851,7 @@ body {
 .tab-content-bottom .tab-pane-bottom .form-line .icon {
   margin-right: 3px;
   font-size: 15px;
+  transform: translateY(0.5px);
 }
 
 .tab-content-bottom .tab-pane-bottom .form-line em.badge {

@@ -20,14 +20,11 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -76,23 +73,32 @@ public class ViewAddonsManager extends BaseLayoutManager {
     public JSONObject getViewTab(String entity, ID user) {
         JSONObject vtabs = getViewAddons(entity, user, TYPE_TAB);
 
-        // 添加明细实体
-        Entity ifMain = MetadataHelper.getEntity(entity);
-        if (ifMain.getDetailEntity() != null) {
-            JSONArray tabsFluent = new JSONArray();
-            for (Entity de : MetadataSorter.sortDetailEntities(ifMain)) {
-                EasyEntity deEasy = EasyMetaFactory.valueOf(de);
-                JSONObject deJson = (JSONObject) deEasy.toJSON();
-                deJson.put("entity", de.getName() + "." + MetadataHelper.getDetailToMainField(de).getName());
-                // 显示位置
-                deJson.put("showAt2", BooleanUtils.toBoolean(deEasy.getExtraAttr(EasyEntityConfigProps.DETAILS_SHOWAT2)) ? 2 : 1);
-                tabsFluent.add(deJson);
+        // 明细实体：仅在从未配置过时自动插入，已配置则完全按配置渲染（含空配置）
+        if (getLayout(user, entity, TYPE_TAB, null) == null) {
+            Entity ifMain = MetadataHelper.getEntity(entity);
+            if (ifMain.getDetailEntity() != null) {
+                JSONArray tabsFluent = new JSONArray();
+                for (Entity de : MetadataSorter.sortDetailEntities(ifMain)) {
+                    tabsFluent.add(formatDetailShow(de));
+                }
+                tabsFluent.fluentAddAll(vtabs.getJSONArray("items"));
+                vtabs.put("items", tabsFluent);
             }
-
-            tabsFluent.fluentAddAll(vtabs.getJSONArray("items"));
-            vtabs.put("items", tabsFluent);
         }
         return vtabs;
+    }
+
+    /**
+     * @param de
+     * @return
+     * @see #formatEntityShow(Field, Set, String)
+     */
+    private JSONObject formatDetailShow(Entity de) {
+        JSONObject deJson = (JSONObject) EasyMetaFactory.valueOf(de).toJSON();
+        deJson.put("entity", de.getName() + EF_SPLIT + MetadataHelper.getDetailToMainField(de).getName());
+        deJson.put("showAt2", 1);
+        deJson.put("isDetail", true);
+        return deJson;
     }
 
     /**
@@ -200,12 +206,16 @@ public class ViewAddonsManager extends BaseLayoutManager {
             String label = null;
             // v4.4 布局
             String layout44 = null;
+            // v4.x 显示位置
+            int showAt = 1;
             // compatible: v2.8
             if (o instanceof JSONArray) {
-                // [Key, Label, Filter, Layout]
-                key = (String) ((JSONArray) o).get(0);
-                label = (String) ((JSONArray) o).get(1);
-                if (((JSONArray) o).size() > 3) layout44 = (String) ((JSONArray) o).get(3);
+                // [Key, Label, Filter, Layout, ShowAt]
+                JSONArray itemArr = (JSONArray) o;
+                key = (String) itemArr.get(0);
+                label = (String) itemArr.get(1);
+                if (itemArr.size() > 3) layout44 = (String) itemArr.get(3);
+                if (itemArr.size() > 4) showAt = itemArr.getIntValue(4);
             } else {
                 key = o.toString();
             }
@@ -228,6 +238,9 @@ public class ViewAddonsManager extends BaseLayoutManager {
                 }
 
                 if (ID.isId(layout44)) show.put("layout", layout44);
+
+                show.put("showAt2", showAt == 2 ? 2 : 1);
+                if (addonEntity.getMainEntity() != null) show.put("isDetail", true);
 
                 addons.add(show);
             }

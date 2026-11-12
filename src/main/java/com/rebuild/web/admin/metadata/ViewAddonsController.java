@@ -21,6 +21,7 @@ import com.rebuild.core.configuration.general.LayoutConfigService;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -87,6 +88,15 @@ public class ViewAddonsController extends BaseController {
         Set<Entity> mfRefs = ViewAddonsManager.hasMultiFieldsReferenceTo(entityMeta);
 
         List<String[]> allRefs = new ArrayList<>();
+
+        // 明细（仅显示项）
+        if (ViewAddonsManager.TYPE_TAB.equals(applyType)) {
+            for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) {
+                String f = MetadataHelper.getDetailToMainField(de).getName();
+                allRefs.add(new String[] { de.getName() + ViewAddonsManager.EF_SPLIT + f, EasyMetaFactory.getLabel(de) });
+            }
+        }
+
         for (Field field : entityMeta.getReferenceToFields(Boolean.FALSE, Boolean.TRUE)) {
             if (MetadataHelper.isCommonsField(field)) continue;
             Entity e = field.getOwnEntity();
