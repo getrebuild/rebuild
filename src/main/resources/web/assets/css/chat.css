@@ -737,6 +737,10 @@ body:has(.preview-modal.rich-preview) {
   line-height: 1;
 }
 
+.chat-welcome .welcome-agents.nav-tabs > li.nav-item > a.nav-link.active .icon.ai-color {
+  color: transparent;
+}
+
 .chat-welcome .welcome-suggest-label {
   color: #8a8f99;
   margin-bottom: 8px;
