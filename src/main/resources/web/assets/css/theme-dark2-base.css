@@ -422,6 +422,25 @@ html.theme-dark2 .nav-tabs .nav-link.active {
   border-color: var(--rb-dark-border) var(--rb-dark-border) transparent;
 }
 
+html.theme-dark2 .nav-tabs.nav-tabs-segment {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+html.theme-dark2 .nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link {
+  color: var(--rb-dark-muted);
+}
+
+html.theme-dark2 .nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link:hover,
+html.theme-dark2 .nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link:focus {
+  color: var(--rb-dark-text);
+}
+
+html.theme-dark2 .nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--rb-dark-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
 html.theme-dark2 .nav-pills .nav-link {
   color: var(--rb-dark-muted);
 }

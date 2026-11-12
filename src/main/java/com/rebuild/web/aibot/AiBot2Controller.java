@@ -170,15 +170,18 @@ public class AiBot2Controller extends BaseController {
 
     // 默认助手不可用（未配置或已禁用）时，若所使用的智能体具备自有模型连接（含回退系统配置）则放行
     private String getUnavailableMsg(HttpServletRequest req) {
-        if (Config.defaultAgentAvailable()) return null;
-
         ID user = getRequestUser(req);
         AibotAgent agent = null;
         boolean useDefault;
         ID chatid = getOwnedChatId(req);
         if (chatid != null) {
             agent = ChatManager.getChat(chatid).getAgent();
-            useDefault = agent.getAgentId() == null;
+            ID agentId = agent.getAgentId();
+            useDefault = agentId == null;
+            // 会话所用智能体已被禁用、取消共享或删除
+            if (!useDefault && !AibotConfigManager.instance.isAgentAvailable(agentId, user)) {
+                return Language.L("智能体已禁用，不能继续对话");
+            }
         } else {
             ID agentId = getIdParameter(req, "agent");
             useDefault = agentId == null;
@@ -191,8 +194,11 @@ public class AiBot2Controller extends BaseController {
         }
 
         if (useDefault) {
+            if (Config.defaultAgentAvailable()) return null;
             if (Config.availableAiBot()) {
-                return Language.L("默认助手已禁用，请选择智能体");
+                // 历史会话无法切换智能体，只能提示不能继续
+                if (chatid != null) return Language.L("智能体已禁用，不能继续对话");
+                return Language.L("请先选择智能体");
             }
             return UserHelper.isAdmin(user)
                     ? Language.L("请配置 [Rex AI 助手](/admin/integration/aibot) 后使用")
@@ -288,7 +294,7 @@ public class AiBot2Controller extends BaseController {
             if (StringUtils.isBlank(welcome)) welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);
             if (StringUtils.isBlank(welcome)) {
                 String aibotName = RebuildConfiguration.get(ConfigurationItem.AibotName);
-                welcome = String.format("欢迎使用 %s！有什么问题都可以向我提问哦", aibotName);
+                welcome = String.format(Language.L("%s，我可以帮你"), aibotName);
             }
 
             JSON welcomeMsg = JSONUtils.toJSONObject(
@@ -330,6 +336,7 @@ public class AiBot2Controller extends BaseController {
 
         data.put("agents", agents);
         data.put("agentId", agentId);
+        data.put("defaultDisabled", !Config.defaultAgentAvailable());
         data.put("skills", SkillDefs.listSkills());
         return RespBody.ok(data);
     }
