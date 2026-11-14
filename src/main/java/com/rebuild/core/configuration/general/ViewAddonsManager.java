@@ -60,7 +60,37 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getLayoutOfViewAddons(String entity, ID user, String addonsType) {
-        return getLayout(user, entity, addonsType, null);
+        ConfigBean config = getLayout(user, entity, addonsType, null);
+        if (config == null || !TYPE_TAB.equals(addonsType) || isV46Config(config)) return config;
+
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+        if (entityMeta.getDetailEntity() == null) return config;
+
+        // compatible: v2.2
+        JSON configJson = config.getJSON("config");
+        if (configJson instanceof JSONArray) {
+            configJson = JSONUtils.toJSONObject("items", configJson);
+        } else if (configJson instanceof JSONObject) {
+            configJson = JSONUtils.clone(configJson);
+        } else {
+            return config;
+        }
+
+        // v4.6 前的配置不含明细项，编辑时补回最前，否则保存后丢失
+        JSONArray prefilled = new JSONArray();
+        for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) {
+            JSONArray item = new JSONArray();
+            item.add(de.getName() + EF_SPLIT + MetadataHelper.getDetailToMainField(de).getName());
+            item.add(EasyMetaFactory.getLabel(de));
+            prefilled.add(item);
+        }
+
+        JSONArray items = ((JSONObject) configJson).getJSONArray("items");
+        if (items != null) prefilled.fluentAddAll(items);
+        ((JSONObject) configJson).put("items", prefilled);
+        config = config.clone();
+        config.set("config", configJson);
+        return config;
     }
 
     /**
@@ -71,10 +101,10 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @return
      */
     public JSONObject getViewTab(String entity, ID user) {
-        JSONObject vtabs = getViewAddons(entity, user, TYPE_TAB);
+        ConfigBean tabConfig = getLayout(user, entity, TYPE_TAB, null);
+        JSONObject vtabs = getViewAddons(entity, user, TYPE_TAB, tabConfig);
 
         // 明细实体：v4.6 前的旧配置（无 v46 标记）仍自动插入
-        ConfigBean tabConfig = getLayout(user, entity, TYPE_TAB, null);
         if (tabConfig == null || !isV46Config(tabConfig)) {
             Entity ifMain = MetadataHelper.getEntity(entity);
             if (ifMain.getDetailEntity() != null) {
@@ -94,8 +124,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
      */
     private boolean isV46Config(ConfigBean config) {
         JSON configJson = config.getJSON("config");
-        if (configJson instanceof JSONArray) return false; // compatible: v2.2
-        return ((JSONObject) configJson).getBooleanValue("v46");
+        return configJson instanceof JSONObject && ((JSONObject) configJson).getBooleanValue("v46");
     }
 
     /**
@@ -164,7 +193,17 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @return
      */
     private JSONObject getViewAddons(String entity, ID user, String applyType) {
-        final ConfigBean config = getLayout(user, entity, applyType, null);
+        return getViewAddons(entity, user, applyType, getLayout(user, entity, applyType, null));
+    }
+
+    /**
+     * @param entity
+     * @param user
+     * @param applyType
+     * @param config
+     * @return
+     */
+    private JSONObject getViewAddons(String entity, ID user, String applyType, ConfigBean config) {
         final Permission useAction = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
