@@ -527,17 +527,6 @@ class RbForm extends React.Component {
                     <i className={`icon zmdi zmdi-${detailMeta.icon} mr-1`} />
                     {detailMeta.entityLabel}
                   </span>
-                  {rb.isAdminUser && (
-                    <a
-                      href={`${rb.baseUrl}/admin/entity/${detailMeta.entity}/form-design`}
-                      target="_blank"
-                      title={$L('表单设计')}
-                      onClick={(e) => {
-                        $stopEvent(e)
-                      }}>
-                      <i className="zmdi zmdi-settings" />
-                    </a>
-                  )}
                 </legend>
               </fieldset>
             </div>

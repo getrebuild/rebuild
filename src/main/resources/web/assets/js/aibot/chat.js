@@ -686,6 +686,9 @@ class ChatWelcome extends React.Component {
     const suggests = this.props.suggestions || []
     return (
       <div className="chat-welcome">
+        <div className="welcome-logo">
+          <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
+        </div>
         {!$empty(this.props.welcome) && <p className="welcome-line">{this.props.welcome}</p>}
         {agents.length > 1 && (
           <ul className="nav nav-tabs nav-tabs-segment welcome-agents">

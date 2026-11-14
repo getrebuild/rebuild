@@ -450,18 +450,6 @@ div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
   transform: translateY(1.5px);
 }
 
-.detail-form-table .detail-form-table-header > .detail-form-header .form-line a {
-  opacity: 0.6;
-  padding-left: 6px;
-  padding-right: 1px;
-  font-size: 15px;
-  color: #616161 !important;
-}
-
-.detail-form-table .detail-form-table-header > .detail-form-header .form-line a:hover {
-  opacity: 1;
-}
-
 .detail-form-table .detail-form-table-header > .detail-form-header {
   flex: 1 1 auto;
   min-width: 0;
