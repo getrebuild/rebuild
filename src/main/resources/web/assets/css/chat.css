@@ -249,15 +249,33 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chat-message .msg-ai > .avatar img {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   display: inline-block;
   border-radius: 50%;
 }
 
+.chat-message .msg-ai > .avatar > .agent-avatar,
+.chat-welcome .welcome-logo > .agent-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(254, 82, 129, 0.14), rgba(71, 78, 254, 0.14));
+  font-size: 19px;
+}
+
+.chat-welcome .welcome-logo > .agent-avatar {
+  width: 100%;
+  height: 100%;
+  font-size: 28px;
+}
+
 .chat-message .msg-ai > .msg-content {
   flex: 1;
-  padding: 4px 0;
+  padding: 6px 0;
   overflow: hidden;
 }
 

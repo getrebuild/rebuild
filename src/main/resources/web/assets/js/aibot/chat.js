@@ -80,7 +80,14 @@ class Chat extends React.Component {
     return (
       <RF>
         <div className={`chat ${this.props.standalone ? 'chat-standalone' : ''}`} ref={(c) => (this._$chat = c)}>
-          <ChatMessages _Chat={this} agents={this.state.agents} agentId={this.state.agentId} confirmAction={this.state.confirmAction} ref={(c) => (this._ChatMessages = c)} />
+          <ChatMessages
+            _Chat={this}
+            agents={this.state.agents}
+            agentId={this.state.agentId}
+            agentIcon={this.currentAgentIcon()}
+            confirmAction={this.state.confirmAction}
+            ref={(c) => (this._ChatMessages = c)}
+          />
           <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
         </div>
         <ChatSidebar _Chat={this} ref={(c) => (this._ChatSidebar = c)} />
@@ -120,6 +127,13 @@ class Chat extends React.Component {
     if (current) return current
     // 指定了智能体但已不可用时返回 null，避免误显示其他智能体
     return this.state.agentId ? null : agents[0]
+  }
+
+  // 当前所选智能体的图标，默认助手返回 null（沿用 RB logo）
+  currentAgentIcon() {
+    if (!this.state.agentId) return null
+    const current = this.getCurrentAgent()
+    return (current && current.icon) || 'mdi-shimmer'
   }
 
   // 标题栏仅在对话开始后显示智能体，欢迎页切换不改变标题
@@ -687,7 +701,13 @@ class ChatWelcome extends React.Component {
     return (
       <div className="chat-welcome">
         <div className="welcome-logo">
-          <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
+          {this.props.agentIcon ? (
+            <span className="agent-avatar">
+              <i className={`icon mdi ai-color ${this.props.agentIcon}`} />
+            </span>
+          ) : (
+            <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
+          )}
         </div>
         {!$empty(this.props.welcome) && <p className="welcome-line">{this.props.welcome}</p>}
         {agents.length > 1 && (
@@ -756,6 +776,7 @@ class ChatMessages extends React.Component {
             suggestions={this.state.suggestQuestions || []}
             agents={this.props.agents}
             agentId={this.props.agentId}
+            agentIcon={this.props.agentIcon}
             onSuggest={(q) => this._handleSuggestClick(q)}
             onSwitchAgent={(agentId) => this.props._Chat.switchAgent && this.props._Chat.switchAgent(agentId)}
           />
@@ -763,7 +784,7 @@ class ChatMessages extends React.Component {
         {messages.map((item, idx) => {
           const isLast = idx === messages.length - 1
           const isAi = item.role === 'assistant' || item.role === 'ai'
-          return <ChatMessage {...item} key={idx} _ChatMessages={this} confirmAction={isLast && isAi ? this.props.confirmAction : null} />
+          return <ChatMessage {...item} key={idx} _ChatMessages={this} agentIcon={this.props.agentIcon} confirmAction={isLast && isAi ? this.props.confirmAction : null} />
         })}
       </RbScroller>
     )
@@ -1083,7 +1104,13 @@ class ChatMessage extends React.Component {
     return (
       <div className="msg-ai">
         <div className="avatar">
-          <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
+          {this.props.agentIcon ? (
+            <span className="agent-avatar">
+              <i className={`icon mdi ai-color ${this.props.agentIcon}`} />
+            </span>
+          ) : (
+            <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
+          )}
         </div>
         <div className="msg-content">
           {this.state.waitResp === 1 && this.props.pending && (
@@ -1448,7 +1475,7 @@ function fetchStream(url, data, onChunk, onDone) {
 class ChatSidebar extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, list: [] }
+    this.state = { ...props, list: [], expandAll: false }
   }
 
   componentDidMount() {
@@ -1462,7 +1489,7 @@ class ChatSidebar extends React.Component {
         $storage.set('__AiBotLastChatId', this.state.current)
       }
     }
-    if (prevState.list !== this.state.list) {
+    if (prevState.list !== this.state.list || prevState.expandAll !== this.state.expandAll) {
       this._Scroller && this._Scroller.update(true)
     }
   }
@@ -1499,30 +1526,58 @@ class ChatSidebar extends React.Component {
           </a>
         </div>
         <RbScroller className="chat-list auto-scroller" ref={(c) => (this._Scroller = c)}>
-          <ul className="list-unstyled m-0">{this._renderGroupedList()}</ul>
+          {this._renderGroupedList()}
         </RbScroller>
       </div>
     )
   }
 
   _renderGroupedList() {
-    const list = this.state.list || []
+    const list = (this.state.list || []).filter((g) => g.items && g.items.length > 0)
     if (list.length === 0) {
-      return <li className="text-muted text-center fs-md m-3">{$L('暂无会话')}</li>
+      return (
+        <ul className="list-unstyled m-0">
+          <li className="text-muted text-center fs-md m-3">{$L('暂无会话')}</li>
+        </ul>
+      )
     }
 
     const labels = { pinned: $L('置顶'), today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
+    let remain = this.state.expandAll ? Infinity : 20
+    let hidden = 0
     const ret = list.map((g) => {
-      if (!g.items || g.items.length === 0) return null
+      const items = g.items.slice(0, remain)
+      hidden += g.items.length - items.length
+      remain -= items.length
+      if (items.length === 0) return null
       return (
         <React.Fragment key={g.group}>
           <li className="chat-list-group fs-md">{labels[g.group] || g.group}</li>
-          {g.items.map((item) => this._renderItem(item, g.group === 'pinned'))}
+          {items.map((item) => this._renderItem(item, g.group === 'pinned'))}
         </React.Fragment>
       )
     })
 
-    return ret
+    return (
+      <ul className="list-unstyled m-0">
+        {ret}
+        {(hidden > 0 || this.state.expandAll) && (
+          <li>
+            <a
+              className="text-muted fs-12"
+              role="button"
+              tabIndex="0"
+              onClick={() => {
+                this.setState({ expandAll: !this.state.expandAll }, () => {
+                  if (!this.state.expandAll && this._Scroller) this._Scroller.viewport().scrollTop = 0
+                })
+              }}>
+              {this.state.expandAll ? $L('收起') : `${$L('显示更多')} (${hidden})`}
+            </a>
+          </li>
+        )}
+      </ul>
+    )
   }
 
   _renderItem(item, isPinned) {
