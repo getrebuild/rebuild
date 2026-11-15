@@ -109,6 +109,12 @@
                         <td>EncodingAESKey</td>
                         <td data-id="WxworkAibotEncodingAESKey" th:data-value="${WxworkAibotEncodingAESKey ?:''}" data-optional="true">[[${WxworkAibotEncodingAESKey ?:bundle.L('未配置')}]]</td>
                       </tr>
+                      <tr th:title="${bundle.L('超过设定时间后，将会自动截断上下文记忆')}">
+                        <td>[[${bundle.L('上下文保留时长')}]]</td>
+                        <td data-id="WxworkAibotContextHours" th:data-value="${WxworkAibotContextHours ?:''}" data-optional="true" data-input-type="number">
+                          [[${WxworkAibotContextHours}]] [[${bundle.L('小时')}]]
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                   <div class="edit-footer">

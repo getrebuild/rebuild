@@ -10,6 +10,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   --rb-theme-color: #4285f4;
   --rb-btn-hover-color: #0d5bdd;
   --rb-btn-active-color: #2572f2;
+  --rb-body-bg: #f0f2f5;
 }
 
 .bosskey-show,
@@ -2235,6 +2236,7 @@ th.column-fixed::before,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  height: 36px;
 }
 
 .sortable-box .dd-list .dd3-action,
@@ -2368,7 +2370,7 @@ th.column-fixed::before,
 }
 
 .form-line fieldset {
-  border-bottom: 1px solid #ebebeb;
+  border-bottom: 1px solid #ddd;
   position: relative;
   margin: 16px 0;
 }
@@ -2379,7 +2381,7 @@ th.column-fixed::before,
   background-color: #fff;
   width: auto;
   left: 10px;
-  margin: -11px 0 0;
+  margin: -12px 0 0;
   padding: 3px 5px 0;
   color: #666;
   border-radius: 4px;
@@ -2399,14 +2401,15 @@ th.column-fixed::before,
 
 .form-line.hover fieldset legend::after {
   font-family: 'Material-Design-Iconic-Font', serif;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   content: '\f2f9';
   width: 13px;
   display: inline-block;
   float: left;
   text-align: center;
   line-height: 1;
-  transform: translateY(-1px);
+  font-weight: normal;
+  transform: translateY(0.5px);
 }
 
 .form-line.hover.collapsed fieldset legend::after {
@@ -2421,6 +2424,11 @@ th.column-fixed::before,
   height: 0;
   font-size: 0;
   overflow: hidden;
+}
+
+.form-line46 fieldset legend {
+  color: #404040;
+  font-weight: bold;
 }
 
 .btn-primary.btn-outline,
@@ -7223,4 +7231,39 @@ input[type='password']::-ms-clear {
   color: #2b2f36;
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* v4.6 新配色 */
+
+body {
+  background-color: var(--rb-body-bg);
+}
+
+body .rb-left-sidebar .sidebar-elements > li ul {
+  background-color: #f5f5f5;
+}
+
+body .rb-left-sidebar .sidebar-elements > li > a:hover,
+body .rb-left-sidebar .sidebar-elements > li ul li > a:hover {
+  background-color: rgba(66, 133, 244, 0.06);
+}
+
+body .rb-left-sidebar.v2 .sidebar-elements li.active > a {
+  background-color: rgba(66, 133, 244, 0.1);
+}
+
+/* v4.6 aside-2tree */
+
+.aside-2tree ul li:hover {
+  background-color: rgba(66, 133, 244, 0.06);
+}
+
+.table-striped tbody tr:nth-of-type(odd),
+.table-striped tbody tr:nth-of-type(odd) td.column-fixed {
+  background-color: #f8fafc;
+}
+
+.table-hover tbody tr:hover,
+.table-hover tbody tr:hover td.column-fixed {
+  background-color: #f6f9fe;
 }

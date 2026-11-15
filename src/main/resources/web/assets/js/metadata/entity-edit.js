@@ -45,7 +45,6 @@ $(document).ready(() => {
     if ($('#detailsNotEmpty')[0]) {
       extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
       extConfig.detailsGlobalRepeat = $val('#detailsGlobalRepeat')
-      extConfig.detailsShowAt2 = $val('#detailsShowAt2')
       // v3.6
       extConfig.detailsCopiable = $val('#detailsCopiable')
       // v4.0
@@ -65,7 +64,6 @@ $(document).ready(() => {
       const checkAdv = [
         'detailsNotEmpty',
         'detailsGlobalRepeat',
-        'detailsShowAt2',
         'detailsCopiable',
         'detailsSortable',
         'detailsSeq',
@@ -202,7 +200,6 @@ $(document).ready(() => {
   if (wpc.extConfig.enabledListEditable) $('#enabledListEditable').attr('checked', true)
   if (wpc.extConfig.enabledViewEditable) $('#enabledViewEditable').attr('checked', true)
   if (wpc.extConfig.hideViewAside) $('#hideViewAside').attr('checked', true)
-  if (wpc.extConfig.detailsShowAt2) $('#detailsShowAt2').attr('checked', true)
   // v3.6
   if (wpc.extConfig.detailsCopiable) $('#detailsCopiable').attr('checked', true)
   // v4.6

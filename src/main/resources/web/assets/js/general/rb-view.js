@@ -951,16 +951,21 @@ const RbViewPage = {
         mainid: that.__id,
         autoExpand: $isTrue(wpc.viewTabsAutoExpand),
         defaultList: $isTrue(wpc.viewTabsDefaultList),
-        isDetail: !!this.showAt2,
+        isDetail: !!configThat.isDetail,
         specLayout: configThat.layout,
       }
 
       // v3.4 明细显示在下方
       if (this.showAt2 === 2) {
-        const $pane = $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
-        $(`<a class="icon zmdi zmdi-chevron-down" title="${$L('展开/收起')}"></a>`)
-          .appendTo($pane.find('h5'))
-          .on('click', () => $pane.toggleClass('toggle-hide'))
+        const $bmPane = $(`<div class="tab-pane-bottom"><div class="form-line hover form-line46"></div><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
+        $(
+          `<fieldset><legend title="${$L('展开/收起')}"><span><i class="icon zmdi zmdi-${this.icon}"></i> ${this.entityLabel}</span><em class="badge badge-pill badge-primary"></em></legend></fieldset>`,
+        )
+          .appendTo($bmPane.find('.form-line'))
+          .find('legend')
+          .on('click', function () {
+            $bmPane.children('.form-line').toggleClass('collapsed')
+          })
         renderRbcomp(<MixRelatedList {...listProps} />, tabId)
         return
       }
@@ -973,6 +978,7 @@ const RbViewPage = {
         $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList {...listProps} />, $tabPane)
       })
     })
+
     this.updateVTabs()
 
     // for Admin
@@ -991,8 +997,8 @@ const RbViewPage = {
 
     $.get(`/app/entity/related-counts?mainid=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
       for (let k in res.data || {}) {
+        const tabId = `#tab-${k.replace('.', '--')}`
         if (~~res.data[k] > 0) {
-          const tabId = `#tab-${k.replace('.', '--')}`
           const $tabNav = $(`.nav-tabs a[href="${tabId}"]`)
           if ($tabNav[0]) {
             $tabNav.parent().removeClass('hide')
@@ -1002,11 +1008,14 @@ const RbViewPage = {
           } else {
             const $tabLine = $(tabId)
             if ($tabLine[0]) {
-              let $span = $tabLine.prev().find('span')
-              if (!$span[0]) $span = $('<span></span>').appendTo($tabLine.prev())
-              $span.text(` (${res.data[k]})`)
+              $tabLine.closest('.tab-pane-bottom').removeClass('hide')
+              $tabLine.prev().find('em').text(res.data[k])
             }
           }
+        } else if ($isTrue(wpc.viewTabsAutoHide)) {
+          // 隐藏无记录（v4.6 含下方区块）
+          const $tabLine = $(tabId)
+          if ($tabLine[0]) $tabLine.closest('.tab-pane-bottom').addClass('hide')
         }
       }
     })

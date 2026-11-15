@@ -20,14 +20,11 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -63,7 +60,37 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @return
      */
     public ConfigBean getLayoutOfViewAddons(String entity, ID user, String addonsType) {
-        return getLayout(user, entity, addonsType, null);
+        ConfigBean config = getLayout(user, entity, addonsType, null);
+        if (config == null || !TYPE_TAB.equals(addonsType) || isV46Config(config)) return config;
+
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+        if (entityMeta.getDetailEntity() == null) return config;
+
+        // compatible: v2.2
+        JSON configJson = config.getJSON("config");
+        if (configJson instanceof JSONArray) {
+            configJson = JSONUtils.toJSONObject("items", configJson);
+        } else if (configJson instanceof JSONObject) {
+            configJson = JSONUtils.clone(configJson);
+        } else {
+            return config;
+        }
+
+        // v4.6 前的配置不含明细项，编辑时补回最前，否则保存后丢失
+        JSONArray prefilled = new JSONArray();
+        for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) {
+            JSONArray item = new JSONArray();
+            item.add(de.getName() + EF_SPLIT + MetadataHelper.getDetailToMainField(de).getName());
+            item.add(EasyMetaFactory.getLabel(de));
+            prefilled.add(item);
+        }
+
+        JSONArray items = ((JSONObject) configJson).getJSONArray("items");
+        if (items != null) prefilled.fluentAddAll(items);
+        ((JSONObject) configJson).put("items", prefilled);
+        config = config.clone();
+        config.set("config", configJson);
+        return config;
     }
 
     /**
@@ -74,25 +101,43 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @return
      */
     public JSONObject getViewTab(String entity, ID user) {
-        JSONObject vtabs = getViewAddons(entity, user, TYPE_TAB);
+        ConfigBean tabConfig = getLayout(user, entity, TYPE_TAB, null);
+        JSONObject vtabs = getViewAddons(entity, user, TYPE_TAB, tabConfig);
 
-        // 添加明细实体
-        Entity ifMain = MetadataHelper.getEntity(entity);
-        if (ifMain.getDetailEntity() != null) {
-            JSONArray tabsFluent = new JSONArray();
-            for (Entity de : MetadataSorter.sortDetailEntities(ifMain)) {
-                EasyEntity deEasy = EasyMetaFactory.valueOf(de);
-                JSONObject deJson = (JSONObject) deEasy.toJSON();
-                deJson.put("entity", de.getName() + "." + MetadataHelper.getDetailToMainField(de).getName());
-                // 显示位置
-                deJson.put("showAt2", BooleanUtils.toBoolean(deEasy.getExtraAttr(EasyEntityConfigProps.DETAILS_SHOWAT2)) ? 2 : 1);
-                tabsFluent.add(deJson);
+        // 明细实体：v4.6 前的旧配置（无 v46 标记）仍自动插入
+        if (tabConfig == null || !isV46Config(tabConfig)) {
+            Entity ifMain = MetadataHelper.getEntity(entity);
+            if (ifMain.getDetailEntity() != null) {
+                JSONArray tabsFluent = new JSONArray();
+                for (Entity de : MetadataSorter.sortDetailEntities(ifMain)) {
+                    tabsFluent.add(formatDetailShow(de));
+                }
+                tabsFluent.fluentAddAll(vtabs.getJSONArray("items"));
+                vtabs.put("items", tabsFluent);
             }
-
-            tabsFluent.fluentAddAll(vtabs.getJSONArray("items"));
-            vtabs.put("items", tabsFluent);
         }
         return vtabs;
+    }
+
+    /**
+     * v4.6 起保存的配置带 v46 标记
+     */
+    private boolean isV46Config(ConfigBean config) {
+        JSON configJson = config.getJSON("config");
+        return configJson instanceof JSONObject && ((JSONObject) configJson).getBooleanValue("v46");
+    }
+
+    /**
+     * @param de
+     * @return
+     * @see #formatEntityShow(Field, Set, String)
+     */
+    private JSONObject formatDetailShow(Entity de) {
+        JSONObject deJson = (JSONObject) EasyMetaFactory.valueOf(de).toJSON();
+        deJson.put("entity", de.getName() + EF_SPLIT + MetadataHelper.getDetailToMainField(de).getName());
+        deJson.put("showAt2", 1);
+        deJson.put("isDetail", true);
+        return deJson;
     }
 
     /**
@@ -148,7 +193,17 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @return
      */
     private JSONObject getViewAddons(String entity, ID user, String applyType) {
-        final ConfigBean config = getLayout(user, entity, applyType, null);
+        return getViewAddons(entity, user, applyType, getLayout(user, entity, applyType, null));
+    }
+
+    /**
+     * @param entity
+     * @param user
+     * @param applyType
+     * @param config
+     * @return
+     */
+    private JSONObject getViewAddons(String entity, ID user, String applyType, ConfigBean config) {
         final Permission useAction = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
@@ -200,12 +255,16 @@ public class ViewAddonsManager extends BaseLayoutManager {
             String label = null;
             // v4.4 布局
             String layout44 = null;
+            // v4.x 显示位置
+            int showAt = 1;
             // compatible: v2.8
             if (o instanceof JSONArray) {
-                // [Key, Label, Filter, Layout]
-                key = (String) ((JSONArray) o).get(0);
-                label = (String) ((JSONArray) o).get(1);
-                if (((JSONArray) o).size() > 3) layout44 = (String) ((JSONArray) o).get(3);
+                // [Key, Label, Filter, Layout, ShowAt]
+                JSONArray itemArr = (JSONArray) o;
+                key = (String) itemArr.get(0);
+                label = (String) itemArr.get(1);
+                if (itemArr.size() > 3) layout44 = (String) itemArr.get(3);
+                if (itemArr.size() > 4) showAt = itemArr.getIntValue(4);
             } else {
                 key = o.toString();
             }
@@ -228,6 +287,9 @@ public class ViewAddonsManager extends BaseLayoutManager {
                 }
 
                 if (ID.isId(layout44)) show.put("layout", layout44);
+
+                show.put("showAt2", showAt == 2 ? 2 : 1);
+                if (addonEntity.getMainEntity() != null) show.put("isDetail", true);
 
                 addons.add(show);
             }

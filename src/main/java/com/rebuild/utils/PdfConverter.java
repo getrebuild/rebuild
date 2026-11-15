@@ -15,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 
@@ -127,7 +128,7 @@ public class PdfConverter {
         try {
             origin = PDDocument.load(file);
             cleand = new PDDocument();
-            origin.getPages().forEach(cleand::addPage);
+            new PDFMergerUtility().appendDocument(cleand, origin);
 
             PDDocumentInformation newinfo = new PDDocumentInformation();
             newinfo.setTitle(StringUtils.defaultIfBlank(newFileName, file.getName()));

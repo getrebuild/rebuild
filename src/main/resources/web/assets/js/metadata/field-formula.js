@@ -394,32 +394,35 @@ class FormulaDate extends RbAlert {
 
 // https://getrebuild.com/docs/topic/write-formula
 const FUNC_DESCS = {
-  AIASK: '向 AI 提问并返回结果',
-  CHINESEDATE: '将日期转换为中文日期或农历日期',
-  CHINESEYUAN: '将数字转换为人民币大写',
-  CONCATARRAY: '连接多个对象为数组',
-  CONCATID: '连接多个 ID 为 ID 数组',
-  CURRENTBIZUNIT: '获取当前登录用户所在部门',
-  CURRENTDATE: '获取当前日期时间',
-  CURRENTUSER: '获取当前登录用户',
-  DATEADD: '日期加，返回加上指定数量后的新日期',
-  DATEDIFF: '计算两个日期之间的差值',
-  DATEPICKAT: '获取日期时间中的指定部分',
-  DATESUB: '日期减，返回减去指定数量后的新日期',
-  FVGET: '读取指定记录的字段值',
-  FVSET: '更新指定记录的字段值',
-  ID: '将文本转换为记录 ID',
-  IFNULL: '值为空时返回默认值',
-  ISEQUALS: '判断两个值是否相等',
-  ISNULL: '判断值是否为空',
-  LOCATIONDISTANCE: '计算两个位置的直线距离',
-  OVERTIME: '计算两个时间点之间的加班时长',
-  REPORT: '导出报表',
-  REQUEST: '请求给定 URL 获取结果',
-  SQLQUERY: '执行 SQL 查询并返回字段值',
-  TEXT: '将 ID 值转换为文本',
-  TODATE: '将日期格式文本转换为日期对象',
-  TOSTR: '将任意对象转换为文本',
+  AIASK: '向 AI 提问并返回结果\n语法 : AIASK($USERCONTENT, [$FILE, $PROMPT, $AGENT])',
+  CHINESEDATE: '将日期转换为中文日期或农历日期\n语法 : CHINESEDATE($DATE, [$TRADITIONAL])',
+  CHINESEYUAN: '将数字转换为人民币大写\n语法 : CHINESEYUAN($NUMBER)',
+  CONCATARRAY: '连接多个对象为数组\n语法 : CONCATARRAY($OBJ1, $OBJ2, [$OBJ3, $OBJ4, $OBJ5])',
+  CONCATID: '连接多个 ID 为 ID 数组\n语法 : CONCATID($ID1, $ID2, [$ID3, $ID4, $ID5])',
+  CURRENTBIZUNIT: '获取当前登录用户所在部门\n语法 : CURRENTBIZUNIT()',
+  CURRENTDATE: '获取当前日期时间\n语法 : CURRENTDATE()',
+  CURRENTUSER: '获取当前登录用户\n语法 : CURRENTUSER()',
+  DATEADD: '日期加，返回加上指定数量后的新日期\n语法 : DATEADD($DATE, $NUMBER, [$UNIT])',
+  DATEDIFF: '计算两个日期之间的差值\n语法 : DATEDIFF($DATE1, $DATE2, [$UNIT])',
+  DATEPICKAT: '获取日期时间中的指定部分\n语法 : DATEPICKAT($DATE, [$UNIT])',
+  DATESUB: '日期减，返回减去指定数量后的新日期\n语法 : DATESUB($DATE, $NUMBER, [$UNIT])',
+  FVGET: '读取指定记录的字段值\n语法 : FVGET($ID, $FIELD, [$TRYFIELD...])',
+  FVSET: '更新指定记录的字段值\n语法 : FVSET($ID, $FIELD, $VALUE, [$COMMONUPDATE])',
+  HANLPPINY: '将中文转换为拼音（全拼或首字母）\n语法 : HANLPPINY($STR, [$FIRST_CHAR])',
+  ID: '将文本转换为记录 ID\n语法 : ID($TEXT, $ENTITY)',
+  IFNULL: '值为空时返回默认值\n语法 : IFNULL($VALUE, $DEFAULT)',
+  ISEQUALS: '判断两个值是否相等\n语法 : ISEQUALS($VALUE1, $VALUE2)',
+  ISNULL: '判断值是否为空\n语法 : ISNULL($VALUE)',
+  LOCATIONDISTANCE: '计算两个位置的直线距离\n语法 : LOCATIONDISTANCE($LOC1, $LOC2)',
+  OVERTIME: '计算两个时间点之间的加班时长\n语法 : OVERTIME($STARTTIME, $ENDTIME, [$WORKSTART, $WORKEND])',
+  PDFMERGE: '将多个 PDF 文件合并为一个\n语法 : PDFMERGE($FILENAME, $FILE1, [$FILE2, $FILE3, $FILE4, $FILE5])',
+  REPORT: '导出报表\n语法 : REPORT($ID, $REPORTID, [$FORCEPDF, $UPLOADPATH])',
+  REQUEST: '请求给定 URL 获取结果\n语法 : REQUEST($URL, [$DEFAULT])',
+  SQLQUERY: '执行 SQL 查询并返回字段值\n语法 : SQLQUERY($SQL, [$PARAM1...5])',
+  TEXT: '将 ID 值转换为文本\n语法 : TEXT($ID, [$DEFAULT])',
+  TODATE: '将日期格式文本转换为日期对象\n语法 : TODATE($STR)',
+  TOSTR: '将任意对象转换为文本\n语法 : TOSTR($OBJECT)',
+  ZIP: '将多个文件打包为压缩包\n语法 : ZIP($FILENAME, $FILE1, [$FILE2, $FILE3, $FILE4, $FILE5])',
 }
 
 // ~ 带字段的编辑器
@@ -505,7 +508,7 @@ class EditorWithFieldVars extends CodeEditor {
 
     // v4.2
     if (this.props.showFuncs) {
-      const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'PDFMERGE', 'HANLPSIM', 'HANLPSEG', 'HANLPPINY', '$L', 'ZIP']
+      const IGNORED_NAMES = ['CACHE', 'LOG', 'RAWSQLQUERY', 'RAWSQLUPDATE', 'USERUPDATE', 'DEPTUPDATE', 'HANLPSIM', 'HANLPSEG', '$L']
       $.get('/admin/robot/trigger/field-writeback-custom-funcs', (res) => {
         let funcVars = []
         res.data.forEach((name) => {

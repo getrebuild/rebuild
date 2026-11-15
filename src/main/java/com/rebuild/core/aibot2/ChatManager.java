@@ -18,6 +18,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.service.AibotChatService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -119,6 +120,17 @@ public abstract class ChatManager {
     }
 
     /**
+     * 会话是否正在回答（仅查缓存，不加载会话）
+     *
+     * @param chatid
+     * @return
+     */
+    public static boolean isChatRunning(ID chatid) {
+        Chat chat = (Chat) Application.getCommonsCache().getx("chat2-" + chatid);
+        return chat != null && chat.isRunning();
+    }
+
+    /**
      * @param chat
      */
     public static void storeChat(Chat chat) {
@@ -193,7 +205,7 @@ public abstract class ChatManager {
             chat = new Chat(chatid, null, params.getPrompt());
         } else {
             // 会话已绑定的智能体优先，忽略本次 agent
-            chat = new Chat(chatid);
+            chat = getChat(chatid);
 
             // 已有会话在其绑定智能体上校验（新建场景已在落库前校验）
             String quotaExceeded = AgentQuota.check(chat.getAgent());
@@ -201,6 +213,10 @@ public abstract class ChatManager {
 
             appendPrompt(chat.getAgent(), params.getPrompt());
         }
+
+        // 新会话立即入缓存（已有会话经 getChat 已入），使同一会话的并发提问（如企微连续消息）拿到同一实例，经 tryBeginRun 串行
+        if (newChat) Application.getCommonsCache().putx("chat2-" + chatid, chat);
+        if (!chat.tryBeginRun()) throw new AiBotException(Language.L("会话正在处理中，请稍后再试"));
 
         AibotAgent prevAgent = AibotContextHolder.swapAgent(chat.getAgent());
         try {
@@ -249,6 +265,7 @@ public abstract class ChatManager {
             return new String[]{result, chatid.toLiteral()};
         } finally {
             AibotContextHolder.restoreAgent(prevAgent);
+            chat.endRun();
         }
     }
 
