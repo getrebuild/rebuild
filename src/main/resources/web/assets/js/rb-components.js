@@ -1195,7 +1195,7 @@ class RecordSelector extends React.Component {
 
   _setValue(ids) {
     ids = typeof ids === 'string' ? [ids] : ids
-    $.get(`/commons/search/read-labels?ids=${ids.join(',')}`, (res) => {
+    $.get(`/commons/search/read-labels?ids=${$encode(ids.join(','))}`, (res) => {
       const _data = res.data || {}
       for (let id in _data) {
         let currentVal = this.__select2.val()

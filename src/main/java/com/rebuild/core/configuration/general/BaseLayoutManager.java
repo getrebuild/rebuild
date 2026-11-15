@@ -9,6 +9,7 @@ package com.rebuild.core.configuration.general;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
@@ -133,7 +134,7 @@ public class BaseLayoutManager extends ShareToManager {
                 return new ConfigBean()
                         .set("id", c[0])
                         .set("shareTo", c[1])
-                        .set("config", JSON.parse((String) c[3]));
+                        .set("config", JSON.parse((String) c[3], Feature.OrderedField));
             }
         }
         return null;

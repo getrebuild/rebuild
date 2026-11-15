@@ -294,7 +294,7 @@ public class AiBot2Controller extends BaseController {
             if (StringUtils.isBlank(welcome)) welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);
             if (StringUtils.isBlank(welcome)) {
                 String aibotName = RebuildConfiguration.get(ConfigurationItem.AibotName);
-                welcome = String.format(Language.L("%s，我可以帮你"), aibotName);
+                welcome = String.format(Language.L("%s，我帮你"), aibotName);
             }
 
             JSON welcomeMsg = JSONUtils.toJSONObject(
@@ -350,8 +350,20 @@ public class AiBot2Controller extends BaseController {
     @GetMapping("post/chat-list")
     public RespBody chatList(HttpServletRequest req) {
         ID user = getRequestUser(req);
-        Object[][] chats = Application.createQueryNoFilter(
-                "select chatId,subject,modifiedOn from AibotChat where createdBy = ? order by modifiedOn desc")
+
+        StringBuilder sql = new StringBuilder("select chatId,subject,modifiedOn from AibotChat where createdBy = ?");
+        // 仅轮询指定会话（回答中）时使用
+        String[] filterChatids = req.getParameterValues("chatid");
+        if (filterChatids != null && filterChatids.length > 0) {
+            List<String> ids = new ArrayList<>();
+            for (String s : filterChatids) {
+                if (ID.isId(s)) ids.add("'" + s + "'");
+            }
+            if (!ids.isEmpty()) sql.append(" and chatId in (").append(StringUtils.join(ids, ",")).append(")");
+        }
+        sql.append(" order by modifiedOn desc");
+
+        Object[][] chats = Application.createQueryNoFilter(sql.toString())
                 .setParameter(1, user)
                 .setLimit(2000)  // 最多显示
                 .array();
@@ -423,11 +435,16 @@ public class AiBot2Controller extends BaseController {
     private void addChatGroup(JSONArray data, String group, List<Object[]> items) {
         if (items.isEmpty()) return;
 
+        JSONArray itemsJson = new JSONArray();
+        for (Object[] c : items) {
+            itemsJson.add(JSONUtils.toJSONObject(
+                    new String[]{"chatid", "subject", "modifiedOn", "answering"},
+                    new Object[]{c[0], c[1], ((Date) c[2]).getTime(), ChatManager.isChatRunning((ID) c[0])}));
+        }
+
         data.add(JSONUtils.toJSONObject(
                 new String[]{"group", "items"},
-                new Object[]{group, JSONUtils.toJSONObjectArray(
-                        new String[]{"chatid", "subject", "modifiedOn"},
-                        items.toArray(new Object[0][]))}));
+                new Object[]{group, itemsJson}));
     }
 
     @PostMapping("post/chat-rename")

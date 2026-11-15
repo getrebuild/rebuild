@@ -119,6 +119,17 @@ public abstract class ChatManager {
     }
 
     /**
+     * 会话是否正在回答（仅查缓存，不加载会话）
+     *
+     * @param chatid
+     * @return
+     */
+    public static boolean isChatRunning(ID chatid) {
+        Chat chat = (Chat) Application.getCommonsCache().getx("chat2-" + chatid);
+        return chat != null && chat.isRunning();
+    }
+
+    /**
      * @param chat
      */
     public static void storeChat(Chat chat) {

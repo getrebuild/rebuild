@@ -121,6 +121,15 @@ public class Chat implements Serializable {
     }
 
     /**
+     * 是否正在回答
+     *
+     * @return
+     */
+    public boolean isRunning() {
+        return running;
+    }
+
+    /**
      * @param chatRequest
      * @return
      */

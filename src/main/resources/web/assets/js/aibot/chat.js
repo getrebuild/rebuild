@@ -328,6 +328,7 @@ class Chat extends React.Component {
           this._stopPendingPoll()
           this._ChatMessages.setMessages(newMessages, true, null)
           this._ChatInput.setState({ postState: 0 })
+          this._ChatSidebar && this._ChatSidebar._loadChatList()
         }
       })
     }, 3000)
@@ -727,7 +728,7 @@ class ChatWelcome extends React.Component {
         )}
         {suggests.length > 0 && (
           <div className="chat-suggest">
-            <div className="welcome-suggest-label">{$L('你可以问我')}</div>
+            <div className="welcome-suggest-label">{$L('你可以这样问我')}</div>
             <div className="welcome-suggest-list">
               {suggests.map((q, idx) => (
                 <a className="badge" key={idx} onClick={() => this.props.onSuggest && this.props.onSuggest(q)}>
@@ -1476,10 +1477,20 @@ class ChatSidebar extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, list: [], expandAll: false }
+    try {
+      this._seen = JSON.parse($storage.get('__AiBotChatSeen') || '{}') || {}
+    } catch (e) {
+      this._seen = {}
+    }
   }
 
   componentDidMount() {
     this._loadChatList()
+  }
+
+  componentWillUnmount() {
+    if (this._pollTimer) clearTimeout(this._pollTimer)
+    this._pollTimer = null
   }
 
   componentDidUpdate(props, prevState) {
@@ -1494,10 +1505,22 @@ class ChatSidebar extends React.Component {
     }
   }
 
-  _loadChatList() {
+  // 记录各会话最后查看的 modifiedOn
+  _loadChatList(markSeenChatid) {
     $.get('/aibot2/post/chat-list', (res) => {
       const data = res.data || []
-      this.setState({ list: data }, () => {})
+
+      const seen = {}
+      data.forEach((g) => {
+        g.items.forEach((item) => {
+          const old = this._seen[item.chatid]
+          seen[item.chatid] = old === undefined || item.chatid === this.state.current || item.chatid === markSeenChatid ? item.modifiedOn : old
+        })
+      })
+      this._seen = seen
+      $storage.set('__AiBotChatSeen', JSON.stringify(seen))
+
+      this.setState({ list: data }, () => this._maybePoll())
 
       if (this.state.current) {
         const exists = data.some((g) => g.items.some((x) => x.chatid === this.state.current))
@@ -1508,6 +1531,40 @@ class ChatSidebar extends React.Component {
         }
       }
     })
+  }
+
+  // 有回答中的会话时，每 5s 只查询这些会话
+  _maybePoll() {
+    const answering = []
+    this.state.list.forEach((g) => {
+      g.items.forEach((item) => {
+        if (item.answering) answering.push(item.chatid)
+      })
+    })
+
+    if (answering.length === 0) {
+      if (this._pollTimer) clearTimeout(this._pollTimer)
+      this._pollTimer = null
+      return
+    }
+    if (this._pollTimer) return
+
+    this._pollTimer = setTimeout(() => {
+      this._pollTimer = null
+      const params = answering.map((id) => 'chatid=' + id).join('&')
+      $.get('/aibot2/post/chat-list?' + params, (res) => {
+        const data = res.data || []
+        let still = 0
+        data.forEach((g) => {
+          g.items.forEach((item) => {
+            if (item.answering) still += 1
+          })
+        })
+        // 有会话结束回答，刷新完整列表以显示状态与排序
+        if (still < answering.length) this._loadChatList()
+        else this._maybePoll()
+      }).fail(() => this._maybePoll())
+    }, 5000)
   }
 
   render() {
@@ -1581,6 +1638,7 @@ class ChatSidebar extends React.Component {
   }
 
   _renderItem(item, isPinned) {
+    const unseen = item.chatid !== this.state.current && item.modifiedOn > (this._seen[item.chatid] || 0)
     return (
       <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
         <a
@@ -1589,6 +1647,8 @@ class ChatSidebar extends React.Component {
           href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`}
           onClick={(e) => {
             $stopEvent(e, true)
+            this._seen[item.chatid] = item.modifiedOn
+            $storage.set('__AiBotChatSeen', JSON.stringify(this._seen))
             this.props._Chat.initChat(item.chatid)
             this.setState({ current: item.chatid })
             if (!this.props._Chat.props.standalone || window.innerWidth < 900) this.toggleShow(false)
@@ -1597,6 +1657,7 @@ class ChatSidebar extends React.Component {
           {item.subject}
         </a>
         <span>
+          {item.answering ? <i className="chat-item-loading mdi mdi-spin mdi-loading" /> : unseen ? <span className="chat-item-unseen" /> : null}
           <a data-toggle="dropdown">
             <i className="icon zmdi zmdi-more fs-18" />
           </a>
@@ -1637,7 +1698,7 @@ class ChatSidebar extends React.Component {
         name={item.subject}
         onConfirm={(s) => {
           if (!$empty(s)) {
-            $.post(`/aibot2/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList())
+            $.post(`/aibot2/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList(item.chatid))
           }
         }}
       />,

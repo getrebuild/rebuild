@@ -402,6 +402,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
   text-decoration: none;
 }
 
+.chat-sidebar .chat-list ul > li > span > .chat-item-loading {
+  color: var(--rb-theme-color);
+  font-size: 16px;
+  transform: translateY(-1px);
+}
+
+.chat-sidebar .chat-list ul > li > span > .chat-item-unseen {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--rb-theme-color);
+  transform: translateY(-2px);
+}
+
 .chat-sidebar .chat-list ul > li > span {
   position: absolute;
   right: 0;
@@ -411,16 +426,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
   line-height: 34px;
   text-align: center;
   margin-top: 3px;
+  display: inline-block;
+  pointer-events: none;
+}
+
+.chat-sidebar .chat-list ul > li:hover > span > .chat-item-loading,
+.chat-sidebar .chat-list ul > li:hover > span > .chat-item-unseen {
   display: none;
 }
 
-.chat-sidebar .chat-list ul > li:hover > span {
+.chat-sidebar .chat-list ul > li > span > a {
+  display: none;
+  pointer-events: auto;
+  color: #404040;
+  opacity: 0.8;
+}
+
+.chat-sidebar .chat-list ul > li:hover > span > a {
   display: inline-block;
 }
 
-.chat-sidebar .chat-list ul > li > span > a {
-  color: #404040;
-  opacity: 0.8;
+.chat-sidebar .chat-list ul > li > span > .dropdown-menu {
+  pointer-events: auto;
 }
 
 .chat-sidebar .chat-list ul > li > span > a:hover {

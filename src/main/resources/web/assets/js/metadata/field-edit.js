@@ -671,7 +671,7 @@ const _initRefsLabel = function ($dv, $dvClear) {
     $dv.attr('data-value-id', CURRENT_BIZZ)
     $dvClear.removeClass('hide')
   } else if (def) {
-    $.get(`/commons/search/read-labels?ids=${encodeURIComponent(def)}&ignoreMiss=false`, (res) => {
+    $.get(`/commons/search/read-labels?ids=${$encode(def)}&ignoreMiss=false`, (res) => {
       if (res.data) {
         const ids = []
         const labels = []
@@ -721,9 +721,7 @@ const _handleCalcFormula = function (formula) {
 
   $el.on('click', () => {
     if (!FIELDS_CACHE) return
-    renderRbcomp(
-      <FormulaCalcWithCode entity={wpc.entityName} fields={FIELDS_CACHE} fieldsDeep={1} initFormula={formula} onConfirm={_FN} />,
-    )
+    renderRbcomp(<FormulaCalcWithCode entity={wpc.entityName} fields={FIELDS_CACHE} fieldsDeep={1} initFormula={formula} onConfirm={_FN} />)
   })
 }
 
