@@ -90,7 +90,7 @@ public class ViewAddonsController extends BaseController {
         List<String[]> allRefs = new ArrayList<>();
 
         // 明细（仅显示项）
-        if (ViewAddonsManager.TYPE_TAB.equals(applyType)) {
+        if (ViewAddonsManager.TYPE_TAB.equals(applyType) && entityMeta.getDetailEntity() != null) {
             for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) {
                 String f = MetadataHelper.getDetailToMainField(de).getName();
                 allRefs.add(new String[] { de.getName() + ViewAddonsManager.EF_SPLIT + f, EasyMetaFactory.getLabel(de) });

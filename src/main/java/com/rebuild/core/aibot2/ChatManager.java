@@ -18,6 +18,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.service.AibotChatService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -197,6 +198,7 @@ public abstract class ChatManager {
         }
 
         Chat chat;
+        boolean runGuarded = false;
         if (newChat && params.getAgent() != null) {
             appendPrompt(params.getAgent(), params.getPrompt());
             chat = new Chat(chatid, params.getAgent());
@@ -204,11 +206,15 @@ public abstract class ChatManager {
             chat = new Chat(chatid, null, params.getPrompt());
         } else {
             // 会话已绑定的智能体优先，忽略本次 agent
-            chat = new Chat(chatid);
+            // 使用缓存实例，使同一会话的并发提问（如企微连续消息）能通过 tryBeginRun 串行
+            chat = getChat(chatid);
 
             // 已有会话在其绑定智能体上校验（新建场景已在落库前校验）
             String quotaExceeded = AgentQuota.check(chat.getAgent());
             if (quotaExceeded != null) throw new AiBotException(quotaExceeded);
+
+            if (!chat.tryBeginRun()) throw new AiBotException(Language.L("会话正在处理中，请稍后再试"));
+            runGuarded = true;
 
             appendPrompt(chat.getAgent(), params.getPrompt());
         }
@@ -260,6 +266,7 @@ public abstract class ChatManager {
             return new String[]{result, chatid.toLiteral()};
         } finally {
             AibotContextHolder.restoreAgent(prevAgent);
+            if (runGuarded) chat.endRun();
         }
     }
 
