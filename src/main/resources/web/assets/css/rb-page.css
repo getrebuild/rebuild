@@ -2236,6 +2236,7 @@ th.column-fixed::before,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  height: 36px;
 }
 
 .sortable-box .dd-list .dd3-action,
