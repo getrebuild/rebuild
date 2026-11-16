@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -58,7 +59,31 @@ public class AibotConfigService extends BaseConfigurationService {
     public Record update(Record record) {
         checkTypeGuard(record.getString("type"));
         checkPublishBindUser(record);
+        checkApiConnectivity(record);
         return super.update(record);
+    }
+
+    // AGENT 的 API 配置（地址、秘钥、模型）有变更时测试连通性
+    private void checkApiConnectivity(Record record) {
+        JSONObject conf = (JSONObject) JSONUtils.parseSafe(record.getString("config"));
+        Object stored = QueryHelper.queryFieldValue(record.getPrimary(), "config");
+        JSONObject storedConf = stored == null ? null : (JSONObject) JSONUtils.parseSafe(stored.toString());
+        if (conf == null || sameApiConfig(conf, storedConf)) return;
+
+        String error = Config.testApiConnectivity(
+                conf.getString("AibotDSUrl"), conf.getString("AibotDSSecret"), conf.getString("AibotBaseDefModel"));
+        if (error != null) throw new DataSpecificationException(error);
+    }
+
+    // 地址/秘钥/模型是否均无变更（仅 AGENT 配置使用这些字段，其他类型恒无变更）
+    private static boolean sameApiConfig(JSONObject conf, JSONObject stored) {
+        String[] keys = {"AibotDSUrl", "AibotDSSecret", "AibotBaseDefModel"};
+        for (String key : keys) {
+            String now = StringUtils.trimToEmpty(conf.getString(key));
+            String old = stored == null ? "" : StringUtils.trimToEmpty(stored.getString(key));
+            if (!now.equals(old)) return false;
+        }
+        return true;
     }
 
     @Override

@@ -13,9 +13,12 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.core.Timeout;
 import com.openai.models.ReasoningEffort;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.openai.models.models.Model;
+import com.openai.models.models.ModelListPage;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -206,6 +209,36 @@ public class Config {
      */
     public static String getDefModel() {
         return RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
+    }
+
+    /**
+     * 测试 API 连通性，并校验模型是否在可用列表中，通过返回 null
+     *
+     * @param baseUrl 留空使用已保存配置
+     * @param apiKey  留空使用已保存配置
+     * @param model   留空使用已保存配置
+     * @return 失败信息
+     */
+    public static String testApiConnectivity(String baseUrl, String apiKey, String model) {
+        baseUrl = StringUtils.defaultIfBlank(baseUrl, RebuildConfiguration.get(ConfigurationItem.AibotDSUrl));
+        apiKey = StringUtils.defaultIfBlank(apiKey, RebuildConfiguration.get(ConfigurationItem.AibotDSSecret));
+        model = StringUtils.defaultIfBlank(model, getDefModel());
+
+        // 地址或秘钥未配置时不测试
+        if (StringUtils.isBlank(baseUrl) || StringUtils.isBlank(apiKey)) return null;
+
+        try {
+            ModelListPage models = getClient(baseUrl, apiKey).models().list();
+            if (StringUtils.isBlank(model)) return null;
+
+            for (Model m : models.data()) {
+                if (model.equals(m.id())) return null;
+            }
+            return Language.L("模型 %s 不可用", model);
+        } catch (Exception e) {
+            log.error("Failed to test aibot api connectivity", e);
+            return Language.L("API 连接失败") + " - " + e.getLocalizedMessage();
+        }
     }
 
     /**

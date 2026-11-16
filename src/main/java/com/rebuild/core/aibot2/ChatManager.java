@@ -251,9 +251,9 @@ public abstract class ChatManager {
                     result = chat.ask(params.getUserContent(), parts);
                 }
             } catch (Exception ex) {
-                // 失败时用户消息也落库，避免产生空会话记录（落库失败不掩盖原始异常）
+                // 失败时落库用户消息与错误消息，避免历史中出现无回复的提问（落库失败不掩盖原始异常）
                 try {
-                    chat.store();
+                    chat.completionError(Language.L("请求错误") + ":" + CommonsUtils.getRootMessage(ex), null);
                 } catch (Exception storeEx) {
                     log.error("Cannot store chat on failure : {}", chatid, storeEx);
                 }

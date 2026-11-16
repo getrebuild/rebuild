@@ -13,7 +13,6 @@ import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.core.service.trigger.impl.FieldWriteback;
 import com.rebuild.core.service.trigger.impl.GroupAggregation;
 import com.rebuild.core.service.trigger.impl.SendNotification;
-import org.apache.commons.lang.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
@@ -80,7 +79,7 @@ public enum ActionType {
      * @throws ReflectiveOperationException
      */
     TriggerAction newInstance(ActionContext context) throws ReflectiveOperationException {
-        Class<?> clazz = ClassUtils.getClass(getActionClass());
+        Class<?> clazz = Class.forName(getActionClass(), true, ActionType.class.getClassLoader());
         Constructor<?> c = ReflectionUtils.accessibleConstructor(clazz, ActionContext.class);
         return (TriggerAction) c.newInstance(context);
     }
