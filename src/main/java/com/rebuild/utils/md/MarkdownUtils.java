@@ -38,6 +38,9 @@ public class MarkdownUtils {
     // markdown 中的文件下载链接，输出前重写补全 `_csrfToken`
     private static final Pattern PATTERN_FILE_URL = Pattern.compile("\\]\\(([^)]*?/filex/download/[^)]*)\\)");
 
+    // markdown 中的站内相对链接（排除图片链接）
+    private static final Pattern PATTERN_RELATIVE_URL = Pattern.compile("(?<!!)\\]\\((/[^)]*)\\)");
+
     private static final Parser PARSER;
     private static final HtmlRenderer RENDERER;
 
@@ -168,6 +171,28 @@ public class MarkdownUtils {
             url += (url.contains("?") ? "&" : "?")
                     + AppUtils.URL_CSRFTOKEN + "=" + AuthTokenManager.generateCsrfToken(12 * 60 * 60);
 
+            m.appendReplacement(sb, Matcher.quoteReplacement("](" + url + ")"));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * 重写 markdown 中的站内相对链接为绝对 URL
+     *
+     * @param md
+     * @return
+     */
+    public static String rewriteRelativeUrls(String md) {
+        if (md == null || !md.contains("](/")) return md;
+
+        Matcher m = PATTERN_RELATIVE_URL.matcher(md);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            String url = m.group(1);
+            if (url.startsWith("//")) continue;
+
+            url = RebuildConfiguration.getHomeUrl(url);
             m.appendReplacement(sb, Matcher.quoteReplacement("](" + url + ")"));
         }
         m.appendTail(sb);
