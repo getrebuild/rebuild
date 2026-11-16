@@ -975,6 +975,22 @@ const EasyFilterEval = {
 }
 
 // ~~ Excel 粘贴数据
+
+// Excel 剪贴板 HTML 会把中文写成字符引用（如 &#39134;），SheetJS 的 html_to_sheet 不解码它们
+const $decodeHtmlEntities = (ws) => {
+  Object.keys(ws).forEach((addr) => {
+    if (addr[0] === '!') return
+    const cell = ws[addr]
+    if (cell && typeof cell.v === 'string' && cell.v.includes('&')) {
+      const text = cell.v.replace(/&(?:#\d+|#x[0-9a-fA-F]+|\w+);/g, (m) => $removeHtml(m))
+      if (text !== cell.v) {
+        cell.v = text
+        cell.w = text
+      }
+    }
+  })
+}
+
 class ExcelClipboardData extends React.Component {
   constructor(props) {
     super(props)
@@ -1034,6 +1050,7 @@ class ExcelClipboardData extends React.Component {
       try {
         const wb = window.XLSX.read(res, { type: 'string' })
         const ws = wb.Sheets[wb.SheetNames[0]]
+        $decodeHtmlEntities(ws)
         data = window.XLSX.utils.sheet_to_html(ws, { id: 'rsheetb', header: '', footer: '', editable: true })
 
         // No content
