@@ -444,7 +444,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
           <button type="button" className="btn btn-secondary btn-space mr-2" onClick={this.hide}>
             {$L('取消')}
           </button>
-          <button type="button" className="btn btn-primary btn-space mr-1" onClick={() => this.post()}>
+          <button type="button" className="btn btn-primary btn-space mr-1" onClick={() => this.post()} disabled={!this.state.isLoaded}>
             {$L('提交')}
           </button>
         </div>
@@ -583,10 +583,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             </div>
           )}
 
-          <button type="button" className="btn btn-primary btn-space mr-2" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
+          <button type="button" className="btn btn-primary btn-space mr-2" onClick={() => this.post(10)} disabled={!this.state.isLoaded || !!this.state.hasError}>
             {$L('同意')}
           </button>
-          <button type="button" className="btn btn-danger btn-outline btn-space mr-1" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
+          <button type="button" className="btn btn-danger btn-outline btn-space mr-1" onClick={() => this.post(11)} disabled={!this.state.isLoaded || !!this.state.hasError}>
             {$L('驳回')}
           </button>
         </div>
