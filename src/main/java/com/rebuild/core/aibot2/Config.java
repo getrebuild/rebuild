@@ -234,10 +234,11 @@ public class Config {
             for (Model m : models.data()) {
                 if (model.equals(m.id())) return null;
             }
-            return Language.L("模型 %s 不可用", model);
+            return Language.L("模型不可用") + ": " + model;
+
         } catch (Exception e) {
             log.error("Failed to test aibot api connectivity", e);
-            return Language.L("API 连接失败") + " - " + e.getLocalizedMessage();
+            return Language.L("API 连接失败") + ": " + CommonsUtils.getRootMessage(e);
         }
     }
 
