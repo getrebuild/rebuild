@@ -333,7 +333,6 @@ $(function () {
   if (rb.currentUser && $('.aibot-show').length) {
     $.get('/aibot/check-usable', function (res) {
       if (res.data) {
-        rb._aibotUsable = true
         $('.aibot-show').removeClass('aibot-show')
 
         var $ai = $('.aibot-shift a')
@@ -348,14 +347,10 @@ $(function () {
           })
         }
       } else {
-        rb._aibotUsable = false
         $('.aibot-show').remove()
         $('.aibot-quick').remove()
       }
     })
-  } else {
-    rb._aibotUsable = false
-    $('.aibot-quick').remove()
   }
 })
 
@@ -718,7 +713,7 @@ var _initGlobalSearch = function () {
   })
 
   // v4.5
-  if (rb._aibotUsable !== false) {
+  if ($('.aibot-shift:visible')[0]) {
     $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer ai-color"></i> ' + $L('用 Rex 搜索') + '</a>').appendTo($gs)
   }
 
@@ -804,7 +799,7 @@ var _initGlobalCreate = function () {
   var $gc = $('.global-create2 .dropdown-menu')
 
   // v4.5
-  if (rb._aibotUsable !== false) {
+  if ($('.aibot-shift:visible')[0]) {
     $('<a class="dropdown-item aibot-quick"><i class="icon mdi mdi-shimmer ai-color"></i>' + $L('用 Rex 新建') + '</a>')
       .appendTo($gc)
       .on('click', function () {
