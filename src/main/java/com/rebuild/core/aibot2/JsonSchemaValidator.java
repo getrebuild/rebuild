@@ -121,7 +121,7 @@ public class JsonSchemaValidator {
 
         } catch (Exception ex) {
             log.warn("JsonSchema validate error : {} [{}]", data, schemaRes, ex);
-            return Collections.singletonList("数据解析失败 : " + ex.getLocalizedMessage());
+            return Collections.singletonList("数据解析失败 : " + CommonsUtils.getRootMessage(ex));
         }
     }
 

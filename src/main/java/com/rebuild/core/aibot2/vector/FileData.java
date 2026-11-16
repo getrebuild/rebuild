@@ -149,7 +149,7 @@ public class FileData implements VectorData {
             else content = VectorData.truncate(content);
 
         } catch (Throwable e) {
-            throw new AiBotException("无法识别文件:" + e.getLocalizedMessage());
+            throw new AiBotException("无法识别文件:" + CommonsUtils.getRootMessage(e));
         }
 
         String name = QiniuCloud.parseFileName(filePath);
@@ -252,7 +252,7 @@ public class FileData implements VectorData {
             throw new AiBotException("语音识别返回内容为空");
 
         } catch (IOException e) {
-            throw new AiBotException("语音识别失败:" + e.getLocalizedMessage());
+            throw new AiBotException("语音识别失败:" + CommonsUtils.getRootMessage(e));
         } finally {
             if (asrFile != file) FileUtils.deleteQuietly(asrFile);
         }

@@ -23,6 +23,7 @@ import com.openai.services.blocking.chat.ChatCompletionService;
 import com.rebuild.core.aibot2.ReasoningExtractor.FeedResult;
 import com.rebuild.core.aibot2.ReasoningExtractor.ThinkTagParser;
 import com.rebuild.core.aibot2.tool.ToolDefs;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -397,9 +398,9 @@ public class ChatExecutor {
      */
     private static void logError(OpenAIServiceException ex, ChatCompletionCreateParams params, ChatLogger chatLogger) {
         String requestJson = paramsToJson(params);
-        log.error("Chat API error : {}\nREQUEST\n{}", ex.getMessage(), requestJson);
+        log.error("Chat API error : {}\nREQUEST\n{}", CommonsUtils.getRootMessage(ex), requestJson);
         if (chatLogger != null) {
-            chatLogger.log("ERROR", "Chat API error : " + ex.getMessage() + "\n\n```json\n" + requestJson + "\n```");
+            chatLogger.log("ERROR", "Chat API error : " + CommonsUtils.getRootMessage(ex) + "\n\n```json\n" + requestJson + "\n```");
         }
     }
 
@@ -411,7 +412,7 @@ public class ChatExecutor {
         try {
             return new ObjectMapper().writeValueAsString(params);
         } catch (Exception ex) {
-            return "(unserializable: " + ex.getMessage() + ")";
+            return "(unserializable: " + CommonsUtils.getRootMessage(ex) + ")";
         }
     }
 

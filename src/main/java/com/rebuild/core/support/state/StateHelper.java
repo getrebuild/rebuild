@@ -71,7 +71,7 @@ public class StateHelper {
 
         Class<?> stateEnum;
         try {
-            stateEnum = ClassUtils.getClass(stateClass);
+            stateEnum = Class.forName(stateClass, true, StateHelper.class.getClassLoader());
             if (stateEnum.isEnum() && ClassUtils.isAssignable(stateEnum, StateSpec.class)) {
                 return stateEnum;
             }

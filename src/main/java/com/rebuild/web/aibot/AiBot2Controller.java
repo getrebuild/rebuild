@@ -80,7 +80,7 @@ public class AiBot2Controller extends BaseController {
         try {
             chatRequest = buildChatRequest(req);
         } catch (InvalidParameterException ex) {
-            ServletUtils.writeJson(resp, Message.error(ex.getMessage()).toJSONString());
+            ServletUtils.writeJson(resp, Message.error(CommonsUtils.getRootMessage(ex)).toJSONString());
             return;
         }
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
@@ -129,7 +129,7 @@ public class AiBot2Controller extends BaseController {
         try {
             chatRequest = buildChatRequest(req);
         } catch (InvalidParameterException ex) {
-            StreamEcho.error(ex.getMessage(), resp.getWriter());
+            StreamEcho.error(CommonsUtils.getRootMessage(ex), resp.getWriter());
             return;
         }
         Chat chat = ChatManager.getChat(chatRequest.getChatid());

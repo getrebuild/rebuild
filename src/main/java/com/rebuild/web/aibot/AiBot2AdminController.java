@@ -91,10 +91,27 @@ public class AiBot2AdminController extends BaseController {
             return RespBody.ok();
         }
 
+        // API 相关配置（地址、秘钥、模型）有变更时，保存前测试连通性
+        String error = testApiConnectivity(data);
+        if (error != null) return RespBody.error(error);
+
         ConfigurationController.setValues(data);
         Application.getBean(RebuildWebConfigurer.class).init();
         Config.getClient(true);
         return RespBody.ok();
+    }
+
+    /**
+     * 测试 API 连通性，通过返回 null
+     *
+     * @param data
+     * @return
+     */
+    private String testApiConnectivity(JSONObject data) {
+        boolean apiChanged = data.containsKey("AibotDSUrl") || data.containsKey("AibotDSSecret") || data.containsKey("AibotBaseDefModel");
+        if (!apiChanged) return null;
+        return Config.testApiConnectivity(
+                data.getString("AibotDSUrl"), data.getString("AibotDSSecret"), data.getString("AibotBaseDefModel"));
     }
 
     @GetMapping("aibot")
@@ -279,7 +296,7 @@ public class AiBot2AdminController extends BaseController {
 
         } catch (Exception ex) {
             log.error("Cannot import skills : {}", getParameter(request, "names"), ex);
-            return RespBody.error(ex.getLocalizedMessage());
+            return RespBody.error(CommonsUtils.getRootMessage(ex));
         }
     }
 

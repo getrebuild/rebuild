@@ -7028,16 +7028,20 @@ div.formula-code {
   height: auto;
 }
 
-.mermaid rect {
-  rx: 6px;
-  ry: 6px;
-}
-
 .mermaid text,
 .mermaid .nodeLabel,
 .mermaid .edgeLabel {
   font-family: inherit;
   font-size: 13px;
+}
+
+.mermaid foreignObject div[style*='max-width'] {
+  max-width: 240px !important;
+  white-space: normal !important;
+}
+
+.mermaid svg :is(rect, path, ellipse, polygon, circle) {
+  filter: none !important;
 }
 
 input[type='password']::-ms-reveal,

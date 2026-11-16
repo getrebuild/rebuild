@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -166,7 +167,7 @@ public class BuildField implements Tool, AdminGuard, ConfirmableTool {
         } catch (KnownToolException ex) {
             // 标签重名时不猜测意图，提示改用 @self 显式表示自引用
             if (ref.equalsIgnoreCase(EasyMetaFactory.getLabel(entity))) {
-                throw new KnownToolException(ex.getLocalizedMessage()
+                throw new KnownToolException(CommonsUtils.getRootMessage(ex)
                         + "。若确为引用本实体自身，请将 refEntity 改为 " + SELF_REF);
             }
             throw ex;

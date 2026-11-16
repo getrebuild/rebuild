@@ -413,7 +413,7 @@ public class ExportReport implements Tool {
             try {
                 output = ((ReportsFile) output).toZip(false);
             } catch (IOException e) {
-                throw new KnownToolException("报表打包失败 : " + e.getMessage());
+                throw new KnownToolException("报表打包失败 : " + CommonsUtils.getRootMessage(e));
             }
         }
 

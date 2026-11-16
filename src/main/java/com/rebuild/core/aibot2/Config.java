@@ -11,11 +11,15 @@ import cn.devezhao.persist4j.engine.ID;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.core.Timeout;
+import com.openai.errors.OpenAIServiceException;
 import com.openai.models.ReasoningEffort;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.openai.models.models.Model;
+import com.openai.models.models.ModelListPage;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -120,6 +124,30 @@ public class Config {
     }
 
     /**
+     * 连通性测试用短超时客户端（不缓存，用完关闭），避免接口假死时保存被长时间阻塞
+     *
+     * @param baseUrl
+     * @param apiKey
+     * @return
+     */
+    private static OpenAIClient createTestClient(String baseUrl, String apiKey) {
+        if (!baseUrl.endsWith("/")) baseUrl += "/";
+
+        Timeout timeout = Timeout.builder()
+                .connect(Duration.ofSeconds(10))
+                .read(Duration.ofSeconds(20))
+                .write(Duration.ofSeconds(10))
+                .build();
+
+        return OpenAIOkHttpClient.builder()
+                .baseUrl(baseUrl)
+                .apiKey(apiKey)
+                .timeout(timeout)
+                .maxRetries(1)
+                .build();
+    }
+
+    /**
      * @param system
      * @param agent
      * @return
@@ -206,6 +234,51 @@ public class Config {
      */
     public static String getDefModel() {
         return RebuildConfiguration.get(ConfigurationItem.AibotBaseDefModel);
+    }
+
+    /**
+     * 测试 API 连通性，并校验模型是否在可用列表中（端点未提供模型列表时跳过校验），通过返回 null
+     *
+     * @param baseUrl 留空使用已保存配置
+     * @param apiKey  留空使用已保存配置
+     * @param model   留空使用已保存配置
+     * @return 失败信息
+     */
+    public static String testApiConnectivity(String baseUrl, String apiKey, String model) {
+        baseUrl = StringUtils.defaultIfBlank(baseUrl, RebuildConfiguration.get(ConfigurationItem.AibotDSUrl));
+        apiKey = StringUtils.defaultIfBlank(apiKey, RebuildConfiguration.get(ConfigurationItem.AibotDSSecret));
+        model = StringUtils.defaultIfBlank(model, getDefModel());
+
+        // 地址或秘钥未配置时不测试
+        if (StringUtils.isBlank(baseUrl) || StringUtils.isBlank(apiKey)) return null;
+
+        OpenAIClient client = createTestClient(baseUrl, apiKey);
+        try {
+            ModelListPage models;
+            try {
+                models = client.models().list();
+            } catch (OpenAIServiceException ex) {
+                // 部分兼容网关未实现 /models，无法校验模型列表，不阻断保存
+                if (ex.statusCode() == 404) {
+                    log.warn("Models list not supported by endpoint, skip model validation : {}", baseUrl);
+                    return null;
+                }
+                throw ex;
+            }
+
+            if (StringUtils.isBlank(model)) return null;
+
+            for (Model m : models.data()) {
+                if (model.equals(m.id())) return null;
+            }
+            return Language.L("模型不可用") + ":" + model;
+
+        } catch (Exception e) {
+            log.error("Failed to test aibot api connectivity", e);
+            return Language.L("API 连接失败") + ":" + CommonsUtils.getRootMessage(e);
+        } finally {
+            client.close();
+        }
     }
 
     /**

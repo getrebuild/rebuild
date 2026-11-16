@@ -1372,7 +1372,7 @@ var $useMermaid = function (cb) {
     console.error('[Mermaid] Failed to load: mermaid is undefined after script load')
   }
   $useScript(
-    '/assets/lib/charts/mermaid.min.js?v=11.17.2',
+    '/assets/lib/charts/mermaid.min.js?v=12.3.0',
     function () {
       _exposeMermaid()
       typeof cb === 'function' && cb()

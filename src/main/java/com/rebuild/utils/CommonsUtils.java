@@ -596,17 +596,24 @@ public class CommonsUtils {
      * @return
      */
     public static String getRootMessage(Throwable ex) {
-        String msg = null;
-        Throwable th = ExceptionUtils.getRootCause(ex);
-        if (th != null) {
-            msg = th.getMessage();
-            if (StringUtils.isBlank(msg)) {
-                msg = ClassUtils.getShortClassName(th, "NULL");
-            } else if (msg.length() < 20 && msg.endsWith("null")) {
-                msg = msg.substring(0, msg.length() - 4) + ClassUtils.getShortClassName(th, "NULL");
+        if (ex == null) return "";
+
+        Throwable root = ExceptionUtils.getRootCause(ex);
+        if (root == null) root = ex;
+
+        String msg = StringUtils.trimToNull(root.getMessage());
+        if (msg == null || "null".equals(msg)) {
+            msg = null;
+            // 根因消息不可读时，回退到异常链上第一个可读消息
+            for (Throwable th : ExceptionUtils.getThrowableList(ex)) {
+                String m = StringUtils.trimToNull(th.getMessage());
+                if (m != null && !"null".equals(m)) {
+                    msg = m;
+                    break;
+                }
             }
         }
-        return msg == null ? "" : msg;
+        return msg == null ? ClassUtils.getShortClassName(root, "NULL") : msg;
     }
 
     /**

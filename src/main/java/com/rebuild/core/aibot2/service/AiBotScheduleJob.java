@@ -153,7 +153,7 @@ public class AiBotScheduleJob extends DistributedJobLock {
 
             try {
                 String errorMessage = String.format("**[%s]**\n\n定时任务执行失败: %s",
-                        subject, CommonsUtils.maxstr(e.getMessage(), 200));
+                        subject, CommonsUtils.maxstr(CommonsUtils.getRootMessage(e), 200));
                 Application.getNotifications().send(
                         MessageBuilder.createMessage(user, errorMessage, Message.TYPE_DEFAULT));
             } catch (Exception ex) {
