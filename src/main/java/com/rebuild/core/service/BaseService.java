@@ -107,7 +107,7 @@ public abstract class BaseService extends InternalPersistService {
      *
      * @param record
      */
-    private void fixedDecimalScale(Record record) {
+    protected void fixedDecimalScale(Record record) {
         final Entity entity = record.getEntity();
         if (!MetadataHelper.isBusinessEntity(entity)) return;
 

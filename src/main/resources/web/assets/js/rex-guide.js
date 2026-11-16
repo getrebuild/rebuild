@@ -112,7 +112,7 @@ const __showRexGuide = function (configured, isAdmin) {
           <div className="rex-guide-qtitle">先从这几个问题开始</div>
           {questions.map((q) => (
             <div key={q} className="rex-guide-q" onClick={() => openAiBot(q)}>
-              <i className="mdi mdi-shimmer rex-guide-qicon" />
+              <i className="mdi mdi-chat-plus-outline rex-guide-qicon" />
               <span>{q}</span>
               <i className="zmdi zmdi-chevron-right rex-guide-go" />
             </div>

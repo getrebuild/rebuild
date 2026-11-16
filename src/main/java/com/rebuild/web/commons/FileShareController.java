@@ -26,6 +26,7 @@ import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.ShortUrls;
 import com.rebuild.core.support.general.FieldValueHelper;
@@ -112,12 +113,12 @@ public class FileShareController extends BaseController {
 
         final ID folderOrDashOrChat45 = ID.isId(fileUrl) ? ID.valueOf(fileUrl) : null;
 
-        // 分享人
+        // 分享人（公开分享页仅展示脱敏姓名）
         Object[] sharer = Application.createQueryNoFilter(
                 "select createdBy from ShortUrl where shortKey = ?")
                 .setParameter(1, shareKey)
                 .unique();
-        final String shareByName = sharer == null ? null : UserHelper.getName((ID) sharer[0]);
+        final String shareByName = sharer == null ? null : DataDesensitized.any(UserHelper.getName((ID) sharer[0]));
 
         // v4.5 分享 AI 会话
         if (folderOrDashOrChat45 != null && folderOrDashOrChat45.getEntityCode() == EntityHelper.AibotChat) {
