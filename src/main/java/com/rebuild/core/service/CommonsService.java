@@ -69,6 +69,7 @@ public class CommonsService extends InternalPersistService {
      */
     public Record create(Record record, boolean strictMode) {
         if (strictMode) tryIfHasPrivileges(record);
+        getBaseService().fixedDecimalScale(record);  // fix:4.5.5
         return super.create(record);
     }
 
@@ -79,6 +80,7 @@ public class CommonsService extends InternalPersistService {
      */
     public Record update(Record record, boolean strictMode) {
         if (strictMode) tryIfHasPrivileges(record);
+        getBaseService().fixedDecimalScale(record);  // fix:4.5.5
         return super.update(record);
     }
 
