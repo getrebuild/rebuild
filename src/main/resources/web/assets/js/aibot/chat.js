@@ -593,7 +593,7 @@ class ChatInput extends React.Component {
   }
 
   focus() {
-    this._$editable && this._$editable.focus()
+    this._$editable && $focus2End(this._$editable)
   }
 
   val(value) {
@@ -623,6 +623,7 @@ class ChatInput extends React.Component {
     }
     this.setState({ content: preset.content || '', attach: preset.attach || [], activeSkill: preset.skill || null }, () => {
       if (preset.autoSend && this.state.content) this.hanldeSend()
+      else if (this.state.content && window.innerWidth >= 900) this.focus()
     })
   }
 
