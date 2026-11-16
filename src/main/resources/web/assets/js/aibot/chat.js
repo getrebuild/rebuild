@@ -702,13 +702,7 @@ class ChatWelcome extends React.Component {
     return (
       <div className="chat-welcome">
         <div className="welcome-logo">
-          {this.props.agentIcon ? (
-            <span className="agent-avatar">
-              <i className={`icon mdi ai-color ${this.props.agentIcon}`} />
-            </span>
-          ) : (
-            <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
-          )}
+          <img src={`${rb.baseUrl}/assets/img/rex-logo-filled-512x512.png`} alt="AI" />
         </div>
         {!$empty(this.props.welcome) && <p className="welcome-line">{this.props.welcome}</p>}
         {agents.length > 1 && (
@@ -777,7 +771,6 @@ class ChatMessages extends React.Component {
             suggestions={this.state.suggestQuestions || []}
             agents={this.props.agents}
             agentId={this.props.agentId}
-            agentIcon={this.props.agentIcon}
             onSuggest={(q) => this._handleSuggestClick(q)}
             onSwitchAgent={(agentId) => this.props._Chat.switchAgent && this.props._Chat.switchAgent(agentId)}
           />
@@ -1110,7 +1103,7 @@ class ChatMessage extends React.Component {
               <i className={`icon mdi ai-color ${this.props.agentIcon}`} />
             </span>
           ) : (
-            <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
+            <img src={`${rb.baseUrl}/assets/img/rex-logo-filled-512x512.png`} alt="AI" />
           )}
         </div>
         <div className="msg-content">
