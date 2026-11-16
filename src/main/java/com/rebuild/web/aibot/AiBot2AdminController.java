@@ -296,7 +296,7 @@ public class AiBot2AdminController extends BaseController {
 
         } catch (Exception ex) {
             log.error("Cannot import skills : {}", getParameter(request, "names"), ex);
-            return RespBody.error(ex.getLocalizedMessage());
+            return RespBody.error(CommonsUtils.getRootMessage(ex));
         }
     }
 

@@ -360,10 +360,10 @@ public class ToolDefs {
                 return toolRes;
 
             } catch (KnownToolException ex) {
-                log.warn("TOOL_WARN {}\n{}", toolName, ex.getMessage());
+                log.warn("TOOL_WARN {}\n{}", toolName, CommonsUtils.getRootMessage(ex));
                 throw ex;
             } catch (ToolException ex) {
-                log.error("TOOL_ERROR {}\n{}", toolName, ex.getMessage(), ex);
+                log.error("TOOL_ERROR {}\n{}", toolName, CommonsUtils.getRootMessage(ex), ex);
                 throw ex;
             } catch (Exception ex) {
                 String error = CommonsUtils.getRootMessage(ex);

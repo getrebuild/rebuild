@@ -146,7 +146,7 @@ public class QueryRecords implements Tool {
         } catch (KnownToolException ex) {
             throw ex;  // parseFilterToWhere 已包装了清晰的错误消息
         } catch (Exception ex) {
-            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+            throw new KnownToolException("过滤条件解析失败 : " + CommonsUtils.getRootMessage(ex), ex);
         }
 
         if (StringUtils.isBlank(whereClause)) {

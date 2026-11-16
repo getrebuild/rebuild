@@ -11,6 +11,7 @@ import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.aibot2.AibotAgent;
 import com.rebuild.core.aibot2.Config;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,7 +58,7 @@ public class KnowledgeKeywordEnricher {
                 }
             } catch (Exception ex) {
                 // 单片失败回退原有关键词，不中断构建
-                log.warn("Knowledge keyword enrich failed for chunk#{} : {}", chunk.getIndex(), ex.getMessage());
+                log.warn("Knowledge keyword enrich failed for chunk#{} : {}", chunk.getIndex(), CommonsUtils.getRootMessage(ex));
             }
         }
 

@@ -453,7 +453,7 @@ public class ToolHelper {
             parser = new AdvFilterParser(filterExpr, entity);
             parser.toSqlWhere();
         } catch (Exception ex) {
-            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+            throw new KnownToolException("过滤条件解析失败 : " + CommonsUtils.getRootMessage(ex), ex);
         }
         checkParseErrors(parser);
     }
@@ -602,7 +602,7 @@ public class ToolHelper {
         try {
             whereClause = parser.toSqlWhere();
         } catch (Exception ex) {
-            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+            throw new KnownToolException("过滤条件解析失败 : " + CommonsUtils.getRootMessage(ex), ex);
         }
         checkParseErrors(parser);
         return whereClause;
