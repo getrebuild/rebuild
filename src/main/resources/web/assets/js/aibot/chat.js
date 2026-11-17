@@ -179,7 +179,8 @@ class Chat extends React.Component {
     if (!keepView) this._ChatMessages.setMessages([], true, null)
     // 新会话标题回到默认智能体名称（默认智能体禁用时同样使用）
     if (!chatid && !keepView && typeof this.props.onAgentChanged === 'function') this.props.onAgentChanged(null)
-    this._ChatInput.reset(!chatid)
+    // 新会话聚焦输入框，切换智能体（keepView）及手机版不聚焦
+    this._ChatInput.reset(!chatid && !keepView && window.innerWidth >= 900)
     const _preset = this._preset
     this._preset = null
     this._ChatSidebar.setState({ current: null })
@@ -438,7 +439,6 @@ class ChatInput extends React.Component {
               onBlur={() => this.setState({ active: false })}
               onFocus={() => this.setState({ active: true })}
               data-placeholder={$L('输入问题')}
-              autoFocus
               ref={(c) => (this._$editable = c)}
             />
           </div>
@@ -623,7 +623,6 @@ class ChatInput extends React.Component {
     }
     this.setState({ content: preset.content || '', attach: preset.attach || [], activeSkill: preset.skill || null }, () => {
       if (preset.autoSend && this.state.content) this.hanldeSend()
-      else if (this.state.content && window.innerWidth >= 900) this.focus()
     })
   }
 
@@ -1165,7 +1164,6 @@ class ChatMessage extends React.Component {
                     onClick={() => {
                       const _Chat = this.props._ChatMessages.props._Chat
                       _Chat.hideConfirm()
-                      _Chat._ChatInput && _Chat._ChatInput.focus()
                     }}>
                     {this.props.confirmAction.cancelText || $L('取消')}
                   </a>

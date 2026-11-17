@@ -79,7 +79,6 @@ class AiBot extends React.Component {
       .modal({ show: false, backdrop: false, keyboard: false })
       .on('shown.bs.modal', () => {
         this._isShown = true
-        if (window.innerWidth >= 900) this._Chat && this._Chat._ChatInput && this._Chat._ChatInput.focus()
       })
       .on('hidden.bs.modal', () => {
         this._isShown = false
