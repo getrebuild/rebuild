@@ -15,16 +15,19 @@
           display: block !important;
         }
       </style>
-      <script>!function(){var e=document.cookie.match(/(?:^|;\s*)rb\.ThemeDark2=(dark|light)/);(e?"dark"===e[1]:matchMedia("(prefers-color-scheme: dark)").matches)&&document.documentElement.classList.add("theme-dark2")}();</script>
+      <script>
+        !(function () {
+          var e = document.cookie.match(/(?:^|;\s*)rb\.ThemeDark2=(dark|light)/)
+          ;(e ? 'dark' === e[1] : matchMedia('(prefers-color-scheme: dark)').matches) && document.documentElement.classList.add('theme-dark2')
+        })()
+        if (navigator.userAgent.indexOf('MSIE') > -1 || navigator.userAgent.indexOf('Trident') > -1) {
+          location.href = '../error/unsupported-browser'
+        }
+      </script>
     </th:block>
     <title>[[${bundle.L('用户登录')}]]</title>
-    <script>
-      if (navigator.userAgent.indexOf('MSIE') > -1 || navigator.userAgent.indexOf('Trident') > -1) {
-        location.href = '../error/unsupported-browser'
-      }
-    </script>
   </head>
-  <body class="rb-splash-screen">
+  <body class="rb-splash-screen" th:classappend="${(param.frame != null && param.frame[0] == '1')} ? 'rb-navless40' : ''">
     <img src="https://getrebuild.com/img/logo256.png" alt="Logo for Thumb" style="display: none" />
     <div class="rb-login-loading must-center" style="display: none">
       <div class="spinner"></div>

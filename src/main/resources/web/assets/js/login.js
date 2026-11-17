@@ -121,7 +121,7 @@ $(document).ready(() => {
     RbHighbar.create($L('临时授权链接已过期'))
   }
 
-  const tip2mob = $.browser.mobile && !isH5App40
+  const tip2mob = $.browser.mobile && !isH5App40 && !$('body').hasClass('rb-navless40')
   if (tip2mob) {
     setTimeout(() => {
       RbAlert.create($L('是否需要切换到手机版访问？'), {
