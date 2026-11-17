@@ -38,8 +38,13 @@ public class MarkdownUtils {
     // markdown 中的文件下载链接，输出前重写补全 `_csrfToken`
     private static final Pattern PATTERN_FILE_URL = Pattern.compile("\\]\\(([^)]*?/filex/download/[^)]*)\\)");
 
-    // markdown 中的站内相对链接（排除图片链接）
+    // markdown 中的站内相对链接
     private static final Pattern PATTERN_RELATIVE_URL = Pattern.compile("(?<!!)\\]\\((/[^)]*)\\)");
+
+    // markdown 中的站内裸地址（排除行内代码）
+    private static final Pattern PATTERN_BARE_URL = Pattern.compile(
+            "(?<![\\w/\\]`])(/(?:app/redirect|app/(?!entity/)[\\w$]+/(?:view|form|list)|admin/|dashboard/|h5app/)"
+                    + "[^\\s)<>\"'`\\[\\]*,;，。；、）】]*)");
 
     private static final Parser PARSER;
     private static final HtmlRenderer RENDERER;
@@ -194,6 +199,39 @@ public class MarkdownUtils {
 
             url = RebuildConfiguration.getHomeUrl(url);
             m.appendReplacement(sb, Matcher.quoteReplacement("](" + url + ")"));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * 归一化输出内容中的站内地址：文件下载链接补全 token，markdown 相对链接与裸地址补全为绝对 URL
+     *
+     * @param content
+     * @return
+     */
+    public static String normalizeUrls(String content) {
+        return rewriteBareUrls(normalizeMarkdownUrls(content));
+    }
+
+    /**
+     * 归一化 markdown 中的链接地址（不处理裸地址，适用于 JSON 等结构化内容）
+     *
+     * @param content
+     * @return
+     */
+    public static String normalizeMarkdownUrls(String content) {
+        return rewriteRelativeUrls(rewriteFileUrls(content));
+    }
+
+    private static String rewriteBareUrls(String content) {
+        if (content == null || content.isEmpty()) return content;
+
+        Matcher m = PATTERN_BARE_URL.matcher(content);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            String url = RebuildConfiguration.getHomeUrl(m.group(1));
+            m.appendReplacement(sb, Matcher.quoteReplacement(url));
         }
         m.appendTail(sb);
         return sb.toString();
