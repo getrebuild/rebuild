@@ -7,9 +7,6 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chat-view.css}" />
     <title>[[${chatName ?: bundle.L('AI 会话分享')}]]</title>
     <style>
-      html {
-        font-size: 14px;
-      }
       body {
         min-height: auto;
         padding-bottom: 60px;
@@ -41,9 +38,6 @@
         cursor: default;
       }
       @media (max-width: 800px) {
-        html {
-          font-size: 15px;
-        }
         .shared-aibot-chat {
           width: 100%;
         }

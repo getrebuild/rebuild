@@ -613,6 +613,10 @@ body.modal-open:has(.aibot.modal.show):not(:has(.modal.show:not(.aibot))) {
   word-break: break-word;
 }
 
+.chat-message .msg-text .markdown-body {
+  font-size: 13px;
+}
+
 .chat-message .msg-text .mermaid,
 .chat-message .msg-text .mermaid-to-render,
 .chat-message .msg-text .echarts-to-render,

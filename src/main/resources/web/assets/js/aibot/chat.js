@@ -722,7 +722,7 @@ class ChatWelcome extends React.Component {
         )}
         {suggests.length > 0 && (
           <div className="chat-suggest">
-            <div className="welcome-suggest-label">{$L('你可以这样问我')}</div>
+            <div className="welcome-suggest-label">{$L('试试这样问我')}</div>
             <div className="welcome-suggest-list">
               {suggests.map((q, idx) => (
                 <a className="badge" key={idx} onClick={() => this.props.onSuggest && this.props.onSuggest(q)}>
