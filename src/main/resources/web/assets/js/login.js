@@ -100,6 +100,8 @@ $(document).ready(() => {
         } else if (res.data && res.data.passwdSafeType) {
           to = `${rb.baseUrl}/settings/passwd-safe?type=${res.data.passwdSafeType}`
           if (nexturl) to += `&nexturl=${$encode(nexturl)}`
+        } else if (!to && res.data && res.data.onboarding) {
+          to = `${rb.baseUrl}/onboarding`
         } else if (!to) {
           to = `${rb.baseUrl}/dashboard/home`
         }

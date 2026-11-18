@@ -18,16 +18,19 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootConfiguration;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.cache.BaseCacheTemplate;
+import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.cache.RedisDriver;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.rbstore.ClassificationImporter;
+import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.distributed.UseRedis;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
@@ -78,6 +81,9 @@ import static com.rebuild.core.support.ConfigurationItem.InstallBuild;
 public class Installer implements InstallState {
 
     public static final String CONF_PREFIX = "db.";
+
+    // 全新安装待引导
+    public static final String CK_ONBOARDING = "OnboardingPending";
 
     // 快速安装模式（H2 数据库）
     private boolean quickMode;
@@ -185,6 +191,15 @@ public class Installer implements InstallState {
         }
 
         this.installClassificationAsync();
+
+        // 全新安装完成，3 天内首次登录进入引导页
+        Application.getCommonsCache().putx(CK_ONBOARDING, Boolean.TRUE, CacheTemplate.TS_DAY * 3);
+
+        // 站内信通知管理员
+        String viewUrl = AppUtils.getContextPath("/onboarding");
+        String content = Language.L("系统已就绪。你可以导入业务模块、到应用商店挑一套现成的，或试试 AI 智能搭建，上线你的第一个业务应用。");
+        content += String.format("[%s](%s)", Language.L("开始使用"), viewUrl);
+        Application.getNotifications().send(MessageBuilder.createMessage(UserService.ADMIN_USER, content));
     }
 
     /**

@@ -30,7 +30,7 @@ class Setup extends React.Component {
               <h2>{state[1]}</h2>
               {this.state.installState === 11 && (
                 <a className="btn btn-secondary mt-3" href="../user/login">
-                  {$L('立即登录')}
+                  {$L('开始使用')}
                 </a>
               )}
               {this.state.installState === 12 && (
@@ -44,14 +44,6 @@ class Setup extends React.Component {
                     <i className="zmdi zmdi-close-circle-o" />
                   </div>
                   <div className="message">{this.state.installError}</div>
-                </div>
-              )}
-
-              {(this.state.installState === 10 || this.state.installState === 11) && (
-                <div className="quick-tip animated fadeIn delay-1s link mt-4">
-                  <a href="https://www.getrebuild.com/features/ai-build" target="_blank" className="ai-color">
-                    {$L('5 分钟让 AI 帮你搭建一个应用')}
-                  </a>
                 </div>
               )}
             </div>

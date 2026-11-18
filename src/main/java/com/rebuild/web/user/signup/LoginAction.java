@@ -22,6 +22,8 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
@@ -29,6 +31,7 @@ import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.UserAvatar;
@@ -100,6 +103,18 @@ public class LoginAction extends BaseController {
                 "; HttpOnly" +
                 "; SameSite=Lax";
         response.addHeader("Set-Cookie", sb);
+    }
+
+    /**
+     * 全新安装（无业务实体）需要进入安装引导页
+     *
+     * @param user
+     * @return
+     */
+    protected static boolean isOnboardingPending(ID user) {
+        if (user == null || !UserHelper.isAdmin(user)) return false;
+        if (Application.getCommonsCache().getx(Installer.CK_ONBOARDING) == null) return false;
+        return MetadataSorter.sortEntities(null, false, false).length == 0;
     }
 
     /**
