@@ -11,42 +11,43 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class InitModels extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, installMode: props.rbsystemPackage ? 'package' : 'modules' }
+    this.state = { ...props, installMode: 'modules' }
     this._$refs = {}
   }
 
   render() {
-    if (this.state.hasError) {
-      return (
-        <div className="mb-7">
-          <RbAlertBox message={this.state.hasError} />
-        </div>
-      )
-    } else if (!this.state.data) {
-      return null
-    }
+    if (!this.state.data && !this.state.hasError) return null
 
-    const types = this.state.data.types || {}
-    const schemas = this.state.data.schemas || []
+    const types = (this.state.data && this.state.data.types) || {}
+    const schemas = (this.state.data && this.state.data.schemas) || []
     const mode = this.state.installMode
 
     return (
       <div className="init-models">
         <ul className="nav nav-tabs nav-tabs-segment mx-auto">
           <li className="nav-item">
-            <a className={`nav-link${mode === 'modules' ? ' active' : ''}`} role="button" onClick={() => this.setState({ installMode: 'modules' })}>
-              {$L('按业务模块安装')}
+            <a className={`nav-link${mode === 'modules' ? ' active' : ''}`} role="button" onClick={() => this._switchMode('modules')}>
+              {$L('导入业务模块')}
             </a>
           </li>
           <li className="nav-item">
-            <a className={`nav-link${mode === 'package' ? ' active' : ''}`} role="button" onClick={() => this.setState({ installMode: 'package' })}>
-              {$L('从应用商店安装')}
+            <a className={`nav-link${mode === 'package' ? ' active' : ''}`} role="button" onClick={() => this._switchMode('package')}>
+              {$L('应用商店')}
             </a>
           </li>
+          {this.props.onboarding && (
+            <li className="nav-item">
+              <a className={`nav-link${mode === 'ai' ? ' active' : ''}`} role="button" onClick={() => this._switchMode('ai')}>
+                {$L('AI 智能搭建')}
+              </a>
+            </li>
+          )}
         </ul>
+
         <div className="tab-content p-0">
-          <div className={`tab-pane${mode === 'modules' ? ' active' : ''}`}>{this._renderModels(types, schemas)}</div>
+          <div className={`tab-pane${mode === 'modules' ? ' active' : ''}`}>{this.state.hasError ? <RbAlertBox message={this.state.hasError} /> : this._renderModels(types, schemas)}</div>
           <div className={`tab-pane${mode === 'package' ? ' active' : ''}`}>{this._renderPackage()}</div>
+          {this.props.onboarding && <div className={`tab-pane${mode === 'ai' ? ' active' : ''}`}>{this._renderAiBuild()}</div>}
         </div>
       </div>
     )
@@ -70,7 +71,7 @@ class InitModels extends React.Component {
               <legend>
                 <div className="row">
                   <div className="col">
-                    <strong>{t}</strong>
+                    <strong className="fs-14">{t}</strong>
                   </div>
                   <div className="col text-right">
                     <label className="custom-control custom-checkbox custom-control-inline custom-control-sm" title={$L('全选')}>
@@ -109,39 +110,56 @@ class InitModels extends React.Component {
   }
 
   _renderPackage() {
-    const packageLabel = $L('选择从 REBUILD [应用商店](https://getrebuild.com/store/) 下载的应用资源包，整套业务系统一次装好，不用从零搭建。')
+    const onboarding = !!this.props.onboarding
+    const packageDisabled = !!(this.state.uploading || (rb.currentUser && !onboarding))
     return (
-      <form>
-        <div className="w-100 p-4 mt-4">
-          <label className="text-dark">{WrapHtml(packageLabel)}</label>
-          <div className="file-select">
-            <input
-              type="file"
-              className="inputfile"
-              id="upload-rbsystem-package"
-              accept=".rbspkg"
-              data-local="temp"
-              ref={(c) => (this._$upload = c)}
-              disabled={!!(this.state.uploading || rb.currentUser)}
-            />
-            <label htmlFor="upload-rbsystem-package" className="btn-secondary" disabled={!!(this.state.uploading || rb.currentUser)}>
-              <i className="zmdi zmdi-upload" />
-              {this.state.uploading ? <span className="text-muted">{$L('上传中...')}</span> : <span>{$L('选择文件')}</span>}
-            </label>
-            {this.state.rbsystemPackage && (
-              <span className="ml-2 text-bold">
-                <i className="mdi-package-check mdi mr-1" />
-                {$fileCutName(this.state.rbsystemPackage)}
-                <a className="ml-2 text-primary font-weight-normal" role="button" onClick={this._removePackage}>
-                  {$L('移除')}
-                </a>
-              </span>
-            )}
-          </div>
-          {rb.currentUser && <RbAlertBox message={$L('应用资源包仅支持全新安装时使用')} className="mb-0" />}
-        </div>{' '}
-      </form>
+      <div className="mt-4">
+        <div className="install-guide">
+          <h5>{$L('导入整套应用资源包')}</h5>
+          <p>{WrapHtml($L('到 [REBUILD 应用商店](https://getrebuild.com/store/) 挑一套现成的业务系统，下载应用资源包上传，一次装好不用从零搭建。'))}</p>
+        </div>
+        <div className="file-select">
+          <input type="file" className="inputfile" id="upload-rbsystem-package" accept=".rbspkg" data-local="temp" ref={(c) => (this._$upload = c)} disabled={packageDisabled} />
+          <label htmlFor="upload-rbsystem-package" className="btn-secondary" disabled={packageDisabled}>
+            <i className="zmdi zmdi-upload" />
+            {this.state.uploading ? <span className="text-muted">{$L('上传中...')}</span> : <span>{$L('选择文件')}</span>}
+          </label>
+          {this.state.rbsystemPackage && (
+            <span className="ml-2 text-bold">
+              <i className="mdi-package-check mdi mr-1" />
+              {$fileCutName(this.state.rbsystemPackage)}
+              <a className="ml-2 text-primary font-weight-normal" role="button" onClick={this._removePackage}>
+                {$L('移除')}
+              </a>
+            </span>
+          )}
+        </div>
+        {rb.currentUser && !onboarding && <RbAlertBox message={$L('应用资源包仅支持全新安装时使用')} className="mb-0" />}
+      </div>
     )
+  }
+
+  _renderAiBuild() {
+    return (
+      <div className="install-guide mt-4">
+        <h5>{$L('一句话把系统搭起来')}</h5>
+        <p>{$L('告诉 Rex AI 你打算做什么，它会自动完成建模、建实体、配触发器、搭页面，再按提示补充细节。')}</p>
+        <p className="text-muted">
+          {$L('使用前需要先在 管理中心 - Rex AI 接入模型')}{' '}
+          <a className="text-primary" href={`${rb.baseUrl}/admin/integration/aibot`}>
+            {$L('去接入')}
+          </a>
+        </p>
+      </div>
+    )
+  }
+
+  _switchMode(mode) {
+    this.setState({ installMode: mode }, () => this._notifyChange())
+  }
+
+  _notifyChange() {
+    typeof this.props.onChange === 'function' && this.props.onChange()
   }
 
   componentDidMount() {
@@ -157,7 +175,9 @@ class InitModels extends React.Component {
           $createUploader(
             this._$upload,
             () => this.setState({ uploading: true }),
-            (result) => this.setState({ rbsystemPackage: result.key, uploading: false }),
+            (result) => {
+              this.setState({ rbsystemPackage: result.key, uploading: false }, () => this._notifyChange())
+            },
             () => this.setState({ uploading: false }),
           )
         }
@@ -184,6 +204,7 @@ class InitModels extends React.Component {
     const $el = $(e.currentTarget)
     if ($el.prop('checked')) this._checkRefs($el)
     this._syncGroupAll($el)
+    this._notifyChange()
   }
 
   _handleSelectAll(e) {
@@ -200,6 +221,7 @@ class InitModels extends React.Component {
         if (chk) that._checkRefs($chk)
         that._syncGroupAll($chk)
       })
+    this._notifyChange()
   }
 
   _syncGroupAll($chk) {
@@ -218,7 +240,7 @@ class InitModels extends React.Component {
 
   _removePackage = () => {
     if (this._$upload) this._$upload.value = ''
-    this.setState({ rbsystemPackage: null })
+    this.setState({ rbsystemPackage: null }, () => this._notifyChange())
   }
 
   getMode() {

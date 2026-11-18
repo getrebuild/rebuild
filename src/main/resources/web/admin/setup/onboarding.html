@@ -1,0 +1,116 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('开始使用')}]]</title>
+    <style>
+      html {
+        scrollbar-gutter: stable;
+      }
+      body.rb-onboarding {
+        min-width: 992px;
+        background: #fff;
+      }
+      .onboarding {
+        display: flex;
+        align-items: flex-start;
+        min-height: 100vh;
+      }
+      .onboarding-aside {
+        position: sticky;
+        top: 0;
+        width: 340px;
+        flex: none;
+        height: 100vh;
+        padding: 44px 34px;
+        display: flex;
+        flex-direction: column;
+        color: #fff;
+        background: linear-gradient(160deg, #4b6bff 0%, #7b4bff 60%, #9b45f5 100%);
+      }
+      .onboarding-aside .logo-img {
+        height: 30px;
+      }
+      .onboarding-slogan {
+        margin: 4px 0 48px;
+        font-size: 13px;
+        opacity: 0.75;
+      }
+      .onboarding-aside h2 {
+        font-size: 22px;
+        line-height: 1.45;
+        font-weight: 600;
+        margin: 0;
+      }
+      .onboarding-aside-footer {
+        margin-top: auto;
+        font-size: 12px;
+        opacity: 0.7;
+      }
+      .onboarding-main {
+        flex: 1;
+        min-width: 0;
+        padding: 0 40px;
+      }
+      .onboarding-content {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 42px 0 40px;
+      }
+      .onboarding-content > h3 {
+        font-size: 18px;
+        margin: 0 0 16px;
+        color: #333;
+      }
+      .onboarding-content > .init-models .nav-tabs {
+        margin: 0 auto 14px;
+      }
+      .onboarding-content .init-models form > div {
+        padding-bottom: 5px;
+      }
+      .onboarding-content .install-guide {
+        padding: 0 0 16px;
+      }
+      .onboarding-content .install-guide h5 {
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0 0 10px;
+        color: #333;
+      }
+      .onboarding-content .install-guide p {
+        font-size: 13px;
+        line-height: 1.8;
+        margin: 0 0 8px;
+      }
+      .onboarding-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid #e9ecf2;
+      }
+      .onboarding-count {
+        color: #8a90a0;
+        font-size: 12px;
+      }
+      .onboarding-skip {
+        margin-left: auto;
+      }
+    </style>
+  </head>
+  <body class="rb-onboarding">
+    <div class="onboarding">
+      <aside class="onboarding-aside">
+        <a class="logo-img white m-0"></a>
+        <p class="onboarding-slogan mb-6 mt-1">[[${bundle.L('AI 驱动的智能业务平台')}]]</p>
+        <h2>[[${bundle.L('系统已就绪，接下来搭建你的专属系统')}]]</h2>
+        <div class="onboarding-aside-footer">&copy; REBUILD ([[${AppBuild}]])</div>
+      </aside>
+      <div id="onboardingRoot" class="onboarding-main"></div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/init-models.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/onboarding.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -463,8 +463,9 @@ public class Installer implements InstallState {
         if (!isUseH2()) {
             ((DruidDataSource) Application.getBean(DataSource.class)).restart();
         }
-        clearAllCache();
         MetadataHelper.getMetadataFactory().refresh();
+        Application.getUserStore().refresh();
+        clearAllCache();
         FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData("rb"));
     }
 
