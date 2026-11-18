@@ -19,6 +19,7 @@ import com.rebuild.core.BootConfiguration;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.cache.BaseCacheTemplate;
 import com.rebuild.core.cache.RedisDriver;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.rbstore.ClassificationImporter;
@@ -33,6 +34,7 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 import redis.clients.jedis.Jedis;
@@ -414,6 +416,48 @@ public class Installer implements InstallState {
             }
         }
         return SQLS.toArray(new String[0]);
+    }
+
+    /**
+     * 重置系统：1 备份，2 删除原有数据，3 重新初始化
+     *
+     * @throws Exception
+     */
+    public static void resetSystem() throws Exception {
+        // 1. 备份（H2 不支持 mysqldump，库文件在数据目录内由 DatafileBackup 一并备份）
+        if (!isUseH2()) new DatabaseBackup().backup();
+        new DatafileBackup().backup();
+
+        // 保留 SN
+        String sn = RebuildConfiguration.get(ConfigurationItem.SN, true);
+
+        // 2. 删除原有，3. 重建
+        try (Connection conn = Application.getBean(DataSource.class).getConnection();
+             Statement stmt = conn.createStatement()) {
+            if (isUseH2()) {
+                stmt.execute("DROP ALL OBJECTS");
+            } else {
+                String dbName = conn.getCatalog();
+                stmt.execute("DROP DATABASE `" + dbName + "`");
+                stmt.execute("CREATE DATABASE `" + dbName + "` COLLATE utf8mb4_general_ci");
+                stmt.execute("USE `" + dbName + "`");
+            }
+
+            Installer installer = new Installer();
+            installer.dbInfo = new DbInfo(isUseH2() ? "H2" : conn.getMetaData().getDatabaseProductVersion());
+            for (String sql : installer.getDbInitScript()) {
+                stmt.execute(sql);
+            }
+
+            if (StringUtils.isNotBlank(sn)) {
+                stmt.execute(String.format(
+                        "insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) values ('%s','SN','%s')",
+                        ID.newId(EntityHelper.SystemConfig), StringEscapeUtils.escapeSql(sn)));
+            }
+        }
+
+        clearAllCache();
+        FileUtils.deleteQuietly(new File(RebuildConfiguration.getFileOfData(""), "rb"));
     }
 
     /**
