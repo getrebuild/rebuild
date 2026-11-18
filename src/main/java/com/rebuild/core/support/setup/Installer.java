@@ -20,9 +20,11 @@ import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.cache.BaseCacheTemplate;
 import com.rebuild.core.cache.RedisDriver;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.rbstore.ClassificationImporter;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -419,19 +421,21 @@ public class Installer implements InstallState {
     }
 
     /**
-     * 重置系统：1 备份，2 删除原有数据，3 重新初始化
+     * 重置系统
      *
      * @throws Exception
      */
     public static void resetSystem() throws Exception {
-        // 1. 备份（H2 不支持 mysqldump，库文件在数据目录内由 DatafileBackup 一并备份）
+        if (!CommandArgs.getBoolean("_ResetConfirm46")) throw new RebuildSetupException("Not allowed");
+
+        // 1.备份
         if (!isUseH2()) new DatabaseBackup().backup();
         new DatafileBackup().backup();
 
         // 保留 SN
-        String sn = RebuildConfiguration.get(ConfigurationItem.SN, true);
+        String SN = RebuildConfiguration.get(ConfigurationItem.SN, true);
 
-        // 2. 删除原有，3. 重建
+        // 2.删除原有，3.重建
         try (Connection conn = Application.getBean(DataSource.class).getConnection();
              Statement stmt = conn.createStatement()) {
             if (isUseH2()) {
@@ -449,15 +453,19 @@ public class Installer implements InstallState {
                 stmt.execute(sql);
             }
 
-            if (StringUtils.isNotBlank(sn)) {
+            if (StringUtils.isNotBlank(SN)) {
                 stmt.execute(String.format(
                         "insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) values ('%s','SN','%s')",
-                        ID.newId(EntityHelper.SystemConfig), StringEscapeUtils.escapeSql(sn)));
+                        ID.newId(EntityHelper.SystemConfig), StringEscapeUtils.escapeSql(SN)));
             }
         }
 
+        if (!isUseH2()) {
+            ((DruidDataSource) Application.getBean(DataSource.class)).restart();
+        }
         clearAllCache();
-        FileUtils.deleteQuietly(new File(RebuildConfiguration.getFileOfData(""), "rb"));
+        MetadataHelper.getMetadataFactory().refresh();
+        FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData("rb"));
     }
 
     /**

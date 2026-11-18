@@ -17,7 +17,6 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.Field2SchemaFixer;
 import com.rebuild.core.metadata.impl.FixRefsIndex43;
 import com.rebuild.core.service.approval.ApprovalFields2Schema;
-import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RbvFunction;
@@ -290,13 +289,10 @@ public class AdminCli4 {
         if (commands.length < 2 || !"CONFIRM".equalsIgnoreCase(commands[1])) {
             return "WRAN: Run `reset CONFIRM` to continue";
         }
-        if (!CommandArgs.getBoolean("_ResetConfirm46")) {
-            return "ERROR: Not allowed";
-        }
 
         try {
             Installer.resetSystem();
-            return "OK";
+            return "OK : Restart is recommended";
         } catch (Exception ex) {
             return "ERROR: Reset failed : " + CommonsUtils.getRootMessage(ex);
         }
