@@ -17,7 +17,7 @@ class Onboarding extends React.Component {
         <div className="onboarding-actions">
           {this.state.mode !== 'ai' && (
             <button className="btn btn-primary btn-lg fs-14" type="button" disabled={this.state.busy || this.state.count === 0} onClick={this._submit}>
-              {$L('确定')}
+              {this._submitText()}
             </button>
           )}
           <span className="onboarding-count">{this._summary()}</span>
@@ -27,6 +27,11 @@ class Onboarding extends React.Component {
         </div>
       </div>
     )
+  }
+
+  _submitText() {
+    if (this.state.busy) return $L('导入中…')
+    return this.state.mode === 'package' ? $L('导入资源包') : $L('导入所选模块')
   }
 
   _summary() {
@@ -49,11 +54,11 @@ class Onboarding extends React.Component {
     if (!models || this.state.busy) return
 
     if (models.getMode() === 'package') {
-      this._post('/onboarding/restore-package', JSON.stringify({ package: models.getPackage() }), $L('导入成功'), 1500)
+      this._post('/onboarding/restore-package', JSON.stringify({ package: models.getPackage() }), $L('导入成功，即将进入系统'), 1500)
       return
     }
 
-    this._post(`/onboarding/imports?key=${$encode(models.getSelected().join(','))}`, null, $L('导入成功'), 1500)
+    this._post(`/onboarding/imports?key=${$encode(models.getSelected().join(','))}`, null, $L('导入成功，即将进入系统'), 1500)
   }
 
   _post(url, data, okText, delay) {

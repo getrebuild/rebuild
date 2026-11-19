@@ -56,7 +56,8 @@ class InitModels extends React.Component {
   _renderModels(types, schemas) {
     const groups = Object.keys(types)
     if (groups.length === 0) {
-      return <RbAlertBox message={$L('暂无可用的业务实体，你仍可以继续安装，稍后在后台创建')} />
+      const message = this.props.onboarding ? $L('暂无可用的业务模块，试试应用商店或 AI 智能搭建') : $L('暂无可用的业务实体，你仍可以继续安装，稍后在后台创建')
+      return <RbAlertBox message={message} />
     }
 
     const _find = (s) => {
@@ -141,12 +142,10 @@ class InitModels extends React.Component {
       <div className="install-guide mt-4">
         <h5>{$L('一句话把系统搭起来')}</h5>
         <p className="link">{WrapHtml($L('告诉 [Rex AI](https://getrebuild.com/features/ai-build) 你打算做什么，它会自动完成建模、建实体、配触发器、搭页面，再按提示补充细节。'))}</p>
-        <p className="text-muted">
-          {$L('使用前需要先在 管理中心 - Rex AI 接入模型')}{' '}
-          <a className="text-primary" href={`${rb.baseUrl}/admin/integration/aibot`}>
-            {$L('去接入')}
-          </a>
-        </p>
+        <p className="text-muted mb-3">{$L('使用前需要先在 管理中心 - Rex AI 接入模型')}</p>
+        <a className="btn btn-primary" href={`${rb.baseUrl}/admin/integration/aibot`} target="_blank" rel="noopener">
+          {$L('去接入')}
+        </a>
       </div>
     )
   }
@@ -162,7 +161,7 @@ class InitModels extends React.Component {
   componentDidMount() {
     $.get(rb.isAdminVerified ? '/admin/rbstore/load-metaschemas' : '/setup/init-models', (res) => {
       const s = {}
-      if (res.error_code > 0) s.hasError = $L('暂无可用的业务实体，你仍可以继续安装，稍后在后台创建')
+      if (res.error_code > 0) s.hasError = $L('业务模块加载失败，请刷新重试')
       else s.data = res.data
       this.setState(s, () => {
         $('i.J_rbv-tip').tooltip()
