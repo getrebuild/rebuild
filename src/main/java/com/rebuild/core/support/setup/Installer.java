@@ -30,8 +30,8 @@ import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.distributed.UseRedis;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
@@ -215,6 +215,8 @@ public class Installer implements InstallState {
         ds.setUrl(BootEnvironmentPostProcessor.getProperty("db.url"));
         ds.setUsername(BootEnvironmentPostProcessor.getProperty("db.user"));
         ds.setPassword(BootEnvironmentPostProcessor.getProperty("db.passwd"));
+        ds.setDriverClassName(isUseH2() ? org.h2.Driver.class.getName() : com.mysql.cj.jdbc.Driver.class.getName());
+        ds.setDriver(null);
 
         // 刷新: REDIS
         JedisPool pool = BootConfiguration.createJedisPoolInternal();
@@ -482,6 +484,9 @@ public class Installer implements InstallState {
         Application.getUserStore().refresh();
         clearAllCache();
         FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData("rb"));
+
+        // 首次登录进入引导页
+        Application.getCommonsCache().putx(CK_ONBOARDING, Boolean.TRUE, CacheTemplate.TS_DAY * 3);
     }
 
     /**

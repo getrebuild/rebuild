@@ -115,8 +115,8 @@ class InitModels extends React.Component {
     return (
       <div className="mt-4">
         <div className="install-guide">
-          <h5>{$L('导入整套应用资源包')}</h5>
-          <p>{WrapHtml($L('到 [REBUILD 应用商店](https://getrebuild.com/store/) 挑一套现成的业务系统，下载应用资源包上传，一次装好不用从零搭建。'))}</p>
+          <h5>{$L('导入应用资源包')}</h5>
+          <p className="link">{WrapHtml($L('到 [REBUILD 应用商店](https://getrebuild.com/store/) 挑一套现成的业务系统，下载应用资源包上传，一次装好不用从零搭建。'))}</p>
         </div>
         <div className="file-select">
           <input type="file" className="inputfile" id="upload-rbsystem-package" accept=".rbspkg" data-local="temp" ref={(c) => (this._$upload = c)} disabled={packageDisabled} />
@@ -128,9 +128,6 @@ class InitModels extends React.Component {
             <span className="ml-2 text-bold">
               <i className="mdi-package-check mdi mr-1" />
               {$fileCutName(this.state.rbsystemPackage)}
-              <a className="ml-2 text-primary font-weight-normal" role="button" onClick={this._removePackage}>
-                {$L('移除')}
-              </a>
             </span>
           )}
         </div>
@@ -143,7 +140,7 @@ class InitModels extends React.Component {
     return (
       <div className="install-guide mt-4">
         <h5>{$L('一句话把系统搭起来')}</h5>
-        <p>{$L('告诉 Rex AI 你打算做什么，它会自动完成建模、建实体、配触发器、搭页面，再按提示补充细节。')}</p>
+        <p className="link">{WrapHtml($L('告诉 [Rex AI](https://getrebuild.com/features/ai-build) 你打算做什么，它会自动完成建模、建实体、配触发器、搭页面，再按提示补充细节。'))}</p>
         <p className="text-muted">
           {$L('使用前需要先在 管理中心 - Rex AI 接入模型')}{' '}
           <a className="text-primary" href={`${rb.baseUrl}/admin/integration/aibot`}>
@@ -236,11 +233,6 @@ class InitModels extends React.Component {
     const checked = $items.filter(':checked').length
     $all.prop('checked', total > 0 && checked === total)
     $all.prop('indeterminate', checked > 0 && checked < total)
-  }
-
-  _removePackage = () => {
-    if (this._$upload) this._$upload.value = ''
-    this.setState({ rbsystemPackage: null }, () => this._notifyChange())
   }
 
   getMode() {

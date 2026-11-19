@@ -22,7 +22,7 @@ class Onboarding extends React.Component {
           )}
           <span className="onboarding-count">{this._summary()}</span>
           <a className="onboarding-skip" href={`${rb.baseUrl}/dashboard/home`}>
-            {$L('先跳过，直接进入系统')}
+            {$L('下次提醒我')}
           </a>
         </div>
       </div>
@@ -49,16 +49,7 @@ class Onboarding extends React.Component {
     if (!models || this.state.busy) return
 
     if (models.getMode() === 'package') {
-      const packageKey = models.getPackage()
-      const that = this
-      RbAlert.create($L('导入后应用资源包中的内容会替换当前系统。确定继续吗？'), {
-        type: 'danger',
-        confirmText: $L('导入'),
-        confirm: function () {
-          this.hide()
-          that._post('/onboarding/restore-package', JSON.stringify({ package: packageKey }), $L('导入成功'), 1500)
-        },
-      })
+      this._post('/onboarding/restore-package', JSON.stringify({ package: models.getPackage() }), $L('导入成功'), 1500)
       return
     }
 

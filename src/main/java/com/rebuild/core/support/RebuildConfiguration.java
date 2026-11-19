@@ -44,27 +44,27 @@ public class RebuildConfiguration extends KVStorage {
         CommonsUtils.checkSafeFilePath(filepath);
 
         String d = get(ConfigurationItem.DataDirectory);
-        File datadir = null;
+        File dd = null;
         if (StringUtils.isNotBlank(d)) {
-            datadir = new File(d);
-            if (!datadir.exists() && !datadir.mkdirs()) {
-                log.error("Cannot mkdir for data directory : {}", datadir);
+            dd = new File(d);
+            if (!dd.exists() && !dd.mkdirs()) {
+                log.error("Cannot mkdir for data directory : {}", dd);
             }
         }
 
-        if (datadir == null || !datadir.exists()) {
-            datadir = FileUtils.getUserDirectory();
-            datadir = new File(datadir, ".rebuild");
-            if (!datadir.exists() && !datadir.mkdirs()) {
-                log.error("Cannot mkdir for data directory : {}", datadir);
+        if (dd == null || !dd.exists()) {
+            dd = FileUtils.getUserDirectory();
+            dd = new File(dd, ".rebuild");
+            if (!dd.exists() && !dd.mkdirs()) {
+                log.error("Cannot mkdir for data directory : {}", dd);
             }
         }
 
-        if (!datadir.exists()) {
+        if (!dd.exists()) {
             throw new RebuildException("No data directory exists!");
         }
-        
-        return filepath == null ? datadir : new File(datadir, filepath);
+
+        return StringUtils.isEmpty(filepath) ? dd : new File(dd, filepath);
     }
 
     /**

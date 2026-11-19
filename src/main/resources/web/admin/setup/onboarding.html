@@ -26,7 +26,7 @@
         display: flex;
         flex-direction: column;
         color: #fff;
-        background: linear-gradient(160deg, #4b6bff 0%, #7b4bff 60%, #9b45f5 100%);
+        background: var(--rb-theme-color);
       }
       .onboarding-aside .logo-img {
         height: 30px;
@@ -42,10 +42,33 @@
         font-weight: 600;
         margin: 0;
       }
-      .onboarding-aside-footer {
-        margin-top: auto;
+      .onboarding-features {
+        margin: auto 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .onboarding-features li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .onboarding-features li:first-child {
+        margin-top: 0;
+      }
+      .onboarding-features .icon {
+        font-size: 18px;
+      }
+      .onboarding-features strong {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .onboarding-features span {
+        display: block;
         font-size: 12px;
-        opacity: 0.7;
+        opacity: 0.75;
+        margin-top: 2px;
       }
       .onboarding-main {
         flex: 1;
@@ -58,7 +81,7 @@
         padding: 42px 0 40px;
       }
       .onboarding-content > h3 {
-        font-size: 18px;
+        font-size: 22px;
         margin: 0 0 16px;
         color: #333;
       }
@@ -103,11 +126,44 @@
     <div class="onboarding">
       <aside class="onboarding-aside">
         <a class="logo-img white m-0"></a>
-        <p class="onboarding-slogan mb-6 mt-1">[[${bundle.L('AI 驱动的智能业务平台')}]]</p>
+        <p class="onboarding-slogan mb-6 mt-2">[[${bundle.L('AI 驱动的智能业务平台')}]]</p>
         <h2>[[${bundle.L('系统已就绪，接下来搭建你的专属系统')}]]</h2>
-        <div class="onboarding-aside-footer">&copy; REBUILD ([[${AppBuild}]])</div>
+        <ul class="onboarding-features">
+          <li>
+            <i class="icon mdi mdi-shimmer"></i>
+            <div>
+              <strong>[[${bundle.L('AI 智能搭建')}]]</strong>
+              <span>[[${bundle.L('一句话，智能搭建业务系统')}]]</span>
+            </div>
+          </li>
+          <li>
+            <i class="icon mdi mdi-widgets-outline"></i>
+            <div>
+              <strong>[[${bundle.L('建模与布局')}]]</strong>
+              <span>[[${bundle.L('模块自由搭建，快速适应需求变化')}]]</span>
+            </div>
+          </li>
+          <li>
+            <i class="icon mdi mdi-progress-check"></i>
+            <div>
+              <strong>[[${bundle.L('流程自动化')}]]</strong>
+              <span>[[${bundle.L('可视化设计，支持多分支流程控制')}]]</span>
+            </div>
+          </li>
+          <li>
+            <i class="icon zmdi zmdi-chart"></i>
+            <div>
+              <strong>[[${bundle.L('数据分析')}]]</strong>
+              <span>[[${bundle.L('各类分析模型，挖掘数据价值')}]]</span>
+            </div>
+          </li>
+        </ul>
       </aside>
-      <div id="onboardingRoot" class="onboarding-main"></div>
+      <div id="onboardingRoot" class="onboarding-main">
+        <div class="must-center">
+          <div class="spinner"></div>
+        </div>
+      </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/init-models.js}" type="text/babel"></script>
