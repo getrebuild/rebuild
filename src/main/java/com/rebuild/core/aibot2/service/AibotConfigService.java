@@ -102,7 +102,8 @@ public class AibotConfigService extends BaseConfigurationService {
         if (AibotConfigManager.TYPE_SKILL.equals(type)
                 || AibotConfigManager.TYPE_KNOWLEDGE.equals(type)
                 || AibotConfigManager.TYPE_AGENT.equals(type)
-                || AibotConfigManager.TYPE_MINAPP.equals(type)) {
+                || AibotConfigManager.TYPE_MINAPP.equals(type)
+                || AibotConfigManager.TYPE_MODEL.equals(type)) {
             throw new DataSpecificationException(Language.L("权限不足，访问被阻止"));
         }
     }

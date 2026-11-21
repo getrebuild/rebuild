@@ -33,6 +33,7 @@ public class AibotConfigManager implements ConfigManager {
 
     public static final String TYPE_KNOWLEDGE = "KNOWLEDGE";
     public static final String TYPE_SKILL = "SKILL";
+    public static final String TYPE_MODEL = "MODEL";
     public static final String TYPE_AGENT = "AGENT";
     public static final String TYPE_MINAPP = "MINAPP";
     public static final String TYPE_AIBOT_SCHEDULE = "AIBOT_SCHEDULE";

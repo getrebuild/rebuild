@@ -301,7 +301,8 @@ public class AiBot2AdminController extends BaseController {
     }
 
     @GetMapping("aibot/kb-list")
-    public RespBody kbList() {
+    public RespBody kbList(HttpServletRequest request) {
+        boolean lite = getBoolParameter(request, "lite");
         Object[][] array = Application.createQueryNoFilter(
                 "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by name")
                 .array();
@@ -315,7 +316,7 @@ public class AiBot2AdminController extends BaseController {
             if (conf != null) {
                 item.put("description", conf.getString("description"));
                 item.put("sourceType", conf.getString("sourceType"));
-                item.put("sourceConfig", conf.getString("sourceConfig"));
+                if (!lite) item.put("sourceConfig", conf.getString("sourceConfig"));
                 item.put("chunkCount", conf.getIntValue("chunkCount"));
             }
             item.put("isDisabled", o[3]);
