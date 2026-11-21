@@ -40,9 +40,9 @@
                 </ul>
               </li>
               <li class="parent" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('AIB', #request)}">
-                <a><i class="icon mdi mdi-shimmer"></i><span>Rex AI 助手</span></a>
+                <a><i class="icon mdi mdi-shimmer"></i><span>Rex AI</span></a>
                 <ul class="sub-menu">
-                  <li class="title">Rex AI 助手</li>
+                  <li class="title">Rex AI</li>
                   <li class="nav-items">
                     <div class="rb-scroller">
                       <div class="content">
@@ -54,10 +54,10 @@
                             <a th:href="@{/admin/integration/aibot-kits}"><span>[[${bundle.L('能力扩展')}]]</span></a>
                           </li>
                           <li th:class="${active == 'aibot-agents'} ? 'active'">
-                            <a th:href="@{/admin/integration/aibot-agents}"><span>[[${bundle.L('智能体')}]]</span></a>
+                            <a th:href="@{/admin/integration/aibot-agents}"><span>[[${bundle.L('智能体')}]]</span> <sup class="rbv"></sup></a>
                           </li>
                           <li th:class="${active == 'aibot-minapps'} ? 'active'">
-                            <a th:href="@{/admin/integration/aibot-minapps}"><span>[[${bundle.L('微应用')}]]</span></a>
+                            <a th:href="@{/admin/integration/aibot-minapps}"><span>[[${bundle.L('微应用')}]]</span> <sup class="rbv"></sup></a>
                           </li>
                         </ul>
                       </div>

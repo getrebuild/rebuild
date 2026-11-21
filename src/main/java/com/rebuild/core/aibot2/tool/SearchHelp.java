@@ -18,8 +18,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 搜索 REBUILD 帮助文档，返回匹配的文档列表及摘要
- *
  * @author devezhao
  * @since 2026/7/15
  */

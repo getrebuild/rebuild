@@ -84,7 +84,7 @@ public class NotificationObserver extends OperatingObserver {
         String message = Language.L("@{0} 共享了 {1} 条{2}记录给你");
         if (affected.length > 1) {
             for (ID id : affected) {
-                if (id.getEntityCode().intValue() != relatedId.getEntityCode().intValue()) {
+                if (id.getEntityCode() != relatedId.getEntityCode()) {
                     message = Language.L("@{0} 共享了{2}及其关联记录共 {1} 条记录给你", relatedId);
                     break;
                 }

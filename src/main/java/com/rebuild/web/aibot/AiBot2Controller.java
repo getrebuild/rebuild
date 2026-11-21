@@ -15,6 +15,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.aibot2.AgentDefs;
+import com.rebuild.core.aibot2.AgentQuota;
+import com.rebuild.core.aibot2.AibotAgent;
+import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.Chat;
 import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.aibot2.ChatManager;
@@ -24,18 +28,21 @@ import com.rebuild.core.aibot2.Message;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.StreamEcho;
 import com.rebuild.core.aibot2.SuggestQuestions;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.KVStorage;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.SysbaseSupport;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.InvalidParameterException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,12 +50,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -61,16 +70,27 @@ public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat")
     public void chat(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (!Config.availableAiBot()) {
-            String errorMsg = UserHelper.isAdmin(getRequestUser(req))
-                    ? Language.L("请配置 [AI 助手](/admin/integration/aibot) 后使用")
-                    : Language.L("请联系管理员配置 AI 助手后使用");
-            ServletUtils.writeJson(resp, Message.error(errorMsg).toJSONString());
+        String unavailable = getUnavailableMsg(req);
+        if (unavailable != null) {
+            ServletUtils.writeJson(resp, Message.error(unavailable).toJSONString());
             return;
         }
 
-        ChatRequest chatRequest = buildChatRequest(req);
+        ChatRequest chatRequest;
+        try {
+            chatRequest = buildChatRequest(req);
+        } catch (InvalidParameterException ex) {
+            ServletUtils.writeJson(resp, Message.error(CommonsUtils.getRootMessage(ex)).toJSONString());
+            return;
+        }
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
+        AibotContextHolder.setAgent(chat.getAgent(), false);
+
+        String quotaExceeded = AgentQuota.check(chat.getAgent());
+        if (quotaExceeded != null) {
+            ServletUtils.writeJson(resp, Message.error(quotaExceeded).toJSONString());
+            return;
+        }
 
         if (!chat.tryBeginRun()) {
             ServletUtils.writeJson(resp,
@@ -99,16 +119,27 @@ public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat-stream")
     public void chatStream(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (!Config.availableAiBot()) {
-            String errorMsg = UserHelper.isAdmin(getRequestUser(req))
-                    ? Language.L("请配置 [AI 助手](/admin/integration/aibot) 后使用")
-                    : Language.L("请联系管理员配置 AI 助手后使用");
-            StreamEcho.error(errorMsg, resp.getWriter());
+        String unavailable = getUnavailableMsg(req);
+        if (unavailable != null) {
+            StreamEcho.error(unavailable, resp.getWriter());
             return;
         }
 
-        ChatRequest chatRequest = buildChatRequest(req);
+        ChatRequest chatRequest;
+        try {
+            chatRequest = buildChatRequest(req);
+        } catch (InvalidParameterException ex) {
+            StreamEcho.error(CommonsUtils.getRootMessage(ex), resp.getWriter());
+            return;
+        }
         Chat chat = ChatManager.getChat(chatRequest.getChatid());
+        AibotContextHolder.setAgent(chat.getAgent(), false);
+
+        String quotaExceeded = AgentQuota.check(chat.getAgent());
+        if (quotaExceeded != null) {
+            StreamEcho.error(quotaExceeded, resp.getWriter());
+            return;
+        }
 
         if (!chat.tryBeginRun()) {
             StreamEcho.error(Language.L("会话正在处理中，请稍后再试"), resp.getWriter());
@@ -137,38 +168,133 @@ public class AiBot2Controller extends BaseController {
         }
     }
 
-    private ChatRequest buildChatRequest(HttpServletRequest req) {
-        JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(req);
-        ID chatid = getIdParameter(req, "chatid");
-        if (chatid == null) {
-            String s = reqJson.getString("content");
-            chatid = ChatManager.initChat(getRequestUser(req), s);
+    // 默认助手不可用（未配置或已禁用）时，若所使用的智能体具备自有模型连接（含回退系统配置）则放行
+    private String getUnavailableMsg(HttpServletRequest req) {
+        ID user = getRequestUser(req);
+        AibotAgent agent = null;
+        boolean useDefault;
+        ID chatid = getOwnedChatId(req);
+        if (chatid != null) {
+            agent = ChatManager.getChat(chatid).getAgent();
+            ID agentId = agent.getAgentId();
+            useDefault = agentId == null;
+            // 会话所用智能体已被禁用、取消共享或删除
+            if (!useDefault && !AibotConfigManager.instance.isAgentAvailable(agentId, user)) {
+                return Language.L("智能体已禁用，不能继续对话");
+            }
+        } else {
+            ID agentId = getIdParameter(req, "agent");
+            useDefault = agentId == null;
+            if (agentId != null) {
+                if (!AibotConfigManager.instance.isAgentAvailable(agentId, user)) {
+                    return Language.L("智能体不存在或已被删除");
+                }
+                agent = AgentDefs.getAgentQuietly(agentId);
+            }
         }
 
+        if (useDefault) {
+            if (Config.defaultAgentAvailable()) return null;
+            if (Config.availableAiBot()) {
+                // 历史会话无法切换智能体，只能提示不能继续
+                if (chatid != null) return Language.L("智能体已禁用，不能继续对话");
+                return Language.L("请先选择智能体");
+            }
+            return UserHelper.isAdmin(user)
+                    ? Language.L("请配置 [Rex AI 助手](/admin/integration/aibot) 后使用")
+                    : Language.L("请联系管理员配置 Rex AI 助手后使用");
+        }
+
+        if (agent != null && agent.usable()) return null;
+
+        return UserHelper.isAdmin(user)
+                ? Language.L("请配置 [Rex AI 助手](/admin/integration/aibot) 后使用")
+                : Language.L("请联系管理员配置 Rex AI 助手后使用");
+    }
+
+    private ChatRequest buildChatRequest(HttpServletRequest req) {
+        JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(req);
+        ID user = getRequestUser(req);
+        ID chatid = getOwnedChatId(req);
+        if (chatid == null) {
+            String s = reqJson.getString("content");
+            ID agentId = getIdParameter(req, "agent");
+            if (agentId != null && !AibotConfigManager.instance.isAgentAvailable(agentId, user)) {
+                throw new InvalidParameterException(Language.L("智能体不存在或已被删除"));
+            }
+            chatid = ChatManager.initChat(user, s, agentId);
+        }
+
+        reqJson.put("sendTime", System.currentTimeMillis());
         return new ChatRequest(reqJson, chatid);
+    }
+
+    private ID getOwnedChatId(HttpServletRequest req) {
+        ID chatid = getIdParameter(req, "chatid");
+        if (chatid == null) return null;
+
+        ID user = getRequestUser(req);
+        Object createdBy = QueryHelper.queryFieldValue(chatid, "createdBy");
+        Assert.notNull(createdBy, "Chat Not Found : " + chatid);
+        return user.equals(createdBy) || UserHelper.isAdmin(user) ? chatid : null;
+    }
+
+    private ID getOwnedChatIdNotNull(HttpServletRequest req) {
+        ID id = getOwnedChatId(req);
+        Assert.notNull(id, Language.L("会话不存在或无权访问"));
+        return id;
     }
 
     @PostMapping("post/chat-stream-stop")
     public RespBody chatStreamStop(HttpServletRequest req) {
-        ID chatid = getIdParameterNotNull(req, "chatid");
+        ID chatid = getOwnedChatIdNotNull(req);
         StreamEcho.setInterrupt(chatid);
         return RespBody.ok();
     }
 
     @GetMapping("post/chat-init")
     public RespBody chatInit(HttpServletRequest req) {
-        ID chatid = getIdParameter(req, "chatid");
+        ID chatid = getOwnedChatId(req);
+        ID user = getRequestUser(req);
 
         JSONArray messages = new JSONArray();
         JSONArray suggestQuestions = null;
+        ID agentId = null;
         if (chatid != null) {
             Chat chat = ChatManager.getChat(chatid);
-            chat.getMessages().forEach(m -> messages.add(m.toJSON()));
-        } else {
-            String welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);
+            chat.getMessages().forEach(m -> {
+                JSONObject j = m.toJSON();
+                j.remove("toolHistory");
+                messages.add(j);
+            });
+            agentId = chat.getAgent().getAgentId();
+        }
+
+        // 默认助手可用，或当前为已存在的默认助手会话时，才提供默认项
+        JSONArray agents = new JSONArray();
+        if (Config.defaultAgentAvailable() || (chatid != null && agentId == null)) {
+            agents.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "name"},
+                    new Object[]{null, Language.L("默认")}));
+        }
+        agents.addAll(AibotConfigManager.instance.listAgentsForUser(user));
+
+        if (chatid == null) {
+            ID initAgent = getIdParameter(req, "agent");
+            // 默认助手不可用时，新会话默认选中第一个可用智能体
+            if (initAgent == null && !Config.defaultAgentAvailable() && !agents.isEmpty()) {
+                initAgent = ID.valueOf(agents.getJSONObject(0).getString("id"));
+            }
+            agentId = initAgent;
+
+            JSONObject publish = initAgent == null ? null
+                    : AibotConfigManager.instance.getPublishConfig(initAgent, AibotConfigManager.TYPE_AGENT);
+
+            String welcome = publish == null ? null : publish.getString("welcome");
+            if (StringUtils.isBlank(welcome)) welcome = RebuildConfiguration.get(ConfigurationItem.AibotWelcome);
             if (StringUtils.isBlank(welcome)) {
                 String aibotName = RebuildConfiguration.get(ConfigurationItem.AibotName);
-                welcome = String.format("欢迎使用 %s！有什么问题都可以向我提问哦", aibotName);
+                welcome = String.format(Language.L("%s，我帮你"), aibotName);
             }
 
             JSON welcomeMsg = JSONUtils.toJSONObject(
@@ -176,10 +302,21 @@ public class AiBot2Controller extends BaseController {
                     new Object[]{"ai", welcome});
             messages.add(welcomeMsg);
 
-            try {
-                suggestQuestions = SuggestQuestions.generate(getRequestUser(req));
-            } catch (Exception ex) {
-                log.warn("SuggestQuestions failed", ex);
+            String suggests = publish == null ? null : publish.getString("suggestQuestions");
+            if (StringUtils.isNotBlank(suggests)) {
+                suggestQuestions = new JSONArray();
+                for (String line : suggests.split("\n")) {
+                    String q = line.trim();
+                    if (!q.isEmpty()) suggestQuestions.add(q);
+                }
+                if (suggestQuestions.isEmpty()) suggestQuestions = null;
+            }
+            if (suggestQuestions == null) {
+                try {
+                    suggestQuestions = SuggestQuestions.generate(user);
+                } catch (Exception ex) {
+                    log.warn("SuggestQuestions failed", ex);
+                }
             }
         }
 
@@ -188,26 +325,58 @@ public class AiBot2Controller extends BaseController {
         if (suggestQuestions != null) {
             data.put("suggestQuestions", suggestQuestions);
         }
-        return RespBody.ok(data);
-    }
 
-    @GetMapping("skills")
-    public RespBody skills() {
-        return RespBody.ok(SkillDefs.listSkills());
+        // 管理员查看他人会话时返回所属人，前端显示标识
+        if (chatid != null && UserHelper.isAdmin(user)) {
+            Object createdBy = QueryHelper.queryFieldValue(chatid, "createdBy");
+            if (!user.equals(createdBy)) {
+                data.put("viewAsAdmin", UserHelper.getName((ID) createdBy));
+            }
+        }
+
+        data.put("agents", agents);
+        data.put("agentId", agentId);
+        data.put("defaultDisabled", !Config.defaultAgentAvailable());
+        data.put("skills", SkillDefs.listSkills());
+        return RespBody.ok(data);
     }
 
     @PostMapping("post/chat-delete")
     public RespBody chatDelete(HttpServletRequest req) {
-        ChatManager.deleteChat(getIdParameterNotNull(req, "chatid"));
+        ChatManager.deleteChat(getOwnedChatIdNotNull(req));
         return RespBody.ok();
     }
 
     @GetMapping("post/chat-list")
     public RespBody chatList(HttpServletRequest req) {
-        Object[][] chats = Application.createQueryNoFilter(
-                "select chatId,subject,modifiedOn from AibotChat where createdBy = ? order by modifiedOn desc")
-                .setParameter(1, getRequestUser(req))
+        ID user = getRequestUser(req);
+
+        StringBuilder sql = new StringBuilder("select chatId,subject,modifiedOn from AibotChat where createdBy = ?");
+        // 仅轮询指定会话（回答中）时使用
+        String[] filterChatids = req.getParameterValues("chatid");
+        if (filterChatids != null && filterChatids.length > 0) {
+            List<String> ids = new ArrayList<>();
+            for (String s : filterChatids) {
+                if (ID.isId(s)) ids.add("'" + s + "'");
+            }
+            if (!ids.isEmpty()) sql.append(" and chatId in (").append(StringUtils.join(ids, ",")).append(")");
+        }
+        sql.append(" order by modifiedOn desc");
+
+        Object[][] chats = Application.createQueryNoFilter(sql.toString())
+                .setParameter(1, user)
+                .setLimit(2000)  // 最多显示
                 .array();
+
+        // 置顶项（按用户维度存于 KV），排在最前并从日期分组中剔除
+        Map<ID, Object[]> chatMap = new HashMap<>();
+        for (Object[] c : chats) chatMap.put((ID) c[0], c);
+
+        List<Object[]> pinned = new ArrayList<>();
+        for (ID id : getUserTopChats(user)) {
+            Object[] c = chatMap.remove(id);
+            if (c != null) pinned.add(c);
+        }
 
         // 按日期分组：今天 / 近三天 / 最近一周 / 更早
         long todayStart = org.apache.commons.lang3.time.DateUtils
@@ -220,6 +389,7 @@ public class AiBot2Controller extends BaseController {
         List<Object[]> week = new ArrayList<>();
         List<Object[]> earlier = new ArrayList<>();
         for (Object[] c : chats) {
+            if (!chatMap.containsKey(c[0])) continue;  // 已归入置顶
             long t = ((Date) c[2]).getTime();
             if (t >= todayStart) today.add(c);
             else if (t >= threeDayStart) recent3d.add(c);
@@ -228,6 +398,7 @@ public class AiBot2Controller extends BaseController {
         }
 
         JSONArray data = new JSONArray();
+        addChatGroup(data, "pinned", pinned);
         addChatGroup(data, "today", today);
         addChatGroup(data, "recent3d", recent3d);
         addChatGroup(data, "week", week);
@@ -235,19 +406,50 @@ public class AiBot2Controller extends BaseController {
         return RespBody.ok(data);
     }
 
+    @PostMapping("post/chat-pin")
+    public RespBody chatPin(HttpServletRequest req) {
+        ID chatid = getOwnedChatIdNotNull(req);
+        ID user = getRequestUser(req);
+
+        LinkedList<ID> ids = getUserTopChats(user);
+        if (ids.contains(chatid)) {
+            ids.remove(chatid);
+        } else {
+            if (ids.size() >= 9) ids.removeLast();
+            ids.addFirst(chatid);
+        }
+        KVStorage.setCustomValue("AIBOT-TOP:" + user, StringUtils.join(ids, ","));
+
+        return RespBody.ok();
+    }
+
+    private static LinkedList<ID> getUserTopChats(ID user) {
+        String top = StringUtils.defaultString(KVStorage.getCustomValue("AIBOT-TOP:" + user), "");
+        LinkedList<ID> ids = new LinkedList<>();
+        for (String s : top.split(",")) {
+            if (ID.isId(s)) ids.add(ID.valueOf(s));
+        }
+        return ids;
+    }
+
     private void addChatGroup(JSONArray data, String group, List<Object[]> items) {
         if (items.isEmpty()) return;
 
+        JSONArray itemsJson = new JSONArray();
+        for (Object[] c : items) {
+            itemsJson.add(JSONUtils.toJSONObject(
+                    new String[]{"chatid", "subject", "modifiedOn", "answering"},
+                    new Object[]{c[0], c[1], ((Date) c[2]).getTime(), ChatManager.isChatRunning((ID) c[0])}));
+        }
+
         data.add(JSONUtils.toJSONObject(
                 new String[]{"group", "items"},
-                new Object[]{group, JSONUtils.toJSONObjectArray(
-                        new String[]{"chatid", "subject", "modifiedOn"},
-                        items.toArray(new Object[0][]))}));
+                new Object[]{group, itemsJson}));
     }
 
     @PostMapping("post/chat-rename")
     public RespBody chatRename(HttpServletRequest req) {
-        ID chatid = getIdParameterNotNull(req, "chatid");
+        ID chatid = getOwnedChatIdNotNull(req);
         String subject = getParameterNotNull(req, "s");
 
         Record r = EntityHelper.forUpdate(chatid, getRequestUser(req));
@@ -259,18 +461,12 @@ public class AiBot2Controller extends BaseController {
 
     @PostMapping("post/chat-feedback")
     public RespBody chatFeedback(HttpServletRequest req) {
-        ID chatid = getIdParameterNotNull(req, "chatid");
+        ID chatid = getOwnedChatIdNotNull(req);
         String type = getParameterNotNull(req, "type");
         String comment = getParameter(req, "comment");
 
         ChatLogger chatLogger = ChatManager.getChat(chatid).chatLogger();
-        File logFile = chatLogger.getLogFile();
-        if (!logFile.exists()) return RespBody.error();
-
-        String feedbackDetail = StringUtils.isBlank(comment) ? type : type + " : " + comment;
-        chatLogger.log("FEEDBACK", feedbackDetail);
-
-        TaskExecutors.queue(() -> new SysbaseSupport().uploadAibotFeedback(logFile, comment));
+        if (!chatLogger.feedback(type, comment)) return RespBody.error();
         return RespBody.ok();
     }
 }

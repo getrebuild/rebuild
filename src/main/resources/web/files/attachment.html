@@ -62,6 +62,13 @@
                   <div class="clearfix"></div>
                 </div>
                 <div class="col-7 text-right">
+                  <button type="button" class="btn btn-secondary btn-space mb-0 J_dl">
+                    <i class="icon zmdi zmdi-download"></i>
+                    [[${bundle.L('批量下载')}]]
+                  </button>
+                  <form method="post" action="batch-download" target="_blank" class="hide J_dl">
+                    <input type="hidden" name="files" />
+                  </form>
                   <div class="btn-group btn-space mb-0 J_sort">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                       <span>[[${bundle.L('默认排序')}]]</span>

@@ -15,8 +15,8 @@ import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.aibot2.AiSourceHolder;
 import com.rebuild.core.aibot2.AibotAgent;
+import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.aibot2.ChatLogger;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserHelper;
@@ -46,11 +46,13 @@ import static com.rebuild.core.aibot2.tool.ToolHelper.compactJson;
 @Slf4j
 public class ToolDefs {
 
-    private static final Map<String, String> TOOL_JSON_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, JSONObject> TOOL_JSON_CACHE = new ConcurrentHashMap<>();
     private static final Map<String, Tool> TOOL_MAP = new LinkedHashMap<>();
 
     static {
         register(new ListEntities());
+        register(new ListCharts());
+        register(new ListConfigs());
         register(new FetchUrl());
         register(new SuggestCustom());
         register(new SearchHelp());
@@ -67,21 +69,24 @@ public class ToolDefs {
         register(new SearchKnowledge());
         register(new ScheduleTask());
         register(new UserMemory());
-
         register(new BuildSkill());
         register(new GetConfigSchema());
         register(new BuildFilter());
+        register(new BuildChart());
         register(new BuildEntity());
         register(new BuildField());
+        // @rbv
         register(new BuildTrigger());
-        register(new ListTriggers());
         register(new BuildTransform());
         register(new BuildReportTemplate());
+        register(new BuildAviatorFormula());
         register(new BuildFormLayout());
         register(new BuildListLayout());
         register(new BuildNavMenu());
         register(new BuildApp());
         register(new BuildFrontJsCode());
+        register(new BuildDeleteEntity());
+        register(new BuildMinAppPage());
     }
 
     /**
@@ -109,16 +114,19 @@ public class ToolDefs {
      * @return
      */
     public static List<ChatCompletionTool> tools(AibotAgent agent) {
+        boolean anonymous = AibotContextHolder.isAnonymous();
         // 管理员专属工具不提供给非管理员
-        boolean isAdmin = UserContextHolder.getUser(true) != null
+        boolean isAdmin = !anonymous
+                && UserContextHolder.getUser(true) != null
                 && UserHelper.isAdmin(UserContextHolder.getUser());
 
-        Set<String> disabled = getDisabledTools();
         Set<String> agentTools = agent != null ? agent.getTools() : null;
 
+        // 禁用工具仍发送给模型，调用时由 execute 拦截并返回禁用说明，
+        // 使模型能向用户解释功能未开放（与 RbvTool 商业版提示同模式）
         return TOOL_MAP.entrySet().stream()
-                .filter(e -> !disabled.contains(e.getKey()))
                 .filter(e -> isAdmin || !(e.getValue() instanceof AdminGuard))
+                .filter(e -> !anonymous || !(e.getValue() instanceof PersonalGuard))
                 .filter(e -> agentTools == null || agentTools.contains(e.getKey()))
                 .map(e -> e.getValue().def())
                 .collect(Collectors.toList());
@@ -164,16 +172,17 @@ public class ToolDefs {
      * 列出工具定义
      *
      * @param includeDisabled
+     * @param includeSystem
      * @param includeSchema
      * @return
      */
-    public static List<JSONObject> listTools(boolean includeDisabled, boolean includeSchema) {
+    public static List<JSONObject> listTools(boolean includeDisabled, boolean includeSystem, boolean includeSchema) {
         Set<String> disabled = getDisabledTools();
         List<JSONObject> tools = new ArrayList<>();
         for (String toolName : TOOL_MAP.keySet()) {
             Tool toolImpl = TOOL_MAP.get(toolName);
-            if (toolImpl.isSystem()) continue;
             if (disabled.contains(toolName) && !includeDisabled) continue;
+            if (toolImpl.isSystem() && !includeSystem) continue;
 
             JSONObject toolJson = getToolJson(toolName);
             if (toolJson == null) continue;
@@ -198,34 +207,39 @@ public class ToolDefs {
      * @return
      */
     static JSONObject getToolJson(String toolName) {
-        String d = Application.devMode() ? null : TOOL_JSON_CACHE.get(toolName);
-        if (d == null) {
-            d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
-            if (d == null) return null;
-            TOOL_JSON_CACHE.put(toolName, d);
-        }
-        return JSONObject.parseObject(d);
+        JSONObject c = TOOL_JSON_CACHE.get(toolName);
+        if (Application.devMode()) c = null;
+        if (c != null) return JSON.parseObject(c.toJSONString());
+
+        String d = CommonsUtils.getStringOfRes("aibot2/tool/" + toolName + ".json");
+        c = d == null ? null : JSONObject.parseObject(d);
+        if (c == null) throw new ToolException("Tool not found: " + toolName);
+
+        ConfirmableTool.decorate(c, TOOL_MAP.get(toolName));
+
+        TOOL_JSON_CACHE.put(toolName, c);
+        return JSON.parseObject(c.toJSONString());
     }
 
     // 工具执行进度提示的兜底文案
     private static final String TOOL_HINT_DEFAULT = "正在处理...";
 
     /**
-     * 工具执行中的用户可见提示。取 userDescription 首句，
-     * 系统工具与描述缺失时回退兜底文案，避免内部工具名外泄到用户对话。
+     * 工具执行中的用户可见提示。取 userDescription 首句，描述缺失时回退兜底文案。
      *
      * @param toolName
      * @return
      */
     public static String userHint(String toolName) {
         Tool tool = TOOL_MAP.get(toolName);
-        if (tool == null || tool.isSystem()) return TOOL_HINT_DEFAULT;
+        if (tool == null) return TOOL_HINT_DEFAULT;
 
         JSONObject json = getToolJson(toolName);
         String desc = json == null ? null : json.getString("userDescription");
         if (StringUtils.isBlank(desc)) return TOOL_HINT_DEFAULT;
 
-        desc = StringUtils.substringBefore(desc, "。").trim();
+        desc = StringUtils.substringBefore(desc, "。")
+                .replaceAll("\\s*\\[(系统工具|商业工具)]", "").trim();
         if (desc.length() > 24) desc = CommonsUtils.maxstr(desc, 24) + "...";
         return StringUtils.defaultIfBlank(desc, TOOL_HINT_DEFAULT);
     }
@@ -238,6 +252,29 @@ public class ToolDefs {
      */
     public static boolean isToolDisabled(String toolName) {
         return getDisabledTools().contains(toolName);
+    }
+
+    /**
+     * 工具是否对指定 agent 不可用。agent 配置了工具白名单时以白名单为准，
+     * 即 AibotToolsDisabled 仅约束未配置白名单的默认 agent
+     *
+     * @param toolName
+     * @param agentTools null 表示默认 agent（未配置白名单）
+     * @return
+     */
+    public static boolean isToolDisabled(String toolName, Set<String> agentTools) {
+        if (agentTools != null) return !agentTools.contains(toolName);
+        return isToolDisabled(toolName);
+    }
+
+    /**
+     * 当前请求 agent 的工具白名单，null 表示默认 agent
+     *
+     * @return
+     */
+    public static Set<String> currentAgentTools() {
+        AibotAgent agent = AibotContextHolder.getAgent();
+        return agent == null ? null : agent.getTools();
     }
 
     /**
@@ -261,7 +298,7 @@ public class ToolDefs {
      */
     public static String execute(String toolName, String arguments, ChatLogger chatLogger) {
         ID user = UserContextHolder.getUser();
-        ID restoreAiSource = AiSourceHolder.set(chatLogger != null ? chatLogger.getChatid() : null);
+        ID restoreAiSource = AibotContextHolder.setSource(chatLogger != null ? chatLogger.getChatid() : null);
 
         try {
             Tool tool = TOOL_MAP.get(toolName);
@@ -270,14 +307,20 @@ public class ToolDefs {
                 throw new KnownToolException("Tool not found: " + toolName);
             }
 
-            if (isToolDisabled(toolName)) {
+            if (isToolDisabled(toolName, currentAgentTools())) {
                 log.warn("Tool disabled : {}", toolName);
-                throw new KnownToolException("Tool disabled: " + toolName);
+                throw new KnownToolException("该工具已被系统管理员禁用，当前不可用。"
+                        + "请告知用户此功能未开放，可联系系统管理员开启，勿再重试或改用其他工具绕行");
             }
 
-            if (tool instanceof AdminGuard && !UserHelper.isAdmin(user)) {
+            if (tool instanceof AdminGuard && (AibotContextHolder.isAnonymous() || !UserHelper.isAdmin(user))) {
                 log.warn("Tool requires admin : {} by {}", toolName, user);
                 throw new KnownToolException("此操作仅限管理员使用");
+            }
+
+            if (tool instanceof PersonalGuard && AibotContextHolder.isAnonymous()) {
+                log.warn("Tool requires login user : {}", toolName);
+                throw new KnownToolException("此操作仅限登录用户使用");
             }
 
             if (StringUtils.isBlank(arguments)) arguments = "{}";
@@ -286,33 +329,41 @@ public class ToolDefs {
             if (chatLogger != null) chatLogger.log("TOOL_CALL " + toolName, arguments);
 
             try {
-                Object res = tool.tool(arguments);
+                String execArgs = tool instanceof ConfirmableTool
+                        ? ConfirmableTool.prepareArgs(toolName, user, arguments)
+                        : arguments;
+
+                Object res = tool.tool(execArgs);
                 String toolRes = res instanceof String ? (String) res : JSON.toJSONString(res);
+
+                if (tool instanceof ConfirmableTool) {
+                    toolRes = ConfirmableTool.handleResult(toolName, user, arguments, execArgs, toolRes);
+                }
+
                 log.info("TOOL_RESULT {}\n{}", toolName, compactJson(toolRes));
                 if (chatLogger != null) chatLogger.log("TOOL_RESULT " + toolName, toolRes);
 
                 if (chatLogger != null) {
-                    try {
-                        JSONObject resultJson = JSON.parseObject(toolRes);
-                        if ("ok".equals(resultJson.getString("status"))) {
+                    JSONObject resultJson = ToolHelper.parseObject(toolRes);
+                    if (resultJson != null && "ok".equals(resultJson.getString("status"))) {
+                        try {
                             String recordIdStr = resultJson.getString("id");
                             if (ID.isId(recordIdStr)) {
                                 Record record = QueryHelper.recordNoFilter(ID.valueOf(recordIdStr));
                                 chatLogger.log("TOOL_RECORD " + toolName, JSON.toJSONString(record));
                             }
+                        } catch (Exception ignored) {
+                            // 查询失败不影响正常流程
                         }
-                    } catch (Exception ignored) {
-                        // 查询失败不影响正常流程
                     }
                 }
                 return toolRes;
 
             } catch (KnownToolException ex) {
-                // 已知业务异常（如参数校验失败、实体不存在），仅记录消息不输出堆栈
-                log.warn("TOOL_WARN {}\n{}", toolName, ex.getMessage());
+                log.warn("TOOL_WARN {}\n{}", toolName, CommonsUtils.getRootMessage(ex));
                 throw ex;
             } catch (ToolException ex) {
-                log.error("TOOL_ERROR {}\n{}", toolName, ex.getMessage(), ex);
+                log.error("TOOL_ERROR {}\n{}", toolName, CommonsUtils.getRootMessage(ex), ex);
                 throw ex;
             } catch (Exception ex) {
                 String error = CommonsUtils.getRootMessage(ex);
@@ -321,7 +372,7 @@ public class ToolDefs {
             }
 
         } finally {
-            AiSourceHolder.clear(restoreAiSource);
+            AibotContextHolder.clearSource(restoreAiSource);
         }
     }
 

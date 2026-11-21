@@ -1,6 +1,6 @@
 {
   "type": "function",
-  "userDescription": "构建记录转换配置。将源实体记录按字段映射转换为目标实体记录 [商业工具]",
+  "userDescription": "构建记录转换。按字段映射把源实体记录转换为目标实体记录 [商业工具]",
   "function": {
     "name": "BuildTransform",
     "description": "新建记录转换配置。当用户希望把一条记录自动转换为另一条记录（如线索转客户、报价转订单）时使用——用户可能不会提到「记录转换」一词，典型表述如：把 A 实体的数据转到 B 实体、根据这条记录生成另一条记录等。调用前应先用 ListEntities 查询源/目标实体的真实字段名。字段映射的取值支持源字段、固定值、计算公式三种；当某目标字段需要用计算公式取值时，先用 BuildAviatorFormula 查阅函数、编写并校验公式后再填入。解析失败会返回错误提示",
@@ -9,11 +9,11 @@
       "properties": {
         "sourceEntity": {
           "type": "string",
-          "description": "源实体名称（转换前记录所属实体）"
+          "description": "源实体名称（转换前记录所属实体，取 ListEntities 返回的 name）"
         },
         "targetEntity": {
           "type": "string",
-          "description": "目标实体名称（转换后生成记录所属实体）"
+          "description": "目标实体名称（转换后生成记录所属实体，取 ListEntities 返回的 name）"
         },
         "name": {
           "type": "string",
@@ -21,25 +21,25 @@
         },
         "fieldsMapping": {
           "type": "object",
-          "description": "主记录字段映射，key 为目标字段名，value 为取值来源，支持三种形式：1) 字符串=源字段名（如 \"accountName\"，将源字段值映射到目标字段）；2) 对象 {\"type\":\"VFIXED\",\"value\":X}=固定值（X 原样写入目标字段）；3) 对象 {\"type\":\"VFORMULA\",\"value\":\"公式\"}=计算公式（公式字段变量用 {源字段名}，高级公式用 {{{{ }}}} 包裹，应先用 BuildAviatorFormula 编写并校验）。系统字段如 owningUser 可映射为源实体的用户字段名"
+          "description": "主记录字段映射，key 为目标字段名，value 为取值来源，支持三种形式：1) 字符串=源字段名（如 \"accountName\"，将源字段值映射到目标字段）；2) 对象 {\"type\":\"VFIXED\",\"value\":X}=固定值（X 原样写入目标字段）；3) 对象 {\"type\":\"VFORMULA\",\"value\":\"公式\"}=计算公式（公式字段变量用 {源字段名}，高级公式用 {{{{ }}}} 包裹，应先用 BuildAviatorFormula 编写并校验）。目标字段须为可映射字段，自动编号、条形码、不可查询的字段及系统字段均不可作为映射目标，仅所属用户（owningUser）例外，可映射为源实体的用户字段名"
         },
         "fieldsMappingDetail": {
           "type": "array",
-          "description": "明细字段映射（可选，当源/目标实体含明细时使用）。每项为对象，含 source（源明细实体名称）、target（目标明细实体名称）、fieldsMapping（明细字段映射，同主记录格式）",
+          "description": "明细字段映射（可选，当源/目标实体含明细时使用）。每项为对象，含 source（源明细实体名）、target（目标明细实体名）、fieldsMapping（明细字段映射，同主记录格式），实体名均取 ListEntities 返回的 name",
           "items": {
             "type": "object",
             "properties": {
               "source": {
                 "type": "string",
-                "description": "源明细实体名称"
+                "description": "源明细实体名称（ListEntities 返回的 name）"
               },
               "target": {
                 "type": "string",
-                "description": "目标明细实体名称"
+                "description": "目标明细实体名称（ListEntities 返回的 name）"
               },
               "fieldsMapping": {
                 "type": "object",
-                "description": "明细字段映射，格式与主记录 fieldsMapping 相同（value 支持源字段名字符串、{type:VFIXED,value}固定值、{type:VFORMULA,value}公式）"
+                "description": "明细字段映射，格式与主记录 fieldsMapping 相同（value 支持源字段名、{type:VFIXED,value}固定值、{type:VFORMULA,value}公式）"
               }
             },
             "required": ["source", "target", "fieldsMapping"]
@@ -52,10 +52,6 @@
         "importsMode": {
           "type": "boolean",
           "description": "是否为明细导入模式（可选，默认 false）。启用后该转换可作为明细导入使用"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
         }
       },
       "required": ["sourceEntity", "targetEntity", "name", "fieldsMapping"],

@@ -23,13 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 新建 AI 技能（仅管理员）
- *
  * @author devezhao
  * @since 2026/8/19
  */
 @Slf4j
-public class BuildSkill implements Tool, AdminGuard {
+public class BuildSkill implements Tool, AdminGuard, ConfirmableTool {
 
     @Override
     public Object tool(String arguments) throws Exception {

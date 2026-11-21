@@ -132,7 +132,7 @@ $(function () {
   $.fn.modal.Constructor.prototype._enforceFocus = function () {}
 
   // navless/frame
-  if (rb.commercial > 0 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1)) $(document.body).addClass('rb-navless40')
+  if (rb.commercial > 0 && (~~$urlp('navless') === 1 || ~~$urlp('frame') === 1) && location.href.indexOf('/pages/minapp/') === -1) $(document.body).addClass('rb-navless40')
   if (rb.commercial > 0 && window.__BOSSKEY === true) $('.bosskey-show').removeClass('bosskey-show')
 
   // scroller
@@ -329,15 +329,27 @@ $(function () {
     }
   }
 
-  var $ai = $('.aibot-show a')
-  if ($ai[0]) {
-    var _FN = function () {
-      window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId'), draggable: true }, true)
-    }
-    $ai.on('click', _FN)
-    $(document).on('keydown.aibot', null, 'shift+/', function (e) {
-      $stopEvent(e, true)
-      _FN()
+  // v4.6
+  if (rb.currentUser && $('.aibot-show').length) {
+    $.get('/aibot/check-usable', function (res) {
+      if (res.data) {
+        $('.aibot-show').removeClass('aibot-show')
+
+        var $ai = $('.aibot-shift a')
+        if ($ai[0]) {
+          var _FN = function () {
+            window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId') }, true)
+          }
+          $ai.on('click', _FN)
+          $(document).on('keydown.aibot', null, 'shift+/', function (e) {
+            $stopEvent(e, true)
+            _FN()
+          })
+        }
+      } else {
+        $('.aibot-show').remove()
+        $('.aibot-quick').remove()
+      }
     })
   }
 })
@@ -701,7 +713,9 @@ var _initGlobalSearch = function () {
   })
 
   // v4.5
-  $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer"></i> ' + $L('问 AI') + '</a>').appendTo($gs)
+  if ($('.aibot-shift:visible')[0]) {
+    $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer ai-color"></i> ' + $L('用 Rex 搜索') + '</a>').appendTo($gs)
+  }
 
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
@@ -714,10 +728,11 @@ var _initGlobalSearch = function () {
   })
 
   var $es = $gs.find('a').on('click', function () {
-    var s = $('.search-input-gs').val()
+    var s = ($('.search-input-gs').val() || '').trim()
     if ($(this).hasClass('aibot-quick')) {
       $('.search-container .dropdown-toggle').dropdown('toggle')
-      window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
+      var content = s || $L('帮我找一条记录，先问我要找什么。')
+      window.AiBot && window.AiBot.init({ preset: { content: content, autoSend: false } }, false)
       return
     }
     $storage.set('GlobalSearch-gs', s || '')
@@ -744,10 +759,11 @@ var _initGlobalSearch = function () {
       if (!$next[0]) $next = $es.first()
       _tryActive($active, $next)
     } else if (e.keyCode === 13) {
-      var s = $('.search-input-gs').val()
+      var s = ($('.search-input-gs').val() || '').trim()
       if ($active.hasClass('aibot-quick')) {
         $('.search-container .dropdown-toggle').dropdown('toggle')
-        window.AiBot && window.AiBot.init({ draggable: true, preset: { content: s, autoSend: true } }, false)
+        var content = s || $L('帮我找一条记录，先问我要找什么。')
+        window.AiBot && window.AiBot.init({ preset: { content: content, autoSend: false } }, false)
         return
       }
       $storage.set('GlobalSearch-gs', s || '')
@@ -780,6 +796,18 @@ var _showGlobalSearch = function (gs, $gs) {
 
 // 全局新建
 var _initGlobalCreate = function () {
+  var $gc = $('.global-create2 .dropdown-menu')
+
+  // v4.5
+  if ($('.aibot-shift:visible')[0]) {
+    $('<a class="dropdown-item aibot-quick"><i class="icon mdi mdi-shimmer ai-color"></i>' + $L('用 Rex 新建') + '</a>')
+      .appendTo($gc)
+      .on('click', function () {
+        var content = $L('帮我新建一条记录，先问我要建哪类记录、填哪些内容。')
+        window.AiBot && window.AiBot.init({ preset: { content: content, autoSend: false } }, false)
+      })
+  }
+
   var entities = []
   $('.sidebar-elements li').each(function () {
     var e = $(this).data('entity')
@@ -789,7 +817,6 @@ var _initGlobalCreate = function () {
 
   $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
     if (res.data && res.data.length > 0) {
-      var $gc = $('.global-create2 .dropdown-menu')
       $gc.perfectScrollbar()
       $(res.data).each(function () {
         var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
@@ -1361,7 +1388,7 @@ var $useMermaid = function (cb) {
     console.error('[Mermaid] Failed to load: mermaid is undefined after script load')
   }
   $useScript(
-    '/assets/lib/charts/mermaid.min.js?v=11.17.2',
+    '/assets/lib/charts/mermaid.min.js?v=12.3.0',
     function () {
       _exposeMermaid()
       typeof cb === 'function' && cb()
@@ -1450,22 +1477,24 @@ var $isSysMask = function (label) {
 
 // 分页计算
 var $pages = function (tp, cp) {
+  var mid = 3 // 中部连续页码数（含当前页，须为奇数）
+  var half = (mid - 1) / 2
   var pages = []
   if (tp <= 8) {
     for (var i = 1; i <= tp; i++) pages.push(i)
     return pages
   }
-  if (tp - cp <= 5) {
+  if (tp - cp <= mid) {
     pages.push(1)
     pages.push('.')
-    for (var i = tp - 5; i <= tp; i++) pages.push(i)
+    for (var i = tp - mid; i <= tp; i++) pages.push(i)
     return pages
   }
 
   if (cp > tp) cp = tp
-  if (cp <= 4) cp = 4
-  var begin = cp - 2,
-    end = cp + 3
+  if (cp <= half + 2) cp = half + 2 // 中部起点钳制在第2页
+  var begin = cp - half,
+    end = begin + mid
   if (begin < 1) begin = 1
   if (end > tp) end = tp
   if (begin > 1) pages.push(1)
@@ -1568,7 +1597,7 @@ function $clipboard(target, tips) {
 
 function $clipboard2(target, text) {
   var $el = $(target)
-  text = text || $el.data('clipboard-text') || $el.text() || ''
+  text = text || $el.data('clipboard-text') || $el.val() || $el.text() || ''
 
   $clipboard(text)
   $el.addClass('copied-check')
@@ -1780,6 +1809,7 @@ function $modalDraggable($modal, option) {
       handle: '.modal-header',
       containment: option.containment === false ? false : 'window',
       scroll: false,
+      iframeFix: true,
       start: function () {
         $(this).css({
           right: 'unset',

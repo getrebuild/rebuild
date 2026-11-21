@@ -26,8 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 获取系统实体元数据信息
- *
  * @author devezhao
  * @since 2026/7/10
  */
@@ -229,5 +227,10 @@ public class ListEntities implements Tool {
      */
     private static boolean isEntityVisible(Entity e, boolean isAdmin) {
         return MetadataHelper.isBusinessEntity(e) || (isAdmin && MetadataHelper.isBizzEntity(e));
+    }
+
+    @Override
+    public boolean isSystem() {
+        return HIDDEN_SYSTEM;
     }
 }

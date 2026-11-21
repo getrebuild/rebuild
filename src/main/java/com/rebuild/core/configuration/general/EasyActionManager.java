@@ -4,6 +4,8 @@ Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rig
 
 package com.rebuild.core.configuration.general;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -150,6 +152,40 @@ public class EasyActionManager extends BaseLayoutManager {
         }
 
         return action;
+    }
+
+    /**
+     * v4.6 查找经由引用字段修改其他实体记录的操作（操作配置在引用实体上）
+     *
+     * @param targetEntity 当前记录所属实体
+     * @param eeid
+     * @param checkUser
+     * @return
+     */
+    public JSONObject findRefTargetActionByEeid(Entity targetEntity, String eeid, ID checkUser) {
+        if (targetEntity == null || eeid == null) return null;
+
+        // 哪些实体的引用字段指向本实体
+        for (Field refField : targetEntity.getReferenceToFields()) {
+            Entity sourceEntity = refField.getOwnEntity();
+
+            JSONObject action = findActionByEeid(sourceEntity.getName(), eeid, checkUser);
+            if (action == null) continue;
+
+            int opType = action.getIntValue("opType");
+            if (opType != 2 && opType != 3) continue;
+
+            // 操作的引用目标必须是指向本实体的字段
+            String useRefField = opType == 2 ? action.getString("op2Value5") : action.getString("op3Value5");
+            if (StringUtils.isBlank(useRefField) || !sourceEntity.containsField(useRefField)) continue;
+
+            Field useField = sourceEntity.getField(useRefField);
+            if (useField.getReferenceEntity() == null
+                    || useField.getReferenceEntity().getEntityCode() != targetEntity.getEntityCode()) continue;
+
+            return action;
+        }
+        return null;
     }
 
     // 根据ID找Action

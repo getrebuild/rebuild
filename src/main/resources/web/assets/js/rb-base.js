@@ -351,12 +351,20 @@ var $regex = {
 // URL 编码
 var $encode = function (s) {
   if (!s) return ''
-  return encodeURIComponent(s)
+  try {
+    return encodeURIComponent(s)
+  } catch (e) {
+    return s
+  }
 }
 // URL 解码
 var $decode = function (s) {
   if (!s) return ''
-  return decodeURIComponent(s)
+  try {
+    return decodeURIComponent(s)
+  } catch (e) {
+    return s
+  }
 }
 
 // BASE64 解码
@@ -369,7 +377,6 @@ var $base64Encode = function (s) {
   })
   return btoa(bin)
 }
-
 // BASE64 解码
 var $base64Decode = function (b64) {
   var bin = atob(b64)
@@ -740,8 +747,17 @@ function $focus2End(el, delay) {
   if (!el) return
   setTimeout(function () {
     el.focus()
-    var len = (el.value || '').length
-    el.setSelectionRange(len, len)
+    if (el.isContentEditable) {
+      var selection = window.getSelection()
+      var range = document.createRange()
+      range.selectNodeContents(el)
+      range.collapse(false)
+      selection.removeAllRanges()
+      selection.addRange(range)
+    } else {
+      var len = (el.value || '').length
+      el.setSelectionRange(len, len)
+    }
   }, delay || 100)
 }
 

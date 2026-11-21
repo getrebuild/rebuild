@@ -17,10 +17,8 @@ import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalHelper;
-import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Date;
 
 import static com.rebuild.core.service.approval.ApprovalState.DRAFT;
@@ -50,14 +46,8 @@ public class ApprovalHubController extends BaseController {
     public static final ID FILTER_BADGE = ID.valueOf("014-0490000000000000");
 
     @GetMapping({"home", "hub"})
-    public ModelAndView pageIndex(HttpServletResponse response) throws IOException {
-        if (License.isCommercial()) {
-            return createModelAndView("/approval/home");
-        }
-
-        response.sendError(404,
-                Language.L("免费版不支持此功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
-        return null;
+    public ModelAndView pageIndex() {
+        return createModelAndView("/approval/home");
     }
 
     @RequestMapping("data-list")

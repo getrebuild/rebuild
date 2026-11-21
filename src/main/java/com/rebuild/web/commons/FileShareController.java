@@ -21,7 +21,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.CommandArgs;
@@ -37,6 +36,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.LocationUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import com.rebuild.web.WebConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -85,9 +85,6 @@ public class FileShareController extends BaseController {
                 RebuildConfiguration.getBool(ConfigurationItem.FileSharable),
                 Language.L("不允许分享文件"));
 
-        String shareUrl4del = getParameter(request, "shareUrl");
-        if (shareUrl4del != null && shareUrl4del.contains("/s/")) ShortUrls.invalid(shareUrl4del.split("/s/")[1]);
-
         String fileUrl = getParameterNotNull(request, "url");
         int time = getIntParameter(request, "time", 5);
         String shareKey = ShortUrls.make(fileUrl, time * 60, getRequestUser(request));
@@ -118,7 +115,12 @@ public class FileShareController extends BaseController {
                 "select createdBy from ShortUrl where shortKey = ?")
                 .setParameter(1, shareKey)
                 .unique();
-        final String shareByName = sharer == null ? null : DataDesensitized.any(UserHelper.getName((ID) sharer[0]));
+        ID shareBy = sharer == null ? null : (ID) sharer[0];
+        if (shareBy == null || !UserHelper.isActive(shareBy)) {
+            response.sendError(403, Language.L("分享已过期"));
+            return null;
+        }
+        String shareByName = sharer == null ? null : DataDesensitized.any(UserHelper.getName((ID) sharer[0]));
 
         // v4.5 分享 AI 会话
         if (folderOrDashOrChat45 != null && folderOrDashOrChat45.getEntityCode() == EntityHelper.AibotChat) {
@@ -180,7 +182,7 @@ public class FileShareController extends BaseController {
             Map<String, Object> map = new HashMap<>();
             map.put("chatName", chat[0]);
             map.put("messages", msgs.toJSONString().replace("</", "<\\/"));
-            map.put("pageFooter", "由 REBUILD AI 助手强力驱动");
+            map.put("pageFooter", "由 Rex AI 提供支持");
             map.put("shareByName", shareByName);
             return createModelAndView("/common/shared-chat", map);
         }
@@ -195,15 +197,16 @@ public class FileShareController extends BaseController {
 
             Object[] o = Application.getQueryFactory().uniqueNoFilter(folderOrDashOrChat45, "config");
             JSONArray dashConfig = JSON.parseArray(o[0].toString());
-            ChartManager.instance.richingCharts(dashConfig, UserService.SYSTEM_USER);
+            // 使用分享人的数据权限
+            ChartManager.instance.richingCharts(dashConfig, shareBy);
 
             Map<String, Object> map = new HashMap<>();
             map.put("dashName", dashName);
             map.put("dashId", folderOrDashOrChat45);
             map.put("dashConfig", dashConfig);
             map.put("shareKey", shareKey);
-            map.put("csrfToken", "sk:" + shareKey);
             map.put("shareByName", shareByName);
+            map.put(WebConstants.CSRF_TOKEN, "sk:" + shareKey);
             return createModelAndView("/common/shared-dash", map);
         }
 
@@ -267,7 +270,7 @@ public class FileShareController extends BaseController {
         Map<String, Object> map = new HashMap<>();
         map.put("publicUrl", makePublicUrl(fileUrl, null));
         map.put("shareByName", shareByName);
-        map.put("csrfToken", AuthTokenManager.generateCsrfToken(180));
+        map.put(WebConstants.CSRF_TOKEN, AuthTokenManager.generateCsrfToken(180));
         return createModelAndView("/common/shared-file", map);
     }
 
@@ -310,16 +313,23 @@ public class FileShareController extends BaseController {
         return RespBody.ok();
     }
 
-    @PostMapping("/filex/is-make-share")
+    @GetMapping("/filex/is-make-share")
     public RespBody isSharedFile(HttpServletRequest request) {
         final String longUrl = getParameterNotNull(request, "longUrl");
+        final ID user = getRequestUser(request);
 
-        Object[] has = Application.createQueryNoFilter(
-                "select shortKey from from ShortUrl where longUrl = ? and expireTime > ?")
+        // 当前用户对该对象的已有有效分享（含永久），取最新一条
+        Object[][] has = Application.createQueryNoFilter(
+                "select shortKey from ShortUrl " +
+                        "where longUrl = ? and createdBy = ? and (expireTime > ? or expireTime is null) order by createdOn desc")
                 .setParameter(1, longUrl)
-                .setParameter(2, CalendarUtils.now())
-                .unique();
-        return RespBody.ok(has == null ? null : has[0]);
+                .setParameter(2, user)
+                .setParameter(3, CalendarUtils.now())
+                .setLimit(1)
+                .array();
+        if (has.length == 0) return RespBody.ok(null);
+
+        return RespBody.ok(RebuildConfiguration.getHomeUrl("s/" + has[0][0]));
     }
 
     /**

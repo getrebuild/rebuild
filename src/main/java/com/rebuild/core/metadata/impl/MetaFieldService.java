@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.core.Application;
@@ -20,6 +19,8 @@ import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.InternalPersistService;
@@ -65,12 +66,13 @@ public class MetaFieldService extends InternalPersistService implements AdminGua
         String[] whoUsed = field == null ? new String[0] : new String[]{
                 "PickList", "AutoFillinConfig", "NreferenceItem", "Attachment"
         };
+        // 附件/图片的底层类型可能是 STRING 或 TEXT
+        DisplayType fieldType = field == null ? null : EasyMetaFactory.getDisplayType(field);
 
         int del = 0;
         for (String who : whoUsed) {
             // v4.5 标记删除，后续由 RecycleBinCleanerJob 清理
-            // 附件/图片的底层类型是 STRING
-            if ("Attachment".equals(who) && field.getType() == FieldType.STRING) {
+            if ("Attachment".equals(who) && (fieldType == DisplayType.FILE || fieldType == DisplayType.IMAGE)) {
                 Object[][] array = Application.createQueryNoFilter(
                         "select attachmentId from Attachment where belongEntity = ? and belongField = ?")
                         .setParameter(1, field.getOwnEntity().getEntityCode())

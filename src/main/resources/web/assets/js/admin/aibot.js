@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global AiBotChatsModal */
 
 const __MODELS = ['qwen3.8-max', 'glm-5.2', 'deepseek-v4-flash', 'gpt-5']
 
@@ -13,19 +14,39 @@ useEditComp = function (name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
   } else if ('AibotSuggestQuestions' === name || 'AibotWelcome' === name) {
     return <textarea className="form-control form-control-sm row2x" maxLength="2000" />
+  } else if ('AibotReplyStyle' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="">{$L('默认')}</option>
+        <option value="concise">{$L('简洁')}</option>
+        <option value="detailed">{$L('详细')}</option>
+        <option value="professional">{$L('专业')}</option>
+        <option value="friendly">{$L('亲切')}</option>
+      </select>
+    )
+  } else if ('AibotDefaultDisabled' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="true">{$L('是')}</option>
+        <option value="false">{$L('否')}</option>
+      </select>
+    )
+  } else if ('AibotReasoningEffort' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="">{$L('默认')}</option>
+        <option value="low">{$L('低')}</option>
+        <option value="medium">{$L('中')}</option>
+        <option value="high">{$L('高')}</option>
+      </select>
+    )
   } else if ('AibotBaseDefModel' === name) {
     setTimeout(() => {
-      let __modelContextMap = {}
       let option = {
         options: __MODELS,
         onSelect: (v) => {
           // eslint-disable-next-line no-undef
           changeValue({ target: { value: v, name: 'AibotBaseDefModel' } })
-          if (__modelContextMap[v]) {
-            // eslint-disable-next-line no-undef
-            changeValue({ target: { value: __modelContextMap[v].toString(), name: 'AibotContextCompressThreshold' } })
-            $('input[name=AibotContextCompressThreshold]').val(__modelContextMap[v])
-          }
         },
       }
       $autoComplete($('input[name="AibotBaseDefModel"]'), null, option)
@@ -40,18 +61,13 @@ useEditComp = function (name) {
         const apiKey = ($('input[name="AibotDSSecret"]').val() || '').trim()
         const origKey = ($('td[data-id="AibotDSSecret"]').data('value') || '').trim()
 
-        const params = []
-        if (baseUrl) params.push(`baseUrl=${encodeURIComponent(baseUrl)}`)
-        if (apiKey && apiKey !== origKey) params.push(`apiKey=${encodeURIComponent(apiKey)}`)
-        const qs = params.length > 0 ? `?${params.join('&')}` : ''
+        const payload = {}
+        if (baseUrl) payload.baseUrl = baseUrl
+        if (apiKey && apiKey !== origKey) payload.apiKey = apiKey
 
-        $.get(`./aibot/models${qs}`, (res) => {
+        $.post(`./aibot/models`, JSON.stringify(payload), (res) => {
           if (res.error_code === 0 && res.data && res.data.length) {
             option.options = res.data.map((m) => m.id)
-            __modelContextMap = {}
-            res.data.forEach((m) => {
-              if (m.contextWindow) __modelContextMap[m.id] = m.contextWindow
-            })
           } else {
             option.options = [...__MODELS]
           }
@@ -99,10 +115,24 @@ class AiBotUserRank extends ChartRank {
 
 $(document).ready(() => {
   $.get('./aibot/stats', (res) => {
+    const data = res.data || {}
     let $el = $('.J_stats-aibot')
-    $el.find('strong').text(res.data.aibotCount || 0)
-    _renderStats(res.data.aibot, $el)
-    renderRbcomp(<AiBotUserRank id="aibot-rank" users={res.data.aibotUsers || []} />, $('.J_stats-users')[0])
+    $el.find('strong').text(data.aibotCount || 0)
+    $renderStats(data.aibot, $el)
+
+    $el = $('.J_stats-chats')
+    $el.find('strong').text(data.chats || 0)
+    $renderStats(data.aibotDailyChats, $el)
+
+    $el = $('.J_stats-usercount')
+    $el.find('strong').text(data.users || 0)
+    $renderStats(data.aibotDailyUsers, $el)
+
+    renderRbcomp(<AiBotUserRank id="aibot-rank" users={data.aibotUsers || []} />, $('.J_stats-users')[0])
+  })
+
+  $('.J_all-chats').on('click', () => {
+    renderRbcomp(<AiBotChatsModal title={$L('所有会话')} width={880} disposeOnHide useWhite useScrollable />)
   })
 })
 
@@ -116,66 +146,4 @@ postBefore = function (data) {
     return false
   }
   return data
-}
-
-const _renderStats = function (data, $el) {
-  const xAxis = []
-  const series = []
-  data.forEach((item) => {
-    xAxis.push(item[0])
-    series.push(item[1])
-  })
-
-  const option = {
-    grid: { left: 0, right: 0, top: 4, bottom: 4 },
-    animation: true,
-    tooltip: {
-      trigger: 'axis',
-      formatter: '{b} : <b>{c}</b>',
-      textStyle: {
-        fontSize: 12,
-        lineHeight: 1.3,
-        color: '#333',
-      },
-      axisPointer: {
-        lineStyle: { color: '#ddd' },
-      },
-      backgroundColor: '#fff',
-      extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
-      confine: true,
-      position: 'top',
-    },
-    textStyle: {
-      fontFamily: '"Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-    },
-    xAxis: {
-      show: false,
-      type: 'category',
-      data: xAxis,
-    },
-    yAxis: {
-      show: false,
-      type: 'value',
-      splitLine: { show: false },
-      cursor: 'default',
-    },
-    series: [
-      {
-        data: series,
-        areaStyle: { opacity: 0.2 },
-        itemStyle: {
-          normal: {
-            color: '#4285f4',
-            lineStyle: { color: '#4285f4' },
-          },
-        },
-        type: 'line',
-        smooth: true,
-        connectNulls: true,
-      },
-    ],
-  }
-
-  const c = echarts.init($el.find('span')[0])
-  c.setOption(option)
 }

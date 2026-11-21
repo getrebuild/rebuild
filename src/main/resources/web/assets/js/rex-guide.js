@@ -4,6 +4,10 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* eslint-disable no-undef */
+/* global RbHeroModal */
+
+// ~~ AI 助手引导弹窗（未配置引导管理员配置、已配置引导用户体验）
 /* global RbHeroModal */
 // ~~ AI 助手引导弹窗
 
@@ -53,6 +57,7 @@ const __showRexGuide = function (configured, isAdmin) {
     } else $storage.set('RexGuideUserEnd-' + rb.currentUser, 'yes')
   }
 
+  // 展示即计数，避免未关闭就离开页面导致重复弹；强制调试模式不计数
   if (!~~window.__RexGuideScene) mark()
 
   let modal
@@ -89,9 +94,7 @@ const __showRexGuide = function (configured, isAdmin) {
   )
 
   if (configured) {
-    const questions = isAdmin
-      ? ['帮我建一个客户管理实体', '帮我配置一个自动化触发器', '统计一下本月各业务实体的数据量']
-      : ['帮我创建一条客户记录', '帮我查一下本周需要跟进的客户', '有哪些待我审批的记录']
+    const questions = isAdmin ? ['系统里都有哪些业务实体', '如何配置一个自动化触发器', '帮我创建一条客户记录'] : ['帮我创建一条客户记录', '怎么快速找到我需要的数据', '有哪些待我审批的记录']
     RbHeroModal.show({
       ...heroProps,
       icon: <i className="mdi mdi-shimmer" />,
@@ -128,7 +131,7 @@ const __showRexGuide = function (configured, isAdmin) {
       subtitle: `约一分钟完成配置，${name} 就能开始为你和团队干活`,
       footer: (
         <React.Fragment>
-          <span className="rex-guide-hint">配置入口 管理中心 - Rex AI 助手</span>
+          <span className="rex-guide-hint">配置入口 管理中心 - Rex AI</span>
           <button type="button" className="rex-guide-btn plain" onClick={hide}>
             稍后再说
           </button>
@@ -188,7 +191,7 @@ const __showRexGuide = function (configured, isAdmin) {
         <div>
           <div className="rex-guide-qtitle">它可以帮你</div>
           {feats}
-          <div className="rex-guide-note">它还差 AI 模型没接入，提醒管理员到 管理中心 - Rex AI 助手 配置一下就能用</div>
+          <div className="rex-guide-note">它还差 AI 模型没接入，提醒管理员到 管理中心 - Rex AI 配置一下就能用</div>
         </div>
       ),
     })
@@ -198,6 +201,8 @@ const __showRexGuide = function (configured, isAdmin) {
 window.__RexGuideScene = window.__RexGuideScene || 0
 window.__checkRexGuide = function () {
   if (window.top !== window.self) return
+  if (location.pathname.includes('/onboarding')) return
+  if (location.pathname.includes('/aibot')) return
   if (!rb.currentUser) return
   if (!~~window.__RexGuideScene && $storage.get('RexGuideEnd-' + rb.currentUser)) return
 

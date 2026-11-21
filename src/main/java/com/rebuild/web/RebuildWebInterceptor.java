@@ -15,14 +15,13 @@ import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.aibot2.Config;
+import com.rebuild.core.aibot2.AibotContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.License;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
@@ -43,9 +42,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
-import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
 import static com.rebuild.web.commons.UseThemeController.THEMES_COLORS;
 
 /**
@@ -119,14 +116,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 String wt = AppUtils.getWatermarkText(re.getRequestUser(), null);
                 if (wt != null) request.setAttribute("markWatermarkText", wt);
             }
-            // v4.3.4, v4.5
-            if (re.getRequestUser() != null) {
-                boolean b = true;
-                if (License.isCommercial()) {
-                    b = Config.availableAiBot() && Application.getPrivilegesManager().allow(re.getRequestUser(), AllowUseAiBot);
-                }
-                request.setAttribute("_AllowUseAiBot", b);
-            }
         }
 
         final String requestUri = re.getRequestUri();
@@ -147,7 +136,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 }
             }
             // 未安装
-            else if (!(requestUri.contains("/setup/") || requestUri.contains("/commons/theme/") || requestUri.contains("/commons/frontjs/") || isError)) {
+            else if (!(requestUri.contains("/setup/") || requestUri.contains("/filex/") || requestUri.contains("/commons/theme/") || requestUri.contains("/commons/frontjs/") || isError)) {
                 sendRedirect(response, "/setup/install", null);
                 return false;
             } else {
@@ -267,6 +256,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         // 清理用户
         UserContextHolder.clear();
+        AibotContextHolder.clear();
     }
 
     private String detectLocale(HttpServletRequest request, HttpServletResponse response) {
@@ -335,14 +325,17 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/commons/file-preview")
                 || requestUri.endsWith("/commons/file-editor-save")
                 || requestUri.endsWith("/dashboard/chart-data")
+                || requestUri.startsWith("/aibot/pub/")
                 || requestUri.equals("/aibot/chat")
+                || requestUri.startsWith("/pages/minapp/")
                 ;
     }
 
-    private void sendRedirect(HttpServletResponse response, String url, String nexturl) throws IOException {
+    private void sendRedirect(HttpServletResponse response, String url, String nexturl) {
         String redirectUrl = AppUtils.getContextPath(url);
         if (nexturl != null) redirectUrl += "?nexturl=" + CodecUtils.urlEncode(nexturl);
-        response.sendRedirect(redirectUrl);
+
+        AppUtils.sendRedirect(response, redirectUrl);
     }
 
     private void checkSafeUse(String ipAddr, String requestUri) throws DefinedException {

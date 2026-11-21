@@ -15,8 +15,8 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -148,7 +148,7 @@ public class QueryHelper {
      */
     public static List<ID> detailIdsNoFilter(ID mainId, Entity detailEntity) {
         String orderBy = "autoId asc";
-        if (detailEntity.containsField(EntityHelper.Seq)) orderBy = " seq asc";
+        if (EasyMetaFactory.valueOf(detailEntity).isDetailsSortable()) orderBy = " seq asc";
 
         String sql = String.format("select %s from %s where %s = ? order by %s",
                 detailEntity.getPrimaryField().getName(),

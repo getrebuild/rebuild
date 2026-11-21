@@ -10,10 +10,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   --rb-theme-color: #4285f4;
   --rb-btn-hover-color: #0d5bdd;
   --rb-btn-active-color: #2572f2;
+  --rb-body-bg: #f0f2f5;
 }
 
 .bosskey-show,
-.dev-show {
+.dev-show,
+.aibot-show {
   display: none !important;
 }
 
@@ -2116,13 +2118,11 @@ th.column-fixed::before,
 }
 
 .dataTables_info .list-stats-settings {
-  opacity: 0.6;
-  padding: 9px 8px;
-  font-size: 15px;
-  position: absolute;
-  top: 0;
+  opacity: 0.8;
+  padding: 0 8px;
   z-index: 1;
   display: none;
+  transform: scale(1.2);
 }
 
 .dataTables_info .list-stats-settings:hover {
@@ -2236,6 +2236,7 @@ th.column-fixed::before,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  height: 36px;
 }
 
 .sortable-box .dd-list .dd3-action,
@@ -2369,7 +2370,7 @@ th.column-fixed::before,
 }
 
 .form-line fieldset {
-  border-bottom: 1px solid #ebebeb;
+  border-bottom: 1px solid #ddd;
   position: relative;
   margin: 16px 0;
 }
@@ -2380,7 +2381,7 @@ th.column-fixed::before,
   background-color: #fff;
   width: auto;
   left: 10px;
-  margin: -11px 0 0;
+  margin: -12px 0 0;
   padding: 3px 5px 0;
   color: #666;
   border-radius: 4px;
@@ -2400,14 +2401,15 @@ th.column-fixed::before,
 
 .form-line.hover fieldset legend::after {
   font-family: 'Material-Design-Iconic-Font', serif;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   content: '\f2f9';
   width: 13px;
   display: inline-block;
   float: left;
   text-align: center;
   line-height: 1;
-  transform: translateY(-1px);
+  font-weight: normal;
+  transform: translateY(0.5px);
 }
 
 .form-line.hover.collapsed fieldset legend::after {
@@ -2422,6 +2424,11 @@ th.column-fixed::before,
   height: 0;
   font-size: 0;
   overflow: hidden;
+}
+
+.form-line46 fieldset legend {
+  color: #404040;
+  font-weight: bold;
 }
 
 .btn-primary.btn-outline,
@@ -3387,9 +3394,9 @@ a.user-show:not([href]) {
   color: #999;
   font-size: 1.23rem;
   display: inline-block;
-  padding: 0 3px;
   margin-right: 6px;
   width: 20px;
+  text-align: left;
 }
 
 .card-list .card-footer a:hover {
@@ -3418,6 +3425,26 @@ a.user-show:not([href]) {
   padding: 20px 10px 5px;
   margin: 0;
   border: 0 none;
+}
+
+.card-list.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 0;
+}
+
+.card-list.card-grid > div {
+  padding: 0;
+}
+
+.card-list.card-grid .card {
+  margin-bottom: 0;
+}
+
+.card-list.card-grid .card.ph {
+  width: auto;
+  margin-top: 0;
 }
 
 .page-head-title .sub-title {
@@ -3689,8 +3716,8 @@ a.user-show:not([href]) {
   color: #fff !important;
 }
 
-.global-search > .dropdown-menu a.badge.aibot-quick {
-  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe) !important;
+.global-search > .dropdown-menu a.badge.aibot-quick:hover > .icon,
+.global-search > .dropdown-menu a.badge.aibot-quick.active > .icon {
   color: #fff !important;
 }
 
@@ -3733,6 +3760,14 @@ a.user-show:not([href]) {
 
 .global-create2 .dropdown-item:hover > .icon {
   color: #fff;
+}
+
+.global-create2 .dropdown-item.aibot-quick > .icon.ai-color {
+  color: transparent !important;
+}
+
+.global-create2 .dropdown-item.aibot-quick:hover > .icon.ai-color {
+  color: #fff !important;
 }
 
 .global-search .dropdown-menu:empty {
@@ -4697,30 +4732,30 @@ html.external-auth .auth-body.must-center .login {
   margin: 0;
 }
 
+.init-models fieldset {
+  margin-top: 20px;
+}
+
 .init-models fieldset legend {
   font-size: 1rem;
   font-weight: bold;
-}
-
-.init-models fieldset + fieldset {
-  margin-top: 12px;
 }
 
 .init-models fieldset legend .custom-control-sm {
   margin: 0 -6px 0 0 !important;
 }
 
+.init-models form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 2%;
+}
+
 .init-models form > div {
   width: 49%;
   border: 1px solid #eee;
   padding: 10px;
-  float: left;
-  margin-bottom: 12px;
   border-radius: 2px;
-}
-
-.init-models form > div:nth-child(even) {
-  margin-left: 2%;
 }
 
 .init-models form > div p {
@@ -4859,7 +4894,8 @@ pre.unstyle {
   font-weight: 700;
 }
 
-.dropdown-item.check {
+.dropdown-item.check,
+.dropdown-item.check .icon {
   color: #4285f4 !important;
 }
 
@@ -5493,6 +5529,43 @@ pre.unstyle {
   min-height: 300px;
 }
 
+.code-editor .CodeMirror-scroll,
+.code-editor .CodeMirror-vscrollbar,
+.code-editor .CodeMirror-hscrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-track,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-thumb,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-thumb:hover,
+.code-editor .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.code-editor .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.code-editor .CodeMirror-scroll::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
 .code-editor.code-editor-fullscreen,
 .code-editor.code-editor-fullscreen .CodeMirror {
   position: fixed !important;
@@ -5559,6 +5632,11 @@ pre.unstyle {
 .code-editor .CodeMirror.cm-s-default + .code-editor-actions,
 .code-editor .code-editor-actions.light {
   background-color: rgba(0, 0, 0, 0.7);
+}
+
+.code-editor .cm-s-material .cm-aviator-var {
+  color: #f07178;
+  font-weight: 500;
 }
 
 .select2-results span.icon-append {
@@ -6471,6 +6549,47 @@ div.formula-code {
   color: #df5000;
 }
 
+.form-control-plaintext.formula code {
+  display: block;
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.form-control-plaintext.formula.switch-code {
+  padding-right: 40px;
+}
+
+.form-control-plaintext.formula.switch-code + .switch-code-btn {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  display: inline-block;
+  width: 31px;
+  height: 31px;
+  line-height: 32px;
+  text-align: center;
+  font-size: 1.3rem;
+  color: #212121;
+  border-radius: 4px;
+  transition: all 0.4s;
+}
+
+.form-control-plaintext.formula.switch-code + .switch-code-btn:hover {
+  background-color: #212121;
+  color: #fff;
+}
+
+.code-editor .dropdown-menu > .dropdown-item > em {
+  width: 15px;
+  display: inline-block;
+  color: #4285f4;
+  font-size: 0.9rem;
+  font-style: normal;
+}
+
 .modal-dialog > .modal-content {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -6511,22 +6630,30 @@ div.formula-code {
   border-radius: 99px;
 }
 
-.dataTables_wrapper .rb-datatable-header.v42 {
+.dataTables_wrapper .rb-datatable-header.v42,
+.dataTables_wrapper .rb-datatable-footer.v46 {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 10px;
 }
 
-.dataTables_wrapper .rb-datatable-header.v42 > div {
+.dataTables_wrapper .rb-datatable-header.v42 > div,
+.dataTables_wrapper .rb-datatable-footer.v46 > div {
   flex: none;
   white-space: nowrap;
   width: unset;
   max-width: unset;
 }
 
-.dataTables_wrapper .rb-datatable-header.v42 > div.right {
+.dataTables_wrapper .rb-datatable-header.v42 > div.right,
+.dataTables_wrapper .rb-datatable-footer.v46 > div.right {
   text-align: right;
+}
+
+.dataTables_wrapper .rb-datatable-footer.v46 > div:first-child {
+  flex: 1 1 auto;
+  white-space: normal;
 }
 
 .EasyMDEContainer .editor-toolbar button.mdi {
@@ -6909,16 +7036,20 @@ div.formula-code {
   height: auto;
 }
 
-.mermaid rect {
-  rx: 6px;
-  ry: 6px;
-}
-
 .mermaid text,
 .mermaid .nodeLabel,
 .mermaid .edgeLabel {
   font-family: inherit;
   font-size: 13px;
+}
+
+.mermaid foreignObject div[style*='max-width'] {
+  max-width: 240px !important;
+  white-space: normal !important;
+}
+
+.mermaid svg :is(rect, path, ellipse, polygon, circle) {
+  filter: none !important;
 }
 
 input[type='password']::-ms-reveal,
@@ -6996,6 +7127,25 @@ input[type='password']::-ms-clear {
   }
 }
 
+.icon-settings {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  background-color: #e3e3e3;
+  text-align: center;
+  border-radius: 2px;
+}
+
+.icon-settings .icon {
+  font-size: 26px;
+  color: #555;
+  line-height: 36px;
+}
+
+.icon-settings:hover {
+  opacity: 0.8;
+}
+
 .rbheromodal .modal-content {
   border: none;
   border-radius: 12px;
@@ -7055,4 +7205,77 @@ input[type='password']::-ms-clear {
   padding: 14px 20px 16px;
   display: flex;
   align-items: center;
+}
+
+.nav-tabs.nav-tabs-segment {
+  display: flex;
+  width: fit-content;
+  padding: 3px;
+  gap: 2px;
+  background-color: #f1f3f6;
+  border-bottom: 0;
+  border-radius: 7px;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item {
+  margin: 0;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link {
+  padding: 6px 15px;
+  border: 0 none;
+  border-radius: 5px;
+  background-color: transparent;
+  color: #5b626e;
+  font-size: 13px;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link:hover,
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link:focus {
+  border: 0 none;
+  background-color: transparent;
+  color: #2b2f36;
+}
+
+.nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link.active {
+  border: 0 none;
+  background-color: #fff;
+  color: #2b2f36;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* v4.6 新配色 */
+
+body {
+  background-color: var(--rb-body-bg);
+}
+
+body .rb-left-sidebar .sidebar-elements > li ul {
+  background-color: #f5f5f5;
+}
+
+body .rb-left-sidebar .sidebar-elements > li > a:hover,
+body .rb-left-sidebar .sidebar-elements > li ul li > a:hover {
+  background-color: rgba(66, 133, 244, 0.06);
+}
+
+body .rb-left-sidebar.v2 .sidebar-elements li.active > a {
+  background-color: rgba(66, 133, 244, 0.1);
+}
+
+/* v4.6 aside-2tree */
+
+.aside-2tree ul li:hover {
+  background-color: rgba(66, 133, 244, 0.06);
+}
+
+.table-striped tbody tr:nth-of-type(odd),
+.table-striped tbody tr:nth-of-type(odd) td.column-fixed {
+  background-color: #f8fafc;
+}
+
+.table-hover tbody tr:hover,
+.table-hover tbody tr:hover td.column-fixed {
+  background-color: #f6f9fe;
 }

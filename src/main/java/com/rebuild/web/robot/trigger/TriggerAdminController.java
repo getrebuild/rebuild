@@ -7,8 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.robot.trigger;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -17,10 +19,13 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import com.rebuild.web.admin.ConfigCommons;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -127,5 +132,32 @@ public class TriggerAdminController extends BaseController {
             o[9] = tryParseTargetEntity((String) o[9], (String) o[1]);
         }
         return RespBody.ok(array);
+    }
+
+    @GetMapping("trigger/last-logs")
+    public RespBody triggerLogs(@IdParam ID triggerId) {
+        long s = System.currentTimeMillis();
+        Object[][] array = Application.createQueryNoFilter(
+                "select logTime,logContent from CommonsLog where type = ? and source = ? and logTime > ? order by logTime desc")
+                .setParameter(1, CommonsLog.TYPE_TRIGGER)
+                .setParameter(2, triggerId)
+                .setParameter(3, CalendarUtils.addDay(-7))
+                .setLimit(100)
+                .setTimeout(60)
+                .array();
+
+        Object[] count = new Object[]{0};
+        if (array.length > 0 && (System.currentTimeMillis() - s < 3000)) {
+            count = Application.createQueryNoFilter(
+                    "select count(logId) from CommonsLog where type = ? and source = ? and logTime > ?")
+                    .setParameter(1, CommonsLog.TYPE_TRIGGER)
+                    .setParameter(2, triggerId)
+                    .setParameter(3, CalendarUtils.addDay(-30))
+                    .setTimeout(60)
+                    .unique();
+        }
+
+        JSON res = JSONUtils.toJSONObject(new String[]{"logs", "count"}, new Object[]{array, count[0]});
+        return RespBody.ok(res);
     }
 }

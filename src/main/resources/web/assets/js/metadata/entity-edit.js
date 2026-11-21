@@ -45,12 +45,13 @@ $(document).ready(() => {
     if ($('#detailsNotEmpty')[0]) {
       extConfig.detailsNotEmpty = $val('#detailsNotEmpty')
       extConfig.detailsGlobalRepeat = $val('#detailsGlobalRepeat')
-      extConfig.detailsShowAt2 = $val('#detailsShowAt2')
       // v3.6
       extConfig.detailsCopiable = $val('#detailsCopiable')
       // v4.0
       extConfig.detailsSeq = $val('#detailsSeq')
       extConfig.detailsHide = $val('#detailsHide')
+      // v4.6
+      extConfig.detailsSortable = $val('#detailsSortable')
     }
     extConfig.repeatFieldsCheckMode = $val('#repeatFieldsCheckMode') ? 'and' : 'or'
     extConfig.enabledListEditable = $val('#enabledListEditable')
@@ -63,8 +64,8 @@ $(document).ready(() => {
       const checkAdv = [
         'detailsNotEmpty',
         'detailsGlobalRepeat',
-        'detailsShowAt2',
         'detailsCopiable',
+        'detailsSortable',
         'detailsSeq',
         'detailsHide',
         'repeatFieldsCheckMode',
@@ -199,9 +200,10 @@ $(document).ready(() => {
   if (wpc.extConfig.enabledListEditable) $('#enabledListEditable').attr('checked', true)
   if (wpc.extConfig.enabledViewEditable) $('#enabledViewEditable').attr('checked', true)
   if (wpc.extConfig.hideViewAside) $('#hideViewAside').attr('checked', true)
-  if (wpc.extConfig.detailsShowAt2) $('#detailsShowAt2').attr('checked', true)
   // v3.6
   if (wpc.extConfig.detailsCopiable) $('#detailsCopiable').attr('checked', true)
+  // v4.6
+  if (wpc.extConfig.detailsSortable) $('#detailsSortable').attr('checked', true)
   if (wpc.extConfig.enableRecordMerger) $('#enableRecordMerger').attr('checked', true)
   // v4.0
   if (wpc.extConfig.detailsSeq || wpc.extConfig.detailsHide) {

@@ -22,7 +22,7 @@ $(document).ready(() => {
   $('.J_batchUploadKb').on('click', (e) => {
     $stopEvent(e, true)
 
-    const $file = $('<input type="file" multiple />').appendTo('body').hide()
+    const $file = $('<input type="file" multiple data-maxsize="52428800" data-updir="AIBOT_KBS" />').appendTo('body').hide()
 
     $multipleUploader($file[0], (res) => {
       const data = {
@@ -48,6 +48,24 @@ $(document).ready(() => {
     setTimeout(() => $file.click(), 20)
   })
 
+  $('.J_rebuildKb').on('click', (e) => {
+    $stopEvent(e, true)
+    RbAlert.create($L('确认重建全部知识库索引？'), {
+      confirmText: $L('重建'),
+      confirm: function () {
+        this.hide()
+        $.get('./aibot/kb-list', (res) => {
+          const data = res.data || []
+          data.forEach((item) => {
+            $.post(`./aibot/kb-build?id=${item.id}`)
+          })
+
+          $setTimeout(() => KbList.load(), 3000, 'KbList.load')
+        })
+      },
+    })
+  })
+
   _renderMcpConfig()
 })
 
@@ -59,6 +77,11 @@ class KbList extends React.Component {
       const data = res.data || []
       $('.J_kbEmpty').toggle(data.length === 0)
       renderRbcomp(<KbList data={data} />, 'kbList')
+
+      // 有构建中的知识库时自动刷新
+      if (data.some((item) => item.chunkCount === -1)) {
+        $setTimeout(() => KbList.load(), 5000, 'KbList.load')
+      }
     })
   }
 
@@ -68,7 +91,7 @@ class KbList extends React.Component {
       let chunkBadge
       if (item.chunkCount > 0)
         chunkBadge = (
-          <span className="badge badge-light ml-1" title={$L('知识分片')}>
+          <span className="badge badge-light ml-1" title={$L('索引')}>
             {item.chunkCount}
           </span>
         )
@@ -81,7 +104,7 @@ class KbList extends React.Component {
             {item.name} {chunkBadge}
           </td>
           <td>{item.description || <NoValue />}</td>
-          <td className="actions">
+          <td className="actions pr-1">
             <a title={$L('修改')} className="icon" onClick={() => _editKb(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
@@ -89,6 +112,7 @@ class KbList extends React.Component {
               <i className="zmdi zmdi-delete" />
             </a>
           </td>
+          <td className="actions">{ShowEnable(item.isDisabled, item.id)}</td>
         </tr>
       )
     })
@@ -156,7 +180,7 @@ class DlgKbEdit extends RbModalHandler {
               <label className="col-sm-3 col-form-label text-sm-right">{$L('内容')}</label>
               <div className="col-sm-7">
                 <div className="mb-1 file-select">
-                  <input type="file" className="inputfile" id="DlgKbEdit__file" ref={(c) => (this._$file = c)} />
+                  <input type="file" className="inputfile" id="DlgKbEdit__file" data-maxsize="52428800" data-updir="AIBOT_KBS" ref={(c) => (this._$file = c)} />
                   <label htmlFor="DlgKbEdit__file" className="btn-secondary">
                     <span className="zmdi zmdi-upload" />
                     <span className="ml-1">{$L('上传文件')}</span>
@@ -306,7 +330,7 @@ class SkillList extends React.Component {
         <tr key={item.id}>
           <td>{item.name}</td>
           <td>{cfg.description || <NoValue />}</td>
-          <td className="actions">
+          <td className="actions pr-1">
             <a title={$L('修改')} className="icon" onClick={() => _editSkill(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
@@ -314,6 +338,7 @@ class SkillList extends React.Component {
               <i className="zmdi zmdi-delete" />
             </a>
           </td>
+          <td className="actions">{ShowEnable(item.isDisabled, item.id)}</td>
         </tr>
       )
     })
@@ -362,16 +387,6 @@ class DlgSkillEdit extends RbModalHandler {
       )
     }
 
-    if (this.state.hasError) {
-      return (
-        <RbModal ref={(c) => (this._dlg = c)} title={this.props.title} disposeOnHide>
-          <div className="mb-7">
-            <RbAlertBox message={this.state.hasError} />
-          </div>
-        </RbModal>
-      )
-    }
-
     const skills = this.state.skills || []
     return (
       <RbModal
@@ -379,7 +394,7 @@ class DlgSkillEdit extends RbModalHandler {
         title={
           <RF>
             {this.props.title}
-            <AiCreateButton preset={{ content: $L('我要创建一个技能') }} />
+            <AiCreateButton presetContent={$L('帮我做一个技能。先向我确认技能用途和使用场景，确认后再创建。')} />
           </RF>
         }
         disposeOnHide>
@@ -462,7 +477,7 @@ class DlgSkillEdit extends RbModalHandler {
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">{$L('描述')}</label>
           <div className="col-sm-7">
-            <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} placeholder={$L('选填')} />
+            <input className="form-control form-control-sm" type="text" maxLength="100" ref={(c) => (this._$desc = c)} defaultValue={conf.description || ''} />
           </div>
         </div>
         <div className="form-group row">
@@ -495,8 +510,8 @@ class DlgSkillEdit extends RbModalHandler {
 
   _loadSkills() {
     $.get('/admin/rbstore/load-index?type=skills', (res) => {
-      let hasError = res.error_code > 0 ? res.error_msg || $L('暂无可用技能') : null
-      this.setState({ skills: res.data || [], hasError })
+      if (res.error_code === 0) this.setState({ skills: res.data })
+      else RbHighbar.error(res.error_msg)
     })
   }
 
@@ -524,7 +539,7 @@ class DlgSkillEdit extends RbModalHandler {
     }
 
     const $btn = $(this._$importBtn).button('loading')
-    $.post(`/admin/rbstore/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
+    $.post(`./aibot/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('成功导入 %d 个技能', selected.length))
@@ -539,9 +554,10 @@ class DlgSkillEdit extends RbModalHandler {
   _onSave() {
     const item = this.props.item || {}
     const name = $(this._$name).val()
+    const desc = $(this._$desc).val()
     const prompt = $(this._$prompt).val()
-    if (!name || !prompt) {
-      RbHighbar.create($L('请输入技能名称和提示词'))
+    if (!name || !desc || !prompt) {
+      RbHighbar.create($L('请输入技能名称、描述和提示词'))
       return
     }
 
@@ -550,7 +566,7 @@ class DlgSkillEdit extends RbModalHandler {
       type: 'SKILL',
       config: JSON.stringify({
         name: name,
-        description: $(this._$desc).val(),
+        description: desc,
         prompt: prompt,
       }),
       metadata: {
@@ -577,7 +593,7 @@ class DlgSkillEdit extends RbModalHandler {
 let _toolsData = []
 class ToolList extends React.Component {
   static load() {
-    $.get('./aibot/tools', (res) => {
+    $.get('./aibot/tool-list', (res) => {
       _toolsData = res.data || []
       renderRbcomp(<ToolList data={_toolsData} />, 'toolsList')
     })
@@ -593,9 +609,30 @@ class ToolList extends React.Component {
         desc = WrapHtml(desc)
       }
 
-      const _saveFn = (checked) => {
-        if (rb.commercial < 1) RbAlertFree43.create()
-        else this._saveToolsDisabled(item.name, checked)
+      const _saveFn = (checked, e) => {
+        if (rb.commercial < 1) {
+          RbAlertFree43.create()
+          return
+        }
+
+        if (checked) {
+          this._saveToolsDisabled(item.name, checked)
+          return
+        }
+
+        const input = e ? e.target : null
+        const doSave = () => this._saveToolsDisabled(item.name, false)
+        let confirmed = false
+        RbAlert.create($L('关闭后 Rex AI 将失去此能力。确定关闭吗？'), {
+          onConfirm: function () {
+            confirmed = true
+            this.hide()
+            doSave()
+          },
+          onHide: () => {
+            if (!confirmed && input) input.checked = true
+          },
+        })
       }
 
       return (

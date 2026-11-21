@@ -1,0 +1,173 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('开始使用')}]]</title>
+    <style>
+      html {
+        scrollbar-gutter: stable;
+      }
+      body.rb-onboarding {
+        min-width: 992px;
+        background: #fff;
+      }
+      .onboarding {
+        display: flex;
+        align-items: flex-start;
+        min-height: 100vh;
+      }
+      .onboarding-aside {
+        position: sticky;
+        top: 0;
+        width: 340px;
+        flex: none;
+        height: 100vh;
+        padding: 44px 34px;
+        display: flex;
+        flex-direction: column;
+        color: #fff;
+        background: var(--rb-theme-color);
+      }
+      .onboarding-aside .logo-img {
+        height: 30px;
+      }
+      .onboarding-slogan {
+        margin: 4px 0 48px;
+        font-size: 13px;
+        opacity: 0.75;
+      }
+      .onboarding-aside h2 {
+        font-size: 22px;
+        line-height: 1.45;
+        font-weight: 600;
+        margin: 0;
+      }
+      .onboarding-features {
+        margin: auto 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .onboarding-features li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .onboarding-features li:first-child {
+        margin-top: 0;
+      }
+      .onboarding-features .icon {
+        font-size: 18px;
+        transform: translateY(1px);
+      }
+      .onboarding-features strong {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .onboarding-features span {
+        display: block;
+        font-size: 12px;
+        opacity: 0.75;
+        margin-top: 2px;
+      }
+      .onboarding-main {
+        flex: 1;
+        min-width: 0;
+        padding: 0 40px;
+      }
+      .onboarding-content {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 42px 0 40px;
+      }
+      .onboarding-content > h3 {
+        font-size: 22px;
+        margin: 0 0 16px;
+        color: #333;
+      }
+      .onboarding-content > .init-models .nav-tabs {
+        margin: 0 auto 14px;
+      }
+      .onboarding-content .init-models form > div {
+        padding-bottom: 5px;
+      }
+      .onboarding-content .install-guide {
+        padding: 0 0 16px;
+      }
+      .onboarding-content .install-guide h5 {
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0 0 10px;
+        color: #333;
+      }
+      .onboarding-content .install-guide p {
+        font-size: 13px;
+        line-height: 1.8;
+        margin: 0 0 8px;
+      }
+      .onboarding-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid #e9ecf2;
+      }
+      .onboarding-count {
+        color: #8a90a0;
+        font-size: 12px;
+      }
+      .onboarding-skip {
+        margin-left: auto;
+      }
+    </style>
+  </head>
+  <body class="rb-onboarding">
+    <div class="onboarding">
+      <aside class="onboarding-aside">
+        <a class="logo-img white m-0"></a>
+        <p class="onboarding-slogan mb-6 mt-2">[[${bundle.L('AI 驱动的智能业务平台')}]]</p>
+        <h2>[[${bundle.L('系统已就绪，接下来搭建你的专属系统')}]]</h2>
+        <ul class="onboarding-features">
+          <li>
+            <i class="icon mdi mdi-shimmer"></i>
+            <div>
+              <strong>[[${bundle.L('AI 智能搭建')}]]</strong>
+              <span>[[${bundle.L('一句话，智能搭建业务系统')}]]</span>
+            </div>
+          </li>
+          <li>
+            <i class="icon mdi mdi-widgets-outline"></i>
+            <div>
+              <strong>[[${bundle.L('建模与布局')}]]</strong>
+              <span>[[${bundle.L('模块自由搭建，快速适应需求变化')}]]</span>
+            </div>
+          </li>
+          <li>
+            <i class="icon mdi mdi-progress-check"></i>
+            <div>
+              <strong>[[${bundle.L('流程自动化')}]]</strong>
+              <span>[[${bundle.L('可视化设计，支持多分支流程控制')}]]</span>
+            </div>
+          </li>
+          <li>
+            <i class="icon zmdi zmdi-chart"></i>
+            <div>
+              <strong>[[${bundle.L('数据分析')}]]</strong>
+              <span>[[${bundle.L('各类分析模型，挖掘数据价值')}]]</span>
+            </div>
+          </li>
+        </ul>
+      </aside>
+      <div id="onboardingRoot" class="onboarding-main">
+        <div class="must-center">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/init-models.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/onboarding.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -119,6 +119,7 @@ module.exports = {
     $unhideDropdown: true,
     RecordSelector: true,
     AnyRecordSelector: true,
+    RbSelect: true,
     ReferenceSearcher: true,
     AsideTree: true,
     $useMap: true,
@@ -186,5 +187,7 @@ module.exports = {
     AiCreateButton: true,
     AiBot: true,
     RbScroller: true,
+    $renderStats: true,
+    Select2: true,
   },
 }

@@ -188,6 +188,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   }
 }
 
+.rb-navless40 {
+  background-color: #fff;
+}
+
+.rb-navless40 .main-content {
+  padding: 0;
+}
+
 .rb-navless40 .splash-container {
   width: 430px;
 }

@@ -41,6 +41,8 @@ import java.util.Set;
 @Component
 public class RecycleBinCleanerJob extends DistributedJobLock {
 
+    private static final int DDL_TIMEOUT = 60 * 30;  // 30m
+
     @Scheduled(cron = "0 0 4 * * ?")
     protected void executeJob() {
         if (!tryLock()) return;
@@ -105,7 +107,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             String delSql = "delete " + commonFrom;
             dels.add(delSql);
 
-            int del = Application.getSqlExecutor().executeBatch(dels.toArray(new String[0]), 60 * 15);
+            int del = Application.getSqlExecutor().executeBatch(dels.toArray(new String[0]), DDL_TIMEOUT);
             log.warn("RecycleBin cleaned : {}", del);
         }
 
@@ -124,7 +126,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                     entity.getField("revisionOn").getPhysicalName(),
                     CalendarUtils.getUTCDateFormat().format(before));
 
-            int del = Application.getSqlExecutor().execute(delSql, 60 * 3);
+            int del = Application.getSqlExecutor().execute(delSql, DDL_TIMEOUT);
             log.warn("RevisionHistory cleaned : {}", del);
         }
 
@@ -136,7 +138,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                 entity.getPhysicalName(),
                 entity.getField("logTime").getPhysicalName(),
                 CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-90)));
-        Application.getSqlExecutor().execute(delSql, 60 * 3);
+        Application.getSqlExecutor().execute(delSql, DDL_TIMEOUT);
 
         // 4.2 已删除附件*最少*保留 90d
 
@@ -172,7 +174,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             String dSql = String.format(
                     "delete from `rebuild_api_request` where `REQUEST_TIME` < '%s 00:00:00' limit 1000000",
                     CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-arDays)));
-            Application.getSqlExecutor().execute(dSql, 60 * 3);
+            Application.getSqlExecutor().execute(dSql, DDL_TIMEOUT);
         }
     }
 

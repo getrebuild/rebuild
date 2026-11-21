@@ -43,8 +43,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -110,6 +112,9 @@ public class FileListController extends BaseController {
             sqlWhere.add(String.format("fileName like '%%%s%%'", CommonsUtils.escapeSql(q)));
         }
 
+        // 可访问目录
+        Set<ID> accessable = FilesHelper.getAccessableFolders(user);
+
         // 附件
         if (useEntity > 0) {
             if (useEntity == EntityHelper.Feeds) {
@@ -145,9 +150,6 @@ public class FileListController extends BaseController {
         // 文件
         else {
             sqlWhere.add("belongEntity = 0");
-
-            // 可访问目录
-            Set<ID> accessable = FilesHelper.getAccessableFolders(user);
 
             if (useFolder != null) {
                 if (accessable.contains(useFolder)) {
@@ -202,9 +204,11 @@ public class FileListController extends BaseController {
         }
 
         JSONArray files = new JSONArray();
+        Map<ID, Boolean> editableCache = new HashMap<>();
         for (Object[] o : array) {
             JSONObject item = new JSONObject();
-            item.put("id", o[0]);
+            final ID attachmentId = (ID) o[0];
+            item.put("id", attachmentId);
             String fileName = (String) o[8];
             if (fileName == null) fileName = QiniuCloud.parseFileName((String) o[1]);
             item.put("fileName", fileName);
@@ -220,6 +224,18 @@ public class FileListController extends BaseController {
                 item.put("relatedRecord", new Object[]{relatedRecord, EasyMetaFactory.getLabel(belongEntity)});
                 item.put("belongField", o[9]);
             }
+
+            // 记录附件沿用所属记录的编辑权限，独立文件取决于所在目录
+            boolean editable;
+            if (relatedRecord != null) {
+                editable = MetadataHelper.containsEntity(relatedRecord.getEntityCode())
+                        && StringUtils.isNotBlank((String) o[9])
+                        && editableCache.computeIfAbsent(relatedRecord,
+                                id -> Application.getPrivilegesManager().allowUpdate(user, id));
+            } else {
+                editable = UserHelper.isAdmin(user) || o[6] == null || accessable.contains((ID) o[6]);
+            }
+            item.put("editable", editable);
 
             files.add(item);
         }

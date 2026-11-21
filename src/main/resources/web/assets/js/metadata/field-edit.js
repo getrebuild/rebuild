@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FormulaDate, FormulaCalc, FIELD_TYPES */
+/* global FormulaDate, FormulaCalc, FormulaCalcWithCode, FormulaEditor, FIELD_TYPES */
 
 const wpc = window.__PageConfig
 const __gExtConfig = {}
@@ -114,6 +114,13 @@ $(document).ready(function () {
       const k = $(this).attr('name')
       if (k) extConfigNew[k] = $val(this)
     })
+
+    // 分钟步长
+    if (dt === 'DATETIME' || dt === 'TIME') {
+      const v = ~~extConfigNew['minuteStep']
+      if (v > 0 && v < 60) extConfigNew['minuteStep'] = v + ''
+      else delete extConfigNew['minuteStep']
+    }
 
     // 文件
     if (dt === 'FILE' && extConfigNew['fileSuffix']) {
@@ -664,7 +671,7 @@ const _initRefsLabel = function ($dv, $dvClear) {
     $dv.attr('data-value-id', CURRENT_BIZZ)
     $dvClear.removeClass('hide')
   } else if (def) {
-    $.get(`/commons/search/read-labels?ids=${encodeURIComponent(def)}&ignoreMiss=false`, (res) => {
+    $.get(`/commons/search/read-labels?ids=${$encode(def)}&ignoreMiss=false`, (res) => {
       if (res.data) {
         const ids = []
         const labels = []
@@ -687,7 +694,11 @@ const _handleCalcFormula = function (formula) {
   const $el = $('#calcFormula2')
   function _FN(s) {
     $('#calcFormula').val(s || '')
-    $el.text(FormulaCalc.textFormula(s, FIELDS_CACHE))
+    if (FormulaEditor.isCode(s)) {
+      renderRbcomp(<span>{FormulaEditor.textCode(s)}</span>, $el)
+    } else {
+      $el.text(FormulaCalc.textFormula(s, FIELDS_CACHE))
+    }
     formula = s
   }
 
@@ -704,9 +715,14 @@ const _handleCalcFormula = function (formula) {
       FIELDS_CACHE = fs
       if (formula) _FN(formula)
     })
+  } else if (formula) {
+    _FN(formula)
   }
 
-  $el.on('click', () => renderRbcomp(<FormulaCalc onConfirm={_FN} fields={FIELDS_CACHE} initFormula={formula} />))
+  $el.on('click', () => {
+    if (!FIELDS_CACHE) return
+    renderRbcomp(<FormulaCalcWithCode entity={wpc.entityName} fields={FIELDS_CACHE} fieldsDeep={1} initFormula={formula} onConfirm={_FN} />)
+  })
 }
 
 const _handleTag = function (tagList, tagMaxSelect) {

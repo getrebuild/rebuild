@@ -661,14 +661,21 @@ public class AdvFilterParser extends SetUser {
             }
         }
 
+        // 无需值
+        if (ParseHelper.NL.equalsIgnoreCase(op) || ParseHelper.NT.equalsIgnoreCase(op)) {
+            Type ft = lastFieldMeta.getType();
+            if (ft == FieldType.STRING || ft == FieldType.TEXT || ft == FieldType.NTEXT) {
+                // fix：4.6 NULL 与空字符串均视为空
+                return ParseHelper.NL.equalsIgnoreCase(op)
+                        ? String.format("( %s is null or %s = '' )", field, field)
+                        : String.format("( %s is not null and %s <> '' )", field, field);
+            }
+            return field + " " + ParseHelper.convetOperation(op);
+        }
+
         StringBuilder sb = new StringBuilder(field)
                 .append(' ')
                 .append(ParseHelper.convetOperation(op));
-        // 无需值
-        if (ParseHelper.NL.equalsIgnoreCase(op) || ParseHelper.NT.equalsIgnoreCase(op)) {
-            return sb.toString();
-        }
-
         sb.append(' ');
 
         // 自定义函数

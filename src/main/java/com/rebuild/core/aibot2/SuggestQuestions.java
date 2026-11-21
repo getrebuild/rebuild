@@ -32,7 +32,7 @@ import java.util.List;
 @Slf4j
 public class SuggestQuestions {
 
-    private static final int MAX_QUESTIONS = 5;
+    private static final int MAX_QUESTIONS = 7;
     private static final int MAX_ENTITIES_TO_CHECK = 8;
 
     private SuggestQuestions() {}
@@ -65,6 +65,7 @@ public class SuggestQuestions {
             List<EntityData> withData = collectEntityData();
 
             if (admin) {
+                addQuestion(questions, "帮我搭建一个业务系统");
                 addQuestion(questions, "帮我创建一个新的业务实体");
                 if (!withData.isEmpty()) {
                     addQuestion(questions, String.format("给%s实体添加一个新字段", withData.get(0).label));
@@ -73,7 +74,8 @@ public class SuggestQuestions {
                     addQuestion(questions, "给实体添加一个新字段");
                     addQuestion(questions, "给实体创建一个触发器");
                 }
-                addQuestion(questions, "帮我设置一个定时任务");
+                addQuestion(questions, "帮我制作一个微应用");
+                addQuestion(questions, "记住我的工作偏好");
             } else {
                 // 普通用户侧重日常业务操作类问题
                 if (!withData.isEmpty()) {

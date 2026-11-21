@@ -224,7 +224,7 @@ class HistoryViewport extends React.Component {
                         </a>
                       )}
                       {item[4] && String(item[4]).startsWith('096-') && (
-                        <a href="../integration/aibot" target="_blank" className="ml-2 badge badge-warning badge-arrow3 badge-pill up-1" title={$L('由 AI 助手变更')}>
+                        <a href="../integration/aibot" target="_blank" className="ml-2 badge badge-warning badge-arrow3 badge-pill up-1" title={$L('由 Rex AI 助手变更')}>
                           AI
                         </a>
                       )}

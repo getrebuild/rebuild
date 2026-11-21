@@ -53,7 +53,10 @@ let __evt_ScrollToBottomStop = false
 let __evt_StreamCancel = false
 let __streamController = null
 
-// 错误消息渲染为红色 + 警告图标（实时与历史消息共用）
+var STALL_HINT_DELAY = 3000
+var STALL_HINTS_INIT = ['马上就好...', '稍等一下...', '快好了..']
+
+// 错误消息渲染为红色
 const __errorHtml = (error) => `<span class="text-danger"><i class="mdi mdi-alert-circle-outline fs-14 down-1 mr-1"></i>${error}</span>`
 
 // eslint-disable-next-line no-unused-vars
@@ -64,15 +67,27 @@ class Chat extends React.Component {
       ...props,
       messages: [],
       confirmAction: null,
+      agents: null,
+      agentId: null,
+      defaultDisabled: false,
+      skills: [],
     }
     this._preset = props.preset
+    this._chatStarted = false
   }
 
   render() {
     return (
       <RF>
         <div className={`chat ${this.props.standalone ? 'chat-standalone' : ''}`} ref={(c) => (this._$chat = c)}>
-          <ChatMessages _Chat={this} confirmAction={this.state.confirmAction} ref={(c) => (this._ChatMessages = c)} />
+          <ChatMessages
+            _Chat={this}
+            agents={this.state.agents}
+            agentId={this.state.agentId}
+            agentIcon={this.currentAgentIcon()}
+            confirmAction={this.state.confirmAction}
+            ref={(c) => (this._ChatMessages = c)}
+          />
           <ChatInput _Chat={this} ref={(c) => (this._ChatInput = c)} />
         </div>
         <ChatSidebar _Chat={this} ref={(c) => (this._ChatSidebar = c)} />
@@ -81,7 +96,7 @@ class Chat extends React.Component {
   }
 
   componentDidMount() {
-    this.initChat(this.state.chatid)
+    this.initChat(this.state.chatid, this.props.agentId)
 
     $(this._$chat).on('click.sidebar-hide', (e) => {
       if (this.props.standalone && window.innerWidth >= 900) return
@@ -98,6 +113,44 @@ class Chat extends React.Component {
     if (this.state.chatid !== prevState.chatid) {
       typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(this.state.chatid)
     }
+    if (this.state.agentId !== prevState.agentId || this.state.agents !== prevState.agents || this.state.chatid !== prevState.chatid) {
+      this.refreshAgentTitle()
+    }
+    if (this.state.viewAsAdmin !== prevState.viewAsAdmin) {
+      typeof this.props.onViewAsAdmin === 'function' && this.props.onViewAsAdmin(this.state.viewAsAdmin)
+    }
+  }
+
+  getCurrentAgent() {
+    const agents = this.state.agents || []
+    const current = agents.find((a) => (a.id || null) === (this.state.agentId || null))
+    if (current) return current
+    // 指定了智能体但已不可用时返回 null，避免误显示其他智能体
+    return this.state.agentId ? null : agents[0]
+  }
+
+  // 当前所选智能体的图标，默认助手返回 null（沿用 RB logo）
+  currentAgentIcon() {
+    if (!this.state.agentId) return null
+    const current = this.getCurrentAgent()
+    return (current && current.icon) || 'mdi-shimmer'
+  }
+
+  // 标题栏仅在对话开始后显示智能体，欢迎页切换不改变标题
+  refreshAgentTitle() {
+    if (!this._chatStarted) return
+    const current = this.getCurrentAgent()
+    typeof this.props.onAgentChanged === 'function' && this.props.onAgentChanged(current && current.id ? current : null)
+  }
+
+  // 切换智能体即开新会话，沿用上次选择的 agent
+  switchAgent(agentId) {
+    if (this._ChatInput && this._ChatInput.state.postState !== 0) return
+    agentId = agentId || null
+    if (agentId === (this.state.agentId || null)) return
+    if (agentId === null) $storage.remove('__AiBotLastAgent')
+    else $storage.set('__AiBotLastAgent', agentId)
+    this.initChat(null, agentId, true)
   }
 
   componentWillUnmount() {
@@ -105,8 +158,13 @@ class Chat extends React.Component {
     $(this._$chat).off('click.chat-hide')
   }
 
-  initChat(chatid) {
+  // agentId 未指定（undefined）时沿用上次选择的 agent，指定 null 则为默认 agent
+  // keepView 为 true 时保留当前欢迎页内容，避免切换智能体时闪白
+  initChat(chatid, agentId, keepView) {
+    const useLastAgent = agentId === undefined && !chatid
+
     this._stopPendingPoll()
+    this._chatStarted = false
 
     // 如果当前正在对话，仅关闭前端连接，后端继续完成并保存完整内容
     if (this._ChatInput && this._ChatInput.state.postState !== 0) {
@@ -117,21 +175,47 @@ class Chat extends React.Component {
       }
     }
 
-    this.setState({ chatid: chatid || null, confirmAction: null })
-    this._ChatMessages.setMessages([], true, null)
-    this._ChatInput.reset(true)
+    this.setState({ chatid: chatid || null, confirmAction: null, agentId: agentId || null, viewAsAdmin: null, defaultDisabled: false })
+    if (!keepView) this._ChatMessages.setMessages([], true, null)
+    // 新会话标题回到默认智能体名称（默认智能体禁用时同样使用）
+    if (!chatid && !keepView && typeof this.props.onAgentChanged === 'function') this.props.onAgentChanged(null)
+    // 新会话聚焦输入框，切换智能体（keepView）及手机版不聚焦
+    this._ChatInput.reset(!chatid && !keepView && window.innerWidth >= 900)
     const _preset = this._preset
     this._preset = null
     this._ChatSidebar.setState({ current: null })
 
-    $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}`, (res) => {
+    $.get(`/aibot2/post/chat-init?chatid=${chatid || ''}&agent=${agentId || ''}`, (res) => {
       if (res.error_code === 0) {
         const d = res.data || {}
         if (d._chatid) {
           this.setState({ chatid: d._chatid })
           this._ChatSidebar.setState({ current: d._chatid })
         }
+        const agents = d.agents || []
+        if (useLastAgent) {
+          const last = $storage.get('__AiBotLastAgent')
+          if (last && agents.some((a) => (a.id || null) === last)) {
+            // 递归重新初始化，未消费的 preset 需带过去
+            this._preset = _preset
+            this.initChat(null, last)
+            return
+          }
+        }
+        this._chatStarted = !!chatid || (d.messages || []).some((m) => m.role === 'user')
+        this.setState({
+          agents,
+          agentId: agentId || d.agentId || null,
+          skills: d.skills || [],
+          viewAsAdmin: d.viewAsAdmin || null,
+          defaultDisabled: !!d.defaultDisabled,
+        })
         let messages = d.messages || []
+        // 切换智能体时保留当前欢迎语，只更新推荐问题
+        if (keepView) {
+          const prevWelcome = this._ChatMessages._welcomeMsg
+          if (prevWelcome && messages.length === 1) messages[0].content = prevWelcome.content
+        }
         // 最后一条是用户消息，说明 AI 还在回答中（刷新中断场景）
         if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
           messages = [...messages, { role: 'assistant', sendResp: () => {}, pending: true }]
@@ -175,12 +259,14 @@ class Chat extends React.Component {
     this._stopPendingPoll()
     this._ChatMessages.scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
+    this._chatStarted = true
+    this.refreshAgentTitle()
 
     setTimeout(() => {
       this._ChatMessages.appendMessage({
         role: 'assistant',
         sendResp: (onChunk) => {
-          $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload`, JSON.stringify(data), (res) => {
+          $.post(`/aibot2/post/chat?chatid=${this.state.chatid || ''}&model=&noload&agent=${this.state.agentId || ''}`, JSON.stringify(data), (res) => {
             if (res._chatid) {
               this.setState({ chatid: res._chatid })
               this._ChatSidebar && this._ChatSidebar.setState({ current: res._chatid })
@@ -199,6 +285,8 @@ class Chat extends React.Component {
     this._stopPendingPoll()
     this._ChatMessages.scrollToBottom(true)
     this._ChatMessages.appendMessage(data)
+    this._chatStarted = true
+    this.refreshAgentTitle()
 
     setTimeout(() => {
       this._ChatMessages.appendMessage({
@@ -207,7 +295,7 @@ class Chat extends React.Component {
           // 累加正文内容，完成后交由调用方判断
           let fullContent = ''
           fetchStream(
-            `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload`,
+            `${rb.baseUrl}/aibot2/post/chat-stream?chatid=${this.state.chatid || ''}&model=&noload&agent=${this.state.agentId || ''}`,
             data,
             (chunk) => {
               if (chunk && chunk.type === '_chatid') this._ChatSidebar && this._ChatSidebar._loadChatList()
@@ -241,6 +329,7 @@ class Chat extends React.Component {
           this._stopPendingPoll()
           this._ChatMessages.setMessages(newMessages, true, null)
           this._ChatInput.setState({ postState: 0 })
+          this._ChatSidebar && this._ChatSidebar._loadChatList()
         }
       })
     }, 3000)
@@ -266,14 +355,52 @@ class Chat extends React.Component {
 class ChatInput extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { postState: 0, attach: [], skills: [], activeSkill: null, planMode: false, planConfirmed: false }
+    this.state = { postState: 0, attach: [], activeSkill: null, planMode: false, planConfirmed: false }
   }
 
   render() {
-    const skills = this.state.skills || []
+    const _Chat = this.props._Chat
+    const agents = _Chat.state.agents || []
+    if (_Chat.state.agents !== null && agents.length === 0 && !_Chat.state.agentId) {
+      return (
+        <div className="chat-input-container">
+          <div className="chat-input text-muted">
+            <div className="w-100 text-center">
+              <i className="mdi mdi-shimmer mr-1" />
+              {$L('你暂无使用 Rex AI 的权限，请联系管理员开通')}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    const currentId = _Chat.state.agentId || null
+    const currentUnavailable = currentId !== null && !agents.some((a) => (a.id || null) === currentId)
+    if (_Chat.state.agents !== null && (currentUnavailable || (_Chat.state.defaultDisabled && !currentId))) {
+      return (
+        <div className="chat-input-container">
+          <div className="chat-input text-muted">
+            <div className="w-100 text-center">
+              <i className="mdi mdi-alert-circle-outline mr-1" />
+              {$L('智能体已禁用，不能继续对话')}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    const current = _Chat.getCurrentAgent()
+    const allSkills = (_Chat.state.skills || []).filter((s) => rb.isAdminUser || !/管理员|admin/i.test(`${s.name || ''} ${s.description || ''}`))
+    const agentSkills = current && current.skills
+    const skills = Array.isArray(agentSkills) ? allSkills.filter((s) => agentSkills.some((n) => String(n).toLowerCase() === String(s.name).toLowerCase())) : allSkills
     return (
       <div className="chat-input-container">
-        <div className={`chat-input ${this.state.active && 'active'}`}>
+        <div
+          className={`chat-input flex-column ${this.state.active && 'active'}`}
+          onClick={(e) => {
+            if (e.target.closest('button, a, .chat-input-attach, .dropdown-menu')) return
+            if (this._$editable && !this._$editable.contains(e.target)) this._$editable.focus()
+          }}>
           <div className="chat-input-input">
             <div className="chat-input-attach">
               {this.state.activeSkill && <Attach key={`skill-${this.state.activeSkill}`} skill={this.state.activeSkill} _ChatInput={this} id={`skill-${this.state.activeSkill}`} />}
@@ -291,7 +418,6 @@ class ChatInput extends React.Component {
               className="chat-input-editable"
               onInput={(e) => this.setState({ content: e.target.innerText })}
               onPaste={(e) => {
-                // 粘贴文件（含截图）时上传为附件
                 const cdata = e.clipboardData || window.clipboardData
                 if (cdata && cdata.files && cdata.files.length > 0) {
                   $stopEvent(e, true)
@@ -311,60 +437,65 @@ class ChatInput extends React.Component {
               onBlur={() => this.setState({ active: false })}
               onFocus={() => this.setState({ active: true })}
               data-placeholder={$L('输入问题')}
-              autoFocus
               ref={(c) => (this._$editable = c)}
             />
           </div>
           <div className="chat-input-action">
-            {skills.length > 0 && (
+            <span className="ml-auto">
               <span className="dropup">
                 <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('技能')}>
                   <i className="mdi mdi-flash-outline down-2" />
                 </button>
-                <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ width: 250 }} ref={(c) => (this._$skills = c)}>
+                <div className="dropdown-menu auto-scroller dropdown-menu-right" style={{ maxWidth: 250 }}>
                   {skills.map((s, idx) => (
                     <a
                       key={idx}
                       className="dropdown-item"
                       onClick={() => {
                         this.setState({ activeSkill: s.name })
-                      }}>
+                      }}
+                      title={s.description || ''}>
                       {s.name}
-                      {s.description && <div className="text-muted fs-sm text-break">{s.description}</div>}
+                      {s.description && (
+                        <div className="text-muted fs-sm text-ellipsis" style={{ lineHeight: 1, marginTop: 3 }}>
+                          {s.description}
+                        </div>
+                      )}
                     </a>
                   ))}
+                  {skills.length === 0 && <div className="dropdown-item text-muted text-italic">{$L('暂无技能')}</div>}
                 </div>
               </span>
-            )}
-            <span className="dropup">
-              <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('数据')}>
-                <i className="mdi mdi-attachment-plus" />
-              </button>
-              <div className="dropdown-menu dropdown-menu-right">
-                <a className="dropdown-item" onClick={() => this.attachFile()}>
-                  {$L('选择文件')}
-                </a>
-                <a className="dropdown-item" onClick={() => this.attachRecord()}>
-                  {$L('选择记录')}
-                </a>
-                {window.attachAibotPageData && (
-                  <a className="dropdown-item" onClick={() => this.attachPageData()}>
-                    {$L('选择当前页数据')}
+              <span className="dropup">
+                <button type="button" className="btn btn-sm" data-toggle="dropdown" disabled={this.state.postState !== 0} title={$L('数据')}>
+                  <i className="mdi mdi-attachment-plus" />
+                </button>
+                <div className="dropdown-menu dropdown-menu-right">
+                  <a className="dropdown-item" onClick={() => this.attachFile()}>
+                    {$L('选择文件')}
                   </a>
-                )}
-              </div>
+                  <a className="dropdown-item" onClick={() => this.attachRecord()}>
+                    {$L('选择记录')}
+                  </a>
+                  {window.attachAibotPageData && (
+                    <a className="dropdown-item" onClick={() => this.attachPageData()}>
+                      {$L('选择当前页数据')}
+                    </a>
+                  )}
+                </div>
+              </span>
+              <button
+                type="button"
+                className="btn btn-sm ml-1"
+                title={this.state.postState === 0 ? $L('发送') : this.state.postState === 2 ? $L('中断中') : $L('停止')}
+                disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill)}
+                onClick={() => {
+                  if (this.state.postState === 0) this.hanldeSend()
+                  else if (this.state.postState === 1) this.handleCancel()
+                }}>
+                <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : this.state.postState === 2 ? 'mdi mdi-spin mdi-loading' : 'mdi mdi-stop'} />
+              </button>
             </span>
-            <button
-              type="button"
-              className="btn btn-sm ml-1"
-              title={this.state.postState === 0 ? $L('发送') : this.state.postState === 2 ? $L('中断中') : $L('停止')}
-              disabled={this.state.postState === 2 || (this.state.postState === 0 && $empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill)}
-              onClick={() => {
-                if (this.state.postState === 0) this.hanldeSend()
-                else if (this.state.postState === 1) this.handleCancel()
-              }}>
-              <i className={this.state.postState === 0 ? 'mdi mdi-arrow-up' : this.state.postState === 2 ? 'mdi mdi-spin mdi-loading' : 'mdi mdi-stop'} />
-            </button>
           </div>
           <input ref={(c) => (this._$file = c)} type="file" className="inputfile" data-maxsize="20971520" multiple />
         </div>
@@ -374,11 +505,14 @@ class ChatInput extends React.Component {
 
   hanldeSend() {
     if (this.state.postState !== 0) return
+
+    const _Chat = this.props._Chat
+    if (Array.isArray(_Chat.state.agents) && _Chat.state.agents.length === 0 && !_Chat.state.agentId) return
+
     // 无文字但有附件（文件/记录等）或技能时允许发送
     if ($empty(this.state.content) && this.state.attach.length === 0 && !this.state.activeSkill) return
 
     const content = this.state.content.trim()
-    const _Chat = this.props._Chat
 
     // /new /ref /plan
     const m = content.match(/^\/(new|ref|plan)(?:\s+([\s\S]*))?$/)
@@ -457,7 +591,7 @@ class ChatInput extends React.Component {
   }
 
   focus() {
-    this._$editable && this._$editable.focus()
+    this._$editable && $focus2End(this._$editable)
   }
 
   val(value) {
@@ -499,16 +633,7 @@ class ChatInput extends React.Component {
     }
   }
 
-  _loadSkills() {
-    $.get('/aibot2/skills', (res) => {
-      this.setState({ skills: res.data || [] }, () => {
-        $(this._$skills).perfectScrollbar()
-      })
-    })
-  }
-
   componentDidMount() {
-    this._loadSkills()
     $multipleUploader(this._$file, (res) => {
       const attach = [...this.state.attach, { file: res.key, id: $random('attach-', true) }]
       this.setState({ attach })
@@ -566,37 +691,39 @@ class ChatInput extends React.Component {
   }
 }
 
-class ChatMessages extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      messages: [],
-      suggestQuestions: null,
-    }
-  }
-
+// 新会话欢迎页，仅由 props 驱动，主窗口与公开发布页共用
+class ChatWelcome extends React.Component {
   render() {
-    const showSuggest = this.state.suggestQuestions && this.state.suggestQuestions.length > 0 && !this._hasUserMessage()
+    const agents = this.props.agents || []
+    const agentId = this.props.agentId || null
+    const suggests = this.props.suggestions || []
     return (
-      <RbScroller
-        className="chat-messages"
-        ref={(c) => (this._Scroller = c)}
-        overlay={
-          <a className="chat-scroll-fab" ref={(c) => (this._$scrollFab = c)} onClick={() => this._scrollFabClick()}>
-            <i className="mdi mdi-chevron-down down-1" />
-          </a>
-        }>
-        {this.state.messages.map((item, idx) => {
-          const isLast = idx === this.state.messages.length - 1
-          const isAi = item.role === 'assistant' || item.role === 'ai'
-          return <ChatMessage {...item} key={idx} _ChatMessages={this} confirmAction={isLast && isAi ? this.props.confirmAction : null} />
-        })}
-        {showSuggest && (
+      <div className="chat-welcome">
+        <div className="welcome-logo">
+          <img src={`${rb.baseUrl}/assets/img/rex-logo-filled-512x512.png`} alt="AI" />
+        </div>
+        {!$empty(this.props.welcome) && <p className="welcome-line">{this.props.welcome}</p>}
+        {agents.length > 1 && (
+          <ul className="nav nav-tabs nav-tabs-segment welcome-agents">
+            {agents.map((a) => {
+              const active = (a.id || null) === agentId
+              return (
+                <li className="nav-item" key={a.id || 'default'}>
+                  <a className={`nav-link ${active ? 'active' : ''}`} onClick={() => this._switchAgent(a.id)}>
+                    <i className={`icon mdi ${a.icon || 'mdi-shimmer'} ${active ? 'ai-color' : ''}`} />
+                    {a.name}
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+        {suggests.length > 0 && (
           <div className="chat-suggest">
-            <div className="text-muted mb-1 fs-md">{$L('你可以问我')}</div>
-            <div className="d-flex flex-wrap">
-              {this.state.suggestQuestions.map((q, idx) => (
-                <a key={idx} className="badge badge-pill" onClick={() => this._handleSuggestClick(q)}>
+            <div className="welcome-suggest-label">{$L('试试这样问我')}</div>
+            <div className="welcome-suggest-list">
+              {suggests.map((q, idx) => (
+                <a className="badge" key={idx} onClick={() => this.props.onSuggest && this.props.onSuggest(q)}>
                   <i className="mdi mdi-chat-plus-outline mr-1" />
                   {q}
                 </a>
@@ -604,8 +731,59 @@ class ChatMessages extends React.Component {
             </div>
           </div>
         )}
+      </div>
+    )
+  }
+
+  _switchAgent(agentId) {
+    if (typeof this.props.onSwitchAgent === 'function') this.props.onSwitchAgent(agentId)
+  }
+}
+
+class ChatMessages extends React.Component {
+  constructor(props) {
+    super(props)
+    this._welcomeMsg = null
+    this.state = {
+      messages: [],
+      suggestQuestions: null,
+    }
+  }
+
+  render() {
+    const welcome = this._welcomeMessage()
+    // 欢迎消息只在欢迎页展示，不再作为普通气泡出现在消息列表
+    const messages = this._welcomeMsg ? this.state.messages.filter((m) => m !== this._welcomeMsg) : this.state.messages
+    return (
+      <RbScroller
+        className={`chat-messages ${welcome ? 'chat-welcome-show' : ''}`}
+        ref={(c) => (this._Scroller = c)}
+        overlay={
+          <a className="chat-scroll-fab" ref={(c) => (this._$scrollFab = c)} onClick={() => this._scrollFabClick()}>
+            <i className="mdi mdi-chevron-down" />
+          </a>
+        }>
+        {welcome && (
+          <ChatWelcome
+            welcome={welcome.content}
+            suggestions={this.state.suggestQuestions || []}
+            agents={this.props.agents}
+            agentId={this.props.agentId}
+            onSuggest={(q) => this._handleSuggestClick(q)}
+            onSwitchAgent={(agentId) => this.props._Chat.switchAgent && this.props._Chat.switchAgent(agentId)}
+          />
+        )}
+        {messages.map((item, idx) => {
+          const isLast = idx === messages.length - 1
+          const isAi = item.role === 'assistant' || item.role === 'ai'
+          return <ChatMessage {...item} key={idx} _ChatMessages={this} agentIcon={this.props.agentIcon} confirmAction={isLast && isAi ? this.props.confirmAction : null} />
+        })}
       </RbScroller>
     )
+  }
+
+  _welcomeMessage() {
+    return this._welcomeMsg && !this._hasUserMessage() ? this._welcomeMsg : null
   }
 
   _hasUserMessage() {
@@ -626,6 +804,14 @@ class ChatMessages extends React.Component {
   }
 
   setMessages(messages, forceScroll, suggestQuestions) {
+    // 记录欢迎消息（新会话仅一条 AI 消息），用于渲染欢迎页并从消息列表隐藏
+    if (messages && messages.length === 0) this._welcomeMsg = null
+    else if (messages && messages.length === 1 && !messages.some((m) => m.role === 'user')) {
+      if (messages[0].role === 'ai' || messages[0].role === 'assistant') this._welcomeMsg = messages[0]
+    }
+    // 消息整体被替换（如加载失败）时丢弃失效的欢迎消息
+    if (this._welcomeMsg && messages && messages.indexOf(this._welcomeMsg) === -1) this._welcomeMsg = null
+
     // 历史错误消息渲染为红色（与实时错误提示一致）
     if (messages) {
       messages = messages.map((m) => {
@@ -711,7 +897,7 @@ class ChatMessages extends React.Component {
 class ChatMessage extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, waitResp: props.sendResp ? 1 : 0, reasoningOpen: !!props.sendResp }
+    this.state = { ...props, waitResp: props.sendResp ? 1 : 0, reasoningOpen: !!props.sendResp, stallHint: null }
   }
 
   componentDidMount() {
@@ -721,7 +907,8 @@ class ChatMessage extends React.Component {
         data = data || {}
         if (data.type === '_done') {
           // 输出完成后自动收起思考过程
-          this.setState({ waitResp: -1, reasoningOpen: false, toolHint: null })
+          this._clearStallTimers()
+          this.setState({ waitResp: -1, reasoningOpen: false, toolHint: null, stallHint: null })
           return
         }
         if (data.error) {
@@ -738,7 +925,8 @@ class ChatMessage extends React.Component {
         // 工具执行中的进度提示，收到正文或思考内容后清除
         if (data.type === '_tool') {
           // waitResp 置 0 隐藏初始空转圈，避免与状态条重复
-          this.setState({ toolHint: data.content, waitResp: 0 })
+          this._clearStallTimers()
+          this.setState({ toolHint: data.content, waitResp: 0, stallHint: null })
           return
         }
 
@@ -746,23 +934,54 @@ class ChatMessage extends React.Component {
           if (data.type === '_reasoning') {
             data.reasoning = (this.state.reasoning || '') + data.content
             delete data.content
-            this.setState({ ...data, waitResp: 2, toolHint: null })
+            this.setState({ ...data, waitResp: 2, toolHint: null, stallHint: null })
+            this._startStallWatch()
           } else {
             data.content = (this.state.content || '') + data.content
-            this.setState({ ...data, waitResp: 0, toolHint: null })
+            this.setState({ ...data, waitResp: 0, toolHint: null, stallHint: null })
+            this._startStallWatch()
           }
         }
       })
+
+    if (this.state.waitResp === 1 && !this.props.pending) {
+      this._startStallWatch()
+    }
+  }
+
+  _clearStallTimers() {
+    if (this._stallTimer) {
+      clearTimeout(this._stallTimer)
+      this._stallTimer = null
+    }
+    if (this._stallInterval) {
+      clearInterval(this._stallInterval)
+      this._stallInterval = null
+    }
+  }
+
+  _startStallWatch() {
+    this._clearStallTimers()
+    this._stallTimer = setTimeout(() => {
+      const idx = Math.floor(Math.random() * STALL_HINTS_INIT.length)
+      this.setState({ stallHint: $L(STALL_HINTS_INIT[idx]) })
+    }, STALL_HINT_DELAY)
+  }
+
+  componentWillUnmount() {
+    this._clearStallTimers()
   }
 
   componentDidUpdate(props, prevState) {
     // 占位消息被真实消息替换（sendResp 消失），同步 state
     if (props.sendResp && !this.props.sendResp) {
+      this._clearStallTimers()
       this.setState({
         content: this.props.content,
         reasoning: this.props.reasoning,
         waitResp: 0,
         reasoningOpen: false,
+        stallHint: null,
       })
       return
     }
@@ -788,7 +1007,12 @@ class ChatMessage extends React.Component {
   }
 
   _submitFeedback(type, chatid, comment) {
-    $.post(`/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}&comment=${encodeURIComponent(comment)}`, () => {
+    const _Chat = this.props._ChatMessages.props._Chat
+    let url = `/aibot2/post/chat-feedback?chatid=${chatid}&type=${type}&comment=${encodeURIComponent(comment)}`
+    if (_Chat._vkey) {
+      url = `/aibot/pub/${_Chat.props.agentId}/chat-feedback?chatid=${chatid}&vkey=${_Chat._vkey}&type=${type}&comment=${encodeURIComponent(comment)}`
+    }
+    $.post(url, () => {
       this.setState({ feedback: type })
     })
   }
@@ -872,7 +1096,13 @@ class ChatMessage extends React.Component {
     return (
       <div className="msg-ai">
         <div className="avatar">
-          <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
+          {this.props.agentIcon ? (
+            <span className="agent-avatar">
+              <i className={`icon mdi ai-color ${this.props.agentIcon}`} />
+            </span>
+          ) : (
+            <img src={`${rb.baseUrl}/assets/img/rex-logo-filled-512x512.png`} alt="AI" />
+          )}
         </div>
         <div className="msg-content">
           {this.state.waitResp === 1 && this.props.pending && (
@@ -883,7 +1113,7 @@ class ChatMessage extends React.Component {
               </div>
             </div>
           )}
-          {this.state.waitResp === 1 && !this.props.pending && (
+          {this.state.waitResp === 1 && !this.props.pending && !this.state.stallHint && (
             <div className="wait-resp">
               <i className="mdi-spin mdi mdi-loading fs-20" />
             </div>
@@ -910,6 +1140,14 @@ class ChatMessage extends React.Component {
               </div>
             </div>
           )}
+          {this.state.stallHint && this.state.waitResp !== -1 && !this.state.toolHint && (
+            <div className="reasoning">
+              <div className="reasoning-toggle cursor-default">
+                <i className="mdi-spin mdi mdi-loading" style={{ marginLeft: 3, marginRight: 5 }} />
+                <span>{this.state.stallHint}</span>
+              </div>
+            </div>
+          )}
           <RichContent content={this.state.content} ready={ready} />
           {this.props.confirmAction && (
             <div className="card">
@@ -924,7 +1162,6 @@ class ChatMessage extends React.Component {
                     onClick={() => {
                       const _Chat = this.props._ChatMessages.props._Chat
                       _Chat.hideConfirm()
-                      _Chat._ChatInput && _Chat._ChatInput.focus()
                     }}>
                     {this.props.confirmAction.cancelText || $L('取消')}
                   </a>
@@ -1229,35 +1466,95 @@ function fetchStream(url, data, onChunk, onDone) {
 class ChatSidebar extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props, list: [] }
+    this.state = { ...props, list: [], expandAll: false }
+    try {
+      this._seen = JSON.parse($storage.get('__AiBotChatSeen') || '{}') || {}
+    } catch (e) {
+      this._seen = {}
+    }
   }
 
   componentDidMount() {
     this._loadChatList()
   }
 
+  componentWillUnmount() {
+    if (this._pollTimer) clearTimeout(this._pollTimer)
+    this._pollTimer = null
+  }
+
   componentDidUpdate(props, prevState) {
     if (prevState.current !== this.state.current && this.state.current) {
-      $storage.set('__AiBotLastChatId', this.state.current)
+      // 管理员查看他人会话时不持久化，避免下次打开加载别人的会话
+      if (!this.props._Chat.state.viewAsAdmin) {
+        $storage.set('__AiBotLastChatId', this.state.current)
+      }
     }
-    if (prevState.list !== this.state.list) {
+    if (prevState.list !== this.state.list || prevState.expandAll !== this.state.expandAll) {
       this._Scroller && this._Scroller.update(true)
     }
   }
 
-  _loadChatList() {
+  // 记录各会话最后查看的 modifiedOn
+  _loadChatList(markSeenChatid) {
     $.get('/aibot2/post/chat-list', (res) => {
       const data = res.data || []
-      this.setState({ list: data }, () => {})
+
+      const seen = {}
+      data.forEach((g) => {
+        g.items.forEach((item) => {
+          const old = this._seen[item.chatid]
+          seen[item.chatid] = old === undefined || item.chatid === this.state.current || item.chatid === markSeenChatid ? item.modifiedOn : old
+        })
+      })
+      this._seen = seen
+      $storage.set('__AiBotChatSeen', JSON.stringify(seen))
+
+      this.setState({ list: data }, () => this._maybePoll())
 
       if (this.state.current) {
         const exists = data.some((g) => g.items.some((x) => x.chatid === this.state.current))
-        if (!exists) {
+        // 管理员查看他人会话时不重置（该会话不在自己的列表里）
+        if (!exists && !this.props._Chat.state.viewAsAdmin) {
           this.props._Chat.initChat()
           this.setState({ current: null })
         }
       }
     })
+  }
+
+  // 有回答中的会话时，每 5s 只查询这些会话
+  _maybePoll() {
+    const answering = []
+    this.state.list.forEach((g) => {
+      g.items.forEach((item) => {
+        if (item.answering) answering.push(item.chatid)
+      })
+    })
+
+    if (answering.length === 0) {
+      if (this._pollTimer) clearTimeout(this._pollTimer)
+      this._pollTimer = null
+      return
+    }
+    if (this._pollTimer) return
+
+    this._pollTimer = setTimeout(() => {
+      this._pollTimer = null
+      const params = answering.map((id) => 'chatid=' + id).join('&')
+      $.get('/aibot2/post/chat-list?' + params, (res) => {
+        const data = res.data || []
+        let still = 0
+        data.forEach((g) => {
+          g.items.forEach((item) => {
+            if (item.answering) still += 1
+          })
+        })
+        // 有会话结束回答，刷新完整列表以显示状态与排序
+        if (still < answering.length) this._loadChatList()
+        else this._maybePoll()
+      }).fail(() => this._maybePoll())
+    }, 5000)
   }
 
   render() {
@@ -1276,33 +1573,62 @@ class ChatSidebar extends React.Component {
           </a>
         </div>
         <RbScroller className="chat-list auto-scroller" ref={(c) => (this._Scroller = c)}>
-          <ul className="list-unstyled m-0">{this._renderGroupedList()}</ul>
+          {this._renderGroupedList()}
         </RbScroller>
       </div>
     )
   }
 
   _renderGroupedList() {
-    const list = this.state.list || []
+    const list = (this.state.list || []).filter((g) => g.items && g.items.length > 0)
     if (list.length === 0) {
-      return <li className="text-muted text-center fs-md m-3">{$L('暂无会话')}</li>
+      return (
+        <ul className="list-unstyled m-0">
+          <li className="text-muted text-center fs-md m-3">{$L('暂无会话')}</li>
+        </ul>
+      )
     }
 
-    const labels = { today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
+    const labels = { pinned: $L('置顶'), today: $L('今天'), recent3d: $L('近三天'), week: $L('近一周'), earlier: $L('更早') }
+    let remain = this.state.expandAll ? Infinity : 20
+    let hidden = 0
     const ret = list.map((g) => {
-      if (!g.items || g.items.length === 0) return null
+      const items = g.items.slice(0, remain)
+      hidden += g.items.length - items.length
+      remain -= items.length
+      if (items.length === 0) return null
       return (
         <React.Fragment key={g.group}>
           <li className="chat-list-group fs-md">{labels[g.group] || g.group}</li>
-          {g.items.map((item) => this._renderItem(item))}
+          {items.map((item) => this._renderItem(item, g.group === 'pinned'))}
         </React.Fragment>
       )
     })
 
-    return ret
+    return (
+      <ul className="list-unstyled m-0">
+        {ret}
+        {(hidden > 0 || this.state.expandAll) && (
+          <li>
+            <a
+              className="text-muted fs-12"
+              role="button"
+              tabIndex="0"
+              onClick={() => {
+                this.setState({ expandAll: !this.state.expandAll }, () => {
+                  if (!this.state.expandAll && this._Scroller) this._Scroller.viewport().scrollTop = 0
+                })
+              }}>
+              {this.state.expandAll ? $L('收起') : `${$L('显示更多')} (${hidden})`}
+            </a>
+          </li>
+        )}
+      </ul>
+    )
   }
 
-  _renderItem(item) {
+  _renderItem(item, isPinned) {
+    const unseen = item.chatid !== this.state.current && item.modifiedOn > (this._seen[item.chatid] || 0)
     return (
       <li key={item.chatid} className={this.state.current === item.chatid ? 'active' : ''}>
         <a
@@ -1311,26 +1637,45 @@ class ChatSidebar extends React.Component {
           href={`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`}
           onClick={(e) => {
             $stopEvent(e, true)
+            this._seen[item.chatid] = item.modifiedOn
+            $storage.set('__AiBotChatSeen', JSON.stringify(this._seen))
             this.props._Chat.initChat(item.chatid)
             this.setState({ current: item.chatid })
+            if (!this.props._Chat.props.standalone || window.innerWidth < 900) this.toggleShow(false)
           }}>
+          {isPinned && <i className="icon mdi mdi-pin mdi-rotate-45 mr-1 fs-14 down-1" />}
           {item.subject}
         </a>
         <span>
+          {item.answering ? <i className="chat-item-loading mdi mdi-spin mdi-loading" /> : unseen ? <span className="chat-item-unseen" /> : null}
           <a data-toggle="dropdown">
             <i className="icon zmdi zmdi-more fs-18" />
           </a>
           <div className="dropdown-menu dropdown-menu-right">
-            <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
-              {$L('删除')}
+            <a className="dropdown-item" onClick={() => this.handlePin(item)}>
+              {isPinned ? $L('取消置顶') : $L('置顶')}
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleOpenNew(item)}>
+              {$L('新窗口打开')}
             </a>
             <a className="dropdown-item" onClick={() => this.handleRename(item)}>
               {$L('重命名')}
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleDelete(item)}>
+              {$L('删除')}
             </a>
           </div>
         </span>
       </li>
     )
+  }
+
+  handlePin(item) {
+    $.post('/aibot2/post/chat-pin?chatid=' + item.chatid, () => this._loadChatList())
+  }
+
+  handleOpenNew(item) {
+    window.open(`${rb.baseUrl}/aibot/chat#chatid=${item.chatid}`, '_blank')
   }
 
   handleDelete(item) {
@@ -1343,7 +1688,7 @@ class ChatSidebar extends React.Component {
         name={item.subject}
         onConfirm={(s) => {
           if (!$empty(s)) {
-            $.post(`/aibot2/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList())
+            $.post(`/aibot2/post/chat-rename?chatid=${item.chatid}&s=${$encode(s)}`, () => this._loadChatList(item.chatid))
           }
         }}
       />,
@@ -1408,7 +1753,7 @@ class Attach extends React.Component {
     } else if (props.file) {
       this.setState({
         name: `[${$L('文件')}] ${$fileCutName(props.file)}`,
-        viewUrl: `${rb.baseUrl}/commons/file-view?src=` + $encode(props.file),
+        viewUrl: rb.currentUser ? `${rb.baseUrl}/commons/file-view?src=` + $encode(props.file) : null,
       })
     } else if (props.skill) {
       this.setState({

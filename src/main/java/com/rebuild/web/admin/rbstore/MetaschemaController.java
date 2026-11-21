@@ -36,7 +36,14 @@ public class MetaschemaController extends BaseController {
     @RequestMapping("/admin/metadata/imports")
     public RespBody imports(HttpServletRequest request) {
         String[] mainKeys = getParameterNotNull(request, "key").split(",");
+        return importModels(mainKeys);
+    }
 
+    /**
+     * @param mainKeys
+     * @return
+     */
+    public static RespBody importModels(String[] mainKeys) {
         BusinessModelImporter bmi = new BusinessModelImporter();
         Map<String, String> refs = new HashMap<>();
         for (String k : mainKeys) {

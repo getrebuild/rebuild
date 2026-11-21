@@ -649,12 +649,13 @@ create table if not exists `feeds_comment` (
   `CONTENT`            text(65535) not null comment '内容',
   `IMAGES`             varchar(701) comment '图片',
   `ATTACHMENTS`        varchar(701) comment '附件',
+  `REPLY_TO`           char(20) comment '回复评论',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         datetime not null default current_timestamp comment '创建时间',
   primary key  (`COMMENT_ID`),
-  index IX0_feeds_comment (`FEEDS_ID`)
+  index IX0_feeds_comment (`FEEDS_ID`, `REPLY_TO`)
 )Engine=InnoDB;
 
 -- ************ Entity [FeedsLike] DDL ************
@@ -917,6 +918,7 @@ create table if not exists `aibot_config` (
   `NAME`               varchar(200) comment '名称',
   `CONFIG`             longtext comment '配置内容 (JSON)',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `SHARE_TO`           varchar(4001) default 'SELF' comment '共享给谁 (ALL/SELF/$MemberID)',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -942,6 +944,9 @@ create table if not exists `aibot_chat` (
   `SUBJECT`            varchar(100) comment '主题',
   `CONTENTS`           longtext comment '会话内容',
   `TOKEN`              bigint(20) comment '词元用量',
+  `AGENT_ID`           char(20) comment '使用的智能体',
+  `SOURCE`             varchar(40) comment '会话来源',
+  `SUMMARY`            longtext comment '会话摘要',
   `MODIFIED_ON`        datetime not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -995,7 +1000,7 @@ insert into `user` (`USER_ID`, `LOGIN_NAME`, `PASSWORD`, `FULL_NAME`, `DEPT_ID`,
   values
   ('001-0000000000000000', 'system', 'system', '系统用户', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'XTYH'),
   ('001-0000000000000001', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', '超级管理员', '002-0000000000000001', '003-0000000000000001', 'F', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'CJGLY'),
-  ('001-0000000000000002', 'aibot', 'aibot', 'AI 助手', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'AIZS'),
+  ('001-0000000000000002', 'aibot', 'aibot', 'Rex', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'AIZS'),
   ('001-9000000000000001', 'rebuild', 'cf44886e54f424ce136dc38e4d9ef5b4b556d06060705262d6fcce02b4322539', 'RB示例用户', '002-9000000000000001', '003-9000000000000001', 'F', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLYH');
 -- Department
 insert into `department` (`DEPT_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
@@ -1047,4 +1052,4 @@ insert into `project_task` (`TASK_ID`, `PROJECT_ID`, `PROJECT_PLAN_ID`, `TASK_NU
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 78);
+  values ('021-9000000000000001', 'DBVer', 83);

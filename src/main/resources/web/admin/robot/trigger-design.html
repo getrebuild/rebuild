@@ -166,10 +166,10 @@
                           </div>
                         </div>
                       </div>
-                      <div class="form-group row J_last-logs hide">
+                      <div class="form-group row J_last-logs">
                         <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('最近执行')}]]</label>
                         <div class="col-12 col-lg-9">
-                          <div class="form-control-plaintext"><span class="text-muted">[[${bundle.L('无')}]]</span></div>
+                          <div class="form-control-plaintext"><span class="text-muted">...</span></div>
                         </div>
                       </div>
                     </form>
@@ -223,23 +223,6 @@
     <script th:src="@{/assets/js/metadata/field-formula.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/trigger/trigger-design.js}" type="text/babel"></script>
     <script th:src="|${baseUrl}/assets/js/trigger/trigger.${actionType}.js?v=${AppBuild}|" type="text/babel"></script>
-    <!-- CodeMirror -->
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/codemirror/lib/codemirror.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/codemirror/theme/material.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/codemirror/theme/material-darker.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/codemirror/addon/hint/show-hint.css}" />
-    <script th:src="@{/assets/lib/codemirror/lib/codemirror.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/mode/javascript/javascript.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/mode/xml/xml.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/mode/jsx/jsx.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/addon/edit/closebrackets.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/addon/edit/matchbrackets.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/addon/hint/show-hint.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/addon/hint/javascript-hint.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/addon/search/searchcursor.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/addon/search/search.js}"></script>
-    <script th:src="@{/assets/lib/prettier/standalone.js?v=2.8.8}"></script>
-    <script th:src="@{/assets/lib/prettier/parser-babel.js?v=2.8.8}"></script>
-    <script th:src="@{/assets/js/frontjs/code-formatter.js}" type="text/babel"></script>
+    <th:block th:replace="~{/_include/_CodeMirror}" />
   </body>
 </html>

@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AskRequest;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.tool.ScheduleTask;
@@ -133,12 +134,12 @@ public class AiBotScheduleJob extends DistributedJobLock {
                 log.warn("AI bot not available, skip task: {}", taskIdStr);
                 Application.getNotifications().send(
                         MessageBuilder.createMessage(user,
-                                String.format("**[%s]**\n\n定时任务无法执行：AI 助手未配置", subject),
+                                String.format("**[%s]**\n\n定时任务无法执行：Rex AI 助手未配置", subject),
                                 Message.TYPE_DEFAULT));
                 return;
             }
 
-            String aiResponse = ChatManager.ask(content, null, null, "AiBotScheduleJob");
+            String aiResponse = ChatManager.ask(new AskRequest(content).setSource("AiBotScheduleJob"))[0];
 
             String message = String.format("**[%s]**\n\n%s", subject, aiResponse);
             Application.getNotifications().send(
@@ -152,7 +153,7 @@ public class AiBotScheduleJob extends DistributedJobLock {
 
             try {
                 String errorMessage = String.format("**[%s]**\n\n定时任务执行失败: %s",
-                        subject, CommonsUtils.maxstr(e.getMessage(), 200));
+                        subject, CommonsUtils.maxstr(CommonsUtils.getRootMessage(e), 200));
                 Application.getNotifications().send(
                         MessageBuilder.createMessage(user, errorMessage, Message.TYPE_DEFAULT));
             } catch (Exception ex) {

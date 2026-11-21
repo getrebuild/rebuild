@@ -18,10 +18,10 @@ class CardList extends React.Component {
 
   render() {
     return (
-      <div className="card-list row">
+      <div className="card-list card-grid">
         {(this.state.list || []).map((item) => {
           return (
-            <div key={'item-' + item[0]} className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+            <div key={'item-' + item[0]}>
               <div className="card">
                 <div className="card-body">
                   <a className="text-truncate" href={'classification/' + item[0]}>

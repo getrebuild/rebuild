@@ -262,7 +262,7 @@ public class ProtocolFilterParser {
                     refEntity = entity.getField(fs[0]).getReferenceEntity();
                 }
 
-                if (refEntity.getEntityCode().equals(cascadingValueIds[0].getEntityCode())) {
+                if (refEntity.getEntityCode() == cascadingValueIds[0].getEntityCode()) {
                     // v4.3 支持N2N字段
                     if (cascadingValueIds.length > 1) {
                         parentAndChind.add(String.format("%s in ( '%s' )", fs[1], StringUtils.join(cascadingValueIds, "', '")));
@@ -284,7 +284,7 @@ public class ProtocolFilterParser {
                     refEntity = entity.getField(fs[0]).getReferenceEntity();
                 }
 
-                if (refEntity.getEntityCode().equals(cascadingValueIds[0].getEntityCode())) {
+                if (refEntity.getEntityCode() == cascadingValueIds[0].getEntityCode()) {
                     String ps = String.format("%s in ('%s')",
                             refEntity.getPrimaryField().getName(), StringUtils.join(cascadingValueIds, "','"));
                     String s = String.format("exists (select %s from %s where ^%s = %s and ( %s ))",

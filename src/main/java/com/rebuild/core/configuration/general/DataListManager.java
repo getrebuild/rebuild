@@ -378,17 +378,26 @@ public class DataListManager extends BaseLayoutManager {
             showFieldsConf.set(4, EntityHelper.CreatedBy);
         }
 
-        // v4.0-b3
-        String treeGroupField = entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEGROUPFIELD);
-        if (StringUtils.isNotBlank(treeGroupField)) {
-            showFieldsConf = new JSONArray();
-            showFieldsConf.add(treeGroupField);
-            JSONObject res = (JSONObject) formatShowFields(entity, showFieldsConf);
+        // v4.6 树形列表:单一字段，自引用为树，否则为分组
+        String treeField = entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEGROUPFIELD);
+        if (StringUtils.isNotBlank(treeField) && entity.containsField(treeField)) {
+            Field treeFieldMeta = entity.getField(treeField);
+            boolean isSelfRef = EasyMetaFactory.getDisplayType(treeFieldMeta) == DisplayType.REFERENCE
+                    && treeFieldMeta.getReferenceEntity() != null
+                    && treeFieldMeta.getReferenceEntity().getName().equals(entity.getName());
 
-            res.put("treeGroupField", treeGroupField);
-            // TODO 父级字段
-            res.put("treeGroupFieldParent",
-                    entityEasy.getExtraAttr(EasyEntityConfigProps.ADVLIST_MODE2_ENABLETREEPARENTFIELD));
+            showFieldsConf = new JSONArray();
+            JSONObject res;
+            if (isSelfRef) {
+                showFieldsConf.add(entity.getNameField().getName());
+                showFieldsConf.add(treeField);
+                res = (JSONObject) formatShowFields(entity, showFieldsConf);
+                res.put("treeParentField", treeField);
+            } else {
+                showFieldsConf.add(treeField);
+                res = (JSONObject) formatShowFields(entity, showFieldsConf);
+                res.put("treeGroupField", treeField);
+            }
             return res;
         }
 

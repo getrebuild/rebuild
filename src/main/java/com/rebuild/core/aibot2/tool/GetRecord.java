@@ -21,8 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 /**
- * 获取单条记录的完整字段详情
- *
  * @author devezhao
  * @since 2026/8/9
  */

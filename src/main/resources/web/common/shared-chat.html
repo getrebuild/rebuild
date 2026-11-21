@@ -7,9 +7,6 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chat-view.css}" />
     <title>[[${chatName ?: bundle.L('AI 会话分享')}]]</title>
     <style>
-      html {
-        font-size: 14px;
-      }
       body {
         min-height: auto;
         padding-bottom: 60px;
@@ -41,9 +38,6 @@
         cursor: default;
       }
       @media (max-width: 800px) {
-        html {
-          font-size: 15px;
-        }
         .shared-aibot-chat {
           width: 100%;
         }
@@ -75,7 +69,7 @@
         <h1 class="text-bold">[[${chatName}]]</h1>
         <div class="text-muted fs-md">
           <i class="icon mdi mdi-information-outline"></i>
-          [[${bundle.L('内容由 AI 生成')}]]
+          [[${bundle.L('内容由 Rex AI 生成')}]]
           <span th:if="${shareByName != null}"><b> · </b>[[${bundle.L('由 %s 分享', shareByName)}]]</span>
         </div>
       </div>

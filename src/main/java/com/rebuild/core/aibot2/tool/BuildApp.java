@@ -10,8 +10,6 @@ package com.rebuild.core.aibot2.tool;
 import com.rebuild.core.privileges.AdminGuard;
 
 /**
- * 系统性构建完整业务系统
- *
  * @author devezhao
  * @since 2026/8/27
  */

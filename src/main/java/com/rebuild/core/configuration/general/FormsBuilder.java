@@ -40,6 +40,7 @@ import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.general.GeneralEntityService;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.core.support.License;
+import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
@@ -63,6 +64,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.DETAILS_COPIABLE;
+import static com.rebuild.core.metadata.impl.EasyEntityConfigProps.DETAILS_NOTEMPTY;
 
 /**
  * 表单构造
@@ -133,7 +137,7 @@ public class FormsBuilder extends FormsManager {
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
         if (recordId != null) {
-            Assert.isTrue(entityMeta.getEntityCode().equals(recordId.getEntityCode()), "[entity] and [recordId] do not match");
+            Assert.isTrue(entityMeta.getEntityCode() == recordId.getEntityCode(), "[entity] and [recordId] do not match");
 
             if (MetadataHelper.isBizzEntity(entityMeta) && !UserFilters.allowAccessBizz(user, recordId)) {
                 return formatModelError(Language.L("无权读取此记录或记录已被删除"));
@@ -278,15 +282,15 @@ public class FormsBuilder extends FormsManager {
         if (hasMainEntity != null) {
             model.set("mainMeta", EasyMetaFactory.toJSON(hasMainEntity));
             // v3.4
-            model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
+            model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(DETAILS_NOTEMPTY));
             // v3.6
-            model.set("detailsCopiable", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_COPIABLE));
-            // v4.2
-            model.set("detailsHasSeq", entityMeta.containsField(EntityHelper.Seq));
+            model.set("detailsCopiable", entityMeta.getExtraAttrs().getBooleanValue(DETAILS_COPIABLE));
+            // v4.2,4.6
+            model.set("detailsHasSeq", EasyMetaFactory.valueOf(entityMeta).isDetailsSortable());
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
             // compatible v3.3
-            model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_NOTEMPTY));
+            model.set("detailsNotEmpty", entityMeta.getExtraAttrs().getBooleanValue(DETAILS_NOTEMPTY));
             // v3.4 ND
             List<JSON> detailMetas = new ArrayList<>();
             for (Entity de : MetadataSorter.sortDetailEntities(entityMeta)) {
@@ -323,9 +327,14 @@ public class FormsBuilder extends FormsManager {
             model.set("hadApproval", approvalState.getState());
 
             // v3.4 无审批流程了
-            if (approvalState.getState() >= ApprovalState.REJECTED.getState()) {
-                boolean notHadApproval = !RobotApprovalManager.instance.hadApproval(hasMainEntity == null ? entityMeta : hasMainEntity);
-                if (notHadApproval) model.set("hadApproval", null);
+            if (approvalState.getState() >= ApprovalState.REJECTED.getState()
+                    && !RobotApprovalManager.instance.hadApproval(hasMainEntity == null ? entityMeta : hasMainEntity)) {
+                model.set("hadApproval", null);
+            }
+            // v4.6 无符合条件的流程
+            else if (recordId != null && approvalState == ApprovalState.DRAFT
+                    && !RobotApprovalManager.instance.hadApproval(recordId)) {
+                model.set("hadApproval", null);
             }
         }
 
@@ -347,7 +356,7 @@ public class FormsBuilder extends FormsManager {
         model.set("onViewEditable", BooleanUtils.toBoolean(enabledViewEditable));
 
         // v3.7
-        model.set("hadSop", License.isRbvAttached());
+        model.set("hadSop", RbvFunction.call().hadSop(entityMeta));
         // v3.9
         model.set("layoutId", model.getID("id"));
         model.remove("id");
@@ -549,6 +558,8 @@ public class FormsBuilder extends FormsManager {
                 String format = StringUtils.defaultIfBlank(
                         easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT), dt.getDefaultFormat());
                 field.put(EasyFieldConfigProps.DATETIME_FORMAT, format);
+                String minuteStep = easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_MINUTESTEP);
+                if (minuteStep != null) field.put(EasyFieldConfigProps.DATETIME_MINUTESTEP, minuteStep);
             } else if (dt == DisplayType.DATE) {
                 String format = StringUtils.defaultIfBlank(
                         easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT), dt.getDefaultFormat());
@@ -557,6 +568,8 @@ public class FormsBuilder extends FormsManager {
                 String format = StringUtils.defaultIfBlank(
                         easyField.getExtraAttr(EasyFieldConfigProps.TIME_FORMAT), dt.getDefaultFormat());
                 field.put(EasyFieldConfigProps.TIME_FORMAT, format);
+                String minuteStep = easyField.getExtraAttr(EasyFieldConfigProps.TIME_MINUTESTEP);
+                if (minuteStep != null) field.put(EasyFieldConfigProps.TIME_MINUTESTEP, minuteStep);
             } else if (dt == DisplayType.CLASSIFICATION) {
                 field.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
             } else if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {

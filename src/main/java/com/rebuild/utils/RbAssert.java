@@ -60,6 +60,6 @@ public class RbAssert {
      * @see #is(boolean, String)
      */
     public static void checkAllow(boolean expression) {
-        is(expression, "Not Allow");
+        is(expression, "Not Allowed");
     }
 }

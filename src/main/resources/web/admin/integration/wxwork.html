@@ -91,7 +91,7 @@
                       </tr>
                     </tbody>
                   </table>
-                  <h5>[[${bundle.L('接入 AI 助手')}]]</h5>
+                  <h5>[[${bundle.L('接入 Rex AI 助手')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
@@ -108,6 +108,12 @@
                       <tr>
                         <td>EncodingAESKey</td>
                         <td data-id="WxworkAibotEncodingAESKey" th:data-value="${WxworkAibotEncodingAESKey ?:''}" data-optional="true">[[${WxworkAibotEncodingAESKey ?:bundle.L('未配置')}]]</td>
+                      </tr>
+                      <tr th:title="${bundle.L('超过设定时间后，将会自动截断上下文记忆')}">
+                        <td>[[${bundle.L('上下文保留时长')}]]</td>
+                        <td data-id="WxworkAibotContextHours" th:data-value="${WxworkAibotContextHours ?:''}" data-optional="true" data-input-type="number">
+                          [[${WxworkAibotContextHours}]] [[${bundle.L('小时')}]]
+                        </td>
                       </tr>
                     </tbody>
                   </table>

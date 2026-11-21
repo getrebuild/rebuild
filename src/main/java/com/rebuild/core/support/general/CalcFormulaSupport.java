@@ -12,6 +12,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
@@ -47,6 +48,26 @@ import java.util.Set;
 public class CalcFormulaSupport {
 
     /**
+     * 是否高级公式代码
+     *
+     * @param formula
+     * @return
+     */
+    public static boolean isCodeFormula(String formula) {
+        if (StringUtils.isBlank(formula)) return false;
+        formula = formula.trim();
+        return formula.startsWith(AviatorUtils.CODE_PREFIX) && formula.endsWith(AviatorUtils.CODE_SUFFIX);
+    }
+
+    /**
+     * @param field
+     * @return
+     */
+    public static boolean isCodeFormula(Field field) {
+        return isCodeFormula(EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA));
+    }
+
+    /**
      * 表单计算公式（启用后端计算）
      * FIXME 字段计算存在路径依赖：例如字段 B=A+1, 但 A 也是计算字段
      *
@@ -68,6 +89,7 @@ public class CalcFormulaSupport {
             if (StringUtils.isBlank(formula)) continue;
             if (!BooleanUtils.toBoolean(backend)) continue;
 
+            final boolean useCode = isCodeFormula(formula);
             Map<String, Object> varsInFormula = new HashMap<>();
             Set<String> fieldVars = ContentWithFieldVars.matchsVars(formula);
             for (String fieldName : fieldVars) {
@@ -76,15 +98,32 @@ public class CalcFormulaSupport {
                     v = recordInDb.getObjectValue(fieldName);
                 }
 
-                if (v == null) {
+                if (v == null && !useCode) {
                     varsInFormula = null;
                     break;
+                }
+                // 点连接变量记录根引用字段值，供 buildCodeEnv 回退取值
+                if (useCode && fieldName.contains(".")) {
+                    String fieldNameRef = fieldName.substring(0, fieldName.indexOf("."));
+                    Object refV = record.getObjectValue(fieldNameRef);
+                    if (refV == null && recordInDb != null) {
+                        refV = recordInDb.getObjectValue(fieldNameRef);
+                    }
+                    varsInFormula.put(fieldNameRef, refV);
                 }
                 varsInFormula.put(fieldName, v);
             }
             if (varsInFormula == null) continue;
 
-            Object evalVal = evalValue(formula, varsInFormula, targetField, false, false);
+            Object evalVal;
+            if (useCode) {
+                Map<String, Object> codeEnv = buildCodeEnv(record.getEntity(), formula, varsInFormula, false);
+                // 点连接变量取不到值，与普通公式同口径跳过
+                if (codeEnv == null) continue;
+                evalVal = evalValue(formula, codeEnv, targetField, false, false);
+            } else {
+                evalVal = evalValue(formula, varsInFormula, targetField, false, false);
+            }
             // 无值忽略
             if (evalVal == null) continue;
             // 同值忽略
@@ -118,6 +157,15 @@ public class CalcFormulaSupport {
         final EasyField easyField = EasyMetaFactory.valueOf(targetField);
         String formula = specFormula;
         if (formula == null) formula = easyField.getExtraAttr(EasyFieldConfigProps.NUMBER_CALCFORMULA);
+        if (StringUtils.isBlank(formula)) return null;
+
+        // 高级公式代码
+        if (isCodeFormula(formula)) {
+            Map<String, Object> codeEnv = buildCodeEnv(entity, formula, varsInFormula, forceEval);
+            if (codeEnv == null) return null;
+            return evalValue(formula, codeEnv, easyField, true, forceEval);
+        }
+
         // 兼容
         formula = formula.replace("{{NOW}}", EasyDateTime.VAR_NOW);
 
@@ -198,21 +246,38 @@ public class CalcFormulaSupport {
      * @return
      */
     protected static Object evalValue(String formula, Map<String, Object> varsInFormula, EasyField targetField, boolean wrapValue, boolean forceEval) {
-        String clearFormula = formula
-                .replace("×", "*").replace("÷", "/");
+        final boolean useCode = isCodeFormula(formula);
+        String clearFormula;
+        if (useCode) {
+            String f = formula.trim();
+            clearFormula = f.substring(AviatorUtils.CODE_PREFIX.length(), f.length() - AviatorUtils.CODE_SUFFIX.length());
+        } else {
+            clearFormula = formula.replace("×", "*").replace("÷", "/");
+        }
+
         for (String name : varsInFormula.keySet()) {
             String replace = "{" + name + "}";
+            if (useCode) {
+                clearFormula = clearFormula
+                        .replace("\"" + replace + "\"", name)
+                        .replace("'" + replace + "'", name);
+            }
             if (clearFormula.contains(replace)) {
                 clearFormula = clearFormula.replace(replace, name);
             }
         }
 
         Object evalVal = AviatorUtils.eval(clearFormula, varsInFormula, true);
-
         if (AviatorUtils.isNull(evalVal)) return null;
+
+        final DisplayType dt = targetField.getDisplayType();
+        if (useCode) {
+            evalVal = castCodeResult(evalVal, dt);
+            if (evalVal == null) return null;
+        }
+
         if (!wrapValue) return evalVal;
 
-        DisplayType dt = targetField.getDisplayType();
         if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
             if (evalVal instanceof Date) {
                 return targetField.wrapValue(evalVal);
@@ -226,5 +291,82 @@ public class CalcFormulaSupport {
         }
 
         return forceEval ? evalVal : null;
+    }
+
+    /**
+     * 高级公式变量环境
+     *
+     * @param entity
+     * @param formula
+     * @param varsInFormula
+     * @param forceEval
+     * @return 点连接变量取不到值且不强算时返回 null，调用方按跳过处理
+     * @see AviatorUtils#convertValueOfFieldVar(Object, Field)
+     */
+    private static Map<String, Object> buildCodeEnv(Entity entity, String formula, Map<String, Object> varsInFormula, boolean forceEval) {
+        Map<String, Object> env = new HashMap<>();
+        for (String fieldName : ContentWithFieldVars.matchsVars(formula)) {
+            if ("NOW".equals(fieldName)) {
+                env.put(fieldName, CalendarUtils.now());
+                continue;
+            }
+
+            Field field = MetadataHelper.getLastJoinField(entity, fieldName);
+            Object value = varsInFormula == null ? null : varsInFormula.get(fieldName);
+            if (field == null) {
+                env.put(fieldName, value);
+                continue;
+            }
+
+            // v4.6 点连接支持：按引用字段值回查子字段值（与普通公式同口径）
+            if (value == null && fieldName.contains(".")) {
+                String fieldNameRef = fieldName.substring(0, fieldName.indexOf("."));
+                String fieldNameSub = fieldName.substring(fieldName.indexOf(".") + 1);
+                Object refValue = varsInFormula == null ? null : varsInFormula.get(fieldNameRef);
+                if (ID.isId(refValue) && !EntityHelper.isUnsavedId(refValue)) {
+                    Object[] o = Application.getQueryFactory()
+                            .uniqueNoFilter(ID.valueOf(refValue.toString()), fieldNameSub);
+                    value = o == null ? null : o[0];
+                }
+                if (value == null && !forceEval) {
+                    return null;
+                }
+            }
+
+            // 表单实时计算/回填公式传入的数字值为字符串，需转换为数值（Aviator 不做字符串隐式转换）
+            if (value instanceof String && (field.getType() == FieldType.LONG || field.getType() == FieldType.DECIMAL)) {
+                String val2str = (String) value;
+                // v3.6.3 整数/小数强制使用 BigDecimal 高精度
+                if (StringUtils.isBlank(val2str)) value = null;
+                else if (field.getType() == FieldType.LONG) value = BigDecimal.valueOf(ObjectUtils.toLong(val2str));
+                else value = BigDecimal.valueOf(ObjectUtils.toDouble(val2str));
+            }
+            env.put(fieldName, AviatorUtils.convertValueOfFieldVar(value, field));
+        }
+        return env;
+    }
+
+    /**
+     * 高级公式结果转换为目标字段类型
+     *
+     * @param evalVal
+     * @param targetType
+     * @return
+     */
+    private static Object castCodeResult(Object evalVal, DisplayType targetType) {
+        if (targetType == DisplayType.DATE || targetType == DisplayType.DATETIME) {
+            return evalVal instanceof Date ? evalVal : CalendarUtils.parse(evalVal.toString());
+        }
+
+        if (targetType == DisplayType.NUMBER || targetType == DisplayType.DECIMAL) {
+            if (evalVal instanceof Number) return evalVal;
+            try {
+                return new BigDecimal(evalVal.toString().trim());
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+
+        return null;
     }
 }

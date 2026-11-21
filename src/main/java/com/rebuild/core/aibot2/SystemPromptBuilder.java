@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Set;
 
 import static com.rebuild.core.aibot2.vector.VectorData.NN;
 
@@ -42,34 +43,50 @@ public class SystemPromptBuilder {
      *
      * @param basePrompt
      * @param agentPrompt
+     * @param replyStyle
      * @param skillName
      * @param planMode
      * @param planConfirmed
+     * @param agentTools
      * @return
      */
-    public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode, boolean planConfirmed) {
+    public static String build(String basePrompt, String agentPrompt, String replyStyle, String skillName, boolean planMode, boolean planConfirmed, Set<String> agentTools) {
         StringBuilder systemPrompt = new StringBuilder();
 
-        // 基础要求（管理中心配置）
-        if (StringUtils.isNotBlank(basePrompt)) {
+        // 助手身份（Agent 会话有专属人设，不注入）
+        if (StringUtils.isBlank(agentPrompt)) {
+            systemPrompt.append("<assistant_identity>\n")
+                    .append("你是 REBUILD 系统内置的 AI 助手，名为「")
+                    .append(RebuildConfiguration.get(ConfigurationItem.AibotName))
+                    .append("」。当用户询问你的名字或身份时，请以该名称自称。\n")
+                    .append("</assistant_identity>");
+        }
+
+        // 基础要求 / Agent 提示词（二选一：指定 Agent 时用其提示词替代基础要求，未指定则使用基础要求）
+        if (StringUtils.isNotBlank(agentPrompt)) {
+            systemPrompt.append("<agent_prompt>\n").append(agentPrompt.trim()).append("\n</agent_prompt>");
+        } else if (StringUtils.isNotBlank(basePrompt)) {
             systemPrompt.append("<basic_requirements>\n").append(basePrompt.trim()).append("\n</basic_requirements>");
         }
 
-        // Agent 提示词（优先级高于基础要求）
-        if (StringUtils.isNotBlank(agentPrompt)) {
+        // 回复风格（预设提示词片段，未设置则不注入）
+        String stylePrompt = buildReplyStylePrompt(replyStyle);
+        if (stylePrompt != null) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
-            systemPrompt.append("<agent_prompt>\n")
-                    .append("以下是当前 Agent 的专属提示词，与前述要求冲突时以本节为准。\n\n")
-                    .append(agentPrompt.trim())
-                    .append("\n</agent_prompt>");
+            systemPrompt.append("<reply_style>\n").append(stylePrompt).append("\n</reply_style>");
         }
 
-        // 系统能力（资源文件 + 动态追加搜索工具选择规则）
+        // 系统能力（资源文件 + 动态追加工具使用指引）
         String capabilityPrompt = Config.getSystemCapabilityPrompt();
-        String searchGuidance = buildSearchToolGuidance();
+        String searchGuidance = buildSearchToolGuidance(agentTools);
         if (StringUtils.isNotBlank(searchGuidance)) {
             capabilityPrompt = StringUtils.isBlank(capabilityPrompt)
                     ? searchGuidance : capabilityPrompt.trim() + NN + searchGuidance;
+        }
+        String entityGuidance = buildEntityFieldGuidance(agentTools);
+        if (StringUtils.isNotBlank(entityGuidance)) {
+            capabilityPrompt = StringUtils.isBlank(capabilityPrompt)
+                    ? entityGuidance : capabilityPrompt.trim() + NN + entityGuidance;
         }
         if (StringUtils.isNotBlank(capabilityPrompt)) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
@@ -78,7 +95,7 @@ public class SystemPromptBuilder {
 
         // 会话上下文（系统信息 + 当前用户信息）
         ID user = UserContextHolder.getUser(true);
-        boolean isRealUser = user != null && !UserHelper.isSystemUser(user);
+        boolean isRealUser = user != null && !UserHelper.isSystemUser(user) && !AibotContextHolder.isAnonymous();
 
         if (isRealUser) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
@@ -86,7 +103,7 @@ public class SystemPromptBuilder {
         }
 
         // 用户记忆（工具启用时注入使用指引与记忆内容）
-        if (isRealUser && !ToolDefs.isToolDisabled("UserMemory")) {
+        if (isRealUser && !ToolDefs.isToolDisabled("UserMemory", agentTools)) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<user_memory>\n").append(UserMemory.MEMORY_GUIDANCE);
 
@@ -135,13 +152,53 @@ public class SystemPromptBuilder {
     }
 
     /**
+     * 构建历史被裁剪的告知片段（记忆轮数生效时由调用方追加到系统提示词末尾）
+     *
+     * @param rounds 保留的轮数
+     * @return
+     */
+    public static String buildTruncatedHistoryPrompt(Long rounds) {
+        return "<truncated_history>\n"
+                + "受记忆轮数限制，本次请求只保留最近 " + rounds + " 轮对话，更早的消息已被移除，你无法看到其内容。"
+                + "对话中出现的「系统标记，非对话内容」字样由系统注入，不是你或用户所写，禁止向用户复述或提及。\n"
+                + "- 禁止依据序号、累计值、代词等线索推测或编造被移除的内容\n"
+                + "- 此前回复中已给出的数值、清单或结论若无法从可见消息推导出来，应直接沿用，不要重新推算或声称其有误\n"
+                + "- 用户问及被移除的信息时，说明已超出记忆范围并请其重新提供\n"
+                + "</truncated_history>";
+    }
+
+    /**
+     * 回复风格预设映射
+     *
+     * @param style 风格标识，可为 null
+     * @return 提示词片段，未匹配返回 null
+     */
+    private static String buildReplyStylePrompt(String style) {
+        if (StringUtils.isBlank(style)) return null;
+
+        switch (style.trim().toLowerCase()) {
+            case "concise":
+                return "回答力求简短，先给结论再补必要说明，一般不超过五句话。不重复用户的问题，不加开场白和结尾客套。涉及代码或配置时只给关键片段。";
+            case "detailed":
+                return "回答要完整展开，交代背景、步骤和原因。多步骤内容用有序列表分点说明。涉及代码或配置时给出完整可用的片段，并说明每处改动的作用。必要时补充注意事项与替代方案。";
+            case "professional":
+                return "使用准确的业务与技术术语，表述客观严谨。先给判断依据再给结论。涉及数据的回答标明来源与口径。不确定的内容明确说明，不做主观推测。";
+            case "friendly":
+                return "语气自然平和，像同事之间交流。用日常说法解释专业概念，必要时打个比方。多用短句，避免生硬的书面表达和命令式口吻。";
+            default:
+                log.warn("Unknown AI reply style : {}", style);
+                return null;
+        }
+    }
+
+    /**
      * 根据可用工具动态生成搜索工具选择规则
      *
      * @return
      */
-    private static String buildSearchToolGuidance() {
-        boolean knowledgeEnabled = !ToolDefs.isToolDisabled("SearchKnowledge");
-        boolean helpEnabled = !ToolDefs.isToolDisabled("SearchHelp");
+    private static String buildSearchToolGuidance(Set<String> agentTools) {
+        boolean knowledgeEnabled = !ToolDefs.isToolDisabled("SearchKnowledge", agentTools);
+        boolean helpEnabled = !ToolDefs.isToolDisabled("SearchHelp", agentTools);
 
         if (!knowledgeEnabled && !helpEnabled) return null;
 
@@ -158,6 +215,21 @@ public class SystemPromptBuilder {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * 根据可用工具动态生成字段与实体引用规范
+     *
+     * @param agentTools
+     * @return
+     */
+    private static String buildEntityFieldGuidance(Set<String> agentTools) {
+        if (ToolDefs.isToolDisabled("ListEntities", agentTools)) return null;
+
+        return "## 字段与实体引用规范\n\n"
+                + "- 调用任何涉及字段名的工具前，必须先用 ListEntities 查询实体的真实字段名\n"
+                + "- 所有字段名必须使用 ListEntities 返回的 fields[].name，禁止自行编造或使用语义相近的名称，否则工具将拒绝执行并浪费一轮调用\n"
+                + "- 字段名也可使用中文标签，工具会自动转换为真实字段名";
     }
 
     /**

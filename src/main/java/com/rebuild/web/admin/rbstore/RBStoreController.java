@@ -15,13 +15,10 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.rbstore.RBStore;
-import com.rebuild.core.rbstore.SkillImporter;
-import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,12 +36,12 @@ public class RBStoreController extends BaseController {
         String type = getParameterNotNull(request, "type");
         if (CommonsUtils.isExternalUrl(type)) return RespBody.error();
 
-        JSON index = null;
-        try {
-            index = RBStore.fetchRemoteJson(type + "/index.json");
-        } catch (Exception ignored) {
+        if ("skills".equalsIgnoreCase(type)) {
+            return RBStore.fetchAibotSkills(null);
+        } else if ("classifications".equalsIgnoreCase(type)) {
+            return RBStore.fetchClassification(null);
         }
-        return index == null ? RespBody.error("CANNOT FETCH DATA FROM RB-STORE") : index;
+        return RBStore.fetchRemoteJson(type + "/index.json");
     }
 
     @GetMapping({"/admin/rbstore/load-metaschemas", "/setup/init-models"})
@@ -59,24 +56,5 @@ public class RBStoreController extends BaseController {
             }
         }
         return index;
-    }
-
-    @PostMapping("/admin/rbstore/import-skills")
-    public RespBody importSkills(HttpServletRequest request) {
-        String[] names = getParameterNotNull(request, "names").split(",");
-
-        SkillImporter importer = new SkillImporter();
-        importer.setSkillNames(names);
-        importer.setUser(getRequestUser(request));
-
-        try {
-            TaskExecutors.run(importer);
-            return importer.getSucceeded() > 0
-                    ? RespBody.ok() : RespBody.error(importer.getErrorMessage());
-
-        } catch (Exception ex) {
-            log.error("Cannot import skills : {}", getParameter(request, "names"), ex);
-            return RespBody.error(ex.getLocalizedMessage());
-        }
     }
 }

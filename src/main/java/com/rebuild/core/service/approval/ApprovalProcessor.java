@@ -69,6 +69,8 @@ public class ApprovalProcessor extends SetUser {
     private ID approvalId;
     // 流程定义
     private FlowParser flowParser;
+    // 相同审批人自动通过进行中（防止钩子重复触发）
+    private boolean inAutoApprove46;
 
     /**
      * @param recordId
@@ -232,6 +234,65 @@ public class ApprovalProcessor extends SetUser {
         if (state == ApprovalState.APPROVED) {
             Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.recordId, selectNextUsers);
             share2CcIfNeed(this.recordId, ccs4share);
+
+            // 相同审批人自动通过
+            autoApproveNextIfSame(approver, currentNode.getNodeId());
+        }
+    }
+
+    /**
+     * 相同审批人自动通过
+     *
+     * @param approver
+     * @param fromNode 刚完成审批的节点
+     * @see FlowNode#skipSameApprover()
+     */
+    private void autoApproveNextIfSame(ID approver, String fromNode) {
+        if (this.inAutoApprove46) return;
+
+        this.inAutoApprove46 = true;
+        try {
+            for (int i = 0; i < 10; i++) {
+                ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.recordId);
+                if (status.getCurrentState() != ApprovalState.PROCESSING) break;
+
+                String pendingNode = status.getCurrentStepNode();
+                if (StringUtils.isBlank(pendingNode) || pendingNode.equals(fromNode)) break;
+
+                FlowNode flowNode = getFlowNode(pendingNode);
+                if (flowNode == null || !flowNode.skipSameApprover()) break;
+
+                Object[][] pendingApprovers = Application.createQueryNoFilter(
+                        "select approver from RobotApprovalStep" +
+                                " where recordId = ? and approvalId = ? and node = ? and state = 1" +
+                                " and isCanceled = 'F' and isBacked = 'F' and isWaiting = 'F'")
+                        .setParameter(1, this.recordId)
+                        .setParameter(2, status.getApprovalId())
+                        .setParameter(3, pendingNode)
+                        .array();
+
+                boolean selfIn = false;
+                for (Object[] o : pendingApprovers) {
+                    if (approver.equals(o[0])) {
+                        selfIn = true;
+                        break;
+                    }
+                }
+                if (!selfIn) break;
+
+                try {
+                    Object[] remarks = new Object[]{Language.L("相同审批人自动通过")};
+                    approve(approver, ApprovalState.APPROVED, remarks,
+                            null, null, null, null, false, false);
+                    fromNode = pendingNode;
+                } catch (Exception ex) {
+                    log.warn("Cannot auto-approve same-approver for [{}] on node {}", this.recordId, pendingNode, ex);
+                    break;
+                }
+            }
+
+        } finally {
+            this.inAutoApprove46 = false;
         }
     }
 
@@ -323,8 +384,9 @@ public class ApprovalProcessor extends SetUser {
      *
      * @param approver
      * @param toUser
+     * @param remarks
      */
-    public void referral(ID approver, ID toUser) {
+    public void referral(ID approver, ID toUser, Object[] remarks) {
         final Object[] stepApprover = findProcessingStepApprover(approver);
         if (toUser.equals(stepApprover[2])) {
             throw new ApprovalException(Language.L("不能转审给自己"));
@@ -340,8 +402,8 @@ public class ApprovalProcessor extends SetUser {
         if (instepApprover != null) {
             throw new ApprovalException(Language.L("审批人已在当前审批步骤中"));
         }
-        
-        Application.getBean(ApprovalStepService.class).txReferral((ID) stepApprover[0], toUser);
+
+        Application.getBean(ApprovalStepService.class).txReferral((ID) stepApprover[0], toUser, remarks);
     }
 
     /**
@@ -349,10 +411,11 @@ public class ApprovalProcessor extends SetUser {
      *
      * @param approver
      * @param toUsers
+     * @param remarks
      */
-    public void countersign(ID approver, ID[] toUsers) {
+    public void countersign(ID approver, ID[] toUsers, Object[] remarks) {
         final Object[] stepApprover = findProcessingStepApprover(approver);
-        Application.getBean(ApprovalStepService.class).txCountersign((ID) stepApprover[0], toUsers);
+        Application.getBean(ApprovalStepService.class).txCountersign((ID) stepApprover[0], toUsers, remarks);
     }
 
     /**
@@ -743,9 +806,15 @@ public class ApprovalProcessor extends SetUser {
             // 转审
             String referralFrom = attrMored.getString("referralFrom");
             s.put("referralFrom", ID.isId(referralFrom) ? UserHelper.getName(ID.valueOf(referralFrom)) : null);
+            s.put("referralRemark", attrMored.getString("referralRemark"));
+            JSONArray referralAttachments = attrMored.getJSONArray("referralAttachments");
+            if (CollectionUtils.isNotEmpty(referralAttachments)) s.put("referralAttachments", referralAttachments);
             // 加签
             String countersignFrom = attrMored.getString("countersignFrom");
             s.put("countersignFrom", ID.isId(countersignFrom) ? UserHelper.getName(ID.valueOf(countersignFrom)) : null);
+            s.put("countersignRemark", attrMored.getString("countersignRemark"));
+            JSONArray countersignAttachments = attrMored.getJSONArray("countersignAttachments");
+            if (CollectionUtils.isNotEmpty(countersignAttachments)) s.put("countersignAttachments", countersignAttachments);
             // 批量
             String batchMode = attrMored.getString("batchMode");
             s.put("batchMode", batchMode != null);

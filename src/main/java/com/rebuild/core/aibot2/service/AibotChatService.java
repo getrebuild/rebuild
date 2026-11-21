@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
- * AI 助手会话
+ * Rex 会话
  *
  * @author devezhao
  * @since 2026/9/5

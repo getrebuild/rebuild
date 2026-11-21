@@ -30,13 +30,13 @@ public class EasyEntityConfigProps {
      */
     public static final String DETAILS_GLOBALREPEAT = "detailsGlobalRepeat";
     /**
-     * 明细显示位置
-     */
-    public static final String DETAILS_SHOWAT2 = "detailsShowAt2";
-    /**
      * 明细复制按钮
      */
     public static final String DETAILS_COPIABLE = "detailsCopiable";
+    /**
+     * 明细排序
+     */
+    public static final String DETAILS_SORTABLE = "detailsSortable";
     /**
      * 显示顺序
      */
@@ -97,11 +97,7 @@ public class EasyEntityConfigProps {
      */
     public static final String ADVLIST_MODE2_SHOWFIELDS = "mode2ShowFields";
     /**
-     * 详情模式:树形菜单:父级
-     */
-    public static final String ADVLIST_MODE2_ENABLETREEPARENTFIELD = "mode2EnableTreeParentField";
-    /**
-     * 详情模式:树形菜单:顶级
+     * 详情模式:树形菜单:字段（自引用为树，否则为分组）
      */
     public static final String ADVLIST_MODE2_ENABLETREEGROUPFIELD = "mode2EnableTreeGroupField";
     /**

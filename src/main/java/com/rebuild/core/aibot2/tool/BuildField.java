@@ -23,6 +23,7 @@ import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,13 +36,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 新建字段（仅管理员）。不同字段类型有不同配置项
- *
  * @author devezhao
  * @since 2026/8/10
  */
 @Slf4j
-public class BuildField implements Tool, AdminGuard {
+public class BuildField implements Tool, AdminGuard, ConfirmableTool {
 
     // 允许通过 AI 创建的字段类型
     private static final Set<DisplayType> ALLOWED_TYPES = EnumSet.of(
@@ -56,6 +55,9 @@ public class BuildField implements Tool, AdminGuard {
 
     // 流水号重置周期（对应 SeriesZeroResetJob）
     private static final Set<String> SERIES_ZEROS = new HashSet<>(Arrays.asList("D", "W", "M", "Y"));
+
+    // 自引用标记（引用字段所在实体自身）
+    private static final String SELF_REF = "@self";
 
     @Override
     public Object tool(String arguments) throws Exception {
@@ -87,15 +89,7 @@ public class BuildField implements Tool, AdminGuard {
         String seriesZero = null;
 
         if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
-            String refIdent = args.getString("refEntity");
-            if (StringUtils.isBlank(refIdent)) {
-                throw new KnownToolException("引用字段必须指定引用实体 (refEntity)");
-            }
-            Entity ref = ToolHelper.resolveEntity(refIdent);
-            if (ref == null) {
-                throw new KnownToolException("无效引用实体 : " + refIdent + ToolHelper.suggestEntity(refIdent));
-            }
-            refEntity = ref.getName();
+            refEntity = resolveRefEntity(args.getString("refEntity"), entity);
 
         } else if (dt == DisplayType.PICKLIST || dt == DisplayType.MULTISELECT) {
             options = args.getJSONArray("options");
@@ -151,6 +145,40 @@ public class BuildField implements Tool, AdminGuard {
     }
 
     /**
+     * 解析引用实体。支持 @self 引用字段所在实体自身
+     *
+     * @param refIdent
+     * @param entity
+     * @return
+     */
+    private static String resolveRefEntity(String refIdent, Entity entity) {
+        String ref = StringUtils.trimToNull(refIdent);
+        if (ref == null) {
+            throw new KnownToolException("引用字段必须指定引用实体 (refEntity)");
+        }
+
+        if (SELF_REF.equals(ref) || ref.equalsIgnoreCase(entity.getName())) {
+            return entity.getName();
+        }
+
+        Entity refMeta;
+        try {
+            refMeta = ToolHelper.resolveEntity(ref);
+        } catch (KnownToolException ex) {
+            // 标签重名时不猜测意图，提示改用 @self 显式表示自引用
+            if (ref.equalsIgnoreCase(EasyMetaFactory.getLabel(entity))) {
+                throw new KnownToolException(CommonsUtils.getRootMessage(ex)
+                        + "。若确为引用本实体自身，请将 refEntity 改为 " + SELF_REF);
+            }
+            throw ex;
+        }
+        if (refMeta == null) {
+            throw new KnownToolException("无效引用实体 : " + ref + ToolHelper.suggestEntity(ref));
+        }
+        return refMeta.getName();
+    }
+
+    /**
      * 解析字段类型
      *
      * @param typeStr
@@ -169,6 +197,10 @@ public class BuildField implements Tool, AdminGuard {
         }
 
         if (!ALLOWED_TYPES.contains(dt)) {
+            if (dt == DisplayType.BARCODE) {
+                throw new KnownToolException("不支持创建条形码字段 (BARCODE)，此类字段需由用户到实体的字段页手动添加，"
+                        + "请引导用户操作而不要重复尝试；若只需承载码值内容，可改用 TEXT 或 SERIES 字段");
+            }
             throw new KnownToolException("不支持创建该字段类型 : " + typeStr + "，可用类型: " + buildAllowedTypesDesc());
         }
         return dt;

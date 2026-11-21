@@ -27,6 +27,7 @@ import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.query.ParseHelper;
+import com.rebuild.core.support.general.DataAggregateBuilder;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.utils.CommonsUtils;
@@ -215,6 +216,23 @@ public class GeneralListController extends EntityController {
             if (known != null) return RespBody.error(known);
 
             log.error("data-list", ex);
+            return RespBody.error(ex.getLocalizedMessage());
+        }
+    }
+
+    @PostMapping("data-aggregate")
+    public RespBody dataAggregate(@PathVariable String entity, HttpServletRequest request) {
+        JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
+        query.put("entity", entity);
+
+        try {
+            return RespBody.ok(new DataAggregateBuilder(query, getRequestUser(request)).getJSONResult());
+
+        } catch (Exception ex) {
+            String known = KnownExceptionConverter.convert2ErrorMsg(ex);
+            if (known != null) return RespBody.error(known);
+
+            log.error("data-aggregate", ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
     }

@@ -172,10 +172,7 @@ class ApprovalList extends React.Component {
           entity={item.recordMeta[2]}
           approval={item.approvalId}
           onConfirm={() => {
-            if (item.id) {
-              // delete that._formsApprove[item.id]  // 审批后户自动 reload
-              delete that._formsApprove[item.id] // 其实还在
-            }
+            if (item.id) delete that._formsApprove[item.id]
             this.reload()
           }}
         />,
@@ -337,7 +334,12 @@ $(document).ready(() => {
   // 批量
   $('.J_approve').on('click', () => {
     if (_ApprovalList.getSelectedIds().length === 0) return
-    renderRbcomp(<BatchApprove2 listRef={_ApprovalList} entity="User" />)
+
+    if (rb.commercial < 1) {
+      RbAlertFree43.create($L('免费版不支持批量审批功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'))
+    } else {
+      renderRbcomp(<BatchApprove2 listRef={_ApprovalList} entity="User" />)
+    }
   })
 
   // 排序

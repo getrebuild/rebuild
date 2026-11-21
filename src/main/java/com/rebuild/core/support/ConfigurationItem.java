@@ -114,6 +114,7 @@ public enum ConfigurationItem {
     WxworkSyncUsersMatch("ID"),
     WxworkAibotToken,
     WxworkAibotEncodingAESKey,
+    WxworkAibotContextHours(6),
     // Feishu
     FeishuAppId, FeishuAppSecret,
     FeishuSyncUsers(false),
@@ -126,17 +127,21 @@ public enum ConfigurationItem {
     PortalOfficePreviewUrl,
 
     // Aibot
-    AibotName("REBUILD AI 助手"),
+    AibotName("Rex AI 助手"),
     AibotDSUrl,
     AibotDSSecret,
     AibotBaseDefModel,
     AibotSuggestQuestions,
     AibotBasePrompt,
-    AibotContextCompressThreshold,
+    AibotReplyStyle,
+    AibotMemoryRounds,
     AibotWelcome,
     AibotToolsDisabled,
     AibotTemperature,
     AibotTopP,
+    AibotReasoningEffort,
+    AibotAsrModel,
+    AibotDefaultDisabled(false),
 
     // PORTALs
     PortalBaiduMapAk,
