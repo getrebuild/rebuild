@@ -9,7 +9,9 @@ package com.rebuild.core.aibot2;
 
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionContentPart;
 import com.openai.models.chat.completions.ChatCompletionContentPartImage;
@@ -44,6 +46,9 @@ public abstract class ChatManager {
 
     // 会话来源：公开访问（含匿名访客）
     public static final String SOURCE_PUB = "PUB";
+
+    // 摘要输入上限（字符），只取最近内容避免超出模型上下文
+    private static final int SUMMARY_MAX_CHARS = 12000;
 
     /**
      * @param user
@@ -280,6 +285,20 @@ public abstract class ChatManager {
      */
     public static String summarizeChat(ID chatid) {
         Chat chat = getChat(chatid);
+        final int msgCount = chat.getMessages().size();
+
+        // 已有摘要且之后没有新消息，直接复用（后台任务生成）
+        Object[] stored = Application.createQueryNoFilter(
+                "select summary from AibotChat where chatId = ?")
+                .setParameter(1, chatid)
+                .unique();
+        if (stored != null && stored[0] != null) {
+            JSONObject summary = JSON.parseObject((String) stored[0]);
+            if (summary != null && summary.getIntValue("messages") == msgCount) {
+                String cached = summary.getString("text");
+                if (StringUtils.isNotBlank(cached)) return cached;
+            }
+        }
 
         StringBuilder conversationText = new StringBuilder();
         int effective = 0;
@@ -296,13 +315,19 @@ public abstract class ChatManager {
                 effective++;
             }
         }
-        if (effective < 2) return null;
+        if (effective == 0) return null;
+
+        // 只保留最近内容，避免超出模型上下文
+        if (conversationText.length() > SUMMARY_MAX_CHARS) {
+            conversationText.delete(0, conversationText.length() - SUMMARY_MAX_CHARS);
+        }
 
         String prompt = "你是对话压缩助手，请将以下对话历史压缩为简洁摘要，保留关键信息和上下文要点";
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, chat.getAgent())
                 .addUserMessage(conversationText.toString());
 
         ChatCompletion resp = ChatExecutor.createChat(builder.build(), null, chat.getAgent());
+        if (resp.choices() == null || resp.choices().isEmpty()) return null;
         return StringUtils.trimToNull(resp.choices().get(0).message().content().orElse(null));
     }
 

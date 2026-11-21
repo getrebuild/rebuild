@@ -24,10 +24,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
- * 会话摘要后台生成。定期压缩空闲的用户会话为摘要落库，供后续跨会话上下文使用
+ * 会话摘要后台生成。定期压缩空闲的用户会话为摘要落库，引用会话时优先复用
  *
  * @author Zixin
  * @since 2026/11/21
@@ -58,14 +60,14 @@ public class ChatSummaryJob extends DistributedJobLock {
         Calendar recent = CalendarUtils.getInstance();
         recent.add(Calendar.DAY_OF_MONTH, -RECENT_DAYS);
 
-        Object[][] array = Application.createQueryNoFilter(
-                "select chatId,contents,summary from AibotChat where source is null and contents is not null and modifiedOn <= ? and createdOn >= ? order by modifiedOn desc")
-                .setParameter(1, idle.getTime())
-                .setParameter(2, recent.getTime())
-                .setLimit(BATCH)
-                .array();
+        // 未生成摘要的优先，避免被已处理的会话长期占位
+        List<Object[]> chats = new ArrayList<>();
+        for (Object[] row : queryChats(true, idle, recent, BATCH)) chats.add(row);
+        if (chats.size() < BATCH) {
+            for (Object[] row : queryChats(false, idle, recent, BATCH - chats.size())) chats.add(row);
+        }
 
-        for (Object[] row : array) {
+        for (Object[] row : chats) {
             // 逐会话处理，单个失败不影响其他
             try {
                 summarizeIfNeed((ID) row[0], (String) row[1], (String) row[2]);
@@ -76,6 +78,24 @@ public class ChatSummaryJob extends DistributedJobLock {
     }
 
     /**
+     * @param pending true 查未生成摘要的
+     * @param idle
+     * @param recent
+     * @param limit
+     * @return
+     */
+    private Object[][] queryChats(boolean pending, Calendar idle, Calendar recent, int limit) {
+        return Application.createQueryNoFilter(
+                "select chatId,contents,summary from AibotChat where source is null and contents is not null"
+                        + " and " + (pending ? "summary is null" : "summary is not null")
+                        + " and modifiedOn <= ? and modifiedOn >= ? order by modifiedOn desc")
+                .setParameter(1, idle.getTime())
+                .setParameter(2, recent.getTime())
+                .setLimit(limit)
+                .array();
+    }
+
+    /**
      * @param chatid
      * @param contents
      * @param summary
@@ -83,25 +103,37 @@ public class ChatSummaryJob extends DistributedJobLock {
     private void summarizeIfNeed(ID chatid, String contents, String summary) {
         JSONArray messages = JSONArray.parseArray(contents);
         int msgCount = messages == null ? 0 : messages.size();
-        if (msgCount < MIN_MESSAGES) return;
 
         if (StringUtils.isNotBlank(summary)) {
             JSONObject old = JSON.parseObject(summary);
-            if (msgCount - old.getIntValue("rounds") < REFRESH_MESSAGES) return;
+            if (msgCount < MIN_MESSAGES) return;
+            if (msgCount - old.getIntValue("messages") < REFRESH_MESSAGES) return;
+        } else if (msgCount < MIN_MESSAGES) {
+            // 消息过少，写入标记避免每轮重复选中（后续消息达到刷新条件时再处理）
+            writeSummary(chatid, msgCount, null);
+            return;
         }
 
         String text = ChatManager.summarizeChat(chatid);
         if (StringUtils.isBlank(text)) return;
 
-        JSONObject json = new JSONObject();
-        json.put("rounds", msgCount);
-        json.put("text", text);
+        writeSummary(chatid, msgCount, text);
+        log.info("Chat summary generated : {} ({} messages)", chatid, msgCount);
+    }
 
-        // 只写 summary 字段，不触碰 contents，避免与缓存中的会话对象竞争
-        Record record = EntityHelper.forUpdate(chatid, UserService.SYSTEM_USER);
+    /**
+     * @param chatid
+     * @param msgCount
+     * @param text 为空时仅写标记
+     */
+    private void writeSummary(ID chatid, int msgCount, String text) {
+        JSONObject json = new JSONObject(true);
+        json.put("messages", msgCount);
+        if (text != null) json.put("text", text);
+
+        // 只写 summary 字段，不触碰 contents 与修改时间（避免影响会话列表排序）
+        Record record = EntityHelper.forUpdate(chatid, UserService.SYSTEM_USER, false);
         record.setString("summary", json.toJSONString());
         Application.getCommonsService().createOrUpdate(record);
-
-        log.info("Chat summary generated : {} ({} messages)", chatid, msgCount);
     }
 }
