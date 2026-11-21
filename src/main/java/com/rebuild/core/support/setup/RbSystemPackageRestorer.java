@@ -55,6 +55,9 @@ public class RbSystemPackageRestorer {
             throw new RebuildException("当前系统已有业务数据，不能导入应用资源包");
         }
 
+        // 先解压校验包结构，避免包损坏时库已被清空
+        importer.unpack();
+
         // 保留安装相关的数据
         String adminPassword = null;
         String adminMail = null;

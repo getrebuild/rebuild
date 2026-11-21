@@ -10,9 +10,11 @@ package com.rebuild.core.aibot2;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
+import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionContentPart;
 import com.openai.models.chat.completions.ChatCompletionContentPartImage;
 import com.openai.models.chat.completions.ChatCompletionContentPartText;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.service.AibotChatService;
@@ -30,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rebuild.core.aibot2.vector.VectorData.NN;
 import static com.rebuild.core.metadata.EntityHelper.AibotChat;
 
 /**
@@ -267,6 +270,40 @@ public abstract class ChatManager {
             AibotContextHolder.restoreAgent(prevAgent);
             chat.endRun();
         }
+    }
+
+    /**
+     * 压缩会话为摘要（后台整理调用，不经聊天请求链路，不产生隐藏会话，也不计入用户配额）
+     *
+     * @param chatid
+     * @return
+     */
+    public static String summarizeChat(ID chatid) {
+        Chat chat = getChat(chatid);
+
+        StringBuilder conversationText = new StringBuilder();
+        int effective = 0;
+        for (Message m : chat.getMessages()) {
+            String role = m.getRole();
+            String content = m.getContent();
+            if (StringUtils.isBlank(content)) continue;
+
+            if (Message.ROLE_USER.equals(role)) {
+                conversationText.append("用户: ").append(content).append(NN);
+                effective++;
+            } else if (Message.ROLE_AI.equals(role)) {
+                conversationText.append("AI: ").append(content).append(NN);
+                effective++;
+            }
+        }
+        if (effective < 2) return null;
+
+        String prompt = "你是对话压缩助手，请将以下对话历史压缩为简洁摘要，保留关键信息和上下文要点";
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, chat.getAgent())
+                .addUserMessage(conversationText.toString());
+
+        ChatCompletion resp = ChatExecutor.createChat(builder.build(), null, chat.getAgent());
+        return StringUtils.trimToNull(resp.choices().get(0).message().content().orElse(null));
     }
 
     /**

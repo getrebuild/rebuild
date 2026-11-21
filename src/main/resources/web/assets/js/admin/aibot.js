@@ -61,12 +61,11 @@ useEditComp = function (name) {
         const apiKey = ($('input[name="AibotDSSecret"]').val() || '').trim()
         const origKey = ($('td[data-id="AibotDSSecret"]').data('value') || '').trim()
 
-        const params = []
-        if (baseUrl) params.push(`baseUrl=${encodeURIComponent(baseUrl)}`)
-        if (apiKey && apiKey !== origKey) params.push(`apiKey=${encodeURIComponent(apiKey)}`)
-        const qs = params.length > 0 ? `?${params.join('&')}` : ''
+        const payload = {}
+        if (baseUrl) payload.baseUrl = baseUrl
+        if (apiKey && apiKey !== origKey) payload.apiKey = apiKey
 
-        $.get(`./aibot/models${qs}`, (res) => {
+        $.post(`./aibot/models`, JSON.stringify(payload), (res) => {
           if (res.error_code === 0 && res.data && res.data.length) {
             option.options = res.data.map((m) => m.id)
           } else {

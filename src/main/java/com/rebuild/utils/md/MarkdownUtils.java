@@ -41,9 +41,9 @@ public class MarkdownUtils {
     // markdown 中的站内相对链接
     private static final Pattern PATTERN_RELATIVE_URL = Pattern.compile("(?<!!)\\]\\((/[^)]*)\\)");
 
-    // markdown 中的站内裸地址（排除行内代码）
+    // markdown 中的站内裸地址（排除行内代码与引号包裹的地址，如代码中的 fetch('/app/...')）
     private static final Pattern PATTERN_BARE_URL = Pattern.compile(
-            "(?<![\\w/\\]`])(/(?:app/redirect|app/(?!entity/)[\\w$]+/(?:view|form|list)|admin/|dashboard/|h5app/)"
+            "(?<![\\w/\\]`'\"])(/(?:app/redirect|app/(?!entity/)[\\w$]+/(?:view|form|list)|admin/|dashboard/|h5app/)"
                     + "[^\\s)<>\"'`\\[\\]*,;，。；、）】]*)");
 
     private static final Parser PARSER;
