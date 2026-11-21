@@ -85,8 +85,10 @@ public class ChatSummaryJob extends DistributedJobLock {
      * @return
      */
     private Object[][] queryChats(boolean pending, Calendar idle, Calendar recent, int limit) {
+        // 用户会话与公开访问会话，排除系统调用产生的会话
         return Application.createQueryNoFilter(
-                "select chatId,contents,summary from AibotChat where source is null and contents is not null"
+                "select chatId,contents,summary from AibotChat where " + ChatManager.VISIBLE_WHERE
+                        + " and contents is not null"
                         + " and " + (pending ? "summary is null" : "summary is not null")
                         + " and modifiedOn <= ? and modifiedOn >= ? order by modifiedOn desc")
                 .setParameter(1, idle.getTime())

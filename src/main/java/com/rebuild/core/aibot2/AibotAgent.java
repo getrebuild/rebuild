@@ -71,6 +71,11 @@ public class AibotAgent implements Serializable {
     @Getter
     @Setter
     @Accessors(chain = true)
+    private String visionModel;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
     private String dsUrl;
 
     @Getter
@@ -177,6 +182,15 @@ public class AibotAgent implements Serializable {
 
     public String asrModel() {
         return asrModel != null ? asrModel : Config.getAsrModel();
+    }
+
+    /**
+     * 视觉模型：智能体 > 全局，均未配置返回 null（不启用）
+     *
+     * @return
+     */
+    public String visionModel() {
+        return defaultIfBlank(visionModel, Config.getVisionModel());
     }
 
     public Double temperature() {

@@ -170,11 +170,13 @@ public class Chat implements Serializable {
         messages.add(message);
 
         String systemPrompt = agent.buildSystemPrompt(null, false, false);
-        chatLogger().logSession(agent.model(), systemPrompt);
+        String model = agent.visionModel();
+        chatLogger().logSession(StringUtils.defaultIfBlank(model, agent.model()), systemPrompt);
         chatLogger().log("USER", userMessage);
 
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent)
                 .addUserMessageOfArrayOfContentParts(parts);
+        if (StringUtils.isNotBlank(model)) builder.model(model);
         return new ChatExecutor(this, null, builder).runContent();
     }
 
