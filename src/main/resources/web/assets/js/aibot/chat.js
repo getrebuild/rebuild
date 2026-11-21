@@ -374,7 +374,6 @@ class ChatInput extends React.Component {
       )
     }
 
-    // 当前会话使用的智能体（默认助手或其他智能体）已禁用/不可用，无法继续
     const currentId = _Chat.state.agentId || null
     const currentUnavailable = currentId !== null && !agents.some((a) => (a.id || null) === currentId)
     if (_Chat.state.agents !== null && (currentUnavailable || (_Chat.state.defaultDisabled && !currentId))) {
@@ -391,8 +390,7 @@ class ChatInput extends React.Component {
     }
 
     const current = _Chat.getCurrentAgent()
-    const allSkills = _Chat.state.skills || []
-    // 智能体未配置 skills 表示不限制，配置为空数组表示不可用任何技能
+    const allSkills = (_Chat.state.skills || []).filter((s) => rb.isAdminUser || !/管理员|admin/i.test(`${s.name || ''} ${s.description || ''}`))
     const agentSkills = current && current.skills
     const skills = Array.isArray(agentSkills) ? allSkills.filter((s) => agentSkills.some((n) => String(n).toLowerCase() === String(s.name).toLowerCase())) : allSkills
     return (
