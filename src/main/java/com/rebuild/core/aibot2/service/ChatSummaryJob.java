@@ -114,7 +114,7 @@ public class ChatSummaryJob extends DistributedJobLock {
             return;
         }
 
-        String text = ChatManager.summarizeChat(chatid);
+        String text = ChatManager.summarizeChat(chatid, true);
         if (StringUtils.isBlank(text)) return;
 
         writeSummary(chatid, msgCount, text);

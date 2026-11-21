@@ -284,19 +284,30 @@ public abstract class ChatManager {
      * @return
      */
     public static String summarizeChat(ID chatid) {
-        Chat chat = getChat(chatid);
+        return summarizeChat(chatid, false);
+    }
+
+    /**
+     * @param chatid
+     * @param reload 从数据库重新加载会话（后台任务用，避免使用可能过期的缓存）
+     * @return
+     */
+    public static String summarizeChat(ID chatid, boolean reload) {
+        Chat chat = reload ? new Chat(chatid) : getChat(chatid);
         final int msgCount = chat.getMessages().size();
 
         // 已有摘要且之后没有新消息，直接复用（后台任务生成）
-        Object[] stored = Application.createQueryNoFilter(
-                "select summary from AibotChat where chatId = ?")
-                .setParameter(1, chatid)
-                .unique();
-        if (stored != null && stored[0] != null) {
-            JSONObject summary = JSON.parseObject((String) stored[0]);
-            if (summary != null && summary.getIntValue("messages") == msgCount) {
-                String cached = summary.getString("text");
-                if (StringUtils.isNotBlank(cached)) return cached;
+        if (!reload) {
+            Object[] stored = Application.createQueryNoFilter(
+                    "select summary from AibotChat where chatId = ?")
+                    .setParameter(1, chatid)
+                    .unique();
+            if (stored != null && stored[0] != null) {
+                JSONObject summary = JSON.parseObject((String) stored[0]);
+                if (summary != null && summary.getIntValue("messages") == msgCount) {
+                    String cached = summary.getString("text");
+                    if (StringUtils.isNotBlank(cached)) return cached;
+                }
             }
         }
 
