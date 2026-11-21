@@ -4,8 +4,6 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global InitModels */
-
 const _INSTALL_STATES = {
   10: ['zmdi-settings zmdi-hc-spin', $L('正在安装')],
   11: ['zmdi-check text-success', $L('安装成功')],
@@ -23,7 +21,6 @@ class Setup extends React.Component {
         {this.state.stepNo === 2 && <DatabaseConf {...this.state.databaseProps} $$$parent={this} />}
         {this.state.stepNo === 3 && <CacheConf {...this.state.cacheProps} $$$parent={this} />}
         {this.state.stepNo === 4 && <AdminConf {...this.state.adminProps} $$$parent={this} />}
-        {this.state.stepNo === 5 && <ModelConf {...this.state.modelProps} rbsystemPackage={this.state.rbsystemPackage} $$$parent={this} />}
         {this.state.stepNo === 10 && (
           <div>
             <div className="rb-finish text-center">
@@ -33,7 +30,7 @@ class Setup extends React.Component {
               <h2>{state[1]}</h2>
               {this.state.installState === 11 && (
                 <a className="btn btn-secondary mt-3" href="../user/login">
-                  {$L('立即登录')}
+                  {$L('开始使用')}
                 </a>
               )}
               {this.state.installState === 12 && (
@@ -49,14 +46,6 @@ class Setup extends React.Component {
                   <div className="message">{this.state.installError}</div>
                 </div>
               )}
-
-              {(this.state.installState === 10 || this.state.installState === 11) && (
-                <div className="quick-tip animated fadeIn delay-1s link mt-4">
-                  <a href="https://www.getrebuild.com/features/ai-build" target="_blank" className="ai-color">
-                    {$L('5 分钟让 AI 帮你搭建一个应用')}
-                  </a>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -70,8 +59,6 @@ class Setup extends React.Component {
       databaseProps: this.state.databaseProps || {},
       cacheProps: this.state.cacheProps || {},
       adminProps: this.state.adminProps || {},
-      modelProps: this.state.modelProps || {},
-      rbsystemPackage: this.state.rbsystemPackage || null,
     }
     this.setState({ installState: 10 })
     $.post('/setup/install-rebuild', JSON.stringify(data), (res) => {
@@ -168,7 +155,6 @@ class RbWelcome extends React.Component {
 }
 
 // ~
-let DatabaseConf_mount = false
 class DatabaseConf extends React.Component {
   state = { ...this.props }
 
@@ -287,12 +273,7 @@ class DatabaseConf extends React.Component {
     this.setState({ inTest: true })
     $.post('/setup/test-connection', JSON.stringify(ps), (res) => {
       let msg = res.data || res.error_msg
-      if (msg.substr(0, 2) === '1#') {
-        msg = msg.substr(2)
-        DatabaseConf_mount = true
-      } else {
-        DatabaseConf_mount = false
-      }
+      if (msg.substr(0, 2) === '1#') msg = msg.substr(2)
       this.setState({ inTest: false, testState: res.error_code === 0, testMessage: msg }, () => typeof call === 'function' && call(ps, res))
     })
   }
@@ -452,7 +433,7 @@ class AdminConf extends DatabaseConf {
           </div>
         </form>
         <div className="progress">
-          <div className="progress-bar" style={{ width: '60%' }} />
+          <div className="progress-bar" style={{ width: '80%' }} />
         </div>
         <div className="splash-footer">
           {this.props.$$$parent.state.installType === 1 && (
@@ -468,8 +449,8 @@ class AdminConf extends DatabaseConf {
             </button>
           )}
           <div className="float-right">
-            <button type="button" className="btn btn-secondary" onClick={this._next}>
-              {$L('下一步')}
+            <button type="button" className="btn btn-primary" onClick={this._next}>
+              {$L('开始安装')}
             </button>
           </div>
           <div className="clearfix" />
@@ -494,68 +475,7 @@ class AdminConf extends DatabaseConf {
   _next = () => {
     const ps = this._buildProps(true)
     if (!ps) return
-    this.props.$$$parent.setState({ stepNo: 5, adminProps: ps })
-  }
-}
-
-// ~
-class ModelConf extends React.Component {
-  state = { ...this.props }
-
-  render() {
-    return (
-      <div className="rb-model">
-        <h3>
-          {$L('选择业务应用')}
-          <div className="link" dangerouslySetInnerHTML={{ __html: $L('选择要预装的业务应用，不选择也可以直接安装') }} />
-        </h3>
-
-        {DatabaseConf_mount ? (
-          <div className="mb-6">
-            <RbAlertBox message={$L('由于使用了已存在的 REBUILD 数据库，因此此步骤不可用，你仍可以继续安装')} />
-          </div>
-        ) : (
-          <InitModels ref={(c) => (this._InitModels = c)} rbsystemPackage={this.state.rbsystemPackage} />
-        )}
-
-        <div className="progress">
-          <div className="progress-bar" style={{ width: '80%' }} />
-        </div>
-        <div className="splash-footer">
-          <button type="button" className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(4)}>
-            <i className="zmdi zmdi-chevron-left icon" />
-            {$L('设置超级管理员')}
-          </button>
-          <div className="float-right">
-            <button type="button" className="btn btn-primary" onClick={this._next}>
-              {$L('开始安装')}
-            </button>
-          </div>
-          <div className="clearfix" />
-        </div>
-      </div>
-    )
-  }
-
-  _buildProps() {
-    if (this._InitModels && this._InitModels.getMode() === 'package') return []
-    return this._InitModels ? this._InitModels.getSelected() : []
-  }
-
-  _buildPackage = () => {
-    if (!this._InitModels || this._InitModels.getMode() !== 'package') return null
-    return this._InitModels.getPackage()
-  }
-
-  _prev = () => this.props.$$$parent.setState({ stepNo: 4, modelProps: this._buildProps(), rbsystemPackage: this._buildPackage() })
-  _next = () => {
-    if (this._InitModels && this._InitModels.getMode() === 'package' && !this._InitModels.getPackage()) {
-      RbHighbar.create($L('请选择应用资源包'))
-      return
-    }
-
-    const ps = this._buildProps()
-    this.props.$$$parent.setState({ stepNo: 10, modelProps: ps, rbsystemPackage: this._buildPackage() }, () => this.props.$$$parent.install())
+    this.props.$$$parent.setState({ stepNo: 10, adminProps: ps }, () => this.props.$$$parent.install())
   }
 }
 

@@ -29,6 +29,10 @@ html.theme-dark2 .login-form {
   color: var(--rb-dark-text);
 }
 
+html.theme-dark2 .rb-navless40.rb-splash-screen {
+  background-color: var(--rb-dark-panel);
+}
+
 html.theme-dark2 .login-form .logo-img {
   background-image: url(../../commons/theme/use-logo-white);
 }

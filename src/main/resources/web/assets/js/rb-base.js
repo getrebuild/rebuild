@@ -747,8 +747,17 @@ function $focus2End(el, delay) {
   if (!el) return
   setTimeout(function () {
     el.focus()
-    var len = (el.value || '').length
-    el.setSelectionRange(len, len)
+    if (el.isContentEditable) {
+      var selection = window.getSelection()
+      var range = document.createRange()
+      range.selectNodeContents(el)
+      range.collapse(false)
+      selection.removeAllRanges()
+      selection.addRange(range)
+    } else {
+      var len = (el.value || '').length
+      el.setSelectionRange(len, len)
+    }
   }, delay || 100)
 }
 

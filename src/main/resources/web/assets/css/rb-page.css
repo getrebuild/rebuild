@@ -3716,8 +3716,8 @@ a.user-show:not([href]) {
   color: #fff !important;
 }
 
-.global-search > .dropdown-menu a.badge.aibot-quick {
-  background: linear-gradient(90deg, #fe5281, #a928bf, #474efe) !important;
+.global-search > .dropdown-menu a.badge.aibot-quick:hover > .icon,
+.global-search > .dropdown-menu a.badge.aibot-quick.active > .icon {
   color: #fff !important;
 }
 
@@ -3760,6 +3760,14 @@ a.user-show:not([href]) {
 
 .global-create2 .dropdown-item:hover > .icon {
   color: #fff;
+}
+
+.global-create2 .dropdown-item.aibot-quick > .icon.ai-color {
+  color: transparent !important;
+}
+
+.global-create2 .dropdown-item.aibot-quick:hover > .icon.ai-color {
+  color: #fff !important;
 }
 
 .global-search .dropdown-menu:empty {

@@ -76,7 +76,7 @@ public class UserAvatar extends BaseController {
             response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar-users.png"));
             return;
         } else if (user.equals(AIBOT_USER.toString())) {
-            response.sendRedirect(AppUtils.getContextPath("/assets/img/avatar-aibot.png"));
+            response.sendRedirect(AppUtils.getContextPath("/assets/img/rex-logo-filled-512x512.png"));
             return;
         }
 

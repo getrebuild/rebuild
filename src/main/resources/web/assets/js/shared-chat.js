@@ -29,7 +29,7 @@ const SharedChat = function ({ messages }) {
       <div className="chat-message" key={idx}>
         <div className="msg-ai">
           <div className="avatar">
-            <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
+            <img src={`${rb.baseUrl}/assets/img/rex-logo-filled-512x512.png`} alt="AI" />
           </div>
           <div className="msg-content">
             <RichContent content={m.content || ''} />

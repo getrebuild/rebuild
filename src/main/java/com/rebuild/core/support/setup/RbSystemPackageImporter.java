@@ -54,13 +54,12 @@ public class RbSystemPackageImporter {
     }
 
     /**
-     * 完整恢复
+     * 解压并校验包结构（不写库，供恢复前预检）
      *
-     * @param conn
-     * @throws SQLException
      * @throws IOException
      */
-    public void restore(Connection conn) throws SQLException, IOException {
+    public void unpack() throws IOException {
+        if (rbspkgDir != null) return;
         if (!packageFile.exists()) {
             throw new RebuildException("PACKAGE NOT FOUND : " + packageFile);
         }
@@ -72,6 +71,20 @@ public class RbSystemPackageImporter {
         if (!rbspkgDir.exists()) {
             throw new RebuildException("BAD PACKAGE : `rbspkg` NOT FOUND");
         }
+        if (!new File(rbspkgDir, "schema.sql").exists() || !new File(rbspkgDir, "data.sql").exists()) {
+            throw new RebuildException("BAD PACKAGE : `schema.sql` OR `data.sql` NOT FOUND");
+        }
+    }
+
+    /**
+     * 完整恢复
+     *
+     * @param conn
+     * @throws SQLException
+     * @throws IOException
+     */
+    public void restore(Connection conn) throws SQLException, IOException {
+        this.unpack();
 
         executeSqlFile(conn, new File(rbspkgDir, "schema.sql"));
         executeSqlFile(conn, new File(rbspkgDir, "data.sql"));

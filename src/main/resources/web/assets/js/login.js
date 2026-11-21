@@ -100,6 +100,8 @@ $(document).ready(() => {
         } else if (res.data && res.data.passwdSafeType) {
           to = `${rb.baseUrl}/settings/passwd-safe?type=${res.data.passwdSafeType}`
           if (nexturl) to += `&nexturl=${$encode(nexturl)}`
+        } else if (!to && res.data && res.data.onboarding) {
+          to = `${rb.baseUrl}/onboarding`
         } else if (!to) {
           to = `${rb.baseUrl}/dashboard/home`
         }
@@ -121,7 +123,7 @@ $(document).ready(() => {
     RbHighbar.create($L('临时授权链接已过期'))
   }
 
-  const tip2mob = $.browser.mobile && !isH5App40
+  const tip2mob = $.browser.mobile && !isH5App40 && !$('body').hasClass('rb-navless40')
   if (tip2mob) {
     setTimeout(() => {
       RbAlert.create($L('是否需要切换到手机版访问？'), {

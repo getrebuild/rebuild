@@ -18,14 +18,20 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootConfiguration;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.cache.BaseCacheTemplate;
+import com.rebuild.core.cache.CacheTemplate;
 import com.rebuild.core.cache.RedisDriver;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.rbstore.ClassificationImporter;
+import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.CommandArgs;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.UseRedis;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
@@ -33,6 +39,7 @@ import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 import redis.clients.jedis.Jedis;
@@ -74,6 +81,9 @@ import static com.rebuild.core.support.ConfigurationItem.InstallBuild;
 public class Installer implements InstallState {
 
     public static final String CONF_PREFIX = "db.";
+
+    // 全新安装待引导
+    public static final String CK_ONBOARDING = "OnboardingPending";
 
     // 快速安装模式（H2 数据库）
     private boolean quickMode;
@@ -181,6 +191,15 @@ public class Installer implements InstallState {
         }
 
         this.installClassificationAsync();
+
+        // 全新安装完成，3 天内首次登录进入引导页
+        Application.getCommonsCache().putx(CK_ONBOARDING, Boolean.TRUE, CacheTemplate.TS_DAY * 3);
+
+        // 站内信通知管理员
+        String viewUrl = AppUtils.getContextPath("/onboarding");
+        String content = Language.L("系统已就绪。你可以导入业务模块、到应用商店挑一套现成的，或试试 AI 智能搭建，上线你的第一个业务应用。");
+        content += String.format("[%s](%s)", Language.L("开始使用"), viewUrl);
+        Application.getNotifications().send(MessageBuilder.createMessage(UserService.ADMIN_USER, content));
     }
 
     /**
@@ -196,6 +215,8 @@ public class Installer implements InstallState {
         ds.setUrl(BootEnvironmentPostProcessor.getProperty("db.url"));
         ds.setUsername(BootEnvironmentPostProcessor.getProperty("db.user"));
         ds.setPassword(BootEnvironmentPostProcessor.getProperty("db.passwd"));
+        ds.setDriverClassName(isUseH2() ? org.h2.Driver.class.getName() : com.mysql.cj.jdbc.Driver.class.getName());
+        ds.setDriver(null);
 
         // 刷新: REDIS
         JedisPool pool = BootConfiguration.createJedisPoolInternal();
@@ -414,6 +435,58 @@ public class Installer implements InstallState {
             }
         }
         return SQLS.toArray(new String[0]);
+    }
+
+    /**
+     * 重置系统
+     *
+     * @throws Exception
+     */
+    public static void resetSystem() throws Exception {
+        if (!CommandArgs.getBoolean("_ResetConfirm46")) throw new RebuildSetupException("Not allowed");
+
+        // 1.备份
+        if (!isUseH2()) new DatabaseBackup().backup();
+        new DatafileBackup().backup();
+
+        // 保留 SN
+        String SN = RebuildConfiguration.get(ConfigurationItem.SN, true);
+
+        // 2.删除原有，3.重建
+        try (Connection conn = Application.getBean(DataSource.class).getConnection();
+             Statement stmt = conn.createStatement()) {
+            if (isUseH2()) {
+                stmt.execute("DROP ALL OBJECTS");
+            } else {
+                String dbName = conn.getCatalog();
+                stmt.execute("DROP DATABASE `" + dbName + "`");
+                stmt.execute("CREATE DATABASE `" + dbName + "` COLLATE utf8mb4_general_ci");
+                stmt.execute("USE `" + dbName + "`");
+            }
+
+            Installer installer = new Installer();
+            installer.dbInfo = new DbInfo(isUseH2() ? "H2" : conn.getMetaData().getDatabaseProductVersion());
+            for (String sql : installer.getDbInitScript()) {
+                stmt.execute(sql);
+            }
+
+            if (StringUtils.isNotBlank(SN)) {
+                stmt.execute(String.format(
+                        "insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) values ('%s','SN','%s')",
+                        ID.newId(EntityHelper.SystemConfig), StringEscapeUtils.escapeSql(SN)));
+            }
+        }
+
+        if (!isUseH2()) {
+            ((DruidDataSource) Application.getBean(DataSource.class)).restart();
+        }
+        MetadataHelper.getMetadataFactory().refresh();
+        Application.getUserStore().refresh();
+        clearAllCache();
+        FileUtils.deleteQuietly(RebuildConfiguration.getFileOfData("rb"));
+
+        // 首次登录进入引导页
+        Application.getCommonsCache().putx(CK_ONBOARDING, Boolean.TRUE, CacheTemplate.TS_DAY * 3);
     }
 
     /**

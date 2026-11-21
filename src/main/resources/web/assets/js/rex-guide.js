@@ -201,6 +201,8 @@ const __showRexGuide = function (configured, isAdmin) {
 window.__RexGuideScene = window.__RexGuideScene || 0
 window.__checkRexGuide = function () {
   if (window.top !== window.self) return
+  if (location.pathname.includes('/onboarding')) return
+  if (location.pathname.includes('/aibot')) return
   if (!rb.currentUser) return
   if (!~~window.__RexGuideScene && $storage.get('RexGuideEnd-' + rb.currentUser)) return
 

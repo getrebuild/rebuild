@@ -348,6 +348,7 @@ $(function () {
         }
       } else {
         $('.aibot-show').remove()
+        $('.aibot-quick').remove()
       }
     })
   }
@@ -712,7 +713,9 @@ var _initGlobalSearch = function () {
   })
 
   // v4.5
-  $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer"></i> ' + $L('问 Rex') + '</a>').appendTo($gs)
+  if ($('.aibot-shift:visible')[0]) {
+    $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer ai-color"></i> ' + $L('用 Rex 搜索') + '</a>').appendTo($gs)
+  }
 
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
@@ -725,10 +728,11 @@ var _initGlobalSearch = function () {
   })
 
   var $es = $gs.find('a').on('click', function () {
-    var s = $('.search-input-gs').val()
+    var s = ($('.search-input-gs').val() || '').trim()
     if ($(this).hasClass('aibot-quick')) {
       $('.search-container .dropdown-toggle').dropdown('toggle')
-      window.AiBot && window.AiBot.init({ preset: { content: s, autoSend: true } }, false)
+      var content = s || $L('帮我找一条记录，先问我要找什么。')
+      window.AiBot && window.AiBot.init({ preset: { content: content, autoSend: false } }, false)
       return
     }
     $storage.set('GlobalSearch-gs', s || '')
@@ -755,10 +759,11 @@ var _initGlobalSearch = function () {
       if (!$next[0]) $next = $es.first()
       _tryActive($active, $next)
     } else if (e.keyCode === 13) {
-      var s = $('.search-input-gs').val()
+      var s = ($('.search-input-gs').val() || '').trim()
       if ($active.hasClass('aibot-quick')) {
         $('.search-container .dropdown-toggle').dropdown('toggle')
-        window.AiBot && window.AiBot.init({ preset: { content: s, autoSend: true } }, false)
+        var content = s || $L('帮我找一条记录，先问我要找什么。')
+        window.AiBot && window.AiBot.init({ preset: { content: content, autoSend: false } }, false)
         return
       }
       $storage.set('GlobalSearch-gs', s || '')
@@ -791,6 +796,18 @@ var _showGlobalSearch = function (gs, $gs) {
 
 // 全局新建
 var _initGlobalCreate = function () {
+  var $gc = $('.global-create2 .dropdown-menu')
+
+  // v4.5
+  if ($('.aibot-shift:visible')[0]) {
+    $('<a class="dropdown-item aibot-quick"><i class="icon mdi mdi-shimmer ai-color"></i>' + $L('用 Rex 新建') + '</a>')
+      .appendTo($gc)
+      .on('click', function () {
+        var content = $L('帮我新建一条记录，先问我要建哪类记录、填哪些内容。')
+        window.AiBot && window.AiBot.init({ preset: { content: content, autoSend: false } }, false)
+      })
+  }
+
   var entities = []
   $('.sidebar-elements li').each(function () {
     var e = $(this).data('entity')
@@ -800,7 +817,6 @@ var _initGlobalCreate = function () {
 
   $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
     if (res.data && res.data.length > 0) {
-      var $gc = $('.global-create2 .dropdown-menu')
       $gc.perfectScrollbar()
       $(res.data).each(function () {
         var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)

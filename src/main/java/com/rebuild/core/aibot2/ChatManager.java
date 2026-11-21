@@ -9,10 +9,14 @@ package com.rebuild.core.aibot2;
 
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionContentPart;
 import com.openai.models.chat.completions.ChatCompletionContentPartImage;
 import com.openai.models.chat.completions.ChatCompletionContentPartText;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.service.AibotChatService;
@@ -30,6 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rebuild.core.aibot2.vector.VectorData.NN;
 import static com.rebuild.core.metadata.EntityHelper.AibotChat;
 
 /**
@@ -41,6 +46,9 @@ public abstract class ChatManager {
 
     // 会话来源：公开访问（含匿名访客）
     public static final String SOURCE_PUB = "PUB";
+
+    // 摘要输入上限（字符），只取最近内容避免超出模型上下文
+    private static final int SUMMARY_MAX_CHARS = 12000;
 
     /**
      * @param user
@@ -267,6 +275,71 @@ public abstract class ChatManager {
             AibotContextHolder.restoreAgent(prevAgent);
             chat.endRun();
         }
+    }
+
+    /**
+     * 压缩会话为摘要（后台整理调用，不经聊天请求链路，不产生隐藏会话，也不计入用户配额）
+     *
+     * @param chatid
+     * @return
+     */
+    public static String summarizeChat(ID chatid) {
+        return summarizeChat(chatid, false);
+    }
+
+    /**
+     * @param chatid
+     * @param reload 从数据库重新加载会话（后台任务用，避免使用可能过期的缓存）
+     * @return
+     */
+    public static String summarizeChat(ID chatid, boolean reload) {
+        Chat chat = reload ? new Chat(chatid) : getChat(chatid);
+        final int msgCount = chat.getMessages().size();
+
+        // 已有摘要且之后没有新消息，直接复用（后台任务生成）
+        if (!reload) {
+            Object[] stored = Application.createQueryNoFilter(
+                    "select summary from AibotChat where chatId = ?")
+                    .setParameter(1, chatid)
+                    .unique();
+            if (stored != null && stored[0] != null) {
+                JSONObject summary = JSON.parseObject((String) stored[0]);
+                if (summary != null && summary.getIntValue("messages") == msgCount) {
+                    String cached = summary.getString("text");
+                    if (StringUtils.isNotBlank(cached)) return cached;
+                }
+            }
+        }
+
+        StringBuilder conversationText = new StringBuilder();
+        int effective = 0;
+        for (Message m : chat.getMessages()) {
+            String role = m.getRole();
+            String content = m.getContent();
+            if (StringUtils.isBlank(content)) continue;
+
+            if (Message.ROLE_USER.equals(role)) {
+                conversationText.append("用户: ").append(content).append(NN);
+                effective++;
+            } else if (Message.ROLE_AI.equals(role)) {
+                conversationText.append("AI: ").append(content).append(NN);
+                effective++;
+            }
+        }
+        if (effective == 0) return null;
+
+        // 只保留最近内容，避免超出模型上下文
+        if (conversationText.length() > SUMMARY_MAX_CHARS) {
+            conversationText.delete(0, conversationText.length() - SUMMARY_MAX_CHARS);
+        }
+
+        String prompt = "你是对话压缩助手，请将以下对话历史压缩为简洁摘要，保留关键信息和上下文要点";
+        ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, chat.getAgent())
+                .addUserMessage(conversationText.toString());
+
+        ChatCompletion resp = ChatExecutor.createChat(builder.build(), null, chat.getAgent());
+        if (resp.choices() == null || resp.choices().isEmpty()) return null;
+        return StringUtils.trimToNull(resp.choices().get(0).message().content().orElse(null));
     }
 
     /**

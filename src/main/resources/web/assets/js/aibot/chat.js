@@ -179,7 +179,8 @@ class Chat extends React.Component {
     if (!keepView) this._ChatMessages.setMessages([], true, null)
     // 新会话标题回到默认智能体名称（默认智能体禁用时同样使用）
     if (!chatid && !keepView && typeof this.props.onAgentChanged === 'function') this.props.onAgentChanged(null)
-    this._ChatInput.reset(!chatid)
+    // 新会话聚焦输入框，切换智能体（keepView）及手机版不聚焦
+    this._ChatInput.reset(!chatid && !keepView && window.innerWidth >= 900)
     const _preset = this._preset
     this._preset = null
     this._ChatSidebar.setState({ current: null })
@@ -373,7 +374,6 @@ class ChatInput extends React.Component {
       )
     }
 
-    // 当前会话使用的智能体（默认助手或其他智能体）已禁用/不可用，无法继续
     const currentId = _Chat.state.agentId || null
     const currentUnavailable = currentId !== null && !agents.some((a) => (a.id || null) === currentId)
     if (_Chat.state.agents !== null && (currentUnavailable || (_Chat.state.defaultDisabled && !currentId))) {
@@ -390,8 +390,7 @@ class ChatInput extends React.Component {
     }
 
     const current = _Chat.getCurrentAgent()
-    const allSkills = _Chat.state.skills || []
-    // 智能体未配置 skills 表示不限制，配置为空数组表示不可用任何技能
+    const allSkills = (_Chat.state.skills || []).filter((s) => rb.isAdminUser || !/管理员|admin/i.test(`${s.name || ''} ${s.description || ''}`))
     const agentSkills = current && current.skills
     const skills = Array.isArray(agentSkills) ? allSkills.filter((s) => agentSkills.some((n) => String(n).toLowerCase() === String(s.name).toLowerCase())) : allSkills
     return (
@@ -438,7 +437,6 @@ class ChatInput extends React.Component {
               onBlur={() => this.setState({ active: false })}
               onFocus={() => this.setState({ active: true })}
               data-placeholder={$L('输入问题')}
-              autoFocus
               ref={(c) => (this._$editable = c)}
             />
           </div>
@@ -593,7 +591,7 @@ class ChatInput extends React.Component {
   }
 
   focus() {
-    this._$editable && this._$editable.focus()
+    this._$editable && $focus2End(this._$editable)
   }
 
   val(value) {
@@ -702,13 +700,7 @@ class ChatWelcome extends React.Component {
     return (
       <div className="chat-welcome">
         <div className="welcome-logo">
-          {this.props.agentIcon ? (
-            <span className="agent-avatar">
-              <i className={`icon mdi ai-color ${this.props.agentIcon}`} />
-            </span>
-          ) : (
-            <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
-          )}
+          <img src={`${rb.baseUrl}/assets/img/rex-logo-filled-512x512.png`} alt="AI" />
         </div>
         {!$empty(this.props.welcome) && <p className="welcome-line">{this.props.welcome}</p>}
         {agents.length > 1 && (
@@ -728,7 +720,7 @@ class ChatWelcome extends React.Component {
         )}
         {suggests.length > 0 && (
           <div className="chat-suggest">
-            <div className="welcome-suggest-label">{$L('你可以这样问我')}</div>
+            <div className="welcome-suggest-label">{$L('试试这样问我')}</div>
             <div className="welcome-suggest-list">
               {suggests.map((q, idx) => (
                 <a className="badge" key={idx} onClick={() => this.props.onSuggest && this.props.onSuggest(q)}>
@@ -777,7 +769,6 @@ class ChatMessages extends React.Component {
             suggestions={this.state.suggestQuestions || []}
             agents={this.props.agents}
             agentId={this.props.agentId}
-            agentIcon={this.props.agentIcon}
             onSuggest={(q) => this._handleSuggestClick(q)}
             onSwitchAgent={(agentId) => this.props._Chat.switchAgent && this.props._Chat.switchAgent(agentId)}
           />
@@ -1110,7 +1101,7 @@ class ChatMessage extends React.Component {
               <i className={`icon mdi ai-color ${this.props.agentIcon}`} />
             </span>
           ) : (
-            <img src={`${rb.baseUrl}/assets/img/icon-256x256.png`} alt="AI" />
+            <img src={`${rb.baseUrl}/assets/img/rex-logo-filled-512x512.png`} alt="AI" />
           )}
         </div>
         <div className="msg-content">
@@ -1171,7 +1162,6 @@ class ChatMessage extends React.Component {
                     onClick={() => {
                       const _Chat = this.props._ChatMessages.props._Chat
                       _Chat.hideConfirm()
-                      _Chat._ChatInput && _Chat._ChatInput.focus()
                     }}>
                     {this.props.confirmAction.cancelText || $L('取消')}
                   </a>

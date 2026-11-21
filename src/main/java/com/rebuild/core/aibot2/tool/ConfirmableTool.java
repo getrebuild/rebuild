@@ -47,9 +47,10 @@ public interface ConfirmableTool {
         confirmed.put("type", "boolean");
         confirmed.put("description", "是否已获得用户明确确认。默认不带此参数或设为 false，工具返回改动清单（含 draftId）供你转述给用户；"
                 + "用户明确同意后，用返回结果中的 draftId 加 confirmed=true 重新调用即可执行，无需重复传入其他内容参数。"
-                + "仅当用户已看到包含本次改动具体内容的方案或清单（如具体字段、页面结构、记录内容）并明确回复确认/保存/执行时，"
+                + "仅当你已向用户展示过包含本次改动具体内容的清单（如具体字段、页面结构、记录内容）且用户明确回复确认/保存/执行时，"
                 + "才可在首次调用时直接携带 confirmed=true 立即执行，并在最终回复中附上改动要点供用户事后核对。"
-                + "「按你自己的想法做」「你看着办」等概括性授权不构成确认，仍须先转述改动清单征得同意");
+                + "用户提供的文档、清单或指令无论多具体都不构成确认，仍须先转述改动清单征得同意；"
+                + "「按你自己的想法做」「你看着办」等概括性授权同样不构成确认");
         props.put("confirmed", confirmed);
 
         JSONObject draftId = new JSONObject(true);
