@@ -14,8 +14,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .bosskey-show,
-.dev-show,
-.aibot-show {
+.dev-show {
   display: none !important;
 }
 
@@ -3643,7 +3642,7 @@ a.user-show:not([href]) {
 @media (max-width: 767.98px) {
   .rb-top-header .global-search2,
   .rb-top-header .global-create2,
-  .rb-top-header .aibot-show {
+  .rb-top-header .aibot-shift {
     display: none !important;
   }
 }

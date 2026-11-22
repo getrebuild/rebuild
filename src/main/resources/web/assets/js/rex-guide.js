@@ -220,7 +220,7 @@ window.__checkRexGuide = function () {
     } else if (scene === 3) {
       configured = true
     } else if (configured) {
-      if (!$('.aibot-show')[0]) return
+      if (!$('.aibot-shift')[0]) return
       if ($storage.get('RexGuideEnd-' + rb.currentUser)) return
     } else if (isAdmin) {
       if (~~$storage.get('RexGuideCfgCount-' + rb.currentUser) >= 3) return

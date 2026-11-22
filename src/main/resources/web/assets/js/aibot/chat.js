@@ -1479,6 +1479,7 @@ class ChatSidebar extends React.Component {
   }
 
   componentWillUnmount() {
+    this._unmounted = true
     if (this._pollTimer) clearTimeout(this._pollTimer)
     this._pollTimer = null
   }
@@ -1498,6 +1499,8 @@ class ChatSidebar extends React.Component {
   // 记录各会话最后查看的 modifiedOn
   _loadChatList(markSeenChatid) {
     $.get('/aibot2/post/chat-list', (res) => {
+      if (this._unmounted) return
+
       const data = res.data || []
 
       const seen = {}
@@ -1525,6 +1528,8 @@ class ChatSidebar extends React.Component {
 
   // 有回答中的会话时，每 5s 只查询这些会话
   _maybePoll() {
+    if (this._unmounted) return
+
     const answering = []
     this.state.list.forEach((g) => {
       g.items.forEach((item) => {

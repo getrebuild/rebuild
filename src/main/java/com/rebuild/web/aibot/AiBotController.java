@@ -70,13 +70,6 @@ public class AiBotController extends LoginAction {
         return mv;
     }
 
-    @GetMapping("check-usable")
-    public RespBody checkUsable(HttpServletRequest req) {
-        String aibot = Config.getAvailableAiBot(getRequestUser(req));
-        if (aibot == null && !License.isCommercial()) aibot = "Rex AI 助手";
-        return RespBody.ok(aibot);
-    }
-    
     @GetMapping("check-configured")
     public RespBody checkConfigured(HttpServletRequest request) {
         if (AppUtils.getRequestUser(request) == null) return RespBody.error();

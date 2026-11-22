@@ -259,8 +259,14 @@ public class ApprovalProcessor extends SetUser {
                 String pendingNode = status.getCurrentStepNode();
                 if (StringUtils.isBlank(pendingNode) || pendingNode.equals(fromNode)) break;
 
+                // 注意：approve 只作用于记录上的单一当前节点，因此并行分支下其余分支不会被自动通过
                 FlowNode flowNode = getFlowNode(pendingNode);
-                if (flowNode == null || !flowNode.skipSameApprover()) break;
+                if (flowNode == null) {
+                    log.warn("Cannot auto-approve same-approver for [{}]: node [{}] not found in flow [{}]",
+                            this.recordId, pendingNode, status.getApprovalId());
+                    break;
+                }
+                if (!flowNode.skipSameApprover()) break;
 
                 Object[][] pendingApprovers = Application.createQueryNoFilter(
                         "select approver from RobotApprovalStep" +

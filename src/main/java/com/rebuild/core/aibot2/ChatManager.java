@@ -207,8 +207,8 @@ public abstract class ChatManager {
 
         Chat chat;
         if (newChat && params.getAgent() != null) {
-            appendPrompt(params.getAgent(), params.getPrompt());
             chat = new Chat(chatid, params.getAgent());
+            chat.appendPrompt(params.getPrompt());
         } else if (newChat) {
             chat = new Chat(chatid, null, params.getPrompt());
         } else {
@@ -219,7 +219,7 @@ public abstract class ChatManager {
             String quotaExceeded = AgentQuota.check(chat.getAgent());
             if (quotaExceeded != null) throw new AiBotException(quotaExceeded);
 
-            appendPrompt(chat.getAgent(), params.getPrompt());
+            chat.appendPrompt(params.getPrompt());
         }
 
         // 新会话立即入缓存（已有会话经 getChat 已入），使同一会话的并发提问（如企微连续消息）拿到同一实例，经 tryBeginRun 串行
@@ -340,15 +340,5 @@ public abstract class ChatManager {
         ChatCompletion resp = ChatExecutor.createChat(builder.build(), null, chat.getAgent());
         if (resp.choices() == null || resp.choices().isEmpty()) return null;
         return StringUtils.trimToNull(resp.choices().get(0).message().content().orElse(null));
-    }
-
-    /**
-     * @param agent
-     * @param prompt
-     */
-    private static void appendPrompt(AibotAgent agent, String prompt) {
-        if (agent == null || StringUtils.isBlank(prompt)) return;
-        String base = agent.getPrompt();
-        agent.setPrompt(StringUtils.isBlank(base) ? prompt : base + "\n\n" + prompt);
     }
 }

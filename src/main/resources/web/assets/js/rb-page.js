@@ -329,27 +329,16 @@ $(function () {
     }
   }
 
-  // v4.6
-  if (rb.currentUser && $('.aibot-show').length) {
-    $.get('/aibot/check-usable', function (res) {
-      if (res.data) {
-        $('.aibot-show').removeClass('aibot-show')
-
-        var $ai = $('.aibot-shift a')
-        if ($ai[0]) {
-          var _FN = function () {
-            window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId') }, true)
-          }
-          $ai.on('click', _FN)
-          $(document).on('keydown.aibot', null, 'shift+/', function (e) {
-            $stopEvent(e, true)
-            _FN()
-          })
-        }
-      } else {
-        $('.aibot-show').remove()
-        $('.aibot-quick').remove()
-      }
+  // v4.6 AI 入口（是否渲染由服务端按用户判定，见 nav-top.html 的 _AllowUseAiBot）
+  var $ai = $('.aibot-shift a')
+  if ($ai[0]) {
+    var _FN = function () {
+      window.AiBot && window.AiBot.init({ chatid: $storage.get('__AiBotLastChatId') }, true)
+    }
+    $ai.on('click', _FN)
+    $(document).on('keydown.aibot', null, 'shift+/', function (e) {
+      $stopEvent(e, true)
+      _FN()
     })
   }
 })
@@ -713,7 +702,7 @@ var _initGlobalSearch = function () {
   })
 
   // v4.5
-  if ($('.aibot-shift:visible')[0]) {
+  if ($('.aibot-shift')[0]) {
     $('<a class="badge aibot-quick" data-aibot="1"><i class="icon mdi mdi-shimmer ai-color"></i> ' + $L('用 Rex 搜索') + '</a>').appendTo($gs)
   }
 
@@ -799,7 +788,7 @@ var _initGlobalCreate = function () {
   var $gc = $('.global-create2 .dropdown-menu')
 
   // v4.5
-  if ($('.aibot-shift:visible')[0]) {
+  if ($('.aibot-shift')[0]) {
     $('<a class="dropdown-item aibot-quick"><i class="icon mdi mdi-shimmer ai-color"></i>' + $L('用 Rex 新建') + '</a>')
       .appendTo($gc)
       .on('click', function () {
