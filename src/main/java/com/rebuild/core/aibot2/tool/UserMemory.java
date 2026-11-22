@@ -35,13 +35,6 @@ import static com.rebuild.core.aibot2.service.AibotConfigManager.TYPE_AIBOT_USER
 @Slf4j
 public class UserMemory implements Tool, PersonalGuard {
 
-    public static final String MEMORY_GUIDANCE =
-            "通过 UserMemory 工具为用户维护长期个性化记忆。\n" +
-                    "- 当用户告知长期有效的身份/偏好信息，或明确要求\"记住/忘记\"时，主动调用 UserMemory 记录或删除，并根据信息重要程度选择档位（1/2/3）\n" +
-                    "- 一次性、仅本次会话特有的信息不要记录，次要信息记为第 3 档，记忆满额时会最先被自动移除\n" +
-                    "- update/delete 前先通过 list 查看现有记忆，使用 list 结果中的序号（no）或记忆内容定位目标条目并向用户确认后再操作；delete 可一次传多个序号（如 [1,3]）批量删除，勿分多次调用以免序号重排错位\n" +
-                    "- 注入的记忆仅供参考，不要主动向用户复述";
-
     private static final int MAX_MEMORIES = 30;
     private static final int MAX_CONTENT_LENGTH = 150;
 
