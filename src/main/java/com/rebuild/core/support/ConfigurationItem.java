@@ -141,6 +141,7 @@ public enum ConfigurationItem {
     AibotTopP,
     AibotReasoningEffort,
     AibotAsrModel,
+    AibotVisionModel,
     AibotDefaultDisabled(false),
 
     // PORTALs

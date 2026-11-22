@@ -40,7 +40,6 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.CommonsUtils;
@@ -80,9 +79,8 @@ import java.util.TreeMap;
 @RequestMapping("/admin/integration")
 public class AiBot2AdminController extends BaseController {
 
-    private static final String CHAT_VISIBLE_WHERE = String.format(
-            " where createdBy <> '%s' and (createdBy <> '%s' or source = '%s')",
-            UserService.SYSTEM_USER, UserService.AIBOT_USER, ChatManager.SOURCE_PUB);
+    // 会话列表仅显示真实用户会话与公开访问会话，定时任务、集成等系统调用产生的会话不显示
+    private static final String CHAT_VISIBLE_WHERE = " where " + ChatManager.VISIBLE_WHERE;
 
     @PostMapping("aibot")
     public RespBody postIntegrationAibot(@RequestBody JSONObject data) {
@@ -135,12 +133,22 @@ public class AiBot2AdminController extends BaseController {
         final ID agent = getIdParameter(request, "agent");
         final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
 
-        Query query = Application.createQueryNoFilter(
-                        "select createdOn, createdBy, token, source from AibotChat where createdOn > ?"
+        // 词元统计全量（含内部调用会话）
+        Query tokenQuery = Application.createQueryNoFilter(
+                        "select createdOn, createdBy, token from AibotChat where createdOn > ?"
                                 + (agent == null ? "" : " and agentId = ?"))
                 .setParameter(1, xday);
-        if (agent != null) query.setParameter(2, agent);
-        Object[][] rows = query.array();
+        if (agent != null) tokenQuery.setParameter(2, agent);
+        Object[][] tokenRows = tokenQuery.array();
+
+        // 会话数/使用人数与会话列表同口径
+        Query chatQuery = Application.createQueryNoFilter(
+                        "select createdOn, createdBy, source from AibotChat where " + ChatManager.VISIBLE_WHERE
+                                + " and createdOn > ?"
+                                + (agent == null ? "" : " and agentId = ?"))
+                .setParameter(1, xday);
+        if (agent != null) chatQuery.setParameter(2, agent);
+        Object[][] chatRows = chatQuery.array();
 
         // 按日（词元/会话数/使用人数）与按用户聚合
         Map<String, Long> tokensByDay = new TreeMap<>();
@@ -151,18 +159,22 @@ public class AiBot2AdminController extends BaseController {
         long tokenTotal = 0;
         int realChats = 0;
 
-        for (Object[] o : rows) {
+        for (Object[] o : tokenRows) {
             String day = CalendarUtils.format("yyyy-MM-dd", (Date) o[0]);
             ID user = (ID) o[1];
             long token = o[2] == null ? 0L : ((Number) o[2]).longValue();
-            boolean visitor = isVisitorChat(user, (String) o[3]);
 
-            // 词元全量统计（含内部调用会话），会话数统计真实用户与访客（与 chat-list 口径一致），使用人数不含访客
             tokensByDay.merge(day, token, Long::sum);
             tokenMap.merge(user, token, Long::sum);
             tokenTotal += token;
+        }
 
-            if (!visitor && UserHelper.isSystemUser(user)) continue;
+        // 会话数含真实用户与访客，使用人数不含访客
+        for (Object[] o : chatRows) {
+            String day = CalendarUtils.format("yyyy-MM-dd", (Date) o[0]);
+            ID user = (ID) o[1];
+            boolean visitor = isVisitorChat(user, (String) o[2]);
+
             realChats++;
             chatsByDay.merge(day, 1, Integer::sum);
 
@@ -301,7 +313,8 @@ public class AiBot2AdminController extends BaseController {
     }
 
     @GetMapping("aibot/kb-list")
-    public RespBody kbList() {
+    public RespBody kbList(HttpServletRequest request) {
+        boolean lite = getBoolParameter(request, "lite");
         Object[][] array = Application.createQueryNoFilter(
                 "select configId,name,config,isDisabled from AibotConfig where type = 'KNOWLEDGE' order by name")
                 .array();
@@ -315,7 +328,7 @@ public class AiBot2AdminController extends BaseController {
             if (conf != null) {
                 item.put("description", conf.getString("description"));
                 item.put("sourceType", conf.getString("sourceType"));
-                item.put("sourceConfig", conf.getString("sourceConfig"));
+                if (!lite) item.put("sourceConfig", conf.getString("sourceConfig"));
                 item.put("chunkCount", conf.getIntValue("chunkCount"));
             }
             item.put("isDisabled", o[3]);
@@ -605,18 +618,24 @@ public class AiBot2AdminController extends BaseController {
         }
 
         Object[][] array = Application.createQueryNoFilter(
-                        "select chatId,subject,createdBy,token,modifiedOn from AibotChat" + where + " order by modifiedOn desc")
+                        "select chatId,subject,createdBy,token,modifiedOn,summary from AibotChat" + where + " order by modifiedOn desc")
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
         JSONArray data = new JSONArray();
         for (Object[] o : array) {
             ID createdBy = (ID) o[2];
+            String summaryText = null;
+            if (JSONUtils.wellFormat(o[5])) {
+                JSON summary = JSONUtils.parseSafe((String) o[5]);
+                if (summary instanceof JSONObject) summaryText = ((JSONObject) summary).getString("text");
+            }
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[]{"id", "subject", "userName", "token", "modifiedOn"},
+                    new String[]{"id", "subject", "userName", "token", "modifiedOn", "summary"},
                     new Object[]{o[0], o[1], UserService.AIBOT_USER.equals(createdBy)
                             ? Language.L("访客") : UserHelper.getName(createdBy),
-                            o[3] == null ? 0L : o[3], I18nUtils.formatDate((Date) o[4])});
+                            o[3] == null ? 0L : o[3], o[4] == null ? null
+                                    : CalendarUtils.getDateFormat("yyyy-MM-dd HH:mm").format((Date) o[4]), summaryText});
             data.add(item);
         }
 

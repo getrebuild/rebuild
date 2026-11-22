@@ -61,6 +61,7 @@ public class AgentDefs {
                 .setIcon(conf.getString("icon"))
                 .setModel(conf.getString("AibotBaseDefModel"))
                 .setAsrModel(conf.getString("AibotAsrModel"))
+                .setVisionModel(conf.getString("AibotVisionModel"))
                 .setDsUrl(conf.getString("AibotDSUrl"))
                 .setDsSecret(conf.getString("AibotDSSecret"))
                 .setPrompt(conf.getString("AibotBasePrompt"))

@@ -178,6 +178,8 @@ public class NavBuilder extends NavManager {
                     JSONObject subNav = (JSONObject) subIter.next();
                     if (isFilterNavItem(subNav, user)) {
                         subIter.remove();
+                    } else if (NAV_MINAPP.equals(subNav.getString("value"))) {
+                        subNav.put("sub", buildAvailableMinApps(user));
                     }
                 }
 

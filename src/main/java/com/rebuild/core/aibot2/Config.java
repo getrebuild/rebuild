@@ -291,6 +291,15 @@ public class Config {
     }
 
     /**
+     * 视觉模型（未配置即不启用图片识别）
+     *
+     * @return
+     */
+    public static String getVisionModel() {
+        return RebuildConfiguration.get(ConfigurationItem.AibotVisionModel);
+    }
+
+    /**
      * @return
      */
     public static String getBasePrompt() {

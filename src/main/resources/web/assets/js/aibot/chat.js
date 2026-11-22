@@ -26,6 +26,10 @@ const _chatMarked = new marked.Marked({
       }
       return false
     },
+    html({ text }) {
+      // 原始 HTML 一律转义：AI 回复与公开访客内容不可信，防止 XSS
+      return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    },
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens)
       if (!/^https?:\/\//i.test(href) && !href.startsWith('/')) return text
@@ -55,9 +59,6 @@ let __streamController = null
 
 var STALL_HINT_DELAY = 3000
 var STALL_HINTS_INIT = ['马上就好...', '稍等一下...', '快好了..']
-
-// 错误消息渲染为红色
-const __errorHtml = (error) => `<span class="text-danger"><i class="mdi mdi-alert-circle-outline fs-14 down-1 mr-1"></i>${error}</span>`
 
 // eslint-disable-next-line no-unused-vars
 class Chat extends React.Component {
@@ -812,10 +813,10 @@ class ChatMessages extends React.Component {
     // 消息整体被替换（如加载失败）时丢弃失效的欢迎消息
     if (this._welcomeMsg && messages && messages.indexOf(this._welcomeMsg) === -1) this._welcomeMsg = null
 
-    // 历史错误消息渲染为红色（与实时错误提示一致）
+    // 历史错误消息由 error 字段渲染为红色（与实时错误提示一致）
     if (messages) {
       messages = messages.map((m) => {
-        if (m.error && m.content) return { ...m, content: __errorHtml(m.error) }
+        if (m.error) return { ...m, content: null }
         return m
       })
     }
@@ -912,7 +913,9 @@ class ChatMessage extends React.Component {
           return
         }
         if (data.error) {
-          data.content = __errorHtml(data.error)
+          this._clearStallTimers()
+          this.setState({ error: data.error, waitResp: 0, stallHint: null })
+          return
         }
 
         if (data.type === '_chatid') {
@@ -979,6 +982,7 @@ class ChatMessage extends React.Component {
       this.setState({
         content: this.props.content,
         reasoning: this.props.reasoning,
+        error: this.props.error,
         waitResp: 0,
         reasoningOpen: false,
         stallHint: null,
@@ -986,7 +990,7 @@ class ChatMessage extends React.Component {
       return
     }
 
-    const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning
+    const contentChanged = prevState.content !== this.state.content || prevState.reasoning !== this.state.reasoning || prevState.error !== this.state.error
     if (contentChanged) this.props._ChatMessages.scrollToBottom()
   }
 
@@ -1149,6 +1153,14 @@ class ChatMessage extends React.Component {
             </div>
           )}
           <RichContent content={this.state.content} ready={ready} />
+          {this.state.error && (
+            <div className="msg-text">
+              <span className="text-danger">
+                <i className="mdi mdi-alert-circle-outline fs-14 down-1 mr-1" />
+                {this.state.error}
+              </span>
+            </div>
+          )}
           {this.props.confirmAction && (
             <div className="card">
               <div className="card-body">

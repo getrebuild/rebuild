@@ -55,8 +55,14 @@
                         <td>[[${bundle.L('使用模型')}]]</td>
                         <td class="position-relative" data-id="AibotBaseDefModel" th:data-value="${AibotBaseDefModel ?:''}">[[${AibotBaseDefModel ?:bundle.L('未配置')}]]</td>
                       </tr>
+                      <tr class="bosskey-show" th:title="${bundle.L('需模型支持，留空不启用')}">
+                        <td>[[${bundle.L('视觉模型')}]]</td>
+                        <td data-id="AibotVisionModel" th:data-value="${AibotVisionModel ?:''}" data-optional="true">
+                          [[${AibotVisionModel ?:bundle.L('未启用')}]]
+                        </td>
+                      </tr>
                       <tr class="bosskey-show" th:title="${bundle.L('需平台支持，留空不启用')}">
-                        <td>[[${bundle.L('语音识别模型')}]]</td>
+                        <td>[[${bundle.L('语音模型')}]]</td>
                         <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true">
                           [[${AibotAsrModel ?:bundle.L('未启用')}]]
                         </td>

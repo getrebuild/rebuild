@@ -47,6 +47,11 @@ public abstract class ChatManager {
     // 会话来源：公开访问（含匿名访客）
     public static final String SOURCE_PUB = "PUB";
 
+    // 会话可见范围：真实用户会话与公开访问会话，排除定时任务、集成等系统调用产生的会话
+    public static final String VISIBLE_WHERE = String.format(
+            "createdBy <> '%s' and (createdBy <> '%s' or source = '%s') and (source is null or source = '%s')",
+            UserService.SYSTEM_USER, UserService.AIBOT_USER, SOURCE_PUB, SOURCE_PUB);
+
     // 摘要输入上限（字符），只取最近内容避免超出模型上下文
     private static final int SUMMARY_MAX_CHARS = 12000;
 

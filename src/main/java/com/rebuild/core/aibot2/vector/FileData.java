@@ -130,7 +130,7 @@ public class FileData implements VectorData {
         try {
             String mimeType = Config.TIKA.detect(file);
 
-            if (mimeType != null && mimeType.startsWith("image/") && Config.availableAiBot()) {
+            if (mimeType != null && mimeType.startsWith("image/") && visionAvailable()) {
                 content = parseImageWithAI(file, mimeType);
             } else if (isAudioFile(file, mimeType) && StringUtils.isNotBlank(asrModel())) {
                 content = parseAudioWithAI(file, filePath);
@@ -139,7 +139,7 @@ public class FileData implements VectorData {
                 content = content.trim();
 
                 if (StringUtils.isBlank(content)
-                        && "application/pdf".equals(mimeType) && Config.availableAiBot()) {
+                        && "application/pdf".equals(mimeType) && visionAvailable()) {
                     content = parseImageWithAI(file, mimeType);
                 }
             }
@@ -169,19 +169,39 @@ public class FileData implements VectorData {
      */
     private String parseImageWithAI(File file, String mimeType) {
         String askContent = "请详细描述这张图片中的内容，包括所有可见的文字、数据、表格、界面元素等信息";
+        AibotAgent agent = AibotContextHolder.getAgent();
 
         if (mimeType.startsWith("image/")) {
-            return ChatManager.ask(new AskRequest(askContent).setFiles(Collections.singletonList(file)).setSource("FileData"))[0];
+            return ChatManager.ask(new AskRequest(askContent)
+                    .setFiles(Collections.singletonList(file))
+                    .setAgent(agent)
+                    .setSource("FileData"))[0];
         } else {
             List<File> pageImages = renderPdfToImages(file);
             if (pageImages.isEmpty()) return null;
 
             try {
-                return ChatManager.ask(new AskRequest(askContent).setFiles(pageImages).setSource("FileData"))[0];
+                return ChatManager.ask(new AskRequest(askContent)
+                        .setFiles(pageImages)
+                        .setAgent(agent)
+                        .setSource("FileData"))[0];
             } finally {
                 pageImages.forEach(FileUtils::deleteQuietly);
             }
         }
+    }
+
+    /**
+     * 是否可进行图片视觉识别（需配置视觉模型，智能体优先）
+     *
+     * @return
+     */
+    private static boolean visionAvailable() {
+        AibotAgent agent = AibotContextHolder.getAgent();
+        if (agent != null) {
+            return agent.available() && StringUtils.isNotBlank(agent.visionModel());
+        }
+        return Config.availableAiBot() && StringUtils.isNotBlank(Config.getVisionModel());
     }
 
     /**
