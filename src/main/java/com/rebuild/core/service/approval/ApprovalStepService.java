@@ -586,9 +586,8 @@ public class ApprovalStepService extends BaseService {
         JSONObject attrMoreJson = JSONUtils.wellFormat(attrMore) ? JSON.parseObject(attrMore) : new JSONObject();
         attrMoreJson.put("referralFrom", oldApprover.toLiteral());
         if (StringUtils.isNotBlank(remark)) attrMoreJson.put("referralRemark", remark);
-        if (remarkAttachments != null && remarkAttachments.length() > 2) {
-            attrMoreJson.put("referralAttachments", JSON.parseArray(remarkAttachments));
-        }
+        JSONArray referralAttachments = parseRemarkAttachments(remarkAttachments);
+        if (referralAttachments != null) attrMoreJson.put("referralAttachments", referralAttachments);
 
         Record sourceStepUpdate = EntityHelper.forUpdate(sourceStepId, approver);
         sourceStepUpdate.setString("attrMore", attrMoreJson.toJSONString());
@@ -654,9 +653,8 @@ public class ApprovalStepService extends BaseService {
                 Record newStepUpdate = EntityHelper.forUpdate(created, UserService.SYSTEM_USER);
                 JSONObject attrMoreJson = JSONUtils.toJSONObject("countersignFrom", approver.toLiteral());
                 if (StringUtils.isNotBlank(remark)) attrMoreJson.put("countersignRemark", remark);
-                if (remarkAttachments != null && remarkAttachments.length() > 2) {
-                    attrMoreJson.put("countersignAttachments", JSON.parseArray(remarkAttachments));
-                }
+                JSONArray countersignAttachments = parseRemarkAttachments(remarkAttachments);
+                if (countersignAttachments != null) attrMoreJson.put("countersignAttachments", countersignAttachments);
                 newStepUpdate.setString("attrMore", attrMoreJson.toJSONString());
                 super.update(newStepUpdate);
 
@@ -959,5 +957,22 @@ public class ApprovalStepService extends BaseService {
 
     private void execSopSteps38(Record approvalRecord) {
         RbvFunction.call().onApproveManual(approvalRecord);
+    }
+
+    /**
+     * 备注附件为可选的 JSON 数组串，非法时忽略而不中断转审/加签
+     *
+     * @param attachments
+     * @return
+     */
+    private static JSONArray parseRemarkAttachments(String attachments) {
+        if (attachments == null || attachments.length() <= 2) return null;
+
+        try {
+            return JSON.parseArray(attachments);
+        } catch (Exception ex) {
+            log.warn("Invalid remark attachments : {}", attachments);
+            return null;
+        }
     }
 }

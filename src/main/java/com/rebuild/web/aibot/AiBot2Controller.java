@@ -100,7 +100,9 @@ public class AiBot2Controller extends BaseController {
 
         try {
             Message respMessage = chat.post(chatRequest);
-            ServletUtils.writeJson(resp, respMessage.toJSON().toJSONString());
+            JSONObject respJson = respMessage.toJSON();
+            respJson.remove("toolHistory");
+            ServletUtils.writeJson(resp, respJson.toJSONString());
         } catch (Throwable ex) {
             log.error("chat-post", ex);
             String errorMsg = Language.L("请求错误") + ":" + CommonsUtils.getRootMessage(ex);

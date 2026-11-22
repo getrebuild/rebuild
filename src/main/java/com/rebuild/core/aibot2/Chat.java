@@ -91,6 +91,19 @@ public class Chat implements Serializable {
     }
 
     /**
+     * 附加请求级提示词。同一提示词只追加一次，避免会话内反复请求导致提示词无限累加
+     *
+     * @param prompt
+     */
+    public synchronized void appendPrompt(String prompt) {
+        if (this.agent == null || StringUtils.isBlank(prompt)) return;
+
+        String base = this.agent.getPrompt();
+        if (StringUtils.isBlank(base)) this.agent.setPrompt(prompt);
+        else if (!base.contains(prompt)) this.agent.setPrompt(base + "\n\n" + prompt);
+    }
+
+    /**
      * 尝试开始执行，已在执行中则等待释放（用于停止后立即发送的场景）
      *
      * @return

@@ -16,12 +16,14 @@ import com.rebuild.core.DefinedException;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.AibotContextHolder;
+import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RbvFunction;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
@@ -115,6 +117,11 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             if (RebuildConfiguration.getBool(ConfigurationItem.MarkWatermark)) {
                 String wt = AppUtils.getWatermarkText(re.getRequestUser(), null);
                 if (wt != null) request.setAttribute("markWatermarkText", wt);
+            }
+            // v4.6 AI 入口可用性
+            if (re.getRequestUser() != null) {
+                request.setAttribute("_AllowUseAiBot",
+                        !License.isCommercial() || Config.getAvailableAiBot(re.getRequestUser()) != null);
             }
         }
 
