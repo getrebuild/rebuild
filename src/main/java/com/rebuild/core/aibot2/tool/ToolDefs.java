@@ -86,6 +86,7 @@ public class ToolDefs {
         register(new BuildApp());
         register(new BuildFrontJsCode());
         register(new BuildDeleteEntity());
+        register(new BuildDeleteField());
         register(new BuildMinAppPage());
     }
 

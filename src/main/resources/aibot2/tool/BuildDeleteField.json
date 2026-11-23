@@ -1,0 +1,23 @@
+{
+  "type": "function",
+  "userDescription": "删除业务实体字段。字段数据将永久删除 [商业工具]",
+  "function": {
+    "name": "BuildDeleteField",
+    "description": "删除实体中的字段（仅管理员）。字段删除后该字段的全部数据将永久删除且不可恢复，引用该字段的布局、过滤器等配置也会失效。系统内置字段、实体名称字段不允许删除。删除前务必先用 ListEntities 确认实体与字段，并征求用户明确确认",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "所属实体名称（ListEntities 返回的 name）"
+        },
+        "field": {
+          "type": "string",
+          "description": "要删除的字段名或字段标签，如 contractAmount 或「合同金额」，可通过 ListEntities 获取"
+        }
+      },
+      "required": ["entity", "field"],
+      "additionalProperties": false
+    }
+  }
+}
