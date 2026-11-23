@@ -15,6 +15,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.AppUtils;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ import java.util.List;
  * @author Zixin
  * @since 07/27/2024
  */
+@Slf4j
 public class ProtectedAdmin {
 
     private static PaEntry[] PA;
@@ -58,7 +60,8 @@ public class ProtectedAdmin {
                 for (String v : vv.split("[,;]")) {
                     try {
                         pp.add(PaEntry.valueOf(v));
-                    } catch (IllegalArgumentException ignored) {
+                    } catch (IllegalArgumentException ex) {
+                        log.warn("Unknown ProtectedAdmin entry : {}", v);
                     }
                 }
                 PA = pp.toArray(new PaEntry[0]);
