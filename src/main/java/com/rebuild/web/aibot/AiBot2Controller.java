@@ -343,6 +343,12 @@ public class AiBot2Controller extends BaseController {
         return RespBody.ok(data);
     }
 
+    @GetMapping("post/suggest-questions")
+    public RespBody suggestQuestions(HttpServletRequest req) {
+        ID user = getRequestUser(req);
+        return RespBody.ok(SuggestQuestions.generateGuide(user));
+    }
+
     @PostMapping("post/chat-delete")
     public RespBody chatDelete(HttpServletRequest req) {
         ChatManager.deleteChat(getOwnedChatIdNotNull(req));
@@ -353,7 +359,8 @@ public class AiBot2Controller extends BaseController {
     public RespBody chatList(HttpServletRequest req) {
         ID user = getRequestUser(req);
 
-        StringBuilder sql = new StringBuilder("select chatId,subject,modifiedOn from AibotChat where createdBy = ?");
+        StringBuilder sql = new StringBuilder("select chatId,subject,modifiedOn from AibotChat where createdBy = ? and "
+                + ChatManager.VISIBLE_WHERE);
         // 仅轮询指定会话（回答中）时使用
         String[] filterChatids = req.getParameterValues("chatid");
         if (filterChatids != null && filterChatids.length > 0) {

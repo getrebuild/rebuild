@@ -610,17 +610,31 @@ public class AiBot2AdminController extends BaseController {
         if (StringUtils.isNotBlank(q)) {
             where += String.format(" and subject like '%%%s%%'", CommonsUtils.escapeSql(q));
         }
+        List<Object> dateParams = new ArrayList<>();
+        String startDateStr = StringUtils.trimToNull(getParameter(request, "startDate"));
+        Date startDate = startDateStr == null ? null : CalendarUtils.parse(startDateStr, "yyyy-MM-dd");
+        if (startDate != null) {
+            where += " and modifiedOn >= ?";
+            dateParams.add(CalendarUtils.clearTime(startDate));
+        }
+        String endDateStr = StringUtils.trimToNull(getParameter(request, "endDate"));
+        Date endDate = endDateStr == null ? null : CalendarUtils.parse(endDateStr, "yyyy-MM-dd");
+        if (endDate != null) {
+            where += " and modifiedOn < ?";
+            dateParams.add(CalendarUtils.addDay(endDate, 1));
+        }
 
         long total = -1L;
         if (pageNo == 1) {
-            total = ((Number) Application.createQueryNoFilter(
-                    "select count(chatId) from AibotChat" + where).unique()[0]).longValue();
+            Query countQuery = Application.createQueryNoFilter("select count(chatId) from AibotChat" + where);
+            for (int i = 0; i < dateParams.size(); i++) countQuery.setParameter(i + 1, dateParams.get(i));
+            total = ((Number) countQuery.unique()[0]).longValue();
         }
 
-        Object[][] array = Application.createQueryNoFilter(
-                        "select chatId,subject,createdBy,token,modifiedOn,summary from AibotChat" + where + " order by modifiedOn desc")
-                .setLimit(pageSize, pageNo * pageSize - pageSize)
-                .array();
+        Query listQuery = Application.createQueryNoFilter(
+                "select chatId,subject,createdBy,token,modifiedOn,summary from AibotChat" + where + " order by modifiedOn desc");
+        for (int i = 0; i < dateParams.size(); i++) listQuery.setParameter(i + 1, dateParams.get(i));
+        Object[][] array = listQuery.setLimit(pageSize, pageNo * pageSize - pageSize).array();
 
         JSONArray data = new JSONArray();
         for (Object[] o : array) {

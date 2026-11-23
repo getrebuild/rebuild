@@ -63,11 +63,6 @@ public class RbvMissingController extends BaseController {
         return errorUnsupported(L("多语言"));
     }
 
-    @GetMapping("/admin/data/data-syncer")
-    public ModelAndView dataSyncerList() {
-        return errorUnsupported(L("数据同步"));
-    }
-
     @GetMapping("/admin/users-config")
     public ModelAndView usersConfig() {
         return errorUnsupported(L("用户配置"));
