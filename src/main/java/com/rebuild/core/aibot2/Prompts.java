@@ -8,11 +8,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2;
 
 import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,11 +25,14 @@ import java.util.regex.Pattern;
  * @author Zixin
  * @since 2026/11/22
  */
+@Slf4j
 public class Prompts {
 
     private static final String RES_FILE = "aibot2/prompts.md";
 
     private static final Pattern SECTION = Pattern.compile("^<!--\\s*@([\\w-]+)\\s*-->$");
+
+    private static final Set<String> WARNED_MISSING = ConcurrentHashMap.newKeySet();
 
     private static volatile Map<String, String> cache;
 
@@ -42,7 +48,12 @@ public class Prompts {
                 if (prompts == null) cache = prompts = load();
             }
         }
-        return prompts.getOrDefault(name, "");
+        String prompt = prompts.get(name);
+        if (prompt == null) {
+            if (WARNED_MISSING.add(name)) log.warn("Prompt section not found : {}", name);
+            return "";
+        }
+        return prompt;
     }
 
     /**
