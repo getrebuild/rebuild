@@ -58,7 +58,7 @@ const __showRexGuide = function (configured, isAdmin) {
   }
 
   // 展示即计数，避免未关闭就离开页面导致重复弹；强制调试模式不计数
-  if (!~~window.__RexGuideScene) mark()
+  if (!configured && !~~window.__RexGuideScene) mark()
 
   let modal
   const hide = function () {
@@ -94,34 +94,42 @@ const __showRexGuide = function (configured, isAdmin) {
   )
 
   if (configured) {
-    const questions = isAdmin ? ['系统里都有哪些业务实体', '如何配置一个自动化触发器', '帮我创建一条客户记录'] : ['帮我创建一条客户记录', '怎么快速找到我需要的数据', '有哪些待我审批的记录']
-    RbHeroModal.show({
-      ...heroProps,
-      icon: <i className="mdi mdi-shimmer" />,
-      title: `${name} 已就绪`,
-      subtitle: '问一句试试，它比你更熟悉这套系统',
-      footer: (
-        <React.Fragment>
-          <span className="rex-guide-hint">
-            以后按 <kbd>Shift + /</kbd> 随时叫它
-          </span>
-          <button type="button" className="rex-guide-btn" onClick={() => openAiBot()}>
-            {`打开 ${name}`}
-          </button>
-        </React.Fragment>
-      ),
-      children: (
-        <div>
-          <div className="rex-guide-qtitle">先从这几个问题开始</div>
-          {questions.map((q) => (
-            <div key={q} className="rex-guide-q" onClick={() => openAiBot(q)}>
-              <i className="mdi mdi-chat-plus-outline rex-guide-qicon" />
-              <span>{q}</span>
-              <i className="zmdi zmdi-chevron-right rex-guide-go" />
-            </div>
-          ))}
-        </div>
-      ),
+    const showConfigured = function (questions) {
+      // 展示即计数，避免未关闭就离开页面导致重复弹；强制调试模式不计数
+      if (!~~window.__RexGuideScene) mark()
+      RbHeroModal.show({
+        ...heroProps,
+        icon: <i className="mdi mdi-shimmer" />,
+        title: `${name} 已就绪`,
+        subtitle: '问一句试试，它比你更熟悉这套系统',
+        footer: (
+          <React.Fragment>
+            <span className="rex-guide-hint">
+              以后按 <kbd>Shift + /</kbd> 随时叫它
+            </span>
+            <button type="button" className="rex-guide-btn" onClick={() => openAiBot()}>
+              {`打开 ${name}`}
+            </button>
+          </React.Fragment>
+        ),
+        children: (
+          <div>
+            <div className="rex-guide-qtitle">先从这几个问题开始</div>
+            {questions.map((q) => (
+              <div key={q} className="rex-guide-q" onClick={() => openAiBot(q)}>
+                <i className="mdi mdi-chat-plus-outline rex-guide-qicon" />
+                <span>{q}</span>
+                <i className="zmdi zmdi-chevron-right rex-guide-go" />
+              </div>
+            ))}
+          </div>
+        ),
+      })
+    }
+
+    // 候选问题由后台按用户权限生成
+    $.get('/aibot2/post/suggest-questions', function (res) {
+      showConfigured(res.data || [])
     })
   } else if (isAdmin) {
     RbHeroModal.show({

@@ -44,7 +44,7 @@ public class UserMemory implements Tool, PersonalGuard {
 
         String action = args.getString("action");
         if (StringUtils.isBlank(action)) {
-            throw new KnownToolException("action 参数不能为空，可选值: add/update/delete/list");
+            throw new KnownToolException("action 参数不能为空，可选值: add/update/delete/clear/list");
         }
 
         ID user = UserContextHolder.getUser();
@@ -83,12 +83,16 @@ public class UserMemory implements Tool, PersonalGuard {
                 message = delete(user, nos, content);
                 break;
             }
+            case "clear": {
+                message = clear(user);
+                break;
+            }
             case "list": {
                 message = list(user);
                 break;
             }
             default:
-                throw new KnownToolException("无效的 action: " + action + "，可选值: add/update/delete/list");
+                throw new KnownToolException("无效的 action: " + action + "，可选值: add/update/delete/clear/list");
         }
 
         return JSONUtils.toJSONObject(
@@ -104,6 +108,26 @@ public class UserMemory implements Tool, PersonalGuard {
      */
     private JSONObject add(ID user, String content, int level) {
         content = CommonsUtils.maxstr(StringUtils.trim(content), MAX_CONTENT_LENGTH);
+        level = clampLevel(level);
+
+        // 相同内容不重复占用名额，必要时提升档位
+        for (ConfigBean cb : AibotConfigManager.instance.getUserMemoryConfigs(user)) {
+            if (!content.equals(cb.getString("content"))) continue;
+
+            int oldLevel = cb.getInteger("level");
+            int newLevel = Math.min(oldLevel, level);
+            if (newLevel != oldLevel) {
+                Record r = EntityHelper.forUpdate(cb.getID("id"), user, false);
+                r.setString("config", newMemoryConfig(content, newLevel).toJSONString());
+                Application.getBean(AibotConfigService.class).update(r);
+            }
+
+            JSONObject ret = new JSONObject(true);
+            ret.put("message", String.format("已有相同记忆（第 %d 档），未重复添加\n%s",
+                    newLevel, capacity(user)));
+            ret.put("id", cb.getID("id").toLiteral());
+            return ret;
+        }
 
         Record r = EntityHelper.forNew(EntityHelper.AibotConfig, user);
         r.setString("type", TYPE_AIBOT_USERMEMORY);
@@ -132,9 +156,10 @@ public class UserMemory implements Tool, PersonalGuard {
             memories = AibotConfigManager.instance.getUserMemoryConfigs(user);
         }
 
-        String message = String.format("已记住（第 %d 档）：%s", level, content);
+        String message = String.format("已记住（第 %d 档）：%s\n%s", level, content, capacity(user));
         if (removed.length() > 0) {
-            message += String.format("\n注意：记忆数量已达上限（%d 条），已自动移除最低档位的记忆：%s", MAX_MEMORIES, removed);
+            message += String.format("\n注意：记忆数量已达上限（%d 条），已自动移除最低档位的记忆：%s",
+                    MAX_MEMORIES, removed);
         }
 
         JSONObject ret = new JSONObject(true);
@@ -187,7 +212,7 @@ public class UserMemory implements Tool, PersonalGuard {
         r.setString("config", config.toJSONString());
         Application.getBean(AibotConfigService.class).update(r);
 
-        return String.format("已更新记忆：%s", newContent);
+        return String.format("已更新记忆：%s\n%s", newContent, capacity(user));
     }
 
     /**
@@ -222,8 +247,9 @@ public class UserMemory implements Tool, PersonalGuard {
                 deleted.add(target.getString("content"));
             }
             return deleted.size() == 1
-                    ? String.format("已删除记忆：%s", deleted.get(0))
-                    : String.format("已删除 %d 条记忆：%s", deleted.size(), StringUtils.join(deleted, "；"));
+                    ? String.format("已删除记忆：%s\n%s", deleted.get(0), capacity(user))
+                    : String.format("已删除 %d 条记忆：%s\n%s", deleted.size(),
+                    StringUtils.join(deleted, "；"), capacity(user));
         }
 
         int count = 0;
@@ -238,7 +264,28 @@ public class UserMemory implements Tool, PersonalGuard {
                     "未找到内容为「%s」的记忆，请先通过 list 查看当前记忆", content));
         }
 
-        return String.format("已删除记忆：%s", content);
+        return String.format("已删除记忆：%s\n%s", content, capacity(user));
+    }
+
+    /**
+     * 清空当前用户的全部记忆
+     */
+    private String clear(ID user) {
+        ConfigBean[] memories = AibotConfigManager.instance.getUserMemoryConfigs(user);
+        if (memories.length == 0) return "暂无用户记忆，无需清空";
+
+        for (ConfigBean cb : memories) {
+            Application.getBean(AibotConfigService.class).delete(cb.getID("id"));
+        }
+        return String.format("已清空 %d 条用户记忆", memories.length);
+    }
+
+    /**
+     * @return 当前记忆数量与上限
+     */
+    private String capacity(ID user) {
+        int count = AibotConfigManager.instance.getUserMemoryConfigs(user).length;
+        return String.format("当前记忆 %d/%d 条", count, MAX_MEMORIES);
     }
 
     /**
@@ -259,9 +306,10 @@ public class UserMemory implements Tool, PersonalGuard {
      */
     private String list(ID user) {
         ConfigBean[] memories = AibotConfigManager.instance.getUserMemoryConfigs(user);
-        if (memories.length == 0) return "暂无用户记忆";
+        if (memories.length == 0) return String.format("暂无用户记忆（上限 %d 条）", MAX_MEMORIES);
 
-        StringBuilder sb = new StringBuilder(String.format("当前用户记忆（共 %d 条，按记录时间由新到旧）：\n", memories.length));
+        StringBuilder sb = new StringBuilder(String.format(
+                "当前用户记忆（共 %d/%d 条，按记录时间由新到旧）：\n", memories.length, MAX_MEMORIES));
         for (int i = 0; i < memories.length; i++) {
             ConfigBean cb = memories[i];
             sb.append(String.format("%d. [第 %d 档] %s",
@@ -277,12 +325,15 @@ public class UserMemory implements Tool, PersonalGuard {
      * @return
      */
     private static JSONObject newMemoryConfig(String content, int level) {
-        if (level < 1) level = 1;
-        else if (level > 3) level = 3;
-
         JSONObject config = new JSONObject();
         config.put("content", content);
-        config.put("level", level);
+        config.put("level", clampLevel(level));
         return config;
+    }
+
+    private static int clampLevel(int level) {
+        if (level < 1) return 1;
+        if (level > 3) return 3;
+        return level;
     }
 }

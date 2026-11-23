@@ -171,23 +171,29 @@ public class FileData implements VectorData {
         String askContent = "请详细描述这张图片中的内容，包括所有可见的文字、数据、表格、界面元素等信息";
         AibotAgent agent = AibotContextHolder.getAgent();
 
-        if (mimeType.startsWith("image/")) {
-            return ChatManager.ask(new AskRequest(askContent)
-                    .setFiles(Collections.singletonList(file))
-                    .setAgent(agent)
-                    .setSource("FileData"))[0];
-        } else {
-            List<File> pageImages = renderPdfToImages(file);
-            if (pageImages.isEmpty()) return null;
-
-            try {
+        // 内部解析调用：会话归属当前用户，但提示词不注入用户上下文与记忆
+        boolean oldInternalAsk = AibotContextHolder.setInternalAsk(true);
+        try {
+            if (mimeType.startsWith("image/")) {
                 return ChatManager.ask(new AskRequest(askContent)
-                        .setFiles(pageImages)
+                        .setFiles(Collections.singletonList(file))
                         .setAgent(agent)
-                        .setSource("FileData"))[0];
-            } finally {
-                pageImages.forEach(FileUtils::deleteQuietly);
+                        .setSource(ChatManager.SOURCE_SYS + "FileData"))[0];
+            } else {
+                List<File> pageImages = renderPdfToImages(file);
+                if (pageImages.isEmpty()) return null;
+
+                try {
+                    return ChatManager.ask(new AskRequest(askContent)
+                            .setFiles(pageImages)
+                            .setAgent(agent)
+                            .setSource(ChatManager.SOURCE_SYS + "FileData"))[0];
+                } finally {
+                    pageImages.forEach(FileUtils::deleteQuietly);
+                }
             }
+        } finally {
+            AibotContextHolder.setInternalAsk(oldInternalAsk);
         }
     }
 

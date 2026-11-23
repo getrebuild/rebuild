@@ -90,26 +90,47 @@ public class SystemPromptBuilder {
             systemPrompt.append("<system_capabilities>\n").append(capabilityPrompt.trim()).append("\n</system_capabilities>");
         }
 
-        // 会话上下文（系统信息 + 当前用户信息）
+        // 会话上下文（系统信息 + 当前用户信息），内部调用（如文件解析）不注入
         ID user = UserContextHolder.getUser(true);
-        boolean isRealUser = user != null && !UserHelper.isSystemUser(user) && !AibotContextHolder.isAnonymous();
+        boolean isRealUser = user != null && !UserHelper.isSystemUser(user)
+                && !AibotContextHolder.isAnonymous() && !AibotContextHolder.isInternalAsk();
 
         if (isRealUser) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<session_context>\n").append(buildSessionContext(user)).append("\n</session_context>");
+
+            // 用户角色（管理员与普通用户的可用能力不同）
+            systemPrompt.append(NN).append("<user_role>\n")
+                    .append(Prompts.get(UserHelper.isAdmin(user) ? "role-admin" : "role-user"))
+                    .append("\n</user_role>");
+
+            // 定时任务使用指引（工具启用时注入，任务自动执行时不注入以免再次创建任务）
+            if (!AibotContextHolder.isNonInteractive()
+                    && !ToolDefs.isToolDisabled("ScheduleTask", agentTools)) {
+                systemPrompt.append(NN).append("<schedule_task>\n")
+                        .append(Prompts.get("schedule-guidance"))
+                        .append("\n</schedule_task>");
+            }
+
+            // 用户记忆（工具启用时注入使用指引与记忆内容）
+            if (!ToolDefs.isToolDisabled("UserMemory", agentTools)) {
+                systemPrompt.append(NN).append("<user_memory>\n").append(Prompts.get("memory-guidance"));
+
+                String memoryPrompt = buildMemoryPrompt(user);
+                if (StringUtils.isNotBlank(memoryPrompt)) {
+                    systemPrompt.append(NN).append(Prompts.get("memory-intro"))
+                            .append("\n").append(memoryPrompt);
+                }
+                systemPrompt.append("\n</user_memory>");
+            }
         }
 
-        // 用户记忆（工具启用时注入使用指引与记忆内容）
-        if (isRealUser && !ToolDefs.isToolDisabled("UserMemory", agentTools)) {
+        // 定时任务等非交互执行，提示模型保留二次确认
+        if (AibotContextHolder.isNonInteractive()) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
-            systemPrompt.append("<user_memory>\n").append(Prompts.get("memory-guidance"));
-
-            String memoryPrompt = buildMemoryPrompt(user);
-            if (StringUtils.isNotBlank(memoryPrompt)) {
-                systemPrompt.append(NN).append(Prompts.get("memory-intro"))
-                        .append("\n").append(memoryPrompt);
-            }
-            systemPrompt.append("\n</user_memory>");
+            systemPrompt.append("<non_interactive>\n")
+                    .append(Prompts.get("non-interactive-guidance"))
+                    .append("\n</non_interactive>");
         }
 
         // 计划模式（在技能之前注入，优先级低于技能）

@@ -24,6 +24,10 @@ public class AibotContextHolder {
 
     private static final ThreadLocal<Boolean> ANONYMOUS = new NamedThreadLocal<>("AI anonymous");
 
+    private static final ThreadLocal<Boolean> NON_INTERACTIVE = new NamedThreadLocal<>("AI non-interactive");
+
+    private static final ThreadLocal<Boolean> INTERNAL_ASK = new NamedThreadLocal<>("AI internal ask");
+
     /**
      * @param chatid
      * @return
@@ -92,9 +96,51 @@ public class AibotContextHolder {
         return Boolean.TRUE.equals(ANONYMOUS.get());
     }
 
+    /**
+     * 非交互执行标记。定时任务等无用户交互场景下，仅用于提示词引导，不影响二次确认
+     *
+     * @param nonInteractive
+     * @return 原值
+     */
+    public static boolean setNonInteractive(boolean nonInteractive) {
+        boolean old = Boolean.TRUE.equals(NON_INTERACTIVE.get());
+        if (nonInteractive) NON_INTERACTIVE.set(true);
+        else NON_INTERACTIVE.remove();
+        return old;
+    }
+
+    /**
+     * @return
+     */
+    public static boolean isNonInteractive() {
+        return Boolean.TRUE.equals(NON_INTERACTIVE.get());
+    }
+
+    /**
+     * 内部调用标记（如文件内容解析）。仅影响提示词构建：不注入用户上下文、记忆等
+     *
+     * @param internalAsk
+     * @return 原值
+     */
+    public static boolean setInternalAsk(boolean internalAsk) {
+        boolean old = Boolean.TRUE.equals(INTERNAL_ASK.get());
+        if (internalAsk) INTERNAL_ASK.set(true);
+        else INTERNAL_ASK.remove();
+        return old;
+    }
+
+    /**
+     * @return
+     */
+    public static boolean isInternalAsk() {
+        return Boolean.TRUE.equals(INTERNAL_ASK.get());
+    }
+
     public static void clear() {
         AI_SOURCE.remove();
         AGENT.remove();
         ANONYMOUS.remove();
+        NON_INTERACTIVE.remove();
+        INTERNAL_ASK.remove();
     }
 }

@@ -44,13 +44,12 @@ import static com.rebuild.core.metadata.EntityHelper.AibotChat;
 @Slf4j
 public abstract class ChatManager {
 
-    // 会话来源：公开访问（含匿名访客）
+    // 会话来源：空为用户会话，SYS: 前缀为系统调用，其余为渠道来源（PUB 公开访问、企微等）
     public static final String SOURCE_PUB = "PUB";
+    public static final String SOURCE_SYS = "SYS:";
 
-    // 会话可见范围：真实用户会话与公开访问会话，排除定时任务、集成等系统调用产生的会话
-    public static final String VISIBLE_WHERE = String.format(
-            "createdBy <> '%s' and (createdBy <> '%s' or source = '%s') and (source is null or source = '%s')",
-            UserService.SYSTEM_USER, UserService.AIBOT_USER, SOURCE_PUB, SOURCE_PUB);
+    // 可见的会话：除 SYS: 前缀的系统调用（定时任务、内部集成等）外均为可见，含用户会话、公开访问、企微等渠道会话
+    public static final String VISIBLE_WHERE = "(source is null or source not like 'SYS:%')";
 
     // 摘要输入上限（字符），只取最近内容避免超出模型上下文
     private static final int SUMMARY_MAX_CHARS = 12000;
@@ -77,7 +76,7 @@ public abstract class ChatManager {
      * @param user
      * @param subject
      * @param agentId 使用的智能体（空为默认）
-     * @param source 会话来源（空为用户会话，非空为系统调用/公开访问）
+     * @param source 会话来源（空为用户会话；SYS: 前缀为系统调用；其他为渠道来源，如 PUB 公开访问、企微）
      * @return
      */
     public static ID initChat(ID user, String subject, ID agentId, String source) {
@@ -179,19 +178,20 @@ public abstract class ChatManager {
 
     /**
      * 直接提问/回答（程序调用统一入口）
-     * user 为空时以 Rex 身份提问，会话归属 Rex；指定 user 时以该用户身份执行，会话归属该用户
+     * 用户按需取：指定用户 > 当前线程用户，会话归属该用户；均无时以 Rex 身份提问，会话归属 Rex
      *
      * @param params
      * @return [0]=AI 回答，[1]=chatid 字面量
      */
     public static String[] ask(AskRequest params) {
-        if (params.getUser() == null) {
+        ID user = ObjectUtils.getIfNull(params.getUser(), UserContextHolder.getUser(true));
+        if (user == null) {
             return doAsk(params, UserService.AIBOT_USER);
         }
 
-        ID keepCurrentUser = UserContextHolder.setUser(params.getUser());
+        ID keepCurrentUser = UserContextHolder.setUser(user);
         try {
-            return doAsk(params, params.getUser());
+            return doAsk(params, user);
         } finally {
             UserContextHolder.clearUser(keepCurrentUser);
         }
