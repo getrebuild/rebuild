@@ -16,7 +16,6 @@ import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.RbvMissingController;
@@ -47,32 +46,36 @@ public class AiBot2PageController extends BaseController {
 
     @GetMapping("chats")
     public ModelAndView pageChats() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("会话列表"));
-        }
+        ModelAndView free = checkFree();
+        if (free != null) return free;
         return createModelAndView("/admin/aibot2/chats");
     }
 
     @GetMapping("kb")
     public ModelAndView pageKb() {
+        ModelAndView free = checkFree();
+        if (free != null) return free;
         return createModelAndView("/admin/aibot2/kb");
     }
 
     @GetMapping("skills")
     public ModelAndView pageSkills() {
+        ModelAndView free = checkFree();
+        if (free != null) return free;
         return createModelAndView("/admin/aibot2/skills");
     }
 
     @GetMapping("tools")
     public ModelAndView pageTools() {
+        ModelAndView free = checkFree();
+        if (free != null) return free;
         return createModelAndView("/admin/aibot2/tools");
     }
 
     @GetMapping("models")
     public ModelAndView pageModels() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("模型"));
-        }
+        ModelAndView free = checkFree();
+        if (free != null) return free;
         return createModelAndView("/admin/aibot2/models");
     }
 
@@ -80,17 +83,15 @@ public class AiBot2PageController extends BaseController {
 
     @GetMapping("agents")
     public ModelAndView pageAgents() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("智能体"));
-        }
+        ModelAndView free = checkFree();
+        if (free != null) return free;
         return createModelAndView("/admin/aibot2/agents");
     }
 
     @GetMapping("agent/{agentId}")
     public ModelAndView pageAgent(@PathVariable String agentId, HttpServletResponse response) throws IOException {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("智能体"));
-        }
+        ModelAndView free = checkFree();
+        if (free != null) return free;
 
         ID agentId2 = ID.isId(agentId) ? ID.valueOf(agentId) : null;
         if (agentId2 == null) {
@@ -128,17 +129,15 @@ public class AiBot2PageController extends BaseController {
 
     @GetMapping("minapps")
     public ModelAndView pageMinApps() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("微应用"));
-        }
+        ModelAndView free = checkFree();
+        if (free != null) return free;
         return createModelAndView("/admin/aibot2/minapps");
     }
 
     @GetMapping("minapp/{minappId}")
     public ModelAndView pageMinApp(@PathVariable String minappId, HttpServletResponse response) throws IOException {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("微应用"));
-        }
+        ModelAndView free = checkFree();
+        if (free != null) return free;
 
         ID minappId2 = ID.isId(minappId) ? ID.valueOf(minappId) : null;
         if (minappId2 == null) {
@@ -167,5 +166,13 @@ public class AiBot2PageController extends BaseController {
         mv.getModelMap().put("minappShareTo", StringUtils.defaultIfBlank((String) minapp[3], ShareToManager.SHARE_ALL));
         mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("pages/minapp/" + minappId2));
         return mv;
+    }
+
+    /**
+     * 免费版不支持 Rex AI 工作台（概览除外）
+     */
+    private ModelAndView checkFree() {
+        return License.isCommercial()
+                ? null : RbvMissingController.errorUnsupported(" Rex AI 工作台");
     }
 }
