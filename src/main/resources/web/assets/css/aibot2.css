@@ -438,6 +438,20 @@ td .badge {
   vertical-align: middle;
 }
 
+/* 列表页工具条 */
+
+.aibot-models .aibot-page-actions,
+.aibot-kb .aibot-page-actions,
+.aibot-skills .aibot-page-actions,
+.aibot-tools .aibot-page-actions,
+.aibot-agents .aibot-page-actions,
+.aibot-miniapps .aibot-page-actions {
+  position: relative;
+  z-index: 1;
+  margin-top: -55px;
+  margin-bottom: 20px;
+}
+
 /* 技能/工具列表 */
 
 .aibot-skills .aibot-skills-table,

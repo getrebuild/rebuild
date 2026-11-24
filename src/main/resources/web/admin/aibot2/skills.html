@@ -9,14 +9,19 @@
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
       <th:block th:replace="~{/_include/nav-top}" />
-      <th:block th:replace="~{/_include/nav-left-aibot2(active='aibot-skills')}" />
+      <th:block th:if="${navLeftAdmin}">
+        <th:block th:replace="~{/_include/nav-left-admin(active='aibot-skills')}" />
+      </th:block>
+      <th:block th:unless="${navLeftAdmin}">
+        <th:block th:replace="~{/_include/nav-left-aibot2(active='aibot-skills')}" />
+      </th:block>
       <div class="rb-content">
         <div class="page-head">
           <div class="page-head-title">[[${bundle.L('技能')}]]</div>
-          <div class="page-head-description">[[${bundle.L('预设处理方式，同类任务更稳定、更省时间')}]]</div>
+          <div class="page-head-description">[[${bundle.L('沉淀常用处理方式，同类任务一次配置反复复用')}]]</div>
         </div>
         <div class="main-content container-fluid aibot-skills pt-1">
-          <div class="d-flex justify-content-end" style="margin-top: -55px; margin-bottom: 20px">
+          <div class="d-flex justify-content-end aibot-page-actions">
             <button class="btn btn-primary J_addSkill" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
           </div>
           <div class="card shadow-none mb-0">

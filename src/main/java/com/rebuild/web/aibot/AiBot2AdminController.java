@@ -48,7 +48,6 @@ import com.rebuild.web.admin.ConfigurationController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -105,16 +104,6 @@ public class AiBot2AdminController extends BaseController {
         if (!apiChanged) return null;
         return Config.testApiConnectivity(
                 data.getString("AibotDSUrl"), data.getString("AibotDSSecret"), data.getString("AibotBaseDefModel"));
-    }
-
-    @GetMapping("aibot-overview")
-    public ModelAndView pageIntegrationAibotOverview() {
-        return new ModelAndView("redirect:/admin/aibot2/overview");
-    }
-
-    @GetMapping("aibot-chats")
-    public ModelAndView pageIntegrationAibotChats() {
-        return new ModelAndView("redirect:/admin/aibot2/chats");
     }
 
     @GetMapping("aibot")
@@ -246,33 +235,27 @@ public class AiBot2AdminController extends BaseController {
         }
     }
 
-    // -- MODELS
-
-    @GetMapping("aibot-models")
-    public ModelAndView pageIntegrationAibotModels() {
-        return new ModelAndView("redirect:/admin/aibot2/models");
-    }
-
     // -- KITS
-
-    @GetMapping("aibot-kits")
-    public ModelAndView pageIntegrationAibotKits() {
-        return new ModelAndView("redirect:/admin/aibot2/skills");
-    }
 
     @GetMapping("aibot-kb")
     public ModelAndView pageIntegrationAibotKb() {
-        return new ModelAndView("redirect:/admin/aibot2/kb");
+        ModelAndView mv = createModelAndView("/admin/aibot2/kb");
+        mv.getModel().put("navLeftAdmin", true);
+        return mv;
     }
 
     @GetMapping("aibot-skills")
     public ModelAndView pageIntegrationAibotSkills() {
-        return new ModelAndView("redirect:/admin/aibot2/skills");
+        ModelAndView mv = createModelAndView("/admin/aibot2/skills");
+        mv.getModel().put("navLeftAdmin", true);
+        return mv;
     }
 
     @GetMapping("aibot-tools")
     public ModelAndView pageIntegrationAibotTools() {
-        return new ModelAndView("redirect:/admin/aibot2/tools");
+        ModelAndView mv = createModelAndView("/admin/aibot2/tools");
+        mv.getModel().put("navLeftAdmin", true);
+        return mv;
     }
 
 
@@ -369,11 +352,6 @@ public class AiBot2AdminController extends BaseController {
 
     // - Agent
 
-    @GetMapping("aibot-agents")
-    public ModelAndView pageIntegrationAibotAgents() {
-        return new ModelAndView("redirect:/admin/aibot2/agents");
-    }
-
     @GetMapping("aibot/agent-list")
     public RespBody agentList() {
         Object[][] array = Application.createQueryNoFilter(
@@ -413,17 +391,7 @@ public class AiBot2AdminController extends BaseController {
         return RespBody.ok(list);
     }
 
-    @GetMapping("aibot-agent/{agentId}")
-    public ModelAndView pageAibotAgent(@PathVariable String agentId) {
-        return new ModelAndView("redirect:/admin/aibot2/agent/" + agentId);
-    }
-
     // - MinApp
-
-    @GetMapping("aibot-minapps")
-    public ModelAndView pageIntegrationAibotMinApps() {
-        return new ModelAndView("redirect:/admin/aibot2/minapps");
-    }
 
     @GetMapping("aibot/minapp-list")
     public RespBody minappList() {
@@ -529,11 +497,6 @@ public class AiBot2AdminController extends BaseController {
         record.setString("config", config.toJSONString());
         Application.getBean(AibotConfigService.class).update(record);
         return RespBody.ok();
-    }
-
-    @GetMapping("aibot-minapp/{minappId}")
-    public ModelAndView pageAibotMinApp(@PathVariable String minappId) {
-        return new ModelAndView("redirect:/admin/aibot2/minapp/" + minappId);
     }
 
     // -- Others

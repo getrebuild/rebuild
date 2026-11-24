@@ -136,7 +136,7 @@ class KbList extends React.Component {
           <td>{chunk}</td>
           <td className="actions kit-actions">
             {ShowEnable(item.isDisabled, item.id)}
-            <a title={$L('修改')} className="icon" onClick={() => _editKb(item)}>
+            <a title={$L('编辑')} className="icon" onClick={() => _editKb(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
             <a title={$L('删除')} className="icon danger-hover" onClick={() => _deleteKb(item)}>
@@ -159,7 +159,7 @@ const _getKbFile = function (item) {
 }
 
 const _editKb = function (item) {
-  renderRbcomp(<DlgKbEdit item={item} title={item ? $L('修改知识库') : $L('添加知识库')} />)
+  renderRbcomp(<DlgKbEdit item={item} title={item ? $L('编辑知识库') : $L('添加知识库')} />)
 }
 
 const _deleteKb = function (item) {
@@ -383,7 +383,7 @@ class SkillList extends React.Component {
           </td>
           <td className="actions kit-actions">
             {ShowEnable(item.isDisabled, item.id)}
-            <a title={$L('修改')} className="icon" onClick={() => _editSkill(item)}>
+            <a title={$L('编辑')} className="icon" onClick={() => _editSkill(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
             <a title={$L('删除')} className="icon danger-hover" onClick={() => _deleteSkill(item)}>
@@ -397,7 +397,7 @@ class SkillList extends React.Component {
 }
 
 const _editSkill = function (item) {
-  renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('修改技能') : $L('添加技能')} />)
+  renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('编辑技能') : $L('添加技能')} />)
 }
 
 const _deleteSkill = function (item) {
