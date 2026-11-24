@@ -283,21 +283,24 @@ public abstract class ChatManager {
     }
 
     /**
-     * 压缩会话为摘要（后台整理调用，不经聊天请求链路，不产生隐藏会话，也不计入用户配额）
+     * 压缩会话为简短概要（引用会话注入用）
      *
      * @param chatid
      * @return
      */
     public static String summarizeChat(ID chatid) {
-        return summarizeChat(chatid, false);
+        JSONObject summary = buildChatSummary(chatid, false);
+        return summary == null ? null : summary.getString("short");
     }
 
     /**
+     * 压缩会话为两版摘要（后台整理调用，不经聊天请求链路，不产生隐藏会话，也不计入用户配额）
+     *
      * @param chatid
      * @param reload 从数据库重新加载会话（后台任务用，避免使用可能过期的缓存）
-     * @return
+     * @return {"short": 简短概要, "long": 详细摘要}，生成失败返回 null
      */
-    public static String summarizeChat(ID chatid, boolean reload) {
+    public static JSONObject buildChatSummary(ID chatid, boolean reload) {
         Chat chat = reload ? new Chat(chatid) : getChat(chatid);
         final int msgCount = chat.getMessages().size();
 
@@ -309,9 +312,10 @@ public abstract class ChatManager {
                     .unique();
             if (stored != null && stored[0] != null) {
                 JSONObject summary = JSON.parseObject((String) stored[0]);
-                if (summary != null && summary.getIntValue("messages") == msgCount) {
-                    String cached = summary.getString("text");
-                    if (StringUtils.isNotBlank(cached)) return cached;
+                if (summary != null && summary.getIntValue("messages") == msgCount
+                        && StringUtils.isNotBlank(summary.getString("short"))
+                        && StringUtils.isNotBlank(summary.getString("long"))) {
+                    return summary;
                 }
             }
         }
@@ -338,12 +342,26 @@ public abstract class ChatManager {
             conversationText.delete(0, conversationText.length() - SUMMARY_MAX_CHARS);
         }
 
-        String prompt = "你是对话压缩助手，请将以下对话历史压缩为简洁摘要，保留关键信息和上下文要点";
+        String prompt = "你是对话压缩助手，请将以下对话历史压缩为两段摘要，保留关键信息和上下文要点。"
+                + "<short> 标签内输出简短概要（100 字以内），<long> 标签内输出详细摘要（500 字以内），"
+                + "除这两个标签外不要输出任何内容";
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, chat.getAgent())
                 .addUserMessage(conversationText.toString());
 
         ChatCompletion resp = ChatExecutor.createChat(builder.build(), null, chat.getAgent());
         if (resp.choices() == null || resp.choices().isEmpty()) return null;
-        return StringUtils.trimToNull(resp.choices().get(0).message().content().orElse(null));
+
+        String content = resp.choices().get(0).message().content().orElse(null);
+        String shortText = StringUtils.trimToNull(StringUtils.substringBetween(content, "<short>", "</short>"));
+        String longText = StringUtils.trimToNull(StringUtils.substringBetween(content, "<long>", "</long>"));
+        if (shortText == null || longText == null) {
+            log.warn("Chat summary output missing tags : {}", chatid);
+            return null;
+        }
+
+        JSONObject summary = new JSONObject(true);
+        summary.put("short", shortText);
+        summary.put("long", longText);
+        return summary;
     }
 }

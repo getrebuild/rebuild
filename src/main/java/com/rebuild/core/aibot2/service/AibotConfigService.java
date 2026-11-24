@@ -66,13 +66,32 @@ public class AibotConfigService extends BaseConfigurationService {
     // AGENT 的 API 配置（地址、秘钥、模型）有变更时测试连通性
     private void checkApiConnectivity(Record record) {
         JSONObject conf = (JSONObject) JSONUtils.parseSafe(record.getString("config"));
+        if (conf == null) return;
+
+        String type = record.getString("type");
+        if (type == null && record.getPrimary() != null) {
+            Object t = QueryHelper.queryFieldValue(record.getPrimary(), "type");
+            type = t == null ? null : t.toString();
+        }
+        // 引用模型配置的 AGENT 或未自带 API 配置的 AGENT，不测试智能体自身连通性
+        if (AibotConfigManager.TYPE_AGENT.equals(type)
+                && (StringUtils.isNotBlank(conf.getString("modelConfigId")) || !hasLegacyApiConfig(conf))) {
+            return;
+        }
+
         Object stored = QueryHelper.queryFieldValue(record.getPrimary(), "config");
         JSONObject storedConf = stored == null ? null : (JSONObject) JSONUtils.parseSafe(stored.toString());
-        if (conf == null || sameApiConfig(conf, storedConf)) return;
+        if (sameApiConfig(conf, storedConf)) return;
 
         String error = Config.testApiConnectivity(
                 conf.getString("AibotDSUrl"), conf.getString("AibotDSSecret"), conf.getString("AibotBaseDefModel"));
         if (error != null) throw new DataSpecificationException(error);
+    }
+
+    private static boolean hasLegacyApiConfig(JSONObject conf) {
+        return StringUtils.isNotBlank(conf.getString("AibotDSUrl"))
+                || StringUtils.isNotBlank(conf.getString("AibotDSSecret"))
+                || StringUtils.isNotBlank(conf.getString("AibotBaseDefModel"));
     }
 
     // 地址/秘钥/模型是否均无变更（仅 AGENT 配置使用这些字段，其他类型恒无变更）

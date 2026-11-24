@@ -109,29 +109,34 @@ public class ChatSummaryJob extends DistributedJobLock {
         if (StringUtils.isNotBlank(summary)) {
             JSONObject old = JSON.parseObject(summary);
             if (msgCount < MIN_MESSAGES) return;
-            if (msgCount - old.getIntValue("messages") < REFRESH_MESSAGES) return;
+            // 旧格式（无 short）直接重生成，其余按消息增量刷新
+            if (StringUtils.isNotBlank(old.getString("short"))
+                    && msgCount - old.getIntValue("messages") < REFRESH_MESSAGES) return;
         } else if (msgCount < MIN_MESSAGES) {
             // 消息过少，写入标记避免每轮重复选中（后续消息达到刷新条件时再处理）
             writeSummary(chatid, msgCount, null);
             return;
         }
 
-        String text = ChatManager.summarizeChat(chatid, true);
-        if (StringUtils.isBlank(text)) return;
+        JSONObject summaryJson = ChatManager.buildChatSummary(chatid, true);
+        if (summaryJson == null) return;
 
-        writeSummary(chatid, msgCount, text);
+        writeSummary(chatid, msgCount, summaryJson);
         log.info("Chat summary generated : {} ({} messages)", chatid, msgCount);
     }
 
     /**
      * @param chatid
      * @param msgCount
-     * @param text 为空时仅写标记
+     * @param summary 为空时仅写标记
      */
-    private void writeSummary(ID chatid, int msgCount, String text) {
+    private void writeSummary(ID chatid, int msgCount, JSONObject summary) {
         JSONObject json = new JSONObject(true);
         json.put("messages", msgCount);
-        if (text != null) json.put("text", text);
+        if (summary != null) {
+            json.put("short", summary.getString("short"));
+            json.put("long", summary.getString("long"));
+        }
 
         // 只写 summary 字段，不触碰 contents 与修改时间（避免影响会话列表排序）
         Record record = EntityHelper.forUpdate(chatid, UserService.SYSTEM_USER, false);

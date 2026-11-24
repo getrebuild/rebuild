@@ -642,7 +642,7 @@ public class AiBot2AdminController extends BaseController {
             String summaryText = null;
             if (JSONUtils.wellFormat(o[5])) {
                 JSON summary = JSONUtils.parseSafe((String) o[5]);
-                if (summary instanceof JSONObject) summaryText = ((JSONObject) summary).getString("text");
+                if (summary instanceof JSONObject) summaryText = ((JSONObject) summary).getString("short");
             }
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"id", "subject", "userName", "token", "modifiedOn", "summary"},
