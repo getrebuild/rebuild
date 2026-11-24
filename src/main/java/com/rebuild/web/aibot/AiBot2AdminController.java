@@ -37,7 +37,6 @@ import com.rebuild.core.rbstore.SkillImporter;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
-import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -46,7 +45,6 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
 import com.rebuild.web.admin.ConfigurationController;
-import com.rebuild.web.commons.RbvMissingController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,8 +56,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -109,6 +105,16 @@ public class AiBot2AdminController extends BaseController {
         if (!apiChanged) return null;
         return Config.testApiConnectivity(
                 data.getString("AibotDSUrl"), data.getString("AibotDSSecret"), data.getString("AibotBaseDefModel"));
+    }
+
+    @GetMapping("aibot-overview")
+    public ModelAndView pageIntegrationAibotOverview() {
+        return new ModelAndView("redirect:/admin/aibot2/overview");
+    }
+
+    @GetMapping("aibot-chats")
+    public ModelAndView pageIntegrationAibotChats() {
+        return new ModelAndView("redirect:/admin/aibot2/chats");
     }
 
     @GetMapping("aibot")
@@ -240,26 +246,33 @@ public class AiBot2AdminController extends BaseController {
         }
     }
 
+    // -- MODELS
+
+    @GetMapping("aibot-models")
+    public ModelAndView pageIntegrationAibotModels() {
+        return new ModelAndView("redirect:/admin/aibot2/models");
+    }
+
     // -- KITS
 
     @GetMapping("aibot-kits")
     public ModelAndView pageIntegrationAibotKits() {
-        return new ModelAndView("redirect:/admin/integration/aibot-skills");
+        return new ModelAndView("redirect:/admin/aibot2/skills");
     }
 
     @GetMapping("aibot-kb")
     public ModelAndView pageIntegrationAibotKb() {
-        return createModelAndView("/admin/integration/aibot-kb");
+        return new ModelAndView("redirect:/admin/aibot2/kb");
     }
 
     @GetMapping("aibot-skills")
     public ModelAndView pageIntegrationAibotSkills() {
-        return createModelAndView("/admin/integration/aibot-skills");
+        return new ModelAndView("redirect:/admin/aibot2/skills");
     }
 
     @GetMapping("aibot-tools")
     public ModelAndView pageIntegrationAibotTools() {
-        return createModelAndView("/admin/integration/aibot-tools");
+        return new ModelAndView("redirect:/admin/aibot2/tools");
     }
 
 
@@ -358,10 +371,7 @@ public class AiBot2AdminController extends BaseController {
 
     @GetMapping("aibot-agents")
     public ModelAndView pageIntegrationAibotAgents() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("智能体"));
-        }
-        return createModelAndView("/admin/integration/aibot-agents");
+        return new ModelAndView("redirect:/admin/aibot2/agents");
     }
 
     @GetMapping("aibot/agent-list")
@@ -404,50 +414,15 @@ public class AiBot2AdminController extends BaseController {
     }
 
     @GetMapping("aibot-agent/{agentId}")
-    public ModelAndView pageAibotAgent(@PathVariable String agentId, HttpServletResponse response) throws IOException {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("智能体"));
-        }
-
-        ID agentId2 = ID.isId(agentId) ? ID.valueOf(agentId) : null;
-        if (agentId2 == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        Object[] agent = Application.createQueryNoFilter(
-                        "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'AGENT'")
-                .setParameter(1, agentId2)
-                .unique();
-        if (agent == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        ModelAndView mv = createModelAndView("/admin/integration/aibot-agent-editor");
-        mv.getModelMap().put("agentDisplayName",
-                StringUtils.defaultIfBlank((String) agent[0], RebuildConfiguration.get(ConfigurationItem.AibotName)));
-        mv.getModelMap().put("agentId", agentId2);
-        mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("/aibot/pub/" + agentId2));
-        mv.getModelMap().put("agentName", StringUtils.trimToEmpty((String) agent[0]));
-        JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) agent[1]);
-        mv.getModelMap().put("agentConfig", conf == null ? null : conf.toJSONString().replace("<", "\\u003C"));
-        mv.getModelMap().put("agentShareTo", StringUtils.defaultIfBlank((String) agent[3], ShareToManager.SHARE_ALL));
-
-        long[] usage = AgentQuota.usage(agentId2);
-        mv.getModelMap().put("usageToday", ObjectUtils.round(usage[0] / 10000d, 2));
-        mv.getModelMap().put("usageMonth", ObjectUtils.round(usage[1] / 10000d, 2));
-        return mv;
+    public ModelAndView pageAibotAgent(@PathVariable String agentId) {
+        return new ModelAndView("redirect:/admin/aibot2/agent/" + agentId);
     }
 
     // - MinApp
 
     @GetMapping("aibot-minapps")
     public ModelAndView pageIntegrationAibotMinApps() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("微应用"));
-        }
-        return createModelAndView("/admin/integration/aibot-minapps");
+        return new ModelAndView("redirect:/admin/aibot2/minapps");
     }
 
     @GetMapping("aibot/minapp-list")
@@ -557,38 +532,8 @@ public class AiBot2AdminController extends BaseController {
     }
 
     @GetMapping("aibot-minapp/{minappId}")
-    public ModelAndView pageAibotMinApp(@PathVariable String minappId, HttpServletResponse response) throws IOException {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("微应用"));
-        }
-
-        ID minappId2 = ID.isId(minappId) ? ID.valueOf(minappId) : null;
-        if (minappId2 == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        Object[] minapp = Application.createQueryNoFilter(
-                        "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'MINAPP'")
-                .setParameter(1, minappId2)
-                .unique();
-        if (minapp == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) minapp[1]);
-        if (conf == null) conf = new JSONObject();
-        conf.remove("html");
-
-        ModelAndView mv = createModelAndView("/admin/integration/aibot-minapp-editor");
-        mv.getModelMap().put("minappDisplayName", StringUtils.defaultString((String) minapp[0]));
-        mv.getModelMap().put("minappId", minappId2);
-        mv.getModelMap().put("minappName", StringUtils.trimToEmpty((String) minapp[0]));
-        mv.getModelMap().put("minappConfig", conf.toJSONString());
-        mv.getModelMap().put("minappShareTo", StringUtils.defaultIfBlank((String) minapp[3], ShareToManager.SHARE_ALL));
-        mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("pages/minapp/" + minappId2));
-        return mv;
+    public ModelAndView pageAibotMinApp(@PathVariable String minappId) {
+        return new ModelAndView("redirect:/admin/aibot2/minapp/" + minappId);
     }
 
     // -- Others

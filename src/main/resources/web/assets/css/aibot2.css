@@ -96,3 +96,341 @@ td .badge {
   margin: 15px -35px 10px;
   padding-top: 25px;
 }
+
+/* 概览页 */
+
+.aibot-overview .hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.25fr 0.9fr;
+  gap: 28px;
+  padding: 34px 38px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  background: linear-gradient(120deg, #07101f 0%, #0d2244 50%, #1849c6 100%);
+  box-shadow: 0 1px 2px rgba(8, 24, 56, 0.04), 0 14px 34px rgba(8, 24, 56, 0.1);
+  color: #fff;
+}
+
+.aibot-overview .hero:before,
+.aibot-overview .hero:after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.aibot-overview .hero:before {
+  top: -110px;
+  right: -70px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.16), transparent 62%);
+}
+
+.aibot-overview .hero:after {
+  bottom: -150px;
+  left: -50px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(47, 107, 255, 0.18), transparent 62%);
+}
+
+.aibot-overview .hero-main,
+.aibot-overview .trend {
+  position: relative;
+  z-index: 1;
+}
+
+.aibot-overview .hero-kicker {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #93c5fd;
+}
+
+.aibot-overview .hero h2 {
+  margin: 12px 0 10px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.32;
+}
+
+.aibot-overview .hero p {
+  max-width: 520px;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #c7d6f2;
+}
+
+.aibot-overview .hero-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.aibot-overview .hero-actions .btn {
+  cursor: pointer;
+}
+
+.aibot-overview .hero .btn.light {
+  border: 0;
+  background: #fff;
+  color: #12305e;
+  font-weight: 600;
+}
+
+.aibot-overview .hero .btn.light:hover {
+  background: #f3f7ff;
+  color: #12305e;
+}
+
+.aibot-overview .hero .btn.glass {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.aibot-overview .hero .btn.glass:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.aibot-overview .trend {
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.aibot-overview .trend-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.aibot-overview .trend-head .t {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: #b9cdf0;
+}
+
+.aibot-overview .trend-head b {
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.aibot-overview .trend-head b small {
+  margin-left: 4px;
+  font-size: 11px;
+  font-weight: 400;
+  color: #a9c0e8;
+}
+
+.aibot-overview .trend-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 78px;
+  margin-top: 16px;
+}
+
+.aibot-overview .trend-bars i {
+  flex: 1;
+  min-height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(180deg, #7cc4ff, rgba(47, 107, 255, 0.7));
+}
+
+.aibot-overview .trend-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 10px;
+  color: #9fb8e2;
+}
+
+.aibot-overview .stat {
+  height: 100%;
+  padding: 20px 20px 18px;
+  border: 1px solid #edf0f6;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03), 0 10px 28px rgba(16, 24, 40, 0.04);
+}
+
+.aibot-overview .stat .label {
+  font-size: 12.5px;
+  color: #7b8499;
+}
+
+.aibot-overview .stat .value {
+  margin-top: 10px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.aibot-overview .stat .value small {
+  margin-left: 3px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #8f959e;
+}
+
+.aibot-overview .stat .delta {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: #8f959e;
+}
+
+.aibot-overview .row > div > .card {
+  height: 100%;
+}
+
+.aibot-overview .bars-wrap {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+}
+
+.aibot-overview .bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 120px;
+  padding: 8px 4px 0;
+}
+
+.aibot-overview .barcol {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  height: 100%;
+}
+
+.aibot-overview .barcol .bar {
+  width: 100%;
+  max-width: 34px;
+  min-height: 6px;
+  border-radius: 5px 5px 2px 2px;
+  background: linear-gradient(180deg, #69b1ff, #2f6bff);
+}
+
+.aibot-overview .barcol .lb {
+  font-size: 10.5px;
+  color: #8f959e;
+}
+
+@media (max-width: 1200px) {
+  .aibot-overview .hero {
+    grid-template-columns: 1fr;
+    padding: 28px;
+  }
+
+  .aibot-overview .hero h2 {
+    font-size: 24px;
+  }
+}
+
+/* 会话列表 */
+
+.aibot-chats .aibot-chat-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.aibot-chats .aibot-chat-filters > .form-control {
+  width: 240px;
+}
+
+.aibot-chats .aibot-chat-dates {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aibot-chats .aibot-chat-dates .form-control {
+  width: 240px;
+}
+
+.aibot-chats .aibot-chat-table {
+  min-width: 720px;
+  table-layout: fixed;
+}
+
+.aibot-chats .aibot-chat-table th,
+.aibot-chats .aibot-chat-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.aibot-chats .aibot-chat-subject {
+  min-width: 0;
+}
+
+.aibot-chats .aibot-chat-link {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  color: #1a73e8;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aibot-chats .aibot-chat-link:hover {
+  text-decoration: underline;
+}
+
+.aibot-chats .aibot-chat-summary {
+  margin-top: 2px;
+  overflow: hidden;
+  color: #8f959e;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aibot-chats .aibot-chat-error {
+  max-width: 720px;
+  margin: 0 auto;
+  overflow-wrap: anywhere;
+}
+
+.aibot-chats .aibot-chat-pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #edf0f6;
+  color: #667085;
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .aibot-chats .aibot-chat-filters > .form-control {
+    width: 100%;
+  }
+
+  .aibot-chats .aibot-chat-dates {
+    width: 100%;
+  }
+
+  .aibot-chats .aibot-chat-dates .form-control {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+  }
+}

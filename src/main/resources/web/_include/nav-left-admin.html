@@ -57,13 +57,13 @@
                         <div class="content">
                           <ul>
                             <li th:class="${active == 'aibot-kb'} ? 'active'">
-                              <a th:href="@{/admin/integration/aibot-kb}"><span>[[${bundle.L('知识库')}]]</span></a>
+                              <a th:href="@{/admin/aibot2/kb}"><span>[[${bundle.L('知识库')}]]</span></a>
                             </li>
                             <li th:class="${active == 'aibot-skills'} ? 'active'">
-                              <a th:href="@{/admin/integration/aibot-skills}"><span>[[${bundle.L('技能')}]]</span></a>
+                              <a th:href="@{/admin/aibot2/skills}"><span>[[${bundle.L('技能')}]]</span></a>
                             </li>
                             <li th:class="${active == 'aibot-tools'} ? 'active'">
-                              <a th:href="@{/admin/integration/aibot-tools}"><span>[[${bundle.L('工具')}]]</span></a>
+                              <a th:href="@{/admin/aibot2/tools}"><span>[[${bundle.L('工具')}]]</span></a>
                             </li>
                           </ul>
                         </div>
@@ -71,11 +71,8 @@
                     </li>
                   </ul>
                 </li>
-                <li th:class="${active == 'aibot-agents'} ? 'active'">
-                  <a th:href="@{/admin/integration/aibot-agents}"><i class="icon mdi mdi-robot-outline"></i><span>[[${bundle.L('智能体')}]]</span> <sup class="rbv"></sup></a>
-                </li>
-                <li th:class="${active == 'aibot-minapps'} ? 'active'">
-                  <a th:href="@{/admin/integration/aibot-minapps}"><i class="icon mdi mdi-apps-box"></i><span>[[${bundle.L('微应用')}]]</span> <sup class="rbv"></sup></a>
+                <li th:class="${active == 'aibot-overview'} ? 'active'">
+                  <a th:href="@{/admin/aibot2/overview}" target="_blank"><i class="icon mdi mdi-view-dashboard-outline"></i><span>[[${bundle.L('控制台')}]]</span></a>
                 </li>
               </th:block>
 

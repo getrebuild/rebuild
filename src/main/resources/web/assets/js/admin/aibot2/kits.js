@@ -37,7 +37,7 @@ $(document).ready(() => {
       }
       $.post('/app/entity/common-save', JSON.stringify(data), (saveRes) => {
         if (saveRes.error_code === 0) {
-          $.post(`./aibot/kb-build?id=${saveRes.data.id}`)
+          $.post(`/admin/integration/aibot/kb-build?id=${saveRes.data.id}`)
           $setTimeout(() => KbList.load(), 2000, 'KbList.load')
         } else {
           RbHighbar.error(saveRes.error_msg)
@@ -54,10 +54,10 @@ $(document).ready(() => {
       confirmText: $L('重建'),
       confirm: function () {
         this.hide()
-        $.get('./aibot/kb-list', (res) => {
+        $.get('/admin/integration/aibot/kb-list', (res) => {
           const data = res.data || []
           data.forEach((item) => {
-            $.post(`./aibot/kb-build?id=${item.id}`)
+            $.post(`/admin/integration/aibot/kb-build?id=${item.id}`)
           })
 
           $setTimeout(() => KbList.load(), 3000, 'KbList.load')
@@ -99,7 +99,7 @@ class KbList extends React.Component {
   static load() {
     const $body = $('#kbList').closest('.card-body')
     let loaded = false
-    $.get('./aibot/kb-list', (res) => {
+    $.get('/admin/integration/aibot/kb-list', (res) => {
       loaded = true
       const data = res.data || []
       const isEmpty = data.length === 0
@@ -340,7 +340,7 @@ class DlgKbEdit extends RbModalHandler {
 
         // 内容未变化无需重新构建
         if (needBuild) {
-          $.post(`./aibot/kb-build?id=${newId}`, next)
+          $.post(`/admin/integration/aibot/kb-build?id=${newId}`, next)
         } else {
           next()
         }
@@ -358,7 +358,7 @@ class SkillList extends React.Component {
   static load() {
     const $body = $('#skillsList').closest('.card-body')
     let loaded = false
-    $.get('./aibot/skill-list', (res) => {
+    $.get('/admin/integration/aibot/skill-list', (res) => {
       loaded = true
       const data = res.data || []
       const isEmpty = data.length === 0
@@ -605,7 +605,7 @@ class DlgSkillEdit extends RbModalHandler {
     }
 
     const $btn = $(this._$importBtn).button('loading')
-    $.post(`./aibot/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
+    $.post(`/admin/integration/aibot/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('成功导入 %d 个技能', selected.length))
@@ -661,7 +661,7 @@ class ToolList extends React.Component {
   static load() {
     const $body = $('#toolsList').closest('.card-body')
     let loaded = false
-    $.get('./aibot/tool-list', (res) => {
+    $.get('/admin/integration/aibot/tool-list', (res) => {
       loaded = true
       _toolsData = res.data || []
       const isEmpty = _toolsData.length === 0
@@ -736,7 +736,7 @@ class ToolList extends React.Component {
     if (item) item.disabled = !checked
 
     const disabled = _toolsData.filter((x) => x.disabled).map((x) => x.name)
-    $.post('./aibot', JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
+    $.post('/admin/integration/aibot', JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
       if (res.error_code !== 0) RbHighbar.error(res.error_msg)
     })
   }
