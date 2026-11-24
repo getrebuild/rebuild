@@ -2161,7 +2161,7 @@ th.column-fixed::before,
 
 .main-content > .nav-tabs-classic > li.nav-item a.nav-link {
   padding: 9px 15px;
-  min-width: 120px;
+  min-width: 100px;
   max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;

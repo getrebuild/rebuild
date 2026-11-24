@@ -21,6 +21,7 @@ html:not(.theme-dark2) {
   --rex-warn: #f79009;
   --rex-err: #f04438;
   --rex-shadow-card: 0 1px 2px rgba(16, 24, 40, 0.03), 0 12px 30px rgba(16, 24, 40, 0.045);
+  --rex-bg-glow: radial-gradient(1100px 520px at 12% -8%, #e8f0ff 0%, transparent 58%);
   --rb-color: #2f6bff;
   --rb-theme-color: #2f6bff;
   --rb-btn-hover-color: #1f57e6;
@@ -35,9 +36,15 @@ html:not(.theme-dark2) {
 }
 
 html:not(.theme-dark2) body {
-  background: radial-gradient(1100px 520px at 12% -8%, #e8f0ff 0%, transparent 58%), #f3f5f9;
+  background: var(--rex-bg-glow), #f3f5f9;
   background-attachment: fixed;
   color: #111827;
+}
+
+/* 弹窗/详情 iframe 页面保持白色底 */
+html:not(.theme-dark2) body.dialog,
+html:not(.theme-dark2) body.view-body {
+  background: #fff;
 }
 
 html:not(.theme-dark2) body ::selection {
@@ -355,16 +362,18 @@ html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements li.parent > a::be
 }
 
 html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: transparent;
   border-top: 1px solid #122036;
 }
 
-html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings .icon {
+html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings .icon,
+html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings-admin .icon {
   color: #8fa3c0;
 }
 
-html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings:hover {
-  background-color: rgba(255, 255, 255, 0.06);
+html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings:hover .icon,
+html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings-admin:hover .icon {
+  color: #cfe0ff;
 }
 
 html:not(.theme-dark2) body .rb-left-sidebar .left-sidebar-scroll {
@@ -428,14 +437,19 @@ html:not(.theme-dark2) body .card {
   border: 1px solid #e6e9f0;
   border-radius: 14px;
   box-shadow: var(--rex-shadow-card);
-}
-
-html:not(.theme-dark2) body .card-body {
-  border-radius: 0 0 14px 14px;
+  overflow: clip;
 }
 
 html:not(.theme-dark2) body .main-content > .card.card-table.card-topcolor {
   border-top: 2px solid #2f6bff;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+}
+
+/* 紧接页签的列表卡片保持方角，与页签衔接 */
+html:not(.theme-dark2) body .main-content > .nav-tabs + .card.card-table.card-topcolor {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 html:not(.theme-dark2) body .grid-stack .grid-stack-item .grid-stack-item-content {
@@ -596,7 +610,59 @@ html:not(.theme-dark2) body .custom-select:focus {
 html:not(.theme-dark2) body .input-group-text {
   background-color: #fafbfd;
   border-color: #e6e9f0;
+  border-radius: 9px;
   color: #667085;
+}
+
+/* 输入框组：只保留组两端的圆角 */
+html:not(.theme-dark2) body .input-group:not(.input-search) > .form-control:not(:last-child),
+html:not(.theme-dark2) body .input-group:not(.input-search) > .custom-select:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > .form-control:not(:first-child),
+html:not(.theme-dark2) body .input-group:not(.input-search) > .custom-select:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-append > .btn,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-append > .input-group-text {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-append > .btn:not(:last-child),
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-append > .input-group-text:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-prepend > .btn,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-prepend > .input-group-text {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* 页面样式用 !important 把组末位按钮压成 2px，这里跟随主题 */
+html:not(.theme-dark2) body .input-group-append > .btn-secondary + .btn-secondary {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+html:not(.theme-dark2) body .input-group-append > .btn-secondary:last-child {
+  border-top-right-radius: 9px !important;
+  border-bottom-right-radius: 9px !important;
+}
+
+/* 搜索框容器不铺底色，避免方形白底露出圆角外；输入框保持白底 */
+html:not(.theme-dark2) body .input-search {
+  background-color: transparent;
+}
+
+html:not(.theme-dark2) body .input-search input {
+  background-color: #fff;
 }
 
 html:not(.theme-dark2) body .form-text {
@@ -689,13 +755,12 @@ html:not(.theme-dark2) body .flatpickr-day.endRange {
 
 /* ===== 8. 表格与列表 ===== */
 
-html:not(.theme-dark2) body .table > thead > tr > th {
+html:not(.theme-dark2) body .data-list .table > thead > tr > th,
+html:not(.theme-dark2) body .protable .table > thead > tr > th,
+html:not(.theme-dark2) body .card .table > thead > tr > th {
   background-color: #fafbfd;
   border-bottom: 1px solid #edf0f5;
   color: #8b93a7;
-  font-weight: 500;
-  font-size: 11.5px;
-  letter-spacing: 0.4px;
 }
 
 html:not(.theme-dark2) body .table > tbody > tr > td {
@@ -816,6 +881,7 @@ html:not(.theme-dark2) body .dropdown-menu .dropdown-divider {
 
 /* dropdown-menu-primary 为蓝底菜单，保持蓝底白字，只修正 hover */
 html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu {
+  background-color: #2f6bff;
   border-color: transparent;
 }
 
@@ -830,12 +896,12 @@ html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu > .dropdown-ite
 html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu > .dropdown-item:active,
 html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu > .dropdown-item:focus,
 html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu > .dropdown-item:hover {
-  background-color: #478af4;
+  background-color: #1f57e6;
   color: #fff;
 }
 
 html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu .dropdown-divider {
-  border-color: #478af4;
+  border-color: #1f57e6;
 }
 
 html:not(.theme-dark2) body .popover {
@@ -891,6 +957,11 @@ html:not(.theme-dark2) body .colored-header .modal-content .modal-body:last-chil
   border-bottom-right-radius: 12px;
 }
 
+/* iframe 弹窗内容默认铺满，需裁剪到弹窗圆角内 */
+html:not(.theme-dark2) body .modal-body.iframe {
+  overflow: hidden;
+}
+
 html:not(.theme-dark2) body .colored-header .modal-content .modal-header .modal-title,
 html:not(.theme-dark2) body .colored-header .modal-content .modal-header .close {
   color: #fff;
@@ -917,6 +988,11 @@ html:not(.theme-dark2) body .nav-tabs > li.nav-item a.nav-link:hover {
 html:not(.theme-dark2) body .nav-tabs > li.nav-item a.nav-link.active {
   border-bottom-color: #2f6bff;
   color: #111827;
+}
+
+/* 经典页签：选中项顶部圆弧，与下方卡片衔接 */
+html:not(.theme-dark2) body .nav-tabs-classic > li.nav-item > a.nav-link.active {
+  border-radius: 12px 12px 0 0;
 }
 
 html:not(.theme-dark2) body .nav-tabs.nav-tabs-segment {
