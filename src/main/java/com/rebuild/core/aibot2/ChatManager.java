@@ -204,6 +204,9 @@ public abstract class ChatManager {
         boolean newChat = chatid == null;
 
         if (newChat) {
+            String modelConfigError = getModelConfigError(params.getAgent());
+            if (modelConfigError != null) throw new AiBotException(modelConfigError);
+
             // 超限校验在会话落库前，避免超限后残留仅有主题的空会话
             String quotaExceeded = AgentQuota.check(params.getAgent());
             if (quotaExceeded != null) throw new AiBotException(quotaExceeded);
@@ -221,6 +224,9 @@ public abstract class ChatManager {
         } else {
             // 会话已绑定的智能体优先，忽略本次 agent
             chat = getChat(chatid);
+
+            String modelConfigError = getModelConfigError(chat.getAgent());
+            if (modelConfigError != null) throw new AiBotException(modelConfigError);
 
             // 已有会话在其绑定智能体上校验（新建场景已在落库前校验）
             String quotaExceeded = AgentQuota.check(chat.getAgent());
@@ -282,6 +288,11 @@ public abstract class ChatManager {
             AibotContextHolder.restoreAgent(prevAgent);
             chat.endRun();
         }
+    }
+
+    // 智能体引用的模型配置不可用（已停用或已删除）
+    private static String getModelConfigError(AibotAgent agent) {
+        return agent == null ? null : StringUtils.trimToNull(agent.getModelConfigError());
     }
 
     /**

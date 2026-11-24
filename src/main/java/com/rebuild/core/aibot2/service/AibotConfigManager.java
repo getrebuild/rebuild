@@ -138,7 +138,8 @@ public class AibotConfigManager implements ConfigManager {
     }
 
     /**
-     * 是否使用旧版模型参数（智能体自带地址/密钥或模型参数）
+     * 是否使用旧版模型接入（智能体自带地址/密钥或模型）
+     * <p>温度/核采样/思考强度等行为参数不属于模型接入，不影响默认模型配置的回落</p>
      *
      * @param conf
      * @return
@@ -149,10 +150,7 @@ public class AibotConfigManager implements ConfigManager {
                 || StringUtils.isNotBlank(conf.getString("AibotDSSecret"))
                 || StringUtils.isNotBlank(conf.getString("AibotBaseDefModel"))
                 || StringUtils.isNotBlank(conf.getString("AibotVisionModel"))
-                || StringUtils.isNotBlank(conf.getString("AibotAsrModel"))
-                || conf.get("AibotTemperature") != null
-                || conf.get("AibotTopP") != null
-                || StringUtils.isNotBlank(conf.getString("AibotReasoningEffort"));
+                || StringUtils.isNotBlank(conf.getString("AibotAsrModel"));
     }
 
     /**

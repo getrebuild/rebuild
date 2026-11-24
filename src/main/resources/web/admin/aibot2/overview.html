@@ -24,11 +24,6 @@
             </div>
             <div class="config-overview">
               <div class="config-grid">
-                <a class="config-item" th:if="${T(com.rebuild.core.support.License).isCommercial()}" th:href="@{/admin/aibot2/models}">
-                  <span class="config-icon"><i class="icon mdi mdi-chip"></i></span>
-                  <span class="config-name">[[${bundle.L('模型')}]]</span>
-                  <b class="J_cfg-models">0</b>
-                </a>
                 <a class="config-item" th:if="${T(com.rebuild.core.support.License).isCommercial()}" th:href="@{/admin/aibot2/agents}">
                   <span class="config-icon"><i class="icon mdi mdi-robot-outline"></i></span>
                   <span class="config-name">[[${bundle.L('智能体')}]]</span>
@@ -38,6 +33,11 @@
                   <span class="config-icon"><i class="icon mdi mdi-apps-box"></i></span>
                   <span class="config-name">[[${bundle.L('微应用')}]]</span>
                   <b class="J_cfg-minapps">0</b>
+                </a>
+                <a class="config-item" th:if="${T(com.rebuild.core.support.License).isCommercial()}" th:href="@{/admin/aibot2/models}">
+                  <span class="config-icon"><i class="icon mdi mdi-chip"></i></span>
+                  <span class="config-name">[[${bundle.L('模型')}]]</span>
+                  <b class="J_cfg-models">0</b>
                 </a>
                 <a class="config-item" th:href="@{/admin/aibot2/kb}">
                   <span class="config-icon"><i class="icon mdi mdi-book-search-outline"></i></span>

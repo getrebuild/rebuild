@@ -114,6 +114,7 @@ public class AiBot2PageController extends BaseController {
         mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("/aibot/pub/" + agentId2));
         mv.getModelMap().put("agentName", StringUtils.trimToEmpty((String) agent[0]));
         JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) agent[1]);
+        if (conf != null) conf.remove("AibotDSSecret");
         mv.getModelMap().put("agentConfig", conf == null ? null : conf.toJSONString().replace("<", "\\u003C"));
         mv.getModelMap().put("agentShareTo", StringUtils.defaultIfBlank((String) agent[3], ShareToManager.SHARE_ALL));
 

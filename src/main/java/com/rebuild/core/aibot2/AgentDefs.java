@@ -85,10 +85,17 @@ public class AgentDefs {
     // 智能体引用模型配置或跟随默认模型时，模型相关参数全部以模型配置为准
     private static void applyModelConfig(AibotAgent agent, JSONObject conf) {
         String modelConfigId = conf.getString("modelConfigId");
-        ConfigBean cb = ID.isId(modelConfigId)
+        boolean referenced = ID.isId(modelConfigId);
+        ConfigBean cb = referenced
                 ? AibotConfigManager.instance.getConfigById(
                 ID.valueOf(modelConfigId), AibotConfigManager.TYPE_MODEL)
                 : null;
+
+        // 指定了模型配置但已停用或删除时报错，不静默回落到默认模型
+        if (referenced && cb == null) {
+            agent.setModelConfigError(Language.L("智能体模型配置已停用或已删除"));
+            return;
+        }
 
         // 未指定且未使用旧版模型参数时，跟随默认模型配置
         if (cb == null && !AibotConfigManager.hasLegacyModelConfig(conf)) {
@@ -99,6 +106,10 @@ public class AgentDefs {
         JSONObject modelConf = (JSONObject) cb.getJSON("config");
         if (modelConf == null) return;
 
+        // 思考强度以智能体自身设置为先，留空时跟随模型配置
+        String reasoningEffort = StringUtils.defaultIfBlank(
+                agent.getReasoningEffort(), modelConf.getString("AibotReasoningEffort"));
+
         agent.setDsUrl(modelConf.getString("AibotDSUrl"))
                 .setDsSecret(modelConf.getString("AibotDSSecret"))
                 .setModel(modelConf.getString("AibotBaseDefModel"))
@@ -106,7 +117,7 @@ public class AgentDefs {
                 .setAsrModel(modelConf.getString("AibotAsrModel"))
                 .setTemperature(modelConf.getDouble("AibotTemperature"))
                 .setTopP(modelConf.getDouble("AibotTopP"))
-                .setReasoningEffort(modelConf.getString("AibotReasoningEffort"));
+                .setReasoningEffort(reasoningEffort);
     }
 
     /**
