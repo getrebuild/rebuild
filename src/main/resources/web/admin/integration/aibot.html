@@ -29,18 +29,18 @@
                         <td data-id="AibotName" th:data-value="${AibotName ?:''}" data-optional="true">[[${AibotName ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('API 地址')}]]</td>
+                        <td>[[${bundle.L('服务地址')}]]</td>
                         <td data-id="AibotDSUrl" th:data-value="${AibotDSUrl ?:''}">[[${AibotDSUrl ?:bundle.L('未配置')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('秘钥')}]]</td>
                         <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未配置')}]]</td>
                       </tr>
-                      <tr th:title="${bundle.L('请正确填写模型名称（填写 API 地址、秘钥后可自动获取可用模型列表）')}">
+                      <tr th:title="${bundle.L('请正确填写模型名称（填写服务地址、秘钥后可自动获取可用模型列表）')}">
                         <td>[[${bundle.L('使用模型')}]]</td>
                         <td class="position-relative" data-id="AibotBaseDefModel" th:data-value="${AibotBaseDefModel ?:''}">[[${AibotBaseDefModel ?:bundle.L('未配置')}]]</td>
                       </tr>
-                      <tr class="bosskey-show" th:title="${bundle.L('需模型支持，留空不启用')}">
+                      <tr th:title="${bundle.L('需模型支持，留空不启用')}">
                         <td>[[${bundle.L('视觉模型')}]]</td>
                         <td data-id="AibotVisionModel" th:data-value="${AibotVisionModel ?:''}" data-optional="true">[[${AibotVisionModel ?:bundle.L('未启用')}]]</td>
                       </tr>
@@ -65,7 +65,7 @@
                           <th:block th:if="${AibotReasoningEffort == null or AibotReasoningEffort == ''}">[[${bundle.L('默认')}]]</th:block>
                         </td>
                       </tr>
-                      <tr th:title="${bundle.L('回答时可记住多少轮对话 (适当调小可节约 Token 成本)')}">
+                      <tr th:title="${bundle.L('回答时可记住多少轮对话（适当调小可节约词元成本）')}">
                         <td>[[${bundle.L('记忆轮数')}]]</td>
                         <td data-id="AibotMemoryRounds" th:data-value="${AibotMemoryRounds ?:''}" data-optional="true" data-input-type="number">[[${AibotMemoryRounds ?:bundle.L('默认')}]]</td>
                       </tr>

@@ -382,12 +382,6 @@ td .badge {
   white-space: nowrap;
 }
 
-.aibot-chats .aibot-chat-error {
-  max-width: 720px;
-  margin: 0 auto;
-  overflow-wrap: anywhere;
-}
-
 .aibot-chats .aibot-chat-pager {
   display: flex;
   align-items: center;
@@ -417,12 +411,6 @@ td .badge {
 .aibot-models .aibot-model-table td {
   padding: 12px 16px;
   vertical-align: middle;
-}
-
-.aibot-models .aibot-model-error {
-  max-width: 720px;
-  margin: 0 auto;
-  overflow-wrap: anywhere;
 }
 
 /* 知识库列表 */
