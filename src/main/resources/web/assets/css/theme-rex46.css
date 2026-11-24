@@ -482,7 +482,7 @@ html:not(.theme-dark2) body .btn-primary:focus {
   background-color: #2f6bff;
   background-image: linear-gradient(135deg, #2f6bff, #4f8dff);
   border-color: transparent;
-  box-shadow: 0 6px 16px rgba(47, 107, 255, 0.24);
+  box-shadow: 0 1px 3px rgba(47, 107, 255, 0.18);
   color: #fff;
 }
 
@@ -491,7 +491,7 @@ html:not(.theme-dark2) body .btn-primary:hover {
   background-color: #3b76ff;
   background-image: linear-gradient(135deg, #3b76ff, #5c97ff);
   border-color: transparent;
-  box-shadow: 0 8px 20px rgba(47, 107, 255, 0.28);
+  box-shadow: 0 2px 6px rgba(47, 107, 255, 0.22);
   color: #fff;
 }
 
@@ -568,9 +568,7 @@ html:not(.theme-dark2) body .btn:focus {
 }
 
 html:not(.theme-dark2) body .btn-primary:focus {
-  box-shadow:
-    0 6px 16px rgba(47, 107, 255, 0.24),
-    0 0 0 2px rgba(47, 107, 255, 0.16);
+  box-shadow: 0 0 0 2px rgba(47, 107, 255, 0.16), 0 1px 3px rgba(47, 107, 255, 0.18);
 }
 
 /* ===== 7. 表单控件 ===== */
@@ -709,6 +707,23 @@ html:not(.theme-dark2) body .select2-container--default .select2-selection--mult
   border-radius: 9px;
 }
 
+/* 输入框组内的 select2：与相邻元素拼接的一侧取消圆角 */
+html:not(.theme-dark2) body .input-group:not(.input-search) > .select2-container:not(:last-child) .select2-selection--single,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .select2-container:not(:last-child) .select2-selection--multiple {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > input.form-control ~ .select2-container .select2-selection--single,
+html:not(.theme-dark2) body .input-group:not(.input-search) > input.form-control ~ .select2-container .select2-selection--multiple,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-prepend ~ .select2-container .select2-selection--single,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-prepend ~ .select2-container .select2-selection--multiple,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-text ~ .select2-container .select2-selection--single,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-text ~ .select2-container .select2-selection--multiple {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 html:not(.theme-dark2) body .select2-container--default.select2-container--focus .select2-selection--single,
 html:not(.theme-dark2) body .select2-container--default.select2-container--focus .select2-selection--multiple,
 html:not(.theme-dark2) body .select2-container--default.select2-container--open .select2-selection--single,
@@ -797,7 +812,8 @@ html:not(.theme-dark2) body .data-list .table thead th > div > i.zmdi {
   color: #2f6bff;
 }
 
-html:not(.theme-dark2) body .data-list .table tbody tr.active {
+html:not(.theme-dark2) body .data-list .table tbody tr.active,
+html:not(.theme-dark2) body .data-list .table tbody tr.active td.column-fixed {
   background-color: #eef4ff;
 }
 

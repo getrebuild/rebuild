@@ -32,7 +32,6 @@ import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.rbstore.RBStore;
 import com.rebuild.core.rbstore.SkillImporter;
 import com.rebuild.core.support.CommonsLog;
@@ -125,6 +124,7 @@ public class AiBot2AdminController extends BaseController {
                 mv.getModel().put(name, value);
             }
         }
+        mv.getModel().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
         return mv;
     }
 
@@ -150,22 +150,19 @@ public class AiBot2AdminController extends BaseController {
         if (agent != null) chatQuery.setParameter(2, agent);
         Object[][] chatRows = chatQuery.array();
 
-        // 按日（词元/会话数/使用人数）与按用户聚合
+        // 按日（词元/会话数/使用人数）聚合
         Map<String, Long> tokensByDay = new TreeMap<>();
         Map<String, Integer> chatsByDay = new TreeMap<>();
         Map<String, Set<ID>> usersByDay = new TreeMap<>();
-        Map<ID, Long> tokenMap = new HashMap<>();
         Set<ID> realUsers = new HashSet<>();
         long tokenTotal = 0;
         int realChats = 0;
 
         for (Object[] o : tokenRows) {
             String day = CalendarUtils.format("yyyy-MM-dd", (Date) o[0]);
-            ID user = (ID) o[1];
             long token = o[2] == null ? 0L : ((Number) o[2]).longValue();
 
             tokensByDay.merge(day, token, Long::sum);
-            tokenMap.merge(user, token, Long::sum);
             tokenTotal += token;
         }
 
@@ -196,20 +193,9 @@ public class AiBot2AdminController extends BaseController {
             aibotDailyUsers.add(new Object[]{e.getKey(), e.getValue().size()});
         }
 
-        List<Object[]> usersList = new ArrayList<>();
-        for (User u : Application.getUserStore().getAllUsers()) {
-            if (!u.isActive()) continue;
-            if (UserHelper.isSystemUser(u.getId())) continue;
-
-            long tokenSum = tokenMap.getOrDefault(u.getId(), 0L);
-            usersList.add(new Object[]{u.getId().toString(), u.getFullName(),
-                    ObjectUtils.round(tokenSum / 10000d, 1)});
-        }
-        usersList.sort((a, b) -> Double.compare((Double) b[2], (Double) a[2]));
-
         JSONObject stats = JSONUtils.toJSONObject(
-                new String[]{"aibot", "aibotCount", "aibotUsers"},
-                new Object[]{aibot.toArray(), ObjectUtils.round(tokenTotal / 10000d, 1), usersList.toArray()});
+                new String[]{"aibot", "aibotCount"},
+                new Object[]{aibot.toArray(), ObjectUtils.round(tokenTotal / 10000d, 1)});
         stats.put("aibotDailyChats", aibotDailyChats.toArray());
         stats.put("aibotDailyUsers", aibotDailyUsers.toArray());
         stats.put("chats", realChats);
@@ -273,9 +259,7 @@ public class AiBot2AdminController extends BaseController {
 
     @GetMapping("aibot-tools")
     public ModelAndView pageIntegrationAibotTools() {
-        ModelAndView mv = createModelAndView("/admin/integration/aibot-tools");
-        mv.getModel().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
-        return mv;
+        return createModelAndView("/admin/integration/aibot-tools");
     }
 
 

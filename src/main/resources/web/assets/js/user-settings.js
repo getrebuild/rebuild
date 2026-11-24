@@ -525,7 +525,7 @@ const _renderMcpConfig = function () {
       rebuild: {
         url: window.__PageConfig.mcpServerUrl,
         headers: {
-          Authorization: 'Bearer',
+          Authorization: 'Bearer <' + $L('个人秘钥') + '>',
         },
         disabled: false,
       },
@@ -533,13 +533,5 @@ const _renderMcpConfig = function () {
   }
 
   const $mcp = $('.J_mcpConfig')
-  renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0], function () {
-    const $pre = $mcp.find('pre')
-    const $a = $('<a>', { href: '#secure', text: `<${$L('个人秘钥')}>` })
-    $pre.html($pre.html().replace('Bearer', 'Bearer ' + $a[0].outerHTML))
-    $pre.find('a').on('click', () => {
-      $('.nav-tabs a:eq(1)').trigger('click')
-      return false
-    })
-  })
+  renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0])
 }

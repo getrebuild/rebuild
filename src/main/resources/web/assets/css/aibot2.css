@@ -1,0 +1,98 @@
+/* Rex AI 列表 */
+
+.card .kit-table {
+  table-layout: fixed;
+}
+
+.card .kit-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.card .kit-tile {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  margin-right: 12px;
+  border-radius: 10px;
+  background-color: rgba(47, 107, 255, 0.08);
+  color: var(--rb-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card .kit-tile svg {
+  width: 18px;
+  height: 18px;
+}
+
+.card .kit-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.card .kit-name,
+.card .kit-sub,
+.card .kit-prompt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card .kit-name {
+  font-weight: 500;
+}
+
+.card .kit-sub {
+  font-size: 12px;
+}
+
+.card .kit-prompt {
+  display: block;
+}
+
+.card .kit-actions .switch-button {
+  margin-right: 10px;
+  top: -3px;
+}
+
+/* 设置页 */
+
+.row.stats .col-8 span {
+  display: block;
+  height: 44px;
+  width: 100%;
+  margin-top: 1px;
+}
+
+p.mt-2.text-dark code:hover {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+td[data-id='AibotBasePrompt'],
+td[data-id='AibotSuggestQuestions'] {
+  white-space: pre-line;
+}
+
+/* 弹窗 */
+
+.modal-body textarea.form-control {
+  min-height: 72px;
+}
+
+td .badge {
+  transform: translateY(-1px);
+}
+
+.init-models {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+.init-models + .dialog-footer {
+  margin: 15px -35px 10px;
+  padding-top: 25px;
+}

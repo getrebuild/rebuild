@@ -48,8 +48,10 @@ public abstract class ChatManager {
     public static final String SOURCE_PUB = "PUB";
     public static final String SOURCE_SYS = "SYS:";
 
-    // 可见的会话：除 SYS: 前缀的系统调用（定时任务、内部集成等）外均为可见，含用户会话、公开访问、企微等渠道会话
-    public static final String VISIBLE_WHERE = "(source is null or source not like 'SYS:%')";
+    // 可见的会话：真实用户会话与公开访问会话，排除系统用户及 SYS: 前缀的系统调用（定时任务、内部集成等）
+    public static final String VISIBLE_WHERE = "createdBy <> '" + UserService.SYSTEM_USER + "'"
+            + " and (createdBy <> '" + UserService.AIBOT_USER + "' or source = '" + SOURCE_PUB + "')"
+            + " and (source is null or source not like '" + SOURCE_SYS + "%')";
 
     // 摘要输入上限（字符），只取最近内容避免超出模型上下文
     private static final int SUMMARY_MAX_CHARS = 12000;

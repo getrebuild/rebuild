@@ -2,24 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/aibot2.css}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-aibot" />
     <title>Rex AI</title>
-    <style>
-      .row.stats .col-8 span {
-        display: block;
-        height: 44px;
-        width: 100%;
-        margin-top: 1px;
-      }
-      p.mt-2.text-dark code:hover {
-        font-weight: bold;
-        cursor: pointer;
-      }
-      td[data-id='AibotBasePrompt'],
-      td[data-id='AibotSuggestQuestions'] {
-        white-space: pre-line;
-      }
-    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -57,15 +42,11 @@
                       </tr>
                       <tr class="bosskey-show" th:title="${bundle.L('需模型支持，留空不启用')}">
                         <td>[[${bundle.L('视觉模型')}]]</td>
-                        <td data-id="AibotVisionModel" th:data-value="${AibotVisionModel ?:''}" data-optional="true">
-                          [[${AibotVisionModel ?:bundle.L('未启用')}]]
-                        </td>
+                        <td data-id="AibotVisionModel" th:data-value="${AibotVisionModel ?:''}" data-optional="true">[[${AibotVisionModel ?:bundle.L('未启用')}]]</td>
                       </tr>
                       <tr class="bosskey-show" th:title="${bundle.L('需平台支持，留空不启用')}">
                         <td>[[${bundle.L('语音模型')}]]</td>
-                        <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true">
-                          [[${AibotAsrModel ?:bundle.L('未启用')}]]
-                        </td>
+                        <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true">[[${AibotAsrModel ?:bundle.L('未启用')}]]</td>
                       </tr>
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('温度')}]]</td>
@@ -86,14 +67,7 @@
                       </tr>
                       <tr th:title="${bundle.L('回答时可记住多少轮对话 (适当调小可节约 Token 成本)')}">
                         <td>[[${bundle.L('记忆轮数')}]]</td>
-                        <td
-                          data-id="AibotMemoryRounds"
-                          th:data-value="${AibotMemoryRounds ?:''}"
-                          data-optional="true"
-                          data-input-type="number"
-                        >
-                          [[${AibotMemoryRounds ?:bundle.L('默认')}]]
-                        </td>
+                        <td data-id="AibotMemoryRounds" th:data-value="${AibotMemoryRounds ?:''}" data-optional="true" data-input-type="number">[[${AibotMemoryRounds ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('回复风格')}]]</td>
@@ -107,9 +81,7 @@
                       </tr>
                       <tr th:title="${bundle.L('提示词用于设定 AI 身份、规范行为与输出')}">
                         <td>[[${bundle.L('系统提示词')}]]</td>
-                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">
-                          [[${AibotBasePrompt ?:bundle.L('无')}]]
-                        </td>
+                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -122,9 +94,7 @@
                       </tr>
                       <tr th:title="${bundle.L('新会话时展示的引导问题，每行一个问题')}">
                         <td width="40%">[[${bundle.L('引导问题')}]]</td>
-                        <td data-id="AibotSuggestQuestions" th:data-value="${AibotSuggestQuestions ?:''}" data-optional="true">
-                          [[${AibotSuggestQuestions ?:bundle.L('默认')}]]
-                        </td>
+                        <td data-id="AibotSuggestQuestions" th:data-value="${AibotSuggestQuestions ?:''}" data-optional="true">[[${AibotSuggestQuestions ?:bundle.L('默认')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -133,11 +103,7 @@
                     <tbody>
                       <tr th:title="${bundle.L('禁用后将不再提供默认助手，用户只能使用共享给他们的智能体')}">
                         <td width="40%">[[${bundle.L('禁用默认助手')}]]</td>
-                        <td
-                          data-id="AibotDefaultDisabled"
-                          th:data-value="${AibotDefaultDisabled ?: 'false'}"
-                          data-optional="true"
-                        >
+                        <td data-id="AibotDefaultDisabled" th:data-value="${AibotDefaultDisabled ?: 'false'}" data-optional="true">
                           [[${AibotDefaultDisabled == 'true' ? bundle.L('是') : bundle.L('否')}]]
                         </td>
                       </tr>
@@ -190,10 +156,13 @@
                   </div>
                 </div>
               </div>
+
               <div class="card mt-3">
-                <div class="card-header card-header-divider">[[${bundle.L('TOP10 用户榜')}]]</div>
+                <div class="card-header card-header-divider">[[${bundle.L('MCP 接入')}]]</div>
                 <div class="card-body">
-                  <div class="J_stats-users"></div>
+                  <p class="mb-1">[[${bundle.L('通过 MCP 接入，可以在 WorkBuddy、QoderWork 等支持 MCP 协议的 AI 客户端中直接调用 Rex AI 助手。')}]]</p>
+                  <p th:utext="${bundle.L('注意 [个人秘钥](%s) 需替换成自己的，切勿共享。', '/settings/user#secure')}"></p>
+                  <div class="J_mcpConfig" th:data-url="${_McpServerUrl}"></div>
                 </div>
               </div>
             </div>

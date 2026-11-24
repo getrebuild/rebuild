@@ -65,11 +65,35 @@ $(document).ready(() => {
       },
     })
   })
-
-  if ($('.J_mcpConfig').length) _renderMcpConfig()
 })
 
 // ~~ Knowledge
+
+// 列表图标（与新版管理端一致）
+const KitIconBook = () => (
+  <span className="kit-tile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z" />
+      <path d="M4 5.5V21M8 7h8M8 11h6" />
+    </svg>
+  </span>
+)
+
+const KitIconStar = () => (
+  <span className="kit-tile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path d="M12 3l2.2 5.4L20 10l-4.3 4.1L17 20l-5-2.9L7 20l1.3-5.9L4 10l5.8-1.6z" />
+    </svg>
+  </span>
+)
+
+const KitIconTool = () => (
+  <span className="kit-tile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+      <path d="M14.5 6.5a4 4 0 0 0-5.4 5.4L3 18l3 3 6.1-6.1a4 4 0 0 0 5.4-5.4l-2.4 2.4-2.6-2.6z" />
+    </svg>
+  </span>
+)
 
 class KbList extends React.Component {
   static load() {
@@ -96,23 +120,32 @@ class KbList extends React.Component {
   render() {
     return this.props.data.map((item) => {
       // -1 构建中，0 构建失败，>0 分片数
-      let chunkBadge
-      if (item.chunkCount > 0)
-        chunkBadge = (
-          <span className="badge badge-light ml-1" title={$L('索引')}>
-            {item.chunkCount}
-          </span>
-        )
-      else if (item.chunkCount === -1) chunkBadge = <span className="badge badge-warning ml-1">{$L('构建中')}</span>
-      else chunkBadge = <span className="badge badge-danger ml-1">{$L('构建失败')}</span>
+      let chunk
+      if (item.chunkCount > 0) chunk = item.chunkCount
+      else if (item.chunkCount === -1) chunk = <span className="badge badge-warning">{$L('构建中')}</span>
+      else chunk = <span className="badge badge-danger">{$L('构建失败')}</span>
+
+      let source = <NoValue />
+      if (item.sourceType === 'FILE') source = $L('文件')
+      else if (item.sourceType === 'TEXT') source = $L('文本')
 
       return (
         <tr key={item.id}>
           <td>
-            {item.name} {chunkBadge}
+            <div className="kit-cell">
+              <KitIconBook />
+              <div className="kit-text">
+                <div className="kit-name">{item.name}</div>
+                <div className="kit-sub text-muted" title={item.description || null}>
+                  {item.description || $L('暂无描述')}
+                </div>
+              </div>
+            </div>
           </td>
-          <td>{item.description || <NoValue />}</td>
-          <td className="actions pr-1">
+          <td className="text-muted">{source}</td>
+          <td>{chunk}</td>
+          <td className="actions kit-actions">
+            {ShowEnable(item.isDisabled, item.id)}
             <a title={$L('修改')} className="icon" onClick={() => _editKb(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
@@ -120,7 +153,6 @@ class KbList extends React.Component {
               <i className="zmdi zmdi-delete" />
             </a>
           </td>
-          <td className="actions">{ShowEnable(item.isDisabled, item.id)}</td>
         </tr>
       )
     })
@@ -344,9 +376,28 @@ class SkillList extends React.Component {
       const cfg = item.config || {}
       return (
         <tr key={item.id}>
-          <td>{item.name}</td>
-          <td>{cfg.description || <NoValue />}</td>
-          <td className="actions pr-1">
+          <td>
+            <div className="kit-cell">
+              <KitIconStar />
+              <div className="kit-text">
+                <div className="kit-name">{item.name}</div>
+                <div className="kit-sub text-muted" title={cfg.description || null}>
+                  {cfg.description || $L('暂无描述')}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td className="text-muted">
+            {cfg.prompt ? (
+              <span className="kit-prompt" title={cfg.prompt}>
+                {cfg.prompt}
+              </span>
+            ) : (
+              <NoValue />
+            )}
+          </td>
+          <td className="actions kit-actions">
+            {ShowEnable(item.isDisabled, item.id)}
             <a title={$L('修改')} className="icon" onClick={() => _editSkill(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
@@ -354,7 +405,6 @@ class SkillList extends React.Component {
               <i className="zmdi zmdi-delete" />
             </a>
           </td>
-          <td className="actions">{ShowEnable(item.isDisabled, item.id)}</td>
         </tr>
       )
     })
@@ -626,13 +676,10 @@ class ToolList extends React.Component {
 
   render() {
     return this.props.data.map((item) => {
-      let desc = item.userDescription || item.description
-      const sysTool = desc && desc.includes('[系统工具]')
-      if (desc) {
-        desc = desc.replace('[系统工具]', `<span class="badge badge-dark">${$L('系统工具')}</span>`)
-        desc = desc.replace('[商业工具]', `<sup class="rbv" title="${$L('商业工具')}"></sup>`)
-        desc = WrapHtml(desc)
-      }
+      let desc = item.userDescription || item.description || ''
+      const sysTool = desc.includes('[系统工具]')
+      const commercialTool = desc.includes('[商业工具]')
+      desc = desc.replace(/\s*\[(系统工具|商业工具)]/g, '').trim()
 
       const _saveFn = (checked, e) => {
         if (rb.commercial < 1) {
@@ -662,9 +709,23 @@ class ToolList extends React.Component {
 
       return (
         <tr key={item.name}>
-          <td>{item.name}</td>
-          <td>{desc || <NoValue />}</td>
-          <td className="actions">{sysTool ? null : ShowEnable(item.disabled, item.name, _saveFn)}</td>
+          <td>
+            <div className="kit-cell">
+              <KitIconTool />
+              <div className="kit-text">
+                <div className="kit-name">{item.name}</div>
+                <div className="kit-sub text-muted" title={desc || null}>
+                  {desc || $L('暂无说明')}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            {sysTool && <span className="badge badge-secondary">{$L('系统')}</span>}
+            {commercialTool && <span className="badge badge-info ml-1">{$L('商业')}</span>}
+            {!sysTool && !commercialTool && <NoValue />}
+          </td>
+          <td>{sysTool ? <span className="badge badge-secondary">{$L('内置')}</span> : ShowEnable(item.disabled, item.name, _saveFn)}</td>
         </tr>
       )
     })
@@ -679,27 +740,4 @@ class ToolList extends React.Component {
       if (res.error_code !== 0) RbHighbar.error(res.error_msg)
     })
   }
-}
-
-// ~~ MCP
-
-const _renderMcpConfig = function () {
-  const $mcp = $('.J_mcpConfig')
-  const code = {
-    mcpServers: {
-      rebuild: {
-        url: $mcp.data('url') || '',
-        headers: {
-          Authorization: 'Bearer',
-        },
-        disabled: false,
-      },
-    },
-  }
-
-  renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0], function () {
-    const $pre = $mcp.find('pre')
-    const $a = $('<a>', { href: '../../settings/user#secure', target: '_blank', text: `<${$L('个人秘钥')}>` })
-    $pre.html($pre.html().replace('Bearer', 'Bearer ' + $a[0].outerHTML))
-  })
 }

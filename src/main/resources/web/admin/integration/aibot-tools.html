@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-aibot" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/aibot2.css}" />
+    <meta name="page-help" content="https://getrebuild.com/features/ai-knowledge" />
     <title>Rex AI [[${bundle.L('工具')}]]</title>
   </head>
   <body>
@@ -19,12 +20,12 @@
                   <a href="https://getrebuild.com/market/go/aitool" target="_blank" class="float-right"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
                 </div>
                 <div class="card-body card-body-loading">
-                  <table class="table table-hover">
+                  <table class="table table-hover kit-table">
                     <thead>
                       <tr>
-                        <th width="40%">[[${bundle.L('名称')}]]</th>
-                        <th>[[${bundle.L('描述')}]]</th>
-                        <th width="80"></th>
+                        <th>[[${bundle.L('工具')}]]</th>
+                        <th width="140">[[${bundle.L('类型')}]]</th>
+                        <th width="90">[[${bundle.L('启用')}]]</th>
                       </tr>
                     </thead>
                     <tbody id="toolsList"></tbody>
@@ -41,11 +42,10 @@
 
             <div class="col-lg-3 col-12 col-right-compact">
               <div class="card">
-                <div class="card-header pb-1">[[${bundle.L('MCP 接入')}]]</div>
+                <div class="card-header card-header-divider">[[${bundle.L('什么是工具')}]]</div>
                 <div class="card-body">
-                  <p class="mb-1">[[${bundle.L('通过 MCP 接入，可以在 WorkBuddy、QoderWork 等支持 MCP 协议的 AI 客户端中直接调用 Rex AI 助手。')}]]</p>
-                  <p>[[${bundle.L('注意“个人密钥”需替换成自己的，切勿共享。')}]]</p>
-                  <div class="J_mcpConfig" th:data-url="${_McpServerUrl}"></div>
+                  <p>[[${bundle.L('让智能体从回答问题延伸到完成工作。')}]]</p>
+                  <p class="mb-0">[[${bundle.L('工具是智能体可以调用的内置能力，覆盖查询数据、发起审批、创建任务等，并受当前用户权限约束。系统工具默认启用，其他工具可按需关闭。')}]]</p>
                 </div>
               </div>
             </div>

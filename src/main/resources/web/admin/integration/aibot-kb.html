@@ -2,16 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-aibot" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/aibot2.css}" />
+    <meta name="page-help" content="https://getrebuild.com/features/ai-knowledge" />
     <title>Rex AI [[${bundle.L('知识库')}]]</title>
-    <style>
-      .modal-body textarea.form-control {
-        min-height: 72px;
-      }
-      td .badge {
-        transform: translateY(-1px);
-      }
-    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -29,13 +22,13 @@
                   <a href="###" class="float-right J_rebuildKb mr-3"><i class="icon zmdi zmdi-refresh"></i> [[${bundle.L('重建')}]]</a>
                 </div>
                 <div class="card-body card-body-loading">
-                  <table class="table table-hover J_kbTable">
+                  <table class="table table-hover J_kbTable kit-table">
                     <thead>
                       <tr>
-                        <th width="40%">[[${bundle.L('名称')}]]</th>
-                        <th>[[${bundle.L('描述')}]]</th>
-                        <th width="80"></th>
-                        <th width="70"></th>
+                        <th>[[${bundle.L('知识库')}]]</th>
+                        <th width="90">[[${bundle.L('来源')}]]</th>
+                        <th width="120">[[${bundle.L('索引分片')}]]</th>
+                        <th width="140" class="actions">[[${bundle.L('操作')}]]</th>
                       </tr>
                     </thead>
                     <tbody id="kbList"></tbody>
@@ -52,12 +45,10 @@
 
             <div class="col-lg-3 col-12 col-right-compact">
               <div class="card">
-                <div class="card-header pb-1">[[${bundle.L('使用说明')}]]</div>
+                <div class="card-header card-header-divider">[[${bundle.L('什么是知识库')}]]</div>
                 <div class="card-body">
-                  <p>[[${bundle.L('上传文档后会自动切分并建立索引，智能体检索到相关内容后会引用作答。')}]]</p>
-                  <p>[[${bundle.L('支持批量上传，单个文件不超过 50MB，一个文件生成一个知识库。')}]]</p>
-                  <p>[[${bundle.L('索引构建中或失败的条目可在列表中重建，构建完成后才能被检索。')}]]</p>
-                  <p class="mb-0">[[${bundle.L('在智能体的「能力扩展」中选择使用，默认使用全部已启用的知识库。删除后，使用它的智能体会失去这部分知识。')}]]</p>
+                  <p>[[${bundle.L('让智能体的回答有企业自己的资料作依据，减少凭空编造。')}]]</p>
+                  <p class="mb-0">[[${bundle.L('知识库是供智能体检索的企业资料，上传文件或粘贴文本后自动切分并建立索引。智能体回答时会检索知识库，可按智能体限定可用范围。')}]]</p>
                 </div>
               </div>
             </div>

@@ -2,21 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-aibot" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/aibot2.css}" />
+    <meta name="page-help" content="https://getrebuild.com/features/ai-knowledge" />
     <title>Rex AI [[${bundle.L('技能')}]]</title>
-    <style>
-      .modal-body textarea.form-control {
-        min-height: 72px;
-      }
-      .init-models {
-        margin-left: -10px;
-        margin-right: -10px;
-      }
-      .init-models + .dialog-footer {
-        margin: 15px -35px 10px;
-        padding-top: 25px;
-      }
-    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -32,13 +20,12 @@
                   <a href="###" class="float-right J_addSkill"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
                 </div>
                 <div class="card-body card-body-loading">
-                  <table class="table table-hover">
+                  <table class="table table-hover kit-table">
                     <thead>
                       <tr>
-                        <th width="40%">[[${bundle.L('名称')}]]</th>
-                        <th>[[${bundle.L('描述')}]]</th>
-                        <th width="80"></th>
-                        <th width="70"></th>
+                        <th width="40%">[[${bundle.L('技能')}]]</th>
+                        <th>[[${bundle.L('提示词')}]]</th>
+                        <th width="140" class="actions">[[${bundle.L('操作')}]]</th>
                       </tr>
                     </thead>
                     <tbody id="skillsList"></tbody>
@@ -55,12 +42,10 @@
 
             <div class="col-lg-3 col-12 col-right-compact">
               <div class="card">
-                <div class="card-header pb-1">[[${bundle.L('使用说明')}]]</div>
+                <div class="card-header card-header-divider">[[${bundle.L('什么是技能')}]]</div>
                 <div class="card-body">
-                  <p>[[${bundle.L('技能由名称、描述和提示词组成。描述告诉智能体什么时候使用，提示词定义具体做法。')}]]</p>
-                  <p>[[${bundle.L('可从内置技能库导入，也可以手动新建。停用的技能不会被智能体加载。')}]]</p>
-                  <p>[[${bundle.L('在智能体的「能力扩展」中选择使用，默认使用全部已启用的技能。')}]]</p>
-                  <p class="mb-0">[[${bundle.L('需要查询业务数据或调用外部服务时，请使用「工具」。')}]]</p>
+                  <p>[[${bundle.L('团队复用同一套处理方式，同类任务更稳定、更省时间。')}]]</p>
+                  <p class="mb-0">[[${bundle.L('技能是预设的处理方法，由名称、描述和提示词组成，选用后智能体会按提示词完成任务。可从 RB 仓库导入现成技能，也可以自行创建。')}]]</p>
                 </div>
               </div>
             </div>
