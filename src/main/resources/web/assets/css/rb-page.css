@@ -7075,6 +7075,17 @@ input[type='password']::-ms-clear {
   }
 }
 
+.card-body-loading > .spinner {
+  margin-top: 100px;
+  margin-bottom: 95px;
+}
+
+.card-body-loading > .list-nodata {
+  padding-top: 0;
+  margin-top: 80px;
+  margin-bottom: 72px;
+}
+
 .os-theme-rb {
   box-sizing: border-box;
   --os-size: 6px;

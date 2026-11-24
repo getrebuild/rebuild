@@ -258,7 +258,22 @@ public class AiBot2AdminController extends BaseController {
 
     @GetMapping("aibot-kits")
     public ModelAndView pageIntegrationAibotKits() {
-        ModelAndView mv = createModelAndView("/admin/integration/aibot-kits");
+        return new ModelAndView("redirect:/admin/integration/aibot-skills");
+    }
+
+    @GetMapping("aibot-kb")
+    public ModelAndView pageIntegrationAibotKb() {
+        return createModelAndView("/admin/integration/aibot-kb");
+    }
+
+    @GetMapping("aibot-skills")
+    public ModelAndView pageIntegrationAibotSkills() {
+        return createModelAndView("/admin/integration/aibot-skills");
+    }
+
+    @GetMapping("aibot-tools")
+    public ModelAndView pageIntegrationAibotTools() {
+        ModelAndView mv = createModelAndView("/admin/integration/aibot-tools");
         mv.getModel().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
         return mv;
     }

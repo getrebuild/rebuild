@@ -39,35 +39,31 @@
                   </li>
                 </ul>
               </li>
-              <li class="parent" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('AIB', #request)}">
-                <a><i class="icon mdi mdi-shimmer"></i><span>Rex AI</span></a>
-                <ul class="sub-menu">
-                  <li class="title">Rex AI</li>
-                  <li class="nav-items">
-                    <div class="rb-scroller">
-                      <div class="content">
-                        <ul>
-                          <li th:class="${active == 'aibot'} ? 'active'">
-                            <a th:href="@{/admin/integration/aibot}"><span>[[${bundle.L('基础配置')}]]</span></a>
-                          </li>
-                          <li th:class="${active == 'aibot-kits'} ? 'active'">
-                            <a th:href="@{/admin/integration/aibot-kits}"><span>[[${bundle.L('能力扩展')}]]</span></a>
-                          </li>
-                          <li th:class="${active == 'aibot-agents'} ? 'active'">
-                            <a th:href="@{/admin/integration/aibot-agents}"><span>[[${bundle.L('智能体')}]]</span> <sup class="rbv"></sup></a>
-                          </li>
-                          <li th:class="${active == 'aibot-minapps'} ? 'active'">
-                            <a th:href="@{/admin/integration/aibot-minapps}"><span>[[${bundle.L('微应用')}]]</span> <sup class="rbv"></sup></a>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </li>
               <li th:class="${active == 'apis-manager'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('API', #request)}">
                 <a th:href="@{/admin/apis-manager}"><i class="icon mdi mdi-api"></i><span>OpenAPI</span> <sup class="rbv"></sup></a>
               </li>
+
+              <th:block th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('AIB', #request)}">
+                <li class="divider" style="text-transform: none">Rex AI</li>
+                <li th:class="${active == 'aibot'} ? 'active'">
+                  <a th:href="@{/admin/integration/aibot}"><i class="icon mdi mdi-shimmer"></i><span>[[${bundle.L('基础配置')}]]</span></a>
+                </li>
+                <li th:class="${active == 'aibot-kb'} ? 'active'">
+                  <a th:href="@{/admin/integration/aibot-kb}"><i class="icon mdi mdi-book-search-outline"></i><span>[[${bundle.L('知识库')}]]</span></a>
+                </li>
+                <li th:class="${active == 'aibot-skills'} ? 'active'">
+                  <a th:href="@{/admin/integration/aibot-skills}"><i class="icon mdi mdi-flash-outline"></i><span>[[${bundle.L('技能')}]]</span></a>
+                </li>
+                <li th:class="${active == 'aibot-tools'} ? 'active'">
+                  <a th:href="@{/admin/integration/aibot-tools}"><i class="icon mdi mdi-wrench-outline fs-16"></i><span>[[${bundle.L('工具')}]]</span></a>
+                </li>
+                <li th:class="${active == 'aibot-agents'} ? 'active'">
+                  <a th:href="@{/admin/integration/aibot-agents}"><i class="icon mdi mdi-robot-outline"></i><span>[[${bundle.L('智能体')}]]</span> <sup class="rbv"></sup></a>
+                </li>
+                <li th:class="${active == 'aibot-minapps'} ? 'active'">
+                  <a th:href="@{/admin/integration/aibot-minapps}"><i class="icon mdi mdi-apps-box"></i><span>[[${bundle.L('微应用')}]]</span> <sup class="rbv"></sup></a>
+                </li>
+              </th:block>
 
               <li class="divider">[[${bundle.L('业务实体')}]]</li>
               <li th:class="${active == 'entities'} ? 'active'" th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('ENT', #request)}">

@@ -7,7 +7,6 @@
     <style>
       .card.entity {
         position: relative;
-        margin-bottom: 20px;
       }
       .card.entity:hover {
         background-color: rgba(255, 255, 255, 0.7);
@@ -39,22 +38,17 @@
         margin-top: 2px;
         display: block;
       }
-      #entityList {
-        margin: 0 -10px;
+      #entityList > div:not(.tag):not(.card) {
+        display: flex;
       }
-      #entityList > div {
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-      .card.ph {
-        margin-left: 10px;
-        margin-top: 0;
+      #entityList > div > .card.entity {
+        flex: 1;
       }
       #entityList > div.tag {
-        width: 100%;
+        grid-column: 1 / -1;
       }
       #entityList > div.tag > h3 {
-        margin: 0 0 20px;
+        margin: 0;
         font-weight: normal;
         line-height: 1;
         font-size: 16px;
@@ -119,8 +113,8 @@
       <th:block th:replace="~{/_include/nav-top}" />
       <th:block th:replace="~{/_include/nav-left-admin(active='entities')}" />
       <div class="rb-content">
-        <div class="main-content container-fluid" style="padding-bottom: 5px">
-          <div class="row" id="entityList">
+        <div class="main-content container-fluid">
+          <div class="card-list card-grid" id="entityList">
             <div class="card ph">
               <div class="card-body">
                 <div class="ph-item">
@@ -139,7 +133,7 @@
       </div>
     </div>
     <script type="text/plain" id="entity-tmpl">
-      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+      <div>
       	<a class="card entity">
       		<div class="card-body">
       			<div class="float-left"><i class="icon zmdi"></i></div>

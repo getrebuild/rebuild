@@ -83,7 +83,7 @@ public class BuildSkill implements Tool, AdminGuard, ConfirmableTool {
         record = Application.getBean(AibotConfigService.class).create(record);
 
         String skillId = record.getPrimary().toLiteral();
-        String skillUrl = AppUtils.getContextPath("/admin/integration/aibot-kits");
+        String skillUrl = AppUtils.getContextPath("/admin/integration/aibot-skills");
 
         log.info("Skill created via AI : {} ({})", skillId, name);
 

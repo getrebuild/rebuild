@@ -7,9 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global autosize, ShowEnable */
 
 $(document).ready(() => {
-  SkillList.load()
-  KbList.load()
-  ToolList.load()
+  if ($('#skillsList').length) SkillList.load()
+  if ($('#kbList').length) KbList.load()
+  if ($('#toolsList').length) ToolList.load()
   $('.J_addSkill').on('click', (e) => {
     $stopEvent(e, true)
     _editSkill()
@@ -66,22 +66,30 @@ $(document).ready(() => {
     })
   })
 
-  _renderMcpConfig()
+  if ($('.J_mcpConfig').length) _renderMcpConfig()
 })
 
 // ~~ Knowledge
 
 class KbList extends React.Component {
   static load() {
+    const $body = $('#kbList').closest('.card-body')
+    let loaded = false
     $.get('./aibot/kb-list', (res) => {
+      loaded = true
       const data = res.data || []
-      $('.J_kbEmpty').toggle(data.length === 0)
+      const isEmpty = data.length === 0
+      $body.toggleClass('card-body-loading', isEmpty)
+      $body.children('.list-nodata').toggleClass('hide', !isEmpty)
       renderRbcomp(<KbList data={data} />, 'kbList')
 
       // 有构建中的知识库时自动刷新
       if (data.some((item) => item.chunkCount === -1)) {
         $setTimeout(() => KbList.load(), 5000, 'KbList.load')
       }
+    }).always(() => {
+      $body.children('.spinner').addClass('hide')
+      if (!loaded) $body.removeClass('card-body-loading')
     })
   }
 
@@ -316,10 +324,18 @@ class DlgKbEdit extends RbModalHandler {
 
 class SkillList extends React.Component {
   static load() {
+    const $body = $('#skillsList').closest('.card-body')
+    let loaded = false
     $.get('./aibot/skill-list', (res) => {
+      loaded = true
       const data = res.data || []
-      $('.J_skillsEmpty').toggle(data.length === 0)
+      const isEmpty = data.length === 0
+      $body.toggleClass('card-body-loading', isEmpty)
+      $body.children('.list-nodata').toggleClass('hide', !isEmpty)
       renderRbcomp(<SkillList data={data} />, 'skillsList')
+    }).always(() => {
+      $body.children('.spinner').addClass('hide')
+      if (!loaded) $body.removeClass('card-body-loading')
     })
   }
 
@@ -593,9 +609,18 @@ class DlgSkillEdit extends RbModalHandler {
 let _toolsData = []
 class ToolList extends React.Component {
   static load() {
+    const $body = $('#toolsList').closest('.card-body')
+    let loaded = false
     $.get('./aibot/tool-list', (res) => {
+      loaded = true
       _toolsData = res.data || []
+      const isEmpty = _toolsData.length === 0
+      $body.toggleClass('card-body-loading', isEmpty)
+      $body.children('.list-nodata').toggleClass('hide', !isEmpty)
       renderRbcomp(<ToolList data={_toolsData} />, 'toolsList')
+    }).always(() => {
+      $body.children('.spinner').addClass('hide')
+      if (!loaded) $body.removeClass('card-body-loading')
     })
   }
 

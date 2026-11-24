@@ -24,13 +24,6 @@ $(document).ready(() => {
       })
     })
 
-    $(groups[NO_TAG]).each(function () {
-      if (this.builtin) render_entity(this)
-    })
-    $(groups[NO_TAG]).each(function () {
-      if (!this.builtin) render_entity(this)
-    })
-
     let _EntityNew2
     const $new = render_entity({
       icon: 'plus',
@@ -55,6 +48,13 @@ $(document).ready(() => {
       })
       .find('.more-action')
       .remove()
+
+    $(groups[NO_TAG]).each(function () {
+      if (this.builtin) render_entity(this)
+    })
+    $(groups[NO_TAG]).each(function () {
+      if (!this.builtin) render_entity(this)
+    })
 
     delete groups[NO_TAG]
 
