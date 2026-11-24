@@ -69,21 +69,16 @@ $(document).ready(() => {
 
 // ~~ Knowledge
 
-// 列表图标（与新版管理端一致）
+// 列表图标（与侧栏导航一致）
 const KitIconBook = () => (
   <span className="kit-tile">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z" />
-      <path d="M4 5.5V21M8 7h8M8 11h6" />
-    </svg>
+    <i className="mdi mdi-book-search-outline fs-18" />
   </span>
 )
 
-const KitIconStar = () => (
+const KitIconSkill = () => (
   <span className="kit-tile">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-      <path d="M12 3l2.2 5.4L20 10l-4.3 4.1L17 20l-5-2.9L7 20l1.3-5.9L4 10l5.8-1.6z" />
-    </svg>
+    <i className="mdi mdi-flash-outline fs-18" />
   </span>
 )
 
@@ -97,14 +92,10 @@ const KitIconTool = () => (
 
 class KbList extends React.Component {
   static load() {
-    const $body = $('#kbList').closest('.card-body')
-    let loaded = false
+    const $body = $('#kbList').closest('.aibot-kb-body')
     $.get('/admin/integration/aibot/kb-list', (res) => {
-      loaded = true
       const data = res.data || []
-      const isEmpty = data.length === 0
-      $body.toggleClass('card-body-loading', isEmpty)
-      $body.children('.list-nodata').toggleClass('hide', !isEmpty)
+      $body.children('.list-nodata').toggleClass('hide', data.length > 0)
       renderRbcomp(<KbList data={data} />, 'kbList')
 
       // 有构建中的知识库时自动刷新
@@ -113,7 +104,6 @@ class KbList extends React.Component {
       }
     }).always(() => {
       $body.children('.spinner').addClass('hide')
-      if (!loaded) $body.removeClass('card-body-loading')
     })
   }
 
@@ -356,18 +346,13 @@ class DlgKbEdit extends RbModalHandler {
 
 class SkillList extends React.Component {
   static load() {
-    const $body = $('#skillsList').closest('.card-body')
-    let loaded = false
+    const $body = $('#skillsList').closest('.aibot-skills-body')
     $.get('/admin/integration/aibot/skill-list', (res) => {
-      loaded = true
       const data = res.data || []
-      const isEmpty = data.length === 0
-      $body.toggleClass('card-body-loading', isEmpty)
-      $body.children('.list-nodata').toggleClass('hide', !isEmpty)
+      $body.children('.list-nodata').toggleClass('hide', data.length > 0)
       renderRbcomp(<SkillList data={data} />, 'skillsList')
     }).always(() => {
       $body.children('.spinner').addClass('hide')
-      if (!loaded) $body.removeClass('card-body-loading')
     })
   }
 
@@ -378,7 +363,7 @@ class SkillList extends React.Component {
         <tr key={item.id}>
           <td>
             <div className="kit-cell">
-              <KitIconStar />
+              <KitIconSkill />
               <div className="kit-text">
                 <div className="kit-name">{item.name}</div>
                 <div className="kit-sub text-muted" title={cfg.description || null}>
@@ -659,18 +644,13 @@ class DlgSkillEdit extends RbModalHandler {
 let _toolsData = []
 class ToolList extends React.Component {
   static load() {
-    const $body = $('#toolsList').closest('.card-body')
-    let loaded = false
+    const $body = $('#toolsList').closest('.aibot-tools-body')
     $.get('/admin/integration/aibot/tool-list', (res) => {
-      loaded = true
       _toolsData = res.data || []
-      const isEmpty = _toolsData.length === 0
-      $body.toggleClass('card-body-loading', isEmpty)
-      $body.children('.list-nodata').toggleClass('hide', !isEmpty)
+      $body.children('.list-nodata').toggleClass('hide', _toolsData.length > 0)
       renderRbcomp(<ToolList data={_toolsData} />, 'toolsList')
     }).always(() => {
       $body.children('.spinner').addClass('hide')
-      if (!loaded) $body.removeClass('card-body-loading')
     })
   }
 

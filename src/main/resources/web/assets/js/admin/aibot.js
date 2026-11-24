@@ -4,8 +4,6 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global AiBotChatsModal */
-
 const __MODELS = ['qwen3.8-max', 'glm-5.2', 'deepseek-v4-flash', 'gpt-5']
 
 // eslint-disable-next-line no-undef, react/display-name
@@ -65,7 +63,7 @@ useEditComp = function (name) {
         if (baseUrl) payload.baseUrl = baseUrl
         if (apiKey && apiKey !== origKey) payload.apiKey = apiKey
 
-        $.post(`./aibot/models`, JSON.stringify(payload), (res) => {
+        $.post('./aibot/models', JSON.stringify(payload), (res) => {
           if (res.error_code === 0 && res.data && res.data.length) {
             option.options = res.data.map((m) => m.id)
           } else {
@@ -114,10 +112,6 @@ $(document).ready(() => {
     $el = $('.J_stats-usercount')
     $el.find('strong').text(data.users || 0)
     $renderStats(data.aibotDailyUsers, $el)
-  })
-
-  $('.J_all-chats').on('click', () => {
-    renderRbcomp(<AiBotChatsModal title={$L('所有会话')} width={880} disposeOnHide useWhite useScrollable />)
   })
 })
 

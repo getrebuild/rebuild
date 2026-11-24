@@ -11,42 +11,32 @@
       <th:block th:replace="~{/_include/nav-top}" />
       <th:block th:replace="~{/_include/nav-left-aibot2(active='aibot-skills')}" />
       <div class="rb-content">
-        <div class="main-content container-fluid syscfg">
-          <div class="row">
-            <div class="col-lg-9 col-12">
-              <div class="card">
-                <div class="card-header pb-1">
-                  [[${bundle.L('技能')}]]
-                  <a href="###" class="float-right J_addSkill"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
-                </div>
-                <div class="card-body card-body-loading">
-                  <table class="table table-hover kit-table">
-                    <thead>
-                      <tr>
-                        <th width="40%">[[${bundle.L('技能')}]]</th>
-                        <th>[[${bundle.L('提示词')}]]</th>
-                        <th width="140" class="actions">[[${bundle.L('操作')}]]</th>
-                      </tr>
-                    </thead>
-                    <tbody id="skillsList"></tbody>
-                  </table>
-
-                  <div class="spinner"></div>
-                  <div class="list-nodata hide">
-                    <span class="mdi mdi-flash-outline"></span>
-                    <p>[[${bundle.L('暂无技能')}]]</p>
-                  </div>
-                </div>
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('技能')}]]</div>
+          <div class="page-head-description">[[${bundle.L('预设处理方式，同类任务更稳定、更省时间')}]]</div>
+        </div>
+        <div class="main-content container-fluid aibot-skills pt-1">
+          <div class="d-flex justify-content-end" style="margin-top: -55px; margin-bottom: 20px">
+            <button class="btn btn-primary J_addSkill" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+          </div>
+          <div class="card shadow-none mb-0">
+            <div class="aibot-skills-body card-body-loading">
+              <div class="table-responsive">
+                <table class="table table-hover aibot-skills-table mb-0">
+                  <thead>
+                    <tr>
+                      <th width="40%">[[${bundle.L('技能')}]]</th>
+                      <th>[[${bundle.L('提示词')}]]</th>
+                      <th width="170" class="actions">[[${bundle.L('操作')}]]</th>
+                    </tr>
+                  </thead>
+                  <tbody id="skillsList"></tbody>
+                </table>
               </div>
-            </div>
-
-            <div class="col-lg-3 col-12 col-right-compact">
-              <div class="card">
-                <div class="card-header card-header-divider">[[${bundle.L('什么是技能')}]]</div>
-                <div class="card-body">
-                  <p>[[${bundle.L('团队复用同一套处理方式，同类任务更稳定、更省时间。')}]]</p>
-                  <p class="mb-0">[[${bundle.L('技能是预设的处理方法，由名称、描述和提示词组成，选用后智能体会按提示词完成任务。可从 RB 仓库导入现成技能，也可以自行创建。')}]]</p>
-                </div>
+              <div class="spinner"></div>
+              <div class="list-nodata hide">
+                <span class="mdi mdi-flash-outline"></span>
+                <p>[[${bundle.L('暂无技能')}]]</p>
               </div>
             </div>
           </div>

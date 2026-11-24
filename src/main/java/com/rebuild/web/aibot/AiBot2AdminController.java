@@ -544,12 +544,14 @@ public class AiBot2AdminController extends BaseController {
 
         final ID user = getIdParameter(request, "user");
         final ID agent = getIdParameter(request, "agent");
+        final boolean defaultAgent = agent == null && "default".equals(getParameter(request, "agent"));
         final int pageNo = getIntParameter(request, "pageNo", 1);
         final int pageSize = 20;
 
         String where = CHAT_VISIBLE_WHERE;
         if (user != null) where += " and createdBy = '" + user + "'";
         if (agent != null) where += " and agentId = '" + agent + "'";
+        else if (defaultAgent) where += " and agentId is null";
         String q = StringUtils.trimToEmpty(getParameter(request, "q"));
         if (StringUtils.isNotBlank(q)) {
             where += String.format(" and subject like '%%%s%%'", CommonsUtils.escapeSql(q));
@@ -598,7 +600,7 @@ public class AiBot2AdminController extends BaseController {
         }
 
         JSONObject res = JSONUtils.toJSONObject(
-                new String[]{"total", "data"}, new Object[]{total, data});
+                new String[]{"total", "data", "pageSize"}, new Object[]{total, data, pageSize});
         return RespBody.ok(res);
     }
 

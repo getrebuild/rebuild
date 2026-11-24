@@ -11,42 +11,32 @@
       <th:block th:replace="~{/_include/nav-top}" />
       <th:block th:replace="~{/_include/nav-left-aibot2(active='aibot-tools')}" />
       <div class="rb-content">
-        <div class="main-content container-fluid syscfg">
-          <div class="row">
-            <div class="col-lg-9 col-12">
-              <div class="card">
-                <div class="card-header pb-1">
-                  [[${bundle.L('工具')}]]
-                  <a href="https://getrebuild.com/market/go/aitool" target="_blank" class="float-right"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
-                </div>
-                <div class="card-body card-body-loading">
-                  <table class="table table-hover kit-table">
-                    <thead>
-                      <tr>
-                        <th>[[${bundle.L('工具')}]]</th>
-                        <th width="140">[[${bundle.L('类型')}]]</th>
-                        <th width="90">[[${bundle.L('启用')}]]</th>
-                      </tr>
-                    </thead>
-                    <tbody id="toolsList"></tbody>
-                  </table>
-
-                  <div class="spinner"></div>
-                  <div class="list-nodata hide">
-                    <span class="mdi mdi-wrench-outline"></span>
-                    <p>[[${bundle.L('暂无工具')}]]</p>
-                  </div>
-                </div>
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('工具')}]]</div>
+          <div class="page-head-description">[[${bundle.L('让智能体从回答问题延伸到完成工作')}]]</div>
+        </div>
+        <div class="main-content container-fluid aibot-tools pt-1">
+          <div class="d-flex justify-content-end" style="margin-top: -55px; margin-bottom: 20px">
+            <a class="btn btn-primary" href="https://getrebuild.com/market/go/aitool" target="_blank"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+          </div>
+          <div class="card shadow-none mb-0">
+            <div class="aibot-tools-body card-body-loading">
+              <div class="table-responsive">
+                <table class="table table-hover aibot-tools-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>[[${bundle.L('工具')}]]</th>
+                      <th width="140">[[${bundle.L('类型')}]]</th>
+                      <th width="90">[[${bundle.L('启用')}]]</th>
+                    </tr>
+                  </thead>
+                  <tbody id="toolsList"></tbody>
+                </table>
               </div>
-            </div>
-
-            <div class="col-lg-3 col-12 col-right-compact">
-              <div class="card">
-                <div class="card-header card-header-divider">[[${bundle.L('什么是工具')}]]</div>
-                <div class="card-body">
-                  <p>[[${bundle.L('让智能体从回答问题延伸到完成工作。')}]]</p>
-                  <p class="mb-0">[[${bundle.L('工具是智能体可以调用的内置能力，覆盖查询数据、发起审批、创建任务等，并受当前用户权限约束。系统工具默认启用，其他工具可按需关闭。')}]]</p>
-                </div>
+              <div class="spinner"></div>
+              <div class="list-nodata hide">
+                <span class="mdi mdi-wrench-outline"></span>
+                <p>[[${bundle.L('暂无工具')}]]</p>
               </div>
             </div>
           </div>

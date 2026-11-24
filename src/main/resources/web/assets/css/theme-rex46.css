@@ -568,7 +568,9 @@ html:not(.theme-dark2) body .btn:focus {
 }
 
 html:not(.theme-dark2) body .btn-primary:focus {
-  box-shadow: 0 0 0 2px rgba(47, 107, 255, 0.16), 0 1px 3px rgba(47, 107, 255, 0.18);
+  box-shadow:
+    0 0 0 2px rgba(47, 107, 255, 0.16),
+    0 1px 3px rgba(47, 107, 255, 0.18);
 }
 
 /* ===== 7. 表单控件 ===== */
@@ -736,6 +738,33 @@ html:not(.theme-dark2) body .select2-container--default .select2-selection--mult
   background-color: #eef4ff;
   border-color: #d7e3ff;
   border-radius: 6px;
+  color: #1d4ed8;
+}
+
+/* UserSelector 已选标签的移除按钮 */
+html:not(.theme-dark2) body .user-selector .select2-selection__choice__remove {
+  color: #93a9c9;
+  font-size: 15px;
+  line-height: 1;
+  margin-right: 3px;
+  vertical-align: -1px;
+  font-weight: normal;
+}
+
+html:not(.theme-dark2) body .user-selector .select2-selection__choice__remove:hover {
+  color: #2f6bff;
+}
+
+/* UserSelector 选择按钮的悬停与按下反馈 */
+html:not(.theme-dark2) body .user-selector .select2-selection__choice.abtn:hover {
+  background-color: #e2ebff;
+  color: #1d4ed8;
+}
+
+html:not(.theme-dark2) body .user-selector .select2-selection__choice.abtn:active,
+html:not(.theme-dark2) body .user-selector .select2-selection__choice.abtn:focus-within {
+  background-color: #d7e4ff;
+  box-shadow: none;
   color: #1d4ed8;
 }
 

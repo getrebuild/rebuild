@@ -18,30 +18,59 @@
               <h2>[[${bundle.L('让智能融入业务')}]]<br />[[${bundle.L('让每一次对话创造价值')}]]</h2>
               <p>[[${bundle.L('统一管理模型与会话，查看用量与状态，让 AI 能力在业务中持续生长')}]]</p>
               <div class="hero-actions" th:if="${T(com.rebuild.core.support.License).isCommercial()}">
-                <a class="btn light" th:href="@{/admin/aibot2/models}">[[${bundle.L('管理模型')}]]</a>
-                <a class="btn glass" th:href="@{/admin/aibot2/chats}">[[${bundle.L('查看会话')}]]</a>
+                <a class="btn btn-light" th:href="@{/admin/aibot2/models}">[[${bundle.L('管理模型')}]]</a>
+                <a class="btn btn-glass" th:href="@{/admin/aibot2/chats}">[[${bundle.L('查看会话')}]]</a>
               </div>
             </div>
-            <div class="trend">
-              <div class="trend-head">
-                <span class="t">[[${bundle.L('近 90 天词元')}]]</span>
-                <b><span class="J_tokens">0</span><small>[[${bundle.L('万')}]]</small></b>
-              </div>
-              <div class="trend-bars" id="tokenBars"></div>
-              <div class="trend-axis">
-                <span class="J_axis-start"></span>
-                <span class="J_axis-mid"></span>
-                <span class="J_axis-end"></span>
+            <div class="config-overview">
+              <div class="config-grid">
+                <a class="config-item" th:if="${T(com.rebuild.core.support.License).isCommercial()}" th:href="@{/admin/aibot2/models}">
+                  <span class="config-icon"><i class="icon mdi mdi-chip"></i></span>
+                  <span class="config-name">[[${bundle.L('模型')}]]</span>
+                  <b class="J_cfg-models">0</b>
+                </a>
+                <a class="config-item" th:if="${T(com.rebuild.core.support.License).isCommercial()}" th:href="@{/admin/aibot2/agents}">
+                  <span class="config-icon"><i class="icon mdi mdi-robot-outline"></i></span>
+                  <span class="config-name">[[${bundle.L('智能体')}]]</span>
+                  <b class="J_cfg-agents">0</b>
+                </a>
+                <a class="config-item" th:if="${T(com.rebuild.core.support.License).isCommercial()}" th:href="@{/admin/aibot2/minapps}">
+                  <span class="config-icon"><i class="icon mdi mdi-apps-box"></i></span>
+                  <span class="config-name">[[${bundle.L('微应用')}]]</span>
+                  <b class="J_cfg-minapps">0</b>
+                </a>
+                <a class="config-item" th:href="@{/admin/aibot2/kb}">
+                  <span class="config-icon"><i class="icon mdi mdi-book-search-outline"></i></span>
+                  <span class="config-name">[[${bundle.L('知识库')}]]</span>
+                  <b class="J_cfg-kb">0</b>
+                </a>
+                <a class="config-item" th:href="@{/admin/aibot2/skills}">
+                  <span class="config-icon"><i class="icon mdi mdi-flash-outline"></i></span>
+                  <span class="config-name">[[${bundle.L('技能')}]]</span>
+                  <b class="J_cfg-skills">0</b>
+                </a>
+                <a class="config-item" th:href="@{/admin/aibot2/tools}">
+                  <span class="config-icon"><i class="icon mdi mdi-wrench-outline"></i></span>
+                  <span class="config-name">[[${bundle.L('工具')}]]</span>
+                  <b class="J_cfg-tools">0</b>
+                </a>
               </div>
             </div>
           </div>
 
           <div class="row">
-            <div class="col-6 col-md-4 col-xl-2 mb-3" th:if="${T(com.rebuild.core.support.License).isCommercial()}">
+            <div class="col-6 col-md-4 col-xl-2 mb-3">
               <div class="stat">
-                <div class="label">[[${bundle.L('模型配置')}]]</div>
-                <div class="value"><span class="J_models">0</span><small>[[${bundle.L('个')}]]</small></div>
-                <div class="delta"><span class="J_models-enabled">0</span> [[${bundle.L('个启用')}]]</div>
+                <div class="label">[[${bundle.L('今日会话')}]]</div>
+                <div class="value J_today">0</div>
+                <div class="delta">[[${bundle.L('按日统计')}]]</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2 mb-3">
+              <div class="stat">
+                <div class="label">[[${bundle.L('今日使用人数')}]]</div>
+                <div class="value J_today-users">0</div>
+                <div class="delta">[[${bundle.L('不含访客')}]]</div>
               </div>
             </div>
             <div class="col-6 col-md-4 col-xl-2 mb-3">
@@ -58,6 +87,13 @@
                 <div class="delta">[[${bundle.L('全量统计')}]]</div>
               </div>
             </div>
+            <div class="col-6 col-md-4 col-xl-2 mb-3" th:if="${T(com.rebuild.core.support.License).isCommercial()}">
+              <div class="stat">
+                <div class="label">[[${bundle.L('智能应用用量')}]]</div>
+                <div class="value J_app-usage">0</div>
+                <div class="delta">[[${bundle.L('近 90 天')}]]</div>
+              </div>
+            </div>
             <div class="col-6 col-md-4 col-xl-2 mb-3">
               <div class="stat">
                 <div class="label">[[${bundle.L('使用人数')}]]</div>
@@ -65,28 +101,14 @@
                 <div class="delta">[[${bundle.L('不含访客')}]]</div>
               </div>
             </div>
-            <div class="col-6 col-md-4 col-xl-2 mb-3">
-              <div class="stat">
-                <div class="label">[[${bundle.L('今日会话')}]]</div>
-                <div class="value J_today">0</div>
-                <div class="delta">[[${bundle.L('按日统计')}]]</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2 mb-3">
-              <div class="stat">
-                <div class="label">[[${bundle.L('会话列表')}]]</div>
-                <div class="value J_chat-total">0</div>
-                <div class="delta">[[${bundle.L('当前可见')}]]</div>
-              </div>
-            </div>
           </div>
 
           <div class="row">
             <div th:class="${T(com.rebuild.core.support.License).isCommercial()} ? 'col-lg-8' : 'col-lg-12'">
               <div class="card">
-                <div class="card-header card-header-divider">
-                  [[${bundle.L('最近会话')}]]
-                  <a class="float-right" th:if="${T(com.rebuild.core.support.License).isCommercial()}" th:href="@{/admin/aibot2/chats}">[[${bundle.L('查看全部')}]]</a>
+                <div class="card-header card-header-divider d-flex align-items-center justify-content-between">
+                  <span>[[${bundle.L('最近会话')}]]</span>
+                  <a class="fs-13" th:if="${T(com.rebuild.core.support.License).isCommercial()}" th:href="@{/admin/aibot2/chats}">[[${bundle.L('查看全部')}]]</a>
                 </div>
                 <div class="card-body">
                   <table class="table table-hover mb-0">
@@ -113,19 +135,18 @@
 
             <div class="col-lg-4" th:if="${T(com.rebuild.core.support.License).isCommercial()}">
               <div class="card">
-                <div class="card-header card-header-divider">
-                  [[${bundle.L('模型状态')}]]
-                  <small class="float-right text-muted"><span class="J_models">0</span> [[${bundle.L('个模型')}]]</small>
+                <div class="card-header card-header-divider d-flex align-items-center justify-content-between">
+                  <span>[[${bundle.L('智能应用')}]]</span>
+                  <span class="text-muted fs-13">[[${bundle.L('近 90 天')}]]</span>
                 </div>
                 <div class="card-body">
-                  <table class="table mb-0">
-                    <tbody id="modelsList">
+                  <table class="table table-hover mb-0">
+                    <tbody id="usageList">
                       <tr>
                         <td class="text-muted text-center py-4">[[${bundle.L('加载中…')}]]</td>
                       </tr>
                     </tbody>
                   </table>
-                  <a class="btn btn-sm btn-secondary mt-3" th:href="@{/admin/aibot2/models}">[[${bundle.L('管理模型')}]]</a>
                 </div>
               </div>
             </div>

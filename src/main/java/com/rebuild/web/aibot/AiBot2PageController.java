@@ -71,7 +71,7 @@ public class AiBot2PageController extends BaseController {
     @GetMapping("models")
     public ModelAndView pageModels() {
         if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("模型配置"));
+            return RbvMissingController.errorUnsupported(Language.L("模型"));
         }
         return createModelAndView("/admin/aibot2/models");
     }
