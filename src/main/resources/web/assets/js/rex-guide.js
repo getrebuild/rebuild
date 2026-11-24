@@ -41,6 +41,7 @@ const __injectRexGuideStyle = function () {
 }
 
 const __showRexGuide = function (configured, isAdmin) {
+  if ($('.modal.show:not(.aibot)')[0]) return
   __injectRexGuideStyle()
 
   let name = rb._aibotName || 'Rex AI 助手'
@@ -95,6 +96,7 @@ const __showRexGuide = function (configured, isAdmin) {
 
   if (configured) {
     const showConfigured = function (questions) {
+      if ($('.modal.show:not(.aibot)')[0]) return
       // 展示即计数，避免未关闭就离开页面导致重复弹；强制调试模式不计数
       if (!~~window.__RexGuideScene) mark()
       RbHeroModal.show({
