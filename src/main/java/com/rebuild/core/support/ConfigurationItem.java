@@ -78,6 +78,9 @@ public enum ConfigurationItem {
     // 默认语言
     DefaultLanguage(LanguageBundle.SYS_LC),
 
+    // 默认主题
+    DefaultTheme,
+
     // 视图页显示修改历史
     ShowViewHistory(true),
 

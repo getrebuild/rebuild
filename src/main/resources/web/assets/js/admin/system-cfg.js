@@ -137,6 +137,13 @@ useEditComp = function (name) {
         <option value="35">{$L('宫格')}</option>
       </select>
     )
+  } else if ('DefaultTheme' === name) {
+    return (
+      <select className="form-control form-control-sm">
+        <option value="">{$L('经典')}</option>
+        <option value="rex46">Rex</option>
+      </select>
+    )
   }
 }
 
