@@ -90,6 +90,18 @@
       td[data-id='AllowUsesIp'] {
         white-space: pre-line;
       }
+      .syscfg tr.cfg-highlight > td {
+        animation: syscfg-cfg-highlight 2s ease;
+      }
+      @keyframes syscfg-cfg-highlight {
+        0%,
+        100% {
+          background-color: transparent;
+        }
+        30% {
+          background-color: rgba(47, 107, 255, 0.16);
+        }
+      }
     </style>
   </head>
   <body>

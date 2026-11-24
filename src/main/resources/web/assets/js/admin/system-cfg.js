@@ -8,6 +8,40 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
+// 配置项提醒（同一时间只显示一个，关闭后不再提示）
+const _alertCfg = function (configId, message, next) {
+  const storageKey = `SyscfgAlert-${configId}`
+  if ($storage.get(storageKey)) {
+    if (next) next()
+    return
+  }
+
+  let confirmed = false
+  RbAlert.create(message, {
+    cancelText: $L('暂不'),
+    confirmText: $L('去设置'),
+    confirm: function () {
+      confirmed = true
+      this.hide()
+
+      // 进入编辑模式并定位到指定配置项
+      $('.card-header .J_edit').trigger('click')
+      setTimeout(() => {
+        const $tr = $(`td[data-id="${configId}"]`).closest('tr')
+        if (!$tr.length) return
+        $tr.addClass('cfg-highlight')
+        $tr[0].scrollIntoView({ block: 'center', behavior: 'smooth' })
+        $tr.find('select, input, textarea').first().trigger('focus')
+        setTimeout(() => $tr.removeClass('cfg-highlight'), 2000)
+      }, 50)
+    },
+    onHide: function () {
+      $storage.set(storageKey, '1')
+      if (!confirmed && next) next()
+    },
+  })
+}
+
 $(document).ready(() => {
   const $dl = $('#_DefaultLanguage')
   $dl.text(wpc._LANGS[$dl.text()] || '中文')
@@ -16,23 +50,22 @@ $(document).ready(() => {
   // eslint-disable-next-line eqeqeq
   $ns.text($ns.text() == '35' ? $L('宫格') : $L('默认'))
 
+  const alertHomeURL = function () {
+    if ($('td[data-id="HomeURL"]').attr('data-value') === 'https://getrebuild.com/') {
+      _alertCfg('HomeURL', $L('主页地址/域名设置有误，将导致相关功能不可用。是否立即设置？'))
+    }
+  }
+  if ($('td[data-id="DefaultTheme"]').attr('data-value') !== 'rex46') {
+    _alertCfg('DefaultTheme', $L('是否将默认主题切换为与管理中心一致的 Rex 主题？之后可随时改回经典。'), alertHomeURL)
+  } else {
+    alertHomeURL()
+  }
+
   // 禁用
   ;['PasswordExpiredDays', 'DBBackupsKeepingDays', 'RevisionHistoryKeepingDays', 'RecycleBinKeepingDays'].forEach((item) => {
     const $d = $(`td[data-id=${item}]`)
     if (~~$d.attr('data-value') <= 0) $d.text($L('不启用'))
   })
-
-  // HomeURL
-  const checkHomeURL = $('td[data-id="HomeURL"]').attr('data-value')
-  if (checkHomeURL === 'https://getrebuild.com/') {
-    let m = $L('主页地址/域名设置有误，将导致相关功能不可用。建议立即 [修改](###)')
-    m = `<div class="alert alert-danger alert-icon alert-sm m-0 mt-1"><div class="icon"><span class="mdi mdi-message-alert-outline"></span></div><div class="message">${m}</div></div>`
-    m = $(m).appendTo('td[data-id="HomeURL"]')
-    m.find('.message>a').on('click', (e) => {
-      $stopEvent(e, true)
-      $('.J_edit').trigger('click')
-    })
-  }
 
   // UC
   UCenter.query((res) => {
