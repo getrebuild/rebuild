@@ -92,7 +92,7 @@ public class ProtectedAdmin {
         SYS("/systems", "通用配置"),
         SSI("/integration/", "服务集成"),
         API("/apis-manager;/data-subscribe", "OpenAPI 秘钥"),
-        AIB("/integration/aibot;/rex-ai", "Rex AI"),
+        AIB("/integration/aibot", "Rex AI"),
         ENT("/entities;/entity/;/metadata/", "实体管理"),
         APR("/robot/approval", "审批流程"),
         TRA("/robot/transform", "记录转换"),
