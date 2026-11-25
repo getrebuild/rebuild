@@ -14,6 +14,7 @@ import com.qiniu.storage.model.FileInfo;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
@@ -55,7 +56,8 @@ public class FileDownloader extends BaseController {
 
     @GetMapping("img/**")
     public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
+        final ID user = checkUser(request);
+        RbAssert.isAllow(user != null, "Unauthorized access");
 
         String filepath = request.getRequestURI();
         filepath = filepath.split("/filex/img/")[1];
@@ -63,6 +65,11 @@ public class FileDownloader extends BaseController {
 
         if (CommonsUtils.isExternalUrl(filepath)) {
             response.sendRedirect(filepath);
+            return;
+        }
+
+        if (!isUnsafeAccess(request) && !FilesHelper.isPathReadable(filepath, user)) {
+            response.sendError(HttpStatus.FORBIDDEN.value(), Language.L("你没有查看此文件的权限"));
             return;
         }
 
@@ -136,6 +143,7 @@ public class FileDownloader extends BaseController {
     @GetMapping(value = {"download/**", "access/**"})
     public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String filepath = request.getRequestURI();
+        ID user = null;
 
         // 共享查看
         if (request.getRequestURI().contains("/filex/access/")) {
@@ -147,7 +155,8 @@ public class FileDownloader extends BaseController {
 
             filepath = filepath.split("/filex/access/")[1];
         } else {
-            RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
+            user = checkUser(request);
+            RbAssert.isAllow(user != null, "Unauthorized access");
             filepath = filepath.split("/filex/download/")[1];
         }
 
@@ -168,6 +177,11 @@ public class FileDownloader extends BaseController {
         if (!data41) {
             data41 = filepath.startsWith("data/");
             if (data41) filepath = filepath.substring(5);
+        }
+
+        if (user != null && !isUnsafeAccess(request) && !FilesHelper.isPathReadable(filepath, user)) {
+            response.sendError(HttpStatus.FORBIDDEN.value(), Language.L("你没有查看此文件的权限"));
+            return;
         }
 
         boolean inline = getBoolParameter(request, "inline");
@@ -216,7 +230,11 @@ public class FileDownloader extends BaseController {
             return;
         }
 
-        RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
+        final ID user = checkUser(request);
+        RbAssert.isAllow(user != null, "Unauthorized access");
+        if (!isUnsafeAccess(request)) {
+            RbAssert.isAllow(FilesHelper.isPathReadable(filePath, user), Language.L("你没有查看此文件的权限"));
+        }
 
         String text;
         if (QiniuCloud.instance().available()) {
@@ -289,6 +307,17 @@ public class FileDownloader extends BaseController {
     private static boolean checkEsign(String e) {
         String check = e == null ? null : Application.getCommonsCache().get(e);
         return "rb".equalsIgnoreCase(check);
+    }
+
+    /**
+     * 不安全图片访问 (v3.8.5)
+     *
+     * @param request
+     * @return
+     */
+    private static boolean isUnsafeAccess(HttpServletRequest request) {
+        return NumberUtils.isNumber(request.getParameter("_UNSAFEIMGACCESS"))
+                && RebuildConfiguration.getBool(ConfigurationItem.UnsafeImgAccess);
     }
 
     /**

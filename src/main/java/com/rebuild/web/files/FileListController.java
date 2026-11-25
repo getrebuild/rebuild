@@ -178,7 +178,7 @@ public class FileListController extends BaseController {
             sqlWhere.add(String.format("relatedRecord = '%s'", related));
         }
 
-        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord,fileName,belongField from Attachment where (1=1) and (isDeleted <> 'T')";
+        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord,fileName,belongField,belongEntity from Attachment where (1=1) and (isDeleted <> 'T')";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
         if ("size".equals(sort)) {
             sql += " order by fileSize desc";
@@ -192,7 +192,7 @@ public class FileListController extends BaseController {
 
         Object[][] array;
         int nextOffset = -1;
-        if (!UserHelper.isAdmin(user) && related == null && useEntity > 0) {
+        if (!UserHelper.isAdmin(user) && (related != null || useEntity > 0)) {
             int offset = getIntParameter(request, "offset", -1);
             Object[] result = queryAttachmentsWithPermission(sql, user, pageNo, pageSize, offset);
             array = (Object[][]) result[0];
@@ -298,7 +298,7 @@ public class FileListController extends BaseController {
         return MetadataSorter.sortFields(entity, DisplayType.FILE, DisplayType.IMAGE).length > 0;
     }
 
-    // 带记录级权限过滤的附件查询
+    // 带记录级和字段级权限过滤的附件查询
     private Object[] queryAttachmentsWithPermission(String sql, ID user, int pageNo, int pageSize, int offset) {
         List<Object[]> filtered = new ArrayList<>();
         int queryOffset = Math.max(0, offset);
@@ -316,7 +316,9 @@ public class FileListController extends BaseController {
 
             for (int i = 0; i < batch.length; i++) {
                 ID relatedRecord = (ID) batch[i][7];
-                if (relatedRecord != null && FilesHelper.isRecordReadable(relatedRecord, user)) {
+                int belongEntity = ObjectUtils.toInt(batch[i][10], 0);
+                String belongField = (String) batch[i][9];
+                if (FilesHelper.isAttachmentReadable(relatedRecord, belongEntity, belongField, user)) {
                     filtered.add(batch[i]);
                     if (filtered.size() >= needed) {
                         nextOffset = queryOffset + i + 1;

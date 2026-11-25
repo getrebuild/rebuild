@@ -55,6 +55,8 @@ public class BatchDownload extends HeavyTask<File> {
                 String filePath = checkObjectReadable(fileId, getUser());
                 if (filePath == null) continue;
                 path = filePath;
+            } else if (!FilesHelper.isPathReadable(path, getUser())) {
+                continue;
             }
 
             // be: v4.4-b1 重名文件

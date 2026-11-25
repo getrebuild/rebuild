@@ -7,6 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.files;
 
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -320,7 +323,7 @@ public class FilesHelper {
         }
 
         Object[] file = Application.getQueryFactory().uniqueNoFilter(
-                fileId, "filePath,relatedRecord,belongEntity");
+                fileId, "filePath,relatedRecord,belongEntity,belongField");
         if (file == null) return null;
         if (UserHelper.isAdmin(user)) return (String) file[0];
 
@@ -331,10 +334,59 @@ public class FilesHelper {
         }
 
         // 是附件
-        final ID recordId = (ID) file[1];
-        if (recordId == null) return null;
+        return isAttachmentReadable((ID) file[1], (int) file[2], (String) file[3], user)
+                ? (String) file[0] : null;
+    }
 
-        return isRecordReadable(recordId, user) ? (String) file[0] : null;
+    /**
+     * 附件是否可读（父记录 + 所属字段）。字段缺失时仅校验父记录
+     *
+     * @param relatedRecord
+     * @param belongEntity
+     * @param belongField
+     * @param user
+     * @return
+     */
+    public static boolean isAttachmentReadable(ID relatedRecord, int belongEntity, String belongField, ID user) {
+        if (relatedRecord == null || !isRecordReadable(relatedRecord, user)) return false;
+        if (UserHelper.isAdmin(user) || belongEntity <= 0 || StringUtils.isBlank(belongField)) return true;
+
+        final Field field;
+        try {
+            Entity entity = MetadataHelper.getEntity(belongEntity);
+            field = entity.getField(belongField);
+        } catch (Exception ex) {
+            return true;
+        }
+
+        return Application.getPrivilegesManager().getFieldPrivileges().isReadable(field, user);
+    }
+
+    /**
+     * 文件路径是否可读。非附件文件不在此处限制
+     *
+     * @param filePath
+     * @param user
+     * @return
+     */
+    public static boolean isPathReadable(String filePath, ID user) {
+        if (user == null || StringUtils.isBlank(filePath)) return false;
+        if (CommonsUtils.isExternalUrl(filePath)) return true;
+
+        filePath = CodecUtils.urlDecode(filePath).replace('\\', '/');
+        while (filePath.startsWith("/")) filePath = filePath.substring(1);
+        if (StringUtils.isBlank(filePath)) return false;
+
+        Object[][] array = Application.createQueryNoFilter(
+                "select attachmentId from Attachment where filePath = ? and isDeleted <> 'T'")
+                .setParameter(1, filePath)
+                .array();
+        if (array.length == 0) return true;
+
+        for (Object[] o : array) {
+            if (checkObjectReadable((ID) o[0], user) != null) return true;
+        }
+        return false;
     }
 
     /**
