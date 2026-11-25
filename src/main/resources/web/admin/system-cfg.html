@@ -153,7 +153,7 @@
                       </tr>
                       <tr>
                         <td>[[${bundle.L('默认主题')}]] (LAB)</td>
-                        <td id="_DefaultTheme" data-id="DefaultTheme" th:data-value="${DefaultTheme}" data-optional="true">[[${DefaultTheme == 'rex46' ? 'Rex' : bundle.L('经典')}]]</td>
+                        <td id="_DefaultTheme" data-id="DefaultTheme" th:data-value="${DefaultTheme}" data-optional="true">[[${DefaultTheme == 'rex46' ? 'Rex' : (DefaultTheme == 'rex46-light' ? 'Rex Light' : bundle.L('经典'))}]]</td>
                       </tr>
                       <tr th:title="${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}">
                         <td>[[${bundle.L('页脚')}]]</td>

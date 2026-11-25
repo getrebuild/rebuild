@@ -55,7 +55,7 @@ $(document).ready(() => {
       _alertCfg('HomeURL', $L('主页地址/域名设置有误，将导致相关功能不可用。是否立即设置？'))
     }
   }
-  if ($('td[data-id="DefaultTheme"]').attr('data-value') !== 'rex46') {
+  if (!['rex46', 'rex46-light'].includes($('td[data-id="DefaultTheme"]').attr('data-value'))) {
     _alertCfg('DefaultTheme', $L('是否将默认主题切换为与管理中心一致的 Rex 主题？之后可随时改回经典。'), alertHomeURL)
   } else {
     alertHomeURL()
@@ -175,6 +175,7 @@ useEditComp = function (name) {
       <select className="form-control form-control-sm">
         <option value="">{$L('经典')}</option>
         <option value="rex46">Rex</option>
+        <option value="rex46-light">Rex Light</option>
       </select>
     )
   }

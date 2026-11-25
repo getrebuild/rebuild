@@ -20,17 +20,13 @@ const ovFormatToken = (token) => {
   return (n / 10000).toFixed(2).replace(/\.?0+$/, '') + '万'
 }
 
-const ChatRows = ({ rows }) => {
-  if (!rows.length) {
-    return (
-      <tr>
-        <td colSpan="4" className="text-muted text-center py-4">
-          {$L('暂无会话')}
-        </td>
-      </tr>
-    )
-  }
+// 与模型列表一致的加载/空状态
+const ovSetLoadState = ($body, hasData) => {
+  $body.children('.spinner').addClass('hide')
+  $body.children('.list-nodata').toggleClass('hide', !!hasData)
+}
 
+const ChatRows = ({ rows }) => {
   return rows.map((row) => (
     <tr key={row.id}>
       <td>
@@ -103,14 +99,6 @@ const ovRenderChatChart = (chatBars) => {
 }
 
 const UsageRows = ({ rows }) => {
-  if (!rows.length) {
-    return (
-      <tr>
-        <td className="text-muted text-center py-4">{$L('暂无使用记录')}</td>
-      </tr>
-    )
-  }
-
   return rows.map((row) => (
     <tr key={`${row.type}-${row.id}`}>
       <td>
@@ -183,12 +171,16 @@ $(document).ready(() => {
     // 最近会话
     const chatRows = (chats && chats.data) || []
     renderRbcomp(<ChatRows rows={chatRows.slice(0, 5)} />, 'chatsList')
+    ovSetLoadState($('#chatsList').closest('.card-body'), chatRows.length > 0)
+    $('.J_chat-bars').toggleClass('hide', !chatRows.length)
 
-    const last7 = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (6 - i))
-      return [ovFormatDate(d), dailyMap.get(ovFormatDate(d)) || 0]
-    })
-    ovRenderChatChart(last7)
+    if (chatRows.length) {
+      const last7 = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (6 - i))
+        return [ovFormatDate(d), dailyMap.get(ovFormatDate(d)) || 0]
+      })
+      ovRenderChatChart(last7)
+    }
 
     // 智能体、微应用近 90 天使用情况
     if (hasSmartApps) {
@@ -221,6 +213,7 @@ $(document).ready(() => {
           .sort((a, b) => b.count - a.count)
           .slice(0, 6)
         renderRbcomp(<UsageRows rows={usageRows} />, 'usageList')
+        ovSetLoadState($usageList.closest('.card-body'), usageRows.length > 0)
       }
     }
   })

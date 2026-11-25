@@ -110,7 +110,7 @@
                   <span>[[${bundle.L('最近会话')}]]</span>
                   <a class="fs-13" th:if="${T(com.rebuild.core.support.License).isCommercial()}" th:href="@{/admin/aibot2/chats}">[[${bundle.L('查看全部')}]]</a>
                 </div>
-                <div class="card-body">
+                <div class="card-body card-body-loading">
                   <table class="table table-hover mb-0">
                     <thead>
                       <tr>
@@ -120,13 +120,14 @@
                         <th width="170">[[${bundle.L('最后更新')}]]</th>
                       </tr>
                     </thead>
-                    <tbody id="chatsList">
-                      <tr>
-                        <td colspan="4" class="text-muted text-center py-4">[[${bundle.L('加载中…')}]]</td>
-                      </tr>
-                    </tbody>
+                    <tbody id="chatsList"></tbody>
                   </table>
-                  <div class="bars-wrap">
+                  <div class="spinner"></div>
+                  <div class="list-nodata hide">
+                    <span class="mdi mdi-message-text-outline"></span>
+                    <p>[[${bundle.L('暂无会话')}]]</p>
+                  </div>
+                  <div class="bars-wrap hide J_chat-bars">
                     <div class="bars" id="chatBars"></div>
                   </div>
                 </div>
@@ -139,14 +140,15 @@
                   <span>[[${bundle.L('智能应用')}]]</span>
                   <span class="text-muted fs-13">[[${bundle.L('近 90 天')}]]</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body card-body-loading">
                   <table class="table table-hover mb-0">
-                    <tbody id="usageList">
-                      <tr>
-                        <td class="text-muted text-center py-4">[[${bundle.L('加载中…')}]]</td>
-                      </tr>
-                    </tbody>
+                    <tbody id="usageList"></tbody>
                   </table>
+                  <div class="spinner"></div>
+                  <div class="list-nodata hide">
+                    <span class="mdi mdi-apps-box"></span>
+                    <p>[[${bundle.L('暂无使用记录')}]]</p>
+                  </div>
                 </div>
               </div>
             </div>
