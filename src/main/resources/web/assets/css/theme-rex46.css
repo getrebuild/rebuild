@@ -62,7 +62,7 @@ html:not(.theme-dark2) {
   --rex-nav-logo: url('../../commons/theme/use-logo-white');
 }
 
-/* ===== 2. 页面底色与文字 ===== */
+/* ===== 2. 基础与链接 ===== */
 
 html:not(.theme-dark2) {
   background-color: #f3f5f9;
@@ -90,6 +90,12 @@ html:not(.theme-dark2) body .main-content a:not(.btn):not(.nav-link):not(.dropdo
 
 html:not(.theme-dark2) body .main-content a:not(.btn):not(.nav-link):not(.dropdown-item):not(.page-link):not(.badge):hover {
   color: #1f57e6;
+}
+
+/* 详情/关联列表内的编辑链接：悬停保持主题色 */
+html:not(.theme-dark2) body .related-list .card .header-title .record-meta a.edit:hover,
+html:not(.theme-dark2) body .rbview-form .form-group.editable a.edit:hover {
+  color: #2f6bff;
 }
 
 html:not(.theme-dark2) body .text-primary {
@@ -195,25 +201,6 @@ html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li > a .us
   color: #111827;
 }
 
-html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu::after {
-  border-bottom-color: #fff;
-}
-
-html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu .user-info {
-  background-color: var(--rex-nav-user-bg-a);
-  background-image: linear-gradient(135deg, var(--rex-nav-user-bg-a), var(--rex-nav-user-bg-b));
-  border-bottom-color: transparent;
-  border-radius: 11px 11px 0 0;
-}
-
-html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu .user-info .user-name {
-  color: var(--rex-nav-user-name);
-}
-
-html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu .user-info .user-id {
-  color: var(--rex-nav-user-id);
-}
-
 html:not(.theme-dark2) body .rb-wrapper .rb-top-header .search-input-gs {
   background-color: #f2f4f7;
   border-color: transparent;
@@ -222,27 +209,6 @@ html:not(.theme-dark2) body .rb-wrapper .rb-top-header .search-input-gs {
 
 html:not(.theme-dark2) body .rb-wrapper .rb-top-header .search-input-gs::placeholder {
   color: #8f959e;
-}
-
-html:not(.theme-dark2) body .rb-wrapper.rb-color-header .rb-top-header {
-  background-color: rgba(255, 255, 255, 0.94);
-  border-bottom-color: #edf0f5;
-}
-
-html:not(.theme-dark2) body .rb-wrapper.rb-color-header .rb-top-header .page-title {
-  color: #111827;
-}
-
-html:not(.theme-dark2) body .rb-wrapper.rb-color-header .rb-top-header .rb-right-navbar .navbar-nav > li > a {
-  color: #667085;
-}
-
-html:not(.theme-dark2) body .rb-wrapper.rb-color-header .rb-top-header .rb-right-navbar .rb-icons-nav > li.dropdown > a .icon {
-  color: #667085;
-}
-
-html:not(.theme-dark2) body .rb-wrapper.rb-color-header .rb-top-header .rb-right-navbar .rb-icons-nav > li.dropdown > a .indicator {
-  background-color: #f04438;
 }
 
 @media (max-width: 767.98px) {
@@ -464,6 +430,13 @@ html:not(.theme-dark2) body .card {
   overflow: clip;
 }
 
+/* 卡片内的浮层（下拉、气泡、提示）展开时放开裁切，避免被卡片边缘裁掉 */
+html:not(.theme-dark2) body .card:has(.dropdown-menu.show),
+html:not(.theme-dark2) body .card:has(.tooltip.show),
+html:not(.theme-dark2) body .card:has(.popover.show) {
+  overflow: visible;
+}
+
 html:not(.theme-dark2) body .main-content > .card.card-table.card-topcolor {
   border-top: 2px solid #2f6bff;
   border-top-left-radius: 14px;
@@ -474,6 +447,16 @@ html:not(.theme-dark2) body .main-content > .card.card-table.card-topcolor {
 html:not(.theme-dark2) body .main-content > .nav-tabs + .card.card-table.card-topcolor {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+
+/* 列表页（mode2）的卡片与页签/工具栏衔接 */
+html:not(.theme-dark2) body .datalist-mode2 .main-content > .card.card-table {
+  border-radius: 14px;
+}
+
+/* 可折叠卡片的头部选中态 */
+html:not(.theme-dark2) body .card.active .header-title {
+  background-color: #f2f4f7;
 }
 
 html:not(.theme-dark2) body .grid-stack .grid-stack-item .grid-stack-item-content {
@@ -491,6 +474,20 @@ html:not(.theme-dark2) body .grid-stack .grid-stack-item .grid-stack-item-conten
 
 html:not(.theme-dark2) body .chart-box.high {
   outline-color: #2f6bff;
+}
+
+/* 侧栏图表容器 */
+html:not(.theme-dark2) body #asideCharts .chart-box {
+  border-radius: 14px;
+}
+
+/* 计划列表容器 */
+html:not(.theme-dark2) body .plan-list-wrapper {
+  border-radius: 14px;
+}
+
+html:not(.theme-dark2) body .plan-list-wrapper table tbody tr:hover {
+  background-color: #fafcff;
 }
 
 /* ===== 6. 按钮 ===== */
@@ -597,7 +594,12 @@ html:not(.theme-dark2) body .btn-primary:focus {
     0 1px 3px rgba(47, 107, 255, 0.18);
 }
 
-/* ===== 7. 表单控件 ===== */
+/* 视图切换按钮组跟随按钮圆角 */
+html:not(.theme-dark2) body .switch-view-mode .btn {
+  border-radius: 9px;
+}
+
+/* ===== 7. 表单与选择控件 ===== */
 
 html:not(.theme-dark2) body .form-control {
   border: 1px solid #e6e9f0;
@@ -765,6 +767,11 @@ html:not(.theme-dark2) body .select2-container--default .select2-selection--mult
   color: #1d4ed8;
 }
 
+/* UserSelector 下拉：列表白底随菜单圆角裁切，避免盖住底部圆角 */
+html:not(.theme-dark2) body .user-selector .dropdown-menu {
+  overflow: hidden;
+}
+
 /* UserSelector 已选标签的移除按钮 */
 html:not(.theme-dark2) body .user-selector .select2-selection__choice__remove {
   color: #93a9c9;
@@ -831,6 +838,23 @@ html:not(.theme-dark2) body .card .table > thead > tr > th {
   color: #8b93a7;
 }
 
+html:not(.theme-dark2) body .data-list .table thead th > div {
+  color: #8b93a7;
+}
+
+html:not(.theme-dark2) body .data-list .table thead th.sortable:active {
+  background-color: #eef4ff;
+}
+
+html:not(.theme-dark2) body .data-list .table thead th > div > i.zmdi {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .tablesort thead th:not(.no-sort):hover,
+html:not(.theme-dark2) body .tablesort thead th.sorted {
+  background-color: #eef4ff;
+}
+
 html:not(.theme-dark2) body .table > tbody > tr > td {
   border-top-color: #edf0f5;
 }
@@ -848,23 +872,6 @@ html:not(.theme-dark2) body .table-striped tbody tr:nth-of-type(odd) td.column-f
   background-color: #fafbfd;
 }
 
-html:not(.theme-dark2) body .data-list .table thead th {
-  background-color: #fafbfd;
-  color: #8b93a7;
-}
-
-html:not(.theme-dark2) body .data-list .table thead th > div {
-  color: #8b93a7;
-}
-
-html:not(.theme-dark2) body .data-list .table thead th.sortable:active {
-  background-color: #eef4ff;
-}
-
-html:not(.theme-dark2) body .data-list .table thead th > div > i.zmdi {
-  color: #2f6bff;
-}
-
 html:not(.theme-dark2) body .data-list .table tbody tr.active,
 html:not(.theme-dark2) body .data-list .table tbody tr.active td.column-fixed {
   background-color: #eef4ff;
@@ -872,11 +879,6 @@ html:not(.theme-dark2) body .data-list .table tbody tr.active td.column-fixed {
 
 html:not(.theme-dark2) body .data-list .table tr:last-child td {
   border-bottom-color: #edf0f5;
-}
-
-html:not(.theme-dark2) body .tablesort thead th:not(.no-sort):hover,
-html:not(.theme-dark2) body .tablesort thead th.sorted {
-  background-color: #eef4ff;
 }
 
 html:not(.theme-dark2) body .protable .table {
@@ -898,6 +900,11 @@ html:not(.theme-dark2) body .dataTables_wrapper .rb-datatable-header.header-fixe
   background-color: transparent;
 }
 
+/* 合并记录表内的链接悬停 */
+html:not(.theme-dark2) body .record-merge-table table td > div > a:hover {
+  color: #2f6bff !important;
+}
+
 html:not(.theme-dark2) body .list-nodata .zmdi,
 html:not(.theme-dark2) body .list-nodata .mdi {
   color: #c7cdd9;
@@ -907,12 +914,47 @@ html:not(.theme-dark2) body .list-nodata p {
   color: #8f959e;
 }
 
-/* ===== 9. 下拉与气泡 ===== */
+/* 表单设计拖拽项的操作图标：蓝色悬停底上保持白色，避免被全局链接色覆盖 */
+html:not(.theme-dark2) body .rb-wrapper .main-content .dd-list .dd-item .dd-handle .dd-action a,
+html:not(.theme-dark2) body .rb-wrapper .main-content .dd-list .dd-item .dd-handle .dd-action a:hover,
+html:not(.theme-dark2) body .rb-wrapper .main-content .dd-list .dd-item .dd-handle .dd-action a > i {
+  color: #fff;
+}
+
+/* ===== 9. 下拉菜单与浮层 ===== */
 
 html:not(.theme-dark2) body .dropdown-menu {
   border: 1px solid #e6e9f0;
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+}
+
+/* 顶部导航下拉菜单（用户菜单、通知等）统一 12px 圆角，覆盖基础样式的 2px */
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .navbar-nav > li.dropdown > .dropdown-menu,
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-icons-nav > li.dropdown > .dropdown-menu {
+  border-radius: 12px;
+}
+
+/* 顶栏用户菜单：深色信息块外扩 1px 盖住菜单描边，顶角与菜单圆角对齐 */
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu .user-info {
+  margin: -1px -1px 7px;
+  background-color: var(--rex-nav-user-bg-a);
+  background-image: linear-gradient(135deg, var(--rex-nav-user-bg-a), var(--rex-nav-user-bg-b));
+  border-bottom-color: transparent;
+  border-radius: 12px 12px 0 0;
+}
+
+/* 菜单箭头颜色跟随深色块 */
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu::after {
+  border-bottom-color: var(--rex-nav-user-bg-a);
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu .user-info .user-name {
+  color: var(--rex-nav-user-name);
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu .user-info .user-id {
+  color: var(--rex-nav-user-id);
 }
 
 html:not(.theme-dark2) body .dropdown-submenu > .dropdown-menu {
@@ -973,6 +1015,11 @@ html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu .dropdown-divid
   border-color: #1f57e6;
 }
 
+html:not(.theme-dark2) body .entity-switch .dropdown-item.current,
+html:not(.theme-dark2) body .entity-switch .dropdown-item.current .icon {
+  color: #2f6bff;
+}
+
 html:not(.theme-dark2) body .popover {
   border-color: #e6e9f0;
   border-radius: 12px;
@@ -990,6 +1037,13 @@ html:not(.theme-dark2) body .modal-content {
   border: 0;
   border-radius: 12px;
   box-shadow: 0 24px 64px rgba(16, 24, 40, 0.18);
+}
+
+/* 查看弹窗（.rbview）默认裁切到圆角，浮层展开时放开裁切，避免菜单/提示被弹窗边缘裁掉 */
+html:not(.theme-dark2) body .rbview.show .modal-content:has(.dropdown-menu.show),
+html:not(.theme-dark2) body .rbview.show .modal-content:has(.tooltip.show),
+html:not(.theme-dark2) body .rbview.show .modal-content:has(.popover.show) {
+  overflow: visible;
 }
 
 html:not(.theme-dark2) body .modal-header {
@@ -1080,6 +1134,15 @@ html:not(.theme-dark2) body .nav-tabs.nav-tabs-segment > li.nav-item > a.nav-lin
 html:not(.theme-dark2) body .nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link.active {
   background-color: #fff;
   color: #111827;
+}
+
+/* 列表页快速筛选页签 */
+html:not(.theme-dark2) body .quick-filter-tabs > div > a {
+  border-radius: 999px !important;
+}
+
+html:not(.theme-dark2) body .quick-filter-tabs > div > a.active {
+  border-radius: 999px;
 }
 
 html:not(.theme-dark2) body .page-link {
@@ -1309,7 +1372,7 @@ html:not(.theme-dark2) body .announcement-wrapper > div {
   border-radius: 12px;
 }
 
-/* ===== 14. 其他 ===== */
+/* ===== 14. 其他与主题入口 ===== */
 
 html:not(.theme-dark2) body .rb-scroll-top {
   background-color: rgba(11, 21, 39, 0.6);
@@ -1324,56 +1387,7 @@ html:not(.theme-dark2) body .progress-bar {
   background-color: #2f6bff;
 }
 
-html:not(.theme-dark2) body .entity-switch .dropdown-item.current,
-html:not(.theme-dark2) body .entity-switch .dropdown-item.current .icon {
-  color: #2f6bff;
-}
-
-/* ===== 15. 主题入口 ===== */
-
+/* 主题切换入口由顶栏菜单隐藏 */
 html body .use-theme {
   display: none !important;
-}
-
-/* ===== 16. 页面样式补丁 ===== */
-
-html:not(.theme-dark2) body .datalist-mode2 .main-content > .card.card-table {
-  border-radius: 14px;
-}
-
-html:not(.theme-dark2) body .quick-filter-tabs > div > a {
-  border-radius: 999px !important;
-}
-
-html:not(.theme-dark2) body .quick-filter-tabs > div > a.active {
-  border-radius: 999px;
-}
-
-html:not(.theme-dark2) body .record-merge-table table td > div > a:hover {
-  color: #2f6bff !important;
-}
-
-html:not(.theme-dark2) body #asideCharts .chart-box {
-  border-radius: 14px;
-}
-
-html:not(.theme-dark2) body .card.active .header-title {
-  background-color: #f2f4f7;
-}
-
-html:not(.theme-dark2) body .related-list .card .header-title .record-meta a.edit:hover,
-html:not(.theme-dark2) body .rbview-form .form-group.editable a.edit:hover {
-  color: #2f6bff;
-}
-
-html:not(.theme-dark2) body .switch-view-mode .btn {
-  border-radius: 9px;
-}
-
-html:not(.theme-dark2) body .plan-list-wrapper {
-  border-radius: 14px;
-}
-
-html:not(.theme-dark2) body .plan-list-wrapper table tbody tr:hover {
-  background-color: #fafcff;
 }
