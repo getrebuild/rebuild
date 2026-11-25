@@ -1,0 +1,460 @@
+/* Rex AI 列表 */
+
+.card .kit-table {
+  table-layout: fixed;
+}
+
+.card .kit-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.card .kit-tile {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  margin-right: 12px;
+  border-radius: 10px;
+  background-color: rgba(47, 107, 255, 0.08);
+  color: var(--rb-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card .kit-tile svg {
+  width: 18px;
+  height: 18px;
+}
+
+.card .kit-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.card .kit-name,
+.card .kit-sub,
+.card .kit-prompt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card .kit-name {
+  font-weight: 500;
+}
+
+.card .kit-sub {
+  font-size: 12px;
+}
+
+.card .kit-prompt {
+  display: block;
+}
+
+.card .kit-actions .switch-button {
+  margin-right: 10px;
+  top: -3px;
+}
+
+/* 设置页 */
+
+.row.stats .col-8 span {
+  display: block;
+  height: 44px;
+  width: 100%;
+  margin-top: 1px;
+}
+
+p.mt-2.text-dark code:hover {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+td[data-id='AibotBasePrompt'],
+td[data-id='AibotSuggestQuestions'] {
+  white-space: pre-line;
+}
+
+/* 弹窗 */
+
+.modal-body textarea.form-control {
+  min-height: 72px;
+}
+
+.init-models {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+.init-models + .dialog-footer {
+  margin: 15px -35px 10px;
+  padding-top: 25px;
+}
+
+/* 概览页 */
+
+.aibot-overview .hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.25fr 0.9fr;
+  gap: 28px;
+  padding: 34px 38px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  background: linear-gradient(120deg, #07101f 0%, #0d2244 50%, #1849c6 100%);
+  box-shadow:
+    0 1px 2px rgba(8, 24, 56, 0.04),
+    0 14px 34px rgba(8, 24, 56, 0.1);
+  color: #fff;
+}
+
+.aibot-overview .hero:before,
+.aibot-overview .hero:after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.aibot-overview .hero:before {
+  top: -110px;
+  right: -70px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.16), transparent 62%);
+}
+
+.aibot-overview .hero:after {
+  bottom: -150px;
+  left: -50px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(47, 107, 255, 0.18), transparent 62%);
+}
+
+.aibot-overview .hero-main,
+.aibot-overview .config-overview {
+  position: relative;
+  z-index: 1;
+}
+
+.aibot-overview .hero-kicker {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #93c5fd;
+}
+
+.aibot-overview .hero h2 {
+  margin: 12px 0 10px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.32;
+}
+
+.aibot-overview .hero p {
+  max-width: 520px;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #c7d6f2;
+}
+
+.aibot-overview .hero-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.aibot-overview .hero-actions .btn {
+  cursor: pointer;
+}
+
+.aibot-overview .config-overview {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.aibot-overview .config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.aibot-overview .config-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 44px;
+  padding: 0 15px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.aibot-overview .config-item:hover {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  text-decoration: none;
+}
+
+.aibot-overview .config-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: #8fc2ff;
+  font-size: 14px;
+}
+
+.aibot-overview .config-icon .icon {
+  display: block;
+  line-height: 1;
+}
+
+.aibot-overview .config-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: #a9c0e8;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aibot-overview .config-item b {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.aibot-overview .stat {
+  height: 100%;
+  padding: 20px;
+  border: 1px solid #edf0f6;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.03),
+    0 10px 28px rgba(16, 24, 40, 0.04);
+}
+
+.aibot-overview .stat .label {
+  font-size: 12.5px;
+  color: #7b8499;
+}
+
+.aibot-overview .stat .value {
+  margin-top: 10px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.aibot-overview .stat .value small {
+  margin-left: 3px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #8f959e;
+}
+
+.aibot-overview .stat .delta {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: #8f959e;
+}
+
+.aibot-overview .row {
+  margin-right: -8px;
+  margin-left: -8px;
+}
+
+.aibot-overview .row > [class*='col-'] {
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.aibot-overview .row > div > .card {
+  height: 100%;
+  margin-bottom: 16px;
+}
+
+.aibot-overview .card-header {
+  margin: 0 20px;
+  padding: 20px 0;
+}
+
+.aibot-overview .card-header-divider {
+  margin-bottom: 0;
+}
+
+.aibot-overview .card-body {
+  padding: 20px;
+}
+
+.aibot-overview .bars-wrap {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+}
+
+.aibot-overview .bars {
+  height: 140px;
+  padding: 8px 4px 0;
+}
+
+@media (max-width: 1200px) {
+  .aibot-overview .hero {
+    grid-template-columns: 1fr;
+    padding: 28px;
+  }
+
+  .aibot-overview .hero h2 {
+    font-size: 24px;
+  }
+}
+
+/* 会话列表 */
+
+.aibot-chats .aibot-chat-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.aibot-chats .aibot-chat-filters > .form-control {
+  width: 227px;
+}
+
+.aibot-chats .aibot-chat-table {
+  min-width: 720px;
+  table-layout: fixed;
+}
+
+.aibot-chats .aibot-chat-table th,
+.aibot-chats .aibot-chat-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.aibot-chats .aibot-chat-subject {
+  min-width: 0;
+}
+
+.aibot-chats .aibot-chat-link {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aibot-chats .aibot-chat-link:hover {
+  text-decoration: underline;
+}
+
+.aibot-chats .aibot-chat-summary {
+  margin-top: 2px;
+  overflow: hidden;
+  color: #8f959e;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aibot-chats .aibot-chat-pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #edf0f6;
+  color: #667085;
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .aibot-chats .aibot-chat-filters > .form-control {
+    width: 100%;
+  }
+}
+
+/* 模型列表 */
+
+.aibot-models .aibot-model-table {
+  min-width: 1200px;
+  table-layout: fixed;
+}
+
+.aibot-models .aibot-model-table th,
+.aibot-models .aibot-model-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+/* 知识库列表 */
+
+.aibot-kb .aibot-kb-table {
+  min-width: 720px;
+  table-layout: fixed;
+}
+
+.aibot-kb .aibot-kb-table th,
+.aibot-kb .aibot-kb-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+/* 列表页工具条 */
+
+.aibot-models .aibot-page-actions,
+.aibot-kb .aibot-page-actions,
+.aibot-skills .aibot-page-actions,
+.aibot-tools .aibot-page-actions,
+.aibot-agents .aibot-page-actions,
+.aibot-miniapps .aibot-page-actions {
+  position: relative;
+  z-index: 1;
+  margin-top: -55px;
+  margin-bottom: 20px;
+}
+
+/* 技能/工具列表 */
+
+.aibot-skills .aibot-skills-table,
+.aibot-tools .aibot-tools-table {
+  table-layout: fixed;
+}
+
+.aibot-skills .aibot-skills-table th,
+.aibot-skills .aibot-skills-table td,
+.aibot-tools .aibot-tools-table th,
+.aibot-tools .aibot-tools-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.aibot-skills .aibot-skills-table {
+  min-width: 720px;
+}
+
+.aibot-tools .aibot-tools-table {
+  min-width: 560px;
+}

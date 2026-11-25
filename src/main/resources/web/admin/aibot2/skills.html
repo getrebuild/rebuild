@@ -1,0 +1,55 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/aibot2.css}" />
+    <meta name="page-help" content="https://getrebuild.com/features/ai-knowledge" />
+    <title>Rex AI [[${bundle.L('技能')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:if="${navLeftAdmin}">
+        <th:block th:replace="~{/_include/nav-left-admin(active='aibot-skills')}" />
+      </th:block>
+      <th:block th:unless="${navLeftAdmin}">
+        <th:block th:replace="~{/_include/nav-left-aibot2(active='aibot-skills')}" />
+      </th:block>
+      <div class="rb-content">
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('技能')}]]</div>
+          <div class="page-head-description">[[${bundle.L('沉淀常用处理方式，同类任务一次配置反复复用')}]]</div>
+        </div>
+        <div class="main-content container-fluid aibot-skills pt-1">
+          <div class="d-flex justify-content-end aibot-page-actions">
+            <button class="btn btn-primary J_addSkill" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+          </div>
+          <div class="card shadow-none mb-0">
+            <div class="aibot-skills-body card-body-loading">
+              <div class="table-responsive">
+                <table class="table table-hover aibot-skills-table mb-0">
+                  <thead>
+                    <tr>
+                      <th width="40%">[[${bundle.L('技能')}]]</th>
+                      <th>[[${bundle.L('提示词')}]]</th>
+                      <th width="170" class="actions">[[${bundle.L('操作')}]]</th>
+                    </tr>
+                  </thead>
+                  <tbody id="skillsList"></tbody>
+                </table>
+              </div>
+              <div class="spinner"></div>
+              <div class="list-nodata hide">
+                <span class="mdi mdi-flash-outline"></span>
+                <p>[[${bundle.L('暂无技能')}]]</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/aibot2/kits.js}" type="text/babel"></script>
+  </body>
+</html>

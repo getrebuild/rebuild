@@ -37,62 +37,6 @@
                 <npm.exec>npm.cmd</npm.exec>
             </properties>
         </profile>
-        <profile>
-            <id>rex-ai-frontend</id>
-            <activation>
-                <file>
-                    <exists>@rbv/frontend/package.json</exists>
-                </file>
-            </activation>
-            <properties>
-                <skipRexaiFrontend>false</skipRexaiFrontend>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.github.eirslett</groupId>
-                        <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.15.0</version>
-                        <configuration>
-                            <workingDirectory>@rbv/frontend</workingDirectory>
-                            <skip>${skipRexaiFrontend}</skip>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>rex-ai-install-node</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>install-node-and-npm</goal>
-                                </goals>
-                                <configuration>
-                                    <nodeVersion>v20.18.0</nodeVersion>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>rex-ai-npm-ci</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>npm</goal>
-                                </goals>
-                                <configuration>
-                                    <arguments>ci --no-audit --no-fund</arguments>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>rex-ai-npm-build</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>npm</goal>
-                                </goals>
-                                <configuration>
-                                    <arguments>run build</arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 
     <build>

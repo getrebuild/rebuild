@@ -24,6 +24,8 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-general40.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chat.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" th:if="${user != null}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-rex46.css?v=46}" th:if="${UseRex46Style}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme-rex46-light.css?v=46}" th:if="${UseRex46LightStyle}" />
   </th:block>
   <meta name="rb.env" th:content="${env}" />
   <meta name="rb.ver" th:content="${AppBuild}" />

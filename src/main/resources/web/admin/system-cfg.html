@@ -38,7 +38,7 @@
         display: inline-block;
         width: 192px;
         height: 108px;
-        background: #eee url(../assets/img/bg-v45.svg) repeat 0 0;
+        background: #eee url(../assets/img/bg-v46.svg) repeat 0 0;
         background-image: url(../commons/theme/use-bgimg);
         background-size: cover;
       }
@@ -90,6 +90,18 @@
       td[data-id='AllowUsesIp'] {
         white-space: pre-line;
       }
+      .syscfg tr.cfg-highlight > td {
+        animation: syscfg-cfg-highlight 2s ease;
+      }
+      @keyframes syscfg-cfg-highlight {
+        0%,
+        100% {
+          background-color: transparent;
+        }
+        30% {
+          background-color: rgba(47, 107, 255, 0.16);
+        }
+      }
     </style>
   </head>
   <body>
@@ -138,6 +150,12 @@
                       <tr>
                         <td>[[${bundle.L('默认语言')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'DefaultLanguage' : ''}" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('默认主题')}]] (LAB)</td>
+                        <td id="_DefaultTheme" data-id="DefaultTheme" th:data-value="${DefaultTheme}" data-optional="true">
+                          [[${DefaultTheme == 'rex46' ? 'Rex' : (DefaultTheme == 'rex46-light' ? 'Rex Light' : bundle.L('经典'))}]]
+                        </td>
                       </tr>
                       <tr th:title="${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}">
                         <td>[[${bundle.L('页脚')}]]</td>

@@ -4,8 +4,6 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global AiBotChatsModal */
-
 const __MODELS = ['qwen3.8-max', 'glm-5.2', 'deepseek-v4-flash', 'gpt-5']
 
 // eslint-disable-next-line no-undef, react/display-name
@@ -65,7 +63,7 @@ useEditComp = function (name) {
         if (baseUrl) payload.baseUrl = baseUrl
         if (apiKey && apiKey !== origKey) payload.apiKey = apiKey
 
-        $.post(`./aibot/models`, JSON.stringify(payload), (res) => {
+        $.post('./aibot/models', JSON.stringify(payload), (res) => {
           if (res.error_code === 0 && res.data && res.data.length) {
             option.options = res.data.map((m) => m.id)
           } else {
@@ -79,41 +77,28 @@ useEditComp = function (name) {
   }
 }
 
-// eslint-disable-next-line no-undef
-class AiBotUserRank extends ChartRank {
-  componentDidMount() {
-    const users = (this.props.users || []).slice(0, 10)
-    if (users.length === 0) {
-      this.renderError($L('暂无数据'))
-      return
-    }
-    this.renderChart({
-      xAxis: users.map((u) => u[1]),
-      yyyAxis: [{ data: users.map((u) => u[2]), name: $L('万/Token') }],
-      _renderOption: { showNumerical: true, dataFlags: [] },
-    })
+// ~~ MCP
+
+const _renderMcpConfig = function () {
+  const $mcp = $('.J_mcpConfig')
+  const code = {
+    mcpServers: {
+      rebuild: {
+        url: $mcp.data('url') || '',
+        headers: {
+          Authorization: 'Bearer <' + $L('个人秘钥') + '>',
+        },
+        disabled: false,
+      },
+    },
   }
 
-  render() {
-    return (
-      <div ref={(c) => (this._$body = c)} className="chart-body" style={{ minHeight: 320 }}>
-        {this.state.chartdata || <div className="text-muted text-center pt-4">{$L('加载中...')}</div>}
-      </div>
-    )
-  }
-
-  _initRankScroll() {}
-
-  _renderChartBarBefore(option, data) {
-    option.grid.top = 8
-    option.grid.bottom = 8
-    super._renderChartBarBefore(option, data)
-    option.grid.right = 10
-    return option
-  }
+  renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0])
 }
 
 $(document).ready(() => {
+  if ($('.J_mcpConfig').length) _renderMcpConfig()
+
   $.get('./aibot/stats', (res) => {
     const data = res.data || {}
     let $el = $('.J_stats-aibot')
@@ -127,12 +112,6 @@ $(document).ready(() => {
     $el = $('.J_stats-usercount')
     $el.find('strong').text(data.users || 0)
     $renderStats(data.aibotDailyUsers, $el)
-
-    renderRbcomp(<AiBotUserRank id="aibot-rank" users={data.aibotUsers || []} />, $('.J_stats-users')[0])
-  })
-
-  $('.J_all-chats').on('click', () => {
-    renderRbcomp(<AiBotChatsModal title={$L('所有会话')} width={880} disposeOnHide useWhite useScrollable />)
   })
 })
 

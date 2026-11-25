@@ -1,0 +1,55 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/aibot2.css}" />
+    <meta name="page-help" content="https://getrebuild.com/features/ai-knowledge" />
+    <title>Rex AI [[${bundle.L('工具')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:if="${navLeftAdmin}">
+        <th:block th:replace="~{/_include/nav-left-admin(active='aibot-tools')}" />
+      </th:block>
+      <th:block th:unless="${navLeftAdmin}">
+        <th:block th:replace="~{/_include/nav-left-aibot2(active='aibot-tools')}" />
+      </th:block>
+      <div class="rb-content">
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('工具')}]]</div>
+          <div class="page-head-description">[[${bundle.L('让 AI 不只回答问题，还能直接完成业务操作')}]]</div>
+        </div>
+        <div class="main-content container-fluid aibot-tools pt-1">
+          <div class="d-flex justify-content-end aibot-page-actions">
+            <a class="btn btn-primary" href="https://getrebuild.com/market/go/aitool" target="_blank"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</a>
+          </div>
+          <div class="card shadow-none mb-0">
+            <div class="aibot-tools-body card-body-loading">
+              <div class="table-responsive">
+                <table class="table table-hover aibot-tools-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>[[${bundle.L('工具')}]]</th>
+                      <th width="140">[[${bundle.L('类型')}]]</th>
+                      <th width="90">[[${bundle.L('启用')}]]</th>
+                    </tr>
+                  </thead>
+                  <tbody id="toolsList"></tbody>
+                </table>
+              </div>
+              <div class="spinner"></div>
+              <div class="list-nodata hide">
+                <span class="mdi mdi-wrench-outline"></span>
+                <p>[[${bundle.L('暂无工具')}]]</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/aibot2/kits.js}" type="text/babel"></script>
+  </body>
+</html>

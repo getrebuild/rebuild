@@ -83,6 +83,12 @@ public class AibotAgent implements Serializable {
     @Accessors(chain = true)
     private String dsSecret;
 
+    // 指定的模型配置已停用或已删除时的错误信息
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String modelConfigError;
+
     @Getter
     @Setter
     @Accessors(chain = true)
@@ -163,6 +169,7 @@ public class AibotAgent implements Serializable {
     }
 
     public boolean available() {
+        if (StringUtils.isNotBlank(modelConfigError)) return false;
         String url = defaultIfBlank(dsUrl, get(AibotDSUrl));
         String secret = defaultIfBlank(dsSecret, get(AibotDSSecret));
         return StringUtils.isNotBlank(url) && StringUtils.isNotBlank(secret);

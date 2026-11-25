@@ -48,6 +48,10 @@ public class RateLimiters {
     public static final RequestRateLimiter PUB_AUTH_4IP = createRateLimiter(
             new int[]{60, 3600}, new int[]{5, 30});
 
+    // 公开对话（基于 IP）。按正常对话频率放宽（含刷新时的状态轮询），防恶意刷额度
+    public static final RequestRateLimiter PUB_CHAT_4IP = createRateLimiter(
+            new int[]{60, 3600}, new int[]{60, 1200});
+
     /**
      * @param seconds
      * @param limits

@@ -1,0 +1,47 @@
+<th:block xmlns:th="http://www.thymeleaf.org">
+  <div class="rb-left-sidebar v2">
+    <div class="left-sidebar-wrapper">
+      <a class="left-sidebar-toggle">REBUILD</a>
+      <div class="left-sidebar-spacer">
+        <div class="left-sidebar-scroll rb-scroller">
+          <div class="left-sidebar-content">
+            <ul class="sidebar-elements">
+              <th:block th:if="${T(com.rebuild.web.admin.ProtectedAdmin).allow('AIB', #request)}">
+                <li class="divider">[[${bundle.L('工作台')}]]</li>
+                <li th:class="${active == 'aibot-overview'} ? 'active'">
+                  <a th:href="@{/admin/aibot2/overview}"><i class="icon mdi mdi-view-dashboard-outline"></i><span>[[${bundle.L('概览')}]]</span></a>
+                </li>
+                <li th:class="${active == 'aibot-chats'} ? 'active'">
+                  <a th:href="@{/admin/aibot2/chats}"><i class="icon mdi mdi-message-text-outline"></i><span>[[${bundle.L('会话列表')}]]</span></a>
+                </li>
+                <li>
+                  <a th:href="@{/aibot/chat}" target="_blank" rel="noreferrer"><i class="icon mdi mdi-message-plus-outline"></i><span>[[${bundle.L('新会话')}]]</span></a>
+                </li>
+                <li class="divider">[[${bundle.L('智能应用')}]]</li>
+                <li th:class="${active == 'aibot-agents'} ? 'active'">
+                  <a th:href="@{/admin/aibot2/agents}"><i class="icon mdi mdi-robot-outline"></i><span>[[${bundle.L('智能体')}]]</span></a>
+                </li>
+                <li th:class="${active == 'aibot-minapps'} ? 'active'">
+                  <a th:href="@{/admin/aibot2/minapps}"><i class="icon mdi mdi-apps-box"></i><span>[[${bundle.L('微应用')}]]</span></a>
+                </li>
+                <li class="divider">[[${bundle.L('模型与能力')}]]</li>
+                <li th:class="${active == 'aibot-models'} ? 'active'">
+                  <a th:href="@{/admin/aibot2/models}"><i class="icon mdi mdi-chip"></i><span>[[${bundle.L('模型')}]]</span></a>
+                </li>
+                <li th:class="${active == 'aibot-kb'} ? 'active'">
+                  <a th:href="@{/admin/aibot2/kb}"><i class="icon mdi mdi-book-search-outline"></i><span>[[${bundle.L('知识库')}]]</span></a>
+                </li>
+                <li th:class="${active == 'aibot-skills'} ? 'active'">
+                  <a th:href="@{/admin/aibot2/skills}"><i class="icon mdi mdi-flash-outline"></i><span>[[${bundle.L('技能')}]]</span></a>
+                </li>
+                <li th:class="${active == 'aibot-tools'} ? 'active'">
+                  <a th:href="@{/admin/aibot2/tools}"><i class="icon mdi mdi-wrench-outline"></i><span>[[${bundle.L('工具')}]]</span></a>
+                </li>
+              </th:block>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

@@ -195,6 +195,10 @@ public class AiBot2Controller extends BaseController {
             }
         }
 
+        if (agent != null && StringUtils.isNotBlank(agent.getModelConfigError())) {
+            return agent.getModelConfigError();
+        }
+
         if (useDefault) {
             if (Config.defaultAgentAvailable()) return null;
             if (Config.availableAiBot()) {

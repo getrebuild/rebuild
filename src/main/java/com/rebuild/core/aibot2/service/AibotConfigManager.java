@@ -124,6 +124,36 @@ public class AibotConfigManager implements ConfigManager {
     }
 
     /**
+     * 获取默认模型配置（已启用且标记 isDefault）
+     *
+     * @return
+     */
+    public ConfigBean getDefaultModelConfig() {
+        for (ConfigBean cb : getConfig(TYPE_MODEL)) {
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+            JSONObject config = (JSONObject) cb.getJSON("config");
+            if (config != null && config.getBooleanValue("isDefault")) return cb;
+        }
+        return null;
+    }
+
+    /**
+     * 是否使用旧版模型接入（智能体自带地址/密钥或模型）
+     * <p>温度/核采样/思考强度等行为参数不属于模型接入，不影响默认模型配置的回落</p>
+     *
+     * @param conf
+     * @return
+     */
+    public static boolean hasLegacyModelConfig(JSONObject conf) {
+        if (conf == null) return false;
+        return StringUtils.isNotBlank(conf.getString("AibotDSUrl"))
+                || StringUtils.isNotBlank(conf.getString("AibotDSSecret"))
+                || StringUtils.isNotBlank(conf.getString("AibotBaseDefModel"))
+                || StringUtils.isNotBlank(conf.getString("AibotVisionModel"))
+                || StringUtils.isNotBlank(conf.getString("AibotAsrModel"));
+    }
+
+    /**
      * 获取绑定的代理用户（未绑定或无效返回 null）
      *
      * @param cfgid

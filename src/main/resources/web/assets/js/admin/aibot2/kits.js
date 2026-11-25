@@ -7,9 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global autosize, ShowEnable */
 
 $(document).ready(() => {
-  SkillList.load()
-  KbList.load()
-  ToolList.load()
+  if ($('#skillsList').length) SkillList.load()
+  if ($('#kbList').length) KbList.load()
+  if ($('#toolsList').length) ToolList.load()
   $('.J_addSkill').on('click', (e) => {
     $stopEvent(e, true)
     _editSkill()
@@ -37,7 +37,7 @@ $(document).ready(() => {
       }
       $.post('/app/entity/common-save', JSON.stringify(data), (saveRes) => {
         if (saveRes.error_code === 0) {
-          $.post(`./aibot/kb-build?id=${saveRes.data.id}`)
+          $.post(`/admin/integration/aibot/kb-build?id=${saveRes.data.id}`)
           $setTimeout(() => KbList.load(), 2000, 'KbList.load')
         } else {
           RbHighbar.error(saveRes.error_msg)
@@ -54,10 +54,10 @@ $(document).ready(() => {
       confirmText: $L('重建'),
       confirm: function () {
         this.hide()
-        $.get('./aibot/kb-list', (res) => {
+        $.get('/admin/integration/aibot/kb-list', (res) => {
           const data = res.data || []
           data.forEach((item) => {
-            $.post(`./aibot/kb-build?id=${item.id}`)
+            $.post(`/admin/integration/aibot/kb-build?id=${item.id}`)
           })
 
           $setTimeout(() => KbList.load(), 3000, 'KbList.load')
@@ -65,54 +65,84 @@ $(document).ready(() => {
       },
     })
   })
-
-  _renderMcpConfig()
 })
 
 // ~~ Knowledge
 
+// 列表图标（与侧栏导航一致）
+const KitIconBook = () => (
+  <span className="kit-tile">
+    <i className="mdi mdi-book-search-outline fs-18" />
+  </span>
+)
+
+const KitIconSkill = () => (
+  <span className="kit-tile">
+    <i className="mdi mdi-flash-outline fs-18" />
+  </span>
+)
+
+const KitIconTool = () => (
+  <span className="kit-tile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+      <path d="M14.5 6.5a4 4 0 0 0-5.4 5.4L3 18l3 3 6.1-6.1a4 4 0 0 0 5.4-5.4l-2.4 2.4-2.6-2.6z" />
+    </svg>
+  </span>
+)
+
 class KbList extends React.Component {
   static load() {
-    $.get('./aibot/kb-list', (res) => {
+    const $body = $('#kbList').closest('.aibot-kb-body')
+    $.get('/admin/integration/aibot/kb-list', (res) => {
       const data = res.data || []
-      $('.J_kbEmpty').toggle(data.length === 0)
+      $body.children('.list-nodata').toggleClass('hide', data.length > 0)
       renderRbcomp(<KbList data={data} />, 'kbList')
 
       // 有构建中的知识库时自动刷新
       if (data.some((item) => item.chunkCount === -1)) {
         $setTimeout(() => KbList.load(), 5000, 'KbList.load')
       }
+    }).always(() => {
+      $body.children('.spinner').addClass('hide')
     })
   }
 
   render() {
     return this.props.data.map((item) => {
       // -1 构建中，0 构建失败，>0 分片数
-      let chunkBadge
-      if (item.chunkCount > 0)
-        chunkBadge = (
-          <span className="badge badge-light ml-1" title={$L('索引')}>
-            {item.chunkCount}
-          </span>
-        )
-      else if (item.chunkCount === -1) chunkBadge = <span className="badge badge-warning ml-1">{$L('构建中')}</span>
-      else chunkBadge = <span className="badge badge-danger ml-1">{$L('构建失败')}</span>
+      let chunk
+      if (item.chunkCount > 0) chunk = item.chunkCount
+      else if (item.chunkCount === -1) chunk = <span className="badge badge-warning">{$L('构建中')}</span>
+      else chunk = <span className="badge badge-danger">{$L('构建失败')}</span>
+
+      let source = <NoValue />
+      if (item.sourceType === 'FILE') source = $L('文件')
+      else if (item.sourceType === 'TEXT') source = $L('文本')
 
       return (
         <tr key={item.id}>
           <td>
-            {item.name} {chunkBadge}
+            <div className="kit-cell">
+              <KitIconBook />
+              <div className="kit-text">
+                <div className="kit-name">{item.name}</div>
+                <div className="kit-sub text-muted" title={item.description || null}>
+                  {item.description || $L('暂无描述')}
+                </div>
+              </div>
+            </div>
           </td>
-          <td>{item.description || <NoValue />}</td>
-          <td className="actions pr-1">
-            <a title={$L('修改')} className="icon" onClick={() => _editKb(item)}>
+          <td className="text-muted">{source}</td>
+          <td>{chunk}</td>
+          <td className="actions kit-actions">
+            {ShowEnable(item.isDisabled, item.id)}
+            <a title={$L('编辑')} className="icon" onClick={() => _editKb(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
             <a title={$L('删除')} className="icon danger-hover" onClick={() => _deleteKb(item)}>
               <i className="zmdi zmdi-delete" />
             </a>
           </td>
-          <td className="actions">{ShowEnable(item.isDisabled, item.id)}</td>
         </tr>
       )
     })
@@ -129,7 +159,7 @@ const _getKbFile = function (item) {
 }
 
 const _editKb = function (item) {
-  renderRbcomp(<DlgKbEdit item={item} title={item ? $L('修改知识库') : $L('添加知识库')} />)
+  renderRbcomp(<DlgKbEdit item={item} title={item ? $L('编辑知识库') : $L('添加知识库')} />)
 }
 
 const _deleteKb = function (item) {
@@ -300,7 +330,7 @@ class DlgKbEdit extends RbModalHandler {
 
         // 内容未变化无需重新构建
         if (needBuild) {
-          $.post(`./aibot/kb-build?id=${newId}`, next)
+          $.post(`/admin/integration/aibot/kb-build?id=${newId}`, next)
         } else {
           next()
         }
@@ -316,10 +346,13 @@ class DlgKbEdit extends RbModalHandler {
 
 class SkillList extends React.Component {
   static load() {
-    $.get('./aibot/skill-list', (res) => {
+    const $body = $('#skillsList').closest('.aibot-skills-body')
+    $.get('/admin/integration/aibot/skill-list', (res) => {
       const data = res.data || []
-      $('.J_skillsEmpty').toggle(data.length === 0)
+      $body.children('.list-nodata').toggleClass('hide', data.length > 0)
       renderRbcomp(<SkillList data={data} />, 'skillsList')
+    }).always(() => {
+      $body.children('.spinner').addClass('hide')
     })
   }
 
@@ -328,17 +361,35 @@ class SkillList extends React.Component {
       const cfg = item.config || {}
       return (
         <tr key={item.id}>
-          <td>{item.name}</td>
-          <td>{cfg.description || <NoValue />}</td>
-          <td className="actions pr-1">
-            <a title={$L('修改')} className="icon" onClick={() => _editSkill(item)}>
+          <td>
+            <div className="kit-cell">
+              <KitIconSkill />
+              <div className="kit-text">
+                <div className="kit-name">{item.name}</div>
+                <div className="kit-sub text-muted" title={cfg.description || null}>
+                  {cfg.description || $L('暂无描述')}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td className="text-muted">
+            {cfg.prompt ? (
+              <span className="kit-prompt" title={cfg.prompt}>
+                {cfg.prompt}
+              </span>
+            ) : (
+              <NoValue />
+            )}
+          </td>
+          <td className="actions kit-actions">
+            {ShowEnable(item.isDisabled, item.id)}
+            <a title={$L('编辑')} className="icon" onClick={() => _editSkill(item)}>
               <i className="zmdi zmdi-edit" />
             </a>
             <a title={$L('删除')} className="icon danger-hover" onClick={() => _deleteSkill(item)}>
               <i className="zmdi zmdi-delete" />
             </a>
           </td>
-          <td className="actions">{ShowEnable(item.isDisabled, item.id)}</td>
         </tr>
       )
     })
@@ -346,7 +397,7 @@ class SkillList extends React.Component {
 }
 
 const _editSkill = function (item) {
-  renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('修改技能') : $L('添加技能')} />)
+  renderRbcomp(<DlgSkillEdit item={item} title={item ? $L('编辑技能') : $L('添加技能')} />)
 }
 
 const _deleteSkill = function (item) {
@@ -539,7 +590,7 @@ class DlgSkillEdit extends RbModalHandler {
     }
 
     const $btn = $(this._$importBtn).button('loading')
-    $.post(`./aibot/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
+    $.post(`/admin/integration/aibot/import-skills?names=${encodeURIComponent(selected.join(','))}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('成功导入 %d 个技能', selected.length))
@@ -593,21 +644,22 @@ class DlgSkillEdit extends RbModalHandler {
 let _toolsData = []
 class ToolList extends React.Component {
   static load() {
-    $.get('./aibot/tool-list', (res) => {
+    const $body = $('#toolsList').closest('.aibot-tools-body')
+    $.get('/admin/integration/aibot/tool-list', (res) => {
       _toolsData = res.data || []
+      $body.children('.list-nodata').toggleClass('hide', _toolsData.length > 0)
       renderRbcomp(<ToolList data={_toolsData} />, 'toolsList')
+    }).always(() => {
+      $body.children('.spinner').addClass('hide')
     })
   }
 
   render() {
     return this.props.data.map((item) => {
-      let desc = item.userDescription || item.description
-      const sysTool = desc && desc.includes('[系统工具]')
-      if (desc) {
-        desc = desc.replace('[系统工具]', `<span class="badge badge-dark">${$L('系统工具')}</span>`)
-        desc = desc.replace('[商业工具]', `<sup class="rbv" title="${$L('商业工具')}"></sup>`)
-        desc = WrapHtml(desc)
-      }
+      let desc = item.userDescription || item.description || ''
+      const sysTool = desc.includes('[系统工具]')
+      const commercialTool = desc.includes('[商业工具]')
+      desc = desc.replace(/\s*\[(系统工具|商业工具)]/g, '').trim()
 
       const _saveFn = (checked, e) => {
         if (rb.commercial < 1) {
@@ -637,9 +689,23 @@ class ToolList extends React.Component {
 
       return (
         <tr key={item.name}>
-          <td>{item.name}</td>
-          <td>{desc || <NoValue />}</td>
-          <td className="actions">{sysTool ? null : ShowEnable(item.disabled, item.name, _saveFn)}</td>
+          <td>
+            <div className="kit-cell">
+              <KitIconTool />
+              <div className="kit-text">
+                <div className="kit-name">{item.name}</div>
+                <div className="kit-sub text-muted" title={desc || null}>
+                  {desc || $L('暂无说明')}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            {sysTool && <span className="badge badge-secondary">{$L('系统')}</span>}
+            {commercialTool && <span className="badge badge-info ml-1">{$L('商业')}</span>}
+            {!sysTool && !commercialTool && <NoValue />}
+          </td>
+          <td>{sysTool ? <span className="badge badge-secondary">{$L('内置')}</span> : ShowEnable(item.disabled, item.name, _saveFn)}</td>
         </tr>
       )
     })
@@ -650,31 +716,8 @@ class ToolList extends React.Component {
     if (item) item.disabled = !checked
 
     const disabled = _toolsData.filter((x) => x.disabled).map((x) => x.name)
-    $.post('./aibot', JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
+    $.post('/admin/integration/aibot', JSON.stringify({ AibotToolsDisabled: disabled.join(',') }), (res) => {
       if (res.error_code !== 0) RbHighbar.error(res.error_msg)
     })
   }
-}
-
-// ~~ MCP
-
-const _renderMcpConfig = function () {
-  const $mcp = $('.J_mcpConfig')
-  const code = {
-    mcpServers: {
-      rebuild: {
-        url: $mcp.data('url') || '',
-        headers: {
-          Authorization: 'Bearer',
-        },
-        disabled: false,
-      },
-    },
-  }
-
-  renderRbcomp(<CodeViewport code={code} type="json" />, $mcp[0], function () {
-    const $pre = $mcp.find('pre')
-    const $a = $('<a>', { href: '../../settings/user#secure', target: '_blank', text: `<${$L('个人秘钥')}>` })
-    $pre.html($pre.html().replace('Bearer', 'Bearer ' + $a[0].outerHTML))
-  })
 }

@@ -524,7 +524,7 @@ public class NavBuilder extends NavManager {
 
         } else if (navName.startsWith(NAV_MINAPP)) {
             navName = "nav_minapp--add";
-            navUrl = AppUtils.getContextPath("/admin/integration/aibot-minapps");
+            navUrl = AppUtils.getContextPath("/admin/aibot2/minapps");
 
         } else if (NAV_DIVIDER.equals(navName)) {
             navUrl = NAV_DIVIDER;

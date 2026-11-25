@@ -123,6 +123,13 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 request.setAttribute("_AllowUseAiBot",
                         !License.isCommercial() || Config.getAvailableAiBot(re.getRequestUser()) != null);
             }
+            // v4.6 全新界面风格
+            String defaultTheme = RebuildConfiguration.get(ConfigurationItem.DefaultTheme);
+            boolean useRex46Light = "rex46-light".equals(defaultTheme);
+            boolean useRex46 = "rex46".equals(defaultTheme) || useRex46Light;
+            if (!useRex46 && (re.getRequestUri().contains("/admin"))) useRex46 = true;
+            request.setAttribute("UseRex46Style", useRex46);
+            request.setAttribute("UseRex46LightStyle", useRex46Light);
         }
 
         final String requestUri = re.getRequestUri();

@@ -15524,6 +15524,19 @@ pre code {
   outline: 0;
 }
 
+.btn-glass {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.btn-glass:hover,
+.btn-glass:focus {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
 .btn-light,
 .btn-secondary {
   color: #222222;

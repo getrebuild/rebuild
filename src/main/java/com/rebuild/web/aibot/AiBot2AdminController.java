@@ -26,19 +26,18 @@ import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.aibot2.service.AibotConfigService;
 import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
-import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.rbstore.RBStore;
 import com.rebuild.core.rbstore.SkillImporter;
 import com.rebuild.core.support.CommonsLog;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataDesensitized;
-import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -47,11 +46,9 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
 import com.rebuild.web.admin.ConfigurationController;
-import com.rebuild.web.commons.RbvMissingController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,8 +56,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -125,6 +120,7 @@ public class AiBot2AdminController extends BaseController {
                 mv.getModel().put(name, value);
             }
         }
+        mv.getModel().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
         return mv;
     }
 
@@ -150,22 +146,19 @@ public class AiBot2AdminController extends BaseController {
         if (agent != null) chatQuery.setParameter(2, agent);
         Object[][] chatRows = chatQuery.array();
 
-        // 按日（词元/会话数/使用人数）与按用户聚合
+        // 按日（词元/会话数/使用人数）聚合
         Map<String, Long> tokensByDay = new TreeMap<>();
         Map<String, Integer> chatsByDay = new TreeMap<>();
         Map<String, Set<ID>> usersByDay = new TreeMap<>();
-        Map<ID, Long> tokenMap = new HashMap<>();
         Set<ID> realUsers = new HashSet<>();
         long tokenTotal = 0;
         int realChats = 0;
 
         for (Object[] o : tokenRows) {
             String day = CalendarUtils.format("yyyy-MM-dd", (Date) o[0]);
-            ID user = (ID) o[1];
             long token = o[2] == null ? 0L : ((Number) o[2]).longValue();
 
             tokensByDay.merge(day, token, Long::sum);
-            tokenMap.merge(user, token, Long::sum);
             tokenTotal += token;
         }
 
@@ -196,20 +189,9 @@ public class AiBot2AdminController extends BaseController {
             aibotDailyUsers.add(new Object[]{e.getKey(), e.getValue().size()});
         }
 
-        List<Object[]> usersList = new ArrayList<>();
-        for (User u : Application.getUserStore().getAllUsers()) {
-            if (!u.isActive()) continue;
-            if (UserHelper.isSystemUser(u.getId())) continue;
-
-            long tokenSum = tokenMap.getOrDefault(u.getId(), 0L);
-            usersList.add(new Object[]{u.getId().toString(), u.getFullName(),
-                    ObjectUtils.round(tokenSum / 10000d, 1)});
-        }
-        usersList.sort((a, b) -> Double.compare((Double) b[2], (Double) a[2]));
-
         JSONObject stats = JSONUtils.toJSONObject(
-                new String[]{"aibot", "aibotCount", "aibotUsers"},
-                new Object[]{aibot.toArray(), ObjectUtils.round(tokenTotal / 10000d, 1), usersList.toArray()});
+                new String[]{"aibot", "aibotCount"},
+                new Object[]{aibot.toArray(), ObjectUtils.round(tokenTotal / 10000d, 1)});
         stats.put("aibotDailyChats", aibotDailyChats.toArray());
         stats.put("aibotDailyUsers", aibotDailyUsers.toArray());
         stats.put("chats", realChats);
@@ -221,6 +203,26 @@ public class AiBot2AdminController extends BaseController {
     public RespBody modelList(@RequestBody JSONObject data) {
         String baseUrl = data.getString("baseUrl");
         String apiKey = data.getString("apiKey");
+
+        // 前端不回传密钥，按模型配置 ID 在服务端读取。
+        // 仅当地址与已存配置一致时才回填密钥，避免把密钥发往调用方指定的其它地址
+        if (StringUtils.isBlank(apiKey) && ID.isId(data.getString("id"))) {
+            Object[] stored = Application.createQueryNoFilter(
+                            "select config from AibotConfig where configId = ? and type = ?")
+                    .setParameter(1, ID.valueOf(data.getString("id")))
+                    .setParameter(2, AibotConfigManager.TYPE_MODEL)
+                    .unique();
+            JSONObject storedConf = stored == null ? null : (JSONObject) JSONUtils.parseSafe((String) stored[0]);
+            String storedUrl = storedConf == null ? null : storedConf.getString("AibotDSUrl");
+            if (storedConf != null) {
+                if (StringUtils.isBlank(baseUrl) || StringUtils.equals(baseUrl, storedUrl)) {
+                    baseUrl = storedUrl;
+                    apiKey = storedConf.getString("AibotDSSecret");
+                } else {
+                    return RespBody.error(Language.L("修改服务地址后请重新填写秘钥"));
+                }
+            }
+        }
 
         OpenAIClient client;
         if (StringUtils.isNotBlank(baseUrl) || StringUtils.isNotBlank(apiKey)) {
@@ -256,10 +258,24 @@ public class AiBot2AdminController extends BaseController {
 
     // -- KITS
 
-    @GetMapping("aibot-kits")
-    public ModelAndView pageIntegrationAibotKits() {
-        ModelAndView mv = createModelAndView("/admin/integration/aibot-kits");
-        mv.getModel().put("_McpServerUrl", RebuildConfiguration.getHomeUrl("/gw/mcp/sse"));
+    @GetMapping("aibot-kb")
+    public ModelAndView pageIntegrationAibotKb() {
+        ModelAndView mv = createModelAndView("/admin/aibot2/kb");
+        mv.getModel().put("navLeftAdmin", true);
+        return mv;
+    }
+
+    @GetMapping("aibot-skills")
+    public ModelAndView pageIntegrationAibotSkills() {
+        ModelAndView mv = createModelAndView("/admin/aibot2/skills");
+        mv.getModel().put("navLeftAdmin", true);
+        return mv;
+    }
+
+    @GetMapping("aibot-tools")
+    public ModelAndView pageIntegrationAibotTools() {
+        ModelAndView mv = createModelAndView("/admin/aibot2/tools");
+        mv.getModel().put("navLeftAdmin", true);
         return mv;
     }
 
@@ -357,14 +373,6 @@ public class AiBot2AdminController extends BaseController {
 
     // - Agent
 
-    @GetMapping("aibot-agents")
-    public ModelAndView pageIntegrationAibotAgents() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("智能体"));
-        }
-        return createModelAndView("/admin/integration/aibot-agents");
-    }
-
     @GetMapping("aibot/agent-list")
     public RespBody agentList() {
         Object[][] array = Application.createQueryNoFilter(
@@ -404,52 +412,7 @@ public class AiBot2AdminController extends BaseController {
         return RespBody.ok(list);
     }
 
-    @GetMapping("aibot-agent/{agentId}")
-    public ModelAndView pageAibotAgent(@PathVariable String agentId, HttpServletResponse response) throws IOException {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("智能体"));
-        }
-
-        ID agentId2 = ID.isId(agentId) ? ID.valueOf(agentId) : null;
-        if (agentId2 == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        Object[] agent = Application.createQueryNoFilter(
-                        "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'AGENT'")
-                .setParameter(1, agentId2)
-                .unique();
-        if (agent == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        ModelAndView mv = createModelAndView("/admin/integration/aibot-agent-editor");
-        mv.getModelMap().put("agentDisplayName",
-                StringUtils.defaultIfBlank((String) agent[0], RebuildConfiguration.get(ConfigurationItem.AibotName)));
-        mv.getModelMap().put("agentId", agentId2);
-        mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("/aibot/pub/" + agentId2));
-        mv.getModelMap().put("agentName", StringUtils.trimToEmpty((String) agent[0]));
-        JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) agent[1]);
-        mv.getModelMap().put("agentConfig", conf == null ? null : conf.toJSONString().replace("<", "\\u003C"));
-        mv.getModelMap().put("agentShareTo", StringUtils.defaultIfBlank((String) agent[3], ShareToManager.SHARE_ALL));
-
-        long[] usage = AgentQuota.usage(agentId2);
-        mv.getModelMap().put("usageToday", ObjectUtils.round(usage[0] / 10000d, 2));
-        mv.getModelMap().put("usageMonth", ObjectUtils.round(usage[1] / 10000d, 2));
-        return mv;
-    }
-
     // - MinApp
-
-    @GetMapping("aibot-minapps")
-    public ModelAndView pageIntegrationAibotMinApps() {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("微应用"));
-        }
-        return createModelAndView("/admin/integration/aibot-minapps");
-    }
 
     @GetMapping("aibot/minapp-list")
     public RespBody minappList() {
@@ -557,41 +520,6 @@ public class AiBot2AdminController extends BaseController {
         return RespBody.ok();
     }
 
-    @GetMapping("aibot-minapp/{minappId}")
-    public ModelAndView pageAibotMinApp(@PathVariable String minappId, HttpServletResponse response) throws IOException {
-        if (!License.isCommercial()) {
-            return RbvMissingController.errorUnsupported(Language.L("微应用"));
-        }
-
-        ID minappId2 = ID.isId(minappId) ? ID.valueOf(minappId) : null;
-        if (minappId2 == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        Object[] minapp = Application.createQueryNoFilter(
-                        "select name,config,isDisabled,shareTo from AibotConfig where configId = ? and type = 'MINAPP'")
-                .setParameter(1, minappId2)
-                .unique();
-        if (minapp == null) {
-            response.sendError(404);
-            return null;
-        }
-
-        JSONObject conf = (JSONObject) JSONUtils.parseSafe((String) minapp[1]);
-        if (conf == null) conf = new JSONObject();
-        conf.remove("html");
-
-        ModelAndView mv = createModelAndView("/admin/integration/aibot-minapp-editor");
-        mv.getModelMap().put("minappDisplayName", StringUtils.defaultString((String) minapp[0]));
-        mv.getModelMap().put("minappId", minappId2);
-        mv.getModelMap().put("minappName", StringUtils.trimToEmpty((String) minapp[0]));
-        mv.getModelMap().put("minappConfig", conf.toJSONString());
-        mv.getModelMap().put("minappShareTo", StringUtils.defaultIfBlank((String) minapp[3], ShareToManager.SHARE_ALL));
-        mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("pages/minapp/" + minappId2));
-        return mv;
-    }
-
     // -- Others
 
     @GetMapping("aibot/chat-list")
@@ -600,12 +528,14 @@ public class AiBot2AdminController extends BaseController {
 
         final ID user = getIdParameter(request, "user");
         final ID agent = getIdParameter(request, "agent");
+        final boolean defaultAgent = agent == null && "default".equals(getParameter(request, "agent"));
         final int pageNo = getIntParameter(request, "pageNo", 1);
         final int pageSize = 20;
 
         String where = CHAT_VISIBLE_WHERE;
         if (user != null) where += " and createdBy = '" + user + "'";
         if (agent != null) where += " and agentId = '" + agent + "'";
+        else if (defaultAgent) where += " and agentId is null";
         String q = StringUtils.trimToEmpty(getParameter(request, "q"));
         if (StringUtils.isNotBlank(q)) {
             where += String.format(" and subject like '%%%s%%'", CommonsUtils.escapeSql(q));
@@ -642,7 +572,7 @@ public class AiBot2AdminController extends BaseController {
             String summaryText = null;
             if (JSONUtils.wellFormat(o[5])) {
                 JSON summary = JSONUtils.parseSafe((String) o[5]);
-                if (summary instanceof JSONObject) summaryText = ((JSONObject) summary).getString("text");
+                if (summary instanceof JSONObject) summaryText = ((JSONObject) summary).getString("short");
             }
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"id", "subject", "userName", "token", "modifiedOn", "summary"},
@@ -654,7 +584,7 @@ public class AiBot2AdminController extends BaseController {
         }
 
         JSONObject res = JSONUtils.toJSONObject(
-                new String[]{"total", "data"}, new Object[]{total, data});
+                new String[]{"total", "data", "pageSize"}, new Object[]{total, data, pageSize});
         return RespBody.ok(res);
     }
 

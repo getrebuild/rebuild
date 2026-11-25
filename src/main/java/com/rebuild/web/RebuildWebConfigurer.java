@@ -158,7 +158,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
                 .excludePathPatterns("/gw/mcp/**")
                 .excludePathPatterns("/language/**")
                 .excludePathPatterns("/assets/**")
-                .excludePathPatterns("/admin/rex-ai/assets/**")
                 .excludePathPatterns("/h5app/**")
                 .excludePathPatterns("/*.txt");
     }

@@ -2161,7 +2161,7 @@ th.column-fixed::before,
 
 .main-content > .nav-tabs-classic > li.nav-item a.nav-link {
   padding: 9px 15px;
-  min-width: 120px;
+  min-width: 100px;
   max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -7056,10 +7056,6 @@ input[type='password']::-ms-clear {
   display: none;
 }
 
-.mix-color {
-  mix-blend-mode: difference;
-}
-
 .spinner {
   width: 36px;
   height: 36px;
@@ -7073,6 +7069,17 @@ input[type='password']::-ms-clear {
   to {
     transform: rotate(360deg);
   }
+}
+
+.card-body-loading > .spinner {
+  margin-top: 100px;
+  margin-bottom: 95px;
+}
+
+.card-body-loading > .list-nodata {
+  padding-top: 0;
+  margin-top: 80px;
+  margin-bottom: 72px;
 }
 
 .os-theme-rb {
@@ -7244,37 +7251,6 @@ input[type='password']::-ms-clear {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* v4.6 新配色 */
-
-body {
-  background-color: var(--rb-body-bg);
-}
-
-body .rb-left-sidebar .sidebar-elements > li ul {
-  background-color: #f5f5f5;
-}
-
-body .rb-left-sidebar .sidebar-elements > li > a:hover,
-body .rb-left-sidebar .sidebar-elements > li ul li > a:hover {
-  background-color: rgba(66, 133, 244, 0.06);
-}
-
-body .rb-left-sidebar.v2 .sidebar-elements li.active > a {
-  background-color: rgba(66, 133, 244, 0.1);
-}
-
-/* v4.6 aside-2tree */
-
-.aside-2tree ul li:hover {
-  background-color: rgba(66, 133, 244, 0.06);
-}
-
-.table-striped tbody tr:nth-of-type(odd),
-.table-striped tbody tr:nth-of-type(odd) td.column-fixed {
-  background-color: #f8fafc;
-}
-
-.table-hover tbody tr:hover,
-.table-hover tbody tr:hover td.column-fixed {
-  background-color: #f6f9fe;
+.page-head-description {
+  font-weight: normal;
 }

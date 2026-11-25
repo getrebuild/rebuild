@@ -55,7 +55,7 @@ public class AgentDefs {
         if (cb == null) throw new ConfigNotFoundException(agentId);
 
         JSONObject conf = (JSONObject) cb.getJSON("config");
-        return new AibotAgent()
+        AibotAgent agent = new AibotAgent()
                 .setAgentId(agentId)
                 .setName(StringUtils.defaultIfBlank(cb.getString("name"), RebuildConfiguration.get(AibotName)))
                 .setIcon(conf.getString("icon"))
@@ -78,6 +78,46 @@ public class AgentDefs {
                 .setAllowNewChat(Boolean.TRUE.equals(conf.getBoolean("allowNewChat")))
                 .setAllowUpload(Boolean.TRUE.equals(conf.getBoolean("allowUpload")))
                 .setAllowSkill(Boolean.TRUE.equals(conf.getBoolean("allowSkill")));
+        applyModelConfig(agent, conf);
+        return agent;
+    }
+
+    // 智能体引用模型配置或跟随默认模型时，模型相关参数全部以模型配置为准
+    private static void applyModelConfig(AibotAgent agent, JSONObject conf) {
+        String modelConfigId = conf.getString("modelConfigId");
+        boolean referenced = ID.isId(modelConfigId);
+        ConfigBean cb = referenced
+                ? AibotConfigManager.instance.getConfigById(
+                ID.valueOf(modelConfigId), AibotConfigManager.TYPE_MODEL)
+                : null;
+
+        // 指定了模型配置但已停用或删除时报错，不静默回落到默认模型
+        if (referenced && cb == null) {
+            agent.setModelConfigError(Language.L("智能体模型配置已停用或已删除"));
+            return;
+        }
+
+        // 未指定且未使用旧版模型参数时，跟随默认模型配置
+        if (cb == null && !AibotConfigManager.hasLegacyModelConfig(conf)) {
+            cb = AibotConfigManager.instance.getDefaultModelConfig();
+        }
+        if (cb == null) return;
+
+        JSONObject modelConf = (JSONObject) cb.getJSON("config");
+        if (modelConf == null) return;
+
+        // 思考强度以智能体自身设置为先，留空时跟随模型配置
+        String reasoningEffort = StringUtils.defaultIfBlank(
+                agent.getReasoningEffort(), modelConf.getString("AibotReasoningEffort"));
+
+        agent.setDsUrl(modelConf.getString("AibotDSUrl"))
+                .setDsSecret(modelConf.getString("AibotDSSecret"))
+                .setModel(modelConf.getString("AibotBaseDefModel"))
+                .setVisionModel(modelConf.getString("AibotVisionModel"))
+                .setAsrModel(modelConf.getString("AibotAsrModel"))
+                .setTemperature(modelConf.getDouble("AibotTemperature"))
+                .setTopP(modelConf.getDouble("AibotTopP"))
+                .setReasoningEffort(reasoningEffort);
     }
 
     /**

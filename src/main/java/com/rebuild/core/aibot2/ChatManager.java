@@ -48,8 +48,10 @@ public abstract class ChatManager {
     public static final String SOURCE_PUB = "PUB";
     public static final String SOURCE_SYS = "SYS:";
 
-    // 可见的会话：除 SYS: 前缀的系统调用（定时任务、内部集成等）外均为可见，含用户会话、公开访问、企微等渠道会话
-    public static final String VISIBLE_WHERE = "(source is null or source not like 'SYS:%')";
+    // 可见的会话：真实用户会话与公开访问会话，排除系统用户及 SYS: 前缀的系统调用（定时任务、内部集成等）
+    public static final String VISIBLE_WHERE = "createdBy <> '" + UserService.SYSTEM_USER + "'"
+            + " and (createdBy <> '" + UserService.AIBOT_USER + "' or source = '" + SOURCE_PUB + "')"
+            + " and (source is null or source not like '" + SOURCE_SYS + "%')";
 
     // 摘要输入上限（字符），只取最近内容避免超出模型上下文
     private static final int SUMMARY_MAX_CHARS = 12000;
@@ -202,6 +204,9 @@ public abstract class ChatManager {
         boolean newChat = chatid == null;
 
         if (newChat) {
+            String modelConfigError = getModelConfigError(params.getAgent());
+            if (modelConfigError != null) throw new AiBotException(modelConfigError);
+
             // 超限校验在会话落库前，避免超限后残留仅有主题的空会话
             String quotaExceeded = AgentQuota.check(params.getAgent());
             if (quotaExceeded != null) throw new AiBotException(quotaExceeded);
@@ -219,6 +224,9 @@ public abstract class ChatManager {
         } else {
             // 会话已绑定的智能体优先，忽略本次 agent
             chat = getChat(chatid);
+
+            String modelConfigError = getModelConfigError(chat.getAgent());
+            if (modelConfigError != null) throw new AiBotException(modelConfigError);
 
             // 已有会话在其绑定智能体上校验（新建场景已在落库前校验）
             String quotaExceeded = AgentQuota.check(chat.getAgent());
@@ -282,22 +290,30 @@ public abstract class ChatManager {
         }
     }
 
+    // 智能体引用的模型配置不可用（已停用或已删除）
+    private static String getModelConfigError(AibotAgent agent) {
+        return agent == null ? null : StringUtils.trimToNull(agent.getModelConfigError());
+    }
+
     /**
-     * 压缩会话为摘要（后台整理调用，不经聊天请求链路，不产生隐藏会话，也不计入用户配额）
+     * 压缩会话为简短概要（引用会话注入用）
      *
      * @param chatid
      * @return
      */
     public static String summarizeChat(ID chatid) {
-        return summarizeChat(chatid, false);
+        JSONObject summary = buildChatSummary(chatid, false);
+        return summary == null ? null : summary.getString("short");
     }
 
     /**
+     * 压缩会话为两版摘要（后台整理调用，不经聊天请求链路，不产生隐藏会话，也不计入用户配额）
+     *
      * @param chatid
      * @param reload 从数据库重新加载会话（后台任务用，避免使用可能过期的缓存）
-     * @return
+     * @return {"short": 简短概要, "long": 详细摘要}，生成失败返回 null
      */
-    public static String summarizeChat(ID chatid, boolean reload) {
+    public static JSONObject buildChatSummary(ID chatid, boolean reload) {
         Chat chat = reload ? new Chat(chatid) : getChat(chatid);
         final int msgCount = chat.getMessages().size();
 
@@ -309,9 +325,10 @@ public abstract class ChatManager {
                     .unique();
             if (stored != null && stored[0] != null) {
                 JSONObject summary = JSON.parseObject((String) stored[0]);
-                if (summary != null && summary.getIntValue("messages") == msgCount) {
-                    String cached = summary.getString("text");
-                    if (StringUtils.isNotBlank(cached)) return cached;
+                if (summary != null && summary.getIntValue("messages") == msgCount
+                        && StringUtils.isNotBlank(summary.getString("short"))
+                        && StringUtils.isNotBlank(summary.getString("long"))) {
+                    return summary;
                 }
             }
         }
@@ -338,12 +355,26 @@ public abstract class ChatManager {
             conversationText.delete(0, conversationText.length() - SUMMARY_MAX_CHARS);
         }
 
-        String prompt = "你是对话压缩助手，请将以下对话历史压缩为简洁摘要，保留关键信息和上下文要点";
+        String prompt = "你是对话压缩助手，请将以下对话历史压缩为两段摘要，保留关键信息和上下文要点。"
+                + "<short> 标签内输出简短概要（100 字以内），<long> 标签内输出详细摘要（500 字以内），"
+                + "除这两个标签外不要输出任何内容";
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, chat.getAgent())
                 .addUserMessage(conversationText.toString());
 
         ChatCompletion resp = ChatExecutor.createChat(builder.build(), null, chat.getAgent());
         if (resp.choices() == null || resp.choices().isEmpty()) return null;
-        return StringUtils.trimToNull(resp.choices().get(0).message().content().orElse(null));
+
+        String content = resp.choices().get(0).message().content().orElse(null);
+        String shortText = StringUtils.trimToNull(StringUtils.substringBetween(content, "<short>", "</short>"));
+        String longText = StringUtils.trimToNull(StringUtils.substringBetween(content, "<long>", "</long>"));
+        if (shortText == null || longText == null) {
+            log.warn("Chat summary output missing tags : {}", chatid);
+            return null;
+        }
+
+        JSONObject summary = new JSONObject(true);
+        summary.put("short", shortText);
+        summary.put("long", longText);
+        return summary;
     }
 }
