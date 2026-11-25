@@ -59,8 +59,30 @@ public class AibotConfigService extends BaseConfigurationService {
     public Record update(Record record) {
         checkTypeGuard(record.getString("type"));
         checkPublishBindUser(record);
+        record = keepStoredSecret(record);
         checkApiConnectivity(record);
         return super.update(record);
+    }
+
+    // 模型密钥不再下发浏览器，保存时未携带则沿用已存储的密钥
+    private Record keepStoredSecret(Record record) {
+        if (record.getPrimary() == null) return record;
+
+        JSONObject conf = (JSONObject) JSONUtils.parseSafe(record.getString("config"));
+        if (conf == null || StringUtils.isNotBlank(conf.getString("AibotDSSecret"))) return record;
+
+        Object type = record.getString("type");
+        if (type == null) type = QueryHelper.queryFieldValue(record.getPrimary(), "type");
+        if (!AibotConfigManager.TYPE_MODEL.equals(String.valueOf(type))) return record;
+
+        Object stored = QueryHelper.queryFieldValue(record.getPrimary(), "config");
+        JSONObject storedConf = stored == null ? null : (JSONObject) JSONUtils.parseSafe(stored.toString());
+        String secret = storedConf == null ? null : storedConf.getString("AibotDSSecret");
+        if (StringUtils.isBlank(secret)) return record;
+
+        conf.put("AibotDSSecret", secret);
+        record.setString("config", conf.toJSONString());
+        return record;
     }
 
     // AGENT 的 API 配置（地址、秘钥、模型）有变更时测试连通性
@@ -148,6 +170,10 @@ public class AibotConfigService extends BaseConfigurationService {
         String bindUser = conf.getString("bindUser");
         if (!ID.isId(bindUser) || !UserHelper.isActive(ID.valueOf(bindUser))) {
             throw new DataSpecificationException(Language.L("公开访问必须绑定有效用户"));
+        }
+        // 公开访问会以绑定用户身份调用接口与工具，管理员绑定等同于对外放开管理权限
+        if (UserHelper.isAdmin(ID.valueOf(bindUser))) {
+            throw new DataSpecificationException(Language.L("公开访问绑定的用户不能是管理员，请改用专用账号"));
         }
     }
 

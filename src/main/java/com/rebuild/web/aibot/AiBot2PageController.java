@@ -51,24 +51,20 @@ public class AiBot2PageController extends BaseController {
         return createModelAndView("/admin/aibot2/chats");
     }
 
+    // 知识库、技能、工具为免费版功能，与概览入口及老管理页保持一致
+
     @GetMapping("kb")
     public ModelAndView pageKb() {
-        ModelAndView free = checkFree();
-        if (free != null) return free;
         return createModelAndView("/admin/aibot2/kb");
     }
 
     @GetMapping("skills")
     public ModelAndView pageSkills() {
-        ModelAndView free = checkFree();
-        if (free != null) return free;
         return createModelAndView("/admin/aibot2/skills");
     }
 
     @GetMapping("tools")
     public ModelAndView pageTools() {
-        ModelAndView free = checkFree();
-        if (free != null) return free;
         return createModelAndView("/admin/aibot2/tools");
     }
 
@@ -162,14 +158,14 @@ public class AiBot2PageController extends BaseController {
         mv.getModelMap().put("minappDisplayName", StringUtils.defaultString((String) minapp[0]));
         mv.getModelMap().put("minappId", minappId2);
         mv.getModelMap().put("minappName", StringUtils.trimToEmpty((String) minapp[0]));
-        mv.getModelMap().put("minappConfig", conf.toJSONString());
+        mv.getModelMap().put("minappConfig", conf.toJSONString().replace("<", "\\u003C"));
         mv.getModelMap().put("minappShareTo", StringUtils.defaultIfBlank((String) minapp[3], ShareToManager.SHARE_ALL));
         mv.getModelMap().put("pubUrl", RebuildConfiguration.getHomeUrl("pages/minapp/" + minappId2));
         return mv;
     }
 
     /**
-     * 免费版不支持 Rex AI 工作台（概览除外）
+     * 免费版不支持 Rex AI 工作台（概览、知识库、技能、工具除外）
      */
     private ModelAndView checkFree() {
         return License.isCommercial()

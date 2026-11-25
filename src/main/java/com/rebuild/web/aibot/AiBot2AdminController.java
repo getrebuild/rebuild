@@ -26,6 +26,7 @@ import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.SkillDefs;
 import com.rebuild.core.aibot2.knowledge.KnowledgeBuilder;
+import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.aibot2.service.AibotConfigService;
 import com.rebuild.core.aibot2.tool.ToolDefs;
 import com.rebuild.core.configuration.general.ShareToManager;
@@ -202,6 +203,26 @@ public class AiBot2AdminController extends BaseController {
     public RespBody modelList(@RequestBody JSONObject data) {
         String baseUrl = data.getString("baseUrl");
         String apiKey = data.getString("apiKey");
+
+        // 前端不回传密钥，按模型配置 ID 在服务端读取。
+        // 仅当地址与已存配置一致时才回填密钥，避免把密钥发往调用方指定的其它地址
+        if (StringUtils.isBlank(apiKey) && ID.isId(data.getString("id"))) {
+            Object[] stored = Application.createQueryNoFilter(
+                            "select config from AibotConfig where configId = ? and type = ?")
+                    .setParameter(1, ID.valueOf(data.getString("id")))
+                    .setParameter(2, AibotConfigManager.TYPE_MODEL)
+                    .unique();
+            JSONObject storedConf = stored == null ? null : (JSONObject) JSONUtils.parseSafe((String) stored[0]);
+            String storedUrl = storedConf == null ? null : storedConf.getString("AibotDSUrl");
+            if (storedConf != null) {
+                if (StringUtils.isBlank(baseUrl) || StringUtils.equals(baseUrl, storedUrl)) {
+                    baseUrl = storedUrl;
+                    apiKey = storedConf.getString("AibotDSSecret");
+                } else {
+                    return RespBody.error(Language.L("修改服务地址后请重新填写秘钥"));
+                }
+            }
+        }
 
         OpenAIClient client;
         if (StringUtils.isNotBlank(baseUrl) || StringUtils.isNotBlank(apiKey)) {

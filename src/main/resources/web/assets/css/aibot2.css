@@ -83,10 +83,6 @@ td[data-id='AibotSuggestQuestions'] {
   min-height: 72px;
 }
 
-td .badge {
-  transform: translateY(-1px);
-}
-
 .init-models {
   margin-left: -10px;
   margin-right: -10px;

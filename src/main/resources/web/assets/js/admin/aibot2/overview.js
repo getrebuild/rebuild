@@ -37,7 +37,7 @@ const ChatRows = ({ rows }) => {
         <a
           className="d-inline-block text-truncate align-bottom"
           style={{ maxWidth: 280 }}
-          href={`${rb.baseUrl}/aibot/chat?frame=1#chatid=${row.id}`}
+          href={`${rb.baseUrl}/aibot/chat#chatid=${row.id}`}
           target="_blank"
           rel="noreferrer"
           title={row.subject}
