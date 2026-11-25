@@ -255,7 +255,6 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory impleme
                 extraAttrs.put("_cascadingFieldChild", fs[2] + SPLITER + fs[3]);
                 fieldElement.addAttribute("extra-attrs", extraAttrs.toJSONString());
             }
-            // FIXME v35 多个子级（使用 ; 分割）
         }
 
         if (log.isDebugEnabled()) XmlHelper.dump(rootElement);
@@ -269,6 +268,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory impleme
             if (DynamicMetadataContextHolder.isSkipRefentityCheck(false)) {
                 return new GhostEntity(name);
             } else {
+                log.error("Failed to find entity : {}", name);
                 throw noexist;
             }
         }
