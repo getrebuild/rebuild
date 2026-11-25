@@ -1070,6 +1070,12 @@ public class AdvFilterParser extends SetUser {
             }
         }
 
+        // fix:4.5.6 日期值
+        if (useValue instanceof String &&
+                (queryField.getType() == FieldType.DATE || queryField.getType() == FieldType.DATETIME || queryField.getType() == FieldType.TIMESTAMP)) {
+            useValue = CommonsUtils.parseDate((String) useValue);
+        }
+
         if (useValue instanceof Date) {
             // fix:4.4.11 非 yyyy-MM-dd 则使用传入的值（含时分秒）
             if (queryField.getType() == FieldType.TIMESTAMP && (value.length() > 10 || isCurrent)) {
