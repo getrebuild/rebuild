@@ -90,6 +90,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   appearance: none;
 }
 
+#config-side .form > .form-group > label.custom-control {
+  display: block;
+  width: -webkit-fit-content;
+  width: fit-content;
+}
+
 #config-side .footer .btn + .btn {
   margin-left: 10px;
 }

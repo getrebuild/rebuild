@@ -772,6 +772,12 @@ html:not(.theme-dark2) body .user-selector .dropdown-menu {
   overflow: hidden;
 }
 
+/* 已选用户标签与“选择”按钮（.abtn）等高（基础样式为 24px 与 26px） */
+html:not(.theme-dark2) body .user-selector .select2-selection__choice:not(.abtn) {
+  height: 26px;
+  padding: 4px 6px;
+}
+
 /* UserSelector 已选标签的移除按钮 */
 html:not(.theme-dark2) body .user-selector .select2-selection__choice__remove {
   color: #93a9c9;
