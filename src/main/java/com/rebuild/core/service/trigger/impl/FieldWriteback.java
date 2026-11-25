@@ -693,8 +693,8 @@ public class FieldWriteback extends FieldAggregation {
 
         } else if (dt == DisplayType.MULTISELECT || dt == DisplayType.STATE) {
 
-            if (value instanceof Integer || value instanceof Long) {
-                newValue = value;
+            if (value instanceof Number) { // fix:4.5.6
+                newValue = ((Number) value).longValue();
             }
 
         } else {
