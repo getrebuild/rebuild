@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Rex Light 登录页底图 - 网格与 Rex 标记">
+  <defs>
+    <linearGradient id="dBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#f7f9fd"/>
+      <stop offset="1" stop-color="#e9f0fc"/>
+    </linearGradient>
+    <radialGradient id="dHorizon" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#2f6bff" stop-opacity="0.14"/>
+      <stop offset="0.5" stop-color="#2f6bff" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#2f6bff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="dCyan" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6fd6ff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#6fd6ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="dBlue" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#2f6bff" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#2f6bff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dGrid" x1="0" y1="560" x2="0" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f6bff" stop-opacity="0"/>
+      <stop offset="0.35" stop-color="#2f6bff" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#2f6bff" stop-opacity="0.17"/>
+    </linearGradient>
+    <linearGradient id="dTile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.94"/>
+      <stop offset="1" stop-color="#eef4ff" stop-opacity="0.72"/>
+    </linearGradient>
+    <linearGradient id="dMark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#eef4ff" stop-opacity="0.16"/>
+    </linearGradient>
+    <linearGradient id="dSweep" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="0.6" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="dShadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#1d4ed8" flood-opacity="0.1"/>
+    </filter>
+    <clipPath id="dFloor">
+      <rect x="0" y="560" width="1920" height="520"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#dBg)"/>
+  <circle cx="270" cy="90" r="460" fill="url(#dCyan)"/>
+  <circle cx="1780" cy="200" r="420" fill="url(#dBlue)"/>
+  <ellipse cx="960" cy="565" rx="820" ry="300" fill="url(#dHorizon)"/>
+
+  <g clip-path="url(#dFloor)" stroke="url(#dGrid)" stroke-width="1" fill="none">
+    <path d="M-360 1080 L960 560"/>
+    <path d="M-240 1080 L960 560"/>
+    <path d="M-120 1080 L960 560"/>
+    <path d="M0 1080 L960 560"/>
+    <path d="M120 1080 L960 560"/>
+    <path d="M240 1080 L960 560"/>
+    <path d="M360 1080 L960 560"/>
+    <path d="M480 1080 L960 560"/>
+    <path d="M600 1080 L960 560"/>
+    <path d="M720 1080 L960 560"/>
+    <path d="M840 1080 L960 560"/>
+    <path d="M960 1080 L960 560"/>
+    <path d="M1080 1080 L960 560"/>
+    <path d="M1200 1080 L960 560"/>
+    <path d="M1320 1080 L960 560"/>
+    <path d="M1440 1080 L960 560"/>
+    <path d="M1560 1080 L960 560"/>
+    <path d="M1680 1080 L960 560"/>
+    <path d="M1800 1080 L960 560"/>
+    <path d="M1920 1080 L960 560"/>
+    <path d="M2040 1080 L960 560"/>
+    <path d="M2160 1080 L960 560"/>
+    <path d="M2280 1080 L960 560"/>
+    <path d="M0 580 H1920"/>
+    <path d="M0 600 H1920"/>
+    <path d="M0 626 H1920"/>
+    <path d="M0 660 H1920"/>
+    <path d="M0 704 H1920"/>
+    <path d="M0 758 H1920"/>
+    <path d="M0 824 H1920"/>
+    <path d="M0 904 H1920"/>
+    <path d="M0 1000 H1920"/>
+  </g>
+
+  <polygon points="0,0 720,0 0,520" fill="url(#dSweep)" opacity="0.6"/>
+
+  <g transform="translate(1684 824) rotate(-12)" filter="url(#dShadow)">
+    <rect x="-162" y="-162" width="324" height="324" rx="70" fill="url(#dMark)" stroke="#2f6bff" stroke-opacity="0.1" stroke-width="2"/>
+    <path d="M-88 -88 L88 88 M88 -88 L-88 88" fill="none" stroke="#2f6bff" stroke-opacity="0.12" stroke-width="19" stroke-linecap="round"/>
+  </g>
+
+  <g filter="url(#dShadow)">
+    <g transform="translate(252 318) rotate(-10)" fill="none">
+      <rect x="-64" y="-64" width="128" height="128" rx="28" fill="url(#dTile)" stroke="#2f6bff" stroke-opacity="0.18"/>
+      <path d="M-34 -34 L34 34 M34 -34 L-34 34" stroke="#2f6bff" stroke-opacity="0.22" stroke-width="8" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(1652 296) rotate(12)" fill="none">
+      <rect x="-48" y="-48" width="96" height="96" rx="22" fill="url(#dTile)" stroke="#2f6bff" stroke-opacity="0.16"/>
+      <path d="M-25 -25 L25 25 M25 -25 L-25 25" stroke="#2f6bff" stroke-opacity="0.2" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(1508 132) rotate(-6)" fill="none">
+      <rect x="-25" y="-25" width="50" height="50" rx="12" fill="url(#dTile)" stroke="#2f6bff" stroke-opacity="0.14"/>
+      <path d="M-13 -13 L13 13 M13 -13 L-13 13" stroke="#2f6bff" stroke-opacity="0.18" stroke-width="3.4" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(392 806) rotate(16)" fill="none">
+      <rect x="-27" y="-27" width="54" height="54" rx="13" fill="url(#dTile)" stroke="#2f6bff" stroke-opacity="0.15"/>
+      <path d="M-14 -14 L14 14 M14 -14 L-14 14" stroke="#2f6bff" stroke-opacity="0.2" stroke-width="3.6" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g stroke="#2f6bff" stroke-opacity="0.22" stroke-width="1.2">
+    <path d="M128 168 L128 192 M116 180 L140 180"/>
+    <path d="M1812 552 L1812 576 M1800 564 L1824 564"/>
+    <path d="M116 918 L116 942 M104 930 L128 930"/>
+    <path d="M1452 452 L1452 466 M1445 459 L1459 459"/>
+  </g>
+
+  <g fill="#2f6bff">
+    <circle cx="1380" cy="650" r="2.4" fill-opacity="0.25"/>
+    <circle cx="560" cy="600" r="1.8" fill-opacity="0.2"/>
+    <circle cx="1200" cy="930" r="2.2" fill-opacity="0.24"/>
+    <circle cx="760" cy="980" r="1.6" fill-opacity="0.18"/>
+  </g>
+</svg>

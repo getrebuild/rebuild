@@ -7056,10 +7056,6 @@ input[type='password']::-ms-clear {
   display: none;
 }
 
-.mix-color {
-  mix-blend-mode: difference;
-}
-
 .spinner {
   width: 36px;
   height: 36px;
