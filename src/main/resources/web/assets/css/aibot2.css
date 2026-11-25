@@ -366,7 +366,7 @@ td[data-id='AibotSuggestQuestions'] {
 }
 
 .aibot-chats .aibot-chat-link:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .aibot-chats .aibot-chat-summary {

@@ -296,14 +296,14 @@ public abstract class ChatManager {
     }
 
     /**
-     * 压缩会话为简短概要（引用会话注入用）
+     * 压缩会话为详细摘要（引用会话注入用）
      *
      * @param chatid
      * @return
      */
     public static String summarizeChat(ID chatid) {
         JSONObject summary = buildChatSummary(chatid, false);
-        return summary == null ? null : summary.getString("short");
+        return summary == null ? null : summary.getString("long");
     }
 
     /**
@@ -355,9 +355,11 @@ public abstract class ChatManager {
             conversationText.delete(0, conversationText.length() - SUMMARY_MAX_CHARS);
         }
 
-        String prompt = "你是对话压缩助手，请将以下对话历史压缩为两段摘要，保留关键信息和上下文要点。"
-                + "<short> 标签内输出简短概要（100 字以内），<long> 标签内输出详细摘要（500 字以内），"
-                + "除这两个标签外不要输出任何内容";
+        String prompt = "你是对话压缩助手，请将以下对话历史压缩为两段摘要。"
+                + "short 是会话的核心描述，用一句话概括讨论的主题、诉求与结论，"
+                + "不要以“用户要求”“用户询问”“用户希望”等转述性套话开头（100 字以内）；"
+                + "long 会作为上下文提供给模型，需保留关键信息、数字、结论与待办，篇幅可以更长（1500 字以内）。"
+                + "输出格式：<short>核心描述</short><long>详细摘要</long>，除这两个标签外不要输出任何内容";
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(prompt, chat.getAgent())
                 .addUserMessage(conversationText.toString());
 

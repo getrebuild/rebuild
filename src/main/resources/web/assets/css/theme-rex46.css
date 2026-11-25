@@ -121,19 +121,10 @@ html:not(.theme-dark2) body .rb-wrapper .rb-top-header {
 }
 
 html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left) .rb-top-header .rb-navbar-header {
-  position: relative;
   background-color: var(--rex-nav-bg-1);
   border-right: 1px solid var(--rex-nav-border);
-}
-
-html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left) .rb-top-header .rb-navbar-header::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: -1px;
-  bottom: -1px;
-  height: 1px;
-  background-color: var(--rex-nav-bg-1);
+  /* 品牌区底部深色 1px 线：盖住顶部栏的浅色下边框，与下方侧栏连成一体 */
+  box-shadow: 0 1px 0 var(--rex-nav-border);
 }
 
 html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left) .rb-top-header .rb-navbar-header .navbar-brand {
@@ -271,7 +262,6 @@ html:not(.theme-dark2) body .rb-wrapper.rb-color-header .rb-top-header .rb-right
 
   html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left):not(.rb-collapsible-sidebar-collapsed) .rb-top-header .rb-navbar-header .navbar-brand {
     width: 150px;
-    background-size: 130px auto;
     background-position: 16px center;
   }
 
@@ -343,12 +333,13 @@ html:not(.theme-dark2) body .rb-left-sidebar.v2 .sidebar-elements > li.active > 
   background-image: linear-gradient(90deg, var(--rex-nav-active-a), var(--rex-nav-active-b));
   box-shadow: inset 0 0 0 1px var(--rex-nav-active-border);
   color: var(--rex-nav-active-text);
-  font-weight: 600;
+  font-weight: normal;
 }
 
 html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li.active > a,
 html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li.active > a > span {
   color: var(--rex-nav-active-text);
+  font-weight: normal;
 }
 
 html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li.active > a .icon {
