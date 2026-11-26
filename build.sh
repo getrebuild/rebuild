@@ -59,6 +59,11 @@ ensure_node() {
 
 ensure_node
 
+# webpack 4 / legacy babel toolchains hash with md4, which OpenSSL 3 (Node 17+) rejects
+if [ "$(node -p 'process.versions.node.split(".")[0]')" -ge 17 ]; then
+  export NODE_OPTIONS="$NODE_OPTIONS --openssl-legacy-provider"
+fi
+
 MOB=false
 MOB_DIR="$(cd "$SCRIPT_DIR/.." && pwd)/rebuild-mob"
 

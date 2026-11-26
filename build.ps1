@@ -50,6 +50,12 @@ function Ensure-Node {
 
 Ensure-Node
 
+# webpack 4 / legacy babel toolchains hash with md4, which OpenSSL 3 (Node 17+) rejects
+$nodeMajor = [int]("$(& node --version)".TrimStart('v') -split '\.')[0]
+if ($nodeMajor -ge 17) {
+    $env:NODE_OPTIONS = "$env:NODE_OPTIONS --openssl-legacy-provider".Trim()
+}
+
 if ($Mob) {
     if (Test-Path "$MobDir\package.json") {
         Push-Location $MobDir
