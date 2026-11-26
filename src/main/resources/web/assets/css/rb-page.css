@@ -5367,6 +5367,7 @@ pre.unstyle {
 
 .rb-top-header .rb-navbar-header .navbar-brand {
   background-size: 155px auto;
+  background-size: auto 26px;
   padding-right: 0;
 }
 
@@ -5406,6 +5407,7 @@ pre.unstyle {
 .rb-left-sidebar .sidebar-elements .divider {
   padding-top: 14px;
   font-size: 12px;
+  font-weight: normal;
 }
 
 .rb-left-sidebar .sidebar-elements .divider + .divider {
