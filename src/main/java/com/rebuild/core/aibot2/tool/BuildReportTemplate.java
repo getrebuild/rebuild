@@ -10,8 +10,6 @@ package com.rebuild.core.aibot2.tool;
 import com.rebuild.core.privileges.AdminGuard;
 
 /**
- * 新建网页报表模板（仅 HTML5 类型）
- *
  * @author devezhao
  * @since 2026/8/19
  */

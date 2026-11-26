@@ -9,6 +9,7 @@ package com.rebuild.core.configuration.general;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -17,7 +18,10 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import org.apache.commons.lang3.StringUtils;
 
@@ -200,5 +204,24 @@ public class TransformManager implements ConfigManager {
         String ckey = "TransformManager31-" + getBelongEntity((ID) cfgid, false);
         Application.getCommonsCache().evict(ckey);
         WEAK_CACHED.clear();
+    }
+
+    // --
+
+    /**
+     * 是否可作为转换映射的目标字段
+     *
+     * @param field
+     * @return
+     */
+    public static boolean isMappableTargetField(Field field) {
+        // 所属用户单独放行
+        if (EntityHelper.OwningUser.equalsIgnoreCase(field.getName())) return true;
+
+        EasyField easyField = EasyMetaFactory.valueOf(field);
+        return easyField.getRawMeta().isQueryable()
+                && easyField.getDisplayType() != DisplayType.BARCODE
+                && easyField.getDisplayType() != DisplayType.SERIES
+                && !MetadataHelper.isCommonsField(field);
     }
 }

@@ -15,6 +15,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.AppUtils;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ import java.util.List;
  * @author Zixin
  * @since 07/27/2024
  */
+@Slf4j
 public class ProtectedAdmin {
 
     private static PaEntry[] PA;
@@ -56,7 +58,11 @@ public class ProtectedAdmin {
             else {
                 List<PaEntry> pp = new ArrayList<>();
                 for (String v : vv.split("[,;]")) {
-                    pp.add(PaEntry.valueOf(v));
+                    try {
+                        pp.add(PaEntry.valueOf(v));
+                    } catch (IllegalArgumentException ex) {
+                        log.warn("Unknown ProtectedAdmin entry : {}", v);
+                    }
                 }
                 PA = pp.toArray(new PaEntry[0]);
             }
@@ -86,7 +92,7 @@ public class ProtectedAdmin {
         SYS("/systems", "通用配置"),
         SSI("/integration/", "服务集成"),
         API("/apis-manager;/data-subscribe", "OpenAPI 秘钥"),
-        AIB("/integration/aibot", "AI 助手"),
+        AIB("/integration/aibot;/aibot2", "Rex AI"),
         ENT("/entities;/entity/;/metadata/", "实体管理"),
         APR("/robot/approval", "审批流程"),
         TRA("/robot/transform", "记录转换"),
@@ -94,7 +100,6 @@ public class ProtectedAdmin {
         SOP("/robot/sop", "业务进度"),
         REP("/data/report-template", "报表模版"),
         IMP("/data/data-imports", "数据导入"),
-        SYN("/data/data-syncer", "数据同步"),
         EXF("/extform", "外部表单"),
         PRO("/project", "项目"),
         FJS("/frontjs-code", "FrontJS"),

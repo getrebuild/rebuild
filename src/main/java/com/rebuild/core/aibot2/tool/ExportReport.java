@@ -50,8 +50,6 @@ import static com.rebuild.core.service.datareport.DataReportManager.TYPE_LIST;
 import static com.rebuild.core.service.datareport.DataReportManager.TYPE_RECORD;
 
 /**
- * 报表导出工具
- *
  * @author Zixin
  * @since 2026/7/20
  */
@@ -415,7 +413,7 @@ public class ExportReport implements Tool {
             try {
                 output = ((ReportsFile) output).toZip(false);
             } catch (IOException e) {
-                throw new KnownToolException("报表打包失败 : " + e.getMessage());
+                throw new KnownToolException("报表打包失败 : " + CommonsUtils.getRootMessage(e));
             }
         }
 

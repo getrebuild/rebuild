@@ -4,6 +4,10 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* eslint-disable no-undef */
+/* global RbHeroModal */
+
+// ~~ AI 助手引导弹窗（未配置引导管理员配置、已配置引导用户体验）
 /* global RbHeroModal */
 // ~~ AI 助手引导弹窗
 
@@ -37,6 +41,7 @@ const __injectRexGuideStyle = function () {
 }
 
 const __showRexGuide = function (configured, isAdmin) {
+  if ($('.modal.show:not(.aibot)')[0]) return
   __injectRexGuideStyle()
 
   let name = rb._aibotName || 'Rex AI 助手'
@@ -53,7 +58,8 @@ const __showRexGuide = function (configured, isAdmin) {
     } else $storage.set('RexGuideUserEnd-' + rb.currentUser, 'yes')
   }
 
-  if (!~~window.__RexGuideScene) mark()
+  // 展示即计数，避免未关闭就离开页面导致重复弹；强制调试模式不计数
+  if (!configured && !~~window.__RexGuideScene) mark()
 
   let modal
   const hide = function () {
@@ -89,36 +95,43 @@ const __showRexGuide = function (configured, isAdmin) {
   )
 
   if (configured) {
-    const questions = isAdmin
-      ? ['帮我建一个客户管理实体', '帮我配置一个自动化触发器', '统计一下本月各业务实体的数据量']
-      : ['帮我创建一条客户记录', '帮我查一下本周需要跟进的客户', '有哪些待我审批的记录']
-    RbHeroModal.show({
-      ...heroProps,
-      icon: <i className="mdi mdi-shimmer" />,
-      title: `${name} 已就绪`,
-      subtitle: '问一句试试，它比你更熟悉这套系统',
-      footer: (
-        <React.Fragment>
-          <span className="rex-guide-hint">
-            以后按 <kbd>Shift + /</kbd> 随时叫它
-          </span>
-          <button type="button" className="rex-guide-btn" onClick={() => openAiBot()}>
-            {`打开 ${name}`}
-          </button>
-        </React.Fragment>
-      ),
-      children: (
-        <div>
-          <div className="rex-guide-qtitle">先从这几个问题开始</div>
-          {questions.map((q) => (
-            <div key={q} className="rex-guide-q" onClick={() => openAiBot(q)}>
-              <i className="mdi mdi-chat-plus-outline rex-guide-qicon" />
-              <span>{q}</span>
-              <i className="zmdi zmdi-chevron-right rex-guide-go" />
-            </div>
-          ))}
-        </div>
-      ),
+    const showConfigured = function (questions) {
+      if ($('.modal.show:not(.aibot)')[0]) return
+      // 展示即计数，避免未关闭就离开页面导致重复弹；强制调试模式不计数
+      if (!~~window.__RexGuideScene) mark()
+      RbHeroModal.show({
+        ...heroProps,
+        icon: <i className="mdi mdi-shimmer" />,
+        title: `${name} 已就绪`,
+        subtitle: '问一句试试，它比你更熟悉这套系统',
+        footer: (
+          <React.Fragment>
+            <span className="rex-guide-hint">
+              以后按 <kbd>Shift + /</kbd> 随时叫它
+            </span>
+            <button type="button" className="rex-guide-btn" onClick={() => openAiBot()}>
+              {`打开 ${name}`}
+            </button>
+          </React.Fragment>
+        ),
+        children: (
+          <div>
+            <div className="rex-guide-qtitle">先从这几个问题开始</div>
+            {questions.map((q) => (
+              <div key={q} className="rex-guide-q" onClick={() => openAiBot(q)}>
+                <i className="mdi mdi-chat-plus-outline rex-guide-qicon" />
+                <span>{q}</span>
+                <i className="zmdi zmdi-chevron-right rex-guide-go" />
+              </div>
+            ))}
+          </div>
+        ),
+      })
+    }
+
+    // 候选问题由后台按用户权限生成
+    $.get('/aibot2/post/suggest-questions', function (res) {
+      showConfigured(res.data || [])
     })
   } else if (isAdmin) {
     RbHeroModal.show({
@@ -128,7 +141,7 @@ const __showRexGuide = function (configured, isAdmin) {
       subtitle: `约一分钟完成配置，${name} 就能开始为你和团队干活`,
       footer: (
         <React.Fragment>
-          <span className="rex-guide-hint">配置入口 管理中心 - Rex AI 助手</span>
+          <span className="rex-guide-hint">配置入口 管理中心 - Rex AI</span>
           <button type="button" className="rex-guide-btn plain" onClick={hide}>
             稍后再说
           </button>
@@ -188,7 +201,7 @@ const __showRexGuide = function (configured, isAdmin) {
         <div>
           <div className="rex-guide-qtitle">它可以帮你</div>
           {feats}
-          <div className="rex-guide-note">它还差 AI 模型没接入，提醒管理员到 管理中心 - Rex AI 助手 配置一下就能用</div>
+          <div className="rex-guide-note">它还差 AI 模型没接入，提醒管理员到 管理中心 - Rex AI 配置一下就能用</div>
         </div>
       ),
     })
@@ -198,6 +211,8 @@ const __showRexGuide = function (configured, isAdmin) {
 window.__RexGuideScene = window.__RexGuideScene || 0
 window.__checkRexGuide = function () {
   if (window.top !== window.self) return
+  if (location.pathname.includes('/onboarding')) return
+  if (location.pathname.includes('/aibot')) return
   if (!rb.currentUser) return
   if (!~~window.__RexGuideScene && $storage.get('RexGuideEnd-' + rb.currentUser)) return
 
@@ -215,7 +230,7 @@ window.__checkRexGuide = function () {
     } else if (scene === 3) {
       configured = true
     } else if (configured) {
-      if (!$('.aibot-show')[0]) return
+      if (!$('.aibot-shift')[0]) return
       if ($storage.get('RexGuideEnd-' + rb.currentUser)) return
     } else if (isAdmin) {
       if (~~$storage.get('RexGuideCfgCount-' + rb.currentUser) >= 3) return

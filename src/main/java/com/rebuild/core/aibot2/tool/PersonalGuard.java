@@ -7,13 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.tool;
 
-import com.rebuild.core.privileges.AdminGuard;
-
 /**
- * 查询现有触发器
+ * 标记接口，实现此接口的工具作用于当前登录用户的个人数据，匿名（公开访问）场景不提供
  *
- * @author devezhao
- * @since 2026/9/5
+ * @author Zixin
+ * @see ToolDefs
+ * @since 2026/10/26
  */
-public class ListTriggers extends RbvTool implements AdminGuard {
+public interface PersonalGuard {
 }

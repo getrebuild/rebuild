@@ -8,15 +8,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2.service;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
+import com.rebuild.core.configuration.general.ShareToManager;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.QueryHelper;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -28,6 +33,9 @@ public class AibotConfigManager implements ConfigManager {
 
     public static final String TYPE_KNOWLEDGE = "KNOWLEDGE";
     public static final String TYPE_SKILL = "SKILL";
+    public static final String TYPE_MODEL = "MODEL";
+    public static final String TYPE_AGENT = "AGENT";
+    public static final String TYPE_MINAPP = "MINAPP";
     public static final String TYPE_AIBOT_SCHEDULE = "AIBOT_SCHEDULE";
     public static final String TYPE_AIBOT_USERMEMORY = "AIBOT_USERMEMORY";
 
@@ -52,6 +60,202 @@ public class AibotConfigManager implements ConfigManager {
      */
     public ConfigBean[] getSkillConfigs() {
         return getConfig(TYPE_SKILL);
+    }
+
+    /**
+     * 获取 Agent 配置列表
+     *
+     * @return
+     */
+    public ConfigBean[] getAgentConfigs() {
+        return getConfig(TYPE_AGENT);
+    }
+
+    /**
+     * 获取微应用（HTML 页面）配置列表
+     *
+     * @return
+     */
+    public ConfigBean[] getMinAppConfigs() {
+        return getConfig(TYPE_MINAPP);
+    }
+
+    /**
+     * 获取指定用户可访问的微应用页面（按记录 ID 匹配，访问地址 /pages/minapp/{id}）
+     *
+     * @param pageId
+     * @param user
+     * @return
+     */
+    public ConfigBean getMinAppById(ID pageId, ID user) {
+        ConfigBean cb = getConfigById(pageId, TYPE_MINAPP);
+        if (cb == null) return null;
+        return UserHelper.isAdmin(user)
+                || ShareToManager.isShareTo(cb.getString("shareTo"), user) ? cb : null;
+    }
+
+    /**
+     * 公开访问用：获取微应用页面（存在且未禁用，不做共享校验）
+     *
+     * @param pageId
+     * @return
+     */
+    public ConfigBean getMinAppByIdNoShare(ID pageId) {
+        return getConfigById(pageId, TYPE_MINAPP);
+    }
+
+    /**
+     * 按记录 ID 获取指定类型的配置（不存在、已禁用或无 config 返回 null）
+     *
+     * @param cfgid
+     * @param type
+     * @return
+     */
+    public ConfigBean getConfigById(ID cfgid, String type) {
+        if (cfgid == null) return null;
+
+        for (ConfigBean cb : getConfig(type)) {
+            if (!cfgid.equals(cb.getID("id"))) continue;
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) return null;
+            if (cb.getJSON("config") == null) return null;
+            return cb;
+        }
+        return null;
+    }
+
+    /**
+     * 获取默认模型配置（已启用且标记 isDefault）
+     *
+     * @return
+     */
+    public ConfigBean getDefaultModelConfig() {
+        for (ConfigBean cb : getConfig(TYPE_MODEL)) {
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+            JSONObject config = (JSONObject) cb.getJSON("config");
+            if (config != null && config.getBooleanValue("isDefault")) return cb;
+        }
+        return null;
+    }
+
+    /**
+     * 是否使用旧版模型接入（智能体自带地址/密钥或模型）
+     * <p>温度/核采样/思考强度等行为参数不属于模型接入，不影响默认模型配置的回落</p>
+     *
+     * @param conf
+     * @return
+     */
+    public static boolean hasLegacyModelConfig(JSONObject conf) {
+        if (conf == null) return false;
+        return StringUtils.isNotBlank(conf.getString("AibotDSUrl"))
+                || StringUtils.isNotBlank(conf.getString("AibotDSSecret"))
+                || StringUtils.isNotBlank(conf.getString("AibotBaseDefModel"))
+                || StringUtils.isNotBlank(conf.getString("AibotVisionModel"))
+                || StringUtils.isNotBlank(conf.getString("AibotAsrModel"));
+    }
+
+    /**
+     * 获取绑定的代理用户（未绑定或无效返回 null）
+     *
+     * @param cfgid
+     * @param type
+     * @return
+     */
+    public ID getBindUser(ID cfgid, String type) {
+        ConfigBean cb = getConfigById(cfgid, type);
+        if (cb == null) return null;
+
+        String bindUser = ((JSONObject) cb.getJSON("config")).getString("bindUser");
+        if (StringUtils.isBlank(bindUser) || !ID.isId(bindUser)) return null;
+
+        ID user = ID.valueOf(bindUser);
+        return UserHelper.isActive(user) ? user : null;
+    }
+
+    /**
+     * 获取发布配置（enabled 等），未配置返回空对象
+     *
+     * @param cfgid
+     * @param type
+     * @return
+     */
+    public JSONObject getPublishConfig(ID cfgid, String type) {
+        ConfigBean cb = getConfigById(cfgid, type);
+        if (cb == null) return new JSONObject();
+
+        JSONObject publish = ((JSONObject) cb.getJSON("config")).getJSONObject("publish");
+        return publish != null ? publish : new JSONObject();
+    }
+
+    /**
+     * 获取指定用户可用的智能体列表（不含默认助手，仅共享给该用户的）
+     *
+     * @param user
+     * @return
+     */
+    public JSONArray listAgentsForUser(ID user) {
+        List<ConfigBean> avail = new ArrayList<>();
+        for (ConfigBean cb : getAgentConfigs()) {
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+            if (cb.getJSON("config") == null) continue;
+            if (!ShareToManager.isShareTo(cb.getString("shareTo"), user)) continue;
+            avail.add(cb);
+        }
+
+        avail.sort(Comparator.comparing(c -> StringUtils.defaultString(c.getString("name"))));
+
+        JSONArray agents = new JSONArray();
+        for (ConfigBean cb : avail) {
+            JSONObject conf = (JSONObject) cb.getJSON("config");
+            JSONObject agent = JSONUtils.toJSONObject(
+                    new String[]{"id", "name", "icon"},
+                    new Object[]{cb.getID("id"), cb.getString("name"), conf.getString("icon")});
+
+            // 未设置表示不限制技能，空数组表示不可用任何技能
+            JSONArray skills = conf.getJSONArray("skills");
+            if (skills != null) agent.put("skills", skills);
+
+            agents.add(agent);
+        }
+        return agents;
+    }
+
+    /**
+     * 获取指定用户可用的微应用列表（仅共享给该用户的，按名称排序）
+     *
+     * @param user
+     * @return
+     */
+    public ConfigBean[] listMinAppsForUser(ID user) {
+        List<ConfigBean> avail = new ArrayList<>();
+        for (ConfigBean cb : getMinAppConfigs()) {
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+            if (cb.getJSON("config") == null) continue;
+            if (!UserHelper.isAdmin(user) && !ShareToManager.isShareTo(cb.getString("shareTo"), user)) continue;
+            avail.add(cb);
+        }
+
+        avail.sort(Comparator.comparing(c -> StringUtils.defaultString(c.getString("name"))));
+        return avail.toArray(new ConfigBean[0]);
+    }
+
+    /**
+     * 指定智能体是否对用户可用
+     *
+     * @param agentId
+     * @param user
+     * @return
+     */
+    public boolean isAgentAvailable(ID agentId, ID user) {
+        if (agentId == null) return false;
+
+        for (ConfigBean cb : getAgentConfigs()) {
+            if (!agentId.equals(cb.getID("id"))) continue;
+            if (Boolean.TRUE.equals(cb.getBoolean("isDisabled"))) continue;
+            if (cb.getJSON("config") == null) continue;
+            return UserHelper.isAdmin(user)
+                    || ShareToManager.isShareTo(cb.getString("shareTo"), user);
+        }
+        return false;
     }
 
     /**
@@ -99,7 +303,7 @@ public class AibotConfigManager implements ConfigManager {
         if (cache != null) return cache;
 
         Object[][] array = Application.createQueryNoFilter(
-                "select configId,config,isDisabled,name from AibotConfig where type = ?")
+                "select configId,config,isDisabled,name,shareTo,createdBy from AibotConfig where type = ?")
                 .setParameter(1, type)
                 .array();
 
@@ -109,7 +313,9 @@ public class AibotConfigManager implements ConfigManager {
                     .set("id", o[0])
                     .set("config", o[1] != null ? JSONUtils.parseSafe((String) o[1]) : new JSONObject())
                     .set("name", o[3])
-                    .set("isDisabled", o[2] != null && (Boolean) o[2]);
+                    .set("isDisabled", o[2] != null && (Boolean) o[2])
+                    .set("shareTo", o[4])
+                    .set("createdBy", o[5]);
             list.add(cb);
         }
 

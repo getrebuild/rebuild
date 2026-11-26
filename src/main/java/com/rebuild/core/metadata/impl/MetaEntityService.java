@@ -14,9 +14,12 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.service.InternalPersistService;
 import com.rebuild.core.service.ServiceSpec;
+import com.rebuild.core.service.query.QueryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +44,8 @@ public class MetaEntityService extends InternalPersistService implements AdminGu
 
     @Override
     public int delete(ID recordId) {
-        Object[] entityRecord = getPersistManagerFactory().createQuery(
-                "select entityName from MetaEntity where entityId = ?")
-                .setParameter(1, recordId)
-                .unique();
-        final Entity delEntity = MetadataHelper.getEntity((String) entityRecord[0]);
+        Object entityName = QueryHelper.queryFieldValue(recordId, "entityName");
+        Entity delEntity = MetadataHelper.getEntity((String) entityName);
 
         // 删除实体的相关配置
         // Field: belongEntity
@@ -97,8 +97,18 @@ public class MetaEntityService extends InternalPersistService implements AdminGu
     @Override
     public Record update(Record record) {
         record = super.update(record);
-
         MetadataHelper.getMetadataFactory().refresh();
+
+        // v4.6
+        Object entityName = QueryHelper.queryFieldValue(record.getPrimary(), "entityName");
+        Entity e = MetadataHelper.getEntity((String) entityName);
+        if (e.getMainEntity() != null && !e.containsField(EntityHelper.Seq)) {
+            EasyEntity ee = EasyMetaFactory.valueOf(e);
+            if (ee.getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_SORTABLE)) {
+                new Field2SchemaFixer().addSeqField(e);
+            }
+        }
+
         return record;
     }
 

@@ -26,7 +26,7 @@ class ConfigFormDlg extends RbFormHandler {
         title={
           <RF>
             {title}
-            {showAi && <AiCreateButton preset={{ content: $L('我要创建一个%s', this.subtitle) }} />}
+            {showAi && <AiCreateButton presetContent={$L('帮我创建一个%s。先向我确认具体需求，确认后再创建。', this.subtitle)} />}
           </RF>
         }
         ref={(c) => (this._dlg = c)}
@@ -206,7 +206,7 @@ function ShowEnable(disabled, cfgid, switchFn) {
           id={htmlid}
           onClick={(e) => {
             if (typeof switchFn === 'function') {
-              switchFn(e.target.checked)
+              switchFn(e.target.checked, e)
               return
             }
 

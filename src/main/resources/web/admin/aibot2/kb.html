@@ -1,0 +1,60 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/aibot2.css}" />
+    <meta name="page-help" content="https://getrebuild.com/features/ai-knowledge" />
+    <title>Rex AI [[${bundle.L('知识库')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:if="${navLeftAdmin}">
+        <th:block th:replace="~{/_include/nav-left-admin(active='aibot-kb')}" />
+      </th:block>
+      <th:block th:unless="${navLeftAdmin}">
+        <th:block th:replace="~{/_include/nav-left-aibot2(active='aibot-kb')}" />
+      </th:block>
+      <div class="rb-content">
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('知识库')}]]</div>
+          <div class="page-head-description">[[${bundle.L('上传企业资料，让 AI 基于内部知识精准作答')}]]</div>
+        </div>
+        <div class="main-content container-fluid aibot-kb pt-1">
+          <div class="d-flex justify-content-end aibot-page-actions">
+            <button class="btn btn-secondary mr-2 J_rebuildKb" type="button"><i class="icon zmdi zmdi-refresh"></i> [[${bundle.L('重建')}]]</button>
+            <button class="btn btn-secondary mr-2 J_batchUploadKb" type="button">
+              <i class="icon zmdi zmdi-collection-item-plus"></i><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('批量上传')}]]
+            </button>
+            <button class="btn btn-primary J_addKb" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+          </div>
+          <div class="card shadow-none mb-0">
+            <div class="aibot-kb-body card-body-loading">
+              <div class="table-responsive">
+                <table class="table table-hover aibot-kb-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>[[${bundle.L('知识库')}]]</th>
+                      <th width="90">[[${bundle.L('来源')}]]</th>
+                      <th width="120">[[${bundle.L('索引分片')}]]</th>
+                      <th width="170" class="actions">[[${bundle.L('操作')}]]</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kbList"></tbody>
+                </table>
+              </div>
+              <div class="spinner"></div>
+              <div class="list-nodata hide">
+                <span class="mdi mdi-book-search-outline"></span>
+                <p>[[${bundle.L('暂无知识库')}]]</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/aibot2/kits.js}" type="text/babel"></script>
+  </body>
+</html>

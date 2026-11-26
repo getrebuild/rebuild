@@ -42,6 +42,8 @@ public class NavManager extends BaseLayoutManager {
     public static final String NAV_DASHBOARD = "$DASHBOARD$";
     // 审批中心
     public static final String NAV_APPROVAL = "$APPROVAL$";
+    // 微应用
+    public static final String NAV_MINAPP = "$MINAPP$";
 
     // 分栏
     public static final String NAV_DIVIDER = "$DIVIDER$";
@@ -57,6 +59,7 @@ public class NavManager extends BaseLayoutManager {
                     new Object[]{"account-box-phone", "通讯录", "BUILTIN", NAV_CONTACT},
                     new Object[]{"mdi-progress-check", "审批中心", "BUILTIN", NAV_APPROVAL},
                     new Object[]{"shape", "项目", "BUILTIN", NAV_PROJECT},
+                    new Object[]{"mdi-view-grid", "微应用", "BUILTIN", NAV_MINAPP},
             });
 
     public static final NavManager instance = new NavManager();

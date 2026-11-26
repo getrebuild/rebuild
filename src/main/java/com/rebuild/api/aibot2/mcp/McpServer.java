@@ -147,7 +147,7 @@ public class McpServer {
 
     private JSONObject toolsListResult() {
         JSONObject result = new JSONObject(true);
-        result.put("tools", ToolDefs.listTools(false, true));
+        result.put("tools", ToolDefs.listTools(false, true, true));
         return result;
     }
 
@@ -162,7 +162,8 @@ public class McpServer {
         text.put("type", "text");
         try {
             String resp = ToolDefs.execute(name, args.toJSONString());
-            text.put("text", MarkdownUtils.rewriteFileUrls(resp));
+            resp = MarkdownUtils.normalizeMarkdownUrls(resp);
+            text.put("text", resp);
             result.put("isError", false);
         } catch (Exception ex) {
             log.error("MCP tools/call error : {}", name, ex);

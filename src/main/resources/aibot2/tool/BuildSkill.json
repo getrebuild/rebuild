@@ -18,10 +18,6 @@
         "description": {
           "type": "string",
           "description": "技能描述（可选），简要说明技能的用途，便于管理时识别"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
         }
       },
       "required": ["name", "prompt"],

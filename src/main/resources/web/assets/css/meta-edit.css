@@ -144,25 +144,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 /* for Entity */
 
-a#entityIcon {
-  display: inline-block;
-  width: 36px;
-  height: 36px;
-  background-color: #e3e3e3;
-  text-align: center;
-  border-radius: 2px;
-}
-
-a#entityIcon .icon {
-  font-size: 26px;
-  color: #555;
-  line-height: 36px;
-}
-
-a#entityIcon:hover {
-  opacity: 0.8;
-}
-
 .input-group-append > .btn-secondary + .btn-secondary {
   border-top-right-radius: 2px !important;
   border-bottom-right-radius: 2px !important;
@@ -261,4 +242,11 @@ div.series-starts > input:focus {
 
 .fields ul li.flag-NOW > a::before {
   color: #fbbc05;
+}
+
+textarea.formula-code,
+.code-editor .CodeMirror,
+.code-editor .CodeMirror .CodeMirror-scroll {
+  min-height: 224px;
+  height: auto;
 }

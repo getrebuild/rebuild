@@ -11,7 +11,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   height: 100%;
   overflow: hidden;
   z-index: 1;
-  background: url(../assets/img/bg-v45.svg) no-repeat 0 0;
+  background: url(../assets/img/bg-v46.svg) no-repeat 0 0;
   background-image: url(../../commons/theme/use-bgimg);
   background-size: cover;
   opacity: 1;
@@ -145,8 +145,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .login-form {
   padding: 40px;
   background-color: rgba(255, 255, 255, 1);
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
 }
 
 .login-form .logo-img {
@@ -186,6 +186,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
     left: 50%;
     transform: translate(-50%, -50%);
   }
+}
+
+.rb-navless40 {
+  background-color: #fff;
+}
+
+.rb-navless40 .main-content {
+  padding: 0;
 }
 
 .rb-navless40 .splash-container {

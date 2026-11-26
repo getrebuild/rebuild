@@ -390,6 +390,27 @@ public class FilesHelper {
     }
 
     /**
+     * 文件/附件是否允许编辑。记录附件随所属记录可编辑，独立文件取决于所在目录
+     *
+     * @param user
+     * @param fileId
+     * @return
+     */
+    public static boolean isFileEditable(ID user, ID fileId) {
+        if (UserHelper.isAdmin(user)) return true;
+
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(fileId, "relatedRecord");
+        if (o == null) return false;
+
+        ID relatedRecord = (ID) o[0];
+        if (relatedRecord != null) {
+            return MetadataHelper.containsEntity(relatedRecord.getEntityCode())
+                    && Application.getPrivilegesManager().allowUpdate(user, relatedRecord);
+        }
+        return isFileManageable(user, fileId);
+    }
+
+    /**
      * 检查附件所属记录是否对指定用户可读
      *
      * @param recordId 附件所属记录 ID

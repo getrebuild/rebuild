@@ -78,6 +78,9 @@ public enum ConfigurationItem {
     // 默认语言
     DefaultLanguage(LanguageBundle.SYS_LC),
 
+    // 默认主题
+    DefaultTheme,
+
     // 视图页显示修改历史
     ShowViewHistory(true),
 
@@ -114,6 +117,7 @@ public enum ConfigurationItem {
     WxworkSyncUsersMatch("ID"),
     WxworkAibotToken,
     WxworkAibotEncodingAESKey,
+    WxworkAibotContextHours(6),
     // Feishu
     FeishuAppId, FeishuAppSecret,
     FeishuSyncUsers(false),
@@ -126,17 +130,22 @@ public enum ConfigurationItem {
     PortalOfficePreviewUrl,
 
     // Aibot
-    AibotName("REBUILD AI 助手"),
+    AibotName("Rex AI 助手"),
     AibotDSUrl,
     AibotDSSecret,
     AibotBaseDefModel,
     AibotSuggestQuestions,
     AibotBasePrompt,
-    AibotContextCompressThreshold,
+    AibotReplyStyle,
+    AibotMemoryRounds,
     AibotWelcome,
     AibotToolsDisabled,
     AibotTemperature,
     AibotTopP,
+    AibotReasoningEffort,
+    AibotAsrModel,
+    AibotVisionModel,
+    AibotDefaultDisabled(false),
 
     // PORTALs
     PortalBaiduMapAk,

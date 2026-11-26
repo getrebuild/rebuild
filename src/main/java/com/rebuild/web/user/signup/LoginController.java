@@ -220,6 +220,8 @@ public class LoginController extends LoginAction {
                     request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
             if (ed != null) {
                 resMap.put("passwdExpiredDays", ed);
+            } else if (isOnboardingPending(loginUser.getId())) {
+                resMap.put("onboarding", true);
             } else {
                 final String mcpKey = "MustChangePwd:" + user;
                 String mcpType = Application.getCommonsCache().get(mcpKey);

@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.aibot2;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.openai.client.OpenAIClient;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.rebuild.core.aibot2.tool.ToolDefs;
 import lombok.Getter;
@@ -17,13 +18,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.rebuild.core.support.ConfigurationItem.AibotContextCompressThreshold;
+import static com.rebuild.core.support.ConfigurationItem.AibotDSSecret;
+import static com.rebuild.core.support.ConfigurationItem.AibotDSUrl;
+import static com.rebuild.core.support.ConfigurationItem.AibotMemoryRounds;
+import static com.rebuild.core.support.ConfigurationItem.AibotReasoningEffort;
+import static com.rebuild.core.support.ConfigurationItem.AibotReplyStyle;
 import static com.rebuild.core.support.ConfigurationItem.AibotTemperature;
 import static com.rebuild.core.support.ConfigurationItem.AibotTopP;
 import static com.rebuild.core.support.RebuildConfiguration.get;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 /**
  * AI Agent 资源封装层
@@ -39,12 +46,48 @@ public class AibotAgent implements Serializable {
     @Getter
     @Setter
     @Accessors(chain = true)
+    private ID agentId;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
     private String name;
 
     @Getter
     @Setter
     @Accessors(chain = true)
+    private String icon;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
     private String model;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String asrModel;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String visionModel;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String dsUrl;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String dsSecret;
+
+    // 指定的模型配置已停用或已删除时的错误信息
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String modelConfigError;
 
     @Getter
     @Setter
@@ -61,7 +104,11 @@ public class AibotAgent implements Serializable {
     @Accessors(chain = true)
     private Set<String> tools;
 
-    // 模型参数（null 表示未覆盖，回退到系统配置；有效性校验统一在下方 getter 中完成）
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private Set<String> skills;
+
     @Getter
     @Setter
     @Accessors(chain = true)
@@ -75,10 +122,61 @@ public class AibotAgent implements Serializable {
     @Getter
     @Setter
     @Accessors(chain = true)
-    private Long contextCompressThreshold;
+    private String reasoningEffort;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private String replyStyle;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private Long memoryRounds;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private Long dailyTokenLimit;
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private Long monthlyTokenLimit;
+
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private boolean allowNewChat;
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private boolean allowUpload;
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private boolean allowSkill;
+
+    public OpenAIClient client() {
+        if (StringUtils.isBlank(dsUrl) && StringUtils.isBlank(dsSecret)) return Config.getClient();
+
+        return Config.getClient(
+                defaultIfBlank(dsUrl, Config.getServerUrl(null)),
+                defaultIfBlank(dsSecret, Config.getSecret()));
+    }
 
     public static AibotAgent defaultAgent() {
         return new AibotAgent().setName("default");
+    }
+
+    public boolean available() {
+        if (StringUtils.isNotBlank(modelConfigError)) return false;
+        String url = defaultIfBlank(dsUrl, get(AibotDSUrl));
+        String secret = defaultIfBlank(dsSecret, get(AibotDSSecret));
+        return StringUtils.isNotBlank(url) && StringUtils.isNotBlank(secret);
+    }
+
+    public boolean usable() {
+        return available() && StringUtils.isNotBlank(model());
     }
 
     public static AibotAgent defaultAgent(String model, String prompt) {
@@ -87,6 +185,19 @@ public class AibotAgent implements Serializable {
 
     public String model() {
         return model != null ? model : Config.getDefModel();
+    }
+
+    public String asrModel() {
+        return asrModel != null ? asrModel : Config.getAsrModel();
+    }
+
+    /**
+     * 视觉模型：智能体 > 全局，均未配置返回 null（不启用）
+     *
+     * @return
+     */
+    public String visionModel() {
+        return defaultIfBlank(visionModel, Config.getVisionModel());
     }
 
     public Double temperature() {
@@ -99,10 +210,28 @@ public class AibotAgent implements Serializable {
         return (v != null && v >= 0 && v <= 1) ? v : null;
     }
 
-    public Long contextCompressThreshold() {
-        Long v = contextCompressThreshold != null ? contextCompressThreshold
-                : parseLong(get(AibotContextCompressThreshold), "contextCompressThreshold");
+    public String reasoningEffort() {
+        String v = StringUtils.trimToNull(defaultIfBlank(reasoningEffort, get(AibotReasoningEffort)));
+        if (v == null) return null;
+        v = v.toLowerCase();
+        return ("low".equals(v) || "medium".equals(v) || "high".equals(v)) ? v : null;
+    }
+
+    public String replyStyle() {
+        return StringUtils.trimToNull(defaultIfBlank(replyStyle, get(AibotReplyStyle)));
+    }
+
+    public Long memoryRounds() {
+        Long v = memoryRounds != null ? memoryRounds : parseLong(get(AibotMemoryRounds), "memoryRounds");
         return (v != null && v > 0) ? v : null;
+    }
+
+    public Long dailyTokenLimit() {
+        return (dailyTokenLimit != null && dailyTokenLimit > 0) ? dailyTokenLimit : null;
+    }
+
+    public Long monthlyTokenLimit() {
+        return (monthlyTokenLimit != null && monthlyTokenLimit > 0) ? monthlyTokenLimit : null;
     }
 
     public List<ChatCompletionTool> tools() {
@@ -110,10 +239,26 @@ public class AibotAgent implements Serializable {
     }
 
     public String buildSystemPrompt(String skillName, boolean planMode, boolean planConfirmed) {
-        return SystemPromptBuilder.build(Config.getBasePrompt(), prompt, skillName, planMode, planConfirmed);
+        return SystemPromptBuilder.build(
+                Config.getBasePrompt(), prompt, replyStyle(), allowedSkill(skillName), planMode, planConfirmed, tools);
     }
 
-    // 解析系统配置的字符串参数，解析失败时告警并返回 null
+    public String allowedSkill(String skillName) {
+        if (StringUtils.isBlank(skillName) || skills == null) return skillName;
+
+        List<String> allowed = new ArrayList<>();
+        for (String n : skillName.split(",")) {
+            String name = n.trim();
+            for (String s : skills) {
+                if (s.equalsIgnoreCase(name)) {
+                    allowed.add(s);
+                    break;
+                }
+            }
+        }
+        return allowed.isEmpty() ? null : String.join(",", allowed);
+    }
+
     private static Double parseDouble(String v, String name) {
         if (StringUtils.isBlank(v)) return null;
         try {

@@ -428,10 +428,6 @@ public class EntityHelper {
     public static final int RobotSopConfig = 70;
     public static final int RobotSopStep = 71;
 
-    // 数据同步
-
-    public static final int DataSyncerConfig = 62;
-
     // 锁/日志/短链
 
     public static final int ShortUrl = 97;

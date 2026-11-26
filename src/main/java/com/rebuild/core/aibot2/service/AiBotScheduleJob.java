@@ -14,12 +14,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AibotContextHolder;
+import com.rebuild.core.aibot2.AskRequest;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.aibot2.tool.ScheduleTask;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -121,26 +124,38 @@ public class AiBotScheduleJob extends DistributedJobLock {
 
         ID user = ID.valueOf(userIdStr);
         ID oldUser = null;
+        boolean oldNonInteractive = false;
         boolean success = false;
+        String chatId = null;
 
         try {
             IN_PROGRESS.add(taskIdStr);
             oldUser = UserContextHolder.setUser(user);
+            oldNonInteractive = AibotContextHolder.setNonInteractive(true);
 
             log.info("Executing AI scheduled task: {} ({})", subject, taskIdStr);
 
             if (!Config.availableAiBot()) {
                 log.warn("AI bot not available, skip task: {}", taskIdStr);
+                task.put("lastError", "Rex AI 助手未配置");
                 Application.getNotifications().send(
                         MessageBuilder.createMessage(user,
-                                String.format("**[%s]**\n\n定时任务无法执行：AI 助手未配置", subject),
+                                String.format("**[%s]**\n\n定时任务无法执行：Rex AI 助手未配置", subject),
                                 Message.TYPE_DEFAULT));
                 return;
             }
 
-            String aiResponse = ChatManager.ask(content, null, null, "AiBotScheduleJob");
+            String[] askResult = ChatManager.ask(new AskRequest(content)
+                    .setUser(user)
+                    .setSource(ChatManager.SOURCE_SYS + "AiBotScheduleJob"));
+            String aiResponse = askResult[0];
+            chatId = askResult.length > 1 ? askResult[1] : null;
 
             String message = String.format("**[%s]**\n\n%s", subject, aiResponse);
+            if (StringUtils.isNotBlank(chatId)) {
+                message += String.format("\n\n[查看会话](%s)",
+                        RebuildConfiguration.getHomeUrl("/aibot/chat#chatid=" + chatId));
+            }
             Application.getNotifications().send(
                     MessageBuilder.createMessage(user, message, Message.TYPE_DEFAULT));
 
@@ -150,15 +165,18 @@ public class AiBotScheduleJob extends DistributedJobLock {
         } catch (Exception e) {
             log.error("AI scheduled task failed: {} ({})", subject, taskIdStr, e);
 
+            String rootMessage = CommonsUtils.maxstr(CommonsUtils.getRootMessage(e), 200);
+            task.put("lastError", rootMessage);
+
             try {
-                String errorMessage = String.format("**[%s]**\n\n定时任务执行失败: %s",
-                        subject, CommonsUtils.maxstr(e.getMessage(), 200));
+                String errorMessage = String.format("**[%s]**\n\n定时任务执行失败: %s", subject, rootMessage);
                 Application.getNotifications().send(
                         MessageBuilder.createMessage(user, errorMessage, Message.TYPE_DEFAULT));
             } catch (Exception ex) {
                 log.error("Failed to send error notification for task: {}", taskIdStr, ex);
             }
         } finally {
+            AibotContextHolder.setNonInteractive(oldNonInteractive);
             if (oldUser != null) {
                 UserContextHolder.setUser(oldUser);
             } else {
@@ -179,6 +197,8 @@ public class AiBotScheduleJob extends DistributedJobLock {
         try {
             String nowStr = CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
             task.put("lastExecTime", nowStr);
+            task.put("lastResult", success ? "ok" : "failed");
+            if (success) task.remove("lastError");
 
             boolean disable = false;
 

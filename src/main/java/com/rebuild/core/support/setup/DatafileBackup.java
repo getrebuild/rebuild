@@ -27,11 +27,13 @@ public class DatafileBackup extends DatabaseBackup {
 
     @Override
     public File backup(File backupd) throws IOException {
-        File rbd = RebuildConfiguration.getFileOfData("");
+        if (!backupd.exists()) FileUtils.forceMkdir(backupd);
+
         String destName = "backup_datafile." + CalendarUtils.getPlainDateTimeFormat().format(CalendarUtils.now()) + ".zip";
         File destZip = new File(backupd, destName);
 
-        CompressUtils.forceZip(destZip, rbd, pathname -> {
+        File dd = RebuildConfiguration.getFileOfData("");
+        CompressUtils.forceZip(destZip, dd, pathname -> {
             String name = pathname.getName();
             return !("_backups".equals(name) || "_log".equals(name) || "temp".equals(name) || "rebuild.pid".equals(name));
         });

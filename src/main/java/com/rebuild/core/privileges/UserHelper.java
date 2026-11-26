@@ -522,4 +522,5 @@ public class UserHelper {
         if (!RegexUtils.isCNMobile(mobile)) mobile = u.getName();
         return RegexUtils.isCNMobile(mobile) ? mobile : null;
     }
+
 }

@@ -26,6 +26,7 @@ import com.rebuild.core.support.setup.DatafileBackup;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.SimpleEntity;
 import com.rebuild.utils.AES;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -51,6 +52,7 @@ public class AdminCli4 {
     private static final String C_CACHE = "cache";
     private static final String C_SYSCFG = "syscfg";
     private static final String C_BACKUP = "backup";
+    private static final String C_RESET = "reset";
     private static final String C_AES = "aes";
     private static final String C_CLEAN_APPROVAL = "clean-approval";
     private static final String C_ADD_TESTENTITY = "add-testentity";
@@ -95,6 +97,7 @@ public class AdminCli4 {
                         "\nsyscfg NAME [VALUE]" +
                         "\nsyscfg clean-qiniu|clean-sms|clean-email|clean-wxwork|clean-dingtalk|clean-feishu|clean-aibot" +
                         "\nbackup [database|datafile|conf[a,b]]" +
+                        "\nreset CONFIRM" +
                         "\naes [decrypt] VALUE" +
                         "\nclean-approval ENTITY" +
                         "\nadd-testentity" +
@@ -113,6 +116,10 @@ public class AdminCli4 {
             }
             case C_BACKUP: {
                 result = this.execBackup();
+                break;
+            }
+            case C_RESET: {
+                result = this.execReset();
                 break;
             }
             case C_AES: {
@@ -270,6 +277,24 @@ public class AdminCli4 {
 
         } catch (Exception ex) {
             return "WRAN: Exec failed `" + ex.getLocalizedMessage() + "`";
+        }
+    }
+
+    /**
+     * 恢复出厂设置
+     *
+     * @return
+     */
+    private String execReset() {
+        if (commands.length < 2 || !"CONFIRM".equalsIgnoreCase(commands[1])) {
+            return "WRAN: Run `reset CONFIRM` to continue";
+        }
+
+        try {
+            Installer.resetSystem();
+            return "OK : Restart is recommended";
+        } catch (Exception ex) {
+            return "ERROR: Reset failed : " + CommonsUtils.getRootMessage(ex);
         }
     }
 

@@ -7,8 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import cn.hutool.core.compiler.CompilerUtil;
-import cn.hutool.core.util.ZipUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.zip.Zip64Mode;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -22,8 +20,6 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
 import java.nio.file.Files;
 
 /**
@@ -45,7 +41,12 @@ public class CompressUtils {
             FileUtils.deleteQuietly(destZip);
         }
 
-        zip(Files.newOutputStream(destZip.toPath()), fileOrDir, filter);
+        try {
+            zip(Files.newOutputStream(destZip.toPath()), fileOrDir, filter);
+        } catch (IOException | RuntimeException ex) {
+            FileUtils.deleteQuietly(destZip);
+            throw ex;
+        }
     }
 
     /**
@@ -57,24 +58,12 @@ public class CompressUtils {
      * @throws IOException
      */
     public static void zip(OutputStream destZipOutputStream, File fileOrDir, FileFilter filter) throws IOException {
-        BufferedOutputStream bufferedOutputStream = null;
-        ZipArchiveOutputStream zipArchiveOutputStream = null;
-
-        try {
-            bufferedOutputStream = new BufferedOutputStream(destZipOutputStream, 8192 * 10);
-            zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream);
+        try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(destZipOutputStream, 8192 * 10);
+             ZipArchiveOutputStream zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream)) {
             zipArchiveOutputStream.setUseZip64(Zip64Mode.AsNeeded);
 
             addFileToZip(zipArchiveOutputStream, fileOrDir, null, filter);
-
-        } finally {
-            if (zipArchiveOutputStream != null) {
-                zipArchiveOutputStream.finish();
-                zipArchiveOutputStream.close();
-            }
-
-            IOUtils.closeQuietly(bufferedOutputStream);
-            IOUtils.closeQuietly(destZipOutputStream);
+            zipArchiveOutputStream.finish();
         }
     }
 
@@ -89,48 +78,55 @@ public class CompressUtils {
             FileUtils.deleteQuietly(destZip);
         }
 
-        OutputStream destZipOutputStream = Files.newOutputStream(destZip.toPath());
-        BufferedOutputStream bufferedOutputStream = null;
-        ZipArchiveOutputStream zipArchiveOutputStream = null;
-
-        try {
-            bufferedOutputStream = new BufferedOutputStream(destZipOutputStream);
-            zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream);
+        try (OutputStream destZipOutputStream = Files.newOutputStream(destZip.toPath());
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(destZipOutputStream);
+             ZipArchiveOutputStream zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream)) {
 
             for (File file : files) {
                 addFileToZip(zipArchiveOutputStream, file, null, null);
             }
+            zipArchiveOutputStream.finish();
 
-        } finally {
-            if (zipArchiveOutputStream != null) {
-                zipArchiveOutputStream.finish();
-                zipArchiveOutputStream.close();
-            }
-
-            IOUtils.closeQuietly(bufferedOutputStream);
-            IOUtils.closeQuietly(destZipOutputStream);
+        } catch (IOException | RuntimeException ex) {
+            // 失败的归档不保留
+            FileUtils.deleteQuietly(destZip);
+            throw ex;
         }
-
     }
 
     private static void addFileToZip(ZipArchiveOutputStream zipArchiveOutputStream, File file, String path, FileFilter filter) throws IOException {
-        // At first call it is the folder, otherwise it is the relative path
         String entryName = (path != null) ? path + file.getName() : file.getName();
-        ZipArchiveEntry zipEntry = new ZipArchiveEntry(file, entryName);
-        zipArchiveOutputStream.putArchiveEntry(zipEntry);
 
-        // If it is a file, add its content to the zip file
         if (file.isFile()) {
-            FileInputStream fInputStream = null;
+            FileInputStream fInputStream;
             try {
                 fInputStream = new FileInputStream(file);
-                IOUtils.copy(fInputStream, zipArchiveOutputStream);
-                zipArchiveOutputStream.closeArchiveEntry();
-            } finally {
-                IOUtils.closeQuietly(fInputStream);
+            } catch (IOException ex) {
+                log.warn("Skip file in zip (cannot open) : {} - {}", file, ex.toString());
+                return;
             }
+
+            try (FileInputStream in = fInputStream) {
+                byte[] head = new byte[8192];
+                int headLen = 0;
+                try {
+                    int n;
+                    while (headLen < head.length && (n = in.read(head, headLen, head.length - headLen)) > 0) {
+                        headLen += n;
+                    }
+                } catch (IOException ex) {
+                    log.warn("Skip file in zip (cannot read) : {} - {}", file, ex.toString());
+                    return;
+                }
+
+                zipArchiveOutputStream.putArchiveEntry(new ZipArchiveEntry(file, entryName));
+                zipArchiveOutputStream.write(head, 0, headLen);
+                IOUtils.copy(in, zipArchiveOutputStream);
+                zipArchiveOutputStream.closeArchiveEntry();
+            }
+
         } else {
-            // It is a directory, so process all files in the folder recursively
+            zipArchiveOutputStream.putArchiveEntry(new ZipArchiveEntry(file, entryName));
             zipArchiveOutputStream.closeArchiveEntry();
             File[] children = file.listFiles(filter);
             if (children != null) {

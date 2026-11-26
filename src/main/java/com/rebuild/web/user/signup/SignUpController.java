@@ -29,7 +29,6 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.BlockList;
 import com.rebuild.utils.RateLimiters;
 import com.rebuild.web.BaseController;
-import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,15 +53,6 @@ import java.io.IOException;
 public class SignUpController extends BaseController {
 
     private static final Object RRL_LOCK = new Object();
-
-    // 基于邮箱的限流
-    private static final RequestRateLimiter RRL_4EMAIL = RateLimiters.createRateLimiter(
-            new int[]{60, 600, 3600},
-            new int[]{2, 6, 12});
-    // 基于IP的限流
-    private static final RequestRateLimiter RRL_4IP = RateLimiters.createRateLimiter(
-            new int[]{60, 600, 3600},
-            new int[]{20, 60, 120});
 
     // 注册
 
@@ -93,11 +83,11 @@ public class SignUpController extends BaseController {
         }
 
         synchronized (RRL_LOCK) {
-            if (RRL_4EMAIL.overLimitWhenIncremented("email:" + email)) {
+            if (RateLimiters.SIGNUP_4EMAIL.overLimitWhenIncremented("email:" + email)) {
                 throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
             }
             String remoteIp = ServletUtils.getRemoteAddr(request);
-            if (RRL_4IP.overLimitWhenIncremented("ip:" + remoteIp)) {
+            if (RateLimiters.SIGNUP_4IP.overLimitWhenIncremented("ip:" + remoteIp)) {
                 throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
             }
         }
@@ -200,7 +190,7 @@ public class SignUpController extends BaseController {
         }
 
         synchronized (RRL_LOCK) {
-            if (RRL_4EMAIL.overLimitWhenIncremented("email:" + email)) {
+            if (RateLimiters.SIGNUP_4EMAIL.overLimitWhenIncremented("email:" + email)) {
                 throw new DefinedException(Language.L("请求过于频繁，请稍后重试"));
             }
         }

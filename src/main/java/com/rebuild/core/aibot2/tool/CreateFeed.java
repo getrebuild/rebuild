@@ -28,8 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Date;
 
 /**
- * 新建动态
- *
  * @author devezhao
  * @since 2026/7/24
  */

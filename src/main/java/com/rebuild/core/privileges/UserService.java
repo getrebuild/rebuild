@@ -61,7 +61,7 @@ public class UserService extends BaseService {
     public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");
     // 管理员
     public static final ID ADMIN_USER = ID.valueOf("001-0000000000000001");
-    // AI助手
+    // Rex AI 助手
     public static final ID AIBOT_USER = ID.valueOf("001-0000000000000002");
 
     protected UserService(PersistManagerFactory aPMFactory) {

@@ -1,0 +1,42 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+/* Rex Light - 参考经典 RB 的浅色导航，仅覆写导航色变量 */
+
+html:not(.theme-dark2) {
+  --rex-nav-bg-1: #f7f8fa;
+  --rex-nav-bg-2: #f7f8fa;
+  --rex-nav-bg-3: #f7f8fa;
+  --rex-nav-border: #e4e7ec;
+  --rex-nav-text: #5f6773;
+  --rex-nav-text-strong: #344054;
+  --rex-nav-icon: #7c8694;
+  --rex-nav-icon-hover: #344054;
+  --rex-nav-hover-bg: #eef1f5;
+  --rex-nav-sub-bg: #f0f2f5;
+  --rex-nav-sub-text: #646e7c;
+  --rex-nav-sub-hover-bg: #e8ecf2;
+  --rex-nav-divider: #9aa3b2;
+  --rex-nav-active-a: #e6edf8;
+  --rex-nav-active-b: #eef2f8;
+  --rex-nav-active-border: rgba(47, 107, 255, 0.12);
+  --rex-nav-active-text: #2f6bff;
+  --rex-nav-sub-active-bg: rgba(47, 107, 255, 0.07);
+  --rex-nav-scroll: rgba(52, 64, 84, 0.16);
+  --rex-nav-scroll-track: rgba(52, 64, 84, 0.04);
+  --rex-nav-scroll-thumb: rgba(52, 64, 84, 0.16);
+  --rex-nav-scroll-thumb-hover: rgba(52, 64, 84, 0.26);
+  --rex-nav-collapsed-bg: #f7f8fa;
+  --rex-nav-collapsed-shadow: rgba(16, 24, 40, 0.12);
+  --rex-nav-user-bg-a: #2f6bff;
+  --rex-nav-user-bg-b: #2f6bff;
+  --rex-nav-user-name: #ffffff;
+  --rex-nav-user-id: #dbe7ff;
+  --rex-nav-brand-toggle: #5f6773;
+  --rex-nav-brand-toggle-hover: #222222;
+  --rex-nav-logo: url('../../commons/theme/use-logo');
+}

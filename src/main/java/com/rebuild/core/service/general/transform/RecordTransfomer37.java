@@ -182,7 +182,7 @@ public class RecordTransfomer37 extends RecordTransfomer {
         }
 
         // 明细 > 主+明细
-        if (querySourceSql == null || sourceEntity.getEntityCode().equals(sourceId.getEntityCode())) {
+        if (querySourceSql == null || sourceEntity.getEntityCode() == sourceId.getEntityCode()) {
             querySourceSql = String.format(
                     "select %s from %s where %s = '%s' and (1=1) order by autoId asc",
                     sourceEntity.getPrimaryField().getName(), sourceEntity.getName(),

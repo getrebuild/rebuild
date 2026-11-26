@@ -1,6 +1,6 @@
 {
   "type": "function",
-  "userDescription": "为业务实体添加字段",
+  "userDescription": "构建业务实体字段",
   "function": {
     "name": "BuildField",
     "description": "在已有实体中新建字段。当用户想在某个实体上增加记录信息（如「客户表加个生日字段」「订单加个状态」）时使用，用户通常不会说「字段」一词。先用 ListEntities 查看已有字段，避免重复创建。系统字段（主键、自增ID、创建人、创建时间、修改人、修改时间、所属用户、所属部门、助记码、创建部门）由系统在创建实体时自动生成，不要通过本工具重复创建。可选类型见 type 参数说明，部分类型需配合引用实体、下拉选项、分类、编号规则等额外参数",
@@ -9,7 +9,7 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "所属实体名称"
+          "description": "所属实体名称（ListEntities 返回的 name）"
         },
         "fieldLabel": {
           "type": "string",
@@ -28,11 +28,11 @@
             "IMAGE", "FILE", "PICKLIST", "MULTISELECT", "CLASSIFICATION",
             "REFERENCE", "N2NREFERENCE"
           ],
-          "description": "字段类型。TEXT(文本)、NTEXT(多行文本)、NUMBER(整数)、DECIMAL(小数)、BOOL(复选框)、LOCATION(位置)、TAG(标签)、SERIES(自动编号)、IMAGE(图片)、FILE(附件)、PICKLIST(下拉列表)、MULTISELECT(多选)、CLASSIFICATION(分类)、REFERENCE(引用)、N2NREFERENCE(多引用)，其余见名知义"
+          "description": "字段类型。TEXT(文本)、NTEXT(多行文本)、NUMBER(整数)、DECIMAL(小数)、BOOL(复选框)、LOCATION(位置)、TAG(标签)、SERIES(自动编号)、IMAGE(图片)、FILE(附件)、PICKLIST(下拉列表)、MULTISELECT(多选)、CLASSIFICATION(分类)、REFERENCE(引用)、N2NREFERENCE(多引用)，其余见名知义。不支持条形码/二维码(BARCODE)字段，需引导用户到实体字段页手动添加，承载码值内容可改用 TEXT 或 SERIES"
         },
         "refEntity": {
           "type": "string",
-          "description": "引用实体名称。type 为 REFERENCE 或 N2NREFERENCE 时必填"
+          "description": "引用实体名称（ListEntities 返回的 name）。type 为 REFERENCE 或 N2NREFERENCE 时必填。引用字段所在实体自身时填 @self，如部门表的上级部门字段"
         },
         "options": {
           "type": "array",
@@ -68,10 +68,6 @@
         "comments": {
           "type": "string",
           "description": "字段描述（可选），说明该字段用于记录什么信息"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
         }
       },
       "required": ["entity", "fieldLabel", "type"],

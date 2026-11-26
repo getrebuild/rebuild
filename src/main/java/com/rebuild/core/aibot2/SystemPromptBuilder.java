@@ -14,7 +14,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.aibot2.service.AibotConfigManager;
 import com.rebuild.core.aibot2.tool.ToolDefs;
-import com.rebuild.core.aibot2.tool.UserMemory;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
@@ -25,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Set;
 
 import static com.rebuild.core.aibot2.vector.VectorData.NN;
 
@@ -42,72 +42,102 @@ public class SystemPromptBuilder {
      *
      * @param basePrompt
      * @param agentPrompt
+     * @param replyStyle
      * @param skillName
      * @param planMode
      * @param planConfirmed
+     * @param agentTools
      * @return
      */
-    public static String build(String basePrompt, String agentPrompt, String skillName, boolean planMode, boolean planConfirmed) {
+    public static String build(String basePrompt, String agentPrompt, String replyStyle, String skillName, boolean planMode, boolean planConfirmed, Set<String> agentTools) {
         StringBuilder systemPrompt = new StringBuilder();
 
-        // 基础要求（管理中心配置）
-        if (StringUtils.isNotBlank(basePrompt)) {
+        // 助手身份（Agent 会话有专属人设，不注入）
+        if (StringUtils.isBlank(agentPrompt)) {
+            systemPrompt.append("<assistant_identity>\n")
+                    .append(Prompts.render("identity", "name", RebuildConfiguration.get(ConfigurationItem.AibotName)))
+                    .append("\n</assistant_identity>");
+        }
+
+        // 基础要求 / Agent 提示词（二选一：指定 Agent 时用其提示词替代基础要求，未指定则使用基础要求）
+        if (StringUtils.isNotBlank(agentPrompt)) {
+            systemPrompt.append("<agent_prompt>\n").append(agentPrompt.trim()).append("\n</agent_prompt>");
+        } else if (StringUtils.isNotBlank(basePrompt)) {
             systemPrompt.append("<basic_requirements>\n").append(basePrompt.trim()).append("\n</basic_requirements>");
         }
 
-        // Agent 提示词（优先级高于基础要求）
-        if (StringUtils.isNotBlank(agentPrompt)) {
+        // 回复风格（预设提示词片段，未设置则不注入）
+        String stylePrompt = buildReplyStylePrompt(replyStyle);
+        if (stylePrompt != null) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
-            systemPrompt.append("<agent_prompt>\n")
-                    .append("以下是当前 Agent 的专属提示词，与前述要求冲突时以本节为准。\n\n")
-                    .append(agentPrompt.trim())
-                    .append("\n</agent_prompt>");
+            systemPrompt.append("<reply_style>\n").append(stylePrompt).append("\n</reply_style>");
         }
 
-        // 系统能力（资源文件 + 动态追加搜索工具选择规则）
+        // 系统能力（资源文件 + 动态追加工具使用指引）
         String capabilityPrompt = Config.getSystemCapabilityPrompt();
-        String searchGuidance = buildSearchToolGuidance();
+        String searchGuidance = buildSearchToolGuidance(agentTools);
         if (StringUtils.isNotBlank(searchGuidance)) {
             capabilityPrompt = StringUtils.isBlank(capabilityPrompt)
                     ? searchGuidance : capabilityPrompt.trim() + NN + searchGuidance;
+        }
+        String entityGuidance = buildEntityFieldGuidance(agentTools);
+        if (StringUtils.isNotBlank(entityGuidance)) {
+            capabilityPrompt = StringUtils.isBlank(capabilityPrompt)
+                    ? entityGuidance : capabilityPrompt.trim() + NN + entityGuidance;
         }
         if (StringUtils.isNotBlank(capabilityPrompt)) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<system_capabilities>\n").append(capabilityPrompt.trim()).append("\n</system_capabilities>");
         }
 
-        // 会话上下文（系统信息 + 当前用户信息）
+        // 会话上下文（系统信息 + 当前用户信息），内部调用（如文件解析）不注入
         ID user = UserContextHolder.getUser(true);
-        boolean isRealUser = user != null && !UserHelper.isSystemUser(user);
+        boolean isRealUser = user != null && !UserHelper.isSystemUser(user)
+                && !AibotContextHolder.isAnonymous() && !AibotContextHolder.isInternalAsk();
 
         if (isRealUser) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<session_context>\n").append(buildSessionContext(user)).append("\n</session_context>");
+
+            // 用户角色（管理员与普通用户的可用能力不同）
+            systemPrompt.append(NN).append("<user_role>\n")
+                    .append(Prompts.get(UserHelper.isAdmin(user) ? "role-admin" : "role-user"))
+                    .append("\n</user_role>");
+
+            // 定时任务使用指引（工具启用时注入，任务自动执行时不注入以免再次创建任务）
+            if (!AibotContextHolder.isNonInteractive()
+                    && !ToolDefs.isToolDisabled("ScheduleTask", agentTools)) {
+                systemPrompt.append(NN).append("<schedule_task>\n")
+                        .append(Prompts.get("schedule-guidance"))
+                        .append("\n</schedule_task>");
+            }
+
+            // 用户记忆（工具启用时注入使用指引与记忆内容）
+            if (!ToolDefs.isToolDisabled("UserMemory", agentTools)) {
+                systemPrompt.append(NN).append("<user_memory>\n").append(Prompts.get("memory-guidance"));
+
+                String memoryPrompt = buildMemoryPrompt(user);
+                if (StringUtils.isNotBlank(memoryPrompt)) {
+                    systemPrompt.append(NN).append(Prompts.get("memory-intro"))
+                            .append("\n").append(memoryPrompt);
+                }
+                systemPrompt.append("\n</user_memory>");
+            }
         }
 
-        // 用户记忆（工具启用时注入使用指引与记忆内容）
-        if (isRealUser && !ToolDefs.isToolDisabled("UserMemory")) {
+        // 定时任务等非交互执行，提示模型保留二次确认
+        if (AibotContextHolder.isNonInteractive()) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
-            systemPrompt.append("<user_memory>\n").append(UserMemory.MEMORY_GUIDANCE);
-
-            String memoryPrompt = buildMemoryPrompt(user);
-            if (StringUtils.isNotBlank(memoryPrompt)) {
-                systemPrompt.append("\n\n以下为当前用户的个性化记忆，仅供参考，不要主动向用户复述这些内容。\n").append(memoryPrompt);
-            }
-            systemPrompt.append("\n</user_memory>");
+            systemPrompt.append("<non_interactive>\n")
+                    .append(Prompts.get("non-interactive-guidance"))
+                    .append("\n</non_interactive>");
         }
 
         // 计划模式（在技能之前注入，优先级低于技能）
         if (planMode) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<plan_mode>\n")
-                    .append("用户已启用计划模式。你可以使用查询类工具收集信息（如查看现有实体、搜索记录等），但禁止执行任何写操作（创建、修改、删除等）。\n")
-                    .append("请基于收集到的信息，输出执行方案，包括：\n")
-                    .append("1. 将要调用的工具及参数\n")
-                    .append("2. 具体操作步骤\n")
-                    .append("3. 预期结果\n")
-                    .append("只要方案中包含可执行的具体步骤或工具参数，就必须在方案末尾另起一行添加标记 <!-- PLAN_READY -->。前端检测到该标记后会自动弹出确认对话框，用户确认后发送确认消息触发实际执行，无需在正文中另行询问用户是否确认。\n")
-                    .append("仅当信息不足以提出任何具体方案时，才直接向用户提问以获取所需信息，此时不要输出方案格式，也不要添加 PLAN_READY 标记。")
+                    .append(Prompts.get("plan-mode"))
                     .append("\n</plan_mode>");
         }
 
@@ -115,19 +145,22 @@ public class SystemPromptBuilder {
         if (planConfirmed) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<plan_confirmed>\n")
-                    .append("用户已在计划模式中确认了执行方案。调用写操作类工具时，请直接设置 confirmed=true 参数执行，无需再次征求用户确认。\n")
+                    .append(Prompts.get("plan-confirmed"))
                     .append("\n</plan_confirmed>");
         }
+
+        // 回复格式（靠后强化，技能仍在其后）
+        if (systemPrompt.length() > 0) systemPrompt.append(NN);
+        systemPrompt.append("<output_format>\n")
+                .append(Prompts.get("output-format"))
+                .append("\n</output_format>");
 
         // 技能（用户指定，冲突时优先）
         String skillPrompt = SkillDefs.getSkillPrompt(skillName);
         if (skillPrompt != null) {
             if (systemPrompt.length() > 0) systemPrompt.append(NN);
             systemPrompt.append("<current_skill>\n")
-                    .append("以下是用户为本次会话指定的技能要求，与前述要求冲突时以本节为准。")
-                    .append("用户已明确选择该技能，视为已同意执行技能所需的写操作，")
-                    .append("调用写操作类工具时请直接设置 confirmed=true 参数执行，无需再次征求用户确认。\n\n")
-                    .append(skillPrompt.trim())
+                    .append(Prompts.render("current-skill", "prompt", skillPrompt.trim()))
                     .append("\n</current_skill>");
         }
 
@@ -135,29 +168,72 @@ public class SystemPromptBuilder {
     }
 
     /**
+     * 构建历史被裁剪的告知片段（记忆轮数生效时由调用方追加到系统提示词末尾）
+     *
+     * @param rounds 保留的轮数
+     * @return
+     */
+    public static String buildTruncatedHistoryPrompt(Long rounds) {
+        return "<truncated_history>\n"
+                + Prompts.render("truncated-history", "rounds", rounds)
+                + "\n</truncated_history>";
+    }
+
+    /**
+     * 回复风格预设映射
+     *
+     * @param style 风格标识，可为 null
+     * @return 提示词片段，未匹配返回 null
+     */
+    private static String buildReplyStylePrompt(String style) {
+        if (StringUtils.isBlank(style)) return null;
+
+        String key = style.trim().toLowerCase();
+        switch (key) {
+            case "concise":
+            case "detailed":
+            case "professional":
+            case "friendly":
+                break;
+            default:
+                log.warn("Unknown AI reply style : {}", style);
+                return null;
+        }
+
+        String prompt = Prompts.get("reply-style-" + key);
+        return StringUtils.isBlank(prompt) ? null : prompt;
+    }
+
+    /**
      * 根据可用工具动态生成搜索工具选择规则
      *
      * @return
      */
-    private static String buildSearchToolGuidance() {
-        boolean knowledgeEnabled = !ToolDefs.isToolDisabled("SearchKnowledge");
-        boolean helpEnabled = !ToolDefs.isToolDisabled("SearchHelp");
+    private static String buildSearchToolGuidance(Set<String> agentTools) {
+        boolean knowledgeEnabled = !ToolDefs.isToolDisabled("SearchKnowledge", agentTools);
+        boolean helpEnabled = !ToolDefs.isToolDisabled("SearchHelp", agentTools);
 
         if (!knowledgeEnabled && !helpEnabled) return null;
 
-        StringBuilder sb = new StringBuilder("## 搜索工具选择\n\n");
-
         if (knowledgeEnabled && helpEnabled) {
-            sb.append("- 用户提问涉及查阅资料、文档、制度、规范、流程等内容时，优先使用 SearchKnowledge 搜索企业知识库\n");
-            sb.append("- 仅当知识库未匹配到相关内容，或用户明确询问 REBUILD 系统自身功能用法时，才使用 SearchHelp 搜索官方帮助文档\n");
-            sb.append("- 不要同时调用两个搜索工具");
+            return Prompts.get("search-guidance-both");
         } else if (knowledgeEnabled) {
-            sb.append("- 用户提问涉及查阅资料、文档、制度、规范、流程等内容时，使用 SearchKnowledge 搜索企业知识库");
+            return Prompts.get("search-guidance-knowledge");
         } else {
-            sb.append("- 用户询问系统功能用法或操作指引时，使用 SearchHelp 搜索官方帮助文档");
+            return Prompts.get("search-guidance-help");
         }
+    }
 
-        return sb.toString();
+    /**
+     * 根据可用工具动态生成字段与实体引用规范
+     *
+     * @param agentTools
+     * @return
+     */
+    private static String buildEntityFieldGuidance(Set<String> agentTools) {
+        if (ToolDefs.isToolDisabled("ListEntities", agentTools)) return null;
+
+        return Prompts.get("entity-field-guidance");
     }
 
     /**

@@ -10,8 +10,6 @@ package com.rebuild.core.aibot2.tool;
 import com.rebuild.core.privileges.AdminGuard;
 
 /**
- * 新建触发器
- *
  * @author devezhao
  * @since 2026/8/16
  */

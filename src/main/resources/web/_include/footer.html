@@ -28,15 +28,17 @@
     <script th:src="@{/assets/js/frontjs/frontjs-sdk.js}" type="text/babel"></script>
     <script th:src="@{/commons/frontjs/use-frontjs}" type="text/babel"></script>
   </th:block>
+  <script th:src="@{/assets/js/aibot/chat.js}" type="text/babel"></script>
+  <script th:src="@{/assets/js/aibot/aibot.js}" type="text/babel"></script>
   <th:block th:if="${user != null && session.showStartTour != null}">
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/introjs.min.css}" />
     <script th:src="@{/assets/lib/intro.min.js}"></script>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rebuild-tour.css}" />
     <script th:src="@{/assets/js/rebuild-tour.js}" type="text/babel"></script>
   </th:block>
-  <script th:src="@{/assets/js/aibot/chat.js}" type="text/babel"></script>
-  <script th:src="@{/assets/js/aibot/aibot.js}" type="text/babel"></script>
-  <script th:src="@{/assets/js/rex-guide.js}" type="text/babel"></script>
+  <th:block th:if="${user != null && session.showStartRexGuide != null}">
+    <script th:src="@{/assets/js/rex-guide.js}" type="text/babel"></script>
+  </th:block>
 </th:block>
 <!--
 <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>

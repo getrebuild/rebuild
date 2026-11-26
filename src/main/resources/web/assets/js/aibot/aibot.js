@@ -11,19 +11,18 @@ class AiBot extends React.Component {
   constructor(props) {
     super(props)
     this._isShown = false
-    const savedDock = props.draggable ? $storage.get('__AiBotDockMode') : 'false'
-    this.state = { dockMode: !savedDock ? true : savedDock === 'true', chatid: props.chatid }
+    const savedDock = $storage.get('__AiBotDockMode')
+    this.state = { dockMode: !savedDock ? true : savedDock === 'true', chatid: props.chatid, agent: null }
   }
 
   render() {
-    const dockMode = this.state.dockMode
     return (
       <div className="aibot modal" ref={(c) => (this._$modal = c)} aria-modal="true" tabIndex="-1">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <i className="icon mdi mdi-shimmer" />
-              <h3 className="modal-title">{rb._aibotName || $L('AI 助手')}</h3>
+              <i className={`icon mdi ${(this.state.agent && this.state.agent.icon) || 'mdi-shimmer'} ai-color`} />
+              <h3 className="modal-title">{(this.state.agent && this.state.agent.name) || rb._aibotName || $L('Rex AI 助手')}</h3>
               <button
                 className="close fs-19"
                 type="button"
@@ -34,14 +33,21 @@ class AiBot extends React.Component {
                 title={$L('独立窗口')}>
                 <span className="mdi mdi-open-in-new down-1" />
               </button>
-              <button className="close" type="button" onClick={() => this._Chat.initChat()} title={$L('新会话')}>
+              <button
+                className="close"
+                type="button"
+                onClick={() => {
+                  this._Chat.initChat()
+                  $storage.remove('__AiBotLastChatId')
+                }}
+                title={$L('新会话')}>
                 <span className="mdi mdi-chat-plus-outline" />
               </button>
               <button className="close" type="button" onClick={() => this.openChatSidebar()} title={$L('会话列表')}>
                 <span className="mdi mdi-segment" />
               </button>
-              <button className="close dock-toggle" type="button" onClick={() => this.toggleDockMode()} title={dockMode ? $L('浮动模式') : $L('侧栏模式')}>
-                <span className={`mdi ${dockMode ? 'mdi-dock-window' : 'mdi-dock-right'}`} />
+              <button className="close dock-return" type="button" onClick={() => this.setDockMode()} title={$L('停靠侧栏')}>
+                <span className="mdi mdi-dock-right" />
               </button>
               <button className="close hide2" type="button" onClick={() => this.hide()} title={`${$L('关闭')} (Esc)`}>
                 <span className="mdi mdi-close" />
@@ -52,10 +58,12 @@ class AiBot extends React.Component {
                 chatid={this.props.chatid}
                 preset={this.props.preset}
                 sendMode={this.props.sendMode}
+                agentId={this.props.agentId}
                 onChatidChanged={(id) => {
                   this.setState({ chatid: id })
                   typeof this.props.onChatidChanged === 'function' && this.props.onChatidChanged(id)
                 }}
+                onAgentChanged={(agent) => this.setState({ agent })}
                 ref={(c) => (this._Chat = c)}
               />
             </div>
@@ -78,64 +86,65 @@ class AiBot extends React.Component {
 
     setTimeout(() => this.show(), 50)
 
-    if (this.props.draggable) {
-      $modalDraggable(this._$modal, {
-        containment: false,
-        keepPositionKey: '__AiBotLastChatModalPos',
-      })
+    $modalDraggable(this._$modal, {
+      containment: false,
+      keepPositionKey: '__AiBotLastChatModalPos',
+    })
 
-      // dock 模式下拖动 header 自动切换为浮动模式
-      $modal.find('.modal-header').on('mousedown', (e) => {
-        if ($(e.target).closest('.close').length) return
-        if (!this.state.dockMode) return
+    $modal.find('.modal-header').on('mousedown', (e) => {
+      if ($(e.target).closest('.close').length) return
+      if (!this.state.dockMode) return
 
-        const startX = e.clientX
-        const startY = e.clientY
-        const $dialog = $modal.find('.modal-dialog')
-        let dockOffset = null
+      const startX = e.clientX
+      const startY = e.clientY
+      const $dialog = $modal.find('.modal-dialog')
+      let dockOffset = null
+      let baseOffset = null
 
-        const onMove = (ev) => {
-          const dx = ev.clientX - startX
-          const dy = ev.clientY - startY
-          if (Math.abs(dx) < 5 && Math.abs(dy) < 5 && !dockOffset) return
+      const onMove = (ev) => {
+        const dx = ev.clientX - startX
+        const dy = ev.clientY - startY
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5 && !dockOffset) return
 
-          if (!dockOffset) {
-            dockOffset = $dialog.offset()
-            $modal.removeClass('aibot-dock')
-            $dialog.css({ position: 'fixed', right: 'unset', bottom: 'unset' })
-            this.setState({ dockMode: false })
-            $storage.set('__AiBotDockMode', 'false')
-            $dialog.draggable('enable')
-          }
-
-          $dialog.css({
-            left: dockOffset.left - $(window).scrollLeft() + dx,
-            top: dockOffset.top - $(window).scrollTop() + dy,
-          })
+        if (!dockOffset) {
+          dockOffset = $dialog.offset()
+          $modal.removeClass('aibot-dock')
+          $dialog.css({ position: 'relative', right: 'unset', bottom: 'unset', left: '', top: '' })
+          baseOffset = $dialog.offset()
+          this.setState({ dockMode: false })
+          $storage.set('__AiBotDockMode', 'false')
+          $dialog.draggable('enable')
+          $('iframe').css('pointer-events', 'none')
         }
 
-        const onUp = () => {
-          $(document).off('mousemove', onMove).off('mouseup', onUp)
-          if (dockOffset) {
-            const pos = $dialog.position()
-            $storage.set('__AiBotLastChatModalPos', pos.left + ',' + pos.top)
-          }
-        }
-
-        $(document).on('mousemove', onMove).on('mouseup', onUp)
-      })
-
-      $(document).on('keydown.aibot-hide', null, 'esc', (e) => {
-        if (e.isDefaultPrevented()) return
-        this.hide()
-      })
-
-      if (this.state.dockMode) {
-        $modal.addClass('aibot-dock')
-        const $dialog = $modal.find('.modal-dialog')
-        $dialog.draggable('disable')
-        $dialog.css({ left: '', top: '', right: '', bottom: '' })
+        $dialog.css({
+          left: dockOffset.left - baseOffset.left + dx,
+          top: dockOffset.top - baseOffset.top + dy,
+        })
       }
+
+      const onUp = () => {
+        $(document).off('mousemove', onMove).off('mouseup', onUp)
+        $('iframe').css('pointer-events', '')
+        if (dockOffset) {
+          const pos = $dialog.position()
+          $storage.set('__AiBotLastChatModalPos', pos.left + ',' + pos.top)
+        }
+      }
+
+      $(document).on('mousemove', onMove).on('mouseup', onUp)
+    })
+
+    $(document).on('keydown.aibot-hide', null, 'esc', (e) => {
+      if (e.isDefaultPrevented()) return
+      this.hide()
+    })
+
+    if (this.state.dockMode) {
+      $modal.addClass('aibot-dock')
+      const $dialog = $modal.find('.modal-dialog')
+      $dialog.draggable('disable')
+      $dialog.css({ left: '', top: '', right: '', bottom: '' })
     }
   }
 
@@ -143,25 +152,14 @@ class AiBot extends React.Component {
     this._Chat.toggleSidebar()
   }
 
-  toggleDockMode() {
-    const dockMode = !this.state.dockMode
-    this.setState({ dockMode }, () => {
-      $storage.set('__AiBotDockMode', dockMode ? 'true' : 'false')
-      if (dockMode) $(this._$modal).addClass('aibot-dock')
-      else $(this._$modal).removeClass('aibot-dock')
-
-      const $dialog = $(this._$modal).find('.modal-dialog')
-      if (dockMode) {
-        if (this.props.draggable) $dialog.draggable('disable')
-        $dialog.css({ left: '', top: '', right: '', bottom: '' })
-      } else if (this.props.draggable) {
-        $dialog.draggable('enable')
-        const last = $storage.get('__AiBotLastChatModalPos')
-        if (last) {
-          const [l, t] = last.split(',').map((v) => parseInt(v))
-          $dialog.css({ left: l, top: Math.max(-22, t), right: 'unset', bottom: 'unset' })
-        }
-      }
+  setDockMode() {
+    if (this.state.dockMode) return
+    this.setState({ dockMode: true }, () => {
+      $storage.set('__AiBotDockMode', 'true')
+      const $modal = $(this._$modal).addClass('aibot-dock')
+      const $dialog = $modal.find('.modal-dialog')
+      $dialog.draggable('disable')
+      $dialog.css({ left: '', top: '', right: '', bottom: '' })
     })
   }
 
@@ -191,7 +189,7 @@ class AiBot extends React.Component {
       }
     }
 
-    var preset = props && props.preset
+    const preset = props && props.preset
     if (window._AiBot) {
       if (toggleShow) {
         if (!window._AiBot._isShown) window._AiBot.show()
@@ -199,13 +197,11 @@ class AiBot extends React.Component {
       } else {
         window._AiBot.show()
       }
-      // 有 preset：新建会话并应用预设
       if (preset) {
         window._AiBot._Chat._preset = preset
-        window._AiBot._Chat.initChat()
+        window._AiBot._Chat.initChat(null, props.agentId)
       }
     } else {
-      // 首次创建：将 preset 传入组件
       var aiBotProps = { ...props }
       if (preset) aiBotProps.preset = preset
       renderRbcomp(<AiBot {...aiBotProps} />, function () {
@@ -221,13 +217,19 @@ class AiCreateButton extends React.Component {
     return (
       <a role="button" tabIndex="0" onClick={(e) => this._handleClick(e)} className="ai-create-btn hover-opacity">
         <i className="mdi mdi-shimmer mr-1 fs-14" />
-        {$L('用 AI 创建')}
+        {$L('用 Rex AI 创建')}
       </a>
     )
   }
 
   _handleClick(e) {
     $stopEvent(e, true)
-    window.AiBot && window.AiBot.init({ draggable: true, preset: { content: this.props.preset.content, autoSend: true } }, false)
+    AiCreateButton.openAibot(this.props.presetContent, this.props.agentId)
+  }
+
+  // @see AiBot#init
+  static openAibot(presetContent, agentId = null) {
+    // 创建类指令依赖默认 agent 的管理工具，未指定时不沿用上次选择的 agent
+    AiBot.init({ preset: { content: presetContent, autoSend: true }, agentId })
   }
 }

@@ -1,6 +1,6 @@
 {
   "type": "function",
-  "userDescription": "构建触发器（自动化规则）。在记录变化时自动执行字段更新、数据汇总、发送通知、自动审批等动作 [商业工具]",
+  "userDescription": "构建触发器（自动化规则）。记录变化时自动更新字段、汇总数据、发送通知或自动审批 [商业工具]",
   "function": {
     "name": "BuildTrigger",
     "description": "新建触发器（自动化规则）。当用户希望实现自动化需求时使用——用户可能不会提到「触发器」一词，典型表述如：把明细/子记录数据汇总（求和、计数等）回写到主记录、记录创建/更新/删除/审批时自动更新字段、自动发送通知、自动审批、自动分配、自动共享、自动记录转换、自动删除、新建动态/任务、回调URL等。仅一次性查询统计请用 StatisticsData。调用前必须先用 GetConfigSchema(schema=trigger-config) 获取 actionContent 的结构定义，并用 ListEntities 查询实体真实字段名。当动作涉及计算公式（FIELDWRITEBACK 的 updateMode=FORMULA、FIELDAGGREGATION 的 calcMode=FORMULA、DATAVALIDATE 的 validateMode=2 高级表达式）时，先用 BuildAviatorFormula 查阅函数、编写并校验公式后再填入 actionContent。解析失败会返回错误提示",
@@ -9,7 +9,7 @@
       "properties": {
         "entity": {
           "type": "string",
-          "description": "触发源实体名称，触发器挂在该实体上"
+          "description": "触发源实体名称（ListEntities 返回的 name），触发器挂在该实体上"
         },
         "name": {
           "type": "string",
@@ -50,10 +50,6 @@
         "priority": {
           "type": "integer",
           "description": "执行优先级（可选，默认 100），值越大越先执行"
-        },
-        "confirmed": {
-          "type": "boolean",
-          "description": "是否已获得用户明确确认。首次调用不带此参数或设为 false，工具将返回改动清单供你转述给用户；用户明确同意后再以相同参数并设置 confirmed=true 重新调用执行创建"
         }
       },
       "required": ["entity", "name", "when", "actionType", "actionContent"],

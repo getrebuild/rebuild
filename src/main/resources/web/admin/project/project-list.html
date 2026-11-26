@@ -1,26 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/projects" />
     <title>[[${bundle.L('项目管理')}]]</title>
     <style>
-      .project-icon > .icon,
       .card-body > .icon {
         font-size: 26px;
         color: #555;
         display: inline-block;
         text-align: center;
         border-radius: 2px;
-      }
-      .project-icon > .icon {
-        width: 36px;
-        height: 36px;
-        line-height: 36px;
-        background-color: #e3e3e3;
-      }
-      .project-icon:hover {
-        opacity: 0.8;
       }
       .card-body {
         position: relative;
@@ -47,14 +37,16 @@
           <div class="clearfix"></div>
         </div>
         <div class="main-content container-fluid pt-0" id="list">
-          <div class="card ph">
-            <div class="card-body">
-              <div class="ph-item">
-                <div class="ph-col-12">
-                  <div class="ph-row">
-                    <div class="ph-col-8"></div>
-                    <div class="ph-col-4 empty"></div>
-                    <div class="ph-col-12"></div>
+          <div class="card-list card-grid">
+            <div class="card ph">
+              <div class="card-body">
+                <div class="ph-item">
+                  <div class="ph-col-12">
+                    <div class="ph-row">
+                      <div class="ph-col-8"></div>
+                      <div class="ph-col-4 empty"></div>
+                      <div class="ph-col-12"></div>
+                    </div>
                   </div>
                 </div>
               </div>

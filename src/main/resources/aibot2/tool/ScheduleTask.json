@@ -1,25 +1,25 @@
 {
   "type": "function",
-  "userDescription": "管理定时任务。支持创建、查询、取消一次性或周期性任务，到时自动执行并站内信通知结果",
+  "userDescription": "管理定时任务。支持创建、修改、暂停、恢复、取消和查询，到时自动执行并站内信通知结果",
   "function": {
     "name": "ScheduleTask",
-    "description": "定时任务管理，支持创建、查询、取消。当用户想设定定时/周期性任务（如「每天早上9点汇总昨日新增客户」「下周一提醒我跟进XX」）时使用。到执行时间后 AI 会自动处理任务内容，并将结果通过站内信通知",
+    "description": "定时任务管理，支持创建、修改、暂停、恢复、取消和查询。当用户想设定定时/周期性任务（如「每天早上9点汇总昨日新增客户」「下周一提醒我跟进XX」）时使用。到执行时间后 AI 会自动处理任务内容，并将结果通过站内信通知。执行时使用用户本人的权限，能力范围与当前对话一致。涉及需要二次确认的写操作时，会先在会话中给出待确认内容，等待用户确认后才会保存",
     "parameters": {
       "type": "object",
       "properties": {
         "action": {
           "type": "string",
-          "description": "操作类型 create=创建, list=查询列表, cancel=取消。不传时默认 create",
-          "enum": ["create", "list", "cancel"]
+          "description": "操作类型 create=创建, update=修改, pause=暂停, resume=恢复, list=查询列表, cancel=取消。不传时默认 create",
+          "enum": ["create", "update", "pause", "resume", "list", "cancel"]
         },
         "content": {
           "type": "string",
-          "description": "任务内容/提示词（create 必填）。到执行时间后 AI 会自动处理此内容"
+          "description": "任务内容/提示词（create 必填，update 不传表示不修改）。到执行时间后 AI 会自动处理此内容，应写成不依赖当前对话也能独立执行的完整指令"
         },
         "scheduleType": {
           "type": "string",
-          "description": "调度类型（create 必填）: once=一次性, daily=每日, weekly=每周, monthly=每月",
-          "enum": ["once", "daily", "weekly", "monthly"]
+          "description": "调度类型（create 必填）: once=一次性, daily=每日, weekly=每周, monthly=每月, workdays=每个工作日（周一至周五）",
+          "enum": ["once", "daily", "weekly", "monthly", "workdays"]
         },
         "executeTime": {
           "type": "string",
@@ -27,7 +27,7 @@
         },
         "time": {
           "type": "string",
-          "description": "周期任务的执行时间，格式 HH:mm（scheduleType=daily/weekly/monthly 必填）"
+          "description": "周期任务的执行时间，格式 HH:mm（scheduleType=daily/weekly/monthly/workdays 必填）"
         },
         "dayOfWeek": {
           "type": "integer",
@@ -39,18 +39,18 @@
         },
         "subject": {
           "type": "string",
-          "description": "任务名称（可选，默认取内容前 40 字）"
+          "description": "任务名称（可选，默认取内容前 40 字）。update 时用于改名"
         },
         "taskId": {
           "type": "string",
-          "description": "任务ID（create 返回的 id）。cancel 时与 no 二选一，优先使用 no；不要向用户展示"
+          "description": "任务ID（create 返回的 id）。update/pause/resume/cancel 时与 no 二选一，优先使用 no；不要向用户展示"
         },
         "no": {
           "type": ["integer", "array"],
           "items": {
             "type": "integer"
           },
-          "description": "任务序号，即 action=list 结果中每个任务的编号（1、2、3…）。可传单个序号，或传序号数组（如 [1,2]）一次取消多个；取消多个时按同一次 list 快照解析，不受取消后序号重排影响，因此批量取消应一次传全部序号，不要分多次调用。cancel 时与 taskId 二选一，优先使用 no"
+          "description": "任务序号，即 action=list 结果中每个任务的编号（1、2、3…）。update/pause/resume 只支持单个序号；cancel 可传序号数组一次取消多个，批量取消应一次传全部序号，不要分多次调用。与 taskId 二选一，优先使用 no"
         }
       },
       "additionalProperties": false

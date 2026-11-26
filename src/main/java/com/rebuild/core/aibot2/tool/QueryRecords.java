@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 查询指定实体的记录数据。支持按名称/编号模糊匹配，也可返回记录列表
- *
  * @author devezhao
  * @since 2026/7/20
  */
@@ -148,7 +146,7 @@ public class QueryRecords implements Tool {
         } catch (KnownToolException ex) {
             throw ex;  // parseFilterToWhere 已包装了清晰的错误消息
         } catch (Exception ex) {
-            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+            throw new KnownToolException("过滤条件解析失败 : " + CommonsUtils.getRootMessage(ex), ex);
         }
 
         if (StringUtils.isBlank(whereClause)) {

@@ -148,7 +148,9 @@
         line-height: 15px;
       }
       .nav.nav-tabs.nav-tabs-classic {
-        background-color: #eee;
+        background-color: var(--rex-bg, #eee);
+        background-image: var(--rex-bg-glow, none);
+        background-attachment: fixed;
         position: sticky;
         top: 60px;
         z-index: 2;
@@ -375,7 +377,7 @@
                     <tr>
                       <td class="name">
                         <a data-name="AllowUseAiBot">
-                          [[${bundle.L('允许使用 AI 助手')}]]
+                          [[${bundle.L('允许使用 Rex AI')}]]
                           <sup class="rbv"></sup>
                         </a>
                       </td>

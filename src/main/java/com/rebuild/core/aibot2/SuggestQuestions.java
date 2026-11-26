@@ -32,7 +32,8 @@ import java.util.List;
 @Slf4j
 public class SuggestQuestions {
 
-    private static final int MAX_QUESTIONS = 5;
+    private static final int MAX_QUESTIONS = 7;
+    private static final int MAX_GUIDE_QUESTIONS = 4;
     private static final int MAX_ENTITIES_TO_CHECK = 8;
 
     private SuggestQuestions() {}
@@ -62,9 +63,10 @@ public class SuggestQuestions {
             // 通用引导，管理员与普通用户均展示
             addQuestion(questions, "你可以做什么");
 
-            List<EntityData> withData = collectEntityData();
+            List<EntityData> withData = collectEntityData(user);
 
             if (admin) {
+                addQuestion(questions, "帮我搭建一个业务系统");
                 addQuestion(questions, "帮我创建一个新的业务实体");
                 if (!withData.isEmpty()) {
                     addQuestion(questions, String.format("给%s实体添加一个新字段", withData.get(0).label));
@@ -73,7 +75,8 @@ public class SuggestQuestions {
                     addQuestion(questions, "给实体添加一个新字段");
                     addQuestion(questions, "给实体创建一个触发器");
                 }
-                addQuestion(questions, "帮我设置一个定时任务");
+                addQuestion(questions, "帮我制作一个微应用");
+                addQuestion(questions, "记住我的工作偏好");
             } else {
                 // 普通用户侧重日常业务操作类问题
                 if (!withData.isEmpty()) {
@@ -91,21 +94,77 @@ public class SuggestQuestions {
     }
 
     /**
+     * 引导弹窗用，按用户权限生成少量可立即尝试的问题
+     *
+     * @param user 当前用户
+     * @return
+     */
+    public static JSONArray generateGuide(ID user) {
+        boolean admin = user != null && UserHelper.isAdmin(user);
+
+        JSONArray questions = new JSONArray();
+
+        if (admin) {
+            addQuestion(questions, "系统里都有哪些业务实体", MAX_GUIDE_QUESTIONS);
+            addQuestion(questions, "帮我创建一个新的业务实体", MAX_GUIDE_QUESTIONS);
+
+            List<EntityData> withData = collectEntityData(user);
+            addQuestion(questions, withData.isEmpty() ? "帮我搭建一个业务系统"
+                    : String.format("给%s实体创建一个触发器", withData.get(0).label), MAX_GUIDE_QUESTIONS);
+            addQuestion(questions, "帮我制作一个微应用", MAX_GUIDE_QUESTIONS);
+        } else {
+            List<EntityData> withData = collectEntityData(user);
+            EntityData queryEntity = withData.isEmpty() ? null : withData.get(0);
+            addQuestion(questions, queryEntity != null
+                    ? String.format("查询%s列表", queryEntity.label) : "你可以做什么", MAX_GUIDE_QUESTIONS);
+
+            EntityData creatable = null;
+            for (EntityData e : withData) {
+                if (e.creatable) {
+                    creatable = e;
+                    break;
+                }
+            }
+            if (creatable == null) creatable = findCreatableEntity(user);
+            if (creatable != null) {
+                addQuestion(questions, String.format("帮我新建一条%s记录", creatable.label), MAX_GUIDE_QUESTIONS);
+            } else if (queryEntity != null) {
+                addQuestion(questions, String.format("导出%s报表", queryEntity.label), MAX_GUIDE_QUESTIONS);
+            }
+
+            addQuestion(questions, "帮我设置一个定时任务", MAX_GUIDE_QUESTIONS);
+            addQuestion(questions, "记住我的工作偏好", MAX_GUIDE_QUESTIONS);
+        }
+
+        return questions;
+    }
+
+    /**
      * @param questions
      * @param question
      */
     private static void addQuestion(JSONArray questions, String question) {
-        if (questions.size() < MAX_QUESTIONS && !questions.contains(question)) {
+        addQuestion(questions, question, MAX_QUESTIONS);
+    }
+
+    /**
+     * @param questions
+     * @param question
+     * @param max
+     */
+    private static void addQuestion(JSONArray questions, String question, int max) {
+        if (questions.size() < max && !questions.contains(question)) {
             questions.add(question);
         }
     }
 
     /**
-     * 收集有数据的业务实体（按元数据顺序）
+     * 收集有数据的业务实体（按元数据顺序，仅限当前用户可读的）
      *
+     * @param user
      * @return
      */
-    private static List<EntityData> collectEntityData() {
+    private static List<EntityData> collectEntityData(ID user) {
         List<EntityData> list = new ArrayList<>();
         int checked = 0;
 
@@ -115,12 +174,35 @@ public class SuggestQuestions {
             if (checked >= MAX_ENTITIES_TO_CHECK) break;
             checked++;
 
+            if (user != null && !Application.getPrivilegesManager().allowRead(user, e.getEntityCode())) continue;
             if (!hasRecords(e)) continue;
+
             String label = EasyMetaFactory.getLabel(e);
-            list.add(new EntityData(e.getName(), label));
+            boolean creatable = user != null && Application.getPrivilegesManager().allowCreate(user, e.getEntityCode());
+            list.add(new EntityData(label, creatable));
         }
 
         return list;
+    }
+
+    /**
+     * 查找当前用户可新建的主业务实体（不要求已有数据，用于新建记录引导）
+     *
+     * @param user
+     * @return
+     */
+    private static EntityData findCreatableEntity(ID user) {
+        if (user == null) return null;
+
+        for (Entity e : MetadataHelper.getEntities()) {
+            if (!MetadataHelper.isBusinessEntity(e)) continue;
+            if (e.getMainEntity() != null) continue;
+            if (Application.getPrivilegesManager().allowCreate(user, e.getEntityCode())) {
+                return new EntityData(EasyMetaFactory.getLabel(e), true);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -141,12 +223,12 @@ public class SuggestQuestions {
     }
 
     private static class EntityData {
-        final String name;
         final String label;
+        final boolean creatable;
 
-        EntityData(String name, String label) {
-            this.name = name;
+        EntityData(String label, boolean creatable) {
             this.label = label;
+            this.creatable = creatable;
         }
     }
 }

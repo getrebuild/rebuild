@@ -34,6 +34,7 @@ class ProTable extends React.Component {
     const inlineForms = this.state.inlineForms || []
     const colActionClazz = `col-action ${this._initModel.detailsCopiable && 'has-copy-btn'} column-fixed`
     const fixedColumn44 = this._extConf40.fixedColumn === true
+    const detailsHasSeq = !this.props.$$$main.props.readonly && this._initModel.detailsHasSeq
 
     return (
       <div className="protable rb-scroller" ref={(c) => (this._$scroller = c)}>
@@ -81,7 +82,7 @@ class ProTable extends React.Component {
                   <th className={`col-index ${fixedColumn44 && 'column-fixed'} ${!readonly && 'action'}`}>
                     <span>{idx + 1}</span>
                     {!readonly && (
-                      <a title={$L('展开编辑')} onClick={() => this._expandLineForm(key)}>
+                      <a title={$L('展开编辑') + (detailsHasSeq ? ` / ${$L('按住拖动')}` : '')} onClick={() => this._expandLineForm(key)}>
                         <i className="mdi mdi-arrow-expand" />
                       </a>
                     )}

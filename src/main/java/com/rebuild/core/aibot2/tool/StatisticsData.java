@@ -17,6 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,8 +26,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 数据统计/聚合工具
- *
  * @author RB
  * @since 2026/7/23
  */
@@ -76,7 +75,7 @@ public class StatisticsData implements Tool {
         } catch (KnownToolException ex) {
             throw ex;  // parseFilterToWhere 已包装了清晰的错误消息
         } catch (Exception ex) {
-            throw new KnownToolException("过滤条件解析失败 : " + ex.getLocalizedMessage(), ex);
+            throw new KnownToolException("过滤条件解析失败 : " + CommonsUtils.getRootMessage(ex), ex);
         }
 
         if (StringUtils.isNotBlank(groupBy)) {

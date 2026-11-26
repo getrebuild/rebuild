@@ -12,9 +12,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.openai.models.chat.completions.ChatCompletionContentPart;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.openai.models.chat.completions.ChatCompletionMessage;
+import com.openai.models.chat.completions.ChatCompletionMessageFunctionToolCall;
+import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
+import com.openai.models.chat.completions.ChatCompletionToolMessageParam;
 import com.rebuild.core.service.query.QueryHelper;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rebuild.core.aibot2.ChatExecutor.toolCallsText;
 import static com.rebuild.core.aibot2.Message.ROLE_AI;
 import static com.rebuild.core.aibot2.Message.ROLE_USER;
 
@@ -31,13 +37,14 @@ import static com.rebuild.core.aibot2.Message.ROLE_USER;
  * @author Zixin
  * @since 2025/11/1
  */
+@Slf4j
 public class Chat implements Serializable {
     private static final long serialVersionUID = 471922851634230399L;
 
     @Getter
     private ID chatid;
     @Getter
-    private AibotAgent agent;
+    private volatile AibotAgent agent;
     @Getter
     private List<Message> messages = new ArrayList<>();
     @Getter
@@ -52,8 +59,9 @@ public class Chat implements Serializable {
 
     public Chat(ID chatid, AibotAgent agent) {
         this.chatid = chatid;
-        this.agent = agent != null ? agent : AibotAgent.defaultAgent();
+        this.agent = agent;
         this.restoreIfNeed();
+        if (this.agent == null) this.agent = AibotAgent.defaultAgent();
     }
 
     protected Chat(ID chatid, String model, String prompt) {
@@ -73,6 +81,26 @@ public class Chat implements Serializable {
     public synchronized ChatLogger chatLogger() {
         if (chatLogger == null) chatLogger = new ChatLogger(chatid);
         return chatLogger;
+    }
+
+    /**
+     * @param agent
+     */
+    public synchronized void refreshAgent(AibotAgent agent) {
+        if (agent != null) this.agent = agent;
+    }
+
+    /**
+     * 附加请求级提示词。同一提示词只追加一次，避免会话内反复请求导致提示词无限累加
+     *
+     * @param prompt
+     */
+    public synchronized void appendPrompt(String prompt) {
+        if (this.agent == null || StringUtils.isBlank(prompt)) return;
+
+        String base = this.agent.getPrompt();
+        if (StringUtils.isBlank(base)) this.agent.setPrompt(prompt);
+        else if (!base.contains(prompt)) this.agent.setPrompt(base + "\n\n" + prompt);
     }
 
     /**
@@ -103,6 +131,15 @@ public class Chat implements Serializable {
     public synchronized void endRun() {
         running = false;
         notifyAll();
+    }
+
+    /**
+     * 是否正在回答
+     *
+     * @return
+     */
+    public boolean isRunning() {
+        return running;
     }
 
     /**
@@ -146,11 +183,13 @@ public class Chat implements Serializable {
         messages.add(message);
 
         String systemPrompt = agent.buildSystemPrompt(null, false, false);
-        chatLogger().logSession(agent.model(), systemPrompt);
+        String model = agent.visionModel();
+        chatLogger().logSession(StringUtils.defaultIfBlank(model, agent.model()), systemPrompt);
         chatLogger().log("USER", userMessage);
 
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent)
                 .addUserMessageOfArrayOfContentParts(parts);
+        if (StringUtils.isNotBlank(model)) builder.model(model);
         return new ChatExecutor(this, null, builder).runContent();
     }
 
@@ -164,29 +203,158 @@ public class Chat implements Serializable {
     private ChatCompletionCreateParams.Builder requestParams(String userMessage, ChatRequest chatRequest) {
         boolean planMode = chatRequest != null && chatRequest.getPlanMode();
         boolean planConfirmed = chatRequest != null && chatRequest.getPlanConfirmed();
-        String systemPrompt = agent.buildSystemPrompt(
-                chatRequest == null ? null : chatRequest.getSkill(), planMode, planConfirmed);
-        chatLogger().logSession(agent.model(), systemPrompt);
 
-        if (userMessage != null) {
-            Message message = new Message(ROLE_USER, userMessage, null, null, chatRequest);
-            messages.add(message);
+        // 本轮提问先入队，历史裁剪窗口据此计算
+        if (userMessage != null) messages.add(new Message(ROLE_USER, userMessage, null, null, chatRequest));
 
-            chatLogger().log("USER", userMessage);
+        List<Message> reqMessages = requestMessages();
+        // 非 null 表示历史已按记忆轮数裁剪
+        Long memoryRounds = reqMessages.size() < messages.size() ? agent.memoryRounds() : null;
+        if (memoryRounds != null) {
+            chatLogger().logEvent(String.format("History truncated by memory rounds %d (keep %d/%d messages)",
+                    memoryRounds, reqMessages.size(), messages.size()));
         }
 
+        String systemPrompt = agent.buildSystemPrompt(
+                chatRequest == null ? null : chatRequest.getSkill(), planMode, planConfirmed);
+        if (memoryRounds != null) systemPrompt += "\n\n" + SystemPromptBuilder.buildTruncatedHistoryPrompt(memoryRounds);
+
+        // logSession 靠日志文件为空判断是否写会话头，必须在 log(USER) 之前调用
+        chatLogger().logSession(agent.model(), systemPrompt);
+        if (userMessage != null) chatLogger().log("USER", userMessage);
+
+        String truncatedMark = memoryRounds != null ? buildTruncatedMark(memoryRounds) : null;
+
         ChatCompletionCreateParams.Builder builder = Config.createBuilder(systemPrompt, agent);
-        for (Message m : messages) {
+        for (Message m : reqMessages) {
             String content = m.getContent();
-            // 空内容消息（如仅附件或技能触发）发送给 AI 时需兑底文案，避免部分 AI 端拒绝空消息
-            if (ROLE_USER.equals(m.getRole())) builder.addUserMessage(StringUtils.defaultIfBlank(content, "请开始"));
-            else if (ROLE_AI.equals(m.getRole())) builder.addAssistantMessage(content);
+            boolean isUser = ROLE_USER.equals(m.getRole());
+            if (isUser) {
+                // 空内容消息（如仅附件或技能触发）发送给 AI 时需兑底文案，避免部分 AI 端拒绝空消息
+                content = StringUtils.defaultIfBlank(content, "请开始");
+            } else if (ROLE_AI.equals(m.getRole())) {
+                String roundsText = appendToolHistory(builder, m.getToolHistory());
+                content = stripRoundsPrefix(content, roundsText);
+            } else {
+                continue;
+            }
+
+            // 仅注入窗口首条实际发送的消息，不改变消息序列结构（部分 AI 端不接受连续同角色或中途的 system 消息）
+            if (truncatedMark != null) {
+                content = truncatedMark + "\n\n" + content;
+                truncatedMark = null;
+            }
+
+            if (isUser) builder.addUserMessage(content);
+            else builder.addAssistantMessage(content);
         }
 
         builder.tools(agent.tools())
                 .toolChoice(ChatCompletionToolChoiceOption.Auto.AUTO);
 
         return builder;
+    }
+
+    /**
+     * 按记忆轮数截取发送给模型的历史消息（仅影响请求，不影响持久化与前端展示）
+     * <p>按消息边界截取，工具调用与结果由 {@link #appendToolHistory} 在同一条 AI 消息内成对重建，不会产生孤儿 tool_call
+     *
+     * @return
+     */
+    private List<Message> requestMessages() {
+        Long rounds = agent.memoryRounds();
+        if (rounds == null) return messages;
+
+        int allowed = rounds.intValue() + 1; // 历史轮数 + 本轮提问
+        int users = 0;
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            if (ROLE_USER.equals(messages.get(i).getRole()) && ++users > allowed) {
+                return messages.subList(i + 1, messages.size());
+            }
+        }
+        return messages;
+    }
+
+    /**
+     * 历史被裁剪时注入在窗口首条消息前的边界标记，行为约束见 {@link SystemPromptBuilder#buildTruncatedHistoryPrompt}
+     * <p>仅拼入发送给模型的请求文本，不修改 {@link Message}，故不影响持久化、前端展示与会话日志中的消息内容
+     *
+     * @param rounds 保留的轮数
+     * @return
+     */
+    private static String buildTruncatedMark(Long rounds) {
+        return "（系统标记，非对话内容。此处更早的对话已省略，本次请求只保留最近 " + rounds + " 轮。）";
+    }
+
+    /**
+     * 重建历史消息中的工具调用与结果，使模型跨轮可见（避免重复查询与重复生成）
+     *
+     * @param builder
+     * @param toolHistory
+     * @return 各轮正文原文的拼接（供调用方剪除重复前缀），无有效轮返回 null
+     */
+    private String appendToolHistory(ChatCompletionCreateParams.Builder builder, JSONArray toolHistory) {
+        if (toolHistory == null) return null;
+
+        StringBuilder roundsText = new StringBuilder();
+        for (Object o : toolHistory) {
+            JSONObject round = (JSONObject) o;
+            JSONArray calls = round.getJSONArray("calls");
+            if (calls == null || calls.isEmpty()) {
+                log.warn("Tool history round skipped (no calls) : chatid={}", getChatid());
+                continue;
+            }
+
+            List<ChatCompletionMessageToolCall> toolCalls = new ArrayList<>();
+            for (Object c : calls) {
+                JSONObject call = (JSONObject) c;
+                toolCalls.add(ChatCompletionMessageToolCall.ofFunction(
+                        ChatCompletionMessageFunctionToolCall.builder()
+                                .id(call.getString("id"))
+                                .function(ChatCompletionMessageFunctionToolCall.Function.builder()
+                                        .name(call.getString("name"))
+                                        .arguments(StringUtils.defaultString(call.getString("arguments")))
+                                        .build())
+                                .build()));
+            }
+
+            String rawContent = round.getString("content");
+            if (rawContent != null) roundsText.append(rawContent);
+
+            builder.addMessage(ChatCompletionMessage.builder()
+                    .content(StringUtils.trimToNull(rawContent))
+                    .refusal((String) null)
+                    .toolCalls(toolCalls)
+                    .build());
+
+            JSONArray results = round.getJSONArray("results");
+            if (results == null || results.isEmpty()) {
+                log.warn("Tool history round has no results : chatid={}, tools={}", getChatid(), toolCallsText(toolCalls));
+                continue;
+            }
+            for (Object r : results) {
+                JSONObject result = (JSONObject) r;
+                builder.addMessage(ChatCompletionToolMessageParam.builder()
+                        .toolCallId(result.getString("id"))
+                        .content(StringUtils.defaultString(result.getString("result")))
+                        .build());
+            }
+        }
+        return roundsText.length() > 0 ? roundsText.toString() : null;
+    }
+
+    /**
+     * 流式消息的正文为全部轮文本拼接，与工具轮记录的正文重复。重建时若正文以各轮拼接为前缀则剪去，仅保留末轮正文
+     *
+     * @param content
+     * @param roundsText toolHistory 各轮正文拼接，可为 null
+     * @return
+     */
+    private static String stripRoundsPrefix(String content, String roundsText) {
+        if (StringUtils.isEmpty(roundsText) || content == null || !content.startsWith(roundsText)) return content;
+        String remaining = content.substring(roundsText.length());
+        // 剪除后为空时保持原文，避免发出空正文消息
+        return StringUtils.isNotBlank(remaining) ? remaining : content;
     }
 
     /**
@@ -198,7 +366,20 @@ public class Chat implements Serializable {
      * @return
      */
     public Message completionAfter(String aiMessage, String reasoning, ChatRequest chatRequest) {
-        Message message = new Message(ROLE_AI, aiMessage, StringUtils.trimToNull(reasoning), null, chatRequest);
+        return completionAfter(aiMessage, reasoning, chatRequest, null);
+    }
+
+    /**
+     * 完成后存储消息内容（含本轮工具调用与结果）
+     *
+     * @param aiMessage
+     * @param reasoning
+     * @param chatRequest
+     * @param toolHistory 可为 null
+     * @return
+     */
+    public Message completionAfter(String aiMessage, String reasoning, ChatRequest chatRequest, JSONArray toolHistory) {
+        Message message = new Message(ROLE_AI, aiMessage, StringUtils.trimToNull(reasoning), null, chatRequest, toolHistory);
         messages.add(message);
 
         if (StringUtils.isNotBlank(reasoning)) chatLogger().log("REASONING", reasoning);
@@ -236,6 +417,12 @@ public class Chat implements Serializable {
      * 恢复会话内容
      */
     protected void restoreIfNeed() {
+        if (this.agent == null) {
+            Object a = QueryHelper.queryFieldValue(getChatid(), "agentId");
+            AibotAgent agent = a == null ? null : AgentDefs.getAgentQuietly((ID) a);
+            if (agent != null) this.agent = agent;
+        }
+
         Object t = QueryHelper.queryFieldValue(getChatid(), "token");
         if (t != null) this.tokenUsage = Long.parseLong(t.toString());
 
@@ -246,7 +433,8 @@ public class Chat implements Serializable {
 
         for (Object msg : data) {
             JSONObject msgJson = (JSONObject) msg;
-            String role = msgJson.getString("role");
+            // 旧版 pub 会话的用户消息未存 role，此处兜底
+            String role = StringUtils.defaultIfBlank(msgJson.getString("role"), ROLE_USER);
             String content = msgJson.getString("content");
 
             if (ROLE_USER.equals(role)) {
@@ -257,7 +445,8 @@ public class Chat implements Serializable {
             } else if (ROLE_AI.equals(role)) {
                 String reasoning = msgJson.getString("reasoning");
                 String error = msgJson.getString("error");
-                messages.add(new Message(role, content, reasoning, error, getChatid(), msgJson));
+                JSONArray toolHistory = msgJson.getJSONArray("toolHistory");
+                messages.add(new Message(role, content, reasoning, error, getChatid(), msgJson, toolHistory));
             }
         }
     }

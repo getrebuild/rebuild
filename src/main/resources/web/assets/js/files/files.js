@@ -42,7 +42,7 @@ class FilesList extends React.Component {
                   onClick={(e) => {
                     $stopEvent(e, true)
                     $.get(`/files/check-readable?id=${item.id}`, (res) => {
-                      if (res.data) RbPreview.create(res.data)
+                      if (res.data) RbPreview.create(res.data, 0, item.editable ? item.id : null)
                       else RbHighbar.create($L('你没有查看此文件的权限'))
                     })
                   }}
@@ -54,7 +54,7 @@ class FilesList extends React.Component {
                   {this.renderExtras(item)}
                 </div>
               </div>
-              {this.renderExtras34(item)}
+              {this.renderAction46(item)}
               <div className="info">
                 <DateShow date={item.uploadOn} />
               </div>
@@ -103,8 +103,48 @@ class FilesList extends React.Component {
     return null
   }
 
-  renderExtras34(item) {
-    return null
+  renderAction46(item) {
+    return (
+      <div className="info position-relative">
+        <span className="fop-action">
+          {item.editable && (
+            <a title={$L('编辑')} onClick={(e) => this._handleEdit(item, e)}>
+              <i className="icon mdi mdi-square-edit-outline" />
+            </a>
+          )}
+          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/files/download?id=${item.id}`} target="_blank">
+            <i className="icon zmdi zmdi-download" />
+          </a>
+          {rb.fileSharable && (
+            <a title={$L('分享')} onClick={(e) => this._handleShare(item, e)}>
+              <i className="icon zmdi zmdi-share fs-15 up-1" />
+            </a>
+          )}
+        </span>
+      </div>
+    )
+  }
+
+  _handleEdit(item, e) {
+    $stopEvent(e, true)
+    renderRbcomp(
+      <FileRename
+        fileId={item.id}
+        fileKey={item.fileName}
+        renameUrl={(newName) => {
+          return item.relatedRecord
+            ? `/app/entity/extras/file-rename?newName=${$encode(newName)}&id=${item.id}&fieldBelong=${item.belongField}:${item.relatedRecord[0]}`
+            : `/files/file-edit?newName=${$encode(newName)}&id=${item.id}`
+        }}
+        onRenamed={() => filesList && filesList.loadData()}
+      />,
+    )
+  }
+
+  _handleShare(item, e) {
+    $stopEvent(e)
+    // eslint-disable-next-line react/jsx-no-undef
+    renderRbcomp(<FileShare file={item.id} />)
   }
 
   componentDidMount() {
@@ -140,7 +180,7 @@ class SharedFiles extends RbModalHandler {
 
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L('分享列表')} disposeOnHide>
-        <div className="file-list file-list-striped sharing-list" ref={(c) => (this._$list = c)}>
+        <div className="file-list file-list-striped sharing-list p-2" ref={(c) => (this._$list = c)}>
           {files.length === 0 ? (
             <div className="list-nodata pt-4">
               <i className="zmdi zmdi-share" />
@@ -236,6 +276,16 @@ $(document).ready(() => {
     } else {
       filesList.setState({ currentActive: [] })
     }
+  })
+
+  // 批量下载
+  $('a.J_dl, button.J_dl').on('click', () => {
+    const s = filesList.getSelected()
+    if (!s) return
+
+    const $form = $('form.J_dl')
+    $form.find('input').val(s.join(','))
+    $form[0].submit()
   })
 
   // 搜索

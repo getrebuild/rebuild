@@ -2,20 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/aibot2.css}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-aibot" />
-    <title>[[${bundle.L('AI 助手')}]]</title>
-    <style>
-      .row.stats .col-8 span {
-        display: block;
-        height: 44px;
-        width: 100%;
-        margin-top: 1px;
-      }
-      p.mt-2.text-dark code:hover {
-        font-weight: bold;
-        cursor: pointer;
-      }
-    </style>
+    <title>Rex AI</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -27,7 +16,7 @@
             <div class="col-lg-9 col-12">
               <div class="card">
                 <div class="card-header pb-1">
-                  [[${bundle.L('AI 助手')}]]
+                  Rex AI
                   <a href="###" class="float-right J_edit"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
                   <a href="###" class="float-right J_save hide"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
                 </div>
@@ -40,29 +29,24 @@
                         <td data-id="AibotName" th:data-value="${AibotName ?:''}" data-optional="true">[[${AibotName ?:bundle.L('默认')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('API 地址')}]]</td>
+                        <td>[[${bundle.L('服务地址')}]]</td>
                         <td data-id="AibotDSUrl" th:data-value="${AibotDSUrl ?:''}">[[${AibotDSUrl ?:bundle.L('未配置')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('秘钥')}]]</td>
                         <td data-id="AibotDSSecret" th:data-value="${AibotDSSecret ?:''}">[[${AibotDSSecret ?:bundle.L('未配置')}]]</td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('请正确填写模型名称（填写服务地址、秘钥后可自动获取可用模型列表）')}">
                         <td>[[${bundle.L('使用模型')}]]</td>
-                        <td
-                          class="position-relative"
-                          data-id="AibotBaseDefModel"
-                          th:data-value="${AibotBaseDefModel ?:''}"
-                          th:data-form-text="${bundle.L('请正确填写模型名称（填写 API 地址、秘钥后可自动获取可用模型列表）')}"
-                        >
-                          [[${AibotBaseDefModel ?:bundle.L('未配置')}]]
-                        </td>
+                        <td class="position-relative" data-id="AibotBaseDefModel" th:data-value="${AibotBaseDefModel ?:''}">[[${AibotBaseDefModel ?:bundle.L('未配置')}]]</td>
                       </tr>
-                      <tr class="bosskey-show">
-                        <td>[[${bundle.L('上下文大小')}]]</td>
-                        <td data-id="AibotContextCompressThreshold" th:data-value="${AibotContextCompressThreshold ?:''}" data-optional="true" data-input-type="number">
-                          [[${AibotContextCompressThreshold ?:bundle.L('默认')}]]
-                        </td>
+                      <tr th:title="${bundle.L('需模型支持，留空不启用')}">
+                        <td>[[${bundle.L('视觉模型')}]]</td>
+                        <td data-id="AibotVisionModel" th:data-value="${AibotVisionModel ?:''}" data-optional="true">[[${AibotVisionModel ?:bundle.L('未启用')}]]</td>
+                      </tr>
+                      <tr class="bosskey-show" th:title="${bundle.L('需平台支持，留空不启用')}">
+                        <td>[[${bundle.L('语音模型')}]]</td>
+                        <td data-id="AibotAsrModel" th:data-value="${AibotAsrModel ?:''}" data-optional="true">[[${AibotAsrModel ?:bundle.L('未启用')}]]</td>
                       </tr>
                       <tr class="bosskey-show">
                         <td>[[${bundle.L('温度')}]]</td>
@@ -72,47 +56,55 @@
                         <td>[[${bundle.L('核采样')}]]</td>
                         <td data-id="AibotTopP" th:data-value="${AibotTopP ?:''}" data-optional="true" data-input-type="number">[[${AibotTopP ?:bundle.L('默认')}]]</td>
                       </tr>
-                      <tr>
-                        <td>[[${bundle.L('系统提示词')}]]</td>
-                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true" th:data-form-text="${bundle.L('提示词用于设定 AI 身份、规范行为与输出')}">
-                          [[${AibotBasePrompt ?:bundle.L('无')}]]
+                      <tr th:title="${bundle.L('越高思考越充分，但响应会变慢（仅部分模型支持）')}">
+                        <td>[[${bundle.L('思考强度')}]]</td>
+                        <td data-id="AibotReasoningEffort" th:data-value="${AibotReasoningEffort ?:''}" data-optional="true">
+                          <th:block th:if="${AibotReasoningEffort == 'low'}">[[${bundle.L('低')}]]</th:block>
+                          <th:block th:if="${AibotReasoningEffort == 'medium'}">[[${bundle.L('中')}]]</th:block>
+                          <th:block th:if="${AibotReasoningEffort == 'high'}">[[${bundle.L('高')}]]</th:block>
+                          <th:block th:if="${AibotReasoningEffort == null or AibotReasoningEffort == ''}">[[${bundle.L('默认')}]]</th:block>
                         </td>
+                      </tr>
+                      <tr th:title="${bundle.L('回答时可记住多少轮对话（适当调小可节约词元成本）')}">
+                        <td>[[${bundle.L('记忆轮数')}]]</td>
+                        <td data-id="AibotMemoryRounds" th:data-value="${AibotMemoryRounds ?:''}" data-optional="true" data-input-type="number">[[${AibotMemoryRounds ?:bundle.L('默认')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('回复风格')}]]</td>
+                        <td data-id="AibotReplyStyle" th:data-value="${AibotReplyStyle ?:''}" data-optional="true">
+                          <th:block th:if="${AibotReplyStyle == 'concise'}">[[${bundle.L('简洁')}]]</th:block>
+                          <th:block th:if="${AibotReplyStyle == 'detailed'}">[[${bundle.L('详细')}]]</th:block>
+                          <th:block th:if="${AibotReplyStyle == 'professional'}">[[${bundle.L('专业')}]]</th:block>
+                          <th:block th:if="${AibotReplyStyle == 'friendly'}">[[${bundle.L('亲切')}]]</th:block>
+                          <th:block th:if="${AibotReplyStyle == null}">[[${bundle.L('默认')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr th:title="${bundle.L('提示词用于设定 AI 身份、规范行为与输出')}">
+                        <td>[[${bundle.L('系统提示词')}]]</td>
+                        <td data-id="AibotBasePrompt" th:data-value="${AibotBasePrompt ?:''}" data-optional="true">[[${AibotBasePrompt ?:bundle.L('无')}]]</td>
                       </tr>
                     </tbody>
                   </table>
-                  <span id="AibotBaseDefModel_defs">
-                    <div class="dropdown-menu common-texts">
-                      <h5>{$L('常用')}</h5>
-                      <a class="badge text-ellipsis">gpt-5</a>
-                    </div>
-                  </span>
                   <h5>[[${bundle.L('使用引导')}]]</h5>
                   <table class="table">
                     <tbody>
-                      <tr>
+                      <tr th:title="${bundle.L('新会话时展示的欢迎语')}">
                         <td width="40%">[[${bundle.L('欢迎词')}]]</td>
-                        <td
-                          data-id="AibotWelcome"
-                          style="white-space: pre-line"
-                          th:data-value="${AibotWelcome ?:''}"
-                          data-optional="true"
-                          th:data-form-text="${bundle.L('新会话时展示的欢迎语')}"
-                          th:text="${AibotWelcome ?:bundle.L('默认')}"
-                        >
-                          默认
-                        </td>
+                        <td data-id="AibotWelcome" th:data-value="${AibotWelcome ?:''}" data-optional="true">[[${AibotWelcome ?:bundle.L('默认')}]]</td>
                       </tr>
-                      <tr>
+                      <tr th:title="${bundle.L('新会话时展示的引导问题，每行一个问题')}">
                         <td width="40%">[[${bundle.L('引导问题')}]]</td>
-                        <td
-                          data-id="AibotSuggestQuestions"
-                          style="white-space: pre-line"
-                          th:data-value="${AibotSuggestQuestions ?:''}"
-                          data-optional="true"
-                          th:data-form-text="${bundle.L('新会话时展示的引导问题，每行一个问题')}"
-                          th:text="${AibotSuggestQuestions ?:bundle.L('默认')}"
-                        >
-                          默认
+                        <td data-id="AibotSuggestQuestions" th:data-value="${AibotSuggestQuestions ?:''}" data-optional="true">[[${AibotSuggestQuestions ?:bundle.L('默认')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>[[${bundle.L('访问控制')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr th:title="${bundle.L('禁用后将不再提供默认助手，用户只能使用共享给他们的智能体')}">
+                        <td width="40%">[[${bundle.L('禁用默认助手')}]]</td>
+                        <td data-id="AibotDefaultDisabled" th:data-value="${AibotDefaultDisabled ?: 'false'}" data-optional="true">
+                          [[${AibotDefaultDisabled == 'true' ? bundle.L('是') : bundle.L('否')}]]
                         </td>
                       </tr>
                     </tbody>
@@ -141,15 +133,36 @@
                     </div>
                     <div class="col-4">
                       <strong class="fs-18">0</strong>
-                      <p class="text-muted m-0">[[${bundle.L('万/Token')}]]</p>
+                      <p class="text-muted m-0 fs-12">[[${bundle.L('万/Token')}]]</p>
+                    </div>
+                  </div>
+                  <div class="row stats J_stats-chats mt-4">
+                    <div class="col-8">
+                      <span></span>
+                    </div>
+                    <div class="col-4">
+                      <a class="light-link" th:href="@{/admin/aibot2/chats}"><strong class="fs-18">0</strong></a>
+                      <p class="text-muted m-0 fs-12">[[${bundle.L('会话数')}]]</p>
+                    </div>
+                  </div>
+                  <div class="row stats J_stats-usercount mt-4">
+                    <div class="col-8">
+                      <span></span>
+                    </div>
+                    <div class="col-4">
+                      <strong class="fs-18">0</strong>
+                      <p class="text-muted m-0 fs-12">[[${bundle.L('使用人数')}]]</p>
                     </div>
                   </div>
                 </div>
               </div>
+
               <div class="card mt-3">
-                <div class="card-header card-header-divider">[[${bundle.L('TOP10 用户榜')}]]</div>
+                <div class="card-header card-header-divider">[[${bundle.L('MCP 接入')}]]</div>
                 <div class="card-body">
-                  <div class="J_stats-users"></div>
+                  <p class="mb-1">[[${bundle.L('通过 MCP 接入，可以在 WorkBuddy、QoderWork 等支持 MCP 协议的 AI 客户端中直接调用 Rex AI 助手。')}]]</p>
+                  <p th:utext="${bundle.L('注意 [个人秘钥](%s) 需替换成自己的，切勿共享。', '/settings/user#secure')}"></p>
+                  <div class="J_mcpConfig" th:data-url="${_McpServerUrl}"></div>
                 </div>
               </div>
             </div>
@@ -160,6 +173,7 @@
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
     <script th:src="@{/assets/lib/charts/echarts.min.js?v=5.5.0}"></script>
+    <script th:src="@{/assets/js/charts/stats.js}"></script>
     <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/admin/aibot.js}" type="text/babel"></script>

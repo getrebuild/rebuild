@@ -12,6 +12,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
@@ -22,6 +23,7 @@ import com.rebuild.core.privileges.RoleService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -150,7 +152,16 @@ public class RolePrivilegesController extends EntityController {
             tos.add(ID.valueOf(s.toString()));
         }
 
-        Application.getBean(RoleService.class).updateWithCopyTo(from, tos.toArray(new ID[0]));
+        Set<String> entities = null;
+        JSONArray entitiesArr = post.getJSONArray("entities");
+        if (CollectionUtils.isNotEmpty(entitiesArr)) {
+            entities = new HashSet<>();
+            for (Object e : entitiesArr) {
+                entities.add(e.toString());
+            }
+        }
+
+        Application.getBean(RoleService.class).updateWithCopyTo(from, tos.toArray(new ID[0]), entities);
         return RespBody.ok();
     }
 }

@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2.tool;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.openai.core.JsonValue;
 import com.openai.models.FunctionDefinition;
@@ -57,7 +56,7 @@ public interface Tool {
     }
 
     /**
-     * 是否为系统工具（仅供 AI 使用，不对用户展示）
+     * 是否为系统工具（仅供AI/内部使用，不对用户展示）
      *
      * @return
      */

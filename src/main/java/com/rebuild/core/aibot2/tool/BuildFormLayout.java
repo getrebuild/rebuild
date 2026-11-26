@@ -10,8 +10,6 @@ package com.rebuild.core.aibot2.tool;
 import com.rebuild.core.privileges.AdminGuard;
 
 /**
- * 新建表单布局
- *
  * @author devezhao
  * @since 2026/8/27
  */

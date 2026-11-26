@@ -23,13 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 新建 AI 技能（仅管理员）
- *
  * @author devezhao
  * @since 2026/8/19
  */
 @Slf4j
-public class BuildSkill implements Tool, AdminGuard {
+public class BuildSkill implements Tool, AdminGuard, ConfirmableTool {
 
     @Override
     public Object tool(String arguments) throws Exception {
@@ -85,7 +83,7 @@ public class BuildSkill implements Tool, AdminGuard {
         record = Application.getBean(AibotConfigService.class).create(record);
 
         String skillId = record.getPrimary().toLiteral();
-        String skillUrl = AppUtils.getContextPath("/admin/integration/aibot-kits");
+        String skillUrl = AppUtils.getContextPath("/admin/aibot2/skills");
 
         log.info("Skill created via AI : {} ({})", skillId, name);
 

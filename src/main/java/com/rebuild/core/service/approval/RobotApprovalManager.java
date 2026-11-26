@@ -53,7 +53,7 @@ public class RobotApprovalManager implements ConfigManager {
 
         // 记录的
         if (recordId != null) {
-            if (!recordId.getEntityCode().equals(entity.getEntityCode())) {
+            if (recordId.getEntityCode() != entity.getEntityCode()) {
                 log.warn("Entity and Record/ID mismatch : {}, {}", entity, recordId);
                 CommonsUtils.printStackTrace();
                 return null;
@@ -86,6 +86,24 @@ public class RobotApprovalManager implements ConfigManager {
         FlowDefinition[] defs = getFlowDefinitions(entity);
         for (FlowDefinition def : defs) {
             if (!def.isDisabled()) return true;
+        }
+        return false;
+    }
+
+    /**
+     * 获取记录是否有流程
+     *
+     * @param recordId
+     * @return
+     */
+    public boolean hadApproval(ID recordId) {
+        FlowDefinition[] defs = getFlowDefinitions(MetadataHelper.getEntity(recordId.getEntityCode()));
+        for (FlowDefinition def : defs) {
+            if (def.isDisabled() || !def.isWorkable()) continue;
+
+            FlowNode root = def.createFlowParser().getNode("ROOT");
+            JSONObject filter = root.getDataMap().getJSONObject("filter");
+            if (QueryHelper.isMatchAdvFilter(recordId, filter)) return true;
         }
         return false;
     }

@@ -10,6 +10,8 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Entity;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,6 +45,17 @@ public class EasyEntity extends BaseEasyMeta<Entity> {
      */
     public boolean isPlainEntity() {
         return getExtraAttrs().getBooleanValue("plainEntity");
+    }
+
+    /**
+     * 是否激活了明细排序
+     *
+     * @return
+     */
+    public boolean isDetailsSortable() {
+        return getRawMeta().getMainEntity() != null
+                && getRawMeta().containsField(EntityHelper.Seq)
+                && getExtraAttrs().getBooleanValue(EasyEntityConfigProps.DETAILS_SORTABLE);
     }
 
     @Override

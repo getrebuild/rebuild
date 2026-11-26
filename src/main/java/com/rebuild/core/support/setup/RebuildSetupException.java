@@ -18,6 +18,10 @@ import com.rebuild.core.RebuildException;
 public class RebuildSetupException extends RebuildException {
     private static final long serialVersionUID = 2967864326290626538L;
 
+    public RebuildSetupException(String msg) {
+        super(msg);
+    }
+
     public RebuildSetupException(Throwable cause) {
         super(cause);
     }

@@ -405,17 +405,24 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
         <div className="form approval-form">
           <div className="form-group">
             <label>{$L('选择审批流程')}</label>
+            {approvals.length === 0 && (
+              <RbAlertBox
+                type="info"
+                unclose
+                message={
+                  <RF>
+                    {$L('无适用审批流程')}
+                    {rb.isAdminUser && (
+                      <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals?new=${(window.__PageConfig || {}).entity[0] || ''}`}>
+                        <i className="zmdi zmdi-settings" /> {$L('点击添加')}
+                      </a>
+                    )}
+                  </RF>
+                }
+              />
+            )}
+
             <div className="approval-list">
-              {!this.state.approvals && (
-                <p className="text-muted">
-                  {$L('无适用流程')}
-                  {rb.isAdminUser && (
-                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals?new=${(window.__PageConfig || {}).entity[0] || ''}`}>
-                      <i className="zmdi zmdi-settings" /> {$L('点击添加')}
-                    </a>
-                  )}
-                </p>
-              )}
               {approvals.map((item) => {
                 return (
                   <div key={item.id}>
@@ -437,7 +444,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
           <button type="button" className="btn btn-secondary btn-space mr-2" onClick={this.hide}>
             {$L('取消')}
           </button>
-          <button type="button" className="btn btn-primary btn-space mr-1" onClick={() => this.post()}>
+          <button type="button" className="btn btn-primary btn-space mr-1" onClick={() => this.post()} disabled={!this.state.isLoaded}>
             {$L('提交')}
           </button>
         </div>
@@ -576,10 +583,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
             </div>
           )}
 
-          <button type="button" className="btn btn-primary btn-space mr-2" onClick={() => this.post(10)} disabled={!!this.state.hasError}>
+          <button type="button" className="btn btn-primary btn-space mr-2" onClick={() => this.post(10)} disabled={!this.state.isLoaded || !!this.state.hasError}>
             {$L('同意')}
           </button>
-          <button type="button" className="btn btn-danger btn-outline btn-space mr-1" onClick={() => this.post(11)} disabled={!!this.state.hasError}>
+          <button type="button" className="btn btn-danger btn-outline btn-space mr-1" onClick={() => this.post(11)} disabled={!this.state.isLoaded || !!this.state.hasError}>
             {$L('驳回')}
           </button>
         </div>
@@ -781,9 +788,13 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         tips={$L('请选择转审给谁')}
         onConfirm={(s, _alert) => {
           _alert.disabled(true)
-          $.post(`/app/entity/approval/referral?record=${this.props.id}&to=${s[0]}`, (res) => {
-            _alert.disabled()
 
+          const d = {
+            remark: this.state.remark || null,
+            remarkAttachments: this.state.remarkAttachments || null,
+          }
+          $.post(`/app/entity/approval/referral?record=${this.props.id}&to=${s[0]}`, JSON.stringify(d), (res) => {
+            _alert.disabled()
             if (res.error_code === 0) {
               _alert.hide()
               _reloadAndTips(this, $L('已转审'))
@@ -805,9 +816,13 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         tips={$L('请选择加签哪些用户')}
         onConfirm={(s, _alert) => {
           _alert.disabled(true)
-          $.post(`/app/entity/approval/countersign?record=${this.props.id}&to=${s.join(',')}`, (res) => {
-            _alert.disabled()
 
+          const d = {
+            remark: this.state.remark || null,
+            remarkAttachments: this.state.remarkAttachments || null,
+          }
+          $.post(`/app/entity/approval/countersign?record=${this.props.id}&to=${s.join(',')}`, JSON.stringify(d), (res) => {
+            _alert.disabled()
             if (res.error_code === 0) {
               _alert.hide()
               _reloadAndTips(this, $L('已加签'))
@@ -1011,13 +1026,27 @@ class ApprovalStepViewer extends React.Component {
                   <p className="text-wrap">{item.remark}</p>
                 </blockquote>
               )}
-              {item.remarkAttachments && item.remarkAttachments.length > 0 && (
+              {(item.remarkAttachments || []).length > 0 && (
                 <div className="file-field mt-1 ml-1">
                   {item.remarkAttachments.map((item) => (
                     <FileShow file={item} key={item} />
                   ))}
                 </div>
               )}
+
+              {(item.referralRemark || item.countersignRemark) && (
+                <blockquote className="blockquote timeline-blockquote mb-0">
+                  <p className="text-wrap">{item.referralRemark || item.countersignRemark}</p>
+                </blockquote>
+              )}
+              {(item.referralAttachments || item.countersignAttachments || []).length > 0 && (
+                <div className="file-field mt-1 ml-1">
+                  {(item.referralAttachments || item.countersignAttachments).map((item) => (
+                    <FileShow file={item} key={item} />
+                  ))}
+                </div>
+              )}
+
               {item.state >= 10 && (item.ccUsers || []).length + (item.ccAccounts || []).length > 0 && (
                 <blockquote className="blockquote timeline-blockquote mb-0 cc">
                   <p className="text-wrap">

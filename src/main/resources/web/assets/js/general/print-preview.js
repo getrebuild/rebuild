@@ -26,8 +26,11 @@ $(document).ready(() => {
   setDefaultStyle('fontSize')
   setDefaultStyle('fontFamily')
   setDefaultStyle('fontBold')
+  setDefaultStyle('showTitle')
   setDefaultStyle('showDetails')
   setDefaultStyle('showApproval')
+
+  initPrintTitle()
 })
 
 function setDefaultStyle(id) {
@@ -45,6 +48,10 @@ function setDefaultStyle(id) {
     if (id === 'fontBold') {
       $('.preview-content').attr('data-bold', v)
     }
+    if (id === 'showTitle') {
+      if (v === 'false' || v === false) $('.preview-content').addClass('hide-title')
+      else $('.preview-content').removeClass('hide-title')
+    }
     if (id === 'showDetails') {
       if (v === 'false' || v === false) $('.preview-content').addClass('hide-details')
       else $('.preview-content').removeClass('hide-details')
@@ -57,9 +64,33 @@ function setDefaultStyle(id) {
 
   const d = $storage.get(id)
   if (d) {
-    if (['showDetails', 'showApproval'].includes(id)) $el.attr('checked', !(d === 'false' || d === false)).trigger('change')
+    if (['showTitle', 'showDetails', 'showApproval'].includes(id)) $el.attr('checked', !(d === 'false' || d === false)).trigger('change')
     else $el.val(d).trigger('change')
   }
+}
+
+// 标题（可编辑，按实体记忆）
+function initPrintTitle() {
+  const em = wpc.content.entityMeta
+  const key = `printTitle-${em.entity}`
+  const $title = $('#printTitle')
+
+  $title.text($storage.get(key) || em.entityLabel)
+
+  $title.on('input', function () {
+    const v = $trim($title.text())
+    if (v && v !== em.entityLabel) $storage.set(key, v)
+    else $storage.remove(key)
+  })
+  $title.on('blur', function () {
+    if (!$trim($title.text())) {
+      $title.text(em.entityLabel)
+      $storage.remove(key)
+    }
+  })
+  $title.on('keydown', function (e) {
+    if (e.key === 'Enter') e.preventDefault()
+  })
 }
 
 class PreviewTable extends React.Component {
@@ -98,7 +129,6 @@ class PreviewTable extends React.Component {
 
     return (
       <RF>
-        <h3>{this.props.data.entityMeta.entityLabel}</h3>
         <table className="table table-bordered table-sm table-fixed">
           <tbody>
             <tr className="hide">

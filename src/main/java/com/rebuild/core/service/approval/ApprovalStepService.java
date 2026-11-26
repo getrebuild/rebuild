@@ -570,9 +570,13 @@ public class ApprovalStepService extends BaseService {
      *
      * @param sourceStepId
      * @param approver
+     * @param remarks
      * @return
      */
-    public boolean txReferral(ID sourceStepId, ID approver) {
+    public boolean txReferral(ID sourceStepId, ID approver, Object[] remarks) {
+        String remark = remarks != null ? (String) remarks[0] : null;
+        String remarkAttachments = remarks != null && remarks.length > 1 ? (String) remarks[1] : null;
+
         final Record sourceStep = QueryHelper.recordNoFilter(sourceStepId);
         final ID recordId = sourceStep.getID("recordId");
         final ID oldApprover = sourceStep.getID("approver");
@@ -580,7 +584,10 @@ public class ApprovalStepService extends BaseService {
         // 标记转审
         String attrMore = sourceStep.getString("attrMore");
         JSONObject attrMoreJson = JSONUtils.wellFormat(attrMore) ? JSON.parseObject(attrMore) : new JSONObject();
-        attrMoreJson.put("referralFrom", oldApprover);
+        attrMoreJson.put("referralFrom", oldApprover.toLiteral());
+        if (StringUtils.isNotBlank(remark)) attrMoreJson.put("referralRemark", remark);
+        JSONArray referralAttachments = parseRemarkAttachments(remarkAttachments);
+        if (referralAttachments != null) attrMoreJson.put("referralAttachments", referralAttachments);
 
         Record sourceStepUpdate = EntityHelper.forUpdate(sourceStepId, approver);
         sourceStepUpdate.setString("attrMore", attrMoreJson.toJSONString());
@@ -603,6 +610,7 @@ public class ApprovalStepService extends BaseService {
 
         String approveMsg = ApprovalHelper.buildApproveMsg(recordId);
         approveMsg += "\n > " + Language.L("由 %s 转审给你", UserHelper.getName(oldApprover));
+        if (StringUtils.isNotBlank(remark)) approveMsg += "\n > " + remark;
         sendNotification(approver, approveMsg, recordId);
 
         ApprovalHub.instance.awareApprove(sourceStepId, Collections.singleton(sourceStepId), TYPE_REFERRAL);
@@ -614,9 +622,13 @@ public class ApprovalStepService extends BaseService {
      *
      * @param sourceStepId
      * @param approvers
+     * @param remarks
      * @return
      */
-    public int txCountersign(ID sourceStepId, ID[] approvers) {
+    public int txCountersign(ID sourceStepId, ID[] approvers, Object[] remarks) {
+        String remark = remarks != null ? (String) remarks[0] : null;
+        String remarkAttachments = remarks != null && remarks.length > 1 ? (String) remarks[1] : null;
+
         final Record sourceStep = QueryHelper.recordNoFilter(sourceStepId);
         final ID approver = sourceStep.getID("approver");
         final ID recordId = sourceStep.getID("recordId");
@@ -627,6 +639,7 @@ public class ApprovalStepService extends BaseService {
 
         String approveMsg = ApprovalHelper.buildApproveMsg(recordId);
         approveMsg += "\n > " + Language.L("由 %s 加签给你", UserHelper.getName(approver));
+        if (StringUtils.isNotBlank(remark)) approveMsg += "\n > " + remark;
 
         final Date fakeDate = CalendarUtils.parse("2019-01-31");
 
@@ -638,8 +651,11 @@ public class ApprovalStepService extends BaseService {
             if (created != null) {
                 // 标记加签
                 Record newStepUpdate = EntityHelper.forUpdate(created, UserService.SYSTEM_USER);
-                String attrMore = String.format("{countersignFrom:'%s'}", approver);
-                newStepUpdate.setString("attrMore", attrMore);
+                JSONObject attrMoreJson = JSONUtils.toJSONObject("countersignFrom", approver.toLiteral());
+                if (StringUtils.isNotBlank(remark)) attrMoreJson.put("countersignRemark", remark);
+                JSONArray countersignAttachments = parseRemarkAttachments(remarkAttachments);
+                if (countersignAttachments != null) attrMoreJson.put("countersignAttachments", countersignAttachments);
+                newStepUpdate.setString("attrMore", attrMoreJson.toJSONString());
                 super.update(newStepUpdate);
 
                 sendNotification(to, approveMsg, recordId);
@@ -941,5 +957,22 @@ public class ApprovalStepService extends BaseService {
 
     private void execSopSteps38(Record approvalRecord) {
         RbvFunction.call().onApproveManual(approvalRecord);
+    }
+
+    /**
+     * 备注附件为可选的 JSON 数组串，非法时忽略而不中断转审/加签
+     *
+     * @param attachments
+     * @return
+     */
+    private static JSONArray parseRemarkAttachments(String attachments) {
+        if (attachments == null || attachments.length() <= 2) return null;
+
+        try {
+            return JSON.parseArray(attachments);
+        } catch (Exception ex) {
+            log.warn("Invalid remark attachments : {}", attachments);
+            return null;
+        }
     }
 }

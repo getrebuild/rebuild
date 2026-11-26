@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.aibot2;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openai.core.http.StreamResponse;
 import com.openai.errors.OpenAIServiceException;
@@ -21,6 +23,8 @@ import com.openai.services.blocking.chat.ChatCompletionService;
 import com.rebuild.core.aibot2.ReasoningExtractor.FeedResult;
 import com.rebuild.core.aibot2.ReasoningExtractor.ThinkTagParser;
 import com.rebuild.core.aibot2.tool.ToolDefs;
+import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +44,7 @@ import java.util.function.Consumer;
 public class ChatExecutor {
 
     static final int MAX_TOOL_ROUNDS = 30;
+    static final int MAX_TOOL_HISTORY_CHARS = 65535;
     static final String ROUNDS_LIMIT_NOTICE = "\n\n（本次对话的工具调用轮次已达上限，任务可能未完成。请发送\"继续\"以完成剩余步骤。）";
     static final String TRUNCATED_NOTICE = "\n\n（本次回答因达到长度上限被截断，内容可能不完整。请发送\"继续\"以接着输出。）";
 
@@ -50,6 +55,7 @@ public class ChatExecutor {
     private final ChatCompletionCreateParams.Builder builder;
 
     private String lastFinishReason;
+    private JSONArray toolHistory;
 
     /**
      * @param chat
@@ -68,7 +74,7 @@ public class ChatExecutor {
      * @return
      */
     public Message run() {
-        ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
+        ChatCompletion resp = createChat(builder.build(), chat.chatLogger(), chat.getAgent());
         accumulateUsage(resp);
         ChatCompletion.Choice choice = resp.choices().get(0);
         ChatCompletionMessage ai = choice.message();
@@ -88,7 +94,7 @@ public class ChatExecutor {
         }
 
         content += roundsLimitNoticeIfNeed(ai) + truncatedNoticeIfNeed(ai);
-        return chat.completionAfter(content, reasoning, chatRequest);
+        return chat.completionAfter(content, reasoning, chatRequest, toolHistory);
     }
 
     /**
@@ -97,7 +103,7 @@ public class ChatExecutor {
      * @return
      */
     public String runContent() {
-        ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
+        ChatCompletion resp = createChat(builder.build(), chat.chatLogger(), chat.getAgent());
         accumulateUsage(resp);
         ChatCompletion.Choice choice = resp.choices().get(0);
         ChatCompletionMessage ai = choice.message();
@@ -189,9 +195,10 @@ public class ChatExecutor {
             });
             builder.addMessage(ai);
 
-            executeAndAppend(builder, toolCalls, chat.chatLogger());
+            List<String> results = executeAndAppend(builder, toolCalls, chat.chatLogger());
+            toolHistory = recordToolHistory(toolHistory, ai.content().orElse(null), toolCalls, results);
 
-            ChatCompletion resp = createChat(builder.build(), chat.chatLogger());
+            ChatCompletion resp = createChat(builder.build(), chat.chatLogger(), chat.getAgent());
             accumulateUsage(resp);
             ChatCompletion.Choice choice = resp.choices().get(0);
             ai = choice.message();
@@ -213,10 +220,11 @@ public class ChatExecutor {
      * @param builder
      * @param toolCalls
      * @param chatLogger
+     * @return 与 toolCalls 顺序对应的工具结果
      */
-    static void executeAndAppend(ChatCompletionCreateParams.Builder builder,
-                                 List<ChatCompletionMessageToolCall> toolCalls, ChatLogger chatLogger) {
-        executeAndAppend(builder, toolCalls, chatLogger, null);
+    static List<String> executeAndAppend(ChatCompletionCreateParams.Builder builder,
+                                         List<ChatCompletionMessageToolCall> toolCalls, ChatLogger chatLogger) {
+        return executeAndAppend(builder, toolCalls, chatLogger, null);
     }
 
     /**
@@ -226,10 +234,12 @@ public class ChatExecutor {
      * @param toolCalls
      * @param chatLogger
      * @param hintEcho
+     * @return 与 toolCalls 顺序对应的工具结果
      */
-    static void executeAndAppend(ChatCompletionCreateParams.Builder builder,
-                                 List<ChatCompletionMessageToolCall> toolCalls, ChatLogger chatLogger,
-                                 Consumer<String> hintEcho) {
+    static List<String> executeAndAppend(ChatCompletionCreateParams.Builder builder,
+                                         List<ChatCompletionMessageToolCall> toolCalls, ChatLogger chatLogger,
+                                         Consumer<String> hintEcho) {
+        List<String> results = new ArrayList<>();
         for (ChatCompletionMessageToolCall tc : toolCalls) {
             ChatCompletionMessageFunctionToolCall fn = tc.asFunction();
 
@@ -237,12 +247,66 @@ public class ChatExecutor {
 
             String toolResult = ToolDefs.executeSafely(
                     fn.function().name(), fn.function().arguments(), chatLogger);
+            results.add(toolResult);
 
             builder.addMessage(ChatCompletionToolMessageParam.builder()
                     .toolCallId(fn.id())
                     .content(toolResult)
                     .build());
         }
+        return results;
+    }
+
+    /**
+     * 记录一轮工具调用与结果，供恢复会话时重建上下文（流式/非流式共用）
+     *
+     * @param toolHistory 可为 null
+     * @param content 本轮助手正文（可为 null）
+     * @param toolCalls
+     * @param results 与 toolCalls 顺序对应的工具结果
+     * @return
+     */
+    static JSONArray recordToolHistory(JSONArray toolHistory, String content,
+                                        List<ChatCompletionMessageToolCall> toolCalls, List<String> results) {
+        if (toolHistory == null) toolHistory = new JSONArray();
+
+        JSONObject round = new JSONObject();
+        if (StringUtils.isNotBlank(content)) round.put("content", content);
+
+        JSONArray calls = new JSONArray();
+        for (ChatCompletionMessageToolCall tc : toolCalls) {
+            ChatCompletionMessageFunctionToolCall fn = tc.asFunction();
+            calls.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "name", "arguments"},
+                    new Object[]{fn.id(), fn.function().name(),
+                            truncateToolHistory(fn.function().name(), fn.function().arguments())}));
+        }
+        round.put("calls", calls);
+
+        JSONArray resultsJson = new JSONArray();
+        for (int i = 0; i < toolCalls.size(); i++) {
+            resultsJson.add(JSONUtils.toJSONObject(
+                    new String[]{"id", "result"},
+                    new Object[]{toolCalls.get(i).asFunction().id(),
+                            truncateToolHistory(toolCalls.get(i).asFunction().function().name(), results.get(i))}));
+        }
+        round.put("results", resultsJson);
+
+        toolHistory.add(round);
+        return toolHistory;
+    }
+
+    /**
+     * 超长内容截断
+     *
+     * @param toolName
+     * @param s
+     * @return
+     */
+    static String truncateToolHistory(String toolName, String s) {
+        if (s == null || s.length() <= MAX_TOOL_HISTORY_CHARS) return s;
+        log.warn("Tool history truncated : {} ({} -> {} chars)", toolName, s.length(), MAX_TOOL_HISTORY_CHARS);
+        return s.substring(0, MAX_TOOL_HISTORY_CHARS) + "…（内容过长已截断）";
     }
 
     /**
@@ -284,10 +348,11 @@ public class ChatExecutor {
     }
 
     /**
+     * @param agent 可为 null（使用全局连接）
      * @return
      */
-    static ChatCompletionService completions() {
-        return Config.getClient().chat().completions();
+    static ChatCompletionService completions(AibotAgent agent) {
+        return agent == null ? Config.getClient().chat().completions() : agent.client().chat().completions();
     }
 
     /**
@@ -295,11 +360,12 @@ public class ChatExecutor {
      *
      * @param params
      * @param chatLogger 可为 null
+     * @param agent 可为 null（使用全局连接）
      * @return
      */
-    static ChatCompletion createChat(ChatCompletionCreateParams params, ChatLogger chatLogger) {
+    static ChatCompletion createChat(ChatCompletionCreateParams params, ChatLogger chatLogger, AibotAgent agent) {
         try {
-            return completions().create(params);
+            return completions(agent).create(params);
         } catch (OpenAIServiceException ex) {
             logError(ex, params, chatLogger);
             throw ex;
@@ -311,11 +377,12 @@ public class ChatExecutor {
      *
      * @param params
      * @param chatLogger 可为 null
+     * @param agent 可为 null（使用全局连接）
      * @return
      */
-    static StreamResponse<ChatCompletionChunk> createChatStreaming(ChatCompletionCreateParams params, ChatLogger chatLogger) {
+    static StreamResponse<ChatCompletionChunk> createChatStreaming(ChatCompletionCreateParams params, ChatLogger chatLogger, AibotAgent agent) {
         try {
-            return completions().createStreaming(params);
+            return completions(agent).createStreaming(params);
         } catch (OpenAIServiceException ex) {
             logError(ex, params, chatLogger);
             throw ex;
@@ -331,9 +398,9 @@ public class ChatExecutor {
      */
     private static void logError(OpenAIServiceException ex, ChatCompletionCreateParams params, ChatLogger chatLogger) {
         String requestJson = paramsToJson(params);
-        log.error("Chat API error : {}\nREQUEST\n{}", ex.getMessage(), requestJson);
+        log.error("Chat API error : {}\nREQUEST\n{}", CommonsUtils.getRootMessage(ex), requestJson);
         if (chatLogger != null) {
-            chatLogger.log("ERROR", "Chat API error : " + ex.getMessage() + "\n\n```json\n" + requestJson + "\n```");
+            chatLogger.log("ERROR", "Chat API error : " + CommonsUtils.getRootMessage(ex) + "\n\n```json\n" + requestJson + "\n```");
         }
     }
 
@@ -345,7 +412,7 @@ public class ChatExecutor {
         try {
             return new ObjectMapper().writeValueAsString(params);
         } catch (Exception ex) {
-            return "(unserializable: " + ex.getMessage() + ")";
+            return "(unserializable: " + CommonsUtils.getRootMessage(ex) + ")";
         }
     }
 

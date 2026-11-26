@@ -124,7 +124,7 @@ function compileHtml(m) {
     content = content.replace(/ type="text\/babel"/gi, '')
 
     // 3. `<script th:src="@{...}">` -> lib switch / version hash
-    content = content.replace(/<script th:src="@\{(.*)\}"><\/script>/gi, (match, p) => {
+    content = content.replace(/<script th:src="@\{([^}]*)\}"><\/script>/gi, (match, p) => {
       let file = p
       if (file.includes('/lib/') || file.includes('/use-')) {
         _libsUsed.add(file)
@@ -145,14 +145,15 @@ function compileHtml(m) {
     })
 
     // 5. `<link ... th:href="@{...}" />` -> version hash (lib kept as-is)
-    content = content.replace(/<link rel="stylesheet" type="text\/css" th:href="@\{(.*)\}" \/>/gi, (match, p) => {
+    content = content.replace(/<link rel="stylesheet" type="text\/css" th:href="@\{([^}]*)\}"([^>]*)\/>/gi, (match, p, attrs) => {
       let file = p
       if (file.includes('/lib/') || file.includes('use-')) {
         _libsUsed.add(file)
-        return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
+        return match
       } else {
-        file += '?v=' + useAssetsHex(file.split('?')[0])
-        return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
+        const base = file.split('?')[0]
+        file = base + '?v=' + useAssetsHex(base)
+        return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}"' + attrs + '/>'
       }
     })
 

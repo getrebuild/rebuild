@@ -34,7 +34,6 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RateLimiters;
 import com.rebuild.web.KnownExceptionConverter;
-import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.cglib.core.ReflectUtils;
@@ -60,11 +59,6 @@ import java.util.TreeMap;
 @Slf4j
 @org.springframework.stereotype.Controller
 public class ApiGateway extends Controller implements Initialization {
-
-    // 基于 IP 限流
-    private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
-            new int[]{10, 2000},
-            new int[]{60, 6000});
 
     private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
 
@@ -102,7 +96,7 @@ public class ApiGateway extends Controller implements Initialization {
         response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE + "/" + Application.BUILD);
         response.setHeader("X-RB-RequestId", requestId);
 
-        if (RRL.overLimitWhenIncremented("ip:" + remoteIp)) {
+        if (RateLimiters.API_GATEWAY_4IP.overLimitWhenIncremented("ip:" + remoteIp)) {
             JSON error = formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
             log.error("ReqId: {}\nReqParams: {}\nRespError: {}", requestId, request.getQueryString(), error.toJSONString());
             ServletUtils.writeJson(response, error.toJSONString());

@@ -1,0 +1,1399 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+/* ===== 1. 设计变量 ===== */
+
+html:not(.theme-dark2) {
+  --rex-primary: #2f6bff;
+  --rex-primary-weak: #eef4ff;
+  --rex-bg: #f3f5f9;
+  --rex-card: #fff;
+  --rex-bd: #e6e9f0;
+  --rex-line: #edf0f5;
+  --rex-text: #111827;
+  --rex-sub: #667085;
+  --rex-muted: #8f959e;
+  --rex-ok: #12b76a;
+  --rex-warn: #f79009;
+  --rex-err: #f04438;
+  --rex-shadow-card: 0 1px 2px rgba(16, 24, 40, 0.03), 0 12px 30px rgba(16, 24, 40, 0.045);
+  --rex-bg-glow: radial-gradient(1100px 520px at 12% -8%, #e8f0ff 0%, transparent 58%);
+  --rb-color: #2f6bff;
+  --rb-theme-color: #2f6bff;
+  --rb-btn-hover-color: #1f57e6;
+  --rb-btn-active-color: #1a4fd8;
+  --rb-body-bg: #f3f5f9;
+
+  /* 导航色（rex46-light 仅覆写这组变量） */
+  --rex-nav-bg-1: #0b1527;
+  --rex-nav-bg-2: #0d1a30;
+  --rex-nav-bg-3: #0a1322;
+  --rex-nav-border: #122036;
+  --rex-nav-text: #aebcd4;
+  --rex-nav-text-strong: #e6edf8;
+  --rex-nav-icon: #8fa3c0;
+  --rex-nav-icon-hover: #cfe0ff;
+  --rex-nav-hover-bg: rgba(255, 255, 255, 0.05);
+  --rex-nav-sub-bg: rgba(0, 0, 0, 0.16);
+  --rex-nav-sub-text: #93a6c4;
+  --rex-nav-sub-hover-bg: rgba(255, 255, 255, 0.06);
+  --rex-nav-divider: #6b7f9e;
+  --rex-nav-active-a: rgba(47, 107, 255, 0.24);
+  --rex-nav-active-b: rgba(47, 107, 255, 0.06);
+  --rex-nav-active-border: rgba(96, 147, 255, 0.2);
+  --rex-nav-active-text: #fff;
+  --rex-nav-sub-active-bg: rgba(47, 107, 255, 0.18);
+  --rex-nav-scroll: rgba(255, 255, 255, 0.16);
+  --rex-nav-scroll-track: rgba(255, 255, 255, 0.06);
+  --rex-nav-scroll-thumb: rgba(255, 255, 255, 0.18);
+  --rex-nav-scroll-thumb-hover: rgba(255, 255, 255, 0.28);
+  --rex-nav-collapsed-bg: #0d1a30;
+  --rex-nav-collapsed-shadow: rgba(2, 8, 20, 0.35);
+  --rex-nav-user-bg-a: #0b1527;
+  --rex-nav-user-bg-b: #12233f;
+  --rex-nav-user-name: #fff;
+  --rex-nav-user-id: #8fa3c0;
+  --rex-nav-brand-toggle: #c7d2e4;
+  --rex-nav-brand-toggle-hover: #fff;
+  --rex-nav-logo: url('../../commons/theme/use-logo-white');
+}
+
+/* ===== 2. 基础与链接 ===== */
+
+html:not(.theme-dark2) {
+  background-color: #f3f5f9;
+}
+
+html:not(.theme-dark2) body {
+  background: var(--rex-bg-glow), #f3f5f9;
+  background-attachment: fixed;
+  color: #111827;
+}
+
+/* 弹窗/详情 iframe 页面保持白色底 */
+html:not(.theme-dark2) body.dialog,
+html:not(.theme-dark2) body.view-body {
+  background: #fff;
+}
+
+html:not(.theme-dark2) body ::selection {
+  background-color: rgba(47, 107, 255, 0.18);
+}
+
+html:not(.theme-dark2) body .main-content a:not(.btn):not(.nav-link):not(.dropdown-item):not(.page-link):not(.badge) {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .main-content a:not(.btn):not(.nav-link):not(.dropdown-item):not(.page-link):not(.badge):hover {
+  color: #1f57e6;
+}
+
+/* 详情/关联列表内的编辑链接：悬停保持主题色 */
+html:not(.theme-dark2) body .related-list .card .header-title .record-meta a.edit:hover,
+html:not(.theme-dark2) body .rbview-form .form-group.editable a.edit:hover {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .text-primary {
+  color: #2f6bff !important;
+}
+
+html:not(.theme-dark2) body kbd {
+  padding: 1px 6px;
+  border: 1px solid #e6e9f0;
+  border-radius: 6px;
+  background-color: #f2f4f7;
+  color: #667085;
+}
+
+/* ===== 3. 顶栏与品牌区 ===== */
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header {
+  background-color: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #edf0f5;
+  box-shadow: 0 1px 0 rgba(16, 24, 40, 0.02);
+}
+
+@supports not ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
+  html:not(.theme-dark2) body .rb-wrapper .rb-top-header {
+    background-color: #fff;
+  }
+}
+
+html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left) .rb-top-header .rb-navbar-header {
+  background-color: var(--rex-nav-bg-1);
+  border-right: 1px solid var(--rex-nav-border);
+  /* 品牌区底部深色 1px 线：盖住顶部栏的浅色下边框，与下方侧栏连成一体 */
+  box-shadow: 0 1px 0 var(--rex-nav-border);
+}
+
+html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left) .rb-top-header .rb-navbar-header .navbar-brand {
+  background-image: var(--rex-nav-logo) !important;
+}
+
+html:not(.theme-dark2) body .rb-wrapper.rb-nosidebar-left .rb-top-header .rb-navbar-header .navbar-brand {
+  background-image: url('../../commons/theme/use-logo') !important;
+}
+
+html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left) .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
+  color: var(--rex-nav-brand-toggle);
+}
+
+html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left) .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar:hover .icon {
+  color: var(--rex-nav-brand-toggle-hover);
+}
+
+html:not(.theme-dark2) body .rb-wrapper.rb-nosidebar-left .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
+  color: #667085;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .page-title {
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .navbar-collapse .navbar-nav > li > a.nav-link {
+  color: #667085;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .navbar-collapse .navbar-nav > li > a.nav-link:hover,
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .navbar-collapse .navbar-nav > li > a.nav-link:focus {
+  color: #111827;
+  background-color: rgba(47, 107, 255, 0.06);
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .navbar-collapse .navbar-nav > li.active > a.nav-link,
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .navbar-collapse .navbar-nav > li.show > a.nav-link {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .navbar-collapse .nav-item.active .nav-link::after {
+  background-color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-right-navbar .navbar-nav > li > a {
+  color: #667085;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-right-navbar .navbar-nav > li.show > a,
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-right-navbar .navbar-nav > li > a:hover {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-right-navbar .rb-icons-nav > li.dropdown > a .icon {
+  color: #667085;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-right-navbar .rb-icons-nav > li.dropdown > a:hover .icon {
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-right-navbar .rb-icons-nav > li.dropdown > a .indicator {
+  background-color: #f04438;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li > a .user-name {
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .search-input-gs {
+  background-color: #f2f4f7;
+  border-color: transparent;
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .search-input-gs::placeholder {
+  color: #8f959e;
+}
+
+@media (max-width: 767.98px) {
+  html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-right-navbar {
+    background-color: rgba(255, 255, 255, 0.96);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #edf0f5;
+  }
+}
+
+/* 侧栏在此断点收窄为 200px，品牌区同步收窄 */
+@media (min-width: 768px) and (max-width: 1464px) {
+  html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left):not(.rb-collapsible-sidebar-collapsed) .rb-top-header .rb-navbar-header {
+    width: 200px;
+  }
+
+  html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left):not(.rb-collapsible-sidebar-collapsed) .rb-top-header .rb-navbar-header .navbar-brand {
+    width: 150px;
+    background-position: 16px center;
+  }
+
+  html:not(.theme-dark2) body .rb-wrapper:not(.rb-nosidebar-left):not(.rb-collapsible-sidebar-collapsed) .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar {
+    padding: 0 10px;
+  }
+}
+
+/* ===== 4. 左侧导航 ===== */
+
+html:not(.theme-dark2) body .rb-wrapper .rb-left-sidebar {
+  background: linear-gradient(180deg, var(--rex-nav-bg-1) 0%, var(--rex-nav-bg-2) 58%, var(--rex-nav-bg-3) 100%);
+  border-right: 1px solid var(--rex-nav-border);
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-left-sidebar::before {
+  background: linear-gradient(180deg, var(--rex-nav-bg-1) 0%, var(--rex-nav-bg-2) 58%, var(--rex-nav-bg-3) 100%);
+  border-right-color: var(--rex-nav-border);
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-left-sidebar .left-sidebar-content {
+  background-color: transparent;
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-left-sidebar .left-sidebar-wrapper {
+  background-color: transparent;
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements .divider {
+  color: var(--rex-nav-divider);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li > a {
+  color: var(--rex-nav-text);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar.v2 .sidebar-elements li > a {
+  border-radius: 10px;
+  font-size: 13.5px;
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li > a > span {
+  color: inherit;
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li > a .icon {
+  color: var(--rex-nav-icon);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements .sub-menu li > a .icon {
+  color: var(--rex-nav-icon);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li > a:hover {
+  background-color: var(--rex-nav-hover-bg);
+  color: var(--rex-nav-text-strong);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li > a:hover .icon {
+  color: var(--rex-nav-icon-hover);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li.open > a {
+  color: var(--rex-nav-text-strong);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar.v2 .sidebar-elements > li.active > a {
+  background-color: transparent;
+  background-image: linear-gradient(90deg, var(--rex-nav-active-a), var(--rex-nav-active-b));
+  box-shadow: inset 0 0 0 1px var(--rex-nav-active-border);
+  color: var(--rex-nav-active-text);
+  font-weight: normal;
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li.active > a,
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li.active > a > span {
+  color: var(--rex-nav-active-text);
+  font-weight: normal;
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li.active > a .icon {
+  color: var(--rex-nav-active-text);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar.v2 .sidebar-elements > li.active.parent > a {
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li ul {
+  background-color: var(--rex-nav-sub-bg);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li > ul {
+  border-top-color: var(--rex-nav-border);
+  border-bottom-color: var(--rex-nav-border);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li ul .title {
+  color: var(--rex-nav-divider);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li ul li > a {
+  color: var(--rex-nav-sub-text);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li ul li > a:hover {
+  background-color: var(--rex-nav-sub-hover-bg);
+  color: var(--rex-nav-text-strong);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li ul li.active > a {
+  background-color: var(--rex-nav-sub-active-bg);
+  box-shadow: none;
+  color: var(--rex-nav-active-text);
+  font-weight: normal;
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements li.parent > a::before {
+  color: var(--rex-nav-divider);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget {
+  background-color: transparent;
+  border-top: 1px solid var(--rex-nav-border);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings .icon,
+html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings-admin .icon {
+  color: var(--rex-nav-icon);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings:hover .icon,
+html:not(.theme-dark2) body .rb-left-sidebar .bottom-widget .nav-settings-admin:hover .icon {
+  color: var(--rex-nav-icon-hover);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .left-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rex-nav-scroll) transparent;
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .ps-container > .ps-scrollbar-y-rail {
+  background-color: var(--rex-nav-scroll-track);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .ps-container > .ps-scrollbar-y-rail > .ps-scrollbar-y {
+  background-color: var(--rex-nav-scroll-thumb);
+}
+
+html:not(.theme-dark2) body .rb-left-sidebar .ps-container > .ps-scrollbar-y-rail:hover > .ps-scrollbar-y {
+  background-color: var(--rex-nav-scroll-thumb-hover);
+}
+
+@media (min-width: 768px) {
+  html:not(.theme-dark2) body .rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements > li ul.visible {
+    background-color: var(--rex-nav-collapsed-bg);
+    border-right: 1px solid var(--rex-nav-border);
+    box-shadow: 8px 0 24px var(--rex-nav-collapsed-shadow);
+  }
+
+  html:not(.theme-dark2) body .rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements > li ul.visible .title {
+    color: var(--rex-nav-divider);
+  }
+
+  html:not(.theme-dark2) body .rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements > li ul.visible .nav-items .content > ul {
+    background-color: transparent;
+  }
+}
+
+@media (max-width: 767.98px) {
+  html:not(.theme-dark2) body .rb-wrapper .rb-left-sidebar {
+    background: linear-gradient(180deg, var(--rex-nav-bg-1) 0%, var(--rex-nav-bg-2) 100%);
+    border-bottom: 1px solid var(--rex-nav-border);
+  }
+
+  html:not(.theme-dark2) body .rb-left-sidebar .left-sidebar-toggle {
+    background-color: var(--rex-nav-bg-1);
+    border-bottom: 1px solid var(--rex-nav-border);
+    color: var(--rex-nav-text-strong);
+  }
+
+  html:not(.theme-dark2) body .rb-left-sidebar .left-sidebar-toggle::before {
+    color: var(--rex-nav-icon);
+  }
+
+  html:not(.theme-dark2) body .rb-left-sidebar .sidebar-elements > li > a:hover {
+    background-color: var(--rex-nav-hover-bg);
+  }
+}
+
+/* ===== 5. 卡片与容器 ===== */
+
+html:not(.theme-dark2) body .card {
+  background-color: #fff;
+  border: 1px solid #e6e9f0;
+  border-radius: 14px;
+  box-shadow: var(--rex-shadow-card);
+  overflow: clip;
+}
+
+/* 卡片内的浮层（下拉、气泡、提示）展开时放开裁切，避免被卡片边缘裁掉 */
+html:not(.theme-dark2) body .card:has(.dropdown-menu.show),
+html:not(.theme-dark2) body .card:has(.tooltip.show),
+html:not(.theme-dark2) body .card:has(.popover.show) {
+  overflow: visible;
+}
+
+html:not(.theme-dark2) body .main-content > .card.card-table.card-topcolor {
+  border-top: 2px solid #2f6bff;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+}
+
+/* 紧接页签的列表卡片保持方角，与页签衔接 */
+html:not(.theme-dark2) body .main-content > .nav-tabs + .card.card-table.card-topcolor {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* 列表页（mode2）的卡片与页签/工具栏衔接 */
+html:not(.theme-dark2) body .datalist-mode2 .main-content > .card.card-table {
+  border-radius: 14px;
+}
+
+/* 可折叠卡片的头部选中态 */
+html:not(.theme-dark2) body .card.active .header-title {
+  background-color: #f2f4f7;
+}
+
+html:not(.theme-dark2) body .grid-stack .grid-stack-item .grid-stack-item-content {
+  border: 1px solid #e6e9f0;
+  border-radius: 14px;
+}
+
+html:not(.theme-dark2) body .grid-stack .grid-stack-item .grid-stack-item-content > .chart-box {
+  border-radius: 14px;
+}
+
+html:not(.theme-dark2) body .grid-stack .grid-stack-item .grid-stack-item-content.high {
+  outline-color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .chart-box.high {
+  outline-color: #2f6bff;
+}
+
+/* 侧栏图表容器 */
+html:not(.theme-dark2) body #asideCharts .chart-box {
+  border-radius: 14px;
+}
+
+/* 计划列表容器 */
+html:not(.theme-dark2) body .plan-list-wrapper {
+  border-radius: 14px;
+}
+
+html:not(.theme-dark2) body .plan-list-wrapper table tbody tr:hover {
+  background-color: #fafcff;
+}
+
+/* ===== 6. 按钮 ===== */
+
+html:not(.theme-dark2) body .btn {
+  border-radius: 9px;
+  font-size: 13.5px;
+}
+
+html:not(.theme-dark2) body .btn-primary,
+html:not(.theme-dark2) body .btn-primary.focus,
+html:not(.theme-dark2) body .btn-primary:focus {
+  background-color: #2f6bff;
+  background-image: linear-gradient(135deg, #2f6bff, #4f8dff);
+  border-color: transparent;
+  box-shadow: 0 1px 3px rgba(47, 107, 255, 0.18);
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .btn-primary.hover,
+html:not(.theme-dark2) body .btn-primary:hover {
+  background-color: #3b76ff;
+  background-image: linear-gradient(135deg, #3b76ff, #5c97ff);
+  border-color: transparent;
+  box-shadow: 0 2px 6px rgba(47, 107, 255, 0.22);
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .btn-primary.active,
+html:not(.theme-dark2) body .btn-primary:active,
+html:not(.theme-dark2) body .btn-primary:not([disabled]):not(.disabled).active,
+html:not(.theme-dark2) body .btn-primary:not([disabled]):not(.disabled):active,
+html:not(.theme-dark2) body .show > .btn-primary.dropdown-toggle {
+  background-color: #1f57e6;
+  background-image: linear-gradient(135deg, #1f57e6, #2f6bff);
+  border-color: transparent;
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.12);
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .btn-light,
+html:not(.theme-dark2) body .btn-secondary {
+  background-color: #fff;
+  border-color: #e6e9f0;
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .btn-light.hover,
+html:not(.theme-dark2) body .btn-light:hover,
+html:not(.theme-dark2) body .btn-secondary.hover,
+html:not(.theme-dark2) body .btn-secondary:hover,
+html:not(.theme-dark2) body .btn-light:focus,
+html:not(.theme-dark2) body .btn-secondary:focus {
+  background-color: #fafafa;
+  border-color: #c9cdd4;
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .btn-light.active,
+html:not(.theme-dark2) body .btn-light:active,
+html:not(.theme-dark2) body .btn-secondary.active,
+html:not(.theme-dark2) body .btn-secondary:active,
+html:not(.theme-dark2) body .show > .btn-light.dropdown-toggle,
+html:not(.theme-dark2) body .show > .btn-secondary.dropdown-toggle {
+  background-color: #f2f4f7;
+  border-color: #c9cdd4;
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .btn.btn-link {
+  color: #2f6bff !important;
+}
+
+html:not(.theme-dark2) body .btn.btn-link:hover {
+  color: #1f57e6 !important;
+}
+
+html:not(.theme-dark2) body .btn.btn-theme {
+  background-color: #2f6bff;
+  background-image: linear-gradient(135deg, #2f6bff, #4f8dff);
+  border-color: transparent;
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .btn-danger {
+  background-color: #f04438;
+  border-color: #f04438;
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .btn-danger.hover,
+html:not(.theme-dark2) body .btn-danger:hover {
+  background-color: #d92d20;
+  border-color: #d92d20;
+}
+
+html:not(.theme-dark2) body .btn:focus {
+  box-shadow: 0 0 0 2px rgba(47, 107, 255, 0.16);
+}
+
+html:not(.theme-dark2) body .btn-primary:focus {
+  box-shadow:
+    0 0 0 2px rgba(47, 107, 255, 0.16),
+    0 1px 3px rgba(47, 107, 255, 0.18);
+}
+
+/* 视图切换按钮组跟随按钮圆角 */
+html:not(.theme-dark2) body .switch-view-mode .btn {
+  border-radius: 9px;
+}
+
+/* ===== 7. 表单与选择控件 ===== */
+
+html:not(.theme-dark2) body .form-control {
+  border: 1px solid #e6e9f0;
+  border-radius: 9px;
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .form-control:focus {
+  border-color: #2f6bff;
+  box-shadow: 0 0 0 2px rgba(47, 107, 255, 0.12);
+}
+
+html:not(.theme-dark2) body .form-control::placeholder {
+  color: #8f959e;
+}
+
+html:not(.theme-dark2) body .form-control:disabled,
+html:not(.theme-dark2) body .form-control[readonly] {
+  background-color: #f9fafb;
+  color: #8f959e;
+}
+
+html:not(.theme-dark2) body .custom-select {
+  border: 1px solid #e6e9f0;
+  border-radius: 9px;
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .custom-select:focus {
+  border-color: #2f6bff;
+  box-shadow: 0 0 0 2px rgba(47, 107, 255, 0.12);
+}
+
+html:not(.theme-dark2) body .input-group-text {
+  background-color: #fafbfd;
+  border-color: #e6e9f0;
+  border-radius: 9px;
+  color: #667085;
+}
+
+/* 输入框组：只保留组两端的圆角 */
+html:not(.theme-dark2) body .input-group:not(.input-search) > .form-control:not(:last-child),
+html:not(.theme-dark2) body .input-group:not(.input-search) > .custom-select:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > .form-control:not(:first-child),
+html:not(.theme-dark2) body .input-group:not(.input-search) > .custom-select:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-append > .btn,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-append > .input-group-text {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-append > .btn:not(:last-child),
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-append > .input-group-text:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-prepend > .btn,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-prepend > .input-group-text {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* 页面样式用 !important 把组末位按钮压成 2px，这里跟随主题 */
+html:not(.theme-dark2) body .input-group-append > .btn-secondary + .btn-secondary {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+html:not(.theme-dark2) body .input-group-append > .btn-secondary:last-child {
+  border-top-right-radius: 9px !important;
+  border-bottom-right-radius: 9px !important;
+}
+
+/* 搜索框容器不铺底色，避免方形白底露出圆角外；输入框保持白底 */
+html:not(.theme-dark2) body .input-search {
+  background-color: transparent;
+}
+
+html:not(.theme-dark2) body .input-search input {
+  background-color: #fff;
+}
+
+html:not(.theme-dark2) body .form-text {
+  color: #8f959e;
+}
+
+html:not(.theme-dark2) body .col-form-label {
+  color: #667085;
+}
+
+html:not(.theme-dark2) body .custom-control-input:checked ~ .custom-control-label::before {
+  border-color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .custom-control-input:checked ~ .custom-control-label::after {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .custom-control-input:checked ~ .custom-control-color::after {
+  background-color: #2f6bff;
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .custom-radio-icon input[type='radio']:checked + .custom-control-label {
+  border-color: #2f6bff;
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .custom-radio-icon input[type='radio']:checked + .custom-control-label i {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .switch-button input[type='checkbox']:checked + span {
+  background-color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .switch-button input[type='checkbox']:checked + span label {
+  border-color: #1f57e6;
+}
+
+html:not(.theme-dark2) body .select2-container--default .select2-selection--single,
+html:not(.theme-dark2) body .select2-container--default .select2-selection--multiple {
+  border: 1px solid #e6e9f0;
+  border-radius: 9px;
+}
+
+/* 输入框组内的 select2：与相邻元素拼接的一侧取消圆角 */
+html:not(.theme-dark2) body .input-group:not(.input-search) > .select2-container:not(:last-child) .select2-selection--single,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .select2-container:not(:last-child) .select2-selection--multiple {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+html:not(.theme-dark2) body .input-group:not(.input-search) > input.form-control ~ .select2-container .select2-selection--single,
+html:not(.theme-dark2) body .input-group:not(.input-search) > input.form-control ~ .select2-container .select2-selection--multiple,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-prepend ~ .select2-container .select2-selection--single,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-prepend ~ .select2-container .select2-selection--multiple,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-text ~ .select2-container .select2-selection--single,
+html:not(.theme-dark2) body .input-group:not(.input-search) > .input-group-text ~ .select2-container .select2-selection--multiple {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+html:not(.theme-dark2) body .select2-container--default.select2-container--focus .select2-selection--single,
+html:not(.theme-dark2) body .select2-container--default.select2-container--focus .select2-selection--multiple,
+html:not(.theme-dark2) body .select2-container--default.select2-container--open .select2-selection--single,
+html:not(.theme-dark2) body .select2-container--default.select2-container--open .select2-selection--multiple {
+  border-color: #2f6bff;
+  box-shadow: 0 0 0 2px rgba(47, 107, 255, 0.12);
+}
+
+html:not(.theme-dark2) body .select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: #eef4ff;
+  border-color: #d7e3ff;
+  border-radius: 6px;
+  color: #1d4ed8;
+}
+
+/* UserSelector 下拉：列表白底随菜单圆角裁切，避免盖住底部圆角 */
+html:not(.theme-dark2) body .user-selector .dropdown-menu {
+  overflow: hidden;
+}
+
+/* 已选用户标签与“选择”按钮（.abtn）等高（基础样式为 24px 与 26px） */
+html:not(.theme-dark2) body .user-selector .select2-selection__choice:not(.abtn) {
+  height: 26px;
+  padding: 4px 6px;
+}
+
+/* UserSelector 已选标签的移除按钮 */
+html:not(.theme-dark2) body .user-selector .select2-selection__choice__remove {
+  color: #93a9c9;
+  font-size: 15px;
+  line-height: 1;
+  margin-right: 3px;
+  vertical-align: -1px;
+  font-weight: normal;
+}
+
+html:not(.theme-dark2) body .user-selector .select2-selection__choice__remove:hover {
+  color: #2f6bff;
+}
+
+/* UserSelector 选择按钮的悬停与按下反馈 */
+html:not(.theme-dark2) body .user-selector .select2-selection__choice.abtn:hover {
+  background-color: #e2ebff;
+  color: #1d4ed8;
+}
+
+html:not(.theme-dark2) body .user-selector .select2-selection__choice.abtn:active,
+html:not(.theme-dark2) body .user-selector .select2-selection__choice.abtn:focus-within {
+  background-color: #d7e4ff;
+  box-shadow: none;
+  color: #1d4ed8;
+}
+
+html:not(.theme-dark2) body .select2-dropdown {
+  border: 1px solid #e6e9f0;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+  overflow: hidden;
+}
+
+html:not(.theme-dark2) body .select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: #eef4ff;
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .select2-container--default .select2-results__option[aria-selected='true'] {
+  background-color: #f5f7fb;
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .datetimepicker table tr td.active {
+  background-color: #2f6bff;
+  background-image: none;
+}
+
+html:not(.theme-dark2) body .flatpickr-day.selected,
+html:not(.theme-dark2) body .flatpickr-day.startRange,
+html:not(.theme-dark2) body .flatpickr-day.endRange {
+  background-color: #2f6bff;
+  border-color: #2f6bff;
+}
+
+/* ===== 8. 表格与列表 ===== */
+
+html:not(.theme-dark2) body .data-list .table > thead > tr > th,
+html:not(.theme-dark2) body .protable .table > thead > tr > th,
+html:not(.theme-dark2) body .card .table > thead > tr > th {
+  background-color: #fafbfd;
+  border-bottom: 1px solid #edf0f5;
+  color: #8b93a7;
+}
+
+html:not(.theme-dark2) body .data-list .table thead th > div {
+  color: #8b93a7;
+}
+
+html:not(.theme-dark2) body .data-list .table thead th.sortable:active {
+  background-color: #eef4ff;
+}
+
+html:not(.theme-dark2) body .data-list .table thead th > div > i.zmdi {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .tablesort thead th:not(.no-sort):hover,
+html:not(.theme-dark2) body .tablesort thead th.sorted {
+  background-color: #eef4ff;
+}
+
+html:not(.theme-dark2) body .table > tbody > tr > td {
+  border-top-color: #edf0f5;
+}
+
+html:not(.theme-dark2) body .table-hover tbody tr:hover {
+  background-color: #fafcff;
+}
+
+html:not(.theme-dark2) body .table-hover tbody tr:hover td.column-fixed {
+  background-color: #fafcff;
+}
+
+html:not(.theme-dark2) body .table-striped tbody tr:nth-of-type(odd),
+html:not(.theme-dark2) body .table-striped tbody tr:nth-of-type(odd) td.column-fixed {
+  background-color: #fafbfd;
+}
+
+html:not(.theme-dark2) body .data-list .table tbody tr.active,
+html:not(.theme-dark2) body .data-list .table tbody tr.active td.column-fixed {
+  background-color: #eef4ff;
+}
+
+html:not(.theme-dark2) body .data-list .table tr:last-child td {
+  border-bottom-color: #edf0f5;
+}
+
+html:not(.theme-dark2) body .protable .table {
+  border-bottom-color: #edf0f5;
+}
+
+html:not(.theme-dark2) body .protable .table th,
+html:not(.theme-dark2) body .protable .table thead td,
+html:not(.theme-dark2) body .protable .table tfoot td {
+  background-color: #fafbfd;
+}
+
+html:not(.theme-dark2) body .protable .table tbody tr.active,
+html:not(.theme-dark2) body .protable .table tbody tr.active .column-fixed {
+  background-color: #eef4ff;
+}
+
+html:not(.theme-dark2) body .dataTables_wrapper .rb-datatable-header.header-fixed {
+  background-color: transparent;
+}
+
+/* 合并记录表内的链接悬停 */
+html:not(.theme-dark2) body .record-merge-table table td > div > a:hover {
+  color: #2f6bff !important;
+}
+
+html:not(.theme-dark2) body .list-nodata .zmdi,
+html:not(.theme-dark2) body .list-nodata .mdi {
+  color: #c7cdd9;
+}
+
+html:not(.theme-dark2) body .list-nodata p {
+  color: #8f959e;
+}
+
+/* 表单设计拖拽项的操作图标：蓝色悬停底上保持白色，避免被全局链接色覆盖 */
+html:not(.theme-dark2) body .rb-wrapper .main-content .dd-list .dd-item .dd-handle .dd-action a,
+html:not(.theme-dark2) body .rb-wrapper .main-content .dd-list .dd-item .dd-handle .dd-action a:hover,
+html:not(.theme-dark2) body .rb-wrapper .main-content .dd-list .dd-item .dd-handle .dd-action a > i {
+  color: #fff;
+}
+
+/* ===== 9. 下拉菜单与浮层 ===== */
+
+html:not(.theme-dark2) body .dropdown-menu {
+  border: 1px solid #e6e9f0;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+}
+
+/* 顶部导航下拉菜单（用户菜单、通知等）统一 12px 圆角，覆盖基础样式的 2px */
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .navbar-nav > li.dropdown > .dropdown-menu,
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-icons-nav > li.dropdown > .dropdown-menu {
+  border-radius: 12px;
+}
+
+/* 顶栏用户菜单：深色信息块外扩 1px 盖住菜单描边，顶角与菜单圆角对齐 */
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu .user-info {
+  margin: -1px -1px 7px;
+  background-color: var(--rex-nav-user-bg-a);
+  background-image: linear-gradient(135deg, var(--rex-nav-user-bg-a), var(--rex-nav-user-bg-b));
+  border-bottom-color: transparent;
+  border-radius: 12px 12px 0 0;
+}
+
+/* 菜单箭头颜色跟随深色块 */
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu::after {
+  border-bottom-color: var(--rex-nav-user-bg-a);
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu .user-info .user-name {
+  color: var(--rex-nav-user-name);
+}
+
+html:not(.theme-dark2) body .rb-wrapper .rb-top-header .rb-user-nav > li.dropdown .dropdown-menu .user-info .user-id {
+  color: var(--rex-nav-user-id);
+}
+
+html:not(.theme-dark2) body .dropdown-submenu > .dropdown-menu {
+  border-radius: 12px;
+}
+
+html:not(.theme-dark2) body .dropdown-menu > .dropdown-item {
+  color: #344054;
+}
+
+html:not(.theme-dark2) body .dropdown-menu > .dropdown-item:hover,
+html:not(.theme-dark2) body .dropdown-menu > .dropdown-item:focus {
+  background-color: #f5f7fb;
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .dropdown-menu.primary > .dropdown-item:hover,
+html:not(.theme-dark2) body .dropdown-menu.primary > a.dropdown-item:hover {
+  background-color: #eef4ff;
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .dropdown-menu.primary > .dropdown-item:hover .icon {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .dropdown-item-text,
+html:not(.theme-dark2) body .dropdown-header {
+  color: #8b93a7;
+}
+
+html:not(.theme-dark2) body .dropdown-menu .dropdown-divider {
+  border-color: #edf0f5;
+}
+
+/* dropdown-menu-primary 为蓝底菜单，保持蓝底白字，只修正 hover */
+html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu {
+  background-color: #2f6bff;
+  border-color: transparent;
+}
+
+html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu > .dropdown-item {
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu > .dropdown-item .icon {
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu > .dropdown-item:active,
+html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu > .dropdown-item:focus,
+html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu > .dropdown-item:hover {
+  background-color: #1f57e6;
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .dropdown-menu-primary.dropdown-menu .dropdown-divider {
+  border-color: #1f57e6;
+}
+
+html:not(.theme-dark2) body .entity-switch .dropdown-item.current,
+html:not(.theme-dark2) body .entity-switch .dropdown-item.current .icon {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .popover {
+  border-color: #e6e9f0;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+}
+
+html:not(.theme-dark2) body .tooltip-inner {
+  background-color: #111827;
+  border-radius: 6px;
+}
+
+/* ===== 10. 弹窗 ===== */
+
+html:not(.theme-dark2) body .modal-content {
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(16, 24, 40, 0.18);
+}
+
+/* 查看弹窗（.rbview）默认裁切到圆角，浮层展开时放开裁切，避免菜单/提示被弹窗边缘裁掉 */
+html:not(.theme-dark2) body .rbview.show .modal-content:has(.dropdown-menu.show),
+html:not(.theme-dark2) body .rbview.show .modal-content:has(.tooltip.show),
+html:not(.theme-dark2) body .rbview.show .modal-content:has(.popover.show) {
+  overflow: visible;
+}
+
+html:not(.theme-dark2) body .modal-header {
+  border-bottom: 1px solid #edf0f5;
+}
+
+html:not(.theme-dark2) body .rbalert .modal-header {
+  border-bottom: 0;
+}
+
+html:not(.theme-dark2) body .modal-title {
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .modal-footer {
+  background-color: #fafbfc;
+  border-top: 1px solid #edf0f5;
+  border-radius: 0 0 12px 12px;
+}
+
+html:not(.theme-dark2) body .colored-header-primary .modal-content .modal-header {
+  background-color: #2f6bff;
+  background-image: linear-gradient(135deg, #2f6bff, #4f8dff);
+}
+
+/* colored-header 的 header/body 自带背景（base 置零了 header 圆角），需要按容器圆角补齐 */
+html:not(.theme-dark2) body .colored-header .modal-content .modal-header {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+html:not(.theme-dark2) body .colored-header .modal-content .modal-body:last-child {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* iframe 弹窗内容默认铺满，需裁剪到弹窗圆角内 */
+html:not(.theme-dark2) body .modal-body.iframe {
+  overflow: hidden;
+}
+
+html:not(.theme-dark2) body .colored-header .modal-content .modal-header .modal-title,
+html:not(.theme-dark2) body .colored-header .modal-content .modal-header .close {
+  color: #fff;
+}
+
+html:not(.theme-dark2) body .dialog-footer {
+  border-top-color: #edf0f5;
+}
+
+/* ===== 11. 页签、分页、面包屑与页头 ===== */
+
+html:not(.theme-dark2) body .nav-tabs {
+  border-bottom-color: #edf0f5;
+}
+
+html:not(.theme-dark2) body .nav-tabs > li.nav-item a.nav-link {
+  color: #667085;
+}
+
+html:not(.theme-dark2) body .nav-tabs > li.nav-item a.nav-link:hover {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .nav-tabs > li.nav-item a.nav-link.active {
+  border-bottom-color: #2f6bff;
+  color: #111827;
+}
+
+/* 经典页签：选中项顶部圆弧，与下方卡片衔接 */
+html:not(.theme-dark2) body .nav-tabs-classic > li.nav-item > a.nav-link.active {
+  border-radius: 12px 12px 0 0;
+}
+
+html:not(.theme-dark2) body .nav-tabs.nav-tabs-segment {
+  border-radius: 10px;
+}
+
+html:not(.theme-dark2) body .nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link {
+  border-radius: 8px;
+  color: #667085;
+}
+
+html:not(.theme-dark2) body .nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link:hover {
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .nav-tabs.nav-tabs-segment > li.nav-item > a.nav-link.active {
+  background-color: #fff;
+  color: #111827;
+}
+
+/* 列表页快速筛选页签 */
+html:not(.theme-dark2) body .quick-filter-tabs > div > a {
+  border-radius: 999px !important;
+}
+
+html:not(.theme-dark2) body .quick-filter-tabs > div > a.active {
+  border-radius: 999px;
+}
+
+html:not(.theme-dark2) body .page-link {
+  border-color: #e6e9f0;
+  border-radius: 8px;
+  color: #667085;
+}
+
+html:not(.theme-dark2) body .page-link:hover {
+  background-color: #eef4ff;
+  border-color: #d7e3ff;
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .page-item.active .page-link {
+  background-color: #2f6bff;
+  border-color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .page-item.disabled .page-link {
+  border-color: #edf0f5;
+  color: #b9bfca;
+}
+
+html:not(.theme-dark2) body .breadcrumb {
+  background-color: transparent;
+}
+
+html:not(.theme-dark2) body .breadcrumb > .active {
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .page-head .breadcrumb > li > a {
+  color: #8f959e;
+}
+
+html:not(.theme-dark2) body .page-head .breadcrumb > li > a:hover {
+  color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .page-head-title {
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .page-head-description {
+  color: #667085;
+}
+
+/* ===== 12. 标签与徽标 ===== */
+
+html:not(.theme-dark2) body .badge {
+  border: 0;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+html:not(.theme-dark2) body .badge-primary,
+html:not(.theme-dark2) body .badge-info {
+  background-color: #e8f2ff;
+  color: #0958d9;
+}
+
+html:not(.theme-dark2) body .badge-success {
+  background-color: #e8f8f2;
+  color: #00875a;
+}
+
+html:not(.theme-dark2) body .badge-danger {
+  background-color: #fff1f0;
+  color: #cf1322;
+}
+
+html:not(.theme-dark2) body .badge-warning {
+  background-color: #fff8e6;
+  color: #b54708;
+}
+
+html:not(.theme-dark2) body .badge-secondary,
+html:not(.theme-dark2) body .badge-default {
+  background-color: #f2f4f7;
+  color: #475467;
+}
+
+html:not(.theme-dark2) body .indicator {
+  background-color: #f04438;
+}
+
+/* ===== 13. 提示与通知 ===== */
+
+html:not(.theme-dark2) body .rbhighbar > .alert {
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(16, 24, 40, 0.18);
+}
+
+html:not(.theme-dark2) body .alert-primary {
+  background-color: #2f6bff;
+  background-image: linear-gradient(135deg, #2f6bff, #4f8dff);
+}
+
+html:not(.theme-dark2) body .alert-success {
+  background-color: #12b76a;
+}
+
+html:not(.theme-dark2) body .alert-warning {
+  background-color: #f79009;
+}
+
+html:not(.theme-dark2) body .alert-danger {
+  background-color: #f04438;
+}
+
+html:not(.theme-dark2) body .alert-simple {
+  border-color: #e6e9f0;
+  border-radius: 10px;
+  color: #111827;
+}
+
+/* 图标提示条：白底 + 主题色图标块 */
+html:not(.theme-dark2) body .alert-icon {
+  background-color: #fff;
+}
+
+html:not(.theme-dark2) body .alert-icon > .message {
+  border-color: #e6e9f0;
+  color: #111827;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-primary > .icon {
+  background-color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-primary > .icon::after {
+  border-left-color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-info > .icon {
+  background-color: #4f8dff;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-info > .icon::after {
+  border-left-color: #4f8dff;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-success > .icon {
+  background-color: #12b76a;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-success > .icon::after {
+  border-left-color: #12b76a;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-warning > .icon {
+  background-color: #f79009;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-warning > .icon::after {
+  border-left-color: #f79009;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-danger > .icon {
+  background-color: #f04438;
+}
+
+html:not(.theme-dark2) body .alert-icon.alert-danger > .icon::after {
+  border-left-color: #f04438;
+}
+
+html:not(.theme-dark2) body .alert-icon-border.alert-primary .message {
+  border-color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .alert-icon-border.alert-info .message {
+  border-color: #4f8dff;
+}
+
+html:not(.theme-dark2) body .alert-icon-border.alert-success .message {
+  border-color: #12b76a;
+}
+
+html:not(.theme-dark2) body .alert-icon-border.alert-warning .message {
+  border-color: #f79009;
+}
+
+html:not(.theme-dark2) body .alert-icon-border.alert-danger .message {
+  border-color: #f04438;
+}
+
+html:not(.theme-dark2) body .alert-primary.alert-sm .icon {
+  border-color: #2f6bff;
+}
+
+html:not(.theme-dark2) body .alert-info.alert-sm .icon {
+  border-color: #4f8dff;
+}
+
+html:not(.theme-dark2) body .alert-success.alert-sm .icon {
+  border-color: #12b76a;
+}
+
+html:not(.theme-dark2) body .alert-warning.alert-sm .icon {
+  border-color: #f79009;
+}
+
+html:not(.theme-dark2) body .alert-danger.alert-sm .icon {
+  border-color: #f04438;
+}
+
+html:not(.theme-dark2) body .gritter-item-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+}
+
+html:not(.theme-dark2) body .gritter-item {
+  background-image: none;
+  background-color: #111827;
+  color: #f2f4f7;
+  font-family: inherit;
+}
+
+html:not(.theme-dark2) body .gritter-title {
+  text-shadow: none;
+}
+
+html:not(.theme-dark2) body .announcement-wrapper > div {
+  border-radius: 12px;
+}
+
+/* ===== 14. 其他与主题入口 ===== */
+
+html:not(.theme-dark2) body .rb-scroll-top {
+  background-color: rgba(11, 21, 39, 0.6);
+  border-radius: 10px;
+}
+
+html:not(.theme-dark2) body .rb-scroll-top:hover {
+  background-color: rgba(11, 21, 39, 0.78);
+}
+
+html:not(.theme-dark2) body .progress-bar {
+  background-color: #2f6bff;
+}
+
+/* 主题切换入口由顶栏菜单隐藏 */
+html body .use-theme {
+  display: none !important;
+}

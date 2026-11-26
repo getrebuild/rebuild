@@ -98,7 +98,7 @@ public class DataListBuilderImpl implements DataListBuilder {
         JSONArray stats = null;
         if (isNeedReload()) {
             List<Object[]> statsRaw = getStats();
-            totalRows = (long) statsRaw.get(0)[1];
+            totalRows = ObjectUtils.toLong(statsRaw.get(0)[1]);
 
             // 统计字段
             if (statsRaw.size() > 1) {

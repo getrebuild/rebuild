@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.aibot2.AskRequest;
 import com.rebuild.core.aibot2.ChatManager;
 import com.rebuild.core.aibot2.Config;
 import com.rebuild.core.metadata.EntityHelper;
@@ -24,7 +25,6 @@ import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.CommandArgs;
-import com.rebuild.core.support.License;
 import com.rebuild.core.support.general.RecordBuilder;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
@@ -39,7 +39,6 @@ import java.util.regex.Matcher;
 
 import static com.rebuild.core.privileges.UserService.AIBOT_USER;
 import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowAtAllUsers;
-import static com.rebuild.core.privileges.bizz.ZeroEntry.AllowUseAiBot;
 
 /**
  * 从动态/评论中提取 at 用户，以及将文件放置在福建表
@@ -109,7 +108,7 @@ public abstract class BaseFeedsService extends ObservableService {
             related = record.getID("feedsId");
         }
 
-        // @所有人展开前，记录 AI 助手是否被显式 @（@AI助手），
+        // @所有人展开前，记录 Rex 是否被显式 @（@Rex），
         // 展开后 AIBOT_USER 也会出现在 atUsers 中，但不应触发 AI 回复
         boolean aibotExplicitlyMentioned = atUsers.contains(AIBOT_USER);
 
@@ -126,13 +125,13 @@ public abstract class BaseFeedsService extends ObservableService {
                 if (Config.availableAiBot()) {
                     String userContent = "请直接、简洁的回答问题（不要MD格式）：\n" + content;
                     try {
-                        aiReply = ChatManager.askAsUser(userContent, null, null, "BaseFeedsService", publishUser);
+                        aiReply = ChatManager.ask(new AskRequest(userContent).setSource(ChatManager.SOURCE_SYS + "BaseFeedsService").setUser(publishUser))[0];
                     } catch (Exception ex) {
                         log.error("AiBot error during ask", ex);
                         aiReply = "错误:" + CommonsUtils.getRootMessage(ex);
                     }
                 } else {
-                    aiReply = Language.L("请联系管理员配置 AI 助手后使用");
+                    aiReply = Language.L("请联系管理员配置 Rex AI 助手后使用");
                 }
 
                 aiReply = StringUtils.trim(aiReply);
@@ -188,17 +187,7 @@ public abstract class BaseFeedsService extends ObservableService {
                 }
             }
         }
-        // @AI 助手
-        if (Application.getPrivilegesManager().allow(user, AllowUseAiBot) || !License.isCommercial()) {
-            fakeContent = fakeContent.replace("AI助手", "AI 助手");
-            for (String locale : locales) {
-                String keyText = "@" + Application.getLanguage().getBundle(locale).L("AI 助手");
-                if (fakeContent.contains(keyText)) {
-                    fakeContent = fakeContent.replace(keyText, "@" + AIBOT_USER);
-                }
-            }
-        }
-
+        // @Rex
         Set<ID> atUsers = new HashSet<>();
         Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(fakeContent);
 

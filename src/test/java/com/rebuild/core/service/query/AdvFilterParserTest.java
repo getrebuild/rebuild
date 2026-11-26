@@ -8,11 +8,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.query;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Field;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
+import com.rebuild.core.metadata.MetadataHelper;
 import org.junit.jupiter.api.Test;
 
 import java.util.Calendar;
@@ -122,6 +124,21 @@ public class AdvFilterParserTest extends TestSupport {
 
         items.add(JSON.parseObject("{ op:'REP', field:'TestAllFieldsName', value:2 }"));
         System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
+    }
+
+    @Test
+    void testNullAndEmpty() {
+        JSONObject filterExp = new JSONObject();
+        filterExp.put("entity", TestAllFields);
+        JSONArray items = new JSONArray();
+        filterExp.put("items", items);
+
+        for (Field field : MetadataHelper.getEntity(TestAllFields).getFields()) {
+            items.add(JSON.parseObject("{ op:'NL', field:'" + field.getName() + "' }"));
+        }
+
+        String where = new AdvFilterParser(filterExp).toSqlWhere();
+        System.out.println(where);
     }
 
     @Test

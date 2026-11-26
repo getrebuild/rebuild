@@ -37,13 +37,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 新建/更新业务记录，字段数据由模型直接组装（纯执行器，不做 AI 解析）
- *
  * @author RB
  * @since 2026/9/23
  */
 @Slf4j
-public class UpsertRecord implements Tool {
+public class UpsertRecord implements Tool, ConfirmableTool {
 
     @Override
     public Object tool(String arguments) throws Exception {
@@ -334,28 +332,22 @@ public class UpsertRecord implements Tool {
                     continue;
                 }
 
-                if (detailMeta == null || StringUtils.isBlank(detailMeta.getString("entity"))) {
-                    Entity detailEntity = getDetailEntity(entity,
-                            detailMeta == null ? null : detailMeta.getString("entity"));
-                    if (detailEntity == null) {
+                String detailEntityHint = detailMeta == null ? null : detailMeta.getString("entity");
+                Entity detailEntity = getDetailEntity(entity, detailEntityHint);
+                if (detailEntity == null) {
+                    if (StringUtils.isBlank(detailEntityHint)) {
                         log.warn("无法匹配明细实体，跳过此明细 : {}", detailJson);
                         continue;
                     }
-                    if (detailMeta == null) {
-                        detailMeta = new JSONObject();
-                        detailJson.put("metadata", detailMeta);
-                    }
-                    detailMeta.put("entity", detailEntity.getName());
-                }
-
-                // 模型可能显式传入任意实体名，须校验其确为本主实体的明细
-                String detailEntityName = detailJson.getJSONObject("metadata").getString("entity");
-                Entity detailEntity = MetadataHelper.getEntity(detailEntityName);
-                if (detailEntity.getMainEntity() == null
-                        || !detailEntity.getMainEntity().getName().equals(entity.getName())) {
-                    throw new KnownToolException("明细实体 " + detailEntityName + " 不属于 "
+                    // 模型可能显式传入任意实体名，须校验其确为本主实体的明细
+                    throw new KnownToolException("明细实体 " + detailEntityHint + " 不属于 "
                             + EasyMetaFactory.getLabel(entity) + "，可用明细实体: " + listDetailEntityNames(entity));
                 }
+                if (detailMeta == null) {
+                    detailMeta = new JSONObject();
+                    detailJson.put("metadata", detailMeta);
+                }
+                detailMeta.put("entity", detailEntity.getName());
                 JSONObject cleanedDetail = RecordDataCleaner.cleanPostData(detailEntity, detailJson);
 
                 // DTF（明细关联主记录）字段由框架保存时自动填充，新建明细预置占位值
@@ -400,18 +392,21 @@ public class UpsertRecord implements Tool {
     private Entity getDetailEntity(Entity mainEntity, String hint) {
         Entity[] details = MetadataSorter.sortDetailEntities(mainEntity);
         if (details.length == 0) return null;
-        if (details.length == 1) return details[0];
 
-        if (StringUtils.isNotBlank(hint)) {
-            for (Entity de : details) {
-                if (de.getName().equalsIgnoreCase(hint) || EasyMetaFactory.getLabel(de).equalsIgnoreCase(hint)) {
-                    return de;
-                }
+        hint = StringUtils.trimToNull(hint);
+        if (hint == null) {
+            if (details.length == 1) return details[0];
+            // 多个明细且无法确定归属时不能默认取第一个，否则明细数据会静默写入错误的明细实体
+            throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(mainEntity) + "] 有多个明细实体，"
+                    + "请在明细的 entity 中明确指定 : " + listDetailEntityNames(mainEntity));
+        }
+
+        for (Entity de : details) {
+            if (de.getName().equalsIgnoreCase(hint) || EasyMetaFactory.getLabel(de).equalsIgnoreCase(hint)) {
+                return de;
             }
         }
-        // 多个明细且无法确定归属时不能默认取第一个，否则明细数据会静默写入错误的明细实体
-        throw new KnownToolException("实体 [" + EasyMetaFactory.getLabel(mainEntity) + "] 有多个明细实体，"
-                + "请在明细的 entity 中明确指定 : " + listDetailEntityNames(mainEntity));
+        return null;
     }
 
     /**

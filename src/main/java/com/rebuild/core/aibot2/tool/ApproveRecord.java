@@ -22,6 +22,7 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.ApprovalStatus;
 import com.rebuild.core.service.approval.FlowDefinition;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -30,8 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 审批操作工具，支持提交、同意、驳回、撤回、撤销和查询审批状态
- *
  * @author devezhao
  * @since 2026/7/25
  */
@@ -140,7 +139,7 @@ public class ApproveRecord implements Tool {
                     new Object[]{"ok", "审批已" + actionName});
 
         } catch (ApprovalException ex) {
-            throw new KnownToolException(ex.getMessage(), ex);
+            throw new KnownToolException(CommonsUtils.getRootMessage(ex), ex);
         }
     }
 
@@ -155,7 +154,7 @@ public class ApproveRecord implements Tool {
                     new String[]{"status", "message"},
                     new Object[]{"ok", "审批已撤回"});
         } catch (ApprovalException ex) {
-            throw new KnownToolException(ex.getMessage(), ex);
+            throw new KnownToolException(CommonsUtils.getRootMessage(ex), ex);
         }
     }
 
@@ -170,7 +169,7 @@ public class ApproveRecord implements Tool {
                     new String[]{"status", "message"},
                     new Object[]{"ok", "审批已撤销"});
         } catch (ApprovalException ex) {
-            throw new KnownToolException(ex.getMessage(), ex);
+            throw new KnownToolException(CommonsUtils.getRootMessage(ex), ex);
         }
     }
 
